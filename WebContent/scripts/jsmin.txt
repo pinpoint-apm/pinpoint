@@ -1,0 +1,7 @@
+ Javascript minifier: jsmin
+ ==========================
+
+jsmin is a Linux based executable which can be used to minify Javascript files.
+The original C souce code is available here:
+
+http://www.crockford.com/javascript/jsmin.html

@@ -1,0 +1,104 @@
+#!/usr/bin/php -q
+<?php
+    /**
+    * This is a minification script. It minifies the desired script "in-place"
+    * 
+    *  Usage (Unix): ./minify file1 file2 ...
+    *  Usage (Windows): C:\php\php.exe minify file1 file2 ...
+    * 
+    * The minification is medium, and it can over halve a scripts size.
+    * Combined with subsequent gzip compression the results can be excellent. For
+    * example a 70k script of mine was reduced to just 7k. (!) Substantial
+    * bandwidth savings for you, and much improved performance for your users.
+    *
+    * NOTE: Usage on Windows works, but is less tested
+    */
+
+    /**
+    * Check for arg
+    */
+    if (empty($_SERVER['argv'][1])) {
+        echo "RGraph minification script\n";
+        echo "==========================\n";
+        echo "Usage (Unix):     " . $_SERVER['argv'][0] . " file1 file2 ...\n";
+        echo "Usage (Windows): C:\php\php.exe " . $_SERVER['argv'][0] . " file1 file2 ...\n\n";
+        exit;
+
+    } else {
+
+        for ($i=1; $i<count($_SERVER['argv']); ++$i) {
+            Minify($_SERVER['argv'][$i]);
+        }
+    }
+
+
+    /**
+    * This is the function that does the work of minifying the file
+    * 
+    * @param $filename string The filename to be minified
+    */
+    function Minify($filename)
+    {
+        /**
+        * Begin
+        */
+        $original = file_get_contents($filename);
+        $new = preg_replace('/^ +/m', '', $original);    // Lose spaces at the start of lines
+        $new = preg_replace('/ *\/\/.*$/m', '', $new);   // Lose comments of the style: "// ..."
+        $new = preg_replace("/;\r?\n/m", ";\r\n", $new); // Make all lines end with \r\n
+        //$new = preg_replace("|\r\n\*|", "", $new);
+        
+        /**
+        * Get rid of block comments
+        */
+        $out = '';
+        $inBlock = false; // Are we in a block comment
+        for ($i=0; $i<strlen($new); $i++) {
+            if (substr($new, $i, 1) == '/') {
+                // Read the next char
+                if (!$inBlock AND substr($new, $i, 2) == '/*') {
+                    $inBlock = true;
+                }
+            } elseif (substr($new, $i, 2) == '*/') {
+                $inBlock = false;
+                $i++;
+                continue;
+            }
+            
+            if (!$inBlock) {
+                $out .= substr($new, $i, 1);
+            }
+        }
+        
+        /**
+        * Get rid of double line breaks
+        * 
+        * NOTE: Is this necessary?
+        */
+        $out = preg_replace('|\n+|', "\n", $out);
+        
+        /**
+        * Further tweaks
+        * UPDATED: 28th March 2009 - Line endings have been changed - they should all be \r\n
+        */
+        $out = str_replace(";\r\n}", ';}', $out);
+        $out = str_replace(";\r\nRGraph", ';RGraph', $out);
+        $out = preg_replace('/;\r\n([a-z])/i', ';$1', $out);
+        $out = str_replace('if (', 'if(', $out);
+        $out = str_replace(') {', '){', $out);
+        $out = str_replace("}\r\n", '}', $out);
+        $out = str_replace("{\r\n", '{', $out); // UPDATED
+        $out = str_replace("{\r\n", '{', $out); // UPDATED
+        $out = str_replace("}\r\n}", '}}', $out); // UPDATED
+        $out = str_replace("}\r\n}", '}}', $out); // UPDATED
+        $out = str_replace("}\r\n}", '}}', $out); // UPDATED
+        $out = preg_replace('/ {2,}= /', ' = ', $out);
+        
+        // Mark the file as minified
+        $out = "// MINIFIED ON: " . date('Y-m-d') . "\r\n" . $out;
+    
+        file_put_contents($filename, $out);
+        
+        printf(" Minifying {$filename} Before: %s After: %s Saving: %d%%\n", number_format(strlen($original)), number_format(strlen($out)), number_format((((strlen($original) - strlen($out)) / strlen($original)) * 100), 1));
+    }
+?>

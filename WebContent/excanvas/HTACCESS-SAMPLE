@@ -1,0 +1,13 @@
+##
+## This is an example Apache .htaccess file that can be used to add the required
+## Content-Encoding: header to the compressed version of the ExCanvas library.
+## This .htaccess file is ONLY required for the compressed version. The
+## necessary header is this:
+##                           Content-Encoding: gzip
+##
+## If you are not using the compressed version, or are doing the compression
+## yourself (it could for example, be built into  your web server), then you
+## do not need this file.
+##
+
+AddEncoding gzip .js

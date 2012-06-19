@@ -1,0 +1,299 @@
+@font-face {
+    font-family: Delicious;
+    src: url('/Delicious-Roman.otf')
+}
+
+/**
+* Various
+*/
+body {
+    margin: 0px;
+}
+
+a {
+    text-decoration: none;
+}
+
+code {
+    background-color: #dedede;
+    border: 1px dashed #aaaaaa;
+    padding: 3px;
+    display: block;
+    font-family: Monospace;
+}
+
+
+/**
+* Datagrid stuff
+*/
+table.datagrid {
+    border-collapse: collapse;
+    margin-left: 30px;
+}
+
+table.datagrid th {
+    background-color: #ccc;
+    border: 1px solid #aaa;
+    padding: 2px;
+}
+
+table.datagrid tr {
+    background-color: #ddd;
+}
+
+table.datagrid tr.oddrow {
+    background-color: #eee;
+}
+
+table.datagrid td {
+    border: 1px solid #aaa;
+    padding: 3px;
+}
+
+
+/**
+* Master div
+*/
+.master {
+    font-family: Georgia;
+}
+
+
+/**
+* Header section
+*/
+.header {
+    margin-right: 10px;
+    letter-spacing: 2px;
+    background-image: url(/images/hdrbg.jpg);
+    margin-left: 10px;
+}
+
+.header h1 {
+    margin-top: 0px;
+}
+
+.tagline {
+    font-size: 8pt;
+    position: relative;
+    top: -15px;
+    left: 15px;
+    letter-spacing: 0px;
+}
+
+
+/**
+* Top nav
+*/
+.topnav {
+    color: white;
+    background-color: #314657; /* Old */
+    background-color: #2D4B33;
+    padding: 1px;
+    padding-left: 10px;
+}
+
+.topnav a {
+    color: white;
+}
+
+
+/**
+* Left nav
+*/
+.leftnav,
+.searchbox {
+    width: 180px;
+    color: black;
+    background-color: #FF5A18;
+    margin-left: 5px;
+    margin-top: 10px;
+    padding: 10px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding: expression('10px');
+    border: 1px solid #B33E11;
+}
+
+.leftnav {
+
+    box-shadow: 0 0 15px #aaa;
+    -moz-box-shadow: 0 0 15px #aaa;
+    -webkit-box-shadow: 0 0 15px #aaa;
+
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    width: 180px;
+    float: left;
+    hmargin: 5px;
+}
+
+.leftnav h4 {
+    border-bottom: 1px solid black;
+}
+.leftnav a {
+    color: black;
+}
+
+.leftnav ul {
+    margin-left: -20px;
+    margin-left: expression('20px');
+    list-style-type: square;
+}
+
+
+/**
+* Main body section
+*/
+.mainbody {
+    margin-left: 220px;
+}
+
+.borderedTable table {
+    border-collapse: collapse;
+}
+
+.borderedTable th {
+    background-color: #dddddd;
+    border: 1px solid #aaaaaa;
+    font-size: 70%;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.borderedTable td {
+    vertical-align: top;
+    font-size: 70%;
+    border: 1px solid #dddddd;
+}
+
+.newsitem {
+    margin-bottom: 25px;
+}
+
+.newsitem h2,
+.newsitem h1 {
+    display: inline;
+}
+
+.newsitem .date {
+    font-size: 70%;
+}
+
+p.firstLetter:first-letter {
+    font-size: 200%;
+    font-style: italic;
+    font-weight: bold;
+    float: left;
+    padding-right: 3px;
+}
+
+.newsitem p.update {
+    background-color: #efefef;
+    border: 1px dashed black;
+    padding: 5px; 
+}
+
+
+/**
+* Comments
+*/
+.comment {
+    padding: 5px;
+    margin-bottom: 20px;
+    font-size: 80%;
+    background-color: #efefef;
+    border: 1px dashed #cccccc;
+}
+
+.comment .body {
+    margin-top: 5px;
+    padding-left: 7px;
+}
+
+.comment .quoteLink {
+    text-align: right;
+    font-size: 90%;
+}
+
+
+/**
+* Errors
+*/
+.error {
+    color: red;
+    font-style: italic;
+}
+
+
+/**
+* Copyright text
+*/
+.copyright {
+    text-align: right;
+    font-size: 75%;
+}
+
+
+/**
+* Admin page
+*/
+.adminPage table {
+    font-family: Verdana;
+    font-size: 10pt;
+}
+
+.adminPage th {
+    background-color: #dddddd;
+}
+
+
+/**
+* Tools page
+*/
+#toolsPage th,
+#toolsPage td {
+}
+
+#toolsPage th {
+    font-weight: bold;
+    text-align: right;
+    white-space: nowrap;
+    vertical-align: top;
+    background-color: #ffffcc;
+}
+
+#toolsPage textarea {
+    height: 200px;
+    width: 800px;
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#ffffff, endColorstr=#ffffcc);
+}
+
+#shortcuts th {
+    
+}
+
+#shortcuts th {
+    text-align: left;
+    background-color: #ededed;
+    padding: 2px;
+}
+
+/**
+* Download header/footer
+*/
+div#download pre,
+div#download pre a {
+    
+}
+
+/**
+* Code
+*/
+div.boxout,
+pre.code {
+    border: 2px dashed gray;
+    padding: 3px;
+    background-color: #eee;
+}

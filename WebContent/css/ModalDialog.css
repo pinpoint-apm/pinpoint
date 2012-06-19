@@ -1,0 +1,90 @@
+    /**
+    * o------------------------------------------------------------------------------o
+    * | This file is part of the RGraph package - you can learn more at:             |
+    * |                                                                              |
+    * |                          http://www.rgraph.net                               |
+    * |                                                                              |
+    * | This package is licensed under the RGraph license. For all kinds of business |
+    * | purposes there is a small one-time licensing fee to pay and for non          |
+    * | commercial  purposes it is free to use. You can read the full license here:  |
+    * |                                                                              |
+    * |                      http://www.rgraph.net/LICENSE.txt                       |
+    * o------------------------------------------------------------------------------o
+    */
+
+
+    /**
+    * Modal Dialog
+    */
+    .modalBg {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        filter: Alpha(Opacity=50);
+        -moz-opacity: 0.5;
+        background-color: #ddd;
+        visibility: hidden;
+        width: expression(document.body.clientWidth);
+        height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight);
+        z-index: 100;
+    }
+
+    .modalDialog {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        visibility: hidden;
+        z-index: 101;
+        background-color: white;
+        top: expression(document.body.clientHeight / 2 - this.offsetHeight / 2);
+        left: expression(document.body.clientWidth / 2 - this.offsetWidth / 2);
+        border: 1px solid #777;
+        border-top: 0;
+        padding: 20px;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+    }
+
+    .modalDialog .modalDialogHeader {
+        margin:0;
+        padding: 0px;
+        color: #333;
+        font-weight: bold;
+        background-color: #ccc;
+        border: 1px solid #989898;
+        position: absolute;
+        top: 0px;
+        left: -1px;
+        height: 7px;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius-bottomleft: 0;
+        -moz-border-radius-bottomright: 0;
+        -webkit-border-bottom-left-radius: 0;
+        -webkit-border-bottom-right-radius: 0;
+    }
+
+    .modalShadow {
+        position: absolute;
+        background-color: black;
+        top: 0px;
+        left: 0px;
+        z-index: 99;
+        top: expression(document.body.clientHeight / 2 - this.offsetHeight / 2);
+        left: expression(document.body.clientWidth / 2 - this.offsetWidth / 2);
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        opacity: 0.5;
+    }
+
+    /**
+    * This is not part of the core Modal Dialog styles, instead it's just so that the dialog looks
+    * respectable.
+    */
+    h4 {
+        font-family: Verdana, Arial;
+        padding-top: 10px;
+    }
