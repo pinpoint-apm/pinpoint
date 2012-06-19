@@ -1,0 +1,2 @@
+Premain-Class: com.profiler.TomcatProfiler
+Premain-Class: com.profiler.TomcatTracer

@@ -1,0 +1,14 @@
+TODO 
+- Make config file and read logic at TomcatProfilerConfig class
+- Performance Test on blog service's section and mylog. (Benchmark with Jennifer) 
+- install HBase server and store received data
+- Make vertx server to show HBase data. ==> Priority is very low ~~
+  
+
+DONE
+-slf4j related jar files in Thrift library is added to Tomcat's CLASS_PATH 
+==> made with out slf4j version of Thrift
+
+
+AGENT INSTALL GUIDE
+1.if service use log4j, change agent library's log4j to using log4j version if thrift is not WO version
