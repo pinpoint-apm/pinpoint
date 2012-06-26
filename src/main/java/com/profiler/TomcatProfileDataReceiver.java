@@ -20,16 +20,16 @@ public class TomcatProfileDataReceiver {
 //		ThriftReceiver thrift=new ThriftReceiver();
 //		thrift.start();
 		System.out.println("******************************************************");
-		System.out.println("***** Start TomcatTransactionData Receive UDP Thread *****");
+		System.out.println("***** Start TomcatTransactionData Receive UDP Thread *****");	// request start stop
 		RequestTransactionDataReceiver requestTransactionDataReceiver=new RequestTransactionDataReceiver(1024);
 		
-		System.out.println("***** Start TomcatRequestData Receive UDP Thread *****");
+		System.out.println("***** Start TomcatRequestData Receive UDP Thread *****");		// query information
 		RequestDataReceiver requestDataReceiver=new RequestDataReceiver(64512);
 		
-		System.out.println("***** Start TomcatJVMData Receive UDP Thread     *****");
+		System.out.println("***** Start TomcatJVMData Receive UDP Thread     *****");		// jvm data
 		JVMStatDataReceiver jvmReceiver=new JVMStatDataReceiver(256);
 		
-		System.out.println("***** Start Tomcat Agent Data Receive TDP Thread *****");
+		System.out.println("***** Start Tomcat Agent Data Receive TDP Thread *****");		// was start stop
 		TCPReceiver tcpReceiver=new TCPReceiver();
 
 		System.out.println("***** Start Fetch data Thread                    *****");
