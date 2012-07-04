@@ -1,4 +1,8 @@
-cd bin/
-jar cvfM ../HippoAgent.jar ../src/META-INF/MANIFEST.MF ./*
-cd ..
-cp ./HippoAgent.jar /work/003_Hippo/091_Lib/
+mvn clean package
+cd ./target/classes
+jar cvfM HippoAgent.jar ./src/META-INF/MANIFEST.MF ./*
+cp ./HippoAgent.jar ../../
+cd ../../
+ls -al HippoAgent.jar
+
+

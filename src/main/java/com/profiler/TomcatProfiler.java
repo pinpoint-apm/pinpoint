@@ -1,7 +1,5 @@
 package com.profiler;
 
-import static com.profiler.config.TomcatProfilerConfig.TOMCAT_LIB_PATH;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -33,10 +31,15 @@ import com.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.profiler.modifier.tomcat.EntryPointStandardHostValveModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
+
 public class TomcatProfiler implements ClassFileTransformer {
+
+	private static final Logger logger = Logger.getLogger(TomcatProfiler.class);
+
 	protected String agentArgString = "";
 	protected Instrumentation instrumentation;
-	ClassPool classPool ;
+	ClassPool classPool;
+
 	public static void premain(String agentArgs, Instrumentation inst) {
 		new TomcatProfiler(agentArgs, inst);
 	}
@@ -45,179 +48,194 @@ public class TomcatProfiler implements ClassFileTransformer {
 		agentArgString = agentArgs;
 		instrumentation = inst;
 		instrumentation.addTransformer(this);
-		classPool= ClassPool.getDefault();
+		classPool = ClassPool.getDefault();
 		try {
-			classPool.appendClassPath(TOMCAT_LIB_PATH+"/lib/servlet-api.jar");
-			classPool.appendClassPath(TOMCAT_LIB_PATH+"/lib/catalina.jar");
+			String catalinaHome = System.getProperty("catalina.home");
+			logger.info("CATALINA_HOME=%s", catalinaHome);
+
+			logger.info("TEST");
+
+			classPool.appendClassPath(catalinaHome + "/lib/servlet-api.jar");
+			classPool.appendClassPath(catalinaHome + "/lib/catalina.jar");
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	@Override
+	public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+		if (className.startsWith("org/apache/catalina")) {
+			String javassistClassName = className.replace('/', '.');
+			if (javassistClassName.equals("org.apache.catalina.core.StandardHostValve")) {
+				// Add code to monitor Request and Response
+				byte[] result = EntryPointStandardHostValveModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+				if (result != null)
+					return result;
+			} else if (javassistClassName.equals("org.apache.catalina.core.StandardService")) {
+				// Add code to monitor Tomcat start and stop
+				byte[] result = TomcatStandardServiceModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+				if (result != null)
+					return result;
+			} else if (javassistClassName.equals("org.apache.catalina.connector.Connector")) {
+				// Add code to set Tomcat's port numbers
+				byte[] result = TomcatConnectorModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+				if (result != null)
+					return result;
+			}
+		}
+		// #### If JDBC_PROFILE is true, SQL data will be collected
+		if (TomcatProfilerConfig.JDBC_PROFILE) {
+			if (className.startsWith("com/mysql/jdbc")) {
+				// MySQL !!!!!!!!!!
+				String javassistClassName = className.replace('/', '.');
+				if (javassistClassName.equals("com.mysql.jdbc.ConnectionImpl")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MySQLConnectionImplModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("com.mysql.jdbc.StatementImpl")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MySQLStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("com.mysql.jdbc.PreparedStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MySQLPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("com.mysql.jdbc.ResultSetImpl")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MySQLResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				}
+
+			} else if (className.startsWith("net/sourceforge/jtds/jdbc")) {
+				// MSSQL !!!!!!!!!!
+				String javassistClassName = className.replace('/', '.');
+				if (javassistClassName.equals("net.sourceforge.jtds.jdbc.ConnectionJDBC2")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MSSQLConnectionModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MSSQLStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsPreparedStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MSSQLPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsResultSet")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = MSSQLResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				}
+			} else if (className.startsWith("org/apache/commons/dbcp")) {
+				// DBCP !!!!!!!!!!
+				String javassistClassName = className.replace('/', '.');
+				if (javassistClassName.equals("org.apache.commons.dbcp.BasicDataSource")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = DBCPBasicDataSourceModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = DBCPPoolModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				}
+			} else if (className.startsWith("cubrid/jdbc")) {
+				// CUBRID !!!!!!!!!!
+				String javassistClassName = className.replace('/', '.');
+				/*
+				 * if(!javassistClassName.equals(
+				 * "cubrid.jdbc.driver.CUBRIDResultSet") &&
+				 * !javassistClassName.startsWith
+				 * ("cubrid.jdbc.driver.ConnectionProperties")) { byte[]
+				 * result=AbstractModifier.addBeforeAfterLogics(classPool,
+				 * javassistClassName); if(result!=null) return result; }
+				 */
+
+				if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = CubridStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDPreparedStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = CubridPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDResultSet")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = CubridResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("cubrid.jdbc.jci.UStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = CubridUStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				}
+			} else if (className.startsWith("oracle/jdbc")) {
+				String javassistClassName = className.replace('/', '.');
+				if (javassistClassName.equals("oracle.jdbc.driver.OraclePreparedStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = OraclePreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("oracle.jdbc.driver.OracleStatement")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = OracleStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				} else if (javassistClassName.equals("oracle.jdbc.driver.OracleResultSetImpl")) {
+					checkLibrary(javassistClassName, classLoader);
+					byte[] result = OracleResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+					if (result != null)
+						return result;
+				}
+			}
+		}
+		// else if(className.startsWith("java/sql")) {
+		// String javassistClassName = className.replace('/', '.');
+		// System.out.println("***** Changing "+javassistClassName);
+		// byte[] result=AbstractModifier.addBeforeAfterLogics(classPool,
+		// javassistClassName);
+		// if(result!=null) return result;
+		// }
+
+		return null;
+	}
+
+	private void checkLibrary(String javassistClassName, ClassLoader classLoader) {
+		try {
+			classPool.get(javassistClassName);
+		} catch (NotFoundException nfe) {
+			// cnfe.printStackTrace();
+			loadClassLoaderLibraries(classLoader);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	private void debug(String className) {
-//		System.out.println(className);
-//		if(className.startsWith("java/sql")) {
-//			System.out.println(className);
-//		}
-//		System.out.print(".");		
-	}
-	@Override
-	public byte[] transform(ClassLoader classLoader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classFileBuffer) throws IllegalClassFormatException {
-		debug(className);
-		if(className.startsWith("org/apache/catalina")) {
-			String javassistClassName = className.replace('/', '.');
-			if(javassistClassName.equals("org.apache.catalina.core.StandardHostValve")) {
-				//Add code to monitor Request and Response
-				byte[] result=EntryPointStandardHostValveModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-				if(result!=null) return result;
-			} else if(javassistClassName.equals("org.apache.catalina.core.StandardService")) {
-				//Add code to monitor Tomcat start and stop
-				byte[] result=TomcatStandardServiceModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-				if(result!=null) return result;
-			} else if(javassistClassName.equals("org.apache.catalina.connector.Connector")) {
-				//Add code to set Tomcat's port numbers
-				byte[] result=TomcatConnectorModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-				if(result!=null) return result;
-			}
-		}
-		//#### If JDBC_PROFILE is true, SQL data will be collected
-		if(TomcatProfilerConfig.JDBC_PROFILE) {
-				if(className.startsWith("com/mysql/jdbc")) {
-				// MySQL !!!!!!!!!!
-				String javassistClassName = className.replace('/', '.');
-				if(javassistClassName.equals("com.mysql.jdbc.ConnectionImpl")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MySQLConnectionImplModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("com.mysql.jdbc.StatementImpl")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MySQLStatementModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("com.mysql.jdbc.PreparedStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MySQLPreparedStatementModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("com.mysql.jdbc.ResultSetImpl")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MySQLResultSetModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				}
-				
-			} else if(className.startsWith("net/sourceforge/jtds/jdbc")) {
-				// MSSQL !!!!!!!!!!
-				String javassistClassName = className.replace('/', '.');
-				if(javassistClassName.equals("net.sourceforge.jtds.jdbc.ConnectionJDBC2")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MSSQLConnectionModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MSSQLStatementModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsPreparedStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MSSQLPreparedStatementModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsResultSet")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=MSSQLResultSetModifier.modify(classPool,classLoader,javassistClassName,classFileBuffer);
-					if(result!=null) return result;
-				} 
-				
-			} else if(className.startsWith("org/apache/commons/dbcp")) {
-				// DBCP !!!!!!!!!!
-				String javassistClassName = className.replace('/', '.');
-				if(javassistClassName.equals("org.apache.commons.dbcp.BasicDataSource")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=DBCPBasicDataSourceModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=DBCPPoolModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} 
-	
-			} else if(className.startsWith("cubrid/jdbc")) {
-				// CUBRID !!!!!!!!!!
-				String javassistClassName = className.replace('/', '.');
-				/*if(!javassistClassName.equals("cubrid.jdbc.driver.CUBRIDResultSet") &&
-						!javassistClassName.startsWith("cubrid.jdbc.driver.ConnectionProperties")) {
-					byte[] result=AbstractModifier.addBeforeAfterLogics(classPool, javassistClassName);
-					if(result!=null) return result;
-				}*/
-				
-				if(javassistClassName.equals("cubrid.jdbc.driver.CUBRIDStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=CubridStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("cubrid.jdbc.driver.CUBRIDPreparedStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=CubridPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("cubrid.jdbc.driver.CUBRIDResultSet")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=CubridResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("cubrid.jdbc.jci.UStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=CubridUStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				}
-			} else if(className.startsWith("oracle/jdbc")) {
-				String javassistClassName = className.replace('/', '.');
-				if(javassistClassName.equals("oracle.jdbc.driver.OraclePreparedStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=OraclePreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("oracle.jdbc.driver.OracleStatement")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=OracleStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				} else if(javassistClassName.equals("oracle.jdbc.driver.OracleResultSetImpl")) {
-					checkLibrary(javassistClassName,classLoader);
-					byte[] result=OracleResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-					if(result!=null) return result;
-				}
-			}
-		}
-//		else if(className.startsWith("java/sql")) {
-//			String javassistClassName = className.replace('/', '.');
-//			System.out.println("***** Changing "+javassistClassName);
-//			byte[] result=AbstractModifier.addBeforeAfterLogics(classPool, javassistClassName);
-//			if(result!=null) return result;
-//		}
-			
-		return null;
-	}
 
-	private void checkLibrary(String javassistClassName,ClassLoader classLoader) {
-		try {
-			classPool.get(javassistClassName);
-		} catch(NotFoundException nfe) {
-//			cnfe.printStackTrace();
-			loadClassLoaderLibraries(classLoader);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
 	private void loadClassLoaderLibraries(ClassLoader classLoader) {
-		if(classLoader instanceof URLClassLoader) {
-			URLClassLoader urlClassLoader = (URLClassLoader)classLoader;
-			URL[] urlList=urlClassLoader.getURLs();
-			for(URL tempURL:urlList) {
-				String filePath=tempURL.getFile();
+		if (classLoader instanceof URLClassLoader) {
+			URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+			URL[] urlList = urlClassLoader.getURLs();
+			for (URL tempURL : urlList) {
+				String filePath = tempURL.getFile();
 				try {
 					classPool.appendClassPath(filePath);
-//					log("Loaded "+filePath+" library.");
-				} catch(Exception e) {
-					
+					// log("Loaded "+filePath+" library.");
+				} catch (Exception e) {
+
 				}
 			}
 		}
-	}
-	@SuppressWarnings("unused")
-	private static void log(String message) {
-		System.out.println("%%%%% "+message);
 	}
 }
