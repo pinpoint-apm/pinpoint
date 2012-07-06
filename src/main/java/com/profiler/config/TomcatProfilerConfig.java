@@ -4,8 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Properties;
 
-import com.profiler.Logger;
-import com.profiler.Logger.LogLevel;
+import com.profiler.logging.LogLevel;
+import com.profiler.logging.Logger;
 
 public class TomcatProfilerConfig {
 

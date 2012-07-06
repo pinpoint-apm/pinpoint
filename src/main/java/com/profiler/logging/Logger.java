@@ -1,0 +1,31 @@
+package com.profiler.logging;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+public abstract class Logger {
+
+	protected final String name;
+
+	protected final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+	public Logger(String name) {
+		this.name = name;
+	}
+
+	public static Logger getLogger(Class<?> clazz) {
+		return new DefaultLogger(clazz.getName());
+	}
+
+	public abstract void info(String message, Object... args);
+
+	public abstract void debug(String message, Object... args);
+
+	public abstract void warn(String message, Object... args);
+
+	public abstract void error(String message, Object... args);
+
+	public abstract void fatal(String message, Object... args);
+
+	public abstract boolean isDebugEnabled();
+}

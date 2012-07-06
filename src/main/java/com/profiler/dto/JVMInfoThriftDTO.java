@@ -23,24 +23,23 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
 	private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("JVMInfoThriftDTO");
 
-	private static final org.apache.thrift.protocol.TField AGENT_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("agentHashCode", org.apache.thrift.protocol.TType.I32, (short)1);
-	private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)2);
-	private static final org.apache.thrift.protocol.TField ACTIVE_THREAD_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("activeThreadCount", org.apache.thrift.protocol.TType.I32, (short)3);
-	private static final org.apache.thrift.protocol.TField GC1_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("gc1Count", org.apache.thrift.protocol.TType.I64, (short)4);
-	private static final org.apache.thrift.protocol.TField GC1_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("gc1Time", org.apache.thrift.protocol.TType.I64, (short)5);
-	private static final org.apache.thrift.protocol.TField GC2_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("gc2Count", org.apache.thrift.protocol.TType.I64, (short)6);
-	private static final org.apache.thrift.protocol.TField GC2_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("gc2Time", org.apache.thrift.protocol.TType.I64, (short)7);
-	private static final org.apache.thrift.protocol.TField HEAP_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("heapUsed", org.apache.thrift.protocol.TType.I64, (short)8);
-	private static final org.apache.thrift.protocol.TField HEAP_COMMITTED_FIELD_DESC = new org.apache.thrift.protocol.TField("heapCommitted", org.apache.thrift.protocol.TType.I64, (short)9);
-	private static final org.apache.thrift.protocol.TField NON_HEAP_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("nonHeapUsed", org.apache.thrift.protocol.TType.I64, (short)10);
-	private static final org.apache.thrift.protocol.TField NON_HEAP_COMMITTED_FIELD_DESC = new org.apache.thrift.protocol.TField("nonHeapCommitted", org.apache.thrift.protocol.TType.I64, (short)11);
-	private static final org.apache.thrift.protocol.TField PROCESS_CPUTIME_FIELD_DESC = new org.apache.thrift.protocol.TField("processCPUTime", org.apache.thrift.protocol.TType.DOUBLE, (short)12);
+	private static final org.apache.thrift.protocol.TField AGENT_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("agentHashCode", org.apache.thrift.protocol.TType.I32, (short) 1);
+	private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short) 2);
+	private static final org.apache.thrift.protocol.TField ACTIVE_THREAD_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("activeThreadCount", org.apache.thrift.protocol.TType.I32, (short) 3);
+	private static final org.apache.thrift.protocol.TField GC1_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("gc1Count", org.apache.thrift.protocol.TType.I64, (short) 4);
+	private static final org.apache.thrift.protocol.TField GC1_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("gc1Time", org.apache.thrift.protocol.TType.I64, (short) 5);
+	private static final org.apache.thrift.protocol.TField GC2_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("gc2Count", org.apache.thrift.protocol.TType.I64, (short) 6);
+	private static final org.apache.thrift.protocol.TField GC2_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("gc2Time", org.apache.thrift.protocol.TType.I64, (short) 7);
+	private static final org.apache.thrift.protocol.TField HEAP_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("heapUsed", org.apache.thrift.protocol.TType.I64, (short) 8);
+	private static final org.apache.thrift.protocol.TField HEAP_COMMITTED_FIELD_DESC = new org.apache.thrift.protocol.TField("heapCommitted", org.apache.thrift.protocol.TType.I64, (short) 9);
+	private static final org.apache.thrift.protocol.TField NON_HEAP_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("nonHeapUsed", org.apache.thrift.protocol.TType.I64, (short) 10);
+	private static final org.apache.thrift.protocol.TField NON_HEAP_COMMITTED_FIELD_DESC = new org.apache.thrift.protocol.TField("nonHeapCommitted", org.apache.thrift.protocol.TType.I64, (short) 11);
+	private static final org.apache.thrift.protocol.TField PROCESS_CPUTIME_FIELD_DESC = new org.apache.thrift.protocol.TField("processCPUTime", org.apache.thrift.protocol.TType.DOUBLE, (short) 12);
 
 	private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
-	
-  	static {
-		schemes.put(StandardScheme.class,
-				new JVMInfoThriftDTOStandardSchemeFactory());
+
+	static {
+		schemes.put(StandardScheme.class, new JVMInfoThriftDTOStandardSchemeFactory());
 		schemes.put(TupleScheme.class, new JVMInfoThriftDTOTupleSchemeFactory());
 	}
 
@@ -62,14 +61,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 	 * for finding and manipulating them.
 	 */
 	public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-		AGENT_HASH_CODE((short) 1, "agentHashCode"), DATA_TIME((short) 2,
-				"dataTime"), ACTIVE_THREAD_COUNT((short) 3, "activeThreadCount"), GC1_COUNT(
-				(short) 4, "gc1Count"), GC1_TIME((short) 5, "gc1Time"), GC2_COUNT(
-				(short) 6, "gc2Count"), GC2_TIME((short) 7, "gc2Time"), HEAP_USED(
-				(short) 8, "heapUsed"), HEAP_COMMITTED((short) 9,
-				"heapCommitted"), NON_HEAP_USED((short) 10, "nonHeapUsed"), NON_HEAP_COMMITTED(
-				(short) 11, "nonHeapCommitted"), PROCESS_CPUTIME((short) 12,
-				"processCPUTime");
+		AGENT_HASH_CODE((short) 1, "agentHashCode"), DATA_TIME((short) 2, "dataTime"), ACTIVE_THREAD_COUNT((short) 3, "activeThreadCount"), GC1_COUNT((short) 4, "gc1Count"), GC1_TIME((short) 5, "gc1Time"), GC2_COUNT((short) 6, "gc2Count"), GC2_TIME((short) 7, "gc2Time"), HEAP_USED((short) 8,
+				"heapUsed"), HEAP_COMMITTED((short) 9, "heapCommitted"), NON_HEAP_USED((short) 10, "nonHeapUsed"), NON_HEAP_COMMITTED((short) 11, "nonHeapCommitted"), PROCESS_CPUTIME((short) 12, "processCPUTime");
 
 		private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -121,8 +114,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 		public static _Fields findByThriftIdOrThrow(int fieldId) {
 			_Fields fields = findByThriftId(fieldId);
 			if (fields == null)
-				throw new IllegalArgumentException("Field " + fieldId
-						+ " doesn't exist!");
+				throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
 			return fields;
 		}
 
@@ -165,85 +157,30 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 	private static final int __NONHEAPCOMMITTED_ISSET_ID = 10;
 	private static final int __PROCESSCPUTIME_ISSET_ID = 11;
 	private BitSet __isset_bit_vector = new BitSet(12);
-	private _Fields optionals[] = { _Fields.GC1_COUNT, _Fields.GC1_TIME,
-			_Fields.GC2_COUNT, _Fields.GC2_TIME, _Fields.PROCESS_CPUTIME };
+	private _Fields optionals[] = { _Fields.GC1_COUNT, _Fields.GC1_TIME, _Fields.GC2_COUNT, _Fields.GC2_TIME, _Fields.PROCESS_CPUTIME };
 	public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
 	static {
-		Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(
-				_Fields.class);
-		tmpMap.put(_Fields.AGENT_HASH_CODE,
-				new org.apache.thrift.meta_data.FieldMetaData("agentHashCode",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I32)));
-		tmpMap.put(_Fields.DATA_TIME,
-				new org.apache.thrift.meta_data.FieldMetaData("dataTime",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.ACTIVE_THREAD_COUNT,
-				new org.apache.thrift.meta_data.FieldMetaData(
-						"activeThreadCount",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I32)));
-		tmpMap.put(_Fields.GC1_COUNT,
-				new org.apache.thrift.meta_data.FieldMetaData("gc1Count",
-						org.apache.thrift.TFieldRequirementType.OPTIONAL,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.GC1_TIME,
-				new org.apache.thrift.meta_data.FieldMetaData("gc1Time",
-						org.apache.thrift.TFieldRequirementType.OPTIONAL,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.GC2_COUNT,
-				new org.apache.thrift.meta_data.FieldMetaData("gc2Count",
-						org.apache.thrift.TFieldRequirementType.OPTIONAL,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.GC2_TIME,
-				new org.apache.thrift.meta_data.FieldMetaData("gc2Time",
-						org.apache.thrift.TFieldRequirementType.OPTIONAL,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.HEAP_USED,
-				new org.apache.thrift.meta_data.FieldMetaData("heapUsed",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.HEAP_COMMITTED,
-				new org.apache.thrift.meta_data.FieldMetaData("heapCommitted",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.NON_HEAP_USED,
-				new org.apache.thrift.meta_data.FieldMetaData("nonHeapUsed",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.NON_HEAP_COMMITTED,
-				new org.apache.thrift.meta_data.FieldMetaData(
-						"nonHeapCommitted",
-						org.apache.thrift.TFieldRequirementType.DEFAULT,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.I64)));
-		tmpMap.put(_Fields.PROCESS_CPUTIME,
-				new org.apache.thrift.meta_data.FieldMetaData("processCPUTime",
-						org.apache.thrift.TFieldRequirementType.OPTIONAL,
-						new org.apache.thrift.meta_data.FieldValueMetaData(
-								org.apache.thrift.protocol.TType.DOUBLE)));
+		Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+		tmpMap.put(_Fields.AGENT_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("agentHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+		tmpMap.put(_Fields.DATA_TIME, new org.apache.thrift.meta_data.FieldMetaData("dataTime", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.ACTIVE_THREAD_COUNT, new org.apache.thrift.meta_data.FieldMetaData("activeThreadCount", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+		tmpMap.put(_Fields.GC1_COUNT, new org.apache.thrift.meta_data.FieldMetaData("gc1Count", org.apache.thrift.TFieldRequirementType.OPTIONAL, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.GC1_TIME, new org.apache.thrift.meta_data.FieldMetaData("gc1Time", org.apache.thrift.TFieldRequirementType.OPTIONAL, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.GC2_COUNT, new org.apache.thrift.meta_data.FieldMetaData("gc2Count", org.apache.thrift.TFieldRequirementType.OPTIONAL, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.GC2_TIME, new org.apache.thrift.meta_data.FieldMetaData("gc2Time", org.apache.thrift.TFieldRequirementType.OPTIONAL, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.HEAP_USED, new org.apache.thrift.meta_data.FieldMetaData("heapUsed", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.HEAP_COMMITTED, new org.apache.thrift.meta_data.FieldMetaData("heapCommitted", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.NON_HEAP_USED, new org.apache.thrift.meta_data.FieldMetaData("nonHeapUsed", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.NON_HEAP_COMMITTED, new org.apache.thrift.meta_data.FieldMetaData("nonHeapCommitted", org.apache.thrift.TFieldRequirementType.DEFAULT, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+		tmpMap.put(_Fields.PROCESS_CPUTIME, new org.apache.thrift.meta_data.FieldMetaData("processCPUTime", org.apache.thrift.TFieldRequirementType.OPTIONAL, new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
 		metaDataMap = Collections.unmodifiableMap(tmpMap);
-		org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(
-				JVMInfoThriftDTO.class, metaDataMap);
+		org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(JVMInfoThriftDTO.class, metaDataMap);
 	}
 
 	public JVMInfoThriftDTO() {
 	}
 
-	public JVMInfoThriftDTO(int agentHashCode, long dataTime,
-			int activeThreadCount, long heapUsed, long heapCommitted,
-			long nonHeapUsed, long nonHeapCommitted) {
+	public JVMInfoThriftDTO(int agentHashCode, long dataTime, int activeThreadCount, long heapUsed, long heapCommitted, long nonHeapUsed, long nonHeapCommitted) {
 		this();
 		this.agentHashCode = agentHashCode;
 		setAgentHashCodeIsSet(true);
@@ -918,10 +855,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 				return false;
 		}
 
-		boolean this_present_processCPUTime = true && this
-				.isSetProcessCPUTime();
-		boolean that_present_processCPUTime = true && that
-				.isSetProcessCPUTime();
+		boolean this_present_processCPUTime = true && this.isSetProcessCPUTime();
+		boolean that_present_processCPUTime = true && that.isSetProcessCPUTime();
 		if (this_present_processCPUTime || that_present_processCPUTime) {
 			if (!(this_present_processCPUTime && that_present_processCPUTime))
 				return false;
@@ -945,146 +880,122 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 		int lastComparison = 0;
 		JVMInfoThriftDTO typedOther = (JVMInfoThriftDTO) other;
 
-		lastComparison = Boolean.valueOf(isSetAgentHashCode()).compareTo(
-				typedOther.isSetAgentHashCode());
+		lastComparison = Boolean.valueOf(isSetAgentHashCode()).compareTo(typedOther.isSetAgentHashCode());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetAgentHashCode()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.agentHashCode, typedOther.agentHashCode);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentHashCode, typedOther.agentHashCode);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetDataTime()).compareTo(
-				typedOther.isSetDataTime());
+		lastComparison = Boolean.valueOf(isSetDataTime()).compareTo(typedOther.isSetDataTime());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetDataTime()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.dataTime, typedOther.dataTime);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataTime, typedOther.dataTime);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetActiveThreadCount()).compareTo(
-				typedOther.isSetActiveThreadCount());
+		lastComparison = Boolean.valueOf(isSetActiveThreadCount()).compareTo(typedOther.isSetActiveThreadCount());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetActiveThreadCount()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.activeThreadCount, typedOther.activeThreadCount);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.activeThreadCount, typedOther.activeThreadCount);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetGc1Count()).compareTo(
-				typedOther.isSetGc1Count());
+		lastComparison = Boolean.valueOf(isSetGc1Count()).compareTo(typedOther.isSetGc1Count());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetGc1Count()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.gc1Count, typedOther.gc1Count);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.gc1Count, typedOther.gc1Count);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetGc1Time()).compareTo(
-				typedOther.isSetGc1Time());
+		lastComparison = Boolean.valueOf(isSetGc1Time()).compareTo(typedOther.isSetGc1Time());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetGc1Time()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.gc1Time, typedOther.gc1Time);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.gc1Time, typedOther.gc1Time);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetGc2Count()).compareTo(
-				typedOther.isSetGc2Count());
+		lastComparison = Boolean.valueOf(isSetGc2Count()).compareTo(typedOther.isSetGc2Count());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetGc2Count()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.gc2Count, typedOther.gc2Count);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.gc2Count, typedOther.gc2Count);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetGc2Time()).compareTo(
-				typedOther.isSetGc2Time());
+		lastComparison = Boolean.valueOf(isSetGc2Time()).compareTo(typedOther.isSetGc2Time());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetGc2Time()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.gc2Time, typedOther.gc2Time);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.gc2Time, typedOther.gc2Time);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetHeapUsed()).compareTo(
-				typedOther.isSetHeapUsed());
+		lastComparison = Boolean.valueOf(isSetHeapUsed()).compareTo(typedOther.isSetHeapUsed());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetHeapUsed()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.heapUsed, typedOther.heapUsed);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.heapUsed, typedOther.heapUsed);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetHeapCommitted()).compareTo(
-				typedOther.isSetHeapCommitted());
+		lastComparison = Boolean.valueOf(isSetHeapCommitted()).compareTo(typedOther.isSetHeapCommitted());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetHeapCommitted()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.heapCommitted, typedOther.heapCommitted);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.heapCommitted, typedOther.heapCommitted);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetNonHeapUsed()).compareTo(
-				typedOther.isSetNonHeapUsed());
+		lastComparison = Boolean.valueOf(isSetNonHeapUsed()).compareTo(typedOther.isSetNonHeapUsed());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetNonHeapUsed()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.nonHeapUsed, typedOther.nonHeapUsed);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.nonHeapUsed, typedOther.nonHeapUsed);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetNonHeapCommitted()).compareTo(
-				typedOther.isSetNonHeapCommitted());
+		lastComparison = Boolean.valueOf(isSetNonHeapCommitted()).compareTo(typedOther.isSetNonHeapCommitted());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetNonHeapCommitted()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.nonHeapCommitted, typedOther.nonHeapCommitted);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.nonHeapCommitted, typedOther.nonHeapCommitted);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
 		}
-		lastComparison = Boolean.valueOf(isSetProcessCPUTime()).compareTo(
-				typedOther.isSetProcessCPUTime());
+		lastComparison = Boolean.valueOf(isSetProcessCPUTime()).compareTo(typedOther.isSetProcessCPUTime());
 		if (lastComparison != 0) {
 			return lastComparison;
 		}
 		if (isSetProcessCPUTime()) {
-			lastComparison = org.apache.thrift.TBaseHelper.compareTo(
-					this.processCPUTime, typedOther.processCPUTime);
+			lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.processCPUTime, typedOther.processCPUTime);
 			if (lastComparison != 0) {
 				return lastComparison;
 			}
@@ -1096,13 +1007,11 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 		return _Fields.findByThriftId(fieldId);
 	}
 
-	public void read(org.apache.thrift.protocol.TProtocol iprot)
-			throws org.apache.thrift.TException {
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
 		schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
 	}
 
-	public void write(org.apache.thrift.protocol.TProtocol oprot)
-			throws org.apache.thrift.TException {
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
 		schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
 	}
 
@@ -1187,41 +1096,34 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 		// check for required fields
 	}
 
-	private void writeObject(java.io.ObjectOutputStream out)
-			throws java.io.IOException {
+	private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
 		try {
-			write(new org.apache.thrift.protocol.TCompactProtocol(
-					new org.apache.thrift.transport.TIOStreamTransport(out)));
+			write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
 		} catch (org.apache.thrift.TException te) {
 			throw new java.io.IOException(te);
 		}
 	}
 
-	private void readObject(java.io.ObjectInputStream in)
-			throws java.io.IOException, ClassNotFoundException {
+	private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
 		try {
 			// it doesn't seem like you should have to do this, but java
 			// serialization is wacky, and doesn't call the default constructor.
 			__isset_bit_vector = new BitSet(1);
-			read(new org.apache.thrift.protocol.TCompactProtocol(
-					new org.apache.thrift.transport.TIOStreamTransport(in)));
+			read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
 		} catch (org.apache.thrift.TException te) {
 			throw new java.io.IOException(te);
 		}
 	}
 
-	private static class JVMInfoThriftDTOStandardSchemeFactory implements
-			SchemeFactory {
+	private static class JVMInfoThriftDTOStandardSchemeFactory implements SchemeFactory {
 		public JVMInfoThriftDTOStandardScheme getScheme() {
 			return new JVMInfoThriftDTOStandardScheme();
 		}
 	}
 
-	private static class JVMInfoThriftDTOStandardScheme extends
-			StandardScheme<JVMInfoThriftDTO> {
+	private static class JVMInfoThriftDTOStandardScheme extends StandardScheme<JVMInfoThriftDTO> {
 
-		public void read(org.apache.thrift.protocol.TProtocol iprot,
-				JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+		public void read(org.apache.thrift.protocol.TProtocol iprot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
 			org.apache.thrift.protocol.TField schemeField;
 			iprot.readStructBegin();
 			while (true) {
@@ -1235,8 +1137,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.agentHashCode = iprot.readI32();
 						struct.setAgentHashCodeIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 2: // DATA_TIME
@@ -1244,8 +1145,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.dataTime = iprot.readI64();
 						struct.setDataTimeIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 3: // ACTIVE_THREAD_COUNT
@@ -1253,8 +1153,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.activeThreadCount = iprot.readI32();
 						struct.setActiveThreadCountIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 4: // GC1_COUNT
@@ -1262,8 +1161,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.gc1Count = iprot.readI64();
 						struct.setGc1CountIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 5: // GC1_TIME
@@ -1271,8 +1169,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.gc1Time = iprot.readI64();
 						struct.setGc1TimeIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 6: // GC2_COUNT
@@ -1280,8 +1177,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.gc2Count = iprot.readI64();
 						struct.setGc2CountIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 7: // GC2_TIME
@@ -1289,8 +1185,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.gc2Time = iprot.readI64();
 						struct.setGc2TimeIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 8: // HEAP_USED
@@ -1298,8 +1193,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.heapUsed = iprot.readI64();
 						struct.setHeapUsedIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 9: // HEAP_COMMITTED
@@ -1307,8 +1201,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.heapCommitted = iprot.readI64();
 						struct.setHeapCommittedIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 10: // NON_HEAP_USED
@@ -1316,8 +1209,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.nonHeapUsed = iprot.readI64();
 						struct.setNonHeapUsedIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 11: // NON_HEAP_COMMITTED
@@ -1325,8 +1217,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.nonHeapCommitted = iprot.readI64();
 						struct.setNonHeapCommittedIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				case 12: // PROCESS_CPUTIME
@@ -1334,13 +1225,11 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 						struct.processCPUTime = iprot.readDouble();
 						struct.setProcessCPUTimeIsSet(true);
 					} else {
-						org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-								schemeField.type);
+						org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 					}
 					break;
 				default:
-					org.apache.thrift.protocol.TProtocolUtil.skip(iprot,
-							schemeField.type);
+					org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
 				}
 				iprot.readFieldEnd();
 			}
@@ -1351,8 +1240,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 			struct.validate();
 		}
 
-		public void write(org.apache.thrift.protocol.TProtocol oprot,
-				JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+		public void write(org.apache.thrift.protocol.TProtocol oprot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
 			struct.validate();
 
 			oprot.writeStructBegin(STRUCT_DESC);
@@ -1408,19 +1296,16 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
 	}
 
-	private static class JVMInfoThriftDTOTupleSchemeFactory implements
-			SchemeFactory {
+	private static class JVMInfoThriftDTOTupleSchemeFactory implements SchemeFactory {
 		public JVMInfoThriftDTOTupleScheme getScheme() {
 			return new JVMInfoThriftDTOTupleScheme();
 		}
 	}
 
-	private static class JVMInfoThriftDTOTupleScheme extends
-			TupleScheme<JVMInfoThriftDTO> {
+	private static class JVMInfoThriftDTOTupleScheme extends TupleScheme<JVMInfoThriftDTO> {
 
 		@Override
-		public void write(org.apache.thrift.protocol.TProtocol prot,
-				JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+		public void write(org.apache.thrift.protocol.TProtocol prot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
 			TTupleProtocol oprot = (TTupleProtocol) prot;
 			BitSet optionals = new BitSet();
 			if (struct.isSetAgentHashCode()) {
@@ -1499,8 +1384,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 		}
 
 		@Override
-		public void read(org.apache.thrift.protocol.TProtocol prot,
-				JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+		public void read(org.apache.thrift.protocol.TProtocol prot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
 			TTupleProtocol iprot = (TTupleProtocol) prot;
 			BitSet incoming = iprot.readBitSet(12);
 			if (incoming.get(0)) {

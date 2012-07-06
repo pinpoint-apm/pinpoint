@@ -11,6 +11,7 @@ import javassist.ClassPool;
 import javassist.NotFoundException;
 
 import com.profiler.config.TomcatProfilerConfig;
+import com.profiler.logging.Logger;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -109,7 +110,6 @@ public class TomcatProfiler implements ClassFileTransformer {
 					if (result != null)
 						return result;
 				}
-
 			} else if (className.startsWith("net/sourceforge/jtds/jdbc")) {
 				// MSSQL !!!!!!!!!!
 				String javassistClassName = className.replace('/', '.');
@@ -201,13 +201,6 @@ public class TomcatProfiler implements ClassFileTransformer {
 				}
 			}
 		}
-		// else if(className.startsWith("java/sql")) {
-		// String javassistClassName = className.replace('/', '.');
-		// System.out.println("***** Changing "+javassistClassName);
-		// byte[] result=AbstractModifier.addBeforeAfterLogics(classPool,
-		// javassistClassName);
-		// if(result!=null) return result;
-		// }
 
 		return null;
 	}

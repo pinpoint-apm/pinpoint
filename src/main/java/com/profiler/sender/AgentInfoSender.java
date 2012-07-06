@@ -3,9 +3,9 @@ package com.profiler.sender;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import com.profiler.Logger;
 import com.profiler.config.TomcatProfilerConfig;
 import com.profiler.dto.AgentInfoDTO;
+import com.profiler.logging.Logger;
 
 public class AgentInfoSender extends Thread {
 
