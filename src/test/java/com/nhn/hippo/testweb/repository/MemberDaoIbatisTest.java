@@ -17,7 +17,7 @@ import com.nhn.hippo.testweb.DBUnitSupport;
 import com.nhn.hippo.testweb.domain.Member;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/servlet-context.xml")
+@ContextConfiguration({ "/root-context.xml", "/servlet-context.xml" })
 @Transactional
 public class MemberDaoIbatisTest extends DBUnitSupport {
 
@@ -33,14 +33,14 @@ public class MemberDaoIbatisTest extends DBUnitSupport {
 	public void crud() {
 		Member member = new Member();
 		member.setId(1);
-		member.setName("whiteship");
+		member.setName("netspider");
 		member.setJoined(new Date());
 		memberDao.add(member);
 		assertThat(memberDao.list().size(), is(1));
 
-		member.setName("ê¸°ì?");
+		member.setName("chisu");
 		memberDao.update(member);
-		assertThat(memberDao.get(1).getName(), is("ê¸°ì?"));
+		assertThat(memberDao.get(1).getName(), is("chisu"));
 
 		memberDao.delete(1);
 		assertThat(memberDao.list().size(), is(0));

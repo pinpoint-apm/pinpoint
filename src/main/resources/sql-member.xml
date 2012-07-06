@@ -12,17 +12,17 @@
 
 	<insert id="add" parameterClass="Member">
 		insert into member (id, name, joined) values(#id#, #name#, #joined#)
- 	</insert>
- 	
+	</insert>
+
 	<update id="update" parameterClass="Member">
 		update member set name = #name#, joined = #joined# where id = #id#
 	</update>
- 	
+
 	<select id="get" parameterClass="int" resultClass="Member">
 		select * from member where id = #id#
- 	</select>
+	</select>
 
 	<select id="list" resultClass="Member">
 		select * from member order by id
- 	</select>
+	</select>
 </sqlMap>
