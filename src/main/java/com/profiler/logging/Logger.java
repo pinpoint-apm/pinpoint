@@ -1,13 +1,10 @@
 package com.profiler.logging;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 public abstract class Logger {
 
 	protected final String name;
 
-	protected final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    protected final ThreadSafeSimpleDateFormat df = new ThreadSafeSimpleDateFormat();
 
 	public Logger(String name) {
 		this.name = name;
