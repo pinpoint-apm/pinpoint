@@ -7,7 +7,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import com.profiler.modifier.DefaultModifierRegistry;
 import com.profiler.modifier.Modifier;
+import com.profiler.modifier.ModifierRegistry;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
@@ -42,18 +44,33 @@ public class TomcatProfiler implements ClassFileTransformer {
 	private Instrumentation instrumentation;
 	private ClassPool classPool;
 
-
+    private final ModifierRegistry modifierRepository;
+    private TomcatProfilerConfig tomcatProfilerConfig;
 
 	public static void premain(String agentArgs, Instrumentation inst) {
-		new TomcatProfiler(agentArgs, inst);
+        TomcatProfilerConfig tomcatProfilerConfig = TomcatProfilerConfig.readConfigFile();
+        new TomcatProfiler(agentArgs, inst, tomcatProfilerConfig);
 	}
 
-	public TomcatProfiler(String agentArgs, Instrumentation inst) {
+	public TomcatProfiler(String agentArgs, Instrumentation inst, TomcatProfilerConfig tomcatProfilerConfig) {
 		this.agentArgString = agentArgs;
 		this.instrumentation = inst;
 		this.instrumentation.addTransformer(this);
         this.classPool = createClassPool();
+        this.modifierRepository = createModifierRegistry(tomcatProfilerConfig);
+        this.tomcatProfilerConfig = tomcatProfilerConfig;
+
+
 	}
+
+    private ModifierRegistry createModifierRegistry(TomcatProfilerConfig tomcatProfilerConfig) {
+        DefaultModifierRegistry  modifierRepository = new DefaultModifierRegistry();
+        modifierRepository.addTomcatModifier();
+        if(tomcatProfilerConfig.enableJdbcProfile()) {
+            modifierRepository.addJdbcModifier();
+        }
+        return modifierRepository;
+    }
 
     private ClassPool createClassPool() {
         ClassPool classPool = new ClassPool(null);
@@ -76,7 +93,13 @@ public class TomcatProfiler implements ClassFileTransformer {
 
     @Override
 	public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-		if (className.startsWith("org/apache/catalina")) {
+        Modifier findModifier = this.modifierRepository.findModifier(className);
+        if(findModifier != null) {
+            String javassistClassName = className.replace('/', '.');
+            return findModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+        }
+
+        if (className.startsWith("org/apache/catalina")) {
 			String javassistClassName = className.replace('/', '.');
 			if (javassistClassName.equals("org.apache.catalina.core.StandardHostValve")) {
 				// Add code to monitor Request and Response
@@ -99,7 +122,7 @@ public class TomcatProfiler implements ClassFileTransformer {
 			}
 		}
 		// #### If JDBC_PROFILE is true, SQL data will be collected
-		if (TomcatProfilerConfig.JDBC_PROFILE) {
+		if (tomcatProfilerConfig.enableJdbcProfile()) {
 			if (className.startsWith("com/mysql/jdbc")) {
 				// MySQL !!!!!!!!!!
 				String javassistClassName = className.replace('/', '.');
@@ -256,7 +279,7 @@ public class TomcatProfiler implements ClassFileTransformer {
 				try {
 					classPool.appendClassPath(filePath);
 					// log("Loaded "+filePath+" library.");
-				} catch (Exception e) {
+				} catch (NotFoundException e) {
 
 				}
 			}
