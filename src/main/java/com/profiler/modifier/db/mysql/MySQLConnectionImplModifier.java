@@ -12,12 +12,12 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(MySQLConnectionImplModifier.class);
 
-	public static byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("MySQLConnectionImplModifier modifing. %s", javassistClassName);
 		return changeMethods(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
-	private static byte[] changeMethods(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	private byte[] changeMethods(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			updateGetInstanceMethod(classPool, cc);

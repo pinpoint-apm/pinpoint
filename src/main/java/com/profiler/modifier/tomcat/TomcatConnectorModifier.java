@@ -1,5 +1,6 @@
 package com.profiler.modifier.tomcat;
 
+import com.profiler.util.ByteCodeUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -18,17 +19,16 @@ public class TomcatConnectorModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(TomcatConnectorModifier.class);
 
-	public static byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isDebugEnabled()) {
-			printClassInfo(javassistClassName);
+            ByteCodeUtil.printClassInfo(classPool, javassistClassName);
 		}
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
-	public static byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
-
 			CtClass param[] = new CtClass[1];
 			param[0] = classPool.getCtClass("int");
 			CtMethod setPortMethod = cc.getDeclaredMethod("setPort", param);

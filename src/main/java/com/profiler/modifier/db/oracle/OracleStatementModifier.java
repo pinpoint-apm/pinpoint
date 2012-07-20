@@ -11,14 +11,14 @@ import com.profiler.modifier.AbstractModifier;
 public class OracleStatementModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(OracleStatementModifier.class);
 
-	public static byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("OracleStatementModifier modifing. %s", javassistClassName);
 		// printClassInfo(javassistClassName);
 		// return addBeforeAfterLogics(classPool,javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
-	private static byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			updateExecuteQueryMethod(classPool, cc);

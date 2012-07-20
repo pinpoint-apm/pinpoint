@@ -11,12 +11,12 @@ import com.profiler.modifier.AbstractModifier;
 public class MSSQLStatementModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(MSSQLStatementModifier.class);
 
-	public static byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("MSSQLStatementModifier modifing. %s", javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
-	private static byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			updateExecuteQueryMethod(classPool, cc);

@@ -12,12 +12,12 @@ public class CubridUStatementModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(CubridUStatementModifier.class);
 
-	public static byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("CubridUStatementModifier modifing. %s", javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
-	private static byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			updateBindValueMethod(classPool, cc);

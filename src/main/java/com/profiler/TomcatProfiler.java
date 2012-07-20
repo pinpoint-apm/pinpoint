@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import com.profiler.modifier.Modifier;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
@@ -37,49 +38,62 @@ public class TomcatProfiler implements ClassFileTransformer {
 
 	private static final Logger logger = Logger.getLogger(TomcatProfiler.class);
 
-	protected String agentArgString = "";
-	protected Instrumentation instrumentation;
-	ClassPool classPool;
+	private String agentArgString = "";
+	private Instrumentation instrumentation;
+	private ClassPool classPool;
+
+
 
 	public static void premain(String agentArgs, Instrumentation inst) {
 		new TomcatProfiler(agentArgs, inst);
 	}
 
 	public TomcatProfiler(String agentArgs, Instrumentation inst) {
-		agentArgString = agentArgs;
-		instrumentation = inst;
-		instrumentation.addTransformer(this);
-		classPool = ClassPool.getDefault();
-		try {
-			String catalinaHome = System.getProperty("catalina.home");
-			logger.info("CATALINA_HOME=%s", catalinaHome);
-
-			logger.info("TEST");
-
-			classPool.appendClassPath(catalinaHome + "/lib/servlet-api.jar");
-			classPool.appendClassPath(catalinaHome + "/lib/catalina.jar");
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+		this.agentArgString = agentArgs;
+		this.instrumentation = inst;
+		this.instrumentation.addTransformer(this);
+        this.classPool = createClassPool();
 	}
 
-	@Override
+    private ClassPool createClassPool() {
+        ClassPool classPool = new ClassPool(null);
+        classPool.appendSystemPath();
+
+        String catalinaHome = System.getProperty("catalina.home");
+        logger.info("CATALINA_HOME=%s", catalinaHome);
+        appendClassPath(classPool, catalinaHome + "/lib/servlet-api.jar");
+        appendClassPath(classPool, catalinaHome + "/lib/catalina.jar");
+        return classPool;
+    }
+
+    private void appendClassPath(ClassPool classPool, String pathName) {
+        try {
+            classPool.appendClassPath(pathName);
+        } catch (NotFoundException e) {
+            logger.error("lib not found. " + e.getMessage());
+        }
+    }
+
+    @Override
 	public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
 		if (className.startsWith("org/apache/catalina")) {
 			String javassistClassName = className.replace('/', '.');
 			if (javassistClassName.equals("org.apache.catalina.core.StandardHostValve")) {
 				// Add code to monitor Request and Response
-				byte[] result = EntryPointStandardHostValveModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                Modifier modifier = new EntryPointStandardHostValveModifier();
+				byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 				if (result != null)
 					return result;
 			} else if (javassistClassName.equals("org.apache.catalina.core.StandardService")) {
 				// Add code to monitor Tomcat start and stop
-				byte[] result = TomcatStandardServiceModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                Modifier modifier = new TomcatStandardServiceModifier();
+				byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 				if (result != null)
 					return result;
 			} else if (javassistClassName.equals("org.apache.catalina.connector.Connector")) {
 				// Add code to set Tomcat's port numbers
-				byte[] result = TomcatConnectorModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                TomcatConnectorModifier modifier = new TomcatConnectorModifier();
+				byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 				if (result != null)
 					return result;
 			}
@@ -91,22 +105,26 @@ public class TomcatProfiler implements ClassFileTransformer {
 				String javassistClassName = className.replace('/', '.');
 				if (javassistClassName.equals("com.mysql.jdbc.ConnectionImpl")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MySQLConnectionImplModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MySQLConnectionImplModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("com.mysql.jdbc.StatementImpl")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MySQLStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MySQLStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("com.mysql.jdbc.PreparedStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MySQLPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MySQLPreparedStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("com.mysql.jdbc.ResultSetImpl")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MySQLResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MySQLResultSetModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				}
@@ -115,22 +133,26 @@ public class TomcatProfiler implements ClassFileTransformer {
 				String javassistClassName = className.replace('/', '.');
 				if (javassistClassName.equals("net.sourceforge.jtds.jdbc.ConnectionJDBC2")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MSSQLConnectionModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MSSQLConnectionModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MSSQLStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MSSQLStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsPreparedStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MSSQLPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MSSQLPreparedStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("net.sourceforge.jtds.jdbc.JtdsResultSet")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = MSSQLResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new MSSQLResultSetModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				}
@@ -139,12 +161,14 @@ public class TomcatProfiler implements ClassFileTransformer {
 				String javassistClassName = className.replace('/', '.');
 				if (javassistClassName.equals("org.apache.commons.dbcp.BasicDataSource")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = DBCPBasicDataSourceModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new DBCPBasicDataSourceModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = DBCPPoolModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new DBCPPoolModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				}
@@ -162,22 +186,26 @@ public class TomcatProfiler implements ClassFileTransformer {
 
 				if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = CubridStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new CubridStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDPreparedStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = CubridPreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new CubridPreparedStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("cubrid.jdbc.driver.CUBRIDResultSet")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = CubridResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new CubridResultSetModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("cubrid.jdbc.jci.UStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = CubridUStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new CubridUStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				}
@@ -185,17 +213,20 @@ public class TomcatProfiler implements ClassFileTransformer {
 				String javassistClassName = className.replace('/', '.');
 				if (javassistClassName.equals("oracle.jdbc.driver.OraclePreparedStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = OraclePreparedStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new OraclePreparedStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("oracle.jdbc.driver.OracleStatement")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = OracleStatementModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new OracleStatementModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				} else if (javassistClassName.equals("oracle.jdbc.driver.OracleResultSetImpl")) {
 					checkLibrary(javassistClassName, classLoader);
-					byte[] result = OracleResultSetModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+                    Modifier modifier = new OracleResultSetModifier();
+					byte[] result = modifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
 					if (result != null)
 						return result;
 				}
