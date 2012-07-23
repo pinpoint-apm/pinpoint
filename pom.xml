@@ -131,11 +131,9 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
-					<configuration>
-						<archive>
-							<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
-						</archive>
-					</configuration>
+                    <archive>
+                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
 				</configuration>
 			</plugin>
 
