@@ -14,7 +14,8 @@ public class MySQLStatementModifier extends AbstractModifier {
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("MySQLStatementModifier modifing. %s", javassistClassName);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+        checkLibrary(classPool, javassistClassName, classLoader);
+        return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {

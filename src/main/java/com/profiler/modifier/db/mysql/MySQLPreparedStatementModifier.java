@@ -14,10 +14,12 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("MySQLPreparedStatementModifier modifing. %s", javassistClassName);
+        checkLibrary(classPool, javassistClassName, classLoader);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			updateSetInternalMethod(classPool, cc);

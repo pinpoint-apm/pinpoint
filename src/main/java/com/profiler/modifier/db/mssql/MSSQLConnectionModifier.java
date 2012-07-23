@@ -14,7 +14,8 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("MSSQLConnectionModifier modifing. %s", javassistClassName);
-		return changeMethods(classPool, classLoader, javassistClassName, classFileBuffer);
+        checkLibrary(classPool, javassistClassName, classLoader);
+        return changeMethods(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethods(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {

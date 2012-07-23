@@ -13,6 +13,7 @@ public class OracleStatementModifier extends AbstractModifier {
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("OracleStatementModifier modifing. %s", javassistClassName);
+        checkLibrary(classPool, javassistClassName, classLoader);
 		// printClassInfo(javassistClassName);
 		// return addBeforeAfterLogics(classPool,javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);

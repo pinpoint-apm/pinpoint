@@ -14,6 +14,7 @@ public class OracleResultSetModifier extends AbstractModifier {
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("OracleResultSetImpl modifing. %s", javassistClassName);
+        checkLibrary(classPool, javassistClassName, classLoader);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
