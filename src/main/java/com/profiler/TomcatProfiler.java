@@ -38,35 +38,35 @@ import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
 public class TomcatProfiler implements ClassFileTransformer {
 
-	private static final Logger logger = Logger.getLogger(TomcatProfiler.class);
+    private static final Logger logger = Logger.getLogger(TomcatProfiler.class);
 
-	private String agentArgString = "";
-	private Instrumentation instrumentation;
-	private ClassPool classPool;
+    private String agentArgString = "";
+    private Instrumentation instrumentation;
+    private ClassPool classPool;
 
     private final ModifierRegistry modifierRepository;
     private TomcatProfilerConfig tomcatProfilerConfig;
 
-	public static void premain(String agentArgs, Instrumentation inst) {
+    public static void premain(String agentArgs, Instrumentation inst) {
         TomcatProfilerConfig tomcatProfilerConfig = TomcatProfilerConfig.readConfigFile();
         new TomcatProfiler(agentArgs, inst, tomcatProfilerConfig);
-	}
+    }
 
-	public TomcatProfiler(String agentArgs, Instrumentation inst, TomcatProfilerConfig tomcatProfilerConfig) {
-		this.agentArgString = agentArgs;
-		this.instrumentation = inst;
-		this.instrumentation.addTransformer(this);
+    public TomcatProfiler(String agentArgs, Instrumentation inst, TomcatProfilerConfig tomcatProfilerConfig) {
+        this.agentArgString = agentArgs;
+        this.instrumentation = inst;
+        this.instrumentation.addTransformer(this);
         this.classPool = createClassPool();
         this.modifierRepository = createModifierRegistry(tomcatProfilerConfig);
         this.tomcatProfilerConfig = tomcatProfilerConfig;
 
 
-	}
+    }
 
     private ModifierRegistry createModifierRegistry(TomcatProfilerConfig tomcatProfilerConfig) {
-        DefaultModifierRegistry  modifierRepository = new DefaultModifierRegistry();
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry();
         modifierRepository.addTomcatModifier();
-        if(tomcatProfilerConfig.enableJdbcProfile()) {
+        if (tomcatProfilerConfig.enableJdbcProfile()) {
             modifierRepository.addJdbcModifier();
         }
         return modifierRepository;
@@ -77,9 +77,11 @@ public class TomcatProfiler implements ClassFileTransformer {
         classPool.appendSystemPath();
 
         String catalinaHome = System.getProperty("catalina.home");
-        logger.info("CATALINA_HOME=%s", catalinaHome);
-        appendClassPath(classPool, catalinaHome + "/lib/servlet-api.jar");
-        appendClassPath(classPool, catalinaHome + "/lib/catalina.jar");
+        if (catalinaHome != null) {
+            logger.info("CATALINA_HOME=%s", catalinaHome);
+            appendClassPath(classPool, catalinaHome + "/lib/servlet-api.jar");
+            appendClassPath(classPool, catalinaHome + "/lib/catalina.jar");
+        }
         return classPool;
     }
 
@@ -92,14 +94,14 @@ public class TomcatProfiler implements ClassFileTransformer {
     }
 
     @Override
-	public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
         Modifier findModifier = this.modifierRepository.findModifier(className);
-        if(findModifier == null) {
+        if (findModifier == null) {
             return null;
 
         }
         String javassistClassName = className.replace('/', '.');
         return findModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
-	}
+    }
 
 }
