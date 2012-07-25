@@ -13,20 +13,20 @@ public class CubridUStatementModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(CubridUStatementModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("CubridUStatementModifier modifing. %s", javassistClassName);
-        checkLibrary(classPool, javassistClassName, classLoader);
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classPool, javassistClassName, classLoader);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
+
 			updateBindValueMethod(classPool, cc);
 
-			byte[] newClassfileBuffer = cc.toBytecode();
-			// cc.writeFile();
 			printClassConvertComplete(javassistClassName);
-			return newClassfileBuffer;
+
+			return cc.toBytecode();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -39,26 +39,8 @@ public class CubridUStatementModifier extends AbstractModifier {
 		params1[0] = classPool.getCtClass("int");
 		params1[1] = classPool.getCtClass("byte");
 		params1[2] = classPool.getCtClass("java.lang.Object");
-		CtMethod serviceMethod1 = cc.getDeclaredMethod("bindValue", params1);
+		CtMethod method = cc.getDeclaredMethod("bindValue", params1);
 
-		logger.info("Changing bindValue(int, byte, String) method ");
-
-		serviceMethod1.insertBefore(getBindValueMethodBeforeInsertCode());
+		method.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlParam($1,$3); }");
 	}
-
-	private static String getBindValueMethodBeforeInsertCode() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{");
-
-		if (logger.isDebugEnabled()) {
-			sb.append("System.out.println(\"UStatement.setInternal(int,String) method is called\");");
-			sb.append("System.out.println(\"-----Position=\"+$1+\" Value=\"+$3);");
-		}
-
-		sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlParam($1,$3);");
-		sb.append("}");
-
-		return sb.toString();
-	}
-
 }

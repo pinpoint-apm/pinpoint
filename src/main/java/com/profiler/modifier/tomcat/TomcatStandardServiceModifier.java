@@ -1,8 +1,6 @@
 package com.profiler.modifier.tomcat;
 
 import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_AGENT_STATE_MANAGER;
-
-import com.profiler.util.ByteCodeUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -22,9 +20,7 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		if (logger.isDebugEnabled()) {
-            ByteCodeUtil.printClassInfo(classPool, javassistClassName);
-		}
+		logger.info("Modifing. %s", javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 

@@ -12,18 +12,20 @@ public class MSSQLStatementModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(MSSQLStatementModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("MSSQLStatementModifier modifing. %s", javassistClassName);
-        checkLibrary(classPool, javassistClassName, classLoader);
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classPool, javassistClassName, classLoader);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
+
 			updateExecuteQueryMethod(classPool, cc);
-			byte[] newClassfileBuffer = cc.toBytecode();
+
 			printClassConvertComplete(javassistClassName);
-			return newClassfileBuffer;
+
+			return cc.toBytecode();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -36,37 +38,12 @@ public class MSSQLStatementModifier extends AbstractModifier {
 		params[0] = classPool.getCtClass("java.lang.String");
 		CtMethod serviceMethod = cc.getDeclaredMethod("executeQuery", params);
 
-		logger.info("Changing executeQuery method.");
-
-		serviceMethod.insertBefore(getExecuteQueryMethodBeforeInsertCode());
-		serviceMethod.insertAfter(getExecuteQueryMethodAfterInsertCode());
-	}
-
-	private static String getExecuteQueryMethodBeforeInsertCode() {
-		StringBuilder sb = new StringBuilder();
-
-		if (logger.isDebugEnabled()) {
-			sb.append("{");
-			sb.append("System.out.println(\"-----StatementImpl.executeQuery(String) method is called\");");
-			sb.append("System.out.println(\"-----Query=[\"+com.profiler.util.QueryStringUtil.removeCarriageReturn($1)+\"]\");");
-			sb.append("}");
-		}
-
-		return sb.toString();
-	}
-
-	private static String getExecuteQueryMethodAfterInsertCode() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-
-		if (logger.isDebugEnabled()) {
-			sb.append("System.out.println(\"-----StatementImpl.executeQuery(String) method is ended\");");
-		}
-
 		sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
 		sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
 		sb.append("}");
 
-		return sb.toString();
+		serviceMethod.insertAfter(sb.toString());
 	}
 }

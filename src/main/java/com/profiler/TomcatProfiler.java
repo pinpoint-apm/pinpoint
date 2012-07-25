@@ -59,8 +59,6 @@ public class TomcatProfiler implements ClassFileTransformer {
         this.classPool = createClassPool();
         this.modifierRepository = createModifierRegistry(tomcatProfilerConfig);
         this.tomcatProfilerConfig = tomcatProfilerConfig;
-
-
     }
 
     private ModifierRegistry createModifierRegistry(TomcatProfilerConfig tomcatProfilerConfig) {
@@ -98,9 +96,9 @@ public class TomcatProfiler implements ClassFileTransformer {
         Modifier findModifier = this.modifierRepository.findModifier(className);
         if (findModifier == null) {
             return null;
-
-        }
+        } 
         String javassistClassName = className.replace('/', '.');
+        
         return findModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
     }
 

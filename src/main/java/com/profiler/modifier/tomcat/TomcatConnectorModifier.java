@@ -1,6 +1,5 @@
 package com.profiler.modifier.tomcat;
 
-import com.profiler.util.ByteCodeUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -20,9 +19,7 @@ public class TomcatConnectorModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(TomcatConnectorModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		if (logger.isDebugEnabled()) {
-            ByteCodeUtil.printClassInfo(classPool, javassistClassName);
-		}
+		logger.info("Modifing. %s", javassistClassName);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
@@ -32,10 +29,8 @@ public class TomcatConnectorModifier extends AbstractModifier {
 			CtClass param[] = new CtClass[1];
 			param[0] = classPool.getCtClass("int");
 			CtMethod setPortMethod = cc.getDeclaredMethod("setPort", param);
-			setPortMethod.insertBefore("{" +
-			// "System.out.println(\"*** setPort() method  *** Port number=\"+$1);"
-			// +
-					"com.profiler.dto.AgentInfoDTO.portNumberBuffer.append($1).append(\" \");" + "}");
+			
+			setPortMethod.insertBefore("{ com.profiler.dto.AgentInfoDTO.portNumberBuffer.append($1).append(\" \"); }");
 
 			printClassConvertComplete(javassistClassName);
 
@@ -44,6 +39,7 @@ public class TomcatConnectorModifier extends AbstractModifier {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
+		// TODO 변환 실패에 의한 예가 아니면 원본을 반환 해줘야 할까?
 		return null;
 	}
 }

@@ -12,20 +12,20 @@ public class OracleStatementModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(OracleStatementModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("OracleStatementModifier modifing. %s", javassistClassName);
-        checkLibrary(classPool, javassistClassName, classLoader);
-		// printClassInfo(javassistClassName);
-		// return addBeforeAfterLogics(classPool,javassistClassName);
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classPool, javassistClassName, classLoader);
 		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
+
 			updateExecuteQueryMethod(classPool, cc);
-			byte[] newClassfileBuffer = cc.toBytecode();
+
 			printClassConvertComplete(javassistClassName);
-			return newClassfileBuffer;
+
+			return cc.toBytecode();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -38,37 +38,12 @@ public class OracleStatementModifier extends AbstractModifier {
 		// CtMethod serviceMethod=cc.getDeclaredMethod("executeQuery", params);
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", params);
 
-		logger.info("Changing executeQuery method");
-
-		serviceMethod.insertBefore(getExecuteQueryMethodBeforeInsertCode());
-		serviceMethod.insertAfter(getExecuteQueryMethodAfterInsertCode());
-	}
-
-	private static String getExecuteQueryMethodBeforeInsertCode() {
-		StringBuilder sb = new StringBuilder();
-
-		if (logger.isDebugEnabled()) {
-			sb.append("{");
-			sb.append("System.out.println(\"-----StatementImpl.executeQuery(String) method is called\");");
-			sb.append("System.out.println(\"-----Query=[\"+$1+\"]\");");
-			sb.append("}");
-		}
-
-		return sb.toString();
-	}
-
-	private static String getExecuteQueryMethodAfterInsertCode() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-
-		if (logger.isDebugEnabled()) {
-			sb.append("System.out.println(\"-----StatementImpl.executeQuery(String) method is ended\");");
-		}
-
 		sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
 		sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
 		sb.append("}");
-		return sb.toString();
 
+		serviceMethod.insertAfter(sb.toString());
 	}
 }

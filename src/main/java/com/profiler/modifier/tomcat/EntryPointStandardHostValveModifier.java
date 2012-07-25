@@ -21,7 +21,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 	private static final Logger logger = Logger.getLogger(EntryPointStandardHostValveModifier.class);
 
 	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("EntryPointModifier.modifyStandardHostValve(). %s", javassistClassName);
+		logger.info("Modifing. %s", javassistClassName);
 		return changeServiceMethod(classPool, classLoader, javassistClassName, classFileBuffer);
 	}
 
@@ -29,7 +29,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classfileBuffer));
 		try {
 			addRequestTracerToCurrentClassLoader(classLoader);
-			// log("Class loader="+classPool.getClassLoader().toString());
+
 			CtClass cc = classPool.get(javassistClassName);
 			CtClass[] params = new CtClass[2];
 
@@ -37,23 +37,15 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 			params[1] = classPool.getCtClass("org.apache.catalina.connector.Response");
 			CtMethod serviceMethod = cc.getDeclaredMethod("invoke", params);
 
-			logger.info("Changing invoke method");
-
 			serviceMethod.insertBefore(getInvokeMethodBeforeInsertCode());
 			serviceMethod.insertAfter(getInvokeMethodAfterInsertCode());
 
 			CtClass exceptionType = classPool.get("java.lang.Throwable");
-			// CtClass exceptionType = classPool.get("java.lang.Exception");
 			serviceMethod.addCatch(getInvokeMethodCatchInsertCode(), exceptionType);
 
-			// cc.stopPruning(true);
-			// cc.toClass(classLoader,classLoader.getClass().getProtectionDomain());
-			// cc.stopPruning(false);
-
-			byte[] newClassfileBuffer = cc.toBytecode();
-			// cc.writeFile();
 			printClassConvertComplete(javassistClassName);
-			return newClassfileBuffer;
+
+			return cc.toBytecode();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
