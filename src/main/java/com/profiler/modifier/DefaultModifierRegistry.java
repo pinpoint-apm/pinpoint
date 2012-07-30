@@ -1,5 +1,8 @@
 package com.profiler.modifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -21,37 +24,16 @@ import com.profiler.modifier.tomcat.EntryPointStandardHostValveModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class DefaultModifierRegistry implements ModifierRegistry {
 	// TODO 혹시 동시성을 고려 해야 되는지 검토.
 	private Map<String, Modifier> registry = new HashMap<String, Modifier>();
 
-	private List<String> packageIncludeFilters = new ArrayList<String>();
-
 	@Override
 	public Modifier findModifier(String className) {
-		if (!findPackage(className)) {
-			return null;
-		}
 		return registry.get(className);
 	}
 
-	private boolean findPackage(String className) {
-		for (String filter : packageIncludeFilters) {
-			if (className.startsWith(filter)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public void addTomcatModifier() {
-		packageIncludeFilters.add("org/apache/catalina");
-
 		Map<String, Modifier> registry = this.registry;
 		Modifier entryPointStandardHostValveModifier = new EntryPointStandardHostValveModifier();
 		registry.put("org/apache/catalina/core/StandardHostValve", entryPointStandardHostValveModifier);
@@ -77,7 +59,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addMySqlDriver() {
-		packageIncludeFilters.add("com/mysql/jdbc");
 		// TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
 		// 확인필요.
 		Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier();
@@ -94,8 +75,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addMsSqlDriver() {
-		packageIncludeFilters.add("net/sourceforge/jtds/jdbc");
-
 		Map<String, Modifier> registry = this.registry;
 		Modifier mssqlConnectionModifier = new MSSQLConnectionModifier();
 		registry.put("net/sourceforge/jtds/jdbc/ConnectionJDBC2", mssqlConnectionModifier);
@@ -112,9 +91,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addOracleDriver() {
-		// 좀더 많이 필터링 가능하다. oracle/jdbc/driver
-		packageIncludeFilters.add("oracle/jdbc");
-
 		Map<String, Modifier> registry = this.registry;
 		// TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
 		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier();
@@ -128,9 +104,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addCubridDriver() {
-		// 좀더 많이 필터링 가능하다. cubrid/jdbc/driver, cubrid/jdbc/jci
-		packageIncludeFilters.add("cubrid/jdbc");
-
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier cubridStatementModifier = new CubridStatementModifier();
@@ -144,12 +117,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier cubridUStatementModifier = new CubridUStatementModifier();
 		registry.put("cubrid/jdbc/jci/UStatement", cubridUStatementModifier);
-
 	}
 
 	private void addDbcpDriver() {
-		packageIncludeFilters.add("org/apache/commons/dbcp");
-
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier();
@@ -157,6 +127,5 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier dbcpPoolModifier = new DBCPPoolModifier();
 		registry.put("org/apache/commons/dbcp/PoolingDataSource$PoolGuardConnectionWrapper", dbcpPoolModifier);
-
 	}
 }
