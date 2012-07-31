@@ -24,7 +24,7 @@ import com.profiler.dto.RequestThriftDTO;
  */
 public class DataSender extends Thread {
 
-	private final LinkedBlockingQueue<TBase<?, ?>> addedQueue = new LinkedBlockingQueue<TBase<?, ?>>();
+	private final LinkedBlockingQueue<TBase<?, ?>> addedQueue = new LinkedBlockingQueue<TBase<?, ?>>(4096);
 
 	private final InetSocketAddress requestDataAddr = new InetSocketAddress(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.REQUEST_DATA_LISTEN_PORT);
 	private final InetSocketAddress requestTransactionDataAddr = new InetSocketAddress(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.REQUEST_TRANSACTION_DATA_LISTEN_PORT);
@@ -45,9 +45,13 @@ public class DataSender extends Thread {
 	}
 
 	public boolean addDataToSend(TBase<?, ?> data) {
+		// TODO: addedQueue가 full일 때 IllegalStateException처리.
 		return addedQueue.add(data);
 	}
 
+	// TODO: send timeout추
+	// TODO: addedqueue에서 bulk로 drain
+	// TODO: sender thread가 한 개로 충분한가.
 	public void run() {
 		while (true) {
 			DatagramSocket udpSocket = null;
