@@ -1,0 +1,33 @@
+TCP MSS (Maximum Segment Size) and Interface MTU (Maximum Transmission Unit)
+
+* Data Link
+ - Ethernet Max MTU: 1500 Bytes
+ - Min Data Link MTU for IPv4: 68 Bytes
+ - Min Data Link MTU for IPv6: 576 Bytes
+ - Path MTU: the smallest MTU in the path (can be discoverd using IPv4 DF bit - ICMP error message)
+
+* IP
+ - IPv4 Header: 20 Bytes
+ - IPv6 Header: 40 Bytes
+ - Max Datagram Size for IPv4: 65535 Bytes (16 bits total length -> includes header)
+ - Max Datagram Size for IPv6: 65575 Bytes (16 bits payload length -> dose not include header)
+ - Min Reassembly Buffer Size for IPv4: 576 Bytes (UDP applications should not generate IP datagrams that exceed this size)
+ - Min Reassembly Buffer Size for IPv6: 1500 Bytes
+
+* TCP
+ - Header: 20 Bytes
+ - MSS for IPv4: less than or equal to MTU - 40
+ - MSS for IPv6: less than or equal to MTU - 60
+ - MSS(announced by the peer): less than or equal to 65535 (16 bits)
+ - Default MSS for IPv4(if not announced by the peer): 576 - 40 = 536 Bytes
+ - MSS option trys to avoid fragmentation
+
+* Max Window w/o window scale option: 65535 (16 bits)
+
+* TCP Send and Receive Buffer (Window Size)
+ - Advertised TCP window size = available room in the socket receive buffer
+ - TCP send and receive buffer sizes: 4096 Bytes (old), 8192 ~ 61440 Bytes (new)
+ - UDP send buffer size: 9000 Bytes, UDP receive buffer size: 40000 Bytes
+ - Client must set TCP receive buffer size before calling connect function
+ - Server must set TCP receive buffer size before calling listen function
+ - TCP socket buffer sizes should be at least three times the MSS (512 or 1460)
