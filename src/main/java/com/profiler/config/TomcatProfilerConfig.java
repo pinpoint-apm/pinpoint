@@ -4,14 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.profiler.TomcatProfiler;
-import com.profiler.logging.LogLevel;
-import com.profiler.logging.Logger;
 
 public class TomcatProfilerConfig {
 
-    private static final Logger logger = Logger.getLogger(TomcatProfilerConfig.class);
+
+    private static final Logger logger = Logger.getLogger(TomcatProfilerConfig.class.getName());
 
     public static String SERVER_IP = "127.0.0.1";
 
@@ -24,7 +24,7 @@ public class TomcatProfilerConfig {
     public static long JVM_STAT_GAP = 5000L;
     public static long SERVER_CONNECT_RETRY_GAP = 1000L;
 
-    public static LogLevel LOG_LEVEL = LogLevel.INFO;
+    public static Level LOG_LEVEL = Level.INFO;
 
     /**
      * If sql query count is over 10000 it consumes Memory. So sqlHashSet uses
@@ -40,7 +40,7 @@ public class TomcatProfilerConfig {
 
         String hippoConfigFileName = System.getProperty("hippo.config");
         if (hippoConfigFileName == null) {
-            logger.warn("hippo.config property is not set. Using default values");
+            logger.info("hippo.config property is not set. Using default values");
             return config;
         }
 
@@ -49,9 +49,13 @@ public class TomcatProfilerConfig {
             setPropertyValues(config, properties);
             return config;
         } catch (FileNotFoundException fnfe) {
-            logger.error("%s file is not exists. Please check configuration.", hippoConfigFileName);
-        } catch (Exception e) {
-            logger.fatal(e.getMessage());
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning(hippoConfigFileName + " file is not exists. Please check configuration.");
+            }
+        } catch (IOException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning(e.getMessage());
+            }
         }
         return config;
     }
@@ -84,47 +88,69 @@ public class TomcatProfilerConfig {
 
         if ((temp = prop.get("SERVER_IP")) != null) {
             config.SERVER_IP = temp.toString();
-            logger.info("SERVER_IP=%s", SERVER_IP);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("SERVER_IP=" + SERVER_IP);
+            }
         }
         if ((temp = prop.get("AGENT_TCP_LISTEN_PORT")) != null) {
             config.AGENT_TCP_LISTEN_PORT = Integer.parseInt(temp.toString());
-            logger.info("AGENT_TCP_LISTEN_PORT=%d", AGENT_TCP_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("AGENT_TCP_LISTEN_PORT=" + AGENT_TCP_LISTEN_PORT);
+            }
         }
         if ((temp = prop.get("SERVER_TCP_LISTEN_PORT")) != null) {
             config.SERVER_TCP_LISTEN_PORT = Integer.parseInt(temp.toString());
-            logger.info("SERVER_TCP_LISTEN_PORT=%d", SERVER_TCP_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("SERVER_TCP_LISTEN_PORT=" + SERVER_TCP_LISTEN_PORT);
+            }
         }
         if ((temp = prop.get("REQUEST_TRANSACTION_DATA_LISTEN_PORT")) != null) {
             config.REQUEST_TRANSACTION_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
-            logger.info("REQUEST_TRANSACTION_DATA_LISTEN_PORT=%d", REQUEST_TRANSACTION_DATA_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("REQUEST_TRANSACTION_DATA_LISTEN_PORT=" + REQUEST_TRANSACTION_DATA_LISTEN_PORT);
+            }
         }
         if ((temp = prop.get("REQUEST_DATA_LISTEN_PORT")) != null) {
             config.REQUEST_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
-            logger.info("REQUEST_DATA_LISTEN_PORT=%d", REQUEST_DATA_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("REQUEST_DATA_LISTEN_PORT=" + REQUEST_DATA_LISTEN_PORT);
+            }
         }
         if ((temp = prop.get("JVM_DATA_LISTEN_PORT")) != null) {
             config.JVM_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
-            logger.info("JVM_DATA_LISTEN_PORT=%d", JVM_DATA_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("JVM_DATA_LISTEN_PORT=" + JVM_DATA_LISTEN_PORT);
+            }
         }
         if ((temp = prop.get("JVM_STAT_GAP")) != null) {
             config.JVM_STAT_GAP = Long.parseLong(temp.toString());
-            logger.info("JVM_STAT_GAP=%d", JVM_STAT_GAP);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("JVM_STAT_GAP=" + JVM_STAT_GAP);
+            }
         }
         if ((temp = prop.get("SERVER_CONNECT_RETRY_GAP")) != null) {
             config.SERVER_CONNECT_RETRY_GAP = Long.parseLong(temp.toString());
-            logger.info("SERVER_CONNECT_RETRY_GAP=%d", SERVER_CONNECT_RETRY_GAP);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("SERVER_CONNECT_RETRY_GAP=" + SERVER_CONNECT_RETRY_GAP);
+            }
         }
         if ((temp = prop.get("QUERY_COUNT_OVER_10000")) != null) {
             config.QUERY_COUNT_OVER_10000 = Boolean.parseBoolean(temp.toString());
-            logger.info("QUERY_COUNT_OVER_10000=%s", QUERY_COUNT_OVER_10000);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("QUERY_COUNT_OVER_10000=" + QUERY_COUNT_OVER_10000);
+            }
         }
         if ((temp = prop.get("JDBC_PROFILE")) != null) {
             config.JDBC_PROFILE = Boolean.parseBoolean(temp.toString());
-            logger.info("JDBC_PROFILE=%s", config.JDBC_PROFILE);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("JDBC_PROFILE=" + config.JDBC_PROFILE);
+            }
         }
         if ((temp = prop.get("LOG_LEVEL")) != null) {
-            config.LOG_LEVEL = LogLevel.valueOf(temp.toString());
-            logger.info("LOG_LEVEL=%s", LOG_LEVEL);
+            config.LOG_LEVEL = Level.parse(temp.toString());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("LOG_LEVEL=" + LOG_LEVEL);
+            }
         }
 
         logger.info("configuration loaded successfully.");

@@ -2,14 +2,15 @@ package com.profiler.sender;
 
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.profiler.config.TomcatProfilerConfig;
 import com.profiler.dto.AgentInfoDTO;
-import com.profiler.logging.Logger;
 
 public class AgentInfoSender extends Thread {
 
-	private static final Logger logger = Logger.getLogger(AgentInfoSender.class);
+	private final Logger logger = Logger.getLogger(AgentInfoSender.class.getName());
 
 	boolean isAgentStart;
 
@@ -34,15 +35,21 @@ public class AgentInfoSender extends Thread {
 			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
 			AgentInfoDTO dto = new AgentInfoDTO();
 			dto.setIsDead();
-
-			logger.info("send agent stop info. %s", dto.toString());
+            if (logger.isLoggable(Level.INFO)) {
+			    logger.info("send agent stop info. " + dto.toString());
+            }
 
 			stream.writeObject(dto);
 			stream.close();
 
-			logger.info("Agent Stopped message is sent. %s", dto.toString());
+            if (logger.isLoggable(Level.INFO)){
+                logger.info("Agent Stopped message is sent. " + dto.toString());
+            }
+
 		} catch (Exception e) {
-			logger.error("AgentInfoSender Exception occured : %s", e.getMessage());
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, "AgentInfoSender Exception occured:" + e.getMessage(), e);
+            }
 		} finally {
 			closeSocket();
 		}
@@ -66,9 +73,12 @@ public class AgentInfoSender extends Thread {
 
 			AgentInfoDTO dto = new AgentInfoDTO();
 
-			logger.info("send agent startup info. %s", dto.toString());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("send agent startup info. " + dto.toString());
+            }
 
-			stream.writeObject(dto);
+
+            stream.writeObject(dto);
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,17 +90,27 @@ public class AgentInfoSender extends Thread {
 
 	private boolean connectToServer() {
 		try {
-			logger.info("Trying to connect server. %s:%s", TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("Trying to connect server. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+            }
+            requestSocket = new Socket(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+            // TODO timeout 처리가 없음. api를 변경해야 될듯.
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("Connected to server. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+            }
 
-			requestSocket = new Socket(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
-
-			logger.info("Connected to server. %s:%s", TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
-			return false;
+            return false;
 		} catch (java.net.ConnectException ce) {
-			logger.fatal("Connect to TomcatProfiler server is failed. %s:%s", TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
-			return true;
+
+            if (logger.isLoggable(Level.SEVERE)) {
+                logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT, ce);
+            }
+
+            return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+             if (logger.isLoggable(Level.SEVERE)) {
+                logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT, e);
+            }
 			return true;
 		}
 	}
@@ -100,7 +120,9 @@ public class AgentInfoSender extends Thread {
 			requestSocket.close();
 			logger.info("TCP RequestSocket is closed");
 		} catch (Exception e) {
-			logger.error("closeSocket(). %s", e.getMessage());
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, "closeSocket(). " + e.getMessage(), e);
+            }
 		}
 	}
 }

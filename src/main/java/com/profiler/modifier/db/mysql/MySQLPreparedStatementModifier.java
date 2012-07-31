@@ -6,19 +6,22 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
 
-public class MySQLPreparedStatementModifier extends AbstractModifier {
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-	private static final Logger logger = Logger.getLogger(MySQLPreparedStatementModifier.class);
+public class MySQLPreparedStatementModifier extends AbstractModifier {
+	private final Logger logger = Logger.getLogger(MySQLPreparedStatementModifier.class.getName());
 
 	public MySQLPreparedStatementModifier(ClassPool classPool) {
 		super(classPool);
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+		if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		checkLibrary(classLoader, javassistClassName);
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
@@ -35,8 +38,9 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		return null;
 	}

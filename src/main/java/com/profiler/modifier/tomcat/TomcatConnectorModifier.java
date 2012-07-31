@@ -4,8 +4,10 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * When org.apache.catalina.core.StandardService class is loaded in ClassLoader,
@@ -16,14 +18,16 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class TomcatConnectorModifier extends AbstractModifier {
 
-	private static final Logger logger = Logger.getLogger(TomcatConnectorModifier.class);
+	private final Logger logger = Logger.getLogger(TomcatConnectorModifier.class.getName());
 
 	public TomcatConnectorModifier(ClassPool classPool) {
 		super(classPool);
 	}
 	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+        if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
@@ -40,8 +44,9 @@ public class TomcatConnectorModifier extends AbstractModifier {
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		// TODO 변환 실패에 의한 예가 아니면 원본을 반환 해줘야 할까?
 		return null;

@@ -7,8 +7,10 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Modify org.apache.catalina.core.StandardHostValve class
@@ -18,14 +20,16 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
-	private static final Logger logger = Logger.getLogger(EntryPointStandardHostValveModifier.class);
+	private final Logger logger = Logger.getLogger(EntryPointStandardHostValveModifier.class.getName());
 
 	public EntryPointStandardHostValveModifier(ClassPool classPool) {
 		super(classPool);
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+        if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		return changeServiceMethod(classLoader, javassistClassName, classFileBuffer);
 	}
 
@@ -51,8 +55,9 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		return null;
 	}
@@ -68,7 +73,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		insertCode.append(getParameterValues());
 		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".startTransaction(requestURL,clientIP,requestTime,params);");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is started.\");");
 		}
 
@@ -83,7 +88,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		insertCode.append("while(attrs.hasMoreElements()) {");
 		insertCode.append("String keyString=attrs.nextElement().toString();");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(keyString+\"=\"+tempRequest.getParameter(keyString));");
 		}
 
@@ -94,7 +99,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		insertCode.append("if(valueStringLength>0 && valueStringLength<100) params.append(keyString).append(\"=\").append(valueString).append(\",\");");
 		insertCode.append("}}");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(params);");
 		}
 
@@ -106,7 +111,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		insertCode.append("{");
 		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".endTransaction();");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is ended.\");");
 		}
 
@@ -118,7 +123,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 	private String getInvokeMethodCatchInsertCode() {
 		StringBuilder insertCode = new StringBuilder();
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("{");
 			insertCode.append("System.out.println(\"------------------------------------------------\");");
 			insertCode.append("System.out.println(\"--- \"+$e.getMessage()+\" is occured !!!\");");
@@ -126,13 +131,13 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
 		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".exceptionTransaction($e);");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"------------------------------------------------\");");
 		}
 
 		insertCode.append("throw $e;");
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("}");
 		}
 
@@ -145,8 +150,9 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);
 			classLoader.loadClass("org.apache.thrift.TBase");
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if(logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 	}
 }

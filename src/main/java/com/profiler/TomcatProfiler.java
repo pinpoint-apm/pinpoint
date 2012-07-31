@@ -4,19 +4,20 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.profiler.modifier.DefaultModifierRegistry;
+import com.profiler.modifier.Modifier;
+import com.profiler.modifier.ModifierRegistry;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
 import com.profiler.config.TomcatProfilerConfig;
-import com.profiler.logging.Logger;
-import com.profiler.modifier.DefaultModifierRegistry;
-import com.profiler.modifier.Modifier;
-import com.profiler.modifier.ModifierRegistry;
 
 public class TomcatProfiler implements ClassFileTransformer {
 
-    private static final Logger logger = Logger.getLogger(TomcatProfiler.class);
+    private static final Logger logger = Logger.getLogger(TomcatProfiler.class.getName());
 
     private String agentArgString = "";
     private Instrumentation instrumentation;
@@ -54,7 +55,10 @@ public class TomcatProfiler implements ClassFileTransformer {
 
         String catalinaHome = System.getProperty("catalina.home");
         if (catalinaHome != null) {
-            logger.info("CATALINA_HOME=%s", catalinaHome);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("CATALINA_HOME=" + catalinaHome);
+            }
+
             appendClassPath(classPool, catalinaHome + "/lib/servlet-api.jar");
             appendClassPath(classPool, catalinaHome + "/lib/catalina.jar");
         }
@@ -65,7 +69,10 @@ public class TomcatProfiler implements ClassFileTransformer {
         try {
             classPool.appendClassPath(pathName);
         } catch (NotFoundException e) {
-            logger.error("lib not found. " + e.getMessage());
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning("lib not found. " + e.getMessage());
+            }
+
         }
     }
 

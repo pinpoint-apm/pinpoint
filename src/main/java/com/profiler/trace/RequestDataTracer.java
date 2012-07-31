@@ -17,171 +17,185 @@ import com.profiler.dto.RequestDataThriftDTO;
 import com.profiler.util.QueryStringUtil;
 
 public class RequestDataTracer {
-	private static Set<Integer> sqlSet=null;
-	private static Hashtable<Integer,String> dbConnectionURL=new Hashtable<Integer,String>();
-	static {
-		if(TomcatProfilerConfig.QUERY_COUNT_OVER_10000) { 
-			sqlSet=new CopyOnWriteArraySet<Integer>();
-		} else {
-			sqlSet=new HashSet<Integer>(1024);
-		}
-	} 
-	private static final ThreadLocal<RequestDataListThriftDTO> requestDataThreadLocal=new ThreadLocal<RequestDataListThriftDTO>();
-	private static final ThreadLocal<HashMap<Integer,String>> sqlParamMapThreadLocal=new ThreadLocal<HashMap<Integer,String>>();
-	
-	/**
-	 * These two variables are used counting "ResultSet.next()" times.
-	 */
-	private static final ThreadLocal<Integer> fetchCountThreadLocal=new ThreadLocal<Integer>();
-	private static final ThreadLocal<Integer> totalFetchCountThreadLocal=new ThreadLocal<Integer>();
-	public static RequestDataListThriftDTO getRequestDataList() {
-		return requestDataThreadLocal.get();
-	}
-	public static void removeRequestDataList() {
-		requestDataThreadLocal.remove();
-	}
-	private static boolean isRequestData() {
-		Integer reqHashCode=RequestTransactionTracer.getRequestHashCode();
-		if(reqHashCode==null) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+    private static Set<Integer> sqlSet = null;
+    private static Hashtable<Integer, String> dbConnectionURL = new Hashtable<Integer, String>();
 
-	/** 
-	 * Put data to requestDataThreadLocal. 
-	 * @param dataType
-	 */
-	public static void put(int dataType) {
+    static {
+        if (TomcatProfilerConfig.QUERY_COUNT_OVER_10000) {
+            sqlSet = new CopyOnWriteArraySet<Integer>();
+        } else {
+            sqlSet = new HashSet<Integer>(1024);
+        }
+    }
+
+    private static final ThreadLocal<RequestDataListThriftDTO> requestDataThreadLocal = new ThreadLocal<RequestDataListThriftDTO>();
+    private static final ThreadLocal<HashMap<Integer, String>> sqlParamMapThreadLocal = new ThreadLocal<HashMap<Integer, String>>();
+
+    /**
+     * These two variables are used counting "ResultSet.next()" times.
+     */
+    private static final ThreadLocal<Integer> fetchCountThreadLocal = new ThreadLocal<Integer>();
+    private static final ThreadLocal<Integer> totalFetchCountThreadLocal = new ThreadLocal<Integer>();
+
+    public static RequestDataListThriftDTO getRequestDataList() {
+        return requestDataThreadLocal.get();
+    }
+
+    public static void removeRequestDataList() {
+        requestDataThreadLocal.remove();
+    }
+
+    private static boolean isRequestData() {
+        Integer reqHashCode = RequestTransactionTracer.getRequestHashCode();
+        if (reqHashCode == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Put data to requestDataThreadLocal.
+     *
+     * @param dataType
+     */
+    public static void put(int dataType) {
 //		System.out.println(dataType+"-----RequestHashCode="+RequestTransactionTracer.getRequestHashCode());
-		if(isRequestData()) { 
-			RequestDataListThriftDTO dto=requestDataThreadLocal.get();
-			dto=checkDTO(dto);
-			List<RequestDataThriftDTO> list=dto.getRequestDataList();
-	//		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
-			
-			checkSqlParamMap(list);
-			
-			RequestDataThriftDTO dataDto=new RequestDataThriftDTO(dataType,System.currentTimeMillis());
-			list.add(dataDto);
-			requestDataThreadLocal.set(dto);
-		}
-	}
-	
-	/** 
-	 * Put Connection data to requestDataThreadLocal. 
-	 * @param dataType
-	 */
-	public static void putConnection(int dataType,String url) {
+        if (isRequestData()) {
+            RequestDataListThriftDTO dto = requestDataThreadLocal.get();
+            dto = checkDTO(dto);
+            List<RequestDataThriftDTO> list = dto.getRequestDataList();
+            //		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
+
+            checkSqlParamMap(list);
+
+            RequestDataThriftDTO dataDto = new RequestDataThriftDTO(dataType, System.currentTimeMillis());
+            list.add(dataDto);
+            requestDataThreadLocal.set(dto);
+        }
+    }
+
+    /**
+     * Put Connection data to requestDataThreadLocal.
+     *
+     * @param dataType
+     */
+    public static void putConnection(int dataType, String url) {
 //		System.out.println(dataType+"-----RequestHashCode="+RequestTransactionTracer.getRequestHashCode());
-		if(isRequestData()) { 
-			RequestDataListThriftDTO dto=requestDataThreadLocal.get();
-			dto=checkDTO(dto);
-			List<RequestDataThriftDTO> list=dto.getRequestDataList();
-	//		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
-			
-			checkSqlParamMap(list);
-			
-			RequestDataThriftDTO dataDto=new RequestDataThriftDTO(dataType,System.currentTimeMillis());
-			if(url!=null) {
-				int hashCode=url.hashCode();
-				if(!dbConnectionURL.containsKey(hashCode)) {
-					dbConnectionURL.put(hashCode, url);
-					dataDto.setDataString(url);
+        if (isRequestData()) {
+            RequestDataListThriftDTO dto = requestDataThreadLocal.get();
+            dto = checkDTO(dto);
+            List<RequestDataThriftDTO> list = dto.getRequestDataList();
+            //		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
+
+            checkSqlParamMap(list);
+
+            RequestDataThriftDTO dataDto = new RequestDataThriftDTO(dataType, System.currentTimeMillis());
+            if (url != null) {
+                int hashCode = url.hashCode();
+                if (!dbConnectionURL.containsKey(hashCode)) {
+                    dbConnectionURL.put(hashCode, url);
+                    dataDto.setDataString(url);
 //					System.out.println(url);
-				} 
-				dataDto.setDataHashCode(hashCode);
-			}
-			list.add(dataDto);
-			requestDataThreadLocal.set(dto);
-		}
-	}
-	/** 
-	 * Put SQL Query data into requestDataThreadLocal. 
-	 * @param dataType
-	 */
-	public static void putSqlQuery(int dataType,String data) {
-		if(isRequestData()) {
-			RequestDataListThriftDTO dto=requestDataThreadLocal.get();
-			dto=checkDTO(dto);
-			List<RequestDataThriftDTO> list=dto.getRequestDataList();
-	//		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
-			
-			checkSqlParamMap(list);
-			
-			RequestDataThriftDTO dataDto=new RequestDataThriftDTO(dataType,System.currentTimeMillis());
-			int dataHashCode=data.hashCode();
-			dataDto.setDataHashCode(dataHashCode);
-			boolean isAlreadySent=checkHashCode(dataHashCode);
-			if(!isAlreadySent) {
-				if(data!=null) {
-					dataDto.setDataString(QueryStringUtil.removeAllMultiSpace(data));
-				} 
-			}
-			list.add(dataDto);
-			requestDataThreadLocal.set(dto);
-		}
-	}
-	/**
-	 * Check SQL Query HashCode set.
-	 * If Query count is over 10000, it can make memory problem.
-	 * So this method removes 100 hashCode.
-	 * 
-	 * If you use HashSet this remove code will not run.
-	 * 
-	 * @param dataHashCode
-	 * @return
-	 */
-	private static boolean checkHashCode(int dataHashCode) {
-		if(TomcatProfilerConfig.QUERY_COUNT_OVER_10000) {
-			//If sqlSet is CopyOnWriteArraySet, it removes data.
-			if(sqlSet.size()>10000) {
-				Iterator<Integer> iterator=sqlSet.iterator();
-				for(int loop=0;loop<100;loop++) {
-					sqlSet.remove(iterator.next());
-				}
-			}
-		}
-		if(sqlSet.contains(dataHashCode)) {
-			return true;
-		} else {
-			sqlSet.add(dataHashCode);
-			return false;
-		}
-	}
-	/**
-	 * Manage sql param list
-	 * @param list
-	 */
-	private static void checkSqlParamMap(List<RequestDataThriftDTO> list) {
-		if(isRequestData()) {
-			HashMap<Integer,String> map=sqlParamMapThreadLocal.get();
-			if(map!=null) {
-				int mapSize=map.size();
-				StringBuilder params=new StringBuilder();
-				for(int loop=1;loop<=mapSize;loop++) {
-					params.append(map.get(loop)).append(",");
-				}
-				
-				RequestDataThriftDTO dataDto=new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_PREPARED_STATEMENT_PARAM,System.currentTimeMillis());
-				dataDto.setDataString(params.toString());
-				list.add(dataDto);
-			}
-			sqlParamMapThreadLocal.remove();
-		}
-	}
-	/**
-	 * Add sql parameter 
-	 * @param sequence
-	 * @param data
-	 */
-	public static void putSqlParam(int sequence,String data) {
-		if(isRequestData()) {
-			HashMap<Integer,String> map=sqlParamMapThreadLocal.get();
-			if(map==null) {
-				map=new HashMap<Integer,String>();
-			}
+                }
+                dataDto.setDataHashCode(hashCode);
+            }
+            list.add(dataDto);
+            requestDataThreadLocal.set(dto);
+        }
+    }
+
+    /**
+     * Put SQL Query data into requestDataThreadLocal.
+     *
+     * @param dataType
+     */
+    public static void putSqlQuery(int dataType, String data) {
+        if (isRequestData()) {
+            RequestDataListThriftDTO dto = requestDataThreadLocal.get();
+            dto = checkDTO(dto);
+            List<RequestDataThriftDTO> list = dto.getRequestDataList();
+            //		System.out.println("-----RequestDataListThriftDTO list size="+list.size());
+
+            checkSqlParamMap(list);
+
+            RequestDataThriftDTO dataDto = new RequestDataThriftDTO(dataType, System.currentTimeMillis());
+            int dataHashCode = data.hashCode();
+            dataDto.setDataHashCode(dataHashCode);
+            boolean isAlreadySent = checkHashCode(dataHashCode);
+            if (!isAlreadySent) {
+                if (data != null) {
+                    dataDto.setDataString(QueryStringUtil.removeAllMultiSpace(data));
+                }
+            }
+            list.add(dataDto);
+            requestDataThreadLocal.set(dto);
+        }
+    }
+
+    /**
+     * Check SQL Query HashCode set.
+     * If Query count is over 10000, it can make memory problem.
+     * So this method removes 100 hashCode.
+     * <p/>
+     * If you use HashSet this remove code will not run.
+     *
+     * @param dataHashCode
+     * @return
+     */
+    private static boolean checkHashCode(int dataHashCode) {
+        if (TomcatProfilerConfig.QUERY_COUNT_OVER_10000) {
+            //If sqlSet is CopyOnWriteArraySet, it removes data.
+            if (sqlSet.size() > 10000) {
+                Iterator<Integer> iterator = sqlSet.iterator();
+                for (int loop = 0; loop < 100; loop++) {
+                    sqlSet.remove(iterator.next());
+                }
+            }
+        }
+        if (sqlSet.contains(dataHashCode)) {
+            return true;
+        } else {
+            sqlSet.add(dataHashCode);
+            return false;
+        }
+    }
+
+    /**
+     * Manage sql param list
+     *
+     * @param list
+     */
+    private static void checkSqlParamMap(List<RequestDataThriftDTO> list) {
+        if (isRequestData()) {
+            HashMap<Integer, String> map = sqlParamMapThreadLocal.get();
+            if (map != null) {
+                int mapSize = map.size();
+                StringBuilder params = new StringBuilder();
+                for (int loop = 1; loop <= mapSize; loop++) {
+                    params.append(map.get(loop)).append(",");
+                }
+
+                RequestDataThriftDTO dataDto = new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_PREPARED_STATEMENT_PARAM, System.currentTimeMillis());
+                dataDto.setDataString(params.toString());
+                list.add(dataDto);
+            }
+            sqlParamMapThreadLocal.remove();
+        }
+    }
+
+    /**
+     * Add sql parameter
+     *
+     * @param sequence
+     * @param data
+     */
+    public static void putSqlParam(int sequence, String data) {
+        if (isRequestData()) {
+            HashMap<Integer, String> map = sqlParamMapThreadLocal.get();
+            if (map == null) {
+                map = new HashMap<Integer, String>();
+            }
 //			if(data!=null) {
 //				try {
 //					System.out.print("Before="+data);
@@ -209,86 +223,92 @@ public class RequestDataTracer {
 //					e.printStackTrace();
 //				}
 //			}
-			map.put(sequence,data);
-			sqlParamMapThreadLocal.set(map);
-		}
-	}
-	public static void putSqlParam(int sequence,byte[] data) {
-		putSqlParam(sequence,new String(data));
-	}
-	public static void putSqlParam(int sequence,Object data) {
-		if(data!=null) {
-			putSqlParam(sequence,data.toString());
-		} else {
-			putSqlParam(sequence,"null");
-		}
-	}
-	/**
-	 * Check RequestDataListThriftDTO is null. 
-	 * If this object is null, current request called this Class first time.
-	 * So it make RequestDataListThriftDTO object. 
-	 * @param dto
-	 * @return
-	 */
-	private static RequestDataListThriftDTO checkDTO(RequestDataListThriftDTO dto) {
-		if(dto==null) {
-//			System.out.println("dto=null");
-			dto=new RequestDataListThriftDTO(AgentInfoDTO.staticHostHashCode,RequestTransactionTracer.getRequestHashCode(),new ArrayList<RequestDataThriftDTO>());
-		}
-		return dto;
-	}
-	/**
-	 * add ResultSet.next() method call count.
-	 */
-	public static void updateFetchCount() {
-		Integer totalFetchCount=totalFetchCountThreadLocal.get();
-		Integer fetchCount=fetchCountThreadLocal.get();
-		if(totalFetchCount==null) {
-			totalFetchCountThreadLocal.set(0);
-		}
-		if(fetchCount==null) {
-			fetchCountThreadLocal.set(0);
-		}
-		totalFetchCountThreadLocal.set(totalFetchCountThreadLocal.get()+1);
-		fetchCountThreadLocal.set(fetchCountThreadLocal.get()+1);
-	}
+            map.put(sequence, data);
+            sqlParamMapThreadLocal.set(map);
+        }
+    }
 
-	/**
-	 * Before transaction end, removes current thread's fetch count data.
-	 */
-	public static void removeFetchCount() {
-		totalFetchCountThreadLocal.remove();
-		fetchCountThreadLocal.remove();
-	}
-	/** 
-	 * If ResultSet.close() method is called,
-	 * this method is called.
-	 */
-	public static void addResultSetData() {
-		if(isRequestData()) { 
-			//set data fetch count
-			Integer fetchCount=fetchCountThreadLocal.get();
-			if(fetchCount!=null) { 
-				Integer totalFetchCount=totalFetchCountThreadLocal.get();
-				fetchCountThreadLocal.remove();
-				
-				RequestDataListThriftDTO dto=requestDataThreadLocal.get();
-				dto=checkDTO(dto);
-				List<RequestDataThriftDTO> list=dto.getRequestDataList();
-				int listSize=list.size();
-				RequestDataThriftDTO previousDTO=list.get(listSize-1);
-				if(previousDTO.getDataType()!=TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH) {
-					RequestDataThriftDTO dataDto=new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH,System.currentTimeMillis());
-					dataDto.setExtraInt1(fetchCount);
-					dataDto.setExtraInt2(totalFetchCount);
-					list.add(dataDto);
-				} else {
-					//Because of MS SQL. 
-					int previousTotalFetchCount=previousDTO.getExtraInt2();
-					totalFetchCountThreadLocal.set(previousTotalFetchCount);
-				}
-				requestDataThreadLocal.set(dto);
-			}
-		}
-	}
+    public static void putSqlParam(int sequence, byte[] data) {
+        putSqlParam(sequence, new String(data));
+    }
+
+    public static void putSqlParam(int sequence, Object data) {
+        if (data != null) {
+            putSqlParam(sequence, data.toString());
+        } else {
+            putSqlParam(sequence, "null");
+        }
+    }
+
+    /**
+     * Check RequestDataListThriftDTO is null.
+     * If this object is null, current request called this Class first time.
+     * So it make RequestDataListThriftDTO object.
+     *
+     * @param dto
+     * @return
+     */
+    private static RequestDataListThriftDTO checkDTO(RequestDataListThriftDTO dto) {
+        if (dto == null) {
+//			System.out.println("dto=null");
+            dto = new RequestDataListThriftDTO(AgentInfoDTO.staticHostHashCode, RequestTransactionTracer.getRequestHashCode(), new ArrayList<RequestDataThriftDTO>());
+        }
+        return dto;
+    }
+
+    /**
+     * add ResultSet.next() method call count.
+     */
+    public static void updateFetchCount() {
+        Integer totalFetchCount = totalFetchCountThreadLocal.get();
+        Integer fetchCount = fetchCountThreadLocal.get();
+        if (totalFetchCount == null) {
+            totalFetchCountThreadLocal.set(0);
+        }
+        if (fetchCount == null) {
+            fetchCountThreadLocal.set(0);
+        }
+        totalFetchCountThreadLocal.set(totalFetchCountThreadLocal.get() + 1);
+        fetchCountThreadLocal.set(fetchCountThreadLocal.get() + 1);
+    }
+
+    /**
+     * Before transaction end, removes current thread's fetch count data.
+     */
+    public static void removeFetchCount() {
+        totalFetchCountThreadLocal.remove();
+        fetchCountThreadLocal.remove();
+    }
+
+    /**
+     * If ResultSet.close() method is called,
+     * this method is called.
+     */
+    public static void addResultSetData() {
+        if (isRequestData()) {
+            //set data fetch count
+            Integer fetchCount = fetchCountThreadLocal.get();
+            if (fetchCount != null) {
+                Integer totalFetchCount = totalFetchCountThreadLocal.get();
+                fetchCountThreadLocal.remove();
+
+                RequestDataListThriftDTO dto = requestDataThreadLocal.get();
+                dto = checkDTO(dto);
+                List<RequestDataThriftDTO> list = dto.getRequestDataList();
+                int listSize = list.size();
+                RequestDataThriftDTO previousDTO = list.get(listSize - 1);
+                if (previousDTO.getDataType() != TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH) {
+                    RequestDataThriftDTO dataDto = new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH, System.currentTimeMillis());
+                    dataDto.setExtraInt1(fetchCount);
+                    dataDto.setExtraInt2(totalFetchCount);
+                    list.add(dataDto);
+                } else {
+                    //Because of MS SQL.
+                    int previousTotalFetchCount = previousDTO.getExtraInt2();
+                    totalFetchCountThreadLocal.set(previousTotalFetchCount);
+                }
+                requestDataThreadLocal.set(dto);
+            }
+        }
+    }
 }

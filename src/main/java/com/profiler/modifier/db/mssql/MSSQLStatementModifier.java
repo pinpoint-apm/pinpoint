@@ -5,19 +5,22 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
 
-public class MSSQLStatementModifier extends AbstractModifier {
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-	private static final Logger logger = Logger.getLogger(MSSQLStatementModifier.class);
+public class MSSQLStatementModifier extends AbstractModifier {
+	private static final Logger logger = Logger.getLogger(MSSQLStatementModifier.class.getName());
 
 	public MSSQLStatementModifier(ClassPool classPool) {
 		super(classPool);
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+		if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		checkLibrary(classLoader, javassistClassName);
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
@@ -32,8 +35,9 @@ public class MSSQLStatementModifier extends AbstractModifier {
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		return null;
 	}

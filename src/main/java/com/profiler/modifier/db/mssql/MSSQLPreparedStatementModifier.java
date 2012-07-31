@@ -6,19 +6,23 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
-	private static final Logger logger = Logger.getLogger(MSSQLPreparedStatementModifier.class);
+	private final Logger logger = Logger.getLogger(MSSQLPreparedStatementModifier.class.getName());
 
 	public MSSQLPreparedStatementModifier(ClassPool classPool) {
 		super(classPool);
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+		if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		checkLibrary(classLoader, javassistClassName);
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
@@ -35,8 +39,9 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		return null;
 	}
@@ -55,7 +60,7 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
 	private void updateConstructor(CtClass cc) throws Exception {
 		CtConstructor[] constructorList = cc.getConstructors();
-
+		
 		if (constructorList.length == 1) {
 			CtConstructor constructor = constructorList[0];
 			constructor.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");

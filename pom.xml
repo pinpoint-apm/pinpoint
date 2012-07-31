@@ -51,33 +51,41 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.16.1-GA</version>
+            <scope>compile</scope>
         </dependency>
 		<dependency>
 			<groupId>org.apache.thrift</groupId>
 			<artifactId>libthrift</artifactId>
 			<version>0.8.0</version>
+            <scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.5.8</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>6.0.35</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>catalina</artifactId>
 			<version>6.0.35</version>
+            <scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-
 		<resources>
 			<resource>
 				<directory>${basedir}/src/main/java</directory>
@@ -132,7 +140,9 @@
 				<version>2.4</version>
 				<configuration>
                     <archive>
-                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Premain-Class>com.profiler.TomcatProfiler</Premain-Class>
+                        </manifestEntries>
                     </archive>
 				</configuration>
 			</plugin>

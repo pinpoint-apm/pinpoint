@@ -5,8 +5,10 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * When org.apache.catalina.core.StandardService class is loaded in ClassLoader,
@@ -17,14 +19,16 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class TomcatStandardServiceModifier extends AbstractModifier {
 
-	private static final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class);
+	private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
 
 	public TomcatStandardServiceModifier(ClassPool classPool) {
 		super(classPool);
 	}
 	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
+        if (logger.isLoggable(Level.INFO)){
+		    logger.info("Modifing. " + javassistClassName);
+        }
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
@@ -41,8 +45,9 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 			printClassConvertComplete(javassistClassName);
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 		}
 		return null;
 	}
