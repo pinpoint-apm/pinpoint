@@ -20,10 +20,8 @@ public class AgentInfoSender extends Thread {
 	}
 
 	public void run() {
-		System.out.println("\n\n\n\n\n");
-		System.out.println("send agent info");
-		System.out.println("\n\n\n\n\n");
-		
+        logger.info("send agent info");
+
 		if (isAgentStart) {
 			sendAgentStartInfo();
 		} else {

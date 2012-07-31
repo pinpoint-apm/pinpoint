@@ -1,18 +1,23 @@
 package com.profiler.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class QueryStringUtil {
-//	public static void main(String args[]) {
-//		String a="a\nb\rc\n";
-//		
-//		System.out.println(QueryStringUtil.removeCarriageReturn(a));
-//	}
-	public static String removeCarriageReturn(String query) {
+
+    public static String removeCarriageReturn(String query) {
 //		query.replaceAll(regex, replacement)
-		String result= query.replaceAll("[\r\n]", " "); 
-		return result;
-	}
-	public static String removeAllMultiSpace(String query) {
-		String after = query.trim().replaceAll(" +", " ");
-		return after;
-	}
+        String result = query.replaceAll("[\r\n]", " ");
+        return result;
+    }
+
+    private static final Pattern MULTI_SPACE_ESCAPE = Pattern.compile(" +");
+
+    public static String removeAllMultiSpace(String query) {
+        if (query == null || query.length() == 0) {
+            return "";
+        }
+        Matcher matcher = MULTI_SPACE_ESCAPE.matcher(query);
+        return matcher.replaceAll(" ");
+    }
 }
