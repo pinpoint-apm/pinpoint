@@ -4,8 +4,8 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,11 +46,11 @@ public class MySQLResultSetModifier extends AbstractModifier {
 
 	private void updateNextMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("next", null);
-		method.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".updateFetchCount(); }");
+		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
 	}
 
 	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".addResultSetData(); }");
+		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); }");
 	}
 }

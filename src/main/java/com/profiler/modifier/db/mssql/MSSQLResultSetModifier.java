@@ -4,9 +4,9 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.config.TomcatProfilerConstant;
 
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,11 +47,11 @@ public class MSSQLResultSetModifier extends AbstractModifier {
 
 	private void updateNextMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod1 = cc.getDeclaredMethod("next", null);
-		serviceMethod1.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".updateFetchCount(); }");
+		serviceMethod1.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
 	}
 
 	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod1 = cc.getDeclaredMethod("close", null);
-		serviceMethod1.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".addResultSetData(); }");
+		serviceMethod1.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); }");
 	}
 }

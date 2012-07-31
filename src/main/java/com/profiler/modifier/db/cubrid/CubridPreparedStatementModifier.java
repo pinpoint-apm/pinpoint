@@ -7,6 +7,7 @@ import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +56,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 				StringBuilder sb = new StringBuilder();
 				sb.append("{");
 				sb.append("if($2 instanceof cubrid.jdbc.jci.UStatement) { ");
-				sb.append(TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2.getQuery());");
+				sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2.getQuery());");
 				sb.append("}}");
 
 				constructor.insertBefore(sb.toString());
@@ -65,6 +66,6 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private  void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
-		serviceMethod.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }

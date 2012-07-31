@@ -14,10 +14,8 @@ public class TCPSocketManager extends Thread {
 
 	public void run() {
 		try {
-			serverSocket = new ServerSocket(
-					TomcatProfilerConfig.AGENT_TCP_LISTEN_PORT, 100);
-			System.out
-					.println("*** Start TomcatProfiler TCP Listen Thread ***");
+			serverSocket = new ServerSocket(TomcatProfilerConfig.AGENT_TCP_LISTEN_PORT, 100);
+			System.out.println("*** Start TomcatProfiler TCP Listen Thread ***");
 			while (true) {
 				Socket socket = serverSocket.accept();
 				InputStream stream = socket.getInputStream();

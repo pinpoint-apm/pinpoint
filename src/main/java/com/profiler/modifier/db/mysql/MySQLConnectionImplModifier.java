@@ -6,6 +6,7 @@ import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,7 +48,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 	private void updateCreateStatementMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("createStatement", null);
-		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
 	}
 
 	private void updateGetInstanceMethod(CtClass cc) throws Exception {
@@ -59,11 +60,11 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		params[4] = classPool.getCtClass("java.lang.String");
 		CtMethod method = cc.getDeclaredMethod("getInstance", params);
 
-		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
 	}
 
 	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
 	}
 }

@@ -7,6 +7,7 @@ import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +56,7 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 		params1[4] = classPool.getCtClass("int");
 		CtMethod method = cc.getDeclaredMethod("setParameter", params1);
 
-		method.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlParam($1,$2);} ");
+		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2);} ");
 	}
 
 	private void updateConstructor(CtClass cc) throws Exception {
@@ -63,12 +64,12 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 		
 		if (constructorList.length == 1) {
 			CtConstructor constructor = constructorList[0];
-			constructor.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
+			constructor.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
 		}
 	}
 
 	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
-		serviceMethod.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }

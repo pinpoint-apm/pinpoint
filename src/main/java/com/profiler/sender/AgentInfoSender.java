@@ -12,15 +12,18 @@ public class AgentInfoSender extends Thread {
 
 	private final Logger logger = Logger.getLogger(AgentInfoSender.class.getName());
 
-	boolean isAgentStart;
+	private boolean isAgentStart;
+	private Socket requestSocket = null;
 
 	public AgentInfoSender(boolean isAgentStart) {
 		this.isAgentStart = isAgentStart;
 	}
 
-	Socket requestSocket = null;
-
 	public void run() {
+		System.out.println("\n\n\n\n\n");
+		System.out.println("send agent info");
+		System.out.println("\n\n\n\n\n");
+		
 		if (isAgentStart) {
 			sendAgentStartInfo();
 		} else {
@@ -56,7 +59,6 @@ public class AgentInfoSender extends Thread {
 	}
 
 	private void sendAgentStartInfo() {
-
 		while (connectToServer()) {
 			try {
 				Thread.sleep(TomcatProfilerConfig.SERVER_CONNECT_RETRY_GAP);
@@ -64,13 +66,9 @@ public class AgentInfoSender extends Thread {
 				e.printStackTrace();
 			}
 		}
+
 		try {
 			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
-
-			// stream.write(("AGENT_HASH="+JVMInfoDTO.hostHashCode).getBytes());
-			// stream.write(("AGENT_IP="+JVMInfoDTO.hostIP).getBytes());
-			// stream.write(("AGENT_PORT="+JVMInfoDTO.portNumber).getBytes());
-
 			AgentInfoDTO dto = new AgentInfoDTO();
 
             if (logger.isLoggable(Level.INFO)) {
@@ -83,6 +81,7 @@ public class AgentInfoSender extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		if (requestSocket != null) {
 			closeSocket();
 		}

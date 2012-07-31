@@ -8,6 +8,7 @@ import javassist.CtMethod;
 import com.profiler.config.TomcatProfilerConstant;
 
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +54,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		params1[1] = classPool.getCtClass("java.lang.String");
 		CtMethod serviceMethod1 = cc.getDeclaredMethod("setStringInternal", params1);
 
-		serviceMethod1.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlParam($1,$2); }");
+		serviceMethod1.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2); }");
 
 		// CtClass[] params2 = new CtClass[2];
 		// params2[0] = classPool.getCtClass("int");
@@ -62,7 +63,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		// params2);
 		//
 		// serviceMethod2.insertBefore("{" +
-		// TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER +
+		// RequestDataTracer.FQCN +
 		// ".putSqlParam($1,$2); {");
 	}
 
@@ -72,13 +73,13 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		for (CtConstructor constructor : constructorList) {
 			CtClass params[] = constructor.getParameterTypes();
 			if (params.length == 6) {
-				constructor.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
+				constructor.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
 			}
 		}
 	}
 
 	private void updateExecuteMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("execute", null);
-		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }

@@ -1,13 +1,13 @@
 package com.profiler.modifier.tomcat;
 
 import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_REQUEST_THRIFT_DTO;
-import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_REQUEST_TRACER;
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.RequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,7 +71,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		insertCode.append("String requestURL=tempRequest.getRequestURI();");
 		insertCode.append("String clientIP=tempRequest.getRemoteAddr();");
 		insertCode.append(getParameterValues());
-		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".startTransaction(requestURL,clientIP,requestTime,params);");
+		insertCode.append(RequestTracer.FQCN).append(".startTransaction(requestURL,clientIP,requestTime,params);");
 
 		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is started.\");");
@@ -109,7 +109,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 	private String getInvokeMethodAfterInsertCode() {
 		StringBuilder insertCode = new StringBuilder();
 		insertCode.append("{");
-		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".endTransaction();");
+		insertCode.append(RequestTracer.FQCN).append(".endTransaction();");
 
 		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is ended.\");");
@@ -129,7 +129,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 			insertCode.append("System.out.println(\"--- \"+$e.getMessage()+\" is occured !!!\");");
 		}
 
-		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".exceptionTransaction($e);");
+		insertCode.append(RequestTracer.FQCN).append(".exceptionTransaction($e);");
 
 		if (logger.isLoggable(Level.FINE)) {
 			insertCode.append("System.out.println(\"------------------------------------------------\");");
@@ -146,7 +146,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
 	private void addRequestTracerToCurrentClassLoader(ClassLoader classLoader) {
 		try {
-			classLoader.loadClass(CLASS_NAME_REQUEST_TRACER);
+			classLoader.loadClass(RequestTracer.FQCN);
 			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);
 			classLoader.loadClass("org.apache.thrift.TBase");
 		} catch (Exception e) {

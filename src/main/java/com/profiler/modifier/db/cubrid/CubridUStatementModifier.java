@@ -4,8 +4,8 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +50,6 @@ public class CubridUStatementModifier extends AbstractModifier {
 		params1[2] = classPool.getCtClass("java.lang.Object");
 		CtMethod method = cc.getDeclaredMethod("bindValue", params1);
 
-		method.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putSqlParam($1,$3); }");
+		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$3); }");
 	}
 }
