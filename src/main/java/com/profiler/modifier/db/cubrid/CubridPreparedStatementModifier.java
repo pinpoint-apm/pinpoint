@@ -40,7 +40,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateConstructor(CtClass cc) throws Exception {
+	private void updateConstructor(CtClass cc) throws Exception {
 		CtConstructor[] constructorList = cc.getConstructors();
 
 		for (CtConstructor constructor : constructorList) {
@@ -58,7 +58,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		}
 	}
 
-	private static void updateExecuteQueryMethod(CtClass cc) throws Exception {
+	private  void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
 		serviceMethod.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}

@@ -57,7 +57,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static String getInvokeMethodBeforeInsertCode() {
+	private String getInvokeMethodBeforeInsertCode() {
 		StringBuilder insertCode = new StringBuilder();
 		insertCode.append("{");
 		insertCode.append("long requestTime=System.currentTimeMillis();");
@@ -76,7 +76,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		return insertCode.toString();
 	}
 
-	private static StringBuilder getParameterValues() {
+	private StringBuilder getParameterValues() {
 		StringBuilder insertCode = new StringBuilder();
 		insertCode.append("java.util.Enumeration attrs=tempRequest.getParameterNames();");
 		insertCode.append("StringBuilder params=new StringBuilder();");
@@ -101,7 +101,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		return insertCode;
 	}
 
-	private static String getInvokeMethodAfterInsertCode() {
+	private String getInvokeMethodAfterInsertCode() {
 		StringBuilder insertCode = new StringBuilder();
 		insertCode.append("{");
 		insertCode.append(CLASS_NAME_REQUEST_TRACER).append(".endTransaction();");
@@ -115,7 +115,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		return insertCode.toString();
 	}
 
-	private static String getInvokeMethodCatchInsertCode() {
+	private String getInvokeMethodCatchInsertCode() {
 		StringBuilder insertCode = new StringBuilder();
 
 		if (logger.isDebugEnabled()) {
@@ -139,7 +139,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		return insertCode.toString();
 	}
 
-	private static void addRequestTracerToCurrentClassLoader(ClassLoader classLoader) {
+	private void addRequestTracerToCurrentClassLoader(ClassLoader classLoader) {
 		try {
 			classLoader.loadClass(CLASS_NAME_REQUEST_TRACER);
 			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);
