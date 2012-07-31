@@ -12,18 +12,22 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(MSSQLConnectionModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethods(classPool, classLoader, javassistClassName, classFileBuffer);
+	public MSSQLConnectionModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethods(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethods(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateCreateStatementMethod(classPool, cc);
-			updateCloseMethod(classPool, cc);
+			updateCreateStatementMethod(cc);
+			updateCloseMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -35,7 +39,7 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateCreateStatementMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateCreateStatementMethod(CtClass cc) throws Exception {
 		CtClass[] params = new CtClass[2];
 		params[0] = classPool.getCtClass("int");
 		params[1] = classPool.getCtClass("int");
@@ -44,7 +48,7 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
 	}
 
-	private static void updateCloseMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("close", null);
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
 	}

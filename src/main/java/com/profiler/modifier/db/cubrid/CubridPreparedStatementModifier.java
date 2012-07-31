@@ -13,18 +13,22 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(CubridPreparedStatementModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public CubridPreparedStatementModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateExecuteQueryMethod(classPool, cc);
-			updateConstructor(classPool, cc);
+			updateExecuteQueryMethod(cc);
+			updateConstructor(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -36,12 +40,12 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateConstructor(ClassPool classPool, CtClass cc) throws Exception {
+	private static void updateConstructor(CtClass cc) throws Exception {
 		CtConstructor[] constructorList = cc.getConstructors();
-		
+
 		for (CtConstructor constructor : constructorList) {
 			CtClass params[] = constructor.getParameterTypes();
-			
+
 			if (params.length > 2) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("{");
@@ -54,7 +58,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		}
 	}
 
-	private static void updateExecuteQueryMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private static void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
 		serviceMethod.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}

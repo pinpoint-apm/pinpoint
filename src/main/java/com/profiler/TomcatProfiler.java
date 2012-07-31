@@ -3,38 +3,16 @@ package com.profiler;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
-import com.profiler.modifier.DefaultModifierRegistry;
-import com.profiler.modifier.Modifier;
-import com.profiler.modifier.ModifierRegistry;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
 import com.profiler.config.TomcatProfilerConfig;
 import com.profiler.logging.Logger;
-import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
-import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
-import com.profiler.modifier.db.cubrid.CubridStatementModifier;
-import com.profiler.modifier.db.cubrid.CubridUStatementModifier;
-import com.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
-import com.profiler.modifier.db.dbcp.DBCPPoolModifier;
-import com.profiler.modifier.db.mssql.MSSQLConnectionModifier;
-import com.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
-import com.profiler.modifier.db.mssql.MSSQLResultSetModifier;
-import com.profiler.modifier.db.mssql.MSSQLStatementModifier;
-import com.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
-import com.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
-import com.profiler.modifier.db.mysql.MySQLResultSetModifier;
-import com.profiler.modifier.db.mysql.MySQLStatementModifier;
-import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
-import com.profiler.modifier.db.oracle.OracleResultSetModifier;
-import com.profiler.modifier.db.oracle.OracleStatementModifier;
-import com.profiler.modifier.tomcat.EntryPointStandardHostValveModifier;
-import com.profiler.modifier.tomcat.TomcatConnectorModifier;
-import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
+import com.profiler.modifier.DefaultModifierRegistry;
+import com.profiler.modifier.Modifier;
+import com.profiler.modifier.ModifierRegistry;
 
 public class TomcatProfiler implements ClassFileTransformer {
 
@@ -57,12 +35,12 @@ public class TomcatProfiler implements ClassFileTransformer {
         this.instrumentation = inst;
         this.instrumentation.addTransformer(this);
         this.classPool = createClassPool();
-        this.modifierRepository = createModifierRegistry(tomcatProfilerConfig);
+        this.modifierRepository = createModifierRegistry(this.classPool, tomcatProfilerConfig);
         this.tomcatProfilerConfig = tomcatProfilerConfig;
     }
 
-    private ModifierRegistry createModifierRegistry(TomcatProfilerConfig tomcatProfilerConfig) {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry();
+    private ModifierRegistry createModifierRegistry(ClassPool classPool, TomcatProfilerConfig tomcatProfilerConfig) {
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(classPool);
         modifierRepository.addTomcatModifier();
         if (tomcatProfilerConfig.enableJdbcProfile()) {
             modifierRepository.addJdbcModifier();
@@ -99,7 +77,6 @@ public class TomcatProfiler implements ClassFileTransformer {
         } 
         String javassistClassName = className.replace('/', '.');
         
-        return findModifier.modify(classPool, classLoader, javassistClassName, classFileBuffer);
+        return findModifier.modify(classLoader, javassistClassName, classFileBuffer);
     }
-
 }

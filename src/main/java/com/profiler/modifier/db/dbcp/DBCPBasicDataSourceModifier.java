@@ -12,17 +12,21 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(DBCPBasicDataSourceModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public DBCPBasicDataSourceModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateGetConnectionMethod(classPool, cc);
+			updateGetConnectionMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -34,7 +38,7 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateGetConnectionMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateGetConnectionMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("getConnection", null);
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$0.getUrl()); }");
 	}

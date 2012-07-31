@@ -9,19 +9,24 @@ import com.profiler.logging.Logger;
 import com.profiler.modifier.AbstractModifier;
 
 public class MSSQLStatementModifier extends AbstractModifier {
+
 	private static final Logger logger = Logger.getLogger(MSSQLStatementModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public MSSQLStatementModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateExecuteQueryMethod(classPool, cc);
+			updateExecuteQueryMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -33,7 +38,7 @@ public class MSSQLStatementModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateExecuteQueryMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtClass[] params = new CtClass[1];
 		params[0] = classPool.getCtClass("java.lang.String");
 		CtMethod serviceMethod = cc.getDeclaredMethod("executeQuery", params);

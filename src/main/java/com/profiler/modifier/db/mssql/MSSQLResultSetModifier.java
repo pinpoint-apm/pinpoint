@@ -12,18 +12,22 @@ public class MSSQLResultSetModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(MSSQLResultSetModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public MSSQLResultSetModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateNextMethod(classPool, cc);
-			updateCloseMethod(classPool, cc);
+			updateNextMethod(cc);
+			updateCloseMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -35,12 +39,12 @@ public class MSSQLResultSetModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateNextMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateNextMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod1 = cc.getDeclaredMethod("next", null);
 		serviceMethod1.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".updateFetchCount(); }");
 	}
 
-	private static void updateCloseMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod1 = cc.getDeclaredMethod("close", null);
 		serviceMethod1.insertBefore("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".addResultSetData(); }");
 	}

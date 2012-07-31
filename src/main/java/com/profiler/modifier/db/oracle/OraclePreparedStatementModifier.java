@@ -13,19 +13,23 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(OraclePreparedStatementModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public OraclePreparedStatementModifier(ClassPool classPool) {
+		super(classPool);
+	}
+	
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateSetInternalMethod(classPool, cc);
-			updateExecuteMethod(classPool, cc);
-			updateConstructor(classPool, cc);
+			updateSetInternalMethod(cc);
+			updateExecuteMethod(cc);
+			updateConstructor(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -37,7 +41,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateSetInternalMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateSetInternalMethod(CtClass cc) throws Exception {
 		CtClass[] params1 = new CtClass[2];
 		params1[0] = classPool.getCtClass("int");
 		params1[1] = classPool.getCtClass("java.lang.String");
@@ -56,7 +60,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		// ".putSqlParam($1,$2); {");
 	}
 
-	private static void updateConstructor(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateConstructor(CtClass cc) throws Exception {
 		CtConstructor[] constructorList = cc.getConstructors();
 
 		for (CtConstructor constructor : constructorList) {
@@ -67,7 +71,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		}
 	}
 
-	private static void updateExecuteMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateExecuteMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("execute", null);
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}

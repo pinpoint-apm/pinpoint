@@ -12,17 +12,21 @@ public class CubridUStatementModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(CubridUStatementModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public CubridUStatementModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethod(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateBindValueMethod(classPool, cc);
+			updateBindValueMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -34,7 +38,7 @@ public class CubridUStatementModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateBindValueMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateBindValueMethod(CtClass cc) throws Exception {
 		CtClass[] params1 = new CtClass[3];
 		params1[0] = classPool.getCtClass("int");
 		params1[1] = classPool.getCtClass("byte");

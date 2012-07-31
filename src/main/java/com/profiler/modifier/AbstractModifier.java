@@ -11,7 +11,13 @@ public abstract class AbstractModifier implements Modifier {
 
 	private static final Logger logger = Logger.getLogger(AbstractModifier.class);
 
-	public byte[] addBeforeAfterLogics(ClassPool classPool, String javassistClassName) {
+	protected final ClassPool classPool;
+
+	public AbstractModifier(ClassPool classPool) {
+		this.classPool = classPool;
+	}
+	
+	public byte[] addBeforeAfterLogics(String javassistClassName) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			CtMethod[] methods = cc.getDeclaredMethods();
@@ -71,17 +77,16 @@ public abstract class AbstractModifier implements Modifier {
 		logger.info("%s class is converted.", javassistClassName);
 	}
 
-	protected void checkLibrary(ClassPool classPool, String javassistClassName, ClassLoader classLoader) {
+	protected void checkLibrary(ClassLoader classLoader, String javassistClassName) {
 		// TODO Util로 뽑을까?
-		boolean findClass = findClass(classPool, javassistClassName);
+		boolean findClass = findClass(javassistClassName);
 		if (findClass) {
 			return;
 		}
-		loadClassLoaderLibraries(classPool, classLoader);
-
+		loadClassLoaderLibraries(classLoader);
 	}
 
-	public boolean findClass(ClassPool classPool, String javassistClassName) {
+	public boolean findClass(String javassistClassName) {
 		// TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
 		// 필요
 		URL url = classPool.find(javassistClassName);
@@ -91,7 +96,7 @@ public abstract class AbstractModifier implements Modifier {
 		return true;
 	}
 
-	private void loadClassLoaderLibraries(ClassPool classPool, ClassLoader classLoader) {
+	private void loadClassLoaderLibraries(ClassLoader classLoader) {
 		if (classLoader instanceof URLClassLoader) {
 			URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
 			// TODO classLoader가 가지고 있는 전체 리소스를 모두 로드해야 되는것인지? 테스트 케이스 만들어서

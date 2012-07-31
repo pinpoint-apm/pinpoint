@@ -12,19 +12,23 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(MySQLConnectionImplModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		checkLibrary(classPool, javassistClassName, classLoader);
-		return changeMethods(classPool, classLoader, javassistClassName, classFileBuffer);
+	public MySQLConnectionImplModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeMethods(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		checkLibrary(classLoader, javassistClassName);
+		return changeMethods(javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			updateGetInstanceMethod(classPool, cc);
-			updateCreateStatementMethod(classPool, cc);
-			updateCloseMethod(classPool, cc);
+			updateGetInstanceMethod(cc);
+			updateCreateStatementMethod(cc);
+			updateCloseMethod(cc);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -36,12 +40,12 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		return null;
 	}
 
-	private static void updateCreateStatementMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateCreateStatementMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("createStatement", null);
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
 	}
 
-	private static void updateGetInstanceMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateGetInstanceMethod(CtClass cc) throws Exception {
 		CtClass[] params = new CtClass[5];
 		params[0] = classPool.getCtClass("java.lang.String");
 		params[1] = classPool.getCtClass("int");
@@ -53,7 +57,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
 	}
 
-	private static void updateCloseMethod(ClassPool classPool, CtClass cc) throws Exception {
+	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("close", null);
 		method.insertAfter("{" + TomcatProfilerConstant.CLASS_NAME_REQUEST_DATA_TRACER + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
 	}

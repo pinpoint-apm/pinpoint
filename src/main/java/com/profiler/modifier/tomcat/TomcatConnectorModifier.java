@@ -18,12 +18,16 @@ public class TomcatConnectorModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(TomcatConnectorModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public TomcatConnectorModifier(ClassPool classPool) {
+		super(classPool);
+	}
+	
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("Modifing. %s", javassistClassName);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
-	public byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			CtClass param[] = new CtClass[1];

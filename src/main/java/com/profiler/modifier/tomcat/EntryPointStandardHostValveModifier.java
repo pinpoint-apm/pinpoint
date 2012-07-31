@@ -20,12 +20,16 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(EntryPointStandardHostValveModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-		logger.info("Modifing. %s", javassistClassName);
-		return changeServiceMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+	public EntryPointStandardHostValveModifier(ClassPool classPool) {
+		super(classPool);
 	}
 
-	private byte[] changeServiceMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+		logger.info("Modifing. %s", javassistClassName);
+		return changeServiceMethod(classLoader, javassistClassName, classFileBuffer);
+	}
+
+	private byte[] changeServiceMethod(ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
 		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classfileBuffer));
 		try {
 			addRequestTracerToCurrentClassLoader(classLoader);

@@ -19,12 +19,16 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 
 	private static final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class);
 
-	public byte[] modify(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public TomcatStandardServiceModifier(ClassPool classPool) {
+		super(classPool);
+	}
+	
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		logger.info("Modifing. %s", javassistClassName);
-		return changeMethod(classPool, classLoader, javassistClassName, classFileBuffer);
+		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
-	public byte[] changeMethod(ClassPool classPool, ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
+	public byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
