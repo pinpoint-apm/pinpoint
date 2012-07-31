@@ -17,5 +17,9 @@ public class JdkLoggerTest {
         logger.log(Level.INFO, "Test ", new Exception());
 
         logger.logp(Level.INFO, JdkLoggerTest.class.getName(), "test()", "tsdd");
+
+        // logging.properties 에 fine으로 되어 있으므로 출력안되야 됨.
+        logger.finest("로그가 나오는지?");
+
     }
 }
