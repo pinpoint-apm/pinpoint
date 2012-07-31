@@ -1,15 +1,16 @@
 package com.profiler.modifier;
 
-import com.profiler.logging.Logger;
 
 import javassist.*;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractModifier implements Modifier {
 
-	private static final Logger logger = Logger.getLogger(AbstractModifier.class);
+	private final Logger logger = Logger.getLogger(AbstractModifier.class.getName());
 
 	protected final ClassPool classPool;
 
@@ -39,8 +40,11 @@ public abstract class AbstractModifier implements Modifier {
 					method.insertBefore("{System.out.println(\"*****" + javassistClassName + "." + methodName + "(" + sb + ") is started.\");}");
 					method.insertAfter("{System.out.println(\"*****" + javassistClassName + "." + methodName + "(" + sb + ") is finished.\");}");
 				} else {
-					logger.warn(method.getLongName() + " is empty !!!!!");
-				}
+                    if (logger.isLoggable(Level.WARNING)) {
+                        logger.warning(method.getLongName() + " is empty !!!!!");
+                    }
+
+                }
 			}
 
 			CtConstructor[] constructors = cc.getConstructors();
@@ -62,20 +66,27 @@ public abstract class AbstractModifier implements Modifier {
 					constructor.insertBefore("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is started.\");}");
 					constructor.insertAfter("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is finished.\");}");
 				} else {
-					logger.warn(constructor.getLongName() + " is empty !!!!!");
-				}
+                    if (logger.isLoggable(Level.WARNING)) {
+                        logger.warning(constructor.getLongName() + " is empty !!!!!");
+                    }
+
+                }
 			}
 			return cc.toBytecode();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, e.getMessage(), e);
+            }
 			return null;
 		}
 	}
 
 	public void printClassConvertComplete(String javassistClassName) {
-		logger.info("%s class is converted.", javassistClassName);
-	}
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(javassistClassName + " class is converted.");
+        }
+
+    }
 
 	protected void checkLibrary(ClassLoader classLoader, String javassistClassName) {
 		// TODO Util로 뽑을까?
