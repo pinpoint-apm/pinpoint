@@ -108,4 +108,18 @@ public class UdpSocketTest {
 
 
     }
+
+    // 원격지 테스트시 풀어서 확인한다.
+    //@Test
+    public void testReceive() {
+        while(true) {
+            DatagramPacket datagramPacket = new DatagramPacket(new byte[70000], 70000);
+            try {
+                receiver.receive(datagramPacket);
+                logger.info("data size:" + datagramPacket.getLength());
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "receive error:" + e.getMessage(), e);
+            }
+        }
+    }
 }
