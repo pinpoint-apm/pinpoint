@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.profiler.config.TomcatProfilerConfig;
@@ -14,13 +16,14 @@ import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.dto.AgentInfoDTO;
 import com.profiler.dto.RequestDataListThriftDTO;
 import com.profiler.dto.RequestDataThriftDTO;
+import com.profiler.util.NamedThreadLocal;
 import com.profiler.util.QueryStringUtil;
 
 public class DatabaseRequestTracer {
 
 	public static final String FQCN = DatabaseRequestTracer.class.getName();
 
-	private static Hashtable<Integer, String> dbConnectionURL = new Hashtable<Integer, String>();
+	private static ConcurrentMap<Integer, String> dbConnectionURL = new ConcurrentHashMap<Integer, String>();
 
 	private static Set<Integer> sqlSet = null;
 	static {
@@ -31,14 +34,14 @@ public class DatabaseRequestTracer {
 		}
 	}
 
-	private static final ThreadLocal<RequestDataListThriftDTO> requestDataThreadLocal = new ThreadLocal<RequestDataListThriftDTO>();
-	private static final ThreadLocal<HashMap<Integer, String>> sqlParamMapThreadLocal = new ThreadLocal<HashMap<Integer, String>>();
+	private static final ThreadLocal<RequestDataListThriftDTO> requestDataThreadLocal = new NamedThreadLocal<RequestDataListThriftDTO>("requestDataThreadLocal");
+	private static final ThreadLocal<HashMap<Integer, String>> sqlParamMapThreadLocal = new NamedThreadLocal<HashMap<Integer, String>>("sqlParamMapThreadLocal");
 
 	/**
 	 * These two variables are used counting "ResultSet.next()" times.
 	 */
-	private static final ThreadLocal<Integer> fetchCountThreadLocal = new ThreadLocal<Integer>();
-	private static final ThreadLocal<Integer> totalFetchCountThreadLocal = new ThreadLocal<Integer>();
+	private static final ThreadLocal<Integer> fetchCountThreadLocal = new NamedThreadLocal<Integer>("fetchCountThreadLocal");
+	private static final ThreadLocal<Integer> totalFetchCountThreadLocal = new NamedThreadLocal<Integer>("totalFetchCountThreadLocal");
 
 	public static RequestDataListThriftDTO getRequestDataList() {
 		return requestDataThreadLocal.get();
@@ -96,11 +99,11 @@ public class DatabaseRequestTracer {
 			RequestDataThriftDTO dataDto = new RequestDataThriftDTO(dataType, System.currentTimeMillis());
 			if (url != null) {
 				int hashCode = url.hashCode();
-				if (!dbConnectionURL.containsKey(hashCode)) {
-					dbConnectionURL.put(hashCode, url);
-					dataDto.setDataString(url);
-					// System.out.println(url);
-				}
+                String before = dbConnectionURL.putIfAbsent(hashCode, url);
+                if (before == null) {
+                    dataDto.setDataString(url);
+                }
+
 				dataDto.setDataHashCode(hashCode);
 			}
 			list.add(dataDto);

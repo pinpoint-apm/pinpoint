@@ -10,7 +10,7 @@ import com.profiler.dto.RequestDataListThriftDTO;
 import com.profiler.dto.RequestThriftDTO;
 import com.profiler.sender.DataSender;
 
-public class RequestTracer extends AbstractTracer {
+public class RequestTracer {
 
 	public static final String FQCN = RequestTracer.class.getName();
 
