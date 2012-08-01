@@ -18,6 +18,10 @@ public class CubridStatementModifier extends AbstractModifier {
 	public CubridStatementModifier(ClassPool classPool) {
 		super(classPool);
 	}
+	
+	public String getTargetClass() {
+		return "cubrid/jdbc/driver/CUBRIDStatement";
+	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)) {

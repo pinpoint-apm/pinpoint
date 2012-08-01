@@ -18,6 +18,10 @@ public class MSSQLStatementModifier extends AbstractModifier {
 		super(classPool);
 	}
 
+	public String getTargetClass() {
+		return "net/sourceforge/jtds/jdbc/JtdsStatement";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);

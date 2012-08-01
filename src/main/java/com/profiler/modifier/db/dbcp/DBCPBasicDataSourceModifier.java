@@ -19,6 +19,10 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 		super(classPool);
 	}
 
+	public String getTargetClass() {
+		return "org/apache/commons/dbcp/BasicDataSource";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);

@@ -17,6 +17,10 @@ public class OracleStatementModifier extends AbstractModifier {
 	public OracleStatementModifier(ClassPool classPool) {
 		super(classPool);
 	}
+	
+	public String getTargetClass() {
+		return "oracle/jdbc/driver/OracleStatement";
+	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){

@@ -18,6 +18,10 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 	public MSSQLConnectionModifier(ClassPool classPool) {
 		super(classPool);
 	}
+	
+	public String getTargetClass() {
+		return "net/sourceforge/jtds/jdbc/ConnectionJDBC2";
+	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){

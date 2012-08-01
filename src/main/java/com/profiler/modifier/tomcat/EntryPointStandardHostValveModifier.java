@@ -26,6 +26,10 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		super(classPool);
 	}
 
+	public String getTargetClass() {
+		return "org/apache/catalina/core/StandardHostValve";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
         if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);

@@ -18,6 +18,10 @@ public class DBCPPoolModifier extends AbstractModifier {
 	public DBCPPoolModifier(ClassPool classPool) {
 		super(classPool);
 	}
+	
+	public String getTargetClass() {
+		return "org/apache/commons/dbcp/PoolingDataSource$PoolGuardConnectionWrapper";
+	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){

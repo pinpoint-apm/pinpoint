@@ -21,6 +21,10 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		super(classPool);
 	}
 	
+	public String getTargetClass() {
+		return "oracle/jdbc/driver/OraclePreparedStatement";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);

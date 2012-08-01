@@ -18,6 +18,10 @@ public class OracleResultSetModifier extends AbstractModifier {
 		super(classPool);
 	}
 
+	public String getTargetClass() {
+		return "oracle/jdbc/driver/OracleResultSetImpl";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);

@@ -44,13 +44,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	public void addTomcatModifier() {
 		Map<String, Modifier> registry = this.registry;
 		Modifier entryPointStandardHostValveModifier = new EntryPointStandardHostValveModifier(classPool);
-		registry.put("org/apache/catalina/core/StandardHostValve", entryPointStandardHostValveModifier);
+		registry.put(entryPointStandardHostValveModifier.getTargetClass(), entryPointStandardHostValveModifier);
 
 		Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(classPool);
-		registry.put("org/apache/catalina/core/StandardService", tomcatStandardServiceModifier);
+		registry.put(tomcatStandardServiceModifier.getTargetClass(), tomcatStandardServiceModifier);
 
 		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(classPool);
-		registry.put("org/apache/catalina/connector/Connector", tomcatConnectorModifier);
+		registry.put(tomcatConnectorModifier.getTargetClass(), tomcatConnectorModifier);
 	}
 
 	public void addJdbcModifier() {
@@ -70,31 +70,31 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		// TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
 		// 확인필요.
 		Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(classPool);
-		registry.put("com/mysql/jdbc/ConnectionImpl", mysqlConnectionImplModifier);
+		registry.put(mysqlConnectionImplModifier.getTargetClass(), mysqlConnectionImplModifier);
 
 		Modifier mysqlStatementModifier = new MySQLStatementModifier(classPool);
-		registry.put("com/mysql/jdbc/StatementImpl", mysqlStatementModifier);
+		registry.put(mysqlStatementModifier.getTargetClass(), mysqlStatementModifier);
 
 		Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(classPool);
-		registry.put("com/mysql/jdbc/PreparedStatement", mysqlPreparedStatementModifier);
+		registry.put(mysqlPreparedStatementModifier.getTargetClass(), mysqlPreparedStatementModifier);
 
 		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(classPool);
-		registry.put("com/mysql/jdbc/ResultSetImpl", mysqlResultSetModifier);
+		registry.put(mysqlResultSetModifier.getTargetClass(), mysqlResultSetModifier);
 	}
 
 	private void addMsSqlDriver() {
 		Map<String, Modifier> registry = this.registry;
 		Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(classPool);
-		registry.put("net/sourceforge/jtds/jdbc/ConnectionJDBC2", mssqlConnectionModifier);
+		registry.put(mssqlConnectionModifier.getTargetClass(), mssqlConnectionModifier);
 
 		Modifier mssqlStatementModifier = new MSSQLStatementModifier(classPool);
-		registry.put("net/sourceforge/jtds/jdbc/JtdsStatement", mssqlStatementModifier);
+		registry.put(mssqlStatementModifier.getTargetClass(), mssqlStatementModifier);
 
 		Modifier mssqlPreparedStatementModifier = new MSSQLPreparedStatementModifier(classPool);
-		registry.put("net/sourceforge/jtds/jdbc/JtdsPreparedStatement", mssqlPreparedStatementModifier);
+		registry.put(mssqlPreparedStatementModifier.getTargetClass(), mssqlPreparedStatementModifier);
 
 		Modifier mssqlResultSetModifier = new MSSQLResultSetModifier(classPool);
-		registry.put("net/sourceforge/jtds/jdbc/JtdsResultSet", mssqlResultSetModifier);
+		registry.put(mssqlResultSetModifier.getTargetClass(), mssqlResultSetModifier);
 
 	}
 
@@ -102,38 +102,38 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Map<String, Modifier> registry = this.registry;
 		// TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
 		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(classPool);
-		registry.put("oracle/jdbc/driver/OraclePreparedStatement", oraclePreparedStatementModifier);
+		registry.put(oraclePreparedStatementModifier.getTargetClass(), oraclePreparedStatementModifier);
 
 		Modifier oracleStatement = new OracleStatementModifier(classPool);
-		registry.put("oracle/jdbc/driver/OracleStatement", oracleStatement);
+		registry.put(oracleStatement.getTargetClass(), oracleStatement);
 
 		Modifier oracleResultSetModifier = new OracleResultSetModifier(classPool);
-		registry.put("oracle/jdbc/driver/OracleResultSetImpl", oracleResultSetModifier);
+		registry.put(oracleResultSetModifier.getTargetClass(), oracleResultSetModifier);
 	}
 
 	private void addCubridDriver() {
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier cubridStatementModifier = new CubridStatementModifier(classPool);
-		registry.put("cubrid/jdbc/driver/CUBRIDStatement", cubridStatementModifier);
+		registry.put(cubridStatementModifier.getTargetClass(), cubridStatementModifier);
 
 		Modifier cubridPreparedStatementModifier = new CubridPreparedStatementModifier(classPool);
-		registry.put("cubrid/jdbc/driver/CUBRIDPreparedStatement", cubridPreparedStatementModifier);
+		registry.put(cubridPreparedStatementModifier.getTargetClass(), cubridPreparedStatementModifier);
 
 		Modifier cubridResultSetModifier = new CubridResultSetModifier(classPool);
-		registry.put("cubrid/jdbc/driver/CUBRIDResultSet", cubridResultSetModifier);
+		registry.put(cubridResultSetModifier.getTargetClass(), cubridResultSetModifier);
 
 		Modifier cubridUStatementModifier = new CubridUStatementModifier(classPool);
-		registry.put("cubrid/jdbc/jci/UStatement", cubridUStatementModifier);
+		registry.put(cubridStatementModifier.getTargetClass(), cubridUStatementModifier);
 	}
 
 	private void addDbcpDriver() {
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(classPool);
-		registry.put("org/apache/commons/dbcp/BasicDataSource", dbcpBasicDataSourceModifier);
+		registry.put(dbcpBasicDataSourceModifier.getTargetClass(), dbcpBasicDataSourceModifier);
 
 		Modifier dbcpPoolModifier = new DBCPPoolModifier(classPool);
-		registry.put("org/apache/commons/dbcp/PoolingDataSource$PoolGuardConnectionWrapper", dbcpPoolModifier);
+		registry.put(dbcpPoolModifier.getTargetClass(), dbcpPoolModifier);
 	}
 }

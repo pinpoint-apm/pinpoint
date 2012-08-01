@@ -19,6 +19,10 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		super(classPool);
 	}
 
+	public String getTargetClass() {
+		return "com/mysql/jdbc/ConnectionImpl";
+	}
+	
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);
