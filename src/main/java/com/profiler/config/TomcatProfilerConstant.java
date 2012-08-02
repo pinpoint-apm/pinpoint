@@ -26,7 +26,7 @@ public class TomcatProfilerConstant {
 //	public static final String CLASS_NAME_REQUEST_TRACER = "com.profiler.trace.RequestTransactionTracer";
 	public static final String CLASS_NAME_REQUEST_THRIFT_DTO = "com.profiler.dto.RequestThriftDTO";
 //	public static final String CLASS_NAME_REQUEST_DATA_TRACER = "com.profiler.trace.RequestDataTracer";
-	public static final String CLASS_NAME_AGENT_STATE_MANAGER = "com.profiler.thread.AgentStateManager";
+//	public static final String CLASS_NAME_AGENT_STATE_MANAGER = "com.profiler.thread.AgentStateManager";
 
 	public static final int REQ_DATA_TYPE_DB_GET_CONNECTION = 1;
 	public static final int REQ_DATA_TYPE_DB_CREATE_STATEMENT = 11;

@@ -9,6 +9,7 @@ import java.lang.management.MemoryUsage;
 import java.net.InetAddress;
 import java.util.List;
 
+import com.profiler.Agent;
 import com.profiler.dto.AgentInfoDTO;
 import com.profiler.dto.JVMInfoThriftDTO;
 import com.profiler.sender.AgentInfoSender;
@@ -22,7 +23,7 @@ public class CurrentJVMStateCheckThread extends Thread {
 	private JVMInfoThriftDTO currentDto = new JVMInfoThriftDTO();
 
 	public void run() {
-		setHostIPandPort();
+//		setHostIPandPort();
 
 		long gap = 0;
 		while (true) {
@@ -51,28 +52,25 @@ public class CurrentJVMStateCheckThread extends Thread {
 	 * It check's host IP and port. After then make hashCode of IP+Port string.
 	 * This hashCode is always different with others.
 	 */
-	private void setHostIPandPort() {
-		AgentInfoDTO.staticPortNumber = AgentInfoDTO.getPortNumberString();
-
-		String hostIP = null;
-
-		try {
-			InetAddress thisIp = InetAddress.getLocalHost();
-			hostIP = thisIp.getHostAddress();
-		} catch (Exception e) {
-			e.printStackTrace();
-			hostIP = "127.0.0.1";
-		}
-
-		AgentInfoDTO.staticHostIP = hostIP;
-
-		System.out.println("*** TomcatProfiler : HostIP=" + hostIP + " PortNumbers=" + AgentInfoDTO.staticPortNumber);
-
-		AgentInfoDTO.staticHostHashCode = (hostIP + AgentInfoDTO.staticPortNumber).hashCode();
-
-		AgentInfoSender sender = new AgentInfoSender(true);
-		sender.start();
-	}
+//	private void setHostIPandPort() {
+//		AgentInfoDTO.staticPortNumber = AgentInfoDTO.getPortNumberString();
+//		String hostIP = null;
+//		try {
+//			InetAddress thisIp = InetAddress.getLocalHost();
+//			hostIP = thisIp.getHostAddress();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			hostIP = "127.0.0.1";
+//		}
+//
+//		AgentInfoDTO.staticHostIP = hostIP;
+//		System.out.println(Agent.getInstance().getServerInfo());
+//		System.out.println("*** TomcatProfiler : HostIP=" + hostIP + " PortNumbers=" + AgentInfoDTO.staticPortNumber);
+//		AgentInfoDTO.staticHostHashCode = (hostIP + AgentInfoDTO.staticPortNumber).hashCode();
+//		
+//		AgentInfoSender sender = new AgentInfoSender(true);
+//		sender.start();
+//	}
 
 	/**
 	 * Every JVM_STAT_GAP time, this method is called
@@ -81,7 +79,7 @@ public class CurrentJVMStateCheckThread extends Thread {
 	 */
 	private void sendJVMState() throws Exception {
 		currentDto = new JVMInfoThriftDTO();
-		currentDto.setAgentHashCode(AgentInfoDTO.staticHostHashCode);
+		currentDto.setAgentHashCode(Agent.getInstance().getAgentHashCode());
 		currentDto.setDataTime(System.currentTimeMillis());
 		
 		getActiveThreadCount();

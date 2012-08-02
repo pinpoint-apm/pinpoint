@@ -1,8 +1,5 @@
 package com.profiler.modifier.tomcat;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -10,23 +7,25 @@ import javassist.CtMethod;
 import com.profiler.Agent;
 import com.profiler.modifier.AbstractModifier;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * When org.apache.catalina.core.StandardService class is loaded in ClassLoader,
- * this class modifies methods.
+ * Tomcat startup정보를 HIPPO서버로 전송하는 코드를 호출하기위한 modifier
  * 
- * @author cowboy93, netspider
+ * @author netspider
  * 
  */
-public class TomcatStandardServiceModifier extends AbstractModifier {
+public class CatalinaModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
+	private final Logger logger = Logger.getLogger(CatalinaModifier.class.getName());
 
-	public TomcatStandardServiceModifier(ClassPool classPool) {
+	public CatalinaModifier(ClassPool classPool) {
 		super(classPool);
 	}
 
 	public String getTargetClass() {
-		return "org/apache/catalina/core/StandardService";
+		return "org/apache/catalina/startup/Catalina";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
@@ -40,13 +39,15 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 
-			CtMethod startMethod = cc.getDeclaredMethod("start", null);
-			startMethod.insertBefore("{" + Agent.FQCN + ".startAgent();" + "}");
-
-			CtMethod stopMethod = cc.getDeclaredMethod("stop", null);
-			stopMethod.insertBefore("{" + Agent.FQCN + ".stopAgent();" + "}");
+			/**
+			 * Tomcat startup완료되면 Catalina.await()을 호출하고 stop되기를 기다린다. 이 때
+			 * await하기 전에 서버가 시작되면서 수집된 WAS정보를 HIPPO 서버로 전송한다.
+			 */
+			CtMethod initializeMethod = cc.getDeclaredMethod("await", null);
+			initializeMethod.insertBefore("{" + Agent.FQCN + ".getInstance().sendStartupInfo(); }");
 
 			printClassConvertComplete(javassistClassName);
+
 			return cc.toBytecode();
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {

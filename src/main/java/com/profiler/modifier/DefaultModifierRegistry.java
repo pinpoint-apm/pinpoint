@@ -22,6 +22,7 @@ import com.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
+import com.profiler.modifier.tomcat.CatalinaModifier;
 import com.profiler.modifier.tomcat.EntryPointStandardHostValveModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
@@ -51,6 +52,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(classPool);
 		registry.put(tomcatConnectorModifier.getTargetClass(), tomcatConnectorModifier);
+
+		Modifier tomcatCatalinaModifier = new CatalinaModifier(classPool);
+		registry.put(tomcatCatalinaModifier.getTargetClass(), tomcatCatalinaModifier);
 	}
 
 	public void addJdbcModifier() {

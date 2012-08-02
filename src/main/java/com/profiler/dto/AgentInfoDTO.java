@@ -1,25 +1,31 @@
 package com.profiler.dto;
 
 import java.io.Serializable;
+import java.util.Map.Entry;
 
+import com.profiler.Agent;
 import com.profiler.config.TomcatProfilerConfig;
 
 public class AgentInfoDTO implements Serializable {
 	private static final long serialVersionUID = 1465266151876398515L;
 
 	public AgentInfoDTO() {
-		hostHashCode = staticHostHashCode;
-		hostIP = staticHostIP;
-		portNumbers = staticPortNumber;
+		// TODO: 코드 정리가 필요하다.
+		// 새로 만든 Agent클래스가 제대로 동작하는지 알아보기 위해.
+		// 임시로 이렇게 조치함.
+		Agent agent = Agent.getInstance();
+		hostIP = agent.getServerInfo().getHostip();
+		portNumbers = "";
+		for (Entry<Integer, String> entry : agent.getServerInfo().getConnectors().entrySet()) {
+			portNumbers += " " + entry.getKey();
+		}
+		portNumbers = portNumbers.trim();
+		hostHashCode = (hostIP + portNumbers).hashCode();
+
 		agentTCPPortNumber = TomcatProfilerConfig.AGENT_TCP_LISTEN_PORT;
 		timestamp = System.currentTimeMillis();
 	}
 
-	public transient static final StringBuffer portNumberBuffer = new StringBuffer();
-	// static variable is only used in the agent.
-	public static int staticHostHashCode;
-	public static String staticHostIP, staticPortNumber;
-	// instance variable is commonly used.
 	private String hostIP, portNumbers;
 	private int hostHashCode, agentTCPPortNumber;
 	private boolean isAlive = true;
@@ -27,12 +33,6 @@ public class AgentInfoDTO implements Serializable {
 
 	public void setIsDead() {
 		isAlive = false;
-	}
-
-	public static String getPortNumberString() {
-		staticPortNumber = portNumberBuffer.toString();
-		staticPortNumber.trim();
-		return staticPortNumber;
 	}
 
 	public String toString() {

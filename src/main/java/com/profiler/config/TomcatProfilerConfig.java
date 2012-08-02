@@ -24,8 +24,6 @@ public class TomcatProfilerConfig {
     public static long JVM_STAT_GAP = 5000L;
     public static long SERVER_CONNECT_RETRY_GAP = 1000L;
 
-    public static Level LOG_LEVEL = Level.INFO;
-
     /**
      * If sql query count is over 10000 it consumes Memory. So sqlHashSet uses
      * CopyOnWriteArraySet. It is slow, but it is stable. Default set is false
@@ -144,12 +142,6 @@ public class TomcatProfilerConfig {
             config.JDBC_PROFILE = Boolean.parseBoolean(temp.toString());
             if (logger.isLoggable(Level.INFO)) {
                 logger.info("JDBC_PROFILE=" + config.JDBC_PROFILE);
-            }
-        }
-        if ((temp = prop.get("LOG_LEVEL")) != null) {
-            config.LOG_LEVEL = Level.parse(temp.toString());
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("LOG_LEVEL=" + LOG_LEVEL);
             }
         }
 

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.profiler.Agent;
 import com.profiler.config.TomcatProfilerConfig;
 import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.dto.AgentInfoDTO;
@@ -99,10 +100,10 @@ public class DatabaseRequestTracer {
 			RequestDataThriftDTO dataDto = new RequestDataThriftDTO(dataType, System.currentTimeMillis());
 			if (url != null) {
 				int hashCode = url.hashCode();
-                String before = dbConnectionURL.putIfAbsent(hashCode, url);
-                if (before == null) {
-                    dataDto.setDataString(url);
-                }
+				String before = dbConnectionURL.putIfAbsent(hashCode, url);
+				if (before == null) {
+					dataDto.setDataString(url);
+				}
 
 				dataDto.setDataHashCode(hashCode);
 			}
@@ -260,8 +261,7 @@ public class DatabaseRequestTracer {
 	 */
 	private static RequestDataListThriftDTO checkDTO(RequestDataListThriftDTO dto) {
 		if (dto == null) {
-			// System.out.println("dto=null");
-			dto = new RequestDataListThriftDTO(AgentInfoDTO.staticHostHashCode, RequestTracer.getCurrentRequestHash(), new ArrayList<RequestDataThriftDTO>());
+			dto = new RequestDataListThriftDTO(Agent.getInstance().getAgentHashCode(), RequestTracer.getCurrentRequestHash(), new ArrayList<RequestDataThriftDTO>());
 		}
 		return dto;
 	}
