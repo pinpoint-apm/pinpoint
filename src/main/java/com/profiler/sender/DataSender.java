@@ -61,7 +61,9 @@ public class DataSender extends Thread {
 			DatagramSocket udpSocket = null;
 			try {
 				TBase<?, ?> dto = addedQueue.take();
-
+                // TODO TSerializer대신에 HeaderTBaseSerializer로 하고 Header를 생성하여 같이 넘기면 되며
+                // 받는 쪽에서. HeaderTBaseDeSerialize로 받으면 됨.
+                // 단 header의 type 정보를 수동으로 넣어야 되는지가 불편함이 있음.
 				TSerializer serializer = new TSerializer(new TBinaryProtocol.Factory());
 				byte[] sendData = serializer.serialize(dto);
 
