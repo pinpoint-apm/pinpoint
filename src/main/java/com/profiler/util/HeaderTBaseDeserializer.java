@@ -3,13 +3,9 @@ package com.profiler.util;
 import com.profiler.dto.Header;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TMemoryInputTransport;
-import org.apache.thrift.transport.TTransportException;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 
 public class HeaderTBaseDeserializer {
     private final TProtocol protocol_;
@@ -36,15 +32,15 @@ public class HeaderTBaseDeserializer {
     /**
      * Deserialize the Thrift object from a byte array.
      *
-     * @param base  The object to read into
+     * @param locator  The object to read into
      * @param bytes The array to read from
      */
-    public TBase deserialize(TBaseSelector selector, byte[] bytes) throws TException {
+    public TBase deserialize(TBaseLocator locator, byte[] bytes) throws TException {
         try {
             trans_.reset(bytes);
             Header header = readHeader();
             validate(header);
-            TBase base = selector.getSelect(header);
+            TBase base = locator.lookup(header);
             base.read(protocol_);
             return base;
         } finally {

@@ -22,16 +22,17 @@ public class HeaderTBaseSerializerTest {
         dump(serialize);
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
-        TBaseSelector tBaseSelector = new TBaseSelector() {
+        // TODO type을 어떻게 class와 쉽게 매칭시킬수 있는 클래스 구현 필요.
+        TBaseLocator tBaseLocator = new TBaseLocator() {
             @Override
-            public TBase getSelect(Header header) {
+            public TBase lookup(Header header) {
                 if(header.getType() == 10) {
                     return new JVMInfoThriftDTO();
                 }
                 throw new IllegalArgumentException("type not found:" + header.getType());
             }
         };
-        TBase deserialize = deserializer.deserialize(tBaseSelector, serialize);
+        TBase deserialize = deserializer.deserialize(tBaseLocator, serialize);
         logger.info("deserialize:" + deserialize.getClass());
     }
 

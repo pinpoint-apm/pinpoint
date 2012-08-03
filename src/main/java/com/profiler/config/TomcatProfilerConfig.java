@@ -15,6 +15,9 @@ public class TomcatProfilerConfig {
 
     public static String SERVER_IP = "127.0.0.1";
 
+    // TODO 앞으로 공통으로 사용할 port가 필요함. 근데 tcp, udp 혼용사용하면 따로 port를 열어야 되는거 아닌지.
+    // 일단 9995로 하자.
+    public static int DEFUALT_PORT = 9995;
     public static int AGENT_TCP_LISTEN_PORT = 9990;
     public static int SERVER_TCP_LISTEN_PORT = 9991;
     public static int REQUEST_TRANSACTION_DATA_LISTEN_PORT = 9995;
