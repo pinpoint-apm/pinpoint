@@ -2,7 +2,13 @@ package com.profiler.dto;
 
 import org.junit.Test;
 
+import java.util.logging.Logger;
+
 public class HeaderTest {
+
+    private final Logger logger = Logger.getLogger(Header.class.getName());
+
+
     @Test
     public void testGetSignature() throws Exception {
         Header header = new Header();
