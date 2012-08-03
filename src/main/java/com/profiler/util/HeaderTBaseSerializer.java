@@ -60,14 +60,18 @@ public class HeaderTBaseSerializer {
    */
   public byte[] serialize(Header header, TBase base) throws TException {
     baos_.reset();
-    protocol_.writeByte(header.getSignature());
-    protocol_.writeByte(header.getVersion());
-    protocol_.writeI16(header.getType());
+    writeHeader(header);
     base.write(protocol_);
     return baos_.toByteArray();
   }
 
-  /**
+    private void writeHeader(Header header) throws TException {
+        protocol_.writeByte(header.getSignature());
+        protocol_.writeByte(header.getVersion());
+        protocol_.writeI16(header.getType());
+    }
+
+    /**
    * Serialize the Thrift object into a Java string, using a specified
    * character set for encoding.
    *

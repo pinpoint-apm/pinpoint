@@ -2,7 +2,9 @@ package com.profiler.dto;
 
 public class Header {
 
-    private byte signature = (byte) 0xef;
+    public static final byte SIGNATURE = (byte) 0xef;
+
+    private byte signature = SIGNATURE;
     private byte version = 0x10;
     private short type = 0;
 
@@ -37,6 +39,15 @@ public class Header {
 
     public void setType(short type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "Header{" +
+                "signature=" + signature +
+                ", version=" + version +
+                ", type=" + type +
+                '}';
     }
 }
 

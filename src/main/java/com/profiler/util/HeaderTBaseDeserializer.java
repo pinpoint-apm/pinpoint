@@ -50,15 +50,17 @@ public class HeaderTBaseDeserializer {
     }
 
     private void validate(Header header) {
-        //To change body of created methods use File | Settings | File Templates.
+        boolean accepted = HeaderUtil.validateSignature(header.getSignature());
+        if(!accepted) {
+            throw new IllegalArgumentException("Invalid Signature:" + header);
+        }
     }
 
     private Header readHeader() throws TException {
         byte signature = protocol_.readByte();
         byte version = protocol_.readByte();
         short type = protocol_.readI16();
-        Header header = new Header(signature, version, type);
-        return header;
+        return new Header(signature, version, type);
     }
 
     /**
