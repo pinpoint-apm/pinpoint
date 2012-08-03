@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -24,6 +26,8 @@ import com.profiler.dto.RequestThriftDTO;
  */
 public class DataSender extends Thread {
 
+	private final Logger logger = Logger.getLogger(DataSender.class.getName());
+
 	private final LinkedBlockingQueue<TBase<?, ?>> addedQueue = new LinkedBlockingQueue<TBase<?, ?>>(4096);
 
 	private final InetSocketAddress requestDataAddr = new InetSocketAddress(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.REQUEST_DATA_LISTEN_PORT);
@@ -39,7 +43,7 @@ public class DataSender extends Thread {
 	}
 
 	private DataSender() {
-		setName("Data Sender");
+		setName("HIPPO-DataSender");
 		setDaemon(true);
 		start();
 	}
@@ -80,7 +84,8 @@ public class DataSender extends Thread {
 				udpSocket = new DatagramSocket();
 				udpSocket.send(packet);
 
-				System.out.println("data sent.");
+				//TODO: for test 로그레벨 바꾸기.
+				logger.info(String.format("Data sent. %s", dto));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (TException e) {

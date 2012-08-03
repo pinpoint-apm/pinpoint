@@ -4,7 +4,6 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.profiler.sender.AgentInfoSender;
-import com.profiler.thread.CurrentJVMStateCheckThread;
 
 public class Agent {
 
@@ -15,11 +14,13 @@ public class Agent {
 	private volatile boolean alive = false;
 
 	private final ServerInfo serverInfo;
+	private final SystemMonitor systemMonitor;
 
 	private int agentHash = 0;
 
 	private Agent() {
 		this.serverInfo = new ServerInfo();
+		this.systemMonitor = new SystemMonitor();
 	}
 
 	private static class SingletonHolder {
@@ -44,11 +45,12 @@ public class Agent {
 
 	/**
 	 * Agent hash code.
+	 * 
 	 * @return
 	 */
 	public int getAgentHashCode() {
-		//TODO: string format으로 변경, DTO때문에 일단 int로 구현함.
-		//TODO: hashcode 생성 방법도 변경해야함.
+		// TODO: string format으로 변경, DTO때문에 일단 int로 구현함.
+		// TODO: hashcode 생성 방법도 변경해야함.
 		if (agentHash == 0) {
 			String portNumbers = "";
 			for (Entry<Integer, String> entry : serverInfo.getConnectors().entrySet()) {
@@ -64,7 +66,8 @@ public class Agent {
 	/**
 	 * HIPPO 서버로 WAS정보를 전송한다.
 	 */
-	//TODO: life cycle을 체크하는 방법으로 바꿀까..  DEAD, STARTING, STARTED, STOPPING, STOPPED
+	// TODO: life cycle을 체크하는 방법으로 바꿀까.. DEAD, STARTING, STARTED, STOPPING,
+	// STOPPED
 	public void sendStartupInfo() {
 		logger.info("Send startup information to HIPPO server.");
 
@@ -74,15 +77,12 @@ public class Agent {
 
 	public void start() {
 		logger.info("Starting HIPPO Agent.");
-
-		CurrentJVMStateCheckThread tracer = new CurrentJVMStateCheckThread();
-		tracer.setName("HIPPO-JVMStateCheck");
-		tracer.setDaemon(true);
-		tracer.start();
+		systemMonitor.start();
 	}
 
 	public void stop() {
 		logger.info("Stopping HIPPO Agent.");
+		systemMonitor.stop();
 
 		AgentInfoSender sender = new AgentInfoSender(false);
 		sender.start();
