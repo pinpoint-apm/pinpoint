@@ -14,6 +14,7 @@ struct RequestDataThriftDTO {
 	12: optional i64 extraLong2,
 	13: optional i64 extraLong3
 }
+
 struct RequestDataListThriftDTO {
 	1: i32		hostHashCode,
 	2: i32		requestHashCode,
