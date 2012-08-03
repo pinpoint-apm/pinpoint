@@ -3,6 +3,7 @@ package com.profiler.util;
 import com.profiler.dto.Header;
 import com.profiler.dto.JVMInfoThriftDTO;
 import org.apache.thrift.TBase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -21,17 +22,24 @@ public class HeaderTBaseSerializerTest {
         header.setType((short) 10);
 
         JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
+        int activeThreadount = 10;
+        jvmInfoThriftDTO.setActiveThreadCount(activeThreadount);
+        int agentHashCde = 123;
+        jvmInfoThriftDTO.setAgentHashCode(agentHashCde);
         byte[] serialize = serializer.serialize(header, jvmInfoThriftDTO);
         dump(serialize);
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         TBaseLocator locator = new DefaultTBaseLocator();
-        TBase deserialize = deserializer.deserialize(locator, serialize);
+        JVMInfoThriftDTO deserialize = (JVMInfoThriftDTO) deserializer.deserialize(locator, serialize);
         logger.info("deserialize:" + deserialize.getClass());
+
+        Assert.assertEquals(deserialize.getActiveThreadCount(), activeThreadount);
+        Assert.assertEquals(deserialize.getAgentHashCode(), agentHashCde);
     }
 
     public void dump(byte[] data) {
         String s = Arrays.toString(data);
-        logger.info(data.getClass().getName()+ ":" + s);
+        logger.info("size:"+ data.length + " data:" + s);
     }
 }
