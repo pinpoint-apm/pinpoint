@@ -6,10 +6,10 @@ import java.util.Set;
 
 import com.profiler.Agent;
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.dto.AgentInfoDTO;
 import com.profiler.dto.RequestDataListThriftDTO;
 import com.profiler.dto.RequestThriftDTO;
 import com.profiler.sender.DataSender;
+import com.profiler.util.SystemUtils;
 
 public class RequestTracer {
 
@@ -20,7 +20,7 @@ public class RequestTracer {
 	private static final Set<String> requestSet = Collections.synchronizedSet(new HashSet<String>());
 
 	public static void startTransaction(String requestURL, String clientIP, long requestTime, StringBuilder params) {
-		long cpuUserTime[] = getThreadTime();
+		long cpuUserTime[] = SystemUtils.getThreadTime();
 
 		String tempRequestID = Thread.currentThread().getName() + "_" + System.nanoTime();
 		int tempRequestHashCode = tempRequestID.hashCode();
@@ -46,7 +46,7 @@ public class RequestTracer {
 	 * Transaction is successfully ended.
 	 */
 	public static void endTransaction() {
-		long cpuUserTime[] = getThreadTime();
+		long cpuUserTime[] = SystemUtils.getThreadTime();
 		RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentHashCode(), currentRequestHash.get(), TomcatProfilerConstant.DATA_TYPE_RESPONSE, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
 		finishTransaction(dto);
@@ -58,7 +58,7 @@ public class RequestTracer {
 	 * @param throwable
 	 */
 	public static void exceptionTransaction(Throwable throwable) {
-		long cpuUserTime[] = getThreadTime();
+		long cpuUserTime[] = SystemUtils.getThreadTime();
 
 		RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentHashCode(), currentRequestHash.get(), TomcatProfilerConstant.DATA_TYPE_UNCAUGHT_EXCEPTION, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
@@ -95,26 +95,5 @@ public class RequestTracer {
 
 	public static Integer getCurrentRequestHash() {
 		return currentRequestHash.get();
-	}
-
-	/**
-	 * If every time call Thread's CPU time it affect to TPS and CPU usage. It
-	 * is one of bottle neck.
-	 * 
-	 * @return
-	 */
-	public static long[] getThreadTime() {
-		long result[] = new long[2];
-
-		// ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		//
-		// System.out.println(Thread.currentThread().getName() + " CPU:" +
-		// bean.getCurrentThreadCpuTime() + " User:" +
-		// bean.getCurrentThreadUserTime());
-		//
-		// result[0] = bean.getCurrentThreadCpuTime();
-		// result[1] = bean.getCurrentThreadUserTime();
-
-		return result;
 	}
 }
