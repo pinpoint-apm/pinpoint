@@ -36,6 +36,15 @@ public class DataSender extends Thread {
     // 주의 single thread용임
     private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
+    private static class SingletonHolder {
+        public static final DataSender INSTANCE = new DataSender();
+    }
+
+    public static DataSender getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
+
+
     private DataSender() {
         udpSocket = createSocket();
         setName("HIPPO-DataSender");
