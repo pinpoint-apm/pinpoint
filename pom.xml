@@ -242,20 +242,6 @@
 		                                    <arg value="${basedir}/generated-sources/thrift"/>
 		                                    <arg value="${basedir}/thrift/RequestThriftDTO.thrift"/>
 		                                </exec>
-		                                <exec executable="${thrift.executable}" failonerror="true">
-		                                    <arg value="--gen"/>
-		                                    <arg value="java:beans"/>
-		                                    <arg value="-o"/>
-		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/Header.thrift"/>
-		                                </exec>
-		                                 <exec executable="${thrift.executable}" failonerror="true">
-		                                    <arg value="--gen"/>
-		                                    <arg value="java:beans"/>
-		                                    <arg value="-o"/>
-		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/MulplexedDTO.thrift"/>
-		                                </exec>
 		                                <!--<delete>-->
 		                                <!--<fileset dir="src/main/java" includes="**/*"/>-->
 		                                <!--</delete>-->

@@ -154,4 +154,17 @@ public class UdpSocketTest {
 
         Thread.sleep(1000*3);
     }
+
+//    @Test
+    public void createUdpSocket() throws IOException {
+        DatagramSocket so = new DatagramSocket();
+//        so.bind(new InetSocketAddress("localhost", 8081));
+//        DatagramSocket receiver = new DatagramSocket(new InetSocketAddress("localhost", 8082));
+//        receiver.bind(new InetSocketAddress("localhost", 8082));
+
+        so.connect(new InetSocketAddress("localhost", 8082));
+        so.send(new DatagramPacket(new byte[10], 10));
+
+//        receiver.receive(newDatagramPacket(1000));
+    }
 }

@@ -43,7 +43,7 @@ public class HeaderTBaseDeserializer {
 			trans_.reset(bytes);
 			Header header = readHeader();
 			validate(header);
-			TBase<?, ?> base = locator.lookup(header);
+			TBase<?, ?> base = locator.tBaseLookup(header.getType());
 			base.read(protocol_);
 			return base;
 		} finally {
