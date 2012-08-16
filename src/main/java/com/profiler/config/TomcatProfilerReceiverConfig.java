@@ -12,9 +12,9 @@ public class TomcatProfilerReceiverConfig {
 
 	public static int AGENT_TCP_LISTEN_PORT = 9990;
 	public static int SERVER_TCP_LISTEN_PORT = 9991;
-	public static int REQUEST_TRANSACTION_DATA_LISTEN_PORT = 9995;
-	public static int REQUEST_DATA_LISTEN_PORT = 9996;
-	public static int JVM_DATA_LISTEN_PORT = 9997;
+
+    public static int DEFUALT_PORT = 9995;
+
 
 	static {
 		readConfigFile();
@@ -52,12 +52,12 @@ public class TomcatProfilerReceiverConfig {
 			AGENT_TCP_LISTEN_PORT = Integer.parseInt(temp.toString());
 		if ((temp = prop.get("SERVER_TCP_LISTEN_PORT")) != null)
 			SERVER_TCP_LISTEN_PORT = Integer.parseInt(temp.toString());
-		if ((temp = prop.get("REQUEST_TRANSACTION_DATA_LISTEN_PORT")) != null)
-			REQUEST_TRANSACTION_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
-		if ((temp = prop.get("REQUEST_DATA_LISTEN_PORT")) != null)
-			REQUEST_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
-		if ((temp = prop.get("JVM_DATA_LISTEN_PORT")) != null)
-			JVM_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
+//		if ((temp = prop.get("REQUEST_TRANSACTION_DATA_LISTEN_PORT")) != null)
+//			REQUEST_TRANSACTION_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
+//		if ((temp = prop.get("REQUEST_DATA_LISTEN_PORT")) != null)
+//			REQUEST_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
+//		if ((temp = prop.get("JVM_DATA_LISTEN_PORT")) != null)
+//			JVM_DATA_LISTEN_PORT = Integer.parseInt(temp.toString());
 
 		// ##### set boolean values #####
 		System.out.println("##### Hippo Config Loaded successfully. #####");

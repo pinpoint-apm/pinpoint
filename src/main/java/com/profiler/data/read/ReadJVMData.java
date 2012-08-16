@@ -3,8 +3,7 @@ package com.profiler.data.read;
 import java.net.DatagramPacket;
 
 import org.apache.log4j.Logger;
-import org.apache.thrift.TDeserializer;
-import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.TBase;
 
 import com.profiler.config.TomcatProfilerReceiverConfig;
 import com.profiler.config.TomcatProfilerReceiverConstant;
@@ -13,20 +12,17 @@ import com.profiler.data.store.hbase.put2.DataPutThreadManager;
 import com.profiler.data.store.hbase.put2.PutJVMData;
 import com.profiler.dto.JVMInfoThriftDTO;
 
-public class ReadJVMData extends Thread {
+public class ReadJVMData implements ReadHandler {
 	private static final Logger logger = Logger.getLogger("com.profiler.data.read.ReadJVMData");
 	
 	long receiveTime=0;
-	DatagramPacket packet;
-	public ReadJVMData(DatagramPacket packet) {
-		this.packet=packet;
+
+	public ReadJVMData() {
 	}
-	public void run() {
-		TDeserializer deserializer = new TDeserializer(new TBinaryProtocol.Factory());
-		JVMInfoThriftDTO dto=new JVMInfoThriftDTO();
+
+	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 		try {
-			byte[] data=packet.getData();
-			deserializer.deserialize(dto,data);
 			int agentHashCode=dto.getAgentHashCode();
 			
 			RequestTransactionDataManager manager=new RequestTransactionDataManager();

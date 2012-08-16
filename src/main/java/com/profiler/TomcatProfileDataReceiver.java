@@ -1,12 +1,11 @@
 package com.profiler;
 
+import com.profiler.receiver.udp.DataReceiver;
+import com.profiler.receiver.udp.MulplexedUDPReceiver;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.profiler.data.thread.FetchTPSDataThread;
 import com.profiler.receiver.tcp.TCPReceiver;
-import com.profiler.receiver.udp.JVMStatDataReceiver;
-import com.profiler.receiver.udp.RequestDataReceiver;
-import com.profiler.receiver.udp.RequestTransactionDataReceiver;
 
 public class TomcatProfileDataReceiver {
 	public static void main(String[] args) {
@@ -24,15 +23,7 @@ public class TomcatProfileDataReceiver {
 		System.out.println("***** Start TomcatTransactionData Receive UDP Thread *****"); // request
 																							// start
 																							// stop
-		RequestTransactionDataReceiver requestTransactionDataReceiver = new RequestTransactionDataReceiver(1024);
-
-		System.out.println("***** Start TomcatRequestData Receive UDP Thread *****"); // query
-																						// information
-		RequestDataReceiver requestDataReceiver = new RequestDataReceiver(64512);
-
-		System.out.println("***** Start TomcatJVMData Receive UDP Thread     *****"); // jvm
-																						// data
-		JVMStatDataReceiver jvmReceiver = new JVMStatDataReceiver(256);
+		DataReceiver mulplexDataReceiver = new MulplexedUDPReceiver();
 
 		System.out.println("***** Start Tomcat Agent Data Receive TDP Thread *****"); // was
 																						// start
@@ -44,9 +35,7 @@ public class TomcatProfileDataReceiver {
 
 		System.out.println("******************************************************");
 
-		requestTransactionDataReceiver.start();
-		requestDataReceiver.start();
-		jvmReceiver.start();
+		mulplexDataReceiver.start();
 		tcpReceiver.start();
 		fetchRPS.start();
 	}

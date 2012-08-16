@@ -1,31 +1,28 @@
 package com.profiler.data.read;
 
 import org.apache.log4j.Logger;
-import org.apache.thrift.TDeserializer;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.TBase;
 
 import com.profiler.data.manager.RequestTransactionDataManager;
 import com.profiler.dto.RequestDataListThriftDTO;
 
-public class ReadRequestData extends Thread{
+import java.net.DatagramPacket;
+
+public class ReadRequestData implements ReadHandler {
 	private static final Logger logger = Logger.getLogger("RequestInfo");
-	long receiveTime=0;
-	byte[] data=null;
-	public ReadRequestData(byte[] data) {
-		this.data=data;
+
+    long receiveTime=0;
+
+    public ReadRequestData() {
 	}
-	public ReadRequestData(long receiveTime,byte[] data) {
+
+	public ReadRequestData(long receiveTime) {
 		this.receiveTime=receiveTime;
-		this.data=data;
 	}
-	public void run() {
-		TDeserializer deserializer = new TDeserializer(new TBinaryProtocol.Factory());
-		RequestDataListThriftDTO dto=new RequestDataListThriftDTO();
+
+	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        RequestDataListThriftDTO dto = (RequestDataListThriftDTO) tbase;
 		try {
-//			System.out.println(receiveTime+" "+data.length);//+" "+new String(data));
-			deserializer.deserialize(dto,data);
-//			logger.debug(dto);
 			RequestTransactionDataManager manager=new RequestTransactionDataManager();
 			
 			//For Debug start
@@ -36,16 +33,14 @@ public class ReadRequestData extends Thread{
 			StringBuilder message=RequestDataPrinter.printRequestData(dto, agentName, url,"\n");
 			logger.debug(message);
 			//For Debug end
+
+			// TODO packet을 slice해서 넣어야 될거 같음
+			manager.addRequestDataList(dto, datagramPacket.getData());
 			
-			manager.addRequestDataList(dto, data);
-			
-		} catch (TTransportException tte) {
-			logger.error(tte.getMessage());
-			System.out.println("Message size="+data.length);
-			tte.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
+
 }
