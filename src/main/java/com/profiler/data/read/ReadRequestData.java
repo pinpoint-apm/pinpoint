@@ -6,7 +6,9 @@ import org.apache.thrift.TBase;
 import com.profiler.data.manager.RequestTransactionDataManager;
 import com.profiler.dto.RequestDataListThriftDTO;
 
+import java.lang.reflect.Array;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 
 public class ReadRequestData implements ReadHandler {
 	private static final Logger logger = Logger.getLogger("RequestInfo");
@@ -21,6 +23,9 @@ public class ReadRequestData implements ReadHandler {
 	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle " + tbase);
+        }
         RequestDataListThriftDTO dto = (RequestDataListThriftDTO) tbase;
 		try {
 			RequestTransactionDataManager manager=new RequestTransactionDataManager();
@@ -35,7 +40,7 @@ public class ReadRequestData implements ReadHandler {
 			//For Debug end
 
 			// TODO packet을 slice해서 넣어야 될거 같음
-			manager.addRequestDataList(dto, datagramPacket.getData());
+            manager.addRequestDataList(dto, Arrays.copyOf(datagramPacket.getData(), datagramPacket.getLength()));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
