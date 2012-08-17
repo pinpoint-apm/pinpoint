@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.concurrent.*;
 
-public class MulplexedUDPReceiver implements DataReceiver  {
+public class MulplexedUDPReceiver implements DataReceiver {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -46,8 +46,8 @@ public class MulplexedUDPReceiver implements DataReceiver  {
 //					System.out.println("ReceiveBufferSize="+udpSocket.getReceiveBufferSize());
                     DatagramPacket packet = new DatagramPacket(buffer, AcceptedSize);
                     udpSocket.receive(packet);
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("DatagramPacket read size:" +  packet.getLength());
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("DatagramPacket read size:" + packet.getLength());
                     }
                     worker.execute(new MulplexedPacketHandler(packet));
                 } catch (RejectedExecutionException ree) {
