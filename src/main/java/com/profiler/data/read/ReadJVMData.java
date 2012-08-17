@@ -13,7 +13,7 @@ import com.profiler.data.store.hbase.put2.PutJVMData;
 import com.profiler.dto.JVMInfoThriftDTO;
 
 public class ReadJVMData implements ReadHandler {
-	private static final Logger logger = Logger.getLogger("com.profiler.data.read.ReadJVMData");
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	
 	long receiveTime=0;
 
@@ -21,6 +21,9 @@ public class ReadJVMData implements ReadHandler {
 	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle " + tbase);
+        }
         JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 		try {
 			int agentHashCode=dto.getAgentHashCode();

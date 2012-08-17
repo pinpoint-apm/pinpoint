@@ -20,14 +20,10 @@ public class TomcatProfileDataReceiver {
 		// thrift.start();
 
 		System.out.println("******************************************************");
-		System.out.println("***** Start TomcatTransactionData Receive UDP Thread *****"); // request
-																							// start
-																							// stop
+		System.out.println("***** Start MulplexedUDPReceiver Receive UDP Thread *****");
 		DataReceiver mulplexDataReceiver = new MulplexedUDPReceiver();
 
 		System.out.println("***** Start Tomcat Agent Data Receive TDP Thread *****"); // was
-																						// start
-																						// stop
 		TCPReceiver tcpReceiver = new TCPReceiver();
 
 		System.out.println("***** Start Fetch data Thread                    *****");

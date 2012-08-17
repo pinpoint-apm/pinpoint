@@ -12,7 +12,8 @@ import com.profiler.dto.RequestThriftDTO;
 import java.net.DatagramPacket;
 
 public class ReadRequestTransactionData implements ReadHandler {
-	private static final Logger logger = Logger.getLogger("RequestInfo");
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
+
 	long receiveTime=0;
 
 	public ReadRequestTransactionData() {
@@ -23,6 +24,9 @@ public class ReadRequestTransactionData implements ReadHandler {
 	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle " + tbase);
+        }
         RequestThriftDTO dto = (RequestThriftDTO) tbase;
 		try {
 			logger.debug(dto);

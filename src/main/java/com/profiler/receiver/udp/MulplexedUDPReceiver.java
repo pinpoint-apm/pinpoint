@@ -1,6 +1,7 @@
 package com.profiler.receiver.udp;
 
 import com.profiler.config.TomcatProfilerReceiverConfig;
+import org.apache.log4j.Logger;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -8,10 +9,11 @@ import java.util.concurrent.*;
 
 public class MulplexedUDPReceiver implements DataReceiver  {
 
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    protected ExecutorService executor = Executors.newFixedThreadPool(1024);
+    private ExecutorService worker = Executors.newFixedThreadPool(1024);
 
-    protected DatagramSocket udpSocket = null;
+    private DatagramSocket udpSocket = null;
 
     private Thread packetReader = new Thread(MulplexedUDPReceiver.class.getSimpleName()) {
         @Override
@@ -30,6 +32,7 @@ public class MulplexedUDPReceiver implements DataReceiver  {
     public void receive() {
         try {
             this.udpSocket = new DatagramSocket(TomcatProfilerReceiverConfig.DEFUALT_PORT);
+            System.out.println("ddddd");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,7 +46,10 @@ public class MulplexedUDPReceiver implements DataReceiver  {
 //					System.out.println("ReceiveBufferSize="+udpSocket.getReceiveBufferSize());
                     DatagramPacket packet = new DatagramPacket(buffer, AcceptedSize);
                     udpSocket.receive(packet);
-                    executor.execute(new MulplexedPacketHandler(packet));
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("DatagramPacket read size:" +  packet.getLength());
+                    }
+                    worker.execute(new MulplexedPacketHandler(packet));
                 } catch (RejectedExecutionException ree) {
                     rejectedExecutionCount++;
                     if (rejectedExecutionCount > 1000) {
@@ -69,9 +75,9 @@ public class MulplexedUDPReceiver implements DataReceiver  {
     public void shutdown() {
         // TODO 가능한 gracefull shutdown 구현필요.
 //        this.udpSocket.close();
-//        this.executor.shutdown();
+//        this.worker.shutdown();
 //        try {
-//            this.executor.awaitTermination(5, TimeUnit.SECONDS);
+//            this.worker.awaitTermination(5, TimeUnit.SECONDS);
 //        } catch (InterruptedException e) {
 //            Thread.currentThread().interrupt();
 //        }
