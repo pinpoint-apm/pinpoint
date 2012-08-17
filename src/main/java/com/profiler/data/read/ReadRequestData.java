@@ -11,23 +11,19 @@ import java.net.DatagramPacket;
 import java.util.Arrays;
 
 public class ReadRequestData implements ReadHandler {
-	private static final Logger logger = Logger.getLogger("RequestInfo");
-
-    long receiveTime=0;
+	private static final Logger logger = Logger.getLogger(ReadRequestData.class.getName());
 
     public ReadRequestData() {
 	}
 
-	public ReadRequestData(long receiveTime) {
-		this.receiveTime=receiveTime;
-	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         if (logger.isDebugEnabled()) {
             logger.debug("handle " + tbase);
         }
-        RequestDataListThriftDTO dto = (RequestDataListThriftDTO) tbase;
+
 		try {
+            RequestDataListThriftDTO dto = (RequestDataListThriftDTO) tbase;
 			RequestTransactionDataManager manager=new RequestTransactionDataManager();
 			
 			//For Debug start
@@ -43,7 +39,7 @@ public class ReadRequestData implements ReadHandler {
             manager.addRequestDataList(dto, Arrays.copyOf(datagramPacket.getData(), datagramPacket.getLength()));
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("ReadRequestData handle error " + e.getMessage(), e);
 		}
 	}
 

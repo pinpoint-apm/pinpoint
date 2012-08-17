@@ -13,10 +13,8 @@ import com.profiler.data.store.hbase.put2.PutJVMData;
 import com.profiler.dto.JVMInfoThriftDTO;
 
 public class ReadJVMData implements ReadHandler {
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private static final Logger logger = Logger.getLogger(ReadJVMData.class.getName());
 	
-	long receiveTime=0;
-
 	public ReadJVMData() {
 	}
 
@@ -24,16 +22,15 @@ public class ReadJVMData implements ReadHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("handle " + tbase);
         }
-        JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 		try {
+            JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 			int agentHashCode=dto.getAgentHashCode();
 			
 			RequestTransactionDataManager manager=new RequestTransactionDataManager();
 			manager.addAgentHashCode(agentHashCode);
 			
 			checkAgentHashCodeIsExist(agentHashCode);
-			logger.debug(dto.toString());
-			
+
 			if(TomcatProfilerReceiverConfig.USING_HBASE) {
 				String tableName=TomcatProfilerReceiverConstant.HBASE_JVM_TABLE+"_"+agentHashCode;
 				PutJVMData put=new PutJVMData(tableName,dto);
@@ -41,7 +38,7 @@ public class ReadJVMData implements ReadHandler {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("ReadJVMData handle error " + e.getMessage(), e);
 		}
 	}
 	private void checkAgentHashCodeIsExist(int agentHashCode) {

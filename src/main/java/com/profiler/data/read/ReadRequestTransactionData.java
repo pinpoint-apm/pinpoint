@@ -12,28 +12,24 @@ import com.profiler.dto.RequestThriftDTO;
 import java.net.DatagramPacket;
 
 public class ReadRequestTransactionData implements ReadHandler {
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	long receiveTime=0;
+    private static final Logger logger = Logger.getLogger(ReadRequestTransactionData.class.getName());
+
 
 	public ReadRequestTransactionData() {
-	}
-
-	public ReadRequestTransactionData(long receiveTime) {
-		this.receiveTime=receiveTime;
 	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         if (logger.isDebugEnabled()) {
             logger.debug("handle " + tbase);
         }
-        RequestThriftDTO dto = (RequestThriftDTO) tbase;
+
 		try {
-			logger.debug(dto);
-			RequestTransactionDataManager manager=new RequestTransactionDataManager();
+            RequestThriftDTO dto = (RequestThriftDTO) tbase;
+			RequestTransactionDataManager manager = new RequestTransactionDataManager();
 			manager.addRequest(dto);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("ReadRequestTransactionData handle error " + e.getMessage(), e);
 		}
 	}
 }

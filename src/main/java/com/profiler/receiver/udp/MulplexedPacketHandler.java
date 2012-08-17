@@ -5,21 +5,25 @@ import com.profiler.data.read.ReadJVMData;
 import com.profiler.data.read.ReadRequestData;
 import com.profiler.data.read.ReadRequestTransactionData;
 import com.profiler.dto.JVMInfoThriftDTO;
-import com.profiler.dto.RequestDataDTO;
 import com.profiler.dto.RequestDataListThriftDTO;
 import com.profiler.dto.RequestThriftDTO;
 import com.profiler.util.DefaultTBaseLocator;
 import com.profiler.util.HeaderTBaseDeserializer;
 import com.profiler.util.TBaseLocator;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import java.net.DatagramPacket;
 
 public class MulplexedPacketHandler implements Runnable {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
     private DatagramPacket datagramPacket;
 
     private TBaseLocator locator= new DefaultTBaseLocator();
+
 
     public MulplexedPacketHandler(DatagramPacket datagramPacket) {
         this.datagramPacket = datagramPacket;
@@ -34,7 +38,7 @@ public class MulplexedPacketHandler implements Runnable {
             tBase = deserializer.deserialize(locator, datagramPacket.getData());
             dispatch(tBase, datagramPacket);
         } catch (TException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.warn("packet serialize error " + e.getMessage(), e);
         }
     }
 
