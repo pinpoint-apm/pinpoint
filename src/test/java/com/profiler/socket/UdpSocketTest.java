@@ -96,7 +96,7 @@ public class UdpSocketTest {
     @Test
     public void testMaxBytes() throws IOException {
 
-        DatagramPacket packet1 = newDatagramPacket(500000);
+        DatagramPacket packet1 = newDatagramPacket(50000);
         sender.send(packet1);
 
 
