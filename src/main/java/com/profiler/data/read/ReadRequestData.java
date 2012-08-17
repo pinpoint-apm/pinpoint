@@ -31,8 +31,11 @@ public class ReadRequestData implements ReadHandler {
 			CharSequence agentName=manager.getAgentName(hostHashCode);
 			int requestHashCode=dto.getRequestHashCode();
 			String url=manager.getRequestURL(requestHashCode);
-			StringBuilder message=RequestDataPrinter.printRequestData(dto, agentName, url,"\n");
-			logger.debug(message);
+
+            if (logger.isDebugEnabled() ) {
+                StringBuilder message=RequestDataPrinter.printRequestData(dto, agentName, url,"\n");
+                logger.debug(message);
+            }
 			//For Debug end
 
 			// TODO packet을 slice해서 넣어야 될거 같음

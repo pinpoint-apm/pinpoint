@@ -48,6 +48,9 @@ public class MulplexedPacketHandler implements Runnable {
 
     private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
         ReadHandler readHandler = getReadHandler(tBase, datagramPacket);
+        if(logger.isDebugEnabled()) {
+            logger.debug("handler name:" + readHandler.getClass().getName());
+        }
         readHandler.handler(tBase, datagramPacket);
     }
 
