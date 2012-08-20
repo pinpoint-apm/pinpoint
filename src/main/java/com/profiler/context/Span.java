@@ -27,18 +27,8 @@ public class Span {
 	});
 
 	public Span(String traceID, int parentSpanID, String name, boolean debug) {
-		if (traceID == null) {
-			this.traceID = traceID;
-		} else {
-			this.traceID = IDFactory.newTraceID();
-		}
-
-		if (parentSpanID < 0) {
-			this.spanID = 1;
-		} else {
-			this.spanID = ++parentSpanID;
-		}
-
+		this.traceID = (traceID == null) ? TraceID.newTraceID() : traceID;
+		this.spanID = (parentSpanID < 0) ? 1 : ++parentSpanID;
 		this.parentSpanID = parentSpanID;
 		this.name = name;
 		this.createTime = System.nanoTime();
@@ -60,6 +50,10 @@ public class Span {
 
 	public int getNextSpanID() {
 		return spanID + 1;
+	}
+
+	public boolean isDebug() {
+		return debug;
 	}
 
 	public String toString() {
