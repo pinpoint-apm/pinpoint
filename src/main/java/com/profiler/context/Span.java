@@ -12,9 +12,11 @@ import java.util.TreeSet;
  */
 public class Span {
 
+	private static final int NO_PARENT_SPAN_ID = -1;
+
 	private final String traceID;
-	private final int spanID;
-	private final int parentSpanID;
+	private final String spanID;
+	private final String parentSpanID;
 	private final String name;
 	private final long createTime;
 	private final boolean debug;
@@ -26,9 +28,18 @@ public class Span {
 		}
 	});
 
-	public Span(String traceID, int parentSpanID, String name, boolean debug) {
+	/**
+	 * 
+	 * @param traceID
+	 * @param parentSpanID
+	 * @param name
+	 * @param debug
+	 *            if this is set we will make sure this span is stored, no
+	 *            matter what the samplers want
+	 */
+	public Span(String traceID, String parentSpanID, String name, boolean debug) {
 		this.traceID = (traceID == null) ? TraceID.newTraceID() : traceID;
-		this.spanID = (parentSpanID < 0) ? 1 : ++parentSpanID;
+		this.spanID = SpanID.newSpanID();
 		this.parentSpanID = parentSpanID;
 		this.name = name;
 		this.createTime = System.nanoTime();
@@ -48,25 +59,25 @@ public class Span {
 		return traceID;
 	}
 
-	public int getNextSpanID() {
-		return spanID + 1;
-	}
-
 	public boolean isDebug() {
 		return debug;
 	}
 
+	public int getAnnotationSize() {
+		return annotations.size();
+	}
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Span[");
+		sb.append("Span={");
 		sb.append("TraceID=").append(traceID);
 		sb.append(", SpanID=").append(spanID);
 		sb.append(", ParentSpanID=").append(parentSpanID);
 		sb.append(", CreateTime=").append(createTime);
 		sb.append(", Name=").append(name);
 		sb.append(", Annotations=").append(annotations);
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}

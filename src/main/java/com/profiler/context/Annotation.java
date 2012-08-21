@@ -39,13 +39,13 @@ public class Annotation {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Annotation[");
+		sb.append("Annotation={");
 		sb.append("Timestamp=").append(timestamp);
-		sb.append("Value=").append(value);
-		sb.append("EndPoint=").append(endPoint);
-		sb.append("ProcessStart=").append(processStart);
-		sb.append("ProcessEnd=").append(processEnd);
-		sb.append("]");
+		sb.append(", Value=").append(value);
+		sb.append(", EndPoint=").append(endPoint);
+		sb.append(", ProcessStart=").append(processStart);
+		sb.append(", ProcessEnd=").append(processEnd);
+		sb.append("}");
 
 		return sb.toString();
 	}

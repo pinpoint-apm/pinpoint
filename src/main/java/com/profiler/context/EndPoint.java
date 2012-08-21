@@ -17,6 +17,6 @@ public class EndPoint {
 	}
 
 	public String toString() {
-		return "EndPoint[Protocol=" + protocol + ", IP=" + ip + ", Port=" + port + ", Name=" + name + "]";
+		return "EndPoint{Protocol=" + protocol + ", IP=" + ip + ", Port=" + port + ", Name=" + name + "]";
 	}
 }
