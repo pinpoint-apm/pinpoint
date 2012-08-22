@@ -1,6 +1,8 @@
 package com.profiler.modifier.db.cubrid;
 
+import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -33,12 +35,32 @@ public class CubridStatementModifier extends AbstractModifier {
 	}
 
 	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-		try {
+
+        StaticAroundInterceptor interceptor = new StaticAroundInterceptor() {
+            @Override
+            public void after(Object target, String className, String methodName, Object[] args, Object result) {
+                DatabaseRequestTracer.putSqlQuery(TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY, (String) args[0]);
+            }
+
+            @Override
+            public void before(Object target, String className, String methodName, Object[] args) {
+                DatabaseRequestTracer.put(TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY);;
+            }
+        };
+
+        InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
+        aClass.addInterceptor("executeQuery", new String[] {"java.lang.String"}, interceptor);
+
+        printClassConvertComplete(javassistClassName);
+//        return aClass.toBytecode();
+
+
+        try {
 			CtClass cc = classPool.get(javassistClassName);
 
 			updateExecuteQueryMethod(cc);
 
-			printClassConvertComplete(javassistClassName);
+
 
 			return cc.toBytecode();
 		} catch (Exception e) {

@@ -3,6 +3,7 @@ package com.profiler.interceptor.bci;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import javassist.ClassPool;
+import javassist.CtClass;
 import javassist.NotFoundException;
 
 import java.net.URL;
@@ -12,19 +13,12 @@ import java.util.logging.Logger;
 
 public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
-    private final Logger logger = Logger.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private ClassPool classPool;
 
     public JavaAssistByteCodeInstrumentor() {
         this.classPool = createClassPool();
-    }
-
-    @Override
-    public void addInterceptor(String className, String methodName, String[] args, Interceptor interceptor) {
-        if(interceptor instanceof StaticBeforeInterceptor) {
-
-        }
     }
 
     public ClassPool getClassPool() {
@@ -67,7 +61,17 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 		loadClassLoaderLibraries(classLoader);
 	}
 
-	public boolean findClass(String javassistClassName) {
+    @Override
+    public InstrumentClass getClass(String javassistClassName) {
+        try {
+            CtClass cc = classPool.get(javassistClassName);
+            return new JavaAssistClass(this, cc);
+        } catch (NotFoundException e) {
+            return null;
+        }
+    }
+
+    public boolean findClass(String javassistClassName) {
 		// TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
 		// 필요
 		URL url = classPool.find(javassistClassName);
