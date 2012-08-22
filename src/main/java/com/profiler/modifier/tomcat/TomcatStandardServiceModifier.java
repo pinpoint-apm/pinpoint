@@ -3,6 +3,7 @@ package com.profiler.modifier.tomcat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -21,8 +22,9 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
 
-	public TomcatStandardServiceModifier(ClassPool classPool) {
-		super(classPool);
+
+	public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {
@@ -39,7 +41,7 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 	public byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
-
+//            byteCodeInstrumentor.addInterceptor(, "startAgent", null);
 			CtMethod startMethod = cc.getDeclaredMethod("start", null);
 			startMethod.insertBefore("{" + Agent.FQCN + ".startAgent();" + "}");
 

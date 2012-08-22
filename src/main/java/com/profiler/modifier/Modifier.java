@@ -1,6 +1,6 @@
 package com.profiler.modifier;
 
 public interface Modifier {
-	byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer);
+	byte[] modify(ClassLoader classLoader, String className, byte[] classFileBuffer);
 	String getTargetClass();
 }

@@ -1,6 +1,8 @@
 package com.profiler.modifier.tomcat;
 
 import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_REQUEST_THRIFT_DTO;
+
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -22,8 +24,8 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(EntryPointStandardHostValveModifier.class.getName());
 
-	public EntryPointStandardHostValveModifier(ClassPool classPool) {
-		super(classPool);
+	public EntryPointStandardHostValveModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {

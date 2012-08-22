@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.cubrid;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -16,8 +17,8 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(CubridPreparedStatementModifier.class.getName());
 
-	public CubridPreparedStatementModifier(ClassPool classPool) {
-		super(classPool);
+	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 	
 	public String getTargetClass() {

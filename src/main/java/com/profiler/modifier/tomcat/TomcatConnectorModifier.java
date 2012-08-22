@@ -1,5 +1,6 @@
 package com.profiler.modifier.tomcat;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -20,8 +21,8 @@ public class TomcatConnectorModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(TomcatConnectorModifier.class.getName());
 
-	public TomcatConnectorModifier(ClassPool classPool) {
-		super(classPool);
+	public TomcatConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {

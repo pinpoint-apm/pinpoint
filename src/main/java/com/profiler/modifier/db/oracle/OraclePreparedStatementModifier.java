@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.oracle;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -17,8 +18,8 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(OraclePreparedStatementModifier.class.getName());
 
-	public OraclePreparedStatementModifier(ClassPool classPool) {
-		super(classPool);
+	public OraclePreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 	
 	public String getTargetClass() {

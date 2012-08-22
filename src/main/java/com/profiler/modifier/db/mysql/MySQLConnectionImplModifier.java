@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -15,8 +16,8 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(MySQLConnectionImplModifier.class.getName());
 
-	public MySQLConnectionImplModifier(ClassPool classPool) {
-		super(classPool);
+	public MySQLConnectionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {

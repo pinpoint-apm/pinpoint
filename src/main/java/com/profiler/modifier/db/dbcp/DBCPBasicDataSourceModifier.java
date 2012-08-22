@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.dbcp;
 
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -15,8 +16,8 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(DBCPBasicDataSourceModifier.class.getName());
 
-	public DBCPBasicDataSourceModifier(ClassPool classPool) {
-		super(classPool);
+	public DBCPBasicDataSourceModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {
