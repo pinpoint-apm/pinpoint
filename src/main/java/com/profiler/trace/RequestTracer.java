@@ -19,7 +19,7 @@ public class RequestTracer {
 	private static final ThreadLocal<Integer> currentRequestHash = new ThreadLocal<Integer>();
 	private static final Set<String> requestSet = Collections.synchronizedSet(new HashSet<String>());
 
-	public static void startTransaction(String requestURL, String clientIP, long requestTime, StringBuilder params) {
+	public static void startTransaction(String requestURL, String clientIP, long requestTime, String parameters) {
 		long cpuUserTime[] = SystemUtils.getThreadTime();
 
 		String tempRequestID = Thread.currentThread().getName() + "_" + System.nanoTime();
@@ -33,11 +33,11 @@ public class RequestTracer {
 		dto.setClientIP(clientIP);
 		dto.setRequestURL(requestURL);
 
-		int paramsLength = params.length();
-		if (paramsLength > 0) {
-			params.deleteCharAt(paramsLength - 1);
-			dto.setExtraData1(params.toString());
-		}
+//		int paramsLength = params.length();
+//		if (paramsLength > 0) {
+//			params.deleteCharAt(paramsLength - 1);
+//			dto.setExtraData1(params.toString());
+//		}
 
 		DataSender.getInstance().addDataToSend(dto);
 	}

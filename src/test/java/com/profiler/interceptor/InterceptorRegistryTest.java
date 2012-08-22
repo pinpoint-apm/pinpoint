@@ -1,16 +1,16 @@
 package com.profiler.interceptor;
 
-import javassist.*;
-import javassist.bytecode.Descriptor;
-import javassist.expr.ExprEditor;
-import javassist.expr.MethodCall;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+
+import org.junit.Test;
 
 public class InterceptorRegistryTest {
     @Test
@@ -27,7 +27,7 @@ public class InterceptorRegistryTest {
    @Test
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException {
 
-       InterceptorRegistry.addInterceptor("a", new AroundInterceptor() {
+       InterceptorRegistry.addInterceptor(1, new AroundInterceptor() {
            @Override
            public void before(InterceptorContext ctx) {
                System.out.println("before ctx:" + ctx );
@@ -63,7 +63,7 @@ public class InterceptorRegistryTest {
                "ctx = new com.profiler.interceptor.InterceptorContext();" +
                "ctx.setParameter($args);" +
 //               InterceptorRegistry.class.getName() + ".getInterceptor(\"a\").before(ctx);" +
-               "interceptor = (com.profiler.interceptor.AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
+               "interceptor = (com.profiler.interceptor.AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(1);"+
                "interceptor.before(ctx);" +
                "}");
         hello.addCatch("{" +

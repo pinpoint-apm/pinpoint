@@ -2,17 +2,16 @@ package com.profiler.modifier.tomcat;
 
 import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_REQUEST_THRIFT_DTO;
 
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.ByteArrayClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.RequestTracer;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javassist.ByteArrayClassPath;
+
+import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.RequestTracer;
 
 /**
  * Modify org.apache.catalina.core.StandardHostValve class
@@ -31,123 +30,53 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 	public String getTargetClass() {
 		return "org/apache/catalina/core/StandardHostValve";
 	}
-	
+
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)){
-		    logger.info("Modifing. " + javassistClassName);
-        }
-		return changeServiceMethod(classLoader, javassistClassName, classFileBuffer);
-	}
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("Modifing. " + javassistClassName);
+		}
 
-	private byte[] changeServiceMethod(ClassLoader classLoader, String javassistClassName, byte[] classfileBuffer) {
-		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classfileBuffer));
+		addRequestTracerToCurrentClassLoader(classLoader);
+
+		System.out.println("\n\n\n\n\n\n");
+		System.out.println("EntryPointStandardHostValveModifier=" + classLoader);
+		System.out.println("EntryPointStandardHostValveModifier parent=" + classLoader.getParent());
+
 		try {
-			addRequestTracerToCurrentClassLoader(classLoader);
-
-			CtClass cc = classPool.get(javassistClassName);
-			CtClass[] params = new CtClass[2];
-
-			params[0] = classPool.getCtClass("org.apache.catalina.connector.Request");
-			params[1] = classPool.getCtClass("org.apache.catalina.connector.Response");
-			CtMethod serviceMethod = cc.getDeclaredMethod("invoke", params);
-
-			serviceMethod.insertBefore(getInvokeMethodBeforeInsertCode());
-			serviceMethod.insertAfter(getInvokeMethodAfterInsertCode());
-
-			CtClass exceptionType = classPool.get("java.lang.Throwable");
-			serviceMethod.addCatch(getInvokeMethodCatchInsertCode(), exceptionType);
-
-			printClassConvertComplete(javassistClassName);
-
-			return cc.toBytecode();
-		} catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
-            }
+//			Class.forName("com.profiler.modifier.tomcat.InvokeMethodInterceptor", false, classLoader);
+			
+			System.out.println(org.apache.catalina.Manager.class.getClassLoader().loadClass("com.profiler.modifier.tomcat.InvokeMethodInterceptor").newInstance().getClass().getClassLoader());
+			
+			System.out.println(classLoader.loadClass("com.profiler.modifier.tomcat.InvokeMethodInterceptor").newInstance().getClass().getClassLoader());
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		return null;
-	}
+		System.out.println("\n\n\n\n\n\n");
 
-	private String getInvokeMethodBeforeInsertCode() {
-		StringBuilder insertCode = new StringBuilder();
-		insertCode.append("{");
-		insertCode.append("long requestTime=System.currentTimeMillis();");
+		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
-		insertCode.append("javax.servlet.http.HttpServletRequest tempRequest=(javax.servlet.http.HttpServletRequest)$1;");
-		insertCode.append("String requestURL=tempRequest.getRequestURI();");
-		insertCode.append("String clientIP=tempRequest.getRemoteAddr();");
-		insertCode.append(getParameterValues());
-		insertCode.append(RequestTracer.FQCN).append(".startTransaction(requestURL,clientIP,requestTime,params);");
+		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is started.\");");
+		InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
+
+		try {
+			aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, (Interceptor) org.apache.catalina.Manager.class.getClassLoader().loadClass("com.profiler.modifier.tomcat.InvokeMethodInterceptor").newInstance());
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 
-		insertCode.append("}");
-		return insertCode.toString();
-	}
-
-	private StringBuilder getParameterValues() {
-		StringBuilder insertCode = new StringBuilder();
-		insertCode.append("java.util.Enumeration attrs=tempRequest.getParameterNames();");
-		insertCode.append("StringBuilder params=new StringBuilder();");
-		insertCode.append("while(attrs.hasMoreElements()) {");
-		insertCode.append("String keyString=attrs.nextElement().toString();");
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("System.out.println(keyString+\"=\"+tempRequest.getParameter(keyString));");
-		}
-
-		insertCode.append("Object value=tempRequest.getParameter(keyString);");
-		insertCode.append("if(value!=null) {");
-		insertCode.append("String valueString=value.toString();");
-		insertCode.append("int valueStringLength=valueString.length();");
-		insertCode.append("if(valueStringLength>0 && valueStringLength<100) params.append(keyString).append(\"=\").append(valueString).append(\",\");");
-		insertCode.append("}}");
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("System.out.println(params);");
-		}
-
-		return insertCode;
-	}
-
-	private String getInvokeMethodAfterInsertCode() {
-		StringBuilder insertCode = new StringBuilder();
-		insertCode.append("{");
-		insertCode.append(RequestTracer.FQCN).append(".endTransaction();");
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("System.out.println(\"--- ApplicationFilterChain.doFilter() is ended.\");");
-		}
-
-		insertCode.append("}");
-
-		return insertCode.toString();
-	}
-
-	private String getInvokeMethodCatchInsertCode() {
-		StringBuilder insertCode = new StringBuilder();
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("{");
-			insertCode.append("System.out.println(\"------------------------------------------------\");");
-			insertCode.append("System.out.println(\"--- \"+$e.getMessage()+\" is occured !!!\");");
-		}
-
-		insertCode.append(RequestTracer.FQCN).append(".exceptionTransaction($e);");
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("System.out.println(\"------------------------------------------------\");");
-		}
-
-		insertCode.append("throw $e;");
-
-		if (logger.isLoggable(Level.FINE)) {
-			insertCode.append("}");
-		}
-
-		return insertCode.toString();
+		return aClass.toBytecode();
 	}
 
 	private void addRequestTracerToCurrentClassLoader(ClassLoader classLoader) {
@@ -155,10 +84,11 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 			classLoader.loadClass(RequestTracer.FQCN);
 			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);
 			classLoader.loadClass("org.apache.thrift.TBase");
+			// classLoader.loadClass("com.profiler.modifier.tomcat.InvokeMethodInterceptor");
 		} catch (Exception e) {
-            if(logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
-            }
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 	}
 }

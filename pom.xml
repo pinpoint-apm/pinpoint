@@ -52,6 +52,15 @@
 	</repositories>
 
 	<dependencies>
+		<!-- [Start] Compile Interceptors -->
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.16.1-GA</version>
+            <scope>compile</scope>
+        </dependency>
+		<!-- [End] Compile Interceptors -->
+	
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>

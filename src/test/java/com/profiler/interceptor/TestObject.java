@@ -1,6 +1,6 @@
 package com.profiler.interceptor;
 
-public class TestObject{
+public class TestObject {
 
     public String  hello(String a) {
         System.out.println("a:" + a);
