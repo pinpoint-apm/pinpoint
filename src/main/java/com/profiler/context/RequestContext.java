@@ -4,21 +4,21 @@ import com.profiler.util.NamedThreadLocal;
 
 public class RequestContext {
 
-	private static final ThreadLocal<Span> span = new NamedThreadLocal<Span>("Span");
+	private static final ThreadLocal<Trace> trace = new NamedThreadLocal<Trace>("Trace");
 
-	public static Span getSpan(String traceID, String parentSpanID, String name, boolean debug) {
-		Span ctx = span.get();
-		if (ctx == null) {
-			ctx = new Span(traceID, parentSpanID, name, debug);
-			span.set(ctx);
+	public static Trace getTrace(String traceID, String parentSpanID, String name, boolean debug) {
+		Trace t = trace.get();
+		if (t == null) {
+			t = new Trace(traceID, parentSpanID, name, debug);
+			trace.set(t);
 		}
-		return ctx;
+		return t;
 	}
 
 	/**
 	 * Calling from Span.flush()
 	 */
 	public static void removeCurrentContext() {
-		span.remove();
+		trace.remove();
 	}
 }

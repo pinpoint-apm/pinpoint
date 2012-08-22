@@ -2,29 +2,23 @@ package com.profiler.context;
 
 import org.junit.Test;
 
+import com.profiler.context.gen.Annotation;
+import com.profiler.context.gen.BinaryAnnotation;
+
 public class SpanTest {
 
 	@Test
 	public void span() {
-		Span rootSpan = RequestContext.getSpan(TraceID.EMPTY, SpanID.ROOT_SPAN_ID, "UnitTest", true);
+		Trace tracer = RequestContext.getTrace(TraceID.EMPTY, SpanID.ROOT_SPAN_ID, "UnitTest", true);
 
-		Annotation a1 = new Annotation(System.nanoTime(), "step1", EndPoint.NONE);
-		Annotation a2 = new Annotation(System.nanoTime(), "step2", EndPoint.NONE);
-		Annotation a3 = new Annotation(System.nanoTime(), "step2", new EndPoint("HTTP", "127.0.0.1", 1111, "localserver"));
+		Annotation a1 = new Annotation(System.nanoTime(), "step1");
+		Annotation a2 = new Annotation(System.nanoTime(), "step2");
+		BinaryAnnotation a3 = new BinaryAnnotation(System.nanoTime(), "", null, "");
 
-		a1.processStart();
-		a1.processEnd();
+		tracer.record(a1);
+		tracer.record(a2);
+		tracer.recordBinary(a3);
 
-		a2.processStart();
-		a2.processEnd();
-
-		a3.processStart();
-		a3.processEnd();
-
-		rootSpan.addAnnotation(a1);
-		rootSpan.addAnnotation(a2);
-		rootSpan.addAnnotation(a3);
-
-		System.out.println(rootSpan);
+		System.out.println(tracer);
 	}
 }

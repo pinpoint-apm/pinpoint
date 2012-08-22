@@ -17,5 +17,6 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/thrift/libthrift/0.8.0/libthrift-0.8.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/tomcat/servlet-api/6.0.35/servlet-api-6.0.35.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-jdk14/1.5.8/slf4j-jdk14-1.5.8.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 </classpath>
