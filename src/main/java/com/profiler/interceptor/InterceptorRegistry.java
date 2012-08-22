@@ -5,14 +5,14 @@ import java.util.concurrent.ConcurrentMap;
 
 public class InterceptorRegistry {
 
-    private static final ConcurrentMap<String, Interceptor> INTERCEPTO_MAP = new ConcurrentHashMap<String, Interceptor>(256);
+    private static final ConcurrentMap<String, Interceptor> INTERCEPTOR_MAP = new ConcurrentHashMap<String, Interceptor>(256);
 
-    public static void addInterceptor(String className, Interceptor interceptor) {
-        INTERCEPTO_MAP.put(className, interceptor);
+    public static void addInterceptor(String className, AroundInterceptor aroundInterceptor) {
+        INTERCEPTOR_MAP.put(className, aroundInterceptor);
     }
 
     public static Interceptor getInterceptor(String className) {
-        return INTERCEPTO_MAP.get(className);
+        return INTERCEPTOR_MAP.get(className);
     }
 
 }

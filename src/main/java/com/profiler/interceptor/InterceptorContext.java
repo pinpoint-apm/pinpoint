@@ -7,9 +7,9 @@ public class InterceptorContext {
     private String className;
     private String methodName;
     private Object[] parameter;
+    private Object value;
 
-    private Throwable exception;
-    private Object returnValue;
+    private Object result;
 
     public Object getTarget() {
         return target;
@@ -43,20 +43,20 @@ public class InterceptorContext {
         this.parameter = parameter;
     }
 
-    public Throwable getException() {
-        return exception;
+    public Object getResult() {
+        return result;
     }
 
-    public void setException(Throwable exception) {
-        this.exception = exception;
+    public void setResult(Object result) {
+        this.result = result;
     }
 
-    public Object getReturnValue() {
-        return returnValue;
+    public Object getValue() {
+        return value;
     }
 
-    public void setReturnValue(Object returnValue) {
-        this.returnValue = returnValue;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     @Override
@@ -66,8 +66,8 @@ public class InterceptorContext {
                 ", className='" + className + '\'' +
                 ", methodName='" + methodName + '\'' +
                 ", parameter=" + (parameter == null ? null : Arrays.asList(parameter)) +
-                ", exception=" + exception +
-                ", returnValue=" + returnValue +
+                ", value=" + value +
+                ", result=" + result +
                 '}';
     }
 }
