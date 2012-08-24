@@ -1,10 +1,10 @@
 package com.profiler.modifier.tomcat;
 
+import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -31,7 +31,7 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 		return "org/apache/catalina/core/StandardService";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("Modifing. " + javassistClassName);
 		}

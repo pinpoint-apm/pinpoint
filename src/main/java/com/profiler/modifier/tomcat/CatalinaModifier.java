@@ -1,13 +1,13 @@
 package com.profiler.modifier.tomcat;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
 import com.profiler.Agent;
 import com.profiler.modifier.AbstractModifier;
 
+import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +29,7 @@ public class CatalinaModifier extends AbstractModifier {
 		return "org/apache/catalina/startup/Catalina";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("Modifing. " + javassistClassName);
 		}

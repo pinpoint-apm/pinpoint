@@ -1,7 +1,6 @@
 package com.profiler.modifier.db.oracle;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
@@ -11,6 +10,7 @@ import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
 
+import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 		return "oracle/jdbc/driver/OraclePreparedStatement";
 	}
 	
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isLoggable(Level.INFO)){
 		    logger.info("Modifing. " + javassistClassName);
         }

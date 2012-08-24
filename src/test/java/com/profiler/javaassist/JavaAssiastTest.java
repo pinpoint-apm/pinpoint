@@ -4,11 +4,19 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import javassist.bytecode.ClassFile;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 public class JavaAssiastTest {
+    @Test
+    public void newClass() {
+
+
+    }
     @Test
     public void testAssist() throws NotFoundException, NoSuchMethodException {
         ClassPool getDefault = ClassPool.getDefault();
@@ -21,6 +29,7 @@ public class JavaAssiastTest {
 //        for(CtMethod method :  methods) {
 //            System.out.println(method.getMethodInfo() +" " + method.getSignature());
 //        }
+
         CtMethod endsWith = ctClass.getMethod("endsWith", "(Ljava/lang/String;)Z");
         System.out.println(endsWith.getMethodInfo());
         System.out.println(endsWith.getSignature());
@@ -33,5 +42,19 @@ public class JavaAssiastTest {
         Method endsWith1 = String.class.getMethod("endsWith", new Class[]{String.class});
         System.out.println(endsWith1);
 
+    }
+
+    @Test
+    public void test() {
+        sout("java/lang/String");
+        sout("java.lang.String");
+
+    }
+
+    private void sout(String str) {
+        URL resource = this.getClass().getClassLoader().getResource(str);
+        System.out.println(resource);
+
+//        new URLClassLoader()
     }
 }

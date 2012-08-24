@@ -2,12 +2,14 @@ package com.profiler.interceptor.bci;
 
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.StaticBeforeInterceptor;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,6 +73,23 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
+    @Override
+    public Class defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) {
+        try {
+            CtClass clazz = classPool.get(defineClass);
+            return clazz.toClass(classLoader, protectedDomain);
+        } catch (NotFoundException e) {
+            if(logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        } catch (CannotCompileException e) {
+            if(logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
     public boolean findClass(String javassistClassName) {
 		// TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
 		// 필요
@@ -94,8 +113,9 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 					// TODO 여기서 로그로 class로더를 찍어보면 어떤 clasdLoader에서 로딩되는지 알수 있을거
 					// 것같음.
 					// 만약 한개만 로딩해도 된다면. return true 할것
-					// log("Loaded "+filePath+" library.");
-
+                    if(logger.isLoggable(Level.FINE)) {
+					    logger.info("Loaded "+filePath+" library.");
+                    }
 				} catch (NotFoundException e) {
 				}
 			}

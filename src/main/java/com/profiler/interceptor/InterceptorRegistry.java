@@ -1,18 +1,25 @@
 package com.profiler.interceptor;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class InterceptorRegistry {
 
-    private static final ConcurrentMap<Integer, Interceptor> INTERCEPTOR_MAP = new ConcurrentHashMap<Integer, Interceptor>(256);
+    private static final AtomicInteger ID = new AtomicInteger(0);
 
-    public static void addInterceptor(Integer key, Interceptor interceptor) {
-        INTERCEPTOR_MAP.put(key, interceptor);
+    private static int MAX = 1024;
+    private static final Interceptor[] INDEX = new Interceptor[MAX];
+
+    public static int addInterceptor(Interceptor interceptor) {
+        int id = ID.getAndIncrement();
+        if (id > MAX) {
+            throw new IllegalArgumentException("id" + id);
+        }
+        INDEX[id] = interceptor;
+        return id;
     }
 
     public static Interceptor getInterceptor(int key) {
-        return INTERCEPTOR_MAP.get(key);
+        return INDEX[key];
     }
 
 }

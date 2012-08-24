@@ -2,6 +2,8 @@ package com.profiler.interceptor.bci;
 
 import javassist.ClassPool;
 
+import java.security.ProtectionDomain;
+
 
 public interface ByteCodeInstrumentor {
 
@@ -11,4 +13,6 @@ public interface ByteCodeInstrumentor {
     void checkLibrary(ClassLoader classLoader, String javassistClassName);
 
      InstrumentClass getClass(String javassistClassName);
+
+    Class defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain);
 }

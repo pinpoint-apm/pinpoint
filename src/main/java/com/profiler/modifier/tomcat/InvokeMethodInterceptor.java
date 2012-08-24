@@ -21,26 +21,30 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 		System.out.println("\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 		System.out.println("interceptor=" + InvokeMethodInterceptor.class.getClassLoader());
-		
-		javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest) args[0];
-		String requestURL = request.getRequestURI();
-		String clientIP = request.getRemoteAddr();
-		String traceID = request.getHeader(Header.HTTP_TRACE_ID.toString());
-		String parentSpanID = request.getHeader(Header.HTTP_TRACE_PARENT_SPAN_ID.toString());
-		Boolean debug = Boolean.valueOf(request.getHeader(Header.HTTP_TRACE_DEBUG.toString()));
-		String parameters = getParameter(request);
 
-		if (traceID == null)
-			traceID = TraceID.newTraceID();
+        try {
+            HttpServletRequest request = (HttpServletRequest) args[0];
+            String requestURL = request.getRequestURI();
+            String clientIP = request.getRemoteAddr();
+            String traceID = request.getHeader(Header.HTTP_TRACE_ID.toString());
+            String parentSpanID = request.getHeader(Header.HTTP_TRACE_PARENT_SPAN_ID.toString());
+            Boolean debug = Boolean.valueOf(request.getHeader(Header.HTTP_TRACE_DEBUG.toString()));
+            String parameters = getParameter(request);
 
-		Trace trace = RequestContext.getTrace(traceID, parentSpanID, "StandardHostValveInterceptor", debug);
+            if (traceID == null)
+                traceID = TraceID.newTraceID();
 
-		Annotation a = new Annotation();
-		a.setTimestamp(System.currentTimeMillis());
+            Trace trace = RequestContext.getTrace(traceID, parentSpanID, "StandardHostValveInterceptor", debug);
 
-		RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
+            Annotation a = new Annotation();
+            a.setTimestamp(System.currentTimeMillis());
 
-	}
+            RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("end--------------");
+    }
 
 	@Override
 	public void after(Object target, String className, String methodName, Object[] args, Object result) {

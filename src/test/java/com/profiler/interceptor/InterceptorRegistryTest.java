@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import com.profiler.interceptor.bci.TestObject;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -26,29 +27,30 @@ public class InterceptorRegistryTest {
     }
    @Test
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException {
-
-       InterceptorRegistry.addInterceptor(1, new AroundInterceptor() {
+       AroundInterceptor aroundInterceptor = new AroundInterceptor() {
            @Override
            public void before(InterceptorContext ctx) {
-               System.out.println("before ctx:" + ctx );
+               System.out.println("before ctx:" + ctx);
            }
 
            @Override
            public void after(InterceptorContext ctx) {
                System.out.println("after ctx:" + ctx);
            }
-       });
+       };
+       int i = InterceptorRegistry.addInterceptor(aroundInterceptor);
 
 
-        ClassPool p = ClassPool.getDefault();
+       ClassPool p = ClassPool.getDefault();
        CtClass throwable = p.get(Throwable.class.getName());
 
 
 
-       CtClass ctClass = p.get("com.profiler.interceptor.TestObject");
+       CtClass ctClass = p.get("com.profiler.interceptor.bci.TestObject");
        System.out.println(ctClass);
        final CtMethod hello = ctClass.getMethod("hello", "(Ljava/lang/String;)Ljava/lang/String;");
-
+       System.out.println("langname:" + hello.getLongName());
+       System.out.println("name:" + hello.getName());
        CtClass ctx = p.get(InterceptorContext.class.getName());
        hello.addLocalVariable("ctx", ctx);
 
@@ -78,7 +80,7 @@ public class InterceptorRegistryTest {
 
 //
 
-//       hello.setBody(generatedAroundInterceptor("com.profiler.interceptor.TestObject", "hello"));
+//       hello.setBody(generatedAroundInterceptor("com.profiler.interceptor.bci.TestObject", "hello"));
 //       hello.setBody("{ System.out.println(\"ddd\");  }", ClassMap map );
        hello.insertBefore(" System.out.println(\" before +  \");");
        hello.insertAfter(" System.out.println($_);");
@@ -96,7 +98,7 @@ public class InterceptorRegistryTest {
 //             } catch (NotFoundException e) {
 //                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 //             }
-//             String code = generatedAroundInterceptor("com.profiler.interceptor.TestObject", "hello");
+//             String code = generatedAroundInterceptor("com.profiler.interceptor.bci.TestObject", "hello");
 //             m.replace(code);
 //         }
 

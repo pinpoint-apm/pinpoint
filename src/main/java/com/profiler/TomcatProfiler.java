@@ -4,6 +4,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -38,6 +39,7 @@ public class TomcatProfiler implements ClassFileTransformer {
 		// this.classPool = createClassPool();
 		this.modifierRepository = createModifierRegistry(byteCodeInstrumentor, tomcatProfilerConfig);
 		this.tomcatProfilerConfig = tomcatProfilerConfig;
+
 	}
 
 	private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, TomcatProfilerConfig tomcatProfilerConfig) {
@@ -51,12 +53,16 @@ public class TomcatProfiler implements ClassFileTransformer {
 
 	@Override
 	public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("[transform] cl" + classLoader + " className:" + className);
+        }
 		Modifier findModifier = this.modifierRepository.findModifier(className);
 		if (findModifier == null) {
 			return null;
 		}
+
 		String javassistClassName = className.replace('/', '.');
 
-		return findModifier.modify(classLoader, javassistClassName, classFileBuffer);
+		return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
 	}
 }
