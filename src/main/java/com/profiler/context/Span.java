@@ -1,11 +1,11 @@
 package com.profiler.context;
 
-import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * A span represents one RPC request. A trace is made up of many spans.
  * 
  * @author netspider
  * 
@@ -15,31 +15,29 @@ public class Span {
 	private final TraceID traceID;
 	private final String name;
 	private final EndPoint endPoint;
-
 	private final long createTime;
 
-	private final SortedSet<Annotation> annotations = new TreeSet<Annotation>(new Comparator<Annotation>() {
-		@Override
-		public int compare(Annotation a1, Annotation a2) {
-			throw new RuntimeException("Comparator not implemented");
-			// return (int) (a1.getTimestamp() - a2.getTimestamp());
-		}
-	});
+	private final List<Annotation> annotations = new ArrayList<Annotation>();
+	private final Set<String> annotationDesc = new HashSet<String>();
 
 	public Span(TraceID traceId, String name, EndPoint endPoint) {
 		this.traceID = traceId;
 		this.name = name;
 		this.endPoint = endPoint;
-
 		this.createTime = System.nanoTime();
 	}
 
 	public boolean addAnnotation(Annotation annotation) {
+		annotationDesc.add(annotation.toString());
 		return annotations.add(annotation);
 	}
 
 	public int getAnnotationSize() {
 		return annotations.size();
+	}
+
+	public boolean isExistsAnnotation(String annotation) {
+		return annotationDesc.contains(annotation);
 	}
 
 	public String toString() {

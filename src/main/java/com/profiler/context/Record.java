@@ -14,6 +14,14 @@ public class Record {
 		this.duration = duration;
 	}
 
+	public TraceID getTraceId() {
+		return this.traceId;
+	}
+
+	public Annotation getAnnotation() {
+		return this.annotation;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

@@ -2,31 +2,36 @@ package com.profiler.context;
 
 public interface Annotation {
 
+	public static final String CLIENT_SEND = "@CLIENT_SEND";
+	public static final String CLIENT_RECV = "@CLIENT_RECV";
+	public static final String SERVER_SEND = "@SERVER_SEND";
+	public static final String SERVER_RECV = "@SERVER_RECV";
+
 	public static class ClientSend implements Annotation {
 		@Override
 		public String toString() {
-			return "@CLIENT_SEND";
+			return CLIENT_SEND;
 		}
 	}
 
 	public static class ClientRecv implements Annotation {
 		@Override
 		public String toString() {
-			return "@CLIENT_RECV";
+			return CLIENT_RECV;
 		}
 	}
 
 	public static class ServerSend implements Annotation {
 		@Override
 		public String toString() {
-			return "@SERVER_SEND";
+			return SERVER_SEND;
 		}
 	}
 
 	public static class ServerRecv implements Annotation {
 		@Override
 		public String toString() {
-			return "@SERVER_RECV";
+			return SERVER_RECV;
 		}
 	}
 
