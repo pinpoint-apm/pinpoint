@@ -56,7 +56,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     public void checkLibrary(ClassLoader classLoader, String javassistClassName) {
 		// TODO Util로 뽑을까?
 		boolean findClass = findClass(javassistClassName);
-		if (!findClass) {
+		if (findClass) {
 			return;
 		}
 		loadClassLoaderLibraries(classLoader);
