@@ -2,9 +2,11 @@ package com.profiler.context;
 
 public enum Header {
 
-	HTTP_TRACE_ID("x-tracer-trace_id"),
-	HTTP_TRACE_DEBUG("x-tracer-debug"),
-	HTTP_TRACE_PARENT_SPAN_ID("x-tracer-parent_span_id");
+	HTTP_TRACE_ID("X-TRACER-TraceID"),
+	HTTP_SPAN_ID("X-TRACER-SpanID"),
+	HTTP_PARENT_SPAN_ID("X-TRACER-ParentSpanID"),
+	HTTP_SAMPLED("X-TRACER-Sampled"),
+	HTTP_FLAGS("X-TRACER-Flags");
 
 	private String token;
 

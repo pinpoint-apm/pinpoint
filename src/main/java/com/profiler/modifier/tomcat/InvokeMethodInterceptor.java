@@ -4,11 +4,10 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.profiler.context.Annotation;
 import com.profiler.context.Header;
-import com.profiler.context.RequestContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceID;
-import com.profiler.context.gen.Annotation;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.trace.RequestTracer;
 
@@ -16,35 +15,35 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
 	public void before(Object target, String className, String methodName, Object[] args) {
-		System.out.println("\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		System.out.println("\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		System.out.println("\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		try {
+			HttpServletRequest request = (HttpServletRequest) args[0];
+			String requestURL = request.getRequestURI();
+			String clientIP = request.getRemoteAddr();
 
-		System.out.println("interceptor=" + InvokeMethodInterceptor.class.getClassLoader());
+			String traceID = request.getHeader(Header.HTTP_TRACE_ID.toString());
+			String parentSpanID = request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString());
+			String spanID = request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString());
+			Boolean sampled = Boolean.valueOf(request.getHeader(Header.HTTP_SAMPLED.toString()));
+			Integer flags = Integer.valueOf(request.getHeader(Header.HTTP_FLAGS.toString()));
 
-        try {
-            HttpServletRequest request = (HttpServletRequest) args[0];
-            String requestURL = request.getRequestURI();
-            String clientIP = request.getRemoteAddr();
-            String traceID = request.getHeader(Header.HTTP_TRACE_ID.toString());
-            String parentSpanID = request.getHeader(Header.HTTP_TRACE_PARENT_SPAN_ID.toString());
-            Boolean debug = Boolean.valueOf(request.getHeader(Header.HTTP_TRACE_DEBUG.toString()));
-            String parameters = getParameter(request);
+			String parameters = getParameter(request);
 
-            if (traceID == null)
-                traceID = TraceID.newTraceID();
+			// record
+			// TODO: traceid 유무 확인.
+			Trace.setTraceId(new TraceID(traceID, parentSpanID, spanID, sampled, flags));
+			Trace.recordRpcName("service_name", requestURL);
+			Trace.recordServerAddr(request.getLocalName());
+			Trace.recordBinary("http.uri", parameters);
+			Trace.record(new Annotation.ServerRecv());
 
-            Trace trace = RequestContext.getTrace(traceID, parentSpanID, "StandardHostValveInterceptor", debug);
-
-            Annotation a = new Annotation();
-            a.setTimestamp(System.currentTimeMillis());
-
-            RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        System.out.println("end--------------");
-    }
+			RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
+		} catch (Exception e) {
+			e.printStackTrace();
+			// To change body of catch statement use File | Settings | File
+			// Templates.
+		}
+		System.out.println("end--------------");
+	}
 
 	@Override
 	public void after(Object target, String className, String methodName, Object[] args, Object result) {

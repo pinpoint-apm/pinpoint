@@ -1,38 +1,75 @@
 package com.profiler.context;
 
-import com.profiler.context.gen.Annotation;
-import com.profiler.context.gen.BinaryAnnotation;
-import com.profiler.context.gen.Span;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.profiler.context.tracer.Tracer;
+import com.profiler.util.NamedThreadLocal;
 
 /**
+ * use by interceptors
  * 
  * @author netspider
  * 
  */
 public class Trace {
 
-	private static final int NO_PARENT_SPAN_ID = -1;
+	private static final ThreadLocal<TraceID> traceId = new NamedThreadLocal<TraceID>("TraceID");
 
-	private final String traceID;
+	private static final List<Tracer> tracers = new ArrayList<Tracer>(1);
 
-	private final Span span;
+	private Trace() {
 
-	Trace(String traceID, String parentSpanID, String name, boolean debug) {
-		this.traceID = (traceID == null) ? TraceID.newTraceID() : traceID;
-
-		this.span = new Span();
-		this.span.setTraceID(this.traceID);
-		this.span.setSpanID(SpanID.newSpanID());
-		this.span.setParentSpanId(parentSpanID);
-		this.span.setName(name);
-		this.span.setDebug(debug);
 	}
 
-	public void record(Annotation annotation) {
-		span.addToAnnotations(annotation);
+	public static void addTracer(Tracer tracer) {
+		tracers.add(tracer);
 	}
 
-	public void recordBinary(BinaryAnnotation annotation) {
-		span.addToBinaryAnnotations(annotation);
+	private static TraceID getTraceID() {
+		TraceID id = traceId.get();
+		if (id == null) {
+			id = new TraceID(null, null, SpanID.newSpanID(), false, 0);
+			traceId.set(id);
+		}
+		return traceId.get();
+	}
+
+	private static void record(Record record) {
+		for (Tracer t : tracers) {
+			t.record(record);
+		}
+	}
+
+	public static void setTraceId(TraceID traceId) {
+		Trace.traceId.set(traceId);
+	}
+
+	public static void record(Annotation annotation) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), annotation, null));
+	}
+
+	public static void record(Annotation annotation, long duration) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), annotation, duration));
+	}
+
+	public static void recordBinary(String key, Object value) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.BinaryAnnotation(key, value), null));
+	}
+
+	public static void record(String message) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.Message(message), null));
+	}
+
+	public static void recordRpcName(String service, String rpc) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.RpcName(service, rpc), null));
+	}
+
+	public static void recordClientAddr(String address) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ClientAddr(address), null));
+	}
+
+	public static void recordServerAddr(String address) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ServerAddr(address), null));
 	}
 }
