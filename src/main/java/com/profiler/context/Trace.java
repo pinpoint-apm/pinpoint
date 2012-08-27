@@ -65,11 +65,11 @@ public class Trace {
 		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.RpcName(service, rpc), null));
 	}
 
-	public static void recordClientAddr(String address) {
-		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ClientAddr(address), null));
+	public static void recordClientAddr(String ip, int port) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ClientAddr(ip, port), null));
 	}
 
-	public static void recordServerAddr(String address) {
-		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ServerAddr(address), null));
+	public static void recordServerAddr(String ip, int port) {
+		record(new Record(getTraceID(), System.currentTimeMillis(), new Annotation.ServerAddr(ip, port), null));
 	}
 }

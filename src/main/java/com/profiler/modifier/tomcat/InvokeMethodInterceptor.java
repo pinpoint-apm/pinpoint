@@ -32,7 +32,7 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 			// TODO: traceid 유무 확인.
 			Trace.setTraceId(new TraceID(traceID, parentSpanID, spanID, sampled, flags));
 			Trace.recordRpcName("service_name", requestURL);
-			Trace.recordServerAddr(request.getLocalName());
+			Trace.recordServerAddr(request.getLocalAddr(), request.getLocalPort());
 			Trace.recordBinary("http.uri", parameters);
 			Trace.record(new Annotation.ServerRecv());
 

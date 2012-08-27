@@ -22,6 +22,14 @@ public class Record {
 		return this.annotation;
 	}
 
+	public long getTimestamp() {
+		return this.timestamp;
+	}
+
+	public Long getDuration() {
+		return this.duration;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

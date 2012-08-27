@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.profiler.context.tracer.HippoAnnotation;
+
 /**
  * 
  * @author netspider
@@ -13,12 +15,14 @@ import java.util.Set;
 public class Span {
 
 	private final TraceID traceID;
-	private final String name;
-	private final EndPoint endPoint;
 	private final long createTime;
 
-	private final List<Annotation> annotations = new ArrayList<Annotation>();
-	private final Set<String> annotationDesc = new HashSet<String>();
+	private String serviceName;
+	private String name;
+	private EndPoint endPoint;
+
+	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>();
+	private final Set<String> annotationValues = new HashSet<String>();
 
 	public Span(TraceID traceId, String name, EndPoint endPoint) {
 		this.traceID = traceId;
@@ -27,8 +31,8 @@ public class Span {
 		this.createTime = System.nanoTime();
 	}
 
-	public boolean addAnnotation(Annotation annotation) {
-		annotationDesc.add(annotation.toString());
+	public boolean addAnnotation(HippoAnnotation annotation) {
+		annotationValues.add(annotation.getValue());
 		return annotations.add(annotation);
 	}
 
@@ -36,8 +40,35 @@ public class Span {
 		return annotations.size();
 	}
 
-	public boolean isExistsAnnotation(String annotation) {
-		return annotationDesc.contains(annotation);
+	public boolean isExistsAnnotationType(String value) {
+		return annotationValues.contains(value);
+	}
+
+	public EndPoint getEndPoint() {
+		return this.endPoint;
+	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setEndPoint(EndPoint endPoint) {
+		this.endPoint = endPoint;
+		for (HippoAnnotation annotation : annotations) {
+			annotation.setEndPoint(endPoint);
+		}
 	}
 
 	public String toString() {

@@ -2,36 +2,31 @@ package com.profiler.context;
 
 public interface Annotation {
 
-	public static final String CLIENT_SEND = "@CLIENT_SEND";
-	public static final String CLIENT_RECV = "@CLIENT_RECV";
-	public static final String SERVER_SEND = "@SERVER_SEND";
-	public static final String SERVER_RECV = "@SERVER_RECV";
-
 	public static class ClientSend implements Annotation {
 		@Override
 		public String toString() {
-			return CLIENT_SEND;
+			return "@CLIENT_SEND";
 		}
 	}
 
 	public static class ClientRecv implements Annotation {
 		@Override
 		public String toString() {
-			return CLIENT_RECV;
+			return "@CLIENT_RECV";
 		}
 	}
 
 	public static class ServerSend implements Annotation {
 		@Override
 		public String toString() {
-			return SERVER_SEND;
+			return "@SERVER_SEND";
 		}
 	}
 
 	public static class ServerRecv implements Annotation {
 		@Override
 		public String toString() {
-			return SERVER_RECV;
+			return "@SERVER_RECV";
 		}
 	}
 
@@ -40,6 +35,10 @@ public interface Annotation {
 
 		public Message(String message) {
 			this.message = message;
+		}
+
+		public String getMessage() {
+			return this.message;
 		}
 
 		@Override
@@ -57,6 +56,14 @@ public interface Annotation {
 			this.rpc = rpc;
 		}
 
+		public String getService() {
+			return service;
+		}
+
+		public String getRpc() {
+			return rpc;
+		}
+
 		@Override
 		public String toString() {
 			return "@RPCNAME={service=" + service + ", rpc=" + rpc + "}";
@@ -64,28 +71,48 @@ public interface Annotation {
 	}
 
 	public static class ClientAddr implements Annotation {
-		private final String address;
+		private final String ip;
+		private final int port;
 
-		public ClientAddr(String address) {
-			this.address = address;
+		public ClientAddr(String ip, int port) {
+			this.ip = ip;
+			this.port = port;
+		}
+
+		public String getIp() {
+			return ip;
+		}
+
+		public int getPort() {
+			return port;
 		}
 
 		@Override
 		public String toString() {
-			return "@CLIENT_ADDR=" + address;
+			return "@CLIENT_ADDR={" + ip + ":" + port + "}";
 		}
 	}
 
 	public static class ServerAddr implements Annotation {
-		private final String address;
+		private final String ip;
+		private final int port;
 
-		public ServerAddr(String address) {
-			this.address = address;
+		public ServerAddr(String ip, int port) {
+			this.ip = ip;
+			this.port = port;
+		}
+
+		public String getIp() {
+			return ip;
+		}
+
+		public int getPort() {
+			return port;
 		}
 
 		@Override
 		public String toString() {
-			return "@SERVER_ADDR=" + address;
+			return "@SERVER_ADDR={" + ip + ":" + port + "}";
 		}
 	}
 
