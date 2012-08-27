@@ -1,71 +1,107 @@
 package com.profiler.interceptor.bci;
 
-import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.interceptor.StaticBeforeInterceptor;
+import com.profiler.interceptor.TestAfterInterceptor;
+import com.profiler.interceptor.TestBeforeInterceptor;
+import javassist.bytecode.Descriptor;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
-import java.util.Arrays;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JavaAssistClassTest {
-    private Logger logger = Logger .getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+    private Logger logger = Logger.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+
     @Test
-    public void testAddInterceptor() throws Exception {
-        Logger.getLogger(JavaAssistByteCodeInstrumentor.class.getName()).setLevel(Level.FINE);
-        Logger.getLogger(JavaAssistClass.class.getName()).setLevel(Level.FINE);
+    public void testBeforeAddInterceptor() throws Exception {
 
-
-        JavaAssistByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
         InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestObject");
 
+        TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
+        String methodName = "callA";
 
-        StaticBeforeInterceptor staticBeforeInterceptor = new StaticBeforeInterceptor() {
-            private Logger logger = Logger.getLogger(StaticBeforeInterceptor.class.getName());
-            private int call = 0;
-            @Override
-            public void before(Object target, String className, String methodName, Object[] args) {
-                logger.info("target:" + target);
-                logger.info("className:" + className);
-                logger.info("methodName:" + methodName);
-                logger.info("args:" + Arrays.toString(args));
-                call++;
-            }
-            public int getCall() {
-                return call;
-            }
-        };
+        aClass.addInterceptor(methodName, null, interceptor);
 
-        aClass.addInterceptor("callA", null, staticBeforeInterceptor);
+        Object testObject = aClass.toClass().newInstance();
+        Method callA = testObject.getClass().getMethod(methodName);
+        callA.invoke(testObject);
 
-        Class aClass1 = aClass.toClass();
-
-        Object o = aClass1.newInstance();
-        Method aClass1Method = aClass1.getMethod("callA");
-        aClass1Method.invoke(o, null);
-
-         StaticAfterInterceptor staticAfterInterceptor = new StaticAfterInterceptor() {
-            private Logger logger = Logger.getLogger(StaticBeforeInterceptor.class.getName());
-            private int call = 0;
-            @Override
-            public void after(Object target, String className, String methodName, Object[] args, Object result) {
-                logger.info("target:" + target);
-                logger.info("className:" + className);
-                logger.info("methodName:" + methodName);
-                logger.info("args:" + Arrays.toString(args));
-                call++;
-            }
-            public int getCall() {
-                return call;
-            }
-        };
-        aClass.addInterceptor("callA", null, staticAfterInterceptor);
-        Object o2 = aClass1.newInstance();
-
-        aClass1Method.invoke(o2, null);
+        Assert.assertEquals(interceptor.call, 1);
+        Assert.assertEquals(interceptor.className, "com.profiler.interceptor.bci.TestObject");
+        Assert.assertEquals(interceptor.methodName, methodName);
+        Assert.assertEquals(interceptor.args.length, 0);
+        Assert.assertEquals(interceptor.target, testObject);
+        
     }
 
+    @Test
+    public void testAddAfterInterceptor() throws Exception {
+
+        ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestObject2");
+
+        TestAfterInterceptor callaInterceptor = new TestAfterInterceptor();
+        String callA = "callA";
+        aClass.addInterceptor(callA, null, callaInterceptor);
+
+        // return type void test
+        TestAfterInterceptor callbInterceptor = new TestAfterInterceptor();
+        String callB = "callB";
+        aClass.addInterceptor(callB, null, callbInterceptor);
+
+
+        Object testObject = aClass.toClass().newInstance();
+        Method callAMethod = testObject.getClass().getMethod(callA);
+        Object result = callAMethod.invoke(testObject);
+
+        Assert.assertEquals(callaInterceptor.call, 1);
+        Assert.assertEquals(callaInterceptor.className, "com.profiler.interceptor.bci.TestObject2");
+        Assert.assertEquals(callaInterceptor.methodName, callA);
+        Assert.assertEquals(callaInterceptor.args.length, 0);
+        Assert.assertEquals(callaInterceptor.target, testObject);
+        Assert.assertEquals(callaInterceptor.result, result);
+
+        Method callBMethod = testObject.getClass().getMethod(callB);
+        callBMethod.invoke(testObject);
+
+        Assert.assertEquals(callbInterceptor.call, 1);
+        Assert.assertEquals(callbInterceptor.className, "com.profiler.interceptor.bci.TestObject2");
+        Assert.assertEquals(callbInterceptor.methodName, callB);
+        Assert.assertEquals(callbInterceptor.args.length, 0);
+        Assert.assertEquals(callbInterceptor.target, testObject);
+        Assert.assertNull(callbInterceptor.result);
+
+    }
+
+    @Test
+    public void nullDescriptor() {
+        String nullDescriptor = Descriptor.ofParameters(null);
+        logger.info("Descript null:" + nullDescriptor);
+    }
+
+    @Test
+    public void testLog() throws Exception {
+        ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestLog");
+
+        aClass.addDebugLogBeforeAfterMethod();
+        // TODO 생성자에 추가시 에러 분석 필요.
+//        aClass.addDebugLogBeforeAfterConstructor();
+
+
+        Object testObject = aClass.toClass().newInstance();
+
+        Method test = testObject.getClass().getMethod("test", null);
+        test.invoke(testObject);
+
+        Method testString = testObject.getClass().getMethod("test", new Class[]{String.class});
+        testString.invoke(testObject, "method");
+
+    }
 
 }

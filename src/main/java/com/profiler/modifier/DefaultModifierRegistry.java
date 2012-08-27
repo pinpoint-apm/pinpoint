@@ -42,19 +42,25 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		return registry.get(className);
 	}
 
+    private void addModifier(Modifier modifier) {
+        Modifier old = registry.put(modifier.getTargetClass(), modifier);
+        if (old != null) {
+            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+        }
+    }
+
 	public void addTomcatModifier() {
-		Map<String, Modifier> registry = this.registry;
 		Modifier entryPointStandardHostValveModifier = new EntryPointStandardHostValveModifier(byteCodeInstrumentor);
-		registry.put(entryPointStandardHostValveModifier.getTargetClass(), entryPointStandardHostValveModifier);
+		addModifier(entryPointStandardHostValveModifier);
 
 		Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor);
-		registry.put(tomcatStandardServiceModifier.getTargetClass(), tomcatStandardServiceModifier);
+		addModifier(tomcatStandardServiceModifier);
 
 		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor);
-		registry.put(tomcatConnectorModifier.getTargetClass(), tomcatConnectorModifier);
+		addModifier(tomcatConnectorModifier);
 
 		Modifier tomcatCatalinaModifier = new CatalinaModifier(byteCodeInstrumentor);
-		registry.put(tomcatCatalinaModifier.getTargetClass(), tomcatCatalinaModifier);
+		addModifier(tomcatCatalinaModifier);
 	}
 
 	public void addJdbcModifier() {
@@ -74,31 +80,31 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		// TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
 		// 확인필요.
 		Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor);
-		registry.put(mysqlConnectionImplModifier.getTargetClass(), mysqlConnectionImplModifier);
+		addModifier(mysqlConnectionImplModifier);
 
 		Modifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor);
-		registry.put(mysqlStatementModifier.getTargetClass(), mysqlStatementModifier);
+		addModifier(mysqlStatementModifier);
 
 		Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor);
-		registry.put(mysqlPreparedStatementModifier.getTargetClass(), mysqlPreparedStatementModifier);
+		addModifier(mysqlPreparedStatementModifier);
 
 		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor);
-		registry.put(mysqlResultSetModifier.getTargetClass(), mysqlResultSetModifier);
+		addModifier(mysqlResultSetModifier);
 	}
 
 	private void addMsSqlDriver() {
 		Map<String, Modifier> registry = this.registry;
 		Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(byteCodeInstrumentor);
-		registry.put(mssqlConnectionModifier.getTargetClass(), mssqlConnectionModifier);
+		addModifier(mssqlConnectionModifier);
 
 		Modifier mssqlStatementModifier = new MSSQLStatementModifier(byteCodeInstrumentor);
-		registry.put(mssqlStatementModifier.getTargetClass(), mssqlStatementModifier);
+		addModifier(mssqlStatementModifier);
 
 		Modifier mssqlPreparedStatementModifier = new MSSQLPreparedStatementModifier(byteCodeInstrumentor);
-		registry.put(mssqlPreparedStatementModifier.getTargetClass(), mssqlPreparedStatementModifier);
+		addModifier(mssqlPreparedStatementModifier);
 
 		Modifier mssqlResultSetModifier = new MSSQLResultSetModifier(byteCodeInstrumentor);
-		registry.put(mssqlResultSetModifier.getTargetClass(), mssqlResultSetModifier);
+		addModifier(mssqlResultSetModifier);
 
 	}
 
@@ -106,38 +112,38 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Map<String, Modifier> registry = this.registry;
 		// TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
 		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor);
-		registry.put(oraclePreparedStatementModifier.getTargetClass(), oraclePreparedStatementModifier);
+		addModifier(oraclePreparedStatementModifier);
 
 		Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor);
-		registry.put(oracleStatement.getTargetClass(), oracleStatement);
+		addModifier(oracleStatement);
 
 		Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor);
-		registry.put(oracleResultSetModifier.getTargetClass(), oracleResultSetModifier);
+		addModifier(oracleResultSetModifier);
 	}
 
 	private void addCubridDriver() {
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier cubridStatementModifier = new CubridStatementModifier(byteCodeInstrumentor);
-		registry.put(cubridStatementModifier.getTargetClass(), cubridStatementModifier);
+		addModifier(cubridStatementModifier);
 
 		Modifier cubridPreparedStatementModifier = new CubridPreparedStatementModifier(byteCodeInstrumentor);
-		registry.put(cubridPreparedStatementModifier.getTargetClass(), cubridPreparedStatementModifier);
+		addModifier(cubridPreparedStatementModifier);
 
 		Modifier cubridResultSetModifier = new CubridResultSetModifier(byteCodeInstrumentor);
-		registry.put(cubridResultSetModifier.getTargetClass(), cubridResultSetModifier);
+		addModifier(cubridResultSetModifier);
 
 		Modifier cubridUStatementModifier = new CubridUStatementModifier(byteCodeInstrumentor);
-		registry.put(cubridStatementModifier.getTargetClass(), cubridUStatementModifier);
+		addModifier(cubridUStatementModifier);
 	}
 
 	private void addDbcpDriver() {
 		Map<String, Modifier> registry = this.registry;
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor);
-		registry.put(dbcpBasicDataSourceModifier.getTargetClass(), dbcpBasicDataSourceModifier);
+		addModifier(dbcpBasicDataSourceModifier);
 
 		Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor);
-		registry.put(dbcpPoolModifier.getTargetClass(), dbcpPoolModifier);
+		addModifier(dbcpPoolModifier);
 	}
 }

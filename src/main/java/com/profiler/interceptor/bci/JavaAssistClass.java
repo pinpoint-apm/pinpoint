@@ -6,10 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.*;
-import javassist.CannotCompileException;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
+import javassist.*;
+import javassist.bytecode.Descriptor;
 
 public class JavaAssistClass implements InstrumentClass {
 
@@ -24,7 +22,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public void addInterceptor(String methodName, String[] args, Interceptor interceptor) {
+    public boolean addInterceptor(String methodName, String[] args, Interceptor interceptor) {
         int id = InterceptorRegistry.addInterceptor(interceptor);
         try {
             CtMethod method = getMethod(methodName, args);
@@ -35,31 +33,35 @@ public class JavaAssistClass implements InstrumentClass {
             } else if (interceptor instanceof StaticAfterInterceptor) {
                 addStaticAfterInterceptor(methodName, id, method);
             }
+            return true;
         } catch (NotFoundException e) {
-            e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
         } catch (CannotCompileException e) {
-            e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
         }
+        return false;
     }
 
-    private void addAroundInterceptor(String methodName, int id, CtMethod method) throws NotFoundException, CannotCompileException {
+    private void addAroundInterceptor(String methodName, int id, CtBehavior method) throws NotFoundException, CannotCompileException {
         addStaticBeforeInterceptor(methodName, id, method);
         addStaticAfterInterceptor(methodName, id, method);
     }
 
-
-
-    private void addStaticAfterInterceptor(String methodName, int id, CtMethod method) throws CannotCompileException, NotFoundException {
+    private void addStaticAfterInterceptor(String methodName, int id, CtBehavior behavior) throws  NotFoundException, CannotCompileException {
         StringBuilder after = new StringBuilder(1024);
         after.append("{");
         addGetStaticAfterInterceptor(after, id);
-        after.append("  interceptor.after(this, \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, $_);");
+        after.append("  interceptor.after(this, \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, ($w)$_);");
         after.append("}");
         String buildAfter = after.toString();
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("addStaticAfterInterceptor after method:" + method.getLongName() + " code:" + buildAfter);
+            logger.info("addStaticAfterInterceptor after behavior:" + behavior.getLongName() + " code:" + buildAfter);
         }
-        method.insertAfter(buildAfter);
+        behavior.insertAfter(buildAfter);
 
         StringBuilder catchCode = new StringBuilder(1024);
         catchCode.append("{");
@@ -69,10 +71,10 @@ public class JavaAssistClass implements InstrumentClass {
         catchCode.append("}");
         String buildCatch = catchCode.toString();
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("addStaticAfterInterceptor catch method:" + method.getLongName() + " code:" + buildCatch);
+            logger.info("addStaticAfterInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildCatch);
         }
         CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
-        method.addCatch(buildCatch, th);
+        behavior.addCatch(buildCatch, th);
 
     }
 
@@ -83,7 +85,7 @@ public class JavaAssistClass implements InstrumentClass {
         after.append(");");
     }
 
-    private void addStaticBeforeInterceptor(String methodName, int id, CtMethod method) throws CannotCompileException {
+    private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior) throws CannotCompileException {
         StringBuilder code = new StringBuilder(1024);
         code.append("{");
         addGetBeforeInterceptor(id, code);
@@ -91,9 +93,9 @@ public class JavaAssistClass implements InstrumentClass {
         code.append("}");
         String buildBefore = code.toString();
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("addStaticBeforeInterceptor catch method:" + method.getLongName() + " code:" + buildBefore);
+            logger.info("addStaticBeforeInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildBefore);
         }
-        method.insertBefore(buildBefore);
+        behavior.insertBefore(buildBefore);
     }
 
     private void addGetBeforeInterceptor(int id, StringBuilder code) {
@@ -103,6 +105,89 @@ public class JavaAssistClass implements InstrumentClass {
         code.append(");");
     }
 
+    public boolean addDebugLogBeforeAfterMethod() {
+        String className = this.ctClass.getName();
+        LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
+        try {
+            CtClass cc = this.instrumentor.getClassPool().get(className);
+            CtMethod[] methods = cc.getDeclaredMethods();
+
+            for (CtMethod method : methods) {
+                if (method.isEmpty()) {
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.fine(method.getLongName() + " is empty.");
+                    }
+                    continue;
+                }
+                String methodName = method.getName();
+
+                // TODO method의 prameter type을 interceptor에 별도 추가해야 될것으로 보임.
+                String params = getParamsToString(method.getParameterTypes());
+                addAroundInterceptor(methodName, id, method);
+            }
+            return true;
+        } catch (Exception e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 제대로 동작안함 다시 봐야 될것 같음.
+     * 생성자일경우의 bytecode 수정시 에러가 남.
+     * @return
+     */
+    @Deprecated
+    public boolean addDebugLogBeforeAfterConstructor() {
+        String className = this.ctClass.getName();
+        LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
+        try {
+            CtClass cc = this.instrumentor.getClassPool().get(className);
+            CtConstructor[] constructors = cc.getConstructors();
+
+            for (CtConstructor constructor : constructors) {
+
+                if (constructor.isEmpty()) {
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.fine(constructor.getLongName() + " is empty.");
+                    }
+                    continue;
+                }
+                String constructorName = constructor.getName();
+                String params = getParamsToString(constructor.getParameterTypes());
+
+//                constructor.insertBefore("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is started.\");}");
+//                constructor.insertAfter("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is finished.\");}");
+                addAroundInterceptor(constructorName, id, constructor);
+            }
+            return true;
+        } catch (Exception e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+        return false;
+    }
+
+    private String getParamsToString(CtClass[] params) throws NotFoundException {
+        StringBuilder sb = new StringBuilder(512);
+        if (params.length != 0) {
+            int paramsLength = params.length;
+            for (int loop = paramsLength - 1; loop > 0; loop--) {
+                sb.append(params[loop].getName()).append(",");
+            }
+        }
+        String paramsStr = sb.toString();
+        if (logger.isLoggable(Level.FINE)) {
+             logger.fine("params type:" + paramsStr);
+        }
+        return paramsStr;
+    }
+
 
     private CtMethod getMethod(String methodName, String[] args) throws NotFoundException {
         CtClass[] params = getCtParameter(args);
@@ -110,7 +195,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     private CtClass[] getCtParameter(String[] args) throws NotFoundException {
-        if(args == null) {
+        if (args == null) {
             return null;
         }
         CtClass[] params = new CtClass[args.length];
@@ -136,7 +221,7 @@ public class JavaAssistClass implements InstrumentClass {
         try {
             return ctClass.toClass();
         } catch (CannotCompileException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.log(Level.INFO, "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
         }
         return null;
     }

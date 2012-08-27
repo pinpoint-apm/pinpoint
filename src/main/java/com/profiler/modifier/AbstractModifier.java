@@ -21,68 +21,7 @@ public abstract class AbstractModifier implements Modifier {
 		this.classPool = byteCodeInstrumentor.getClassPool();
 	}
 	
-	public byte[] addBeforeAfterLogics(String javassistClassName) {
-		try {
-			CtClass cc = classPool.get(javassistClassName);
-			CtMethod[] methods = cc.getDeclaredMethods();
 
-			for (CtMethod method : methods) {
-				if (!method.isEmpty()) {
-					String methodName = method.getName();
-					CtClass[] params = method.getParameterTypes();
-					StringBuilder sb = new StringBuilder();
-
-					if (params.length != 0) {
-						int paramsLength = params.length;
-
-						for (int loop = paramsLength - 1; loop > 0; loop--) {
-							sb.append(params[loop].getName()).append(",");
-						}
-						// sb.substring(0, sb.length()-2);
-					}
-					method.insertBefore("{System.out.println(\"*****" + javassistClassName + "." + methodName + "(" + sb + ") is started.\");}");
-					method.insertAfter("{System.out.println(\"*****" + javassistClassName + "." + methodName + "(" + sb + ") is finished.\");}");
-				} else {
-                    if (logger.isLoggable(Level.WARNING)) {
-                        logger.warning(method.getLongName() + " is empty !!!!!");
-                    }
-
-                }
-			}
-
-			CtConstructor[] constructors = cc.getConstructors();
-
-			for (CtConstructor constructor : constructors) {
-
-				if (!constructor.isEmpty()) {
-					CtClass[] params = constructor.getParameterTypes();
-					StringBuilder sb = new StringBuilder();
-
-					if (params.length != 0) {
-						int paramsLength = params.length;
-						for (int loop = paramsLength - 1; loop > 0; loop--) {
-							sb.append(params[loop].getName()).append(",");
-						}
-						// sb.substring(0, sb.length()-2);
-					}
-
-					constructor.insertBefore("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is started.\");}");
-					constructor.insertAfter("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is finished.\");}");
-				} else {
-                    if (logger.isLoggable(Level.WARNING)) {
-                        logger.warning(constructor.getLongName() + " is empty !!!!!");
-                    }
-
-                }
-			}
-			return cc.toBytecode();
-		} catch (Exception e) {
-			if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
-            }
-			return null;
-		}
-	}
 
 	public void printClassConvertComplete(String javassistClassName) {
         if (logger.isLoggable(Level.INFO)) {

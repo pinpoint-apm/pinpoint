@@ -35,14 +35,25 @@ public class TomcatProfiler implements ClassFileTransformer {
 		this.agentArgString = agentArgs;
 		this.instrumentation = inst;
 		this.instrumentation.addTransformer(this);
-		this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
-		// this.classPool = createClassPool();
+        String[] paths = getTomcatlibPath();
+		this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths);
 		this.modifierRepository = createModifierRegistry(byteCodeInstrumentor, tomcatProfilerConfig);
 		this.tomcatProfilerConfig = tomcatProfilerConfig;
 
 	}
 
-	private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, TomcatProfilerConfig tomcatProfilerConfig) {
+    private String[] getTomcatlibPath() {
+        String catalinaHome = System.getProperty("catalina.home");
+        if (catalinaHome == null) {
+            return null;
+        }
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("CATALINA_HOME=" + catalinaHome);
+        }
+        return new String[] {catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar"};
+    }
+
+    private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, TomcatProfilerConfig tomcatProfilerConfig) {
 		DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor);
 		modifierRepository.addTomcatModifier();
 		if (tomcatProfilerConfig.enableJdbcProfile()) {

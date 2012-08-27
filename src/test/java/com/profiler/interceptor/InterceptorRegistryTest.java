@@ -3,6 +3,7 @@ package com.profiler.interceptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.TestObject;
 import javassist.CannotCompileException;
@@ -11,21 +12,45 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class InterceptorRegistryTest {
+
+    private final Logger logger = Logger.getLogger(InterceptorRegistryTest.class.getName());
+
+    private InterceptorRegistry registry = new InterceptorRegistry();
+
     @Test
+    public void addInterceptor() throws Exception {
+        TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
+
+        int key = registry.addInterceptor0(interceptor);
+        Interceptor find = registry.getInterceptor0(key);
+
+        Assert.assertEquals(interceptor, find);
+    }
+
+//    @Test
     public void methodName() throws NoSuchMethodException {
         Method[] toString = Map.class.getDeclaredMethods();
         for(Method m : toString) {
-
-            System.out.println(m);
-
-            System.out.println(m.toGenericString());
+            logger.info("methodObject:" + m);
+            logger.info("methodObject" + m.toGenericString());
         }
-
     }
-   @Test
+
+//    @Test
+    public void ctClassName() throws NotFoundException {
+        ClassPool pool = new ClassPool();
+        pool.appendSystemPath();
+        CtClass ctClass = pool.get("java.lang.String");
+        logger.info("ctClass:" + ctClass);
+        logger.info("ctClass:" + ctClass.getName());
+        logger.info("ctClass:" + ctClass.getSimpleName());
+    }
+
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException {
        AroundInterceptor aroundInterceptor = new AroundInterceptor() {
            @Override

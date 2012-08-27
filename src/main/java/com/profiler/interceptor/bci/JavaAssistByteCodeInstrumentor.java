@@ -20,26 +20,26 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private ClassPool classPool;
 
     public JavaAssistByteCodeInstrumentor() {
-        this.classPool = createClassPool();
+        this.classPool = createClassPool(null);
+    }
+
+    public JavaAssistByteCodeInstrumentor(String[] pathNames) {
+        this.classPool = createClassPool(pathNames);
     }
 
     public ClassPool getClassPool() {
         return this.classPool;
     }
 
-    private ClassPool createClassPool() {
+    private ClassPool createClassPool(String[] pathNames) {
         ClassPool classPool = new ClassPool(null);
         classPool.appendSystemPath();
-
-        String catalinaHome = System.getProperty("catalina.home");
-        if (catalinaHome != null) {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("CATALINA_HOME=" + catalinaHome);
+        if (pathNames != null) {
+            for(String path: pathNames) {
+                appendClassPath(classPool, path);
             }
-
-            appendClassPath(classPool, catalinaHome + "/lib/servlet-api.jar");
-            appendClassPath(classPool, catalinaHome + "/lib/catalina.jar");
         }
+
         return classPool;
     }
 
@@ -48,9 +48,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             classPool.appendClassPath(pathName);
         } catch (NotFoundException e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.warning("lib not found. " + e.getMessage());
+                logger.log(Level.WARNING, "appendClassPath fail. lib not found. " + e.getMessage(), e);
             }
-
         }
     }
 
@@ -69,6 +68,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             CtClass cc = classPool.get(javassistClassName);
             return new JavaAssistClass(this, cc);
         } catch (NotFoundException e) {
+            // TODO 실패시 더미 객체를 반환해서 잘 에러를 숨길수 있도록 수정필요.
             return null;
         }
     }
@@ -76,15 +76,18 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     @Override
     public Class defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) {
         try {
+            if(logger.isLoggable(Level.INFO)) {
+                logger.info("defineClass classLoader:" + classLoader + " class:" + defineClass);
+            }
             CtClass clazz = classPool.get(defineClass);
             return clazz.toClass(classLoader, protectedDomain);
         } catch (NotFoundException e) {
             if(logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+                logger.log(Level.WARNING, "defineClass classLoader:" + classLoader + " " + e.getMessage(), e);
             }
         } catch (CannotCompileException e) {
             if(logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+                logger.log(Level.WARNING, "defineClass classLoader:" + classLoader + " "+ e.getMessage(), e);
             }
         }
         return null;
