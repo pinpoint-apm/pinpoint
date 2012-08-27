@@ -1,6 +1,5 @@
 package com.profiler.context.tracer;
 
-import com.profiler.context.EndPoint;
 
 public class HippoAnnotation {
 
@@ -31,9 +30,9 @@ public class HippoAnnotation {
 
 		sb.append("HippoAnnotation={");
 		sb.append("time=").append(time);
-		sb.append("value=").append(value);
-		sb.append("duration=").append(duration);
-		sb.append("endpoint=").append(endPoint);
+		sb.append(", value=").append(value);
+		sb.append(", duration=").append(duration);
+		sb.append(", endpoint=").append(endPoint);
 		sb.append("}");
 
 		return sb.toString();

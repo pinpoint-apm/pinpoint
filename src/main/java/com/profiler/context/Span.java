@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.profiler.context.tracer.EndPoint;
 import com.profiler.context.tracer.HippoAnnotation;
 
 /**

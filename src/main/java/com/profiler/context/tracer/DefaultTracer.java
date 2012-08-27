@@ -5,7 +5,6 @@ import com.profiler.context.Annotation.ClientAddr;
 import com.profiler.context.Annotation.RpcName;
 import com.profiler.context.Annotation.ServerAddr;
 import com.profiler.context.DeadlineSpanMap;
-import com.profiler.context.EndPoint;
 import com.profiler.context.Record;
 import com.profiler.context.Span;
 import com.profiler.context.SpanUpdater;
