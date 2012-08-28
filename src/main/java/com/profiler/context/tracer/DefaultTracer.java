@@ -12,7 +12,7 @@ import com.profiler.context.TraceID;
 
 public class DefaultTracer implements Tracer {
 
-	private final DeadlineSpanMap spanMap = new DeadlineSpanMap(this);
+	private final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
 	private void mutate(TraceID traceId, SpanUpdater spanUpdater) {
 		Span span = spanMap.update(traceId, spanUpdater);

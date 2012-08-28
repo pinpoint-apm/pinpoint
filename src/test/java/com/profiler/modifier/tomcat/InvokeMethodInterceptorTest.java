@@ -8,19 +8,11 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.profiler.context.Header;
-import com.profiler.context.Trace;
-import com.profiler.context.tracer.DefaultTracer;
 
 public class InvokeMethodInterceptorTest {
-
-	@BeforeClass
-	public static void beforeTest() {
-		Trace.addTracer(new DefaultTracer());
-	}
 
 	@Test
 	public void testHeaderNOTExists() {
