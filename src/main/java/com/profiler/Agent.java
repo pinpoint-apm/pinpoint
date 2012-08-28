@@ -3,8 +3,6 @@ package com.profiler;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import com.profiler.context.Trace;
-import com.profiler.context.tracer.DefaultTracer;
 import com.profiler.sender.AgentInfoSender;
 
 public class Agent {
@@ -79,7 +77,6 @@ public class Agent {
 
 	public void start() {
 		logger.info("Starting HIPPO Agent.");
-		Trace.addTracer(new DefaultTracer());
 		systemMonitor.start();
 	}
 

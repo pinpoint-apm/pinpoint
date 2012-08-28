@@ -56,6 +56,8 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 			start.set(System.currentTimeMillis());
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			System.out.println("\n\n\n\nBEFORE\n\n\n\n");
 		}
 	}
 
@@ -63,6 +65,7 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 	public void after(Object target, String className, String methodName, Object[] args, Object result) {
 		Trace.record(new Annotation.ServerSend(), System.currentTimeMillis() - start.get());
 		start.remove();
+		System.out.println("\n\n\n\nAFTER\n\n\n\n");
 		RequestTracer.endTransaction();
 	}
 

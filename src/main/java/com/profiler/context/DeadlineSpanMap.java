@@ -29,4 +29,8 @@ public class DeadlineSpanMap {
 	public Span remove(TraceID traceId) {
 		return map.remove(traceId.toString());
 	}
+
+	public int size() {
+		return map.size();
+	}
 }
