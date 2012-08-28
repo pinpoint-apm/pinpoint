@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.profiler.context.tracer.Tracer;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
+@Deprecated
 public class State {
 
 	private TraceID id;

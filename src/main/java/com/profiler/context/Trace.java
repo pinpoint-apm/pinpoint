@@ -1,9 +1,9 @@
 package com.profiler.context;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import com.profiler.context.tracer.DefaultTracer;
 import com.profiler.context.tracer.Tracer;
 import com.profiler.util.NamedThreadLocal;
 
@@ -14,40 +14,30 @@ import com.profiler.util.NamedThreadLocal;
  */
 public class Trace {
 
-	private static final TraceID defaultId = new TraceID(null, null, SpanID.newSpanID(), true, 0);
-	private static final ThreadLocal<State> local = new NamedThreadLocal<State>("State");
-	// private static final TraceStack local = new TraceStack();
+	private static final ThreadLocal<TraceID> traceId = new NamedThreadLocal<TraceID>("TraceId");
+	private static final List<Tracer> tracers = new ArrayList<Tracer>();
 	private static volatile boolean tracingEnabled = true;
 
+	static {
+		tracers.add(new DefaultTracer());
+	}
+
 	private Trace() {
+
 	}
 
 	public static TraceID getTraceId() {
-		State state = local.get();
+		TraceID id = traceId.get();
 
-		if (state == null || state.getId() == null) {
-			return defaultId;
+		if (id == null) {
+			return TraceID.newTraceId();
 		}
 
-		return state.getId();
-	}
-
-	public static boolean isTerminal() {
-		State state = local.get();
-		if (state == null)
-			return false;
-		return state.isTerminal();
+		return id;
 	}
 
 	public static List<Tracer> getTracers() {
-		State state = local.get();
-		if (state == null)
-			return new ArrayList<Tracer>();
-		return state.getTracers();
-	}
-
-	public static interface UnwindCallback {
-		void callback();
+		return tracers;
 	}
 
 	public static void enable() {
@@ -64,30 +54,11 @@ public class Trace {
 	}
 
 	public static void addTracer(final Tracer tracer) {
-		State state = local.get();
-
-		if (state == null) {
-			ArrayList<Tracer> tracers = new ArrayList<Tracer>();
-			tracers.add(tracer);
-			state = new State(null, false, tracers);
-
-			local.set(state);
-		} else {
-			state.addTracer(tracer);
-		}
+		tracers.add(tracer);
 	}
 
-	public static TraceID setTraceId(TraceID traceId) {
-		State state = local.get();
-
-		if (state == null) {
-			local.set(new State(traceId, false, getTracers()));
-		} else {
-			state.setId(traceId);
-			state.setTerminal(false);
-		}
-
-		return traceId;
+	public static void setTraceId(TraceID traceId) {
+		Trace.traceId.set(traceId);
 	}
 
 	private static void record(Record record) {

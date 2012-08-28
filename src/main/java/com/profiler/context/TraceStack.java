@@ -2,6 +2,7 @@ package com.profiler.context;
 
 import com.profiler.util.NamedThreadLocal;
 
+@Deprecated
 public class TraceStack {
 
 	private static final class Local {
