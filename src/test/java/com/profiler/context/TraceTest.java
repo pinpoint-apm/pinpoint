@@ -9,7 +9,11 @@ public class TraceTest {
 	@Test
 	public void trace() {
 		Trace.addTracer(new DefaultTracer());
+		TraceID nextId = Trace.getNextId();
+		nextId.setSampled(Trace.getTraceId().isSampled());
 
+		Trace.setTraceId(nextId);
+		
 		// http server receive
 		Trace.recordRpcName("service_name", "http://");
 		Trace.recordServerAddr("localhost", 8080);
@@ -20,7 +24,6 @@ public class TraceTest {
 
 		// response to client
 		Trace.record(new Annotation.ServerSend());
-
 	}
 
 	private void getDataFromDB() {

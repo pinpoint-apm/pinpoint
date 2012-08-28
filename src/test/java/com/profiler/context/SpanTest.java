@@ -9,7 +9,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.profiler.context.tracer.DefaultTracer;
-import com.profiler.context.tracer.Tracer;
 
 public class SpanTest {
 
@@ -53,6 +52,9 @@ public class SpanTest {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
+			Trace.setTraceId(Trace.getNextId());
+			Trace.addTracer(new DefaultTracer());
 
 			Trace.record("msg:client send");
 			Trace.record(new Annotation.ClientSend());

@@ -28,7 +28,7 @@ public class HippoAnnotation {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("HippoAnnotation={");
+		sb.append("@={");
 		sb.append("time=").append(time);
 		sb.append(", value=").append(value);
 		sb.append(", duration=").append(duration);
