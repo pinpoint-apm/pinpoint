@@ -90,9 +90,7 @@ public class JavaAssistClassTest {
         InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestLog");
 
         aClass.addDebugLogBeforeAfterMethod();
-        // TODO 생성자에 추가시 에러 분석 필요.
-//        aClass.addDebugLogBeforeAfterConstructor();
-
+        aClass.addDebugLogBeforeAfterConstructor();
 
         Object testObject = aClass.toClass().newInstance();
 
@@ -101,6 +99,9 @@ public class JavaAssistClassTest {
 
         Method testString = testObject.getClass().getMethod("test", new Class[]{String.class});
         testString.invoke(testObject, "method");
+
+        Constructor<? extends Object> constructor = testObject.getClass().getConstructor(null);
+        Object o = constructor.newInstance();
 
     }
 

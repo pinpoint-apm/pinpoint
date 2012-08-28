@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import com.profiler.interceptor.*;
 import javassist.*;
-import javassist.bytecode.Descriptor;
 
 public class JavaAssistClass implements InstrumentClass {
 
@@ -95,7 +94,12 @@ public class JavaAssistClass implements InstrumentClass {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("addStaticBeforeInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildBefore);
         }
-        behavior.insertBefore(buildBefore);
+
+        if(behavior instanceof CtConstructor) {
+            ((CtConstructor) behavior).insertBeforeBody(buildBefore);
+        } else {
+            behavior.insertBefore(buildBefore);
+        }
     }
 
     private void addGetBeforeInterceptor(int id, StringBuilder code) {
@@ -160,8 +164,9 @@ public class JavaAssistClass implements InstrumentClass {
                 String constructorName = constructor.getName();
                 String params = getParamsToString(constructor.getParameterTypes());
 
-//                constructor.insertBefore("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is started.\");}");
-//                constructor.insertAfter("{System.out.println(\"*****" + javassistClassName + " Constructor:Param=(" + sb + ") is finished.\");}");
+//                constructor.insertAfter("{System.out.println(\"*****" + constructorName + " Constructor:Param=(" + params + ") is finished. \" + $args);}");
+//                constructor.addCatch("{System.out.println(\"*****" + constructorName + " Constructor:Param=(" + params + ") is finished.\"); throw $e; }"
+//                        , instrumentor.getClassPool().get("java.lang.Throwable"));
                 addAroundInterceptor(constructorName, id, constructor);
             }
             return true;
