@@ -79,6 +79,7 @@ public class Span {
 		sb.append("TraceID=").append(traceID);
 		sb.append(", CreateTime=").append(createTime);
 		sb.append(", Name=").append(name);
+		sb.append(", ServiceName=").append(serviceName);
 		sb.append(", EndPoint=").append(endPoint);
 		sb.append(", Annotations=").append(annotations);
 		sb.append("}");
