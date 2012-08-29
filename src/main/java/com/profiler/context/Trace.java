@@ -30,7 +30,9 @@ public class Trace {
 		TraceID id = traceId.get();
 
 		if (id == null) {
-			return TraceID.newTraceId();
+			id = TraceID.newTraceId();
+			traceId.set(id);
+			return id;
 		}
 
 		return id;

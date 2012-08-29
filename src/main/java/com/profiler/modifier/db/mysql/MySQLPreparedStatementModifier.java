@@ -1,17 +1,20 @@
 package com.profiler.modifier.db.mysql;
 
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javassist.ByteArrayClassPath;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
+import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
-
-import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
 	private final Logger logger = Logger.getLogger(MySQLPreparedStatementModifier.class.getName());
@@ -23,12 +26,25 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 	public String getTargetClass() {
 		return "com/mysql/jdbc/PreparedStatement";
 	}
-	
+
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)){
-		    logger.info("Modifing. " + javassistClassName);
-        }
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("Modifing. " + javassistClassName);
+		}
+
 		checkLibrary(classLoader, javassistClassName);
+
+//		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteMethodInterceptor");
+//		if (interceptor == null) {
+//			return null;
+//		}
+//
+//		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+//		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
+//
+//		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+//		aClass.addInterceptor("executeQuery", null, interceptor);
+
 		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
@@ -37,16 +53,16 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 			CtClass cc = classPool.get(javassistClassName);
 
 			updateSetInternalMethod(cc);
-			updateExecuteQueryMethod(cc);
+			 updateExecuteQueryMethod(cc);
 			updateConstructor(cc);
 
 			printClassConvertComplete(javassistClassName);
 
 			return cc.toBytecode();
 		} catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
-            }
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 		return null;
 	}
@@ -81,6 +97,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
 	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("executeQuery", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		method.insertAfter("{System.out.println(\"AAAAAAA\"); " + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }

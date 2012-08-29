@@ -36,44 +36,24 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("Modifing. " + javassistClassName);
 		}
-		addRequestTracerToCurrentClassLoader(classLoader);
 
-		System.out.println("\n\n\n\n\n\n");
-		System.out.println("EntryPointStandardHostValveModifier=" + classLoader);
-		System.out.println("EntryPointStandardHostValveModifier parent=" + classLoader.getParent());
-        Interceptor interceptor = newInterceptor(classLoader, protectedDomain);
-        if(interceptor == null) {
-            return null;
-        }
-        System.out.println("\n\n\n\n\n\n");
+		addRequiredCladdToCurrentClassLoader(classLoader);
 
-		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.InvokeMethodInterceptor");
+		if (interceptor == null) {
+			return null;
+		}
 
+		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
-		InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
-        aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, interceptor);
+		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+		aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, interceptor);
 
 		return aClass.toBytecode();
 	}
 
-    private Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain) {
-        Class aClass = this.byteCodeInstrumentor.defineClass(classLoader, "com.profiler.modifier.tomcat.InvokeMethodInterceptor", protectedDomain);
-        try {
-            return (Interceptor)aClass.newInstance();
-        } catch (InstantiationException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
-        } catch (IllegalAccessException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
-        }
-        return null;
-    }
-
-    private void addRequestTracerToCurrentClassLoader(ClassLoader classLoader) {
+	private void addRequiredCladdToCurrentClassLoader(ClassLoader classLoader) {
 		try {
 			classLoader.loadClass(RequestTracer.FQCN);
 			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);

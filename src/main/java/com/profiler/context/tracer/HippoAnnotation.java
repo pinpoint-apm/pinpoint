@@ -1,11 +1,11 @@
 package com.profiler.context.tracer;
 
-
 public class HippoAnnotation {
 
 	private final long time;
 	private final String value;
 	private final Long duration;
+	private final String threadname; // TODO: remove, just for debug.
 
 	private EndPoint endPoint;
 
@@ -14,6 +14,7 @@ public class HippoAnnotation {
 		this.value = value;
 		this.endPoint = endPoint;
 		this.duration = duration;
+		this.threadname = Thread.currentThread().getName();
 	}
 
 	public String getValue() {
@@ -33,6 +34,7 @@ public class HippoAnnotation {
 		sb.append(", value=").append(value);
 		sb.append(", duration=").append(duration);
 		sb.append(", endpoint=").append(endPoint);
+		sb.append(", threadname=").append(threadname);
 		sb.append("}");
 
 		return sb.toString();
