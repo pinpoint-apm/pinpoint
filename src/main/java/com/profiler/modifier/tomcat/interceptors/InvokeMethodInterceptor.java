@@ -41,7 +41,12 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 
 			// record
 			if (traceID != null) {
-				Trace.setTraceId(new TraceID(traceID, parentSpanID, spanID, sampled, flags));
+				TraceID id = new TraceID(traceID, parentSpanID, spanID, sampled, flags);
+
+				// TODO : refactor this, just for debug
+				System.out.println("\n\n\ngot a traceid. traceid=" + id + "\n\n\n");
+
+				Trace.setTraceId(id);
 			} else {
 				Trace.setTraceId(TraceID.newTraceId());
 			}
