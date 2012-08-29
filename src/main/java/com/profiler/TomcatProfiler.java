@@ -59,6 +59,7 @@ public class TomcatProfiler implements ClassFileTransformer {
 		if (tomcatProfilerConfig.enableJdbcProfile()) {
 			modifierRepository.addJdbcModifier();
 		}
+		modifierRepository.addConnectorModifier();
 		return modifierRepository;
 	}
 

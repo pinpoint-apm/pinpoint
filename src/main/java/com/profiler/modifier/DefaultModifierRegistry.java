@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-
+import com.profiler.modifier.connector.HTTPClientModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -42,12 +42,17 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		return registry.get(className);
 	}
 
-    private void addModifier(Modifier modifier) {
-        Modifier old = registry.put(modifier.getTargetClass(), modifier);
-        if (old != null) {
-            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
-        }
-    }
+	private void addModifier(Modifier modifier) {
+		Modifier old = registry.put(modifier.getTargetClass(), modifier);
+		if (old != null) {
+			throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+		}
+	}
+
+	public void addConnectorModifier() {
+		HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
+		addModifier(httpClientModifier);
+	}
 
 	public void addTomcatModifier() {
 		Modifier entryPointStandardHostValveModifier = new EntryPointStandardHostValveModifier(byteCodeInstrumentor);
