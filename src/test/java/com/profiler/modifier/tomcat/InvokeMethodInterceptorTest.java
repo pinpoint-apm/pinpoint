@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
 import com.profiler.context.Header;
+import com.profiler.modifier.tomcat.interceptors.InvokeMethodInterceptor;
 
 public class InvokeMethodInterceptorTest {
 

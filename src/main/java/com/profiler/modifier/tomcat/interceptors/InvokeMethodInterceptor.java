@@ -1,4 +1,4 @@
-package com.profiler.modifier.tomcat;
+package com.profiler.modifier.tomcat.interceptors;
 
 import java.util.Enumeration;
 
