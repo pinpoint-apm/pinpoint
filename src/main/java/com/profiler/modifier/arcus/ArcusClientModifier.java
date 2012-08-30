@@ -1,4 +1,4 @@
-package com.profiler.modifier.db.mysql;
+package com.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -6,20 +6,26 @@ import java.util.logging.Logger;
 
 import javassist.ByteArrayClassPath;
 
+import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
 
-public class MySQLStatementModifier extends AbstractModifier {
+/**
+ * 
+ * @author netspider
+ * 
+ */
+public class ArcusClientModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(MySQLStatementModifier.class.getName());
+	private final Logger logger = Logger.getLogger(ArcusClientModifier.class.getName());
 
-	public MySQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
 		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {
-		return "com/mysql/jdbc/StatementImpl";
+		return "org/apache/http/impl/client/AbstractHttpClient";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -27,20 +33,16 @@ public class MySQLStatementModifier extends AbstractModifier {
 			logger.info("Modifing. " + javassistClassName);
 		}
 
+		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
+		if (interceptor == null) {
+			return null;
+		}
+
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
 		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-
-		boolean instrumented = aClass.addInterceptor("executeQuery", new String[] { "java.lang.String" }, newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor"));
-
-		instrumented &= aClass.addInterceptor("executeUpdate", new String[] { "java.lang.String", "boolean", "boolean" }, newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteUpdateMethodInterceptor"));
-
-		System.out.println("instrumented=" + instrumented);
-		
-		if (!instrumented) {
-			return null;
-		}
+		aClass.addInterceptor("execute", new String[] { "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext" }, interceptor);
 
 		return aClass.toBytecode();
 	}

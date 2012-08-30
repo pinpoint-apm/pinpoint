@@ -32,6 +32,9 @@ public class JavaAssistClass implements InstrumentClass {
 
 	@Override
 	public boolean addInterceptor(String methodName, String[] args, Interceptor interceptor) {
+		if (interceptor == null)
+			return false;
+		
 		int id = InterceptorRegistry.addInterceptor(interceptor);
 		try {
 			CtMethod method = getMethod(methodName, args);

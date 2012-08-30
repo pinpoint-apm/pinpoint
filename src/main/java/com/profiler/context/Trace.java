@@ -26,6 +26,11 @@ public class Trace {
 
 	}
 
+	/**
+	 * Get current TraceID or if's not exists create new one and return it.
+	 * 
+	 * @return
+	 */
 	public static TraceID getTraceId() {
 		TraceID id = traceId.get();
 
@@ -36,6 +41,15 @@ public class Trace {
 		}
 
 		return id;
+	}
+
+	/**
+	 * Get current TraceID. If it was not set this will return null.
+	 * 
+	 * @return
+	 */
+	public static TraceID getCurrentTraceId() {
+		return traceId.get();
 	}
 
 	public static List<Tracer> getTracers() {

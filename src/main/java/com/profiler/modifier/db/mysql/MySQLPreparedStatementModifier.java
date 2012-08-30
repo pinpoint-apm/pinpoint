@@ -97,6 +97,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
 	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("executeQuery", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		method.insertAfter("{System.out.println(\"EXECUTE QUERY\");" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }
