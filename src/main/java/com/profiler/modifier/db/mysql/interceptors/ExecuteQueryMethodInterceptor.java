@@ -15,8 +15,6 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 	@Override
 	public void before(Object target, String className, String methodName, Object[] args) {
 		try {
-			System.out.println("ThreadID=" + Thread.currentThread().getId());
-			
 			Trace.recordRpcName("mysql", "");
 
 			if (args.length > 0) {

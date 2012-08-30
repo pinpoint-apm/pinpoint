@@ -46,7 +46,7 @@ public class DefaultTracer implements Tracer {
 
 	private void logSpan(Span span) {
 		// TODO: send span to server
-		System.out.println("Write span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId());
+		System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
 	}
 
 	@Override
