@@ -1,12 +1,19 @@
 package com.profiler.context;
 
-import java.util.UUID;
+import java.util.Random;
 
 public class SpanID {
-	public static final String ROOT_SPAN_ID = null;
 
-	public static String newSpanID() {
-		UUID uuid = UUID.randomUUID();
-		return uuid.toString();
-	}
+    public static final long ROOT_SPAN_ID = 0;
+    public static final long NULL = -1;
+
+    private static Random seed = new Random();
+
+    public static long newSpanID() {
+        long id = seed.nextLong();
+        if (id == NULL) {
+            return newSpanID();
+        }
+        return id;
+    }
 }

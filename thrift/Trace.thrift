@@ -27,11 +27,12 @@ struct BinaryAnnotation {
 }
 
 struct Span {
-  1: string traceID
-  2: string name,
-  3: string spanID,
-  4: optional string parentSpanId,
-  5: list<Annotation> annotations,
-  6: list<BinaryAnnotation> binaryAnnotations
-  7: optional bool debug = 0
+  1: long mostTraceID
+  2: long leastTraceID
+  3: string name,
+  4: long spanID,
+  5: optional long parentSpanId,
+  6: list<Annotation> annotations,
+  7: list<BinaryAnnotation> binaryAnnotations
+  8: optional bool debug = 0
 }

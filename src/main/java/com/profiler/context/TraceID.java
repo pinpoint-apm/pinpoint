@@ -3,33 +3,70 @@ package com.profiler.context;
 import java.util.UUID;
 
 public class TraceID {
-	private String traceId;
-	private String parentSpanId;
-	private String spanId;
+	private UUID traceId;
+	private long parentSpanId;
+	private long spanId;
 	private boolean sampled;
 	private int flags;
 
 	public static TraceID newTraceId() {
-		return new TraceID(UUID.randomUUID().toString(), null, SpanID.newSpanID(), false, 0);
+        UUID uuid = UUID.randomUUID();
+        return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
 	}
 
-	public TraceID(String traceId, String parentSpanId, String spanId, boolean sampled, int flags) {
-		this.traceId = (traceId == null) ? parentSpanId : traceId;
-		this.parentSpanId = (parentSpanId == null) ? spanId : parentSpanId;
+
+	public TraceID(UUID traceId, long parentSpanId, long spanId, boolean sampled, int flags) {
+		this.traceId = traceId;
+		this.parentSpanId = parentSpanId;
 		this.spanId = spanId;
 		this.sampled = sampled;
 		this.flags = flags;
 	}
 
-	public String getTraceId() {
+	public UUID getTraceId() {
 		return traceId;
 	}
 
-	public String getParentSpanId() {
+    public TraceKey getTraceKey() {
+        long most = traceId.getMostSignificantBits();
+        long least = traceId.getLeastSignificantBits();
+        return new TraceKey(most, least);
+    }
+
+    public static class TraceKey {
+        private long most;
+        private long least;
+        public TraceKey(long most, long least) {
+            this.most = most;
+            this.least = least;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TraceKey that = (TraceKey) o;
+
+            if (least != that.least) return false;
+            if (most != that.most) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (int) (most ^ (most >>> 32));
+            result = 31 * result + (int) (least ^ (least >>> 32));
+            return result;
+        }
+    }
+
+	public long getParentSpanId() {
 		return parentSpanId;
 	}
 
-	public String getSpanId() {
+	public long getSpanId() {
 		return spanId;
 	}
 
@@ -41,15 +78,15 @@ public class TraceID {
 		return flags;
 	}
 
-	public void setTraceId(String traceId) {
+	public void setTraceId(UUID traceId) {
 		this.traceId = traceId;
 	}
 
-	public void setParentSpanId(String parentSpanId) {
+	public void setParentSpanId(long parentSpanId) {
 		this.parentSpanId = parentSpanId;
 	}
 
-	public void setSpanId(String spanId) {
+	public void setSpanId(long spanId) {
 		this.spanId = spanId;
 	}
 

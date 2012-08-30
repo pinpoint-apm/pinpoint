@@ -34,9 +34,10 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 		TraceID nextId = Trace.getNextId();
 
-		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTraceId());
-		request.addHeader(Header.HTTP_SPAN_ID.toString(), nextId.getSpanId());
-		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), nextId.getParentSpanId());
+        // UUID format을 그대로.
+		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTraceId().toString());
+		request.addHeader(Header.HTTP_SPAN_ID.toString(), Long.toString(nextId.getSpanId()));
+		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
 		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
