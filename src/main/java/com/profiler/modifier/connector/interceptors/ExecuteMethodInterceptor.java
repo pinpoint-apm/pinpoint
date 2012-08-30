@@ -7,6 +7,7 @@ import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Header;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceID;
 import com.profiler.interceptor.StaticAroundInterceptor;
 
 /**
@@ -27,15 +28,17 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 	@Override
 	public void before(Object target, String className, String methodName, Object[] args) {
 		System.out.println("\n\n\n\nHTTP BEFORE");
-		
+
 		HttpHost host = (HttpHost) args[0];
 		HttpRequest request = (HttpRequest) args[1];
 
-		request.addHeader(Header.HTTP_TRACE_ID.toString(), Trace.getTraceId().getTraceId());
-		request.addHeader(Header.HTTP_SPAN_ID.toString(), Trace.getTraceId().getSpanId());
-		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Trace.getTraceId().getParentSpanId());
-		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(Trace.getTraceId().isSampled()));
-		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(Trace.getTraceId().getFlags()));
+		TraceID nextId = Trace.getNextId();
+
+		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTraceId());
+		request.addHeader(Header.HTTP_SPAN_ID.toString(), nextId.getSpanId());
+		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), nextId.getParentSpanId());
+		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
+		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
 		Trace.recordRpcName("http-call", "");
 		Trace.recordServerAddr(host.getHostName(), host.getPort());
