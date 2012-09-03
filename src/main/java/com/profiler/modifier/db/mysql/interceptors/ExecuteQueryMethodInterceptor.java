@@ -27,13 +27,12 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 			//
 			// TODO: add destination address
 			//
-			
+
 			if (args.length > 0) {
-				System.out.println("Query=" + args[0]);
-				Trace.record("Query=" + args[0]);
+				Trace.recordAttibute("Query", args[0]);
 			}
 
-			Trace.record(new Annotation.ClientSend());
+			Trace.record(Annotation.ClientSend);
 
 			StopWatch.start("ExecuteQueryMethodInterceptor");
 		} catch (Exception e) {
@@ -47,6 +46,6 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 			return;
 		}
 
-		Trace.record(new Annotation.ClientRecv(), StopWatch.stopAndGetElapsed("ExecuteQueryMethodInterceptor"));
+		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteQueryMethodInterceptor"));
 	}
 }

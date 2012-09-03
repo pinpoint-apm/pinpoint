@@ -1,4 +1,4 @@
-package com.profiler.context.tracer;
+package com.profiler.context;
 
 public class EndPoint {
 

@@ -5,9 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.profiler.context.tracer.EndPoint;
-import com.profiler.context.tracer.HippoAnnotation;
-
 /**
  * 
  * @author netspider
@@ -22,8 +19,9 @@ public class Span {
 	private String name;
 	private EndPoint endPoint;
 
-	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>();
-	private final Set<String> annotationValues = new HashSet<String>();
+	private final List<HippoBinaryAnnotation> binaryAnnotations = new ArrayList<HippoBinaryAnnotation>(5);
+	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
+	private final Set<String> annotationValues = new HashSet<String>(5);
 
 	public Span(TraceID traceId, String name, EndPoint endPoint) {
 		this.traceID = traceId;
@@ -35,6 +33,10 @@ public class Span {
 	public boolean addAnnotation(HippoAnnotation annotation) {
 		annotationValues.add(annotation.getValue());
 		return annotations.add(annotation);
+	}
+
+	public boolean addAnnotation(HippoBinaryAnnotation annotation) {
+		return binaryAnnotations.add(annotation);
 	}
 
 	public int getAnnotationSize() {
@@ -68,6 +70,10 @@ public class Span {
 	public void setEndPoint(EndPoint endPoint) {
 		this.endPoint = endPoint;
 		for (HippoAnnotation annotation : annotations) {
+			annotation.setEndPoint(endPoint);
+		}
+
+		for (HippoBinaryAnnotation annotation : binaryAnnotations) {
 			annotation.setEndPoint(endPoint);
 		}
 	}

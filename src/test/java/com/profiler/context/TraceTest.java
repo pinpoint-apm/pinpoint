@@ -10,26 +10,26 @@ public class TraceTest {
 		nextId.setSampled(Trace.getTraceId().isSampled());
 
 		Trace.setTraceId(nextId);
-		
+
 		// http server receive
 		Trace.recordRpcName("service_name", "http://");
-		Trace.recordServerAddr("localhost", 8080);
-		Trace.record(new Annotation.ServerRecv());
+		Trace.recordEndPoint("localhost", 8080);
+		Trace.record(Annotation.ServerRecv);
 
 		// get data form db
 		getDataFromDB();
 
 		// response to client
-		Trace.record(new Annotation.ServerSend());
+		Trace.record(Annotation.ServerSend);
 	}
 
 	private void getDataFromDB() {
 		// db server request
 		Trace.recordRpcName("mysql", "mysql");
-		Trace.record("query");
-		Trace.record(new Annotation.ClientSend());
+		Trace.recordMessage("query");
+		Trace.record(Annotation.ClientSend);
 
 		// get a db response
-		Trace.record(new Annotation.ClientRecv());
+		Trace.record(Annotation.ClientRecv);
 	}
 }

@@ -8,14 +8,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.profiler.context.tracer.DefaultTracer;
-
 public class SpanTest {
 
 	@Test
 	public void span() {
-		Trace.addTracer(new DefaultTracer());
-
 		int testSize = 1;
 
 		final CountDownLatch startLatch = new CountDownLatch(1);
@@ -54,19 +50,18 @@ public class SpanTest {
 			}
 
 			Trace.setTraceId(Trace.getNextId());
-			Trace.addTracer(new DefaultTracer());
 
-			Trace.record("msg:client send");
-			Trace.record(new Annotation.ClientSend());
+			Trace.recordMessage("msg:client send");
+			Trace.record(Annotation.ClientSend);
 
-			Trace.record("msg:server recv");
-			Trace.record(new Annotation.ServerRecv());
+			Trace.recordMessage("msg:server recv");
+			Trace.record(Annotation.ServerRecv);
 
-			Trace.record("msg:server send");
-			Trace.record(new Annotation.ServerSend());
+			Trace.recordMessage("msg:server send");
+			Trace.record(Annotation.ServerSend);
 
-			Trace.record("msg:client recv");
-			Trace.record(new Annotation.ClientRecv());
+			Trace.recordMessage("msg:client recv");
+			Trace.record(Annotation.ClientRecv);
 
 			endLatch.countDown();
 		}

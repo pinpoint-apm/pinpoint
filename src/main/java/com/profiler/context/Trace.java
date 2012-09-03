@@ -1,10 +1,5 @@
 package com.profiler.context;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.profiler.context.tracer.DefaultTracer;
-import com.profiler.context.tracer.Tracer;
 import com.profiler.util.NamedThreadLocal;
 
 /**
@@ -14,13 +9,11 @@ import com.profiler.util.NamedThreadLocal;
  */
 public class Trace {
 
-	private static final ThreadLocal<TraceID> traceId = new NamedThreadLocal<TraceID>("TraceId");
-	private static final List<Tracer> tracers = new ArrayList<Tracer>();
-	private static volatile boolean tracingEnabled = true;
+	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
-	static {
-		tracers.add(new DefaultTracer());
-	}
+	private static final ThreadLocal<TraceID> traceId = new NamedThreadLocal<TraceID>("TraceId");
+
+	private static volatile boolean tracingEnabled = true;
 
 	private Trace() {
 
@@ -52,10 +45,6 @@ public class Trace {
 		return traceId.get();
 	}
 
-	public static List<Tracer> getTracers() {
-		return tracers;
-	}
-
 	public static void enable() {
 		tracingEnabled = true;
 	}
@@ -69,50 +58,96 @@ public class Trace {
 		return new TraceID(current.getTraceId(), current.getSpanId(), SpanID.newSpanID(), current.isSampled(), current.getFlags());
 	}
 
-	public static void addTracer(final Tracer tracer) {
-		tracers.add(tracer);
-	}
-
 	public static void setTraceId(TraceID traceId) {
 		Trace.traceId.set(traceId);
 	}
 
-	private static void record(Record record) {
-		if (!tracingEnabled)
-			return;
+	private static void mutate(TraceID traceId, SpanUpdater spanUpdater) {
+		Span span = spanMap.update(traceId, spanUpdater);
 
-		List<Tracer> tracers = getTracers();
-
-		for (Tracer t : tracers) {
-			t.record(record);
+		if (span.isExistsAnnotationType("CR") || span.isExistsAnnotationType("SS")) {
+			spanMap.remove(traceId);
+			logSpan(span);
 		}
 	}
 
+	private static void logSpan(Span span) {
+		// TODO: send span to server
+		System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
+	}
+
 	public static void record(Annotation annotation) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), annotation, null));
+		if (!tracingEnabled)
+			return;
+
+		annotate(annotation.getCode(), null);
 	}
 
 	public static void record(Annotation annotation, long duration) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), annotation, duration));
+		if (!tracingEnabled)
+			return;
+
+		annotate(annotation.getCode(), duration);
 	}
 
-	public static void recordBinary(String key, Object value) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), new Annotation.BinaryAnnotation(key, value), null));
+	public static void recordAttibute(final String key, final Object value) {
+		if (!tracingEnabled)
+			return;
+
+		mutate(getTraceId(), new SpanUpdater() {
+			@Override
+			public Span updateSpan(Span span) {
+				span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value, span.getEndPoint(), null));
+				return span;
+			}
+		});
 	}
 
-	public static void record(String message) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), new Annotation.Message(message), null));
+	public static void recordMessage(String message) {
+		if (!tracingEnabled)
+			return;
+
+		annotate(message, null);
 	}
 
-	public static void recordRpcName(String service, String rpc) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), new Annotation.RpcName(service, rpc), null));
+	public static void recordRpcName(final String service, final String rpc) {
+		if (!tracingEnabled)
+			return;
+
+		mutate(getTraceId(), new SpanUpdater() {
+			@Override
+			public Span updateSpan(Span span) {
+				span.setServiceName(service);
+				span.setName(rpc);
+				return span;
+			}
+		});
 	}
 
-	public static void recordClientAddr(String ip, int port) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), new Annotation.ClientAddr(ip, port), null));
+	public static void recordEndPoint(final String ip, final int port) {
+		if (!tracingEnabled)
+			return;
+
+		mutate(getTraceId(), new SpanUpdater() {
+			@Override
+			public Span updateSpan(Span span) {
+				// set endpoint to both span and annotations
+				span.setEndPoint(new EndPoint(ip, port));
+				return span;
+			}
+		});
 	}
 
-	public static void recordServerAddr(String ip, int port) {
-		record(new Record(getTraceId(), System.currentTimeMillis(), new Annotation.ServerAddr(ip, port), null));
+	private static void annotate(final String value, final Long duration) {
+		if (!tracingEnabled)
+			return;
+
+		mutate(getTraceId(), new SpanUpdater() {
+			@Override
+			public Span updateSpan(Span span) {
+				span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, span.getEndPoint(), duration));
+				return span;
+			}
+		});
 	}
 }

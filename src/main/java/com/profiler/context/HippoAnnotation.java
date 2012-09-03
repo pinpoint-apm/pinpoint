@@ -1,13 +1,13 @@
-package com.profiler.context.tracer;
+package com.profiler.context;
 
 public class HippoAnnotation {
 
-	private final long time;
-	private final String value;
-	private final Long duration;
-	private final String threadname; // TODO: remove, just for debug.
+	protected final long time;
+	protected final String value;
+	protected final Long duration;
+	protected final String threadname; // TODO: remove, just for debug.
 
-	private EndPoint endPoint;
+	protected EndPoint endPoint;
 
 	public HippoAnnotation(long time, String value, EndPoint endPoint, Long duration) {
 		this.time = time;
