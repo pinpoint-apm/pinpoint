@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.modifier.arcus.ArcusClientModifier;
 import com.profiler.modifier.connector.HTTPClientModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
@@ -52,6 +53,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	public void addConnectorModifier() {
 		HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
 		addModifier(httpClientModifier);
+
+		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+		addModifier(arcusClientModifier);
 	}
 
 	public void addTomcatModifier() {
