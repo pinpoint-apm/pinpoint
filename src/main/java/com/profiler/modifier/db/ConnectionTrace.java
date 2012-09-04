@@ -20,6 +20,10 @@ public class ConnectionTrace {
         this.connectionMap.put(connection, url);
     }
 
+    public String getConnectionUrl(Connection connection) {
+        return this.connectionMap.get(connection);
+    }
+
 
     public void closeConnection(Connection connection) {
         this.connectionMap.remove(connection);

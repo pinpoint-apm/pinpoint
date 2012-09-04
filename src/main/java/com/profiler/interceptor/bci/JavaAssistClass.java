@@ -30,6 +30,10 @@ public class JavaAssistClass implements InstrumentClass {
 		this.ctClass = ctClass;
 	}
 
+    public CtClass getCtClass() {
+        return ctClass;
+    }
+
     @Override
 	public boolean addInterceptor(String methodName, String[] args, Interceptor interceptor) {
         return addInterceptor(methodName, args, interceptor, Type.auto);
@@ -89,7 +93,8 @@ public class JavaAssistClass implements InstrumentClass {
 		after.append("{");
 		addGetStaticAfterInterceptor(after, id);
         String target = getTarget(behavior);
-        after.append("  interceptor.after(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, ($w)$_);");
+        String returnType = getReturnType(behavior);
+        after.append("  interceptor.after(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, " + returnType + ");");
 		after.append("}");
 		String buildAfter = after.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -119,6 +124,16 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             return "this";
         }
+    }
+
+    public String getReturnType(CtBehavior behavior) throws NotFoundException {
+        if(behavior instanceof CtMethod) {
+            CtClass returnType = ((CtMethod) behavior).getReturnType();
+            if(CtClass.voidType == returnType) {
+                return "null";
+            }
+        }
+        return "($w)$_";
     }
 
     private boolean isStatic(CtBehavior behavior) {
@@ -287,4 +302,6 @@ public class JavaAssistClass implements InstrumentClass {
 		}
 		return null;
 	}
+
+
 }

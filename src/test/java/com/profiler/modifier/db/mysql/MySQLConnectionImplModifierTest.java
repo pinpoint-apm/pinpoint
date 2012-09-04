@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
+import com.profiler.context.Trace;
 import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.Statement;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -21,8 +23,11 @@ public class MySQLConnectionImplModifierTest {
     public void setUp() throws Exception {
         loader = new TestClassLoader();
 
-        MySQLConnectionImplModifier modifier = new MySQLConnectionImplModifier(loader.getInstrumentor());
-        loader.addModifier(modifier);
+        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor());
+        loader.addModifier(connectionModifier);
+
+        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor());
+        loader.addModifier(statementModifier);
 
 
 //        loader.delegateLoadingOf(ConnectionTrace.class.getName());
@@ -43,6 +48,7 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("password", "testlucy");
         Connection connect = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
+        Trace.getTraceId();
         logger.info("Connection class name:" + connect.getClass().getName());
         logger.info("Connection class cl:" + connect.getClass().getClassLoader());
 
@@ -50,10 +56,15 @@ public class MySQLConnectionImplModifierTest {
         Assert.assertEquals(connectionList.size(), 1);
         logger.info("connection size:" + connectionList.size());
 
+        Statement statement = connect.createStatement();
+        statement.executeQuery("select 1");
+        statement.close();
+
         connect.close();
         Assert.assertEquals(connectionList.size(), 0);
         logger.info("connection size:" + connectionList.size());
 
+        Trace.removeTraceId();
     }
 
 }

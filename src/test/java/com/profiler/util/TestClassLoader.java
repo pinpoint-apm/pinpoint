@@ -1,5 +1,8 @@
 package com.profiler.util;
 
+import com.profiler.StopWatch;
+import com.profiler.context.Annotation;
+import com.profiler.context.Trace;
 import com.profiler.interceptor.*;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
@@ -43,6 +46,9 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(StaticAfterInterceptor.class.getName());
         this.delegateLoadingOf(InterceptorRegistry.class.getName());
         this.delegateLoadingOf(ConnectionTrace.class.getName());
+        this.delegateLoadingOf(Trace.class.getName());
+        this.delegateLoadingOf(Annotation.class.getName());
+        this.delegateLoadingOf(StopWatch.class.getName());
     }
 
     @Override
