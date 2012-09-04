@@ -9,8 +9,6 @@ public class InterceptorRegistry {
 
 	private final AtomicInteger id = new AtomicInteger(0);
 	private final Interceptor[] index;
-	// private final ConcurrentMap<String, List<Integer>> nameToIndex = new
-	// ConcurrentHashMap<String, List<Integer>>();
 
 	public static final InterceptorRegistry REGISTRY = new InterceptorRegistry();
 
@@ -22,6 +20,7 @@ public class InterceptorRegistry {
 		this.max = max;
 		this.index = new Interceptor[max];
 	}
+
 
 	int addInterceptor0(Interceptor interceptor) {
 		if (interceptor == null) {
@@ -47,4 +46,5 @@ public class InterceptorRegistry {
 	public static Interceptor getInterceptor(int key) {
 		return REGISTRY.getInterceptor0(key);
 	}
+
 }

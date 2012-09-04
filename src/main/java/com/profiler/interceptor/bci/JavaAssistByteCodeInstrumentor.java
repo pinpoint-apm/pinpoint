@@ -118,6 +118,9 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 						logger.info("Loaded " + filePath + " library.");
 					}
 				} catch (NotFoundException e) {
+                    if (logger.isLoggable(Level.WARNING)) {
+                        logger.log(Level.WARNING, "lib not fail. " + e.getMessage(), e);
+                    }
 				}
 			}
 		}

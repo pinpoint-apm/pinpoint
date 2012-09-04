@@ -34,7 +34,7 @@ public abstract class AbstractModifier implements Modifier {
 	protected Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) {
 		Class<?> aClass = this.byteCodeInstrumentor.defineClass(classLoader, interceptorFQCN, protectedDomain);
 		try {
-			return (Interceptor) aClass.newInstance();
+            return (Interceptor) aClass.newInstance();
 		} catch (InstantiationException e) {
 			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);

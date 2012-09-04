@@ -1,6 +1,8 @@
 package com.profiler.modifier.db.mysql;
 
+import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -29,20 +31,33 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		    logger.info("Modifing. " + javassistClassName);
         }
 		checkLibrary(classLoader, javassistClassName);
-		return changeMethods(javassistClassName, classFileBuffer);
-	}
-
-	private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
 		try {
-			CtClass cc = classPool.get(javassistClassName);
-
-			updateGetInstanceMethod(cc);
-			updateCreateStatementMethod(cc);
-			updateCloseMethod(cc);
+            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            if (mysqlConnection == null) {
+                return null;
+            }
+            String[] params = new String[] {
+                "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
+            };
+            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
+            if (createConnection == null) {
+                return null;
+            }
+            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
+            if (closeConnection == null) {
+                return null;
+            }
+            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
+            if (createStatement == null) {
+                return null;
+            }
+            mysqlConnection.addInterceptor("getInstance", params, createConnection);
+            mysqlConnection.addInterceptor("close", null, closeConnection);
+            mysqlConnection.addInterceptor("createStatement", null, createStatement);
 
 			printClassConvertComplete(javassistClassName);
 
-			return cc.toBytecode();
+			return mysqlConnection.toBytecode();
 		} catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
 			    logger.log(Level.WARNING, e.getMessage(), e);
@@ -50,6 +65,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		}
 		return null;
 	}
+
 
 	private void updateCreateStatementMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("createStatement", null);

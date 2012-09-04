@@ -5,6 +5,8 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
 
+import java.net.URL;
+
 /**
  * 
  * @author netspider
@@ -22,7 +24,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 				return;
 			}
 
-			Trace.recordRpcName("mysql", "");
+			Trace.recordRpcName("mysql", "url*****");
 
 			//
 			// TODO: add destination address
