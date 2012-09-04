@@ -13,10 +13,10 @@ public class StopWatch {
 		Map<String, Long> map = local.get();
 		if (map == null) {
 			map = new HashMap<String, Long>(1);
-			map.put(name, System.currentTimeMillis());
+			map.put(name, System.nanoTime());
 			local.set(map);
 		} else {
-			map.put(name, System.currentTimeMillis());
+			map.put(name, System.nanoTime());
 		}
 	}
 
@@ -25,7 +25,7 @@ public class StopWatch {
 		if (map == null) {
 			throw new IllegalStateException("Stopwatch is not started.");
 		} else {
-			return System.currentTimeMillis() - map.get(name);
+			return System.nanoTime() - map.get(name);
 		}
 	}
 }

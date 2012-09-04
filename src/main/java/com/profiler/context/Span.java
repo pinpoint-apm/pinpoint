@@ -27,7 +27,7 @@ public class Span {
 		this.traceID = traceId;
 		this.name = name;
 		this.endPoint = endPoint;
-		this.createTime = System.nanoTime();
+		this.createTime = System.currentTimeMillis();
 	}
 
 	public boolean addAnnotation(HippoAnnotation annotation) {
