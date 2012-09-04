@@ -10,10 +10,9 @@ public class TraceID {
 	private int flags;
 
 	public static TraceID newTraceId() {
-        UUID uuid = UUID.randomUUID();
-        return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
+		UUID uuid = UUID.randomUUID();
+		return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
 	}
-
 
 	public TraceID(UUID traceId, long parentSpanId, long spanId, boolean sampled, int flags) {
 		this.traceId = traceId;
@@ -27,40 +26,45 @@ public class TraceID {
 		return traceId;
 	}
 
-    public TraceKey getTraceKey() {
-        long most = traceId.getMostSignificantBits();
-        long least = traceId.getLeastSignificantBits();
-        return new TraceKey(most, least);
-    }
+	public TraceKey getTraceKey() {
+		long most = traceId.getMostSignificantBits();
+		long least = traceId.getLeastSignificantBits();
+		return new TraceKey(most, least);
+	}
 
-    public static class TraceKey {
-        private long most;
-        private long least;
-        public TraceKey(long most, long least) {
-            this.most = most;
-            this.least = least;
-        }
+	public static class TraceKey {
+		private long most;
+		private long least;
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+		public TraceKey(long most, long least) {
+			this.most = most;
+			this.least = least;
+		}
 
-            TraceKey that = (TraceKey) o;
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 
-            if (least != that.least) return false;
-            if (most != that.most) return false;
+			TraceKey that = (TraceKey) o;
 
-            return true;
-        }
+			if (least != that.least)
+				return false;
+			if (most != that.most)
+				return false;
 
-        @Override
-        public int hashCode() {
-            int result = (int) (most ^ (most >>> 32));
-            result = 31 * result + (int) (least ^ (least >>> 32));
-            return result;
-        }
-    }
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = (int) (most ^ (most >>> 32));
+			result = 31 * result + (int) (least ^ (least >>> 32));
+			return result;
+		}
+	}
 
 	public long getParentSpanId() {
 		return parentSpanId;

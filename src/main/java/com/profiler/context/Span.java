@@ -43,6 +43,12 @@ public class Span {
 		return annotations.size();
 	}
 
+	/**
+	 * this method only works for Trace.mutate()
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public boolean isExistsAnnotationType(String value) {
 		return annotationValues.contains(value);
 	}
