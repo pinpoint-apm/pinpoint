@@ -30,13 +30,15 @@ import org.slf4j.LoggerFactory;
 public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
 
-  private static final org.apache.thrift.protocol.TField TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("traceID", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanID", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)5);
-  private static final org.apache.thrift.protocol.TField BINARY_ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("binaryAnnotations", org.apache.thrift.protocol.TType.LIST, (short)6);
-  private static final org.apache.thrift.protocol.TField DEBUG_FIELD_DESC = new org.apache.thrift.protocol.TField("debug", org.apache.thrift.protocol.TType.BOOL, (short)7);
+  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)1);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceID", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceID", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanID", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I64, (short)6);
+  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)7);
+  private static final org.apache.thrift.protocol.TField BINARY_ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("binaryAnnotations", org.apache.thrift.protocol.TType.LIST, (short)8);
+  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I32, (short)9);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -44,23 +46,27 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     schemes.put(TupleScheme.class, new SpanTupleSchemeFactory());
   }
 
-  private String traceID; // required
+  private long timestamp; // required
+  private long mostTraceID; // required
+  private long leastTraceID; // required
   private String name; // required
-  private String spanID; // required
-  private String parentSpanId; // optional
+  private long spanID; // required
+  private long parentSpanId; // optional
   private List<Annotation> annotations; // required
   private List<BinaryAnnotation> binaryAnnotations; // required
-  private boolean debug; // optional
+  private int flag; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TRACE_ID((short)1, "traceID"),
-    NAME((short)2, "name"),
-    SPAN_ID((short)3, "spanID"),
-    PARENT_SPAN_ID((short)4, "parentSpanId"),
-    ANNOTATIONS((short)5, "annotations"),
-    BINARY_ANNOTATIONS((short)6, "binaryAnnotations"),
-    DEBUG((short)7, "debug");
+    TIMESTAMP((short)1, "timestamp"),
+    MOST_TRACE_ID((short)2, "mostTraceID"),
+    LEAST_TRACE_ID((short)3, "leastTraceID"),
+    NAME((short)4, "name"),
+    SPAN_ID((short)5, "spanID"),
+    PARENT_SPAN_ID((short)6, "parentSpanId"),
+    ANNOTATIONS((short)7, "annotations"),
+    BINARY_ANNOTATIONS((short)8, "binaryAnnotations"),
+    FLAG((short)9, "flag");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -75,20 +81,24 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TRACE_ID
-          return TRACE_ID;
-        case 2: // NAME
+        case 1: // TIMESTAMP
+          return TIMESTAMP;
+        case 2: // MOST_TRACE_ID
+          return MOST_TRACE_ID;
+        case 3: // LEAST_TRACE_ID
+          return LEAST_TRACE_ID;
+        case 4: // NAME
           return NAME;
-        case 3: // SPAN_ID
+        case 5: // SPAN_ID
           return SPAN_ID;
-        case 4: // PARENT_SPAN_ID
+        case 6: // PARENT_SPAN_ID
           return PARENT_SPAN_ID;
-        case 5: // ANNOTATIONS
+        case 7: // ANNOTATIONS
           return ANNOTATIONS;
-        case 6: // BINARY_ANNOTATIONS
+        case 8: // BINARY_ANNOTATIONS
           return BINARY_ANNOTATIONS;
-        case 7: // DEBUG
-          return DEBUG;
+        case 9: // FLAG
+          return FLAG;
         default:
           return null;
       }
@@ -129,48 +139,65 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   }
 
   // isset id assignments
-  private static final int __DEBUG_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
-  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.DEBUG};
+  private static final int __TIMESTAMP_ISSET_ID = 0;
+  private static final int __MOSTTRACEID_ISSET_ID = 1;
+  private static final int __LEASTTRACEID_ISSET_ID = 2;
+  private static final int __SPANID_ISSET_ID = 3;
+  private static final int __PARENTSPANID_ISSET_ID = 4;
+  private static final int __FLAG_ISSET_ID = 5;
+  private BitSet __isset_bit_vector = new BitSet(6);
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.FLAG};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("traceID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
     tmpMap.put(_Fields.BINARY_ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("binaryAnnotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, BinaryAnnotation.class))));
-    tmpMap.put(_Fields.DEBUG, new org.apache.thrift.meta_data.FieldMetaData("debug", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.FLAG, new org.apache.thrift.meta_data.FieldMetaData("flag", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
   }
 
   public Span() {
-    this.debug = false;
+    this.flag = 0;
 
   }
 
   public Span(
-    String traceID,
+    long timestamp,
+    long mostTraceID,
+    long leastTraceID,
     String name,
-    String spanID,
+    long spanID,
     List<Annotation> annotations,
     List<BinaryAnnotation> binaryAnnotations)
   {
     this();
-    this.traceID = traceID;
+    this.timestamp = timestamp;
+    setTimestampIsSet(true);
+    this.mostTraceID = mostTraceID;
+    setMostTraceIDIsSet(true);
+    this.leastTraceID = leastTraceID;
+    setLeastTraceIDIsSet(true);
     this.name = name;
     this.spanID = spanID;
+    setSpanIDIsSet(true);
     this.annotations = annotations;
     this.binaryAnnotations = binaryAnnotations;
   }
@@ -181,18 +208,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public Span(Span other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    if (other.isSetTraceID()) {
-      this.traceID = other.traceID;
-    }
+    this.timestamp = other.timestamp;
+    this.mostTraceID = other.mostTraceID;
+    this.leastTraceID = other.leastTraceID;
     if (other.isSetName()) {
       this.name = other.name;
     }
-    if (other.isSetSpanID()) {
-      this.spanID = other.spanID;
-    }
-    if (other.isSetParentSpanId()) {
-      this.parentSpanId = other.parentSpanId;
-    }
+    this.spanID = other.spanID;
+    this.parentSpanId = other.parentSpanId;
     if (other.isSetAnnotations()) {
       List<Annotation> __this__annotations = new ArrayList<Annotation>();
       for (Annotation other_element : other.annotations) {
@@ -207,7 +230,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       this.binaryAnnotations = __this__binaryAnnotations;
     }
-    this.debug = other.debug;
+    this.flag = other.flag;
   }
 
   public Span deepCopy() {
@@ -216,37 +239,87 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   @Override
   public void clear() {
-    this.traceID = null;
+    setTimestampIsSet(false);
+    this.timestamp = 0;
+    setMostTraceIDIsSet(false);
+    this.mostTraceID = 0;
+    setLeastTraceIDIsSet(false);
+    this.leastTraceID = 0;
     this.name = null;
-    this.spanID = null;
-    this.parentSpanId = null;
+    setSpanIDIsSet(false);
+    this.spanID = 0;
+    setParentSpanIdIsSet(false);
+    this.parentSpanId = 0;
     this.annotations = null;
     this.binaryAnnotations = null;
-    this.debug = false;
+    this.flag = 0;
 
   }
 
-  public String getTraceID() {
-    return this.traceID;
+  public long getTimestamp() {
+    return this.timestamp;
   }
 
-  public void setTraceID(String traceID) {
-    this.traceID = traceID;
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+    setTimestampIsSet(true);
   }
 
-  public void unsetTraceID() {
-    this.traceID = null;
+  public void unsetTimestamp() {
+    __isset_bit_vector.clear(__TIMESTAMP_ISSET_ID);
   }
 
-  /** Returns true if field traceID is set (has been assigned a value) and false otherwise */
-  public boolean isSetTraceID() {
-    return this.traceID != null;
+  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetTimestamp() {
+    return __isset_bit_vector.get(__TIMESTAMP_ISSET_ID);
   }
 
-  public void setTraceIDIsSet(boolean value) {
-    if (!value) {
-      this.traceID = null;
-    }
+  public void setTimestampIsSet(boolean value) {
+    __isset_bit_vector.set(__TIMESTAMP_ISSET_ID, value);
+  }
+
+  public long getMostTraceID() {
+    return this.mostTraceID;
+  }
+
+  public void setMostTraceID(long mostTraceID) {
+    this.mostTraceID = mostTraceID;
+    setMostTraceIDIsSet(true);
+  }
+
+  public void unsetMostTraceID() {
+    __isset_bit_vector.clear(__MOSTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field mostTraceID is set (has been assigned a value) and false otherwise */
+  public boolean isSetMostTraceID() {
+    return __isset_bit_vector.get(__MOSTTRACEID_ISSET_ID);
+  }
+
+  public void setMostTraceIDIsSet(boolean value) {
+    __isset_bit_vector.set(__MOSTTRACEID_ISSET_ID, value);
+  }
+
+  public long getLeastTraceID() {
+    return this.leastTraceID;
+  }
+
+  public void setLeastTraceID(long leastTraceID) {
+    this.leastTraceID = leastTraceID;
+    setLeastTraceIDIsSet(true);
+  }
+
+  public void unsetLeastTraceID() {
+    __isset_bit_vector.clear(__LEASTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field leastTraceID is set (has been assigned a value) and false otherwise */
+  public boolean isSetLeastTraceID() {
+    return __isset_bit_vector.get(__LEASTTRACEID_ISSET_ID);
+  }
+
+  public void setLeastTraceIDIsSet(boolean value) {
+    __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
   }
 
   public String getName() {
@@ -272,50 +345,48 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
-  public String getSpanID() {
+  public long getSpanID() {
     return this.spanID;
   }
 
-  public void setSpanID(String spanID) {
+  public void setSpanID(long spanID) {
     this.spanID = spanID;
+    setSpanIDIsSet(true);
   }
 
   public void unsetSpanID() {
-    this.spanID = null;
+    __isset_bit_vector.clear(__SPANID_ISSET_ID);
   }
 
   /** Returns true if field spanID is set (has been assigned a value) and false otherwise */
   public boolean isSetSpanID() {
-    return this.spanID != null;
+    return __isset_bit_vector.get(__SPANID_ISSET_ID);
   }
 
   public void setSpanIDIsSet(boolean value) {
-    if (!value) {
-      this.spanID = null;
-    }
+    __isset_bit_vector.set(__SPANID_ISSET_ID, value);
   }
 
-  public String getParentSpanId() {
+  public long getParentSpanId() {
     return this.parentSpanId;
   }
 
-  public void setParentSpanId(String parentSpanId) {
+  public void setParentSpanId(long parentSpanId) {
     this.parentSpanId = parentSpanId;
+    setParentSpanIdIsSet(true);
   }
 
   public void unsetParentSpanId() {
-    this.parentSpanId = null;
+    __isset_bit_vector.clear(__PARENTSPANID_ISSET_ID);
   }
 
   /** Returns true if field parentSpanId is set (has been assigned a value) and false otherwise */
   public boolean isSetParentSpanId() {
-    return this.parentSpanId != null;
+    return __isset_bit_vector.get(__PARENTSPANID_ISSET_ID);
   }
 
   public void setParentSpanIdIsSet(boolean value) {
-    if (!value) {
-      this.parentSpanId = null;
-    }
+    __isset_bit_vector.set(__PARENTSPANID_ISSET_ID, value);
   }
 
   public int getAnnotationsSize() {
@@ -394,35 +465,51 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
-  public boolean isDebug() {
-    return this.debug;
+  public int getFlag() {
+    return this.flag;
   }
 
-  public void setDebug(boolean debug) {
-    this.debug = debug;
-    setDebugIsSet(true);
+  public void setFlag(int flag) {
+    this.flag = flag;
+    setFlagIsSet(true);
   }
 
-  public void unsetDebug() {
-    __isset_bit_vector.clear(__DEBUG_ISSET_ID);
+  public void unsetFlag() {
+    __isset_bit_vector.clear(__FLAG_ISSET_ID);
   }
 
-  /** Returns true if field debug is set (has been assigned a value) and false otherwise */
-  public boolean isSetDebug() {
-    return __isset_bit_vector.get(__DEBUG_ISSET_ID);
+  /** Returns true if field flag is set (has been assigned a value) and false otherwise */
+  public boolean isSetFlag() {
+    return __isset_bit_vector.get(__FLAG_ISSET_ID);
   }
 
-  public void setDebugIsSet(boolean value) {
-    __isset_bit_vector.set(__DEBUG_ISSET_ID, value);
+  public void setFlagIsSet(boolean value) {
+    __isset_bit_vector.set(__FLAG_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TRACE_ID:
+    case TIMESTAMP:
       if (value == null) {
-        unsetTraceID();
+        unsetTimestamp();
       } else {
-        setTraceID((String)value);
+        setTimestamp((Long)value);
+      }
+      break;
+
+    case MOST_TRACE_ID:
+      if (value == null) {
+        unsetMostTraceID();
+      } else {
+        setMostTraceID((Long)value);
+      }
+      break;
+
+    case LEAST_TRACE_ID:
+      if (value == null) {
+        unsetLeastTraceID();
+      } else {
+        setLeastTraceID((Long)value);
       }
       break;
 
@@ -438,7 +525,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetSpanID();
       } else {
-        setSpanID((String)value);
+        setSpanID((Long)value);
       }
       break;
 
@@ -446,7 +533,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetParentSpanId();
       } else {
-        setParentSpanId((String)value);
+        setParentSpanId((Long)value);
       }
       break;
 
@@ -466,11 +553,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
-    case DEBUG:
+    case FLAG:
       if (value == null) {
-        unsetDebug();
+        unsetFlag();
       } else {
-        setDebug((Boolean)value);
+        setFlag((Integer)value);
       }
       break;
 
@@ -479,17 +566,23 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TRACE_ID:
-      return getTraceID();
+    case TIMESTAMP:
+      return Long.valueOf(getTimestamp());
+
+    case MOST_TRACE_ID:
+      return Long.valueOf(getMostTraceID());
+
+    case LEAST_TRACE_ID:
+      return Long.valueOf(getLeastTraceID());
 
     case NAME:
       return getName();
 
     case SPAN_ID:
-      return getSpanID();
+      return Long.valueOf(getSpanID());
 
     case PARENT_SPAN_ID:
-      return getParentSpanId();
+      return Long.valueOf(getParentSpanId());
 
     case ANNOTATIONS:
       return getAnnotations();
@@ -497,8 +590,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case BINARY_ANNOTATIONS:
       return getBinaryAnnotations();
 
-    case DEBUG:
-      return Boolean.valueOf(isDebug());
+    case FLAG:
+      return Integer.valueOf(getFlag());
 
     }
     throw new IllegalStateException();
@@ -511,8 +604,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
 
     switch (field) {
-    case TRACE_ID:
-      return isSetTraceID();
+    case TIMESTAMP:
+      return isSetTimestamp();
+    case MOST_TRACE_ID:
+      return isSetMostTraceID();
+    case LEAST_TRACE_ID:
+      return isSetLeastTraceID();
     case NAME:
       return isSetName();
     case SPAN_ID:
@@ -523,8 +620,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetAnnotations();
     case BINARY_ANNOTATIONS:
       return isSetBinaryAnnotations();
-    case DEBUG:
-      return isSetDebug();
+    case FLAG:
+      return isSetFlag();
     }
     throw new IllegalStateException();
   }
@@ -542,12 +639,30 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (that == null)
       return false;
 
-    boolean this_present_traceID = true && this.isSetTraceID();
-    boolean that_present_traceID = true && that.isSetTraceID();
-    if (this_present_traceID || that_present_traceID) {
-      if (!(this_present_traceID && that_present_traceID))
+    boolean this_present_timestamp = true;
+    boolean that_present_timestamp = true;
+    if (this_present_timestamp || that_present_timestamp) {
+      if (!(this_present_timestamp && that_present_timestamp))
         return false;
-      if (!this.traceID.equals(that.traceID))
+      if (this.timestamp != that.timestamp)
+        return false;
+    }
+
+    boolean this_present_mostTraceID = true;
+    boolean that_present_mostTraceID = true;
+    if (this_present_mostTraceID || that_present_mostTraceID) {
+      if (!(this_present_mostTraceID && that_present_mostTraceID))
+        return false;
+      if (this.mostTraceID != that.mostTraceID)
+        return false;
+    }
+
+    boolean this_present_leastTraceID = true;
+    boolean that_present_leastTraceID = true;
+    if (this_present_leastTraceID || that_present_leastTraceID) {
+      if (!(this_present_leastTraceID && that_present_leastTraceID))
+        return false;
+      if (this.leastTraceID != that.leastTraceID)
         return false;
     }
 
@@ -560,12 +675,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_spanID = true && this.isSetSpanID();
-    boolean that_present_spanID = true && that.isSetSpanID();
+    boolean this_present_spanID = true;
+    boolean that_present_spanID = true;
     if (this_present_spanID || that_present_spanID) {
       if (!(this_present_spanID && that_present_spanID))
         return false;
-      if (!this.spanID.equals(that.spanID))
+      if (this.spanID != that.spanID)
         return false;
     }
 
@@ -574,7 +689,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (this_present_parentSpanId || that_present_parentSpanId) {
       if (!(this_present_parentSpanId && that_present_parentSpanId))
         return false;
-      if (!this.parentSpanId.equals(that.parentSpanId))
+      if (this.parentSpanId != that.parentSpanId)
         return false;
     }
 
@@ -596,12 +711,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_debug = true && this.isSetDebug();
-    boolean that_present_debug = true && that.isSetDebug();
-    if (this_present_debug || that_present_debug) {
-      if (!(this_present_debug && that_present_debug))
+    boolean this_present_flag = true && this.isSetFlag();
+    boolean that_present_flag = true && that.isSetFlag();
+    if (this_present_flag || that_present_flag) {
+      if (!(this_present_flag && that_present_flag))
         return false;
-      if (this.debug != that.debug)
+      if (this.flag != that.flag)
         return false;
     }
 
@@ -621,12 +736,32 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     int lastComparison = 0;
     Span typedOther = (Span)other;
 
-    lastComparison = Boolean.valueOf(isSetTraceID()).compareTo(typedOther.isSetTraceID());
+    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTraceID()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceID, typedOther.traceID);
+    if (isSetTimestamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetMostTraceID()).compareTo(typedOther.isSetMostTraceID());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetMostTraceID()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mostTraceID, typedOther.mostTraceID);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetLeastTraceID()).compareTo(typedOther.isSetLeastTraceID());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetLeastTraceID()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.leastTraceID, typedOther.leastTraceID);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -681,12 +816,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetDebug()).compareTo(typedOther.isSetDebug());
+    lastComparison = Boolean.valueOf(isSetFlag()).compareTo(typedOther.isSetFlag());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetDebug()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.debug, typedOther.debug);
+    if (isSetFlag()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.flag, typedOther.flag);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -711,12 +846,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     StringBuilder sb = new StringBuilder("Span(");
     boolean first = true;
 
-    sb.append("traceID:");
-    if (this.traceID == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.traceID);
-    }
+    sb.append("timestamp:");
+    sb.append(this.timestamp);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("mostTraceID:");
+    sb.append(this.mostTraceID);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("leastTraceID:");
+    sb.append(this.leastTraceID);
     first = false;
     if (!first) sb.append(", ");
     sb.append("name:");
@@ -728,20 +867,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     first = false;
     if (!first) sb.append(", ");
     sb.append("spanID:");
-    if (this.spanID == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.spanID);
-    }
+    sb.append(this.spanID);
     first = false;
     if (isSetParentSpanId()) {
       if (!first) sb.append(", ");
       sb.append("parentSpanId:");
-      if (this.parentSpanId == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.parentSpanId);
-      }
+      sb.append(this.parentSpanId);
       first = false;
     }
     if (!first) sb.append(", ");
@@ -760,10 +891,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       sb.append(this.binaryAnnotations);
     }
     first = false;
-    if (isSetDebug()) {
+    if (isSetFlag()) {
       if (!first) sb.append(", ");
-      sb.append("debug:");
-      sb.append(this.debug);
+      sb.append("flag:");
+      sb.append(this.flag);
       first = false;
     }
     sb.append(")");
@@ -810,15 +941,31 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           break;
         }
         switch (schemeField.id) {
-          case 1: // TRACE_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.traceID = iprot.readString();
-              struct.setTraceIDIsSet(true);
+          case 1: // TIMESTAMP
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.timestamp = iprot.readI64();
+              struct.setTimestampIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // NAME
+          case 2: // MOST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.mostTraceID = iprot.readI64();
+              struct.setMostTraceIDIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // LEAST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.leastTraceID = iprot.readI64();
+              struct.setLeastTraceIDIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.name = iprot.readString();
               struct.setNameIsSet(true);
@@ -826,23 +973,23 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.spanID = iprot.readString();
+          case 5: // SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanID = iprot.readI64();
               struct.setSpanIDIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // PARENT_SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.parentSpanId = iprot.readString();
+          case 6: // PARENT_SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.parentSpanId = iprot.readI64();
               struct.setParentSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // ANNOTATIONS
+          case 7: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
@@ -861,7 +1008,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // BINARY_ANNOTATIONS
+          case 8: // BINARY_ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list3 = iprot.readListBegin();
@@ -880,10 +1027,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // DEBUG
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.debug = iprot.readBool();
-              struct.setDebugIsSet(true);
+          case 9: // FLAG
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.flag = iprot.readI32();
+              struct.setFlagIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -901,27 +1048,27 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.traceID != null) {
-        oprot.writeFieldBegin(TRACE_ID_FIELD_DESC);
-        oprot.writeString(struct.traceID);
-        oprot.writeFieldEnd();
-      }
+      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
+      oprot.writeI64(struct.timestamp);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.mostTraceID);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(LEAST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.leastTraceID);
+      oprot.writeFieldEnd();
       if (struct.name != null) {
         oprot.writeFieldBegin(NAME_FIELD_DESC);
         oprot.writeString(struct.name);
         oprot.writeFieldEnd();
       }
-      if (struct.spanID != null) {
-        oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-        oprot.writeString(struct.spanID);
+      oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
+      oprot.writeI64(struct.spanID);
+      oprot.writeFieldEnd();
+      if (struct.isSetParentSpanId()) {
+        oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
+        oprot.writeI64(struct.parentSpanId);
         oprot.writeFieldEnd();
-      }
-      if (struct.parentSpanId != null) {
-        if (struct.isSetParentSpanId()) {
-          oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
-          oprot.writeString(struct.parentSpanId);
-          oprot.writeFieldEnd();
-        }
       }
       if (struct.annotations != null) {
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
@@ -947,9 +1094,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         }
         oprot.writeFieldEnd();
       }
-      if (struct.isSetDebug()) {
-        oprot.writeFieldBegin(DEBUG_FIELD_DESC);
-        oprot.writeBool(struct.debug);
+      if (struct.isSetFlag()) {
+        oprot.writeFieldBegin(FLAG_FIELD_DESC);
+        oprot.writeI32(struct.flag);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -970,39 +1117,51 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     public void write(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTraceID()) {
+      if (struct.isSetTimestamp()) {
         optionals.set(0);
       }
-      if (struct.isSetName()) {
+      if (struct.isSetMostTraceID()) {
         optionals.set(1);
       }
-      if (struct.isSetSpanID()) {
+      if (struct.isSetLeastTraceID()) {
         optionals.set(2);
       }
-      if (struct.isSetParentSpanId()) {
+      if (struct.isSetName()) {
         optionals.set(3);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetSpanID()) {
         optionals.set(4);
       }
-      if (struct.isSetBinaryAnnotations()) {
+      if (struct.isSetParentSpanId()) {
         optionals.set(5);
       }
-      if (struct.isSetDebug()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(6);
       }
-      oprot.writeBitSet(optionals, 7);
-      if (struct.isSetTraceID()) {
-        oprot.writeString(struct.traceID);
+      if (struct.isSetBinaryAnnotations()) {
+        optionals.set(7);
+      }
+      if (struct.isSetFlag()) {
+        optionals.set(8);
+      }
+      oprot.writeBitSet(optionals, 9);
+      if (struct.isSetTimestamp()) {
+        oprot.writeI64(struct.timestamp);
+      }
+      if (struct.isSetMostTraceID()) {
+        oprot.writeI64(struct.mostTraceID);
+      }
+      if (struct.isSetLeastTraceID()) {
+        oprot.writeI64(struct.leastTraceID);
       }
       if (struct.isSetName()) {
         oprot.writeString(struct.name);
       }
       if (struct.isSetSpanID()) {
-        oprot.writeString(struct.spanID);
+        oprot.writeI64(struct.spanID);
       }
       if (struct.isSetParentSpanId()) {
-        oprot.writeString(struct.parentSpanId);
+        oprot.writeI64(struct.parentSpanId);
       }
       if (struct.isSetAnnotations()) {
         {
@@ -1022,32 +1181,40 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           }
         }
       }
-      if (struct.isSetDebug()) {
-        oprot.writeBool(struct.debug);
+      if (struct.isSetFlag()) {
+        oprot.writeI32(struct.flag);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(7);
+      BitSet incoming = iprot.readBitSet(9);
       if (incoming.get(0)) {
-        struct.traceID = iprot.readString();
-        struct.setTraceIDIsSet(true);
+        struct.timestamp = iprot.readI64();
+        struct.setTimestampIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.mostTraceID = iprot.readI64();
+        struct.setMostTraceIDIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.leastTraceID = iprot.readI64();
+        struct.setLeastTraceIDIsSet(true);
+      }
+      if (incoming.get(3)) {
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
       }
-      if (incoming.get(2)) {
-        struct.spanID = iprot.readString();
+      if (incoming.get(4)) {
+        struct.spanID = iprot.readI64();
         struct.setSpanIDIsSet(true);
       }
-      if (incoming.get(3)) {
-        struct.parentSpanId = iprot.readString();
+      if (incoming.get(5)) {
+        struct.parentSpanId = iprot.readI64();
         struct.setParentSpanIdIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(6)) {
         {
           org.apache.thrift.protocol.TList _list10 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<Annotation>(_list10.size);
@@ -1061,7 +1228,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(7)) {
         {
           org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.binaryAnnotations = new ArrayList<BinaryAnnotation>(_list13.size);
@@ -1075,9 +1242,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         }
         struct.setBinaryAnnotationsIsSet(true);
       }
-      if (incoming.get(6)) {
-        struct.debug = iprot.readBool();
-        struct.setDebugIsSet(true);
+      if (incoming.get(8)) {
+        struct.flag = iprot.readI32();
+        struct.setFlagIsSet(true);
       }
     }
   }

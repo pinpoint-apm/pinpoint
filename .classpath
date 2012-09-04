@@ -20,6 +20,7 @@
   <classpathentry kind="var" path="M2_REPO/com/nhncorp/lucy/lucy-npc/1.5.10/lucy-npc-1.5.10.jar"/>
   <classpathentry kind="var" path="M2_REPO/external/org/apache/mina/mina-core/2.0.0.6-external/mina-core-2.0.0.6-external.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mockito/mockito-all/1.9.0/mockito-all-1.9.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.14/mysql-connector-java-5.1.14.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/tomcat/servlet-api/6.0.35/servlet-api-6.0.35.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-jdk14/1.5.8/slf4j-jdk14-1.5.8.jar"/>

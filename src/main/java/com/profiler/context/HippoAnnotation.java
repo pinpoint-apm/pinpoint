@@ -32,4 +32,16 @@ public class HippoAnnotation {
 		return sb.toString();
 	}
 
+	public com.profiler.context.gen.Annotation toThrift() {
+		com.profiler.context.gen.Annotation ann = new com.profiler.context.gen.Annotation();
+
+		ann.setTimestamp(time);
+		ann.setValue(value);
+
+		if (duration != null) {
+			ann.setDuration(duration);
+		}
+
+		return ann;
+	}
 }

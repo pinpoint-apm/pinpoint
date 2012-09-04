@@ -33,8 +33,7 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)1);
   private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)2);
   private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField ANNOTATION_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("annotationType", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField HOST_FIELD_DESC = new org.apache.thrift.protocol.TField("host", org.apache.thrift.protocol.TType.STRUCT, (short)5);
+  private static final org.apache.thrift.protocol.TField VALUE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("valueType", org.apache.thrift.protocol.TType.STRING, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -45,16 +44,14 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
   private long timestamp; // required
   private String key; // required
   private ByteBuffer value; // required
-  private String annotationType; // required
-  private Endpoint host; // optional
+  private String valueType; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     TIMESTAMP((short)1, "timestamp"),
     KEY((short)2, "key"),
     VALUE((short)3, "value"),
-    ANNOTATION_TYPE((short)4, "annotationType"),
-    HOST((short)5, "host");
+    VALUE_TYPE((short)4, "valueType");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -75,10 +72,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
           return KEY;
         case 3: // VALUE
           return VALUE;
-        case 4: // ANNOTATION_TYPE
-          return ANNOTATION_TYPE;
-        case 5: // HOST
-          return HOST;
+        case 4: // VALUE_TYPE
+          return VALUE_TYPE;
         default:
           return null;
       }
@@ -121,7 +116,6 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
   // isset id assignments
   private static final int __TIMESTAMP_ISSET_ID = 0;
   private BitSet __isset_bit_vector = new BitSet(1);
-  private _Fields optionals[] = {_Fields.HOST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -131,10 +125,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
-    tmpMap.put(_Fields.ANNOTATION_TYPE, new org.apache.thrift.meta_data.FieldMetaData("annotationType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.VALUE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("valueType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.HOST, new org.apache.thrift.meta_data.FieldMetaData("host", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Endpoint.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(BinaryAnnotation.class, metaDataMap);
   }
@@ -146,14 +138,14 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
     long timestamp,
     String key,
     ByteBuffer value,
-    String annotationType)
+    String valueType)
   {
     this();
     this.timestamp = timestamp;
     setTimestampIsSet(true);
     this.key = key;
     this.value = value;
-    this.annotationType = annotationType;
+    this.valueType = valueType;
   }
 
   /**
@@ -170,11 +162,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
       this.value = org.apache.thrift.TBaseHelper.copyBinary(other.value);
 ;
     }
-    if (other.isSetAnnotationType()) {
-      this.annotationType = other.annotationType;
-    }
-    if (other.isSetHost()) {
-      this.host = new Endpoint(other.host);
+    if (other.isSetValueType()) {
+      this.valueType = other.valueType;
     }
   }
 
@@ -188,8 +177,7 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
     this.timestamp = 0;
     this.key = null;
     this.value = null;
-    this.annotationType = null;
-    this.host = null;
+    this.valueType = null;
   }
 
   public long getTimestamp() {
@@ -269,49 +257,26 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
     }
   }
 
-  public String getAnnotationType() {
-    return this.annotationType;
+  public String getValueType() {
+    return this.valueType;
   }
 
-  public void setAnnotationType(String annotationType) {
-    this.annotationType = annotationType;
+  public void setValueType(String valueType) {
+    this.valueType = valueType;
   }
 
-  public void unsetAnnotationType() {
-    this.annotationType = null;
+  public void unsetValueType() {
+    this.valueType = null;
   }
 
-  /** Returns true if field annotationType is set (has been assigned a value) and false otherwise */
-  public boolean isSetAnnotationType() {
-    return this.annotationType != null;
+  /** Returns true if field valueType is set (has been assigned a value) and false otherwise */
+  public boolean isSetValueType() {
+    return this.valueType != null;
   }
 
-  public void setAnnotationTypeIsSet(boolean value) {
+  public void setValueTypeIsSet(boolean value) {
     if (!value) {
-      this.annotationType = null;
-    }
-  }
-
-  public Endpoint getHost() {
-    return this.host;
-  }
-
-  public void setHost(Endpoint host) {
-    this.host = host;
-  }
-
-  public void unsetHost() {
-    this.host = null;
-  }
-
-  /** Returns true if field host is set (has been assigned a value) and false otherwise */
-  public boolean isSetHost() {
-    return this.host != null;
-  }
-
-  public void setHostIsSet(boolean value) {
-    if (!value) {
-      this.host = null;
+      this.valueType = null;
     }
   }
 
@@ -341,19 +306,11 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
       }
       break;
 
-    case ANNOTATION_TYPE:
+    case VALUE_TYPE:
       if (value == null) {
-        unsetAnnotationType();
+        unsetValueType();
       } else {
-        setAnnotationType((String)value);
-      }
-      break;
-
-    case HOST:
-      if (value == null) {
-        unsetHost();
-      } else {
-        setHost((Endpoint)value);
+        setValueType((String)value);
       }
       break;
 
@@ -371,11 +328,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
     case VALUE:
       return getValue();
 
-    case ANNOTATION_TYPE:
-      return getAnnotationType();
-
-    case HOST:
-      return getHost();
+    case VALUE_TYPE:
+      return getValueType();
 
     }
     throw new IllegalStateException();
@@ -394,10 +348,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
       return isSetKey();
     case VALUE:
       return isSetValue();
-    case ANNOTATION_TYPE:
-      return isSetAnnotationType();
-    case HOST:
-      return isSetHost();
+    case VALUE_TYPE:
+      return isSetValueType();
     }
     throw new IllegalStateException();
   }
@@ -442,21 +394,12 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
         return false;
     }
 
-    boolean this_present_annotationType = true && this.isSetAnnotationType();
-    boolean that_present_annotationType = true && that.isSetAnnotationType();
-    if (this_present_annotationType || that_present_annotationType) {
-      if (!(this_present_annotationType && that_present_annotationType))
+    boolean this_present_valueType = true && this.isSetValueType();
+    boolean that_present_valueType = true && that.isSetValueType();
+    if (this_present_valueType || that_present_valueType) {
+      if (!(this_present_valueType && that_present_valueType))
         return false;
-      if (!this.annotationType.equals(that.annotationType))
-        return false;
-    }
-
-    boolean this_present_host = true && this.isSetHost();
-    boolean that_present_host = true && that.isSetHost();
-    if (this_present_host || that_present_host) {
-      if (!(this_present_host && that_present_host))
-        return false;
-      if (!this.host.equals(that.host))
+      if (!this.valueType.equals(that.valueType))
         return false;
     }
 
@@ -506,22 +449,12 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetAnnotationType()).compareTo(typedOther.isSetAnnotationType());
+    lastComparison = Boolean.valueOf(isSetValueType()).compareTo(typedOther.isSetValueType());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetAnnotationType()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.annotationType, typedOther.annotationType);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetHost()).compareTo(typedOther.isSetHost());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetHost()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.host, typedOther.host);
+    if (isSetValueType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.valueType, typedOther.valueType);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -566,23 +499,13 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("annotationType:");
-    if (this.annotationType == null) {
+    sb.append("valueType:");
+    if (this.valueType == null) {
       sb.append("null");
     } else {
-      sb.append(this.annotationType);
+      sb.append(this.valueType);
     }
     first = false;
-    if (isSetHost()) {
-      if (!first) sb.append(", ");
-      sb.append("host:");
-      if (this.host == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.host);
-      }
-      first = false;
-    }
     sb.append(")");
     return sb.toString();
   }
@@ -651,19 +574,10 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // ANNOTATION_TYPE
+          case 4: // VALUE_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.annotationType = iprot.readString();
-              struct.setAnnotationTypeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // HOST
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.host = new Endpoint();
-              struct.host.read(iprot);
-              struct.setHostIsSet(true);
+              struct.valueType = iprot.readString();
+              struct.setValueTypeIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -694,17 +608,10 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
         oprot.writeBinary(struct.value);
         oprot.writeFieldEnd();
       }
-      if (struct.annotationType != null) {
-        oprot.writeFieldBegin(ANNOTATION_TYPE_FIELD_DESC);
-        oprot.writeString(struct.annotationType);
+      if (struct.valueType != null) {
+        oprot.writeFieldBegin(VALUE_TYPE_FIELD_DESC);
+        oprot.writeString(struct.valueType);
         oprot.writeFieldEnd();
-      }
-      if (struct.host != null) {
-        if (struct.isSetHost()) {
-          oprot.writeFieldBegin(HOST_FIELD_DESC);
-          struct.host.write(oprot);
-          oprot.writeFieldEnd();
-        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -733,13 +640,10 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
       if (struct.isSetValue()) {
         optionals.set(2);
       }
-      if (struct.isSetAnnotationType()) {
+      if (struct.isSetValueType()) {
         optionals.set(3);
       }
-      if (struct.isSetHost()) {
-        optionals.set(4);
-      }
-      oprot.writeBitSet(optionals, 5);
+      oprot.writeBitSet(optionals, 4);
       if (struct.isSetTimestamp()) {
         oprot.writeI64(struct.timestamp);
       }
@@ -749,18 +653,15 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
       if (struct.isSetValue()) {
         oprot.writeBinary(struct.value);
       }
-      if (struct.isSetAnnotationType()) {
-        oprot.writeString(struct.annotationType);
-      }
-      if (struct.isSetHost()) {
-        struct.host.write(oprot);
+      if (struct.isSetValueType()) {
+        oprot.writeString(struct.valueType);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, BinaryAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
         struct.timestamp = iprot.readI64();
         struct.setTimestampIsSet(true);
@@ -774,13 +675,8 @@ public class BinaryAnnotation implements org.apache.thrift.TBase<BinaryAnnotatio
         struct.setValueIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.annotationType = iprot.readString();
-        struct.setAnnotationTypeIsSet(true);
-      }
-      if (incoming.get(4)) {
-        struct.host = new Endpoint();
-        struct.host.read(iprot);
-        struct.setHostIsSet(true);
+        struct.valueType = iprot.readString();
+        struct.setValueTypeIsSet(true);
       }
     }
   }

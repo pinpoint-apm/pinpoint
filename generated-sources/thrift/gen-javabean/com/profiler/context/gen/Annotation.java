@@ -32,8 +32,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)1);
   private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField HOST_FIELD_DESC = new org.apache.thrift.protocol.TField("host", org.apache.thrift.protocol.TType.STRUCT, (short)3);
-  private static final org.apache.thrift.protocol.TField DURATION_FIELD_DESC = new org.apache.thrift.protocol.TField("duration", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField DURATION_FIELD_DESC = new org.apache.thrift.protocol.TField("duration", org.apache.thrift.protocol.TType.I64, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,15 +42,13 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   private long timestamp; // required
   private String value; // required
-  private Endpoint host; // optional
-  private int duration; // optional
+  private long duration; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     TIMESTAMP((short)1, "timestamp"),
     VALUE((short)2, "value"),
-    HOST((short)3, "host"),
-    DURATION((short)4, "duration");
+    DURATION((short)3, "duration");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,9 +67,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
           return TIMESTAMP;
         case 2: // VALUE
           return VALUE;
-        case 3: // HOST
-          return HOST;
-        case 4: // DURATION
+        case 3: // DURATION
           return DURATION;
         default:
           return null;
@@ -117,7 +112,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   private static final int __TIMESTAMP_ISSET_ID = 0;
   private static final int __DURATION_ISSET_ID = 1;
   private BitSet __isset_bit_vector = new BitSet(2);
-  private _Fields optionals[] = {_Fields.HOST,_Fields.DURATION};
+  private _Fields optionals[] = {_Fields.DURATION};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -125,10 +120,8 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.HOST, new org.apache.thrift.meta_data.FieldMetaData("host", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Endpoint.class)));
     tmpMap.put(_Fields.DURATION, new org.apache.thrift.meta_data.FieldMetaData("duration", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Annotation.class, metaDataMap);
   }
@@ -156,9 +149,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     if (other.isSetValue()) {
       this.value = other.value;
     }
-    if (other.isSetHost()) {
-      this.host = new Endpoint(other.host);
-    }
     this.duration = other.duration;
   }
 
@@ -171,7 +161,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     setTimestampIsSet(false);
     this.timestamp = 0;
     this.value = null;
-    this.host = null;
     setDurationIsSet(false);
     this.duration = 0;
   }
@@ -221,34 +210,11 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     }
   }
 
-  public Endpoint getHost() {
-    return this.host;
-  }
-
-  public void setHost(Endpoint host) {
-    this.host = host;
-  }
-
-  public void unsetHost() {
-    this.host = null;
-  }
-
-  /** Returns true if field host is set (has been assigned a value) and false otherwise */
-  public boolean isSetHost() {
-    return this.host != null;
-  }
-
-  public void setHostIsSet(boolean value) {
-    if (!value) {
-      this.host = null;
-    }
-  }
-
-  public int getDuration() {
+  public long getDuration() {
     return this.duration;
   }
 
-  public void setDuration(int duration) {
+  public void setDuration(long duration) {
     this.duration = duration;
     setDurationIsSet(true);
   }
@@ -284,19 +250,11 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       }
       break;
 
-    case HOST:
-      if (value == null) {
-        unsetHost();
-      } else {
-        setHost((Endpoint)value);
-      }
-      break;
-
     case DURATION:
       if (value == null) {
         unsetDuration();
       } else {
-        setDuration((Integer)value);
+        setDuration((Long)value);
       }
       break;
 
@@ -311,11 +269,8 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     case VALUE:
       return getValue();
 
-    case HOST:
-      return getHost();
-
     case DURATION:
-      return Integer.valueOf(getDuration());
+      return Long.valueOf(getDuration());
 
     }
     throw new IllegalStateException();
@@ -332,8 +287,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       return isSetTimestamp();
     case VALUE:
       return isSetValue();
-    case HOST:
-      return isSetHost();
     case DURATION:
       return isSetDuration();
     }
@@ -368,15 +321,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       if (!(this_present_value && that_present_value))
         return false;
       if (!this.value.equals(that.value))
-        return false;
-    }
-
-    boolean this_present_host = true && this.isSetHost();
-    boolean that_present_host = true && that.isSetHost();
-    if (this_present_host || that_present_host) {
-      if (!(this_present_host && that_present_host))
-        return false;
-      if (!this.host.equals(that.host))
         return false;
     }
 
@@ -425,16 +369,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetHost()).compareTo(typedOther.isSetHost());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetHost()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.host, typedOther.host);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetDuration()).compareTo(typedOther.isSetDuration());
     if (lastComparison != 0) {
       return lastComparison;
@@ -476,16 +410,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       sb.append(this.value);
     }
     first = false;
-    if (isSetHost()) {
-      if (!first) sb.append(", ");
-      sb.append("host:");
-      if (this.host == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.host);
-      }
-      first = false;
-    }
     if (isSetDuration()) {
       if (!first) sb.append(", ");
       sb.append("duration:");
@@ -552,18 +476,9 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // HOST
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.host = new Endpoint();
-              struct.host.read(iprot);
-              struct.setHostIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // DURATION
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.duration = iprot.readI32();
+          case 3: // DURATION
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.duration = iprot.readI64();
               struct.setDurationIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -590,16 +505,9 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         oprot.writeString(struct.value);
         oprot.writeFieldEnd();
       }
-      if (struct.host != null) {
-        if (struct.isSetHost()) {
-          oprot.writeFieldBegin(HOST_FIELD_DESC);
-          struct.host.write(oprot);
-          oprot.writeFieldEnd();
-        }
-      }
       if (struct.isSetDuration()) {
         oprot.writeFieldBegin(DURATION_FIELD_DESC);
-        oprot.writeI32(struct.duration);
+        oprot.writeI64(struct.duration);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -626,31 +534,25 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       if (struct.isSetValue()) {
         optionals.set(1);
       }
-      if (struct.isSetHost()) {
+      if (struct.isSetDuration()) {
         optionals.set(2);
       }
-      if (struct.isSetDuration()) {
-        optionals.set(3);
-      }
-      oprot.writeBitSet(optionals, 4);
+      oprot.writeBitSet(optionals, 3);
       if (struct.isSetTimestamp()) {
         oprot.writeI64(struct.timestamp);
       }
       if (struct.isSetValue()) {
         oprot.writeString(struct.value);
       }
-      if (struct.isSetHost()) {
-        struct.host.write(oprot);
-      }
       if (struct.isSetDuration()) {
-        oprot.writeI32(struct.duration);
+        oprot.writeI64(struct.duration);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Annotation struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         struct.timestamp = iprot.readI64();
         struct.setTimestampIsSet(true);
@@ -660,12 +562,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         struct.setValueIsSet(true);
       }
       if (incoming.get(2)) {
-        struct.host = new Endpoint();
-        struct.host.read(iprot);
-        struct.setHostIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.duration = iprot.readI32();
+        struct.duration = iprot.readI64();
         struct.setDurationIsSet(true);
       }
     }

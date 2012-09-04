@@ -3,6 +3,7 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.sender.DataSender;
 import com.profiler.util.NamedThreadLocal;
 
 /**
@@ -80,6 +81,8 @@ public final class Trace {
 		try {
 			// TODO: send span to server
 			System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
+
+			DataSender.getInstance().addDataToSend(span.toThrift());
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.log(Level.SEVERE, e.getMessage());
@@ -108,7 +111,7 @@ public final class Trace {
 			mutate(getTraceId(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
-					span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value, null));
+					span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value));
 					return span;
 				}
 			});

@@ -32,7 +32,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
 
   private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("port", org.apache.thrift.protocol.TType.I16, (short)2);
-  private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -42,13 +41,11 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
 
   private String ip; // required
   private short port; // required
-  private String name; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     IP((short)1, "ip"),
-    PORT((short)2, "port"),
-    NAME((short)3, "name");
+    PORT((short)2, "port");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -67,8 +64,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
           return IP;
         case 2: // PORT
           return PORT;
-        case 3: // NAME
-          return NAME;
         default:
           return null;
       }
@@ -118,8 +113,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PORT, new org.apache.thrift.meta_data.FieldMetaData("port", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Endpoint.class, metaDataMap);
   }
@@ -129,14 +122,12 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
 
   public Endpoint(
     String ip,
-    short port,
-    String name)
+    short port)
   {
     this();
     this.ip = ip;
     this.port = port;
     setPortIsSet(true);
-    this.name = name;
   }
 
   /**
@@ -149,9 +140,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       this.ip = other.ip;
     }
     this.port = other.port;
-    if (other.isSetName()) {
-      this.name = other.name;
-    }
   }
 
   public Endpoint deepCopy() {
@@ -163,7 +151,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
     this.ip = null;
     setPortIsSet(false);
     this.port = 0;
-    this.name = null;
   }
 
   public String getIp() {
@@ -211,29 +198,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
     __isset_bit_vector.set(__PORT_ISSET_ID, value);
   }
 
-  public String getName() {
-    return this.name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void unsetName() {
-    this.name = null;
-  }
-
-  /** Returns true if field name is set (has been assigned a value) and false otherwise */
-  public boolean isSetName() {
-    return this.name != null;
-  }
-
-  public void setNameIsSet(boolean value) {
-    if (!value) {
-      this.name = null;
-    }
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case IP:
@@ -252,14 +216,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       }
       break;
 
-    case NAME:
-      if (value == null) {
-        unsetName();
-      } else {
-        setName((String)value);
-      }
-      break;
-
     }
   }
 
@@ -270,9 +226,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
 
     case PORT:
       return Short.valueOf(getPort());
-
-    case NAME:
-      return getName();
 
     }
     throw new IllegalStateException();
@@ -289,8 +242,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       return isSetIp();
     case PORT:
       return isSetPort();
-    case NAME:
-      return isSetName();
     }
     throw new IllegalStateException();
   }
@@ -323,15 +274,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       if (!(this_present_port && that_present_port))
         return false;
       if (this.port != that.port)
-        return false;
-    }
-
-    boolean this_present_name = true && this.isSetName();
-    boolean that_present_name = true && that.isSetName();
-    if (this_present_name || that_present_name) {
-      if (!(this_present_name && that_present_name))
-        return false;
-      if (!this.name.equals(that.name))
         return false;
     }
 
@@ -371,16 +313,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetName()).compareTo(typedOther.isSetName());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetName()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, typedOther.name);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     return 0;
   }
 
@@ -411,14 +343,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
     if (!first) sb.append(", ");
     sb.append("port:");
     sb.append(this.port);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("name:");
-    if (this.name == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.name);
-    }
     first = false;
     sb.append(")");
     return sb.toString();
@@ -480,14 +404,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // NAME
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.name = iprot.readString();
-              struct.setNameIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -509,11 +425,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       oprot.writeFieldBegin(PORT_FIELD_DESC);
       oprot.writeI16(struct.port);
       oprot.writeFieldEnd();
-      if (struct.name != null) {
-        oprot.writeFieldBegin(NAME_FIELD_DESC);
-        oprot.writeString(struct.name);
-        oprot.writeFieldEnd();
-      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -538,25 +449,19 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       if (struct.isSetPort()) {
         optionals.set(1);
       }
-      if (struct.isSetName()) {
-        optionals.set(2);
-      }
-      oprot.writeBitSet(optionals, 3);
+      oprot.writeBitSet(optionals, 2);
       if (struct.isSetIp()) {
         oprot.writeString(struct.ip);
       }
       if (struct.isSetPort()) {
         oprot.writeI16(struct.port);
       }
-      if (struct.isSetName()) {
-        oprot.writeString(struct.name);
-      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Endpoint struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(3);
+      BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
         struct.ip = iprot.readString();
         struct.setIpIsSet(true);
@@ -564,10 +469,6 @@ public class Endpoint implements org.apache.thrift.TBase<Endpoint, Endpoint._Fie
       if (incoming.get(1)) {
         struct.port = iprot.readI16();
         struct.setPortIsSet(true);
-      }
-      if (incoming.get(2)) {
-        struct.name = iprot.readString();
-        struct.setNameIsSet(true);
       }
     }
   }

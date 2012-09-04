@@ -91,4 +91,31 @@ public class Span {
 
 		return sb.toString();
 	}
+
+	public com.profiler.context.gen.Span toThrift() {
+		com.profiler.context.gen.Span span = new com.profiler.context.gen.Span();
+
+		span.setTimestamp(createTime);
+		span.setMostTraceID(traceID.getTraceId().getMostSignificantBits());
+		span.setLeastTraceID(traceID.getTraceId().getLeastSignificantBits());
+		span.setName(name);
+		span.setSpanID(traceID.getSpanId());
+		span.setParentSpanId(traceID.getParentSpanId());
+
+		List<com.profiler.context.gen.Annotation> annotationList = new ArrayList<com.profiler.context.gen.Annotation>(annotations.size());
+		for (HippoAnnotation a : annotations) {
+			annotationList.add(a.toThrift());
+		}
+		span.setAnnotations(annotationList);
+
+		List<com.profiler.context.gen.BinaryAnnotation> binaryAnnotationList = new ArrayList<com.profiler.context.gen.BinaryAnnotation>(binaryAnnotations.size());
+		for (HippoBinaryAnnotation a : binaryAnnotations) {
+			binaryAnnotationList.add(a.toThrift());
+		}
+		span.setBinaryAnnotations(binaryAnnotationList);
+
+		span.setFlag(traceID.getFlags());
+
+		return span;
+	}
 }
