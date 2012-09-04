@@ -121,6 +121,12 @@
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.0</version>
 		</dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.14</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
