@@ -42,14 +42,14 @@ public final class Trace {
 		return id;
 	}
 
-    public static boolean removeTraceId() {
-        TraceID traceID = traceId.get();
-        if(traceID != null) {
-            traceId.remove();
-            return true;
-        }
-        return false;
-    }
+	public static boolean removeTraceId() {
+		TraceID traceID = traceId.get();
+		if (traceID != null) {
+			traceId.remove();
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Get current TraceID. If it was not set this will return null.
@@ -92,9 +92,10 @@ public final class Trace {
 			System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
 
 			DataSender.getInstance().addDataToSend(span.toThrift());
+
+			span.cancelTimer();
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
@@ -125,8 +126,7 @@ public final class Trace {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
@@ -150,8 +150,7 @@ public final class Trace {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
@@ -169,8 +168,7 @@ public final class Trace {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
@@ -187,8 +185,7 @@ public final class Trace {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, e.getMessage());
+			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 }

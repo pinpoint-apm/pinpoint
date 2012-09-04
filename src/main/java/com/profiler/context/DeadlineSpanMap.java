@@ -21,7 +21,10 @@ public class DeadlineSpanMap {
 			span = new Span(traceId, null, null);
 			map.put(traceIdKey, span);
 
-			timer.schedule(new FlushTimedoutSpanTask(span), FLUSH_TIMEOUT);
+			TimerTask task = new FlushTimedoutSpanTask(span);
+			span.setTimerTask(task);
+
+			timer.schedule(task, FLUSH_TIMEOUT);
 		}
 
 		return spanUpdater.updateSpan(span);

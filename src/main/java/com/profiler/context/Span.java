@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimerTask;
 
 /**
  * 
@@ -23,6 +24,16 @@ public class Span {
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 	private final Set<String> annotationValues = new HashSet<String>(5);
 
+	private TimerTask timerTask;
+	
+	public void setTimerTask(TimerTask task) {
+		this.timerTask = task;
+	}
+	
+	public boolean cancelTimer() {
+		return timerTask.cancel();
+	}
+	
 	public Span(TraceID traceId, String name, EndPoint endPoint) {
 		this.traceID = traceId;
 		this.name = name;
