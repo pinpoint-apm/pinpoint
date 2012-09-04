@@ -45,7 +45,8 @@ public class MySQLStatementModifier extends AbstractModifier {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("executeUpdate =" + executeUpdate);
         }
-        addTraceData((JavaAssistClass) aClass);
+        // TODO 아무래도 에러 체크를 Exception으로 변경하는게 좋을것 같음.
+        aClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
 
 
         if (executeQuery && executeQuery) {
@@ -54,23 +55,5 @@ public class MySQLStatementModifier extends AbstractModifier {
         return null;
     }
 
-    private void addTraceData(JavaAssistClass aClass) {
-        try {
-            ClassPool classPool1 = byteCodeInstrumentor.getClassPool();
-            JavaAssistClass jc = (JavaAssistClass) aClass;
-            CtClass ctClass = jc.getCtClass();
-            CtClass string = classPool1.get("java.lang.String");
-            CtField traceUrl = new CtField(string, "__url", ctClass);
-            traceUrl.setModifiers(AccessFlag.PUBLIC);
-            ctClass.addField(traceUrl);
-            CtMethod setUrl = CtNewMethod.setter("__setUrl", traceUrl);
-            ctClass.addMethod(setUrl);
-            CtMethod getUrl = CtNewMethod.getter("__getUrl", traceUrl);
-            ctClass.addMethod(getUrl);
-        } catch (NotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (CannotCompileException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
+
 }

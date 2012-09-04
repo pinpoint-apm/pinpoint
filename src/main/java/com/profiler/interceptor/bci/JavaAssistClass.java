@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javassist.CannotCompileException;
-import javassist.CtBehavior;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-import javassist.NotFoundException;
+import javassist.*;
 
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.InterceptorRegistry;
@@ -32,6 +27,29 @@ public class JavaAssistClass implements InstrumentClass {
 
     public CtClass getCtClass() {
         return ctClass;
+    }
+
+    // TODO return type을 별도 exception으로 할지 추가 검토가 필요함.
+    public boolean addTraceVariable(String variableName, String setterName, String getterName, String variableType) {
+        try {
+            CtClass type = instrumentor.getClassPool().get(variableType);
+            CtField traceVariable = new CtField(type, variableName, ctClass);
+            ctClass.addField(traceVariable);
+            CtMethod setterMethod = CtNewMethod.setter(setterName, traceVariable);
+            ctClass.addMethod(setterMethod);
+            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            ctClass.addMethod(getterMethod);
+            return true;
+        } catch (NotFoundException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+        } catch (CannotCompileException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+        }
+        return false;
     }
 
     @Override

@@ -15,4 +15,6 @@ public interface InstrumentClass {
 	byte[] toBytecode();
 
 	Class<?> toClass();
+
+    boolean addTraceVariable(String variableName, String setterName, String getterName, String variableType);
 }

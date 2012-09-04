@@ -21,7 +21,7 @@ public class CreateStatementInterceptor implements StaticAfterInterceptor {
 
     private final Logger logger = Logger.getLogger(CreateStatementInterceptor.class.getName());
 
-    private Field urlField;
+    private Method setUrl = null;
 
     @Override
     public void after(Object target, String className, String methodName, Object[] args, Object result) {
@@ -31,48 +31,34 @@ public class CreateStatementInterceptor implements StaticAfterInterceptor {
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
-            if (target instanceof Connection) {
-                ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-                String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
-
-                try {
-                    Method setUrl = result.getClass().getMethod("__setUrl", String.class);
-                    setUrl.invoke(result, connectionUrl);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-//                Method[] declaredMethods = result.getClass().getDeclaredMethods();
-//                for(Method m : declaredMethods) {
-//                    System.out.println(m);
-//                }
-//                Field urlField = getURLField(result);
-//                urlField.setAccessible(true);
-//                urlField.set(result, connectionUrl);
-            }
-
-
-    }
-
-    private Field getURLField(Object result) {
-        Field urlField = this.urlField;
-        if(urlField == null) {
-            urlField  = ReflectionUtils.findField(result.getClass(), "__url");
-            this.urlField = urlField;
+        if (target instanceof Connection) {
+            ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
+            String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
+            setUrl(result, connectionUrl);
         }
-        return urlField;
+
+
     }
 
-    private Field findField(Object result, String fieldName) {
-        Field[] declaredFields = result.getClass().getDeclaredFields();
-        for(Field f: declaredFields) {
-            if(f.getName().equals(fieldName)) {
-                return f;
+    private void setUrl(Object result, String connectionUrl) {
+        try {
+            if (setUrl == null) {
+                setUrl = result.getClass().getMethod("__setUrl", String.class);
+            }
+            setUrl.invoke(result, connectionUrl);
+        } catch (NoSuchMethodException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        } catch (InvocationTargetException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        } catch (IllegalAccessException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
             }
         }
-        return null;
     }
+
 }
