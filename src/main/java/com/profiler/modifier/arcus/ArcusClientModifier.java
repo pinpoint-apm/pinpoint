@@ -59,14 +59,14 @@ public class ArcusClientModifier extends AbstractModifier {
 			code.append("	java.net.SocketAddress socketAddress = handlingNode.getSocketAddress();");
 			code.append("	if (socketAddress instanceof java.net.InetSocketAddress) {");
 			code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
-			code.append("		com.profiler.context.Trace.recordServerAddr(addr.getHostName(), addr.getPort());");
+			code.append("		com.profiler.context.Trace.recordEndPoint(addr.getHostName(), addr.getPort());");
 			code.append("	}");
 			code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
 			code.append("	System.out.println(\"CS\");");
-			code.append("	com.profiler.context.Trace.record(new com.profiler.context.Annotation.ClientSend());");
+			code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend);");
 			code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE) {");
 			code.append("	System.out.println(\"CR\");");
-			code.append("	com.profiler.context.Trace.record(new com.profiler.context.Annotation.ClientRecv());");
+			code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv);");
 			code.append("}");
 			
 			code.append("}");

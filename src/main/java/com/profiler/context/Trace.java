@@ -7,7 +7,7 @@ import com.profiler.util.NamedThreadLocal;
  * @author netspider
  * 
  */
-public class Trace {
+public final class Trace {
 
 	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
@@ -97,7 +97,7 @@ public class Trace {
 		mutate(getTraceId(), new SpanUpdater() {
 			@Override
 			public Span updateSpan(Span span) {
-				span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value, span.getEndPoint(), null));
+				span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value, null));
 				return span;
 			}
 		});
@@ -145,7 +145,7 @@ public class Trace {
 		mutate(getTraceId(), new SpanUpdater() {
 			@Override
 			public Span updateSpan(Span span) {
-				span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, span.getEndPoint(), duration));
+				span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, duration));
 				return span;
 			}
 		});

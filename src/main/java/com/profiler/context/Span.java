@@ -69,13 +69,6 @@ public class Span {
 
 	public void setEndPoint(EndPoint endPoint) {
 		this.endPoint = endPoint;
-		for (HippoAnnotation annotation : annotations) {
-			annotation.setEndPoint(endPoint);
-		}
-
-		for (HippoBinaryAnnotation annotation : binaryAnnotations) {
-			annotation.setEndPoint(endPoint);
-		}
 	}
 
 	public String toString() {
