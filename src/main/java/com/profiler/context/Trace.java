@@ -1,5 +1,9 @@
 package com.profiler.context;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.profiler.sender.DataSender;
 import com.profiler.util.NamedThreadLocal;
 
 /**
@@ -8,6 +12,8 @@ import com.profiler.util.NamedThreadLocal;
  * 
  */
 public final class Trace {
+
+	private static final Logger logger = Logger.getLogger(Trace.class.getName());
 
 	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
@@ -80,9 +86,16 @@ public final class Trace {
 		}
 	}
 
-	public static void logSpan(Span span) {
-		// TODO: send span to server
-		System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
+	static void logSpan(Span span) {
+		try {
+			// TODO: send span to server
+			System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
+
+			DataSender.getInstance().addDataToSend(span.toThrift());
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, e.getMessage());
+		}
 	}
 
 	public static void record(Annotation annotation) {
@@ -103,13 +116,18 @@ public final class Trace {
 		if (!tracingEnabled)
 			return;
 
-		mutate(getTraceId(), new SpanUpdater() {
-			@Override
-			public Span updateSpan(Span span) {
-				span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value));
-				return span;
-			}
-		});
+		try {
+			mutate(getTraceId(), new SpanUpdater() {
+				@Override
+				public Span updateSpan(Span span) {
+					span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value));
+					return span;
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, e.getMessage());
+		}
 	}
 
 	public static void recordMessage(String message) {
@@ -122,41 +140,55 @@ public final class Trace {
 	public static void recordRpcName(final String service, final String rpc) {
 		if (!tracingEnabled)
 			return;
-
-		mutate(getTraceId(), new SpanUpdater() {
-			@Override
-			public Span updateSpan(Span span) {
-				span.setServiceName(service);
-				span.setName(rpc);
-				return span;
-			}
-		});
+		try {
+			mutate(getTraceId(), new SpanUpdater() {
+				@Override
+				public Span updateSpan(Span span) {
+					span.setServiceName(service);
+					span.setName(rpc);
+					return span;
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, e.getMessage());
+		}
 	}
 
 	public static void recordEndPoint(final String ip, final int port) {
 		if (!tracingEnabled)
 			return;
 
-		mutate(getTraceId(), new SpanUpdater() {
-			@Override
-			public Span updateSpan(Span span) {
-				// set endpoint to both span and annotations
-				span.setEndPoint(new EndPoint(ip, port));
-				return span;
-			}
-		});
+		try {
+			mutate(getTraceId(), new SpanUpdater() {
+				@Override
+				public Span updateSpan(Span span) {
+					// set endpoint to both span and annotations
+					span.setEndPoint(new EndPoint(ip, port));
+					return span;
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, e.getMessage());
+		}
 	}
 
 	private static void annotate(final String value, final Long duration) {
 		if (!tracingEnabled)
 			return;
 
-		mutate(getTraceId(), new SpanUpdater() {
-			@Override
-			public Span updateSpan(Span span) {
-				span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, duration));
-				return span;
-			}
-		});
+		try {
+			mutate(getTraceId(), new SpanUpdater() {
+				@Override
+				public Span updateSpan(Span span) {
+					span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, duration));
+					return span;
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, e.getMessage());
+		}
 	}
 }
