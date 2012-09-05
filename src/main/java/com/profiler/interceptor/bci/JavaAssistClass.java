@@ -25,36 +25,105 @@ public class JavaAssistClass implements InstrumentClass {
 		this.ctClass = ctClass;
 	}
 
-    public CtClass getCtClass() {
-        return ctClass;
-    }
+	public CtClass getCtClass() {
+		return ctClass;
+	}
 
-    // TODO return type을 별도 exception으로 할지 추가 검토가 필요함.
-    public boolean addTraceVariable(String variableName, String setterName, String getterName, String variableType) {
-        try {
-            CtClass type = instrumentor.getClassPool().get(variableType);
-            CtField traceVariable = new CtField(type, variableName, ctClass);
-            ctClass.addField(traceVariable);
-            CtMethod setterMethod = CtNewMethod.setter(setterName, traceVariable);
-            ctClass.addMethod(setterMethod);
-            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
-            ctClass.addMethod(getterMethod);
-            return true;
-        } catch (NotFoundException e) {
-            if (logger.isLoggable(Level.WARNING)) {
+	@Override
+	public boolean insertCodeBeforeConstructor(String[] args, String code) {
+		try {
+			CtConstructor constructor = getConstructor(args);
+			if (constructor == null) {
+				return false;
+			}
+			constructor.insertBefore(code);
+			return true;
+		} catch (Exception e) {
+			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        } catch (CannotCompileException e) {
-            if (logger.isLoggable(Level.WARNING)) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean insertCodeAfterConstructor(String[] args, String code) {
+		try {
+			CtConstructor constructor = getConstructor(args);
+			if (constructor == null) {
+				return false;
+			}
+			constructor.insertAfter(code);
+			return true;
+		} catch (Exception e) {
+			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        }
-        return false;
-    }
+			return false;
+		}
+	}
 
-    @Override
+	@Override
+	public boolean insertCodeBeforeMethod(String methodName, String[] args, String code) {
+		try {
+			CtMethod method = getMethod(methodName, args);
+			if (method == null) {
+				return false;
+			}
+			method.insertBefore(code);
+			return true;
+		} catch (Exception e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+			return false;
+		}
+	}
+
+	@Override
+	public boolean insertCodeAfterMethod(String methodName, String[] args, String code) {
+		try {
+			CtMethod method = getMethod(methodName, args);
+			if (method == null) {
+				return false;
+			}
+			method.insertAfter(code);
+			return true;
+		} catch (Exception e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+			return false;
+		}
+	}
+
+	// TODO return type을 별도 exception으로 할지 추가 검토가 필요함.
+	@Override
+	public boolean addTraceVariable(String variableName, String setterName, String getterName, String variableType) {
+		try {
+			CtClass type = instrumentor.getClassPool().get(variableType);
+			CtField traceVariable = new CtField(type, variableName, ctClass);
+			ctClass.addField(traceVariable);
+			CtMethod setterMethod = CtNewMethod.setter(setterName, traceVariable);
+			ctClass.addMethod(setterMethod);
+			CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+			ctClass.addMethod(getterMethod);
+			return true;
+		} catch (NotFoundException e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+		} catch (CannotCompileException e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean addInterceptor(String methodName, String[] args, Interceptor interceptor) {
-        return addInterceptor(methodName, args, interceptor, Type.auto);
+		return addInterceptor(methodName, args, interceptor, Type.auto);
 	}
 
 	@Override
@@ -63,31 +132,31 @@ public class JavaAssistClass implements InstrumentClass {
 			return false;
 
 		CtMethod method = getMethod(methodName, args);
-        if(method == null) {
-            return false;
-        }
+		if (method == null) {
+			return false;
+		}
 
 		int id = InterceptorRegistry.addInterceptor(interceptor);
 		try {
-            if(type == Type.auto) {
-                if (interceptor instanceof StaticAroundInterceptor) {
-                    addStaticAroundInterceptor(methodName, id, method);
-                } else if (interceptor instanceof StaticBeforeInterceptor) {
-                    addStaticBeforeInterceptor(methodName, id, method);
-                } else if (interceptor instanceof StaticAfterInterceptor) {
-                    addStaticAfterInterceptor(methodName, id, method);
-                } else {
-                    return false;
-                }
-            } else if(type == Type.around && interceptor instanceof  StaticAroundInterceptor) {
-                addStaticAroundInterceptor(methodName, id, method);
-            } else if(type == Type.before && interceptor instanceof StaticBeforeInterceptor) {
-                addStaticBeforeInterceptor(methodName, id, method);
-            } else if(type == Type.after && interceptor instanceof StaticAfterInterceptor) {
-                addStaticAfterInterceptor(methodName, id, method);
-            } else {
-                return false;
-            }
+			if (type == Type.auto) {
+				if (interceptor instanceof StaticAroundInterceptor) {
+					addStaticAroundInterceptor(methodName, id, method);
+				} else if (interceptor instanceof StaticBeforeInterceptor) {
+					addStaticBeforeInterceptor(methodName, id, method);
+				} else if (interceptor instanceof StaticAfterInterceptor) {
+					addStaticAfterInterceptor(methodName, id, method);
+				} else {
+					return false;
+				}
+			} else if (type == Type.around && interceptor instanceof StaticAroundInterceptor) {
+				addStaticAroundInterceptor(methodName, id, method);
+			} else if (type == Type.before && interceptor instanceof StaticBeforeInterceptor) {
+				addStaticBeforeInterceptor(methodName, id, method);
+			} else if (type == Type.after && interceptor instanceof StaticAfterInterceptor) {
+				addStaticAfterInterceptor(methodName, id, method);
+			} else {
+				return false;
+			}
 			return true;
 		} catch (NotFoundException e) {
 			if (logger.isLoggable(Level.WARNING)) {
@@ -110,9 +179,9 @@ public class JavaAssistClass implements InstrumentClass {
 		StringBuilder after = new StringBuilder(1024);
 		after.append("{");
 		addGetStaticAfterInterceptor(after, id);
-        String target = getTarget(behavior);
-        String returnType = getReturnType(behavior);
-        after.append("  interceptor.after(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, " + returnType + ");");
+		String target = getTarget(behavior);
+		String returnType = getReturnType(behavior);
+		after.append("  interceptor.after(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args, " + returnType + ");");
 		after.append("}");
 		String buildAfter = after.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -135,31 +204,31 @@ public class JavaAssistClass implements InstrumentClass {
 
 	}
 
-    private String getTarget(CtBehavior behavior) {
-        boolean staticMethod = isStatic(behavior);
-        if(staticMethod) {
-            return "null";
-        } else {
-            return "this";
-        }
-    }
+	private String getTarget(CtBehavior behavior) {
+		boolean staticMethod = isStatic(behavior);
+		if (staticMethod) {
+			return "null";
+		} else {
+			return "this";
+		}
+	}
 
-    public String getReturnType(CtBehavior behavior) throws NotFoundException {
-        if(behavior instanceof CtMethod) {
-            CtClass returnType = ((CtMethod) behavior).getReturnType();
-            if(CtClass.voidType == returnType) {
-                return "null";
-            }
-        }
-        return "($w)$_";
-    }
+	public String getReturnType(CtBehavior behavior) throws NotFoundException {
+		if (behavior instanceof CtMethod) {
+			CtClass returnType = ((CtMethod) behavior).getReturnType();
+			if (CtClass.voidType == returnType) {
+				return "null";
+			}
+		}
+		return "($w)$_";
+	}
 
-    private boolean isStatic(CtBehavior behavior) {
-        int modifiers = behavior.getModifiers();
-        return java.lang.reflect.Modifier.isStatic(modifiers);
-    }
+	private boolean isStatic(CtBehavior behavior) {
+		int modifiers = behavior.getModifiers();
+		return java.lang.reflect.Modifier.isStatic(modifiers);
+	}
 
-    private void addGetStaticAfterInterceptor(StringBuilder after, int id) {
+	private void addGetStaticAfterInterceptor(StringBuilder after, int id) {
 		after.append("  com.profiler.interceptor.StaticAfterInterceptor interceptor = " + "(com.profiler.interceptor.StaticAfterInterceptor) com.profiler.interceptor.InterceptorRegistry.getInterceptor(");
 		after.append(id);
 		after.append(");");
@@ -169,8 +238,8 @@ public class JavaAssistClass implements InstrumentClass {
 		StringBuilder code = new StringBuilder(1024);
 		code.append("{");
 		addGetBeforeInterceptor(id, code);
-        String target = getTarget(behavior);
-        code.append("  interceptor.before(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args);");
+		String target = getTarget(behavior);
+		code.append("  interceptor.before(" + target + ", \"" + ctClass.getName() + "\", \"" + methodName + "\", $args);");
 		code.append("}");
 		String buildBefore = code.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -279,15 +348,27 @@ public class JavaAssistClass implements InstrumentClass {
 
 	private CtMethod getMethod(String methodName, String[] args) {
 		try {
-            CtClass[] params = getCtParameter(args);
-            return ctClass.getDeclaredMethod(methodName, params);
-        } catch (NotFoundException e) {
+			CtClass[] params = getCtParameter(args);
+			return ctClass.getDeclaredMethod(methodName, params);
+		} catch (NotFoundException e) {
 			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        }
-        return null;
-    }
+		}
+		return null;
+	}
+
+	private CtConstructor getConstructor(String[] args) {
+		try {
+			CtClass[] params = getCtParameter(args);
+			return ctClass.getDeclaredConstructor(params);
+		} catch (NotFoundException e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		return null;
+	}
 
 	private CtClass[] getCtParameter(String[] args) throws NotFoundException {
 		if (args == null) {
@@ -320,6 +401,4 @@ public class JavaAssistClass implements InstrumentClass {
 		}
 		return null;
 	}
-
-
 }
