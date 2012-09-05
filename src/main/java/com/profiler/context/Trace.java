@@ -113,6 +113,10 @@ public final class Trace {
 		annotate(annotation.getCode(), duration);
 	}
 
+	public static void recordAttribute(final String key, final String value) {
+		recordAttibute(key, (Object) value);
+	}
+	
 	public static void recordAttibute(final String key, final Object value) {
 		if (!tracingEnabled)
 			return;

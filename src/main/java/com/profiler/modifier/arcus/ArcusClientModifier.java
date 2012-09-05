@@ -84,7 +84,8 @@ public class ArcusClientModifier extends AbstractModifier {
 		code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
 		code.append("		com.profiler.context.Trace.recordEndPoint(addr.getHostName(), addr.getPort());");
 		code.append("	}");
-		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
+		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", \"\");");
+		code.append("	com.profiler.context.Trace.recordAttribute(\"arcus.command\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
 		code.append("	System.out.println(\"CS\");");
 		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend);");
 		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE) {");

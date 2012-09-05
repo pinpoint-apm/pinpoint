@@ -98,6 +98,7 @@ public class Span {
 		sb.append(", ServiceName=").append(serviceName);
 		sb.append(", EndPoint=").append(endPoint);
 		sb.append(", Annotations=").append(annotations);
+		sb.append(", BinaryAnnotations=").append(binaryAnnotations);
 		sb.append("}");
 
 		return sb.toString();
