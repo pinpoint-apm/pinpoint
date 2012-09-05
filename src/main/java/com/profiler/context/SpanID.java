@@ -16,4 +16,12 @@ public class SpanID {
         }
         return id;
     }
+
+    public static long nextSpanID(long parentId) {
+        long newId = newSpanID();
+        if(newId == parentId) {
+            return nextSpanID(parentId);
+        }
+        return newId;
+    }
 }

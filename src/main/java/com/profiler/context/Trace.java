@@ -71,7 +71,8 @@ public final class Trace {
 
 	public static TraceID getNextTraceId() {
 		TraceID current = getTraceIdOrCreateNew();
-		return new TraceID(current.getId(), current.getSpanId(), SpanID.newSpanID(), current.isSampled(), current.getFlags());
+        long currentSpanId = current.getSpanId();
+        return new TraceID(current.getId(), currentSpanId, SpanID.nextSpanID(currentSpanId), current.isSampled(), current.getFlags());
 	}
 
 	public static void setTraceId(TraceID traceId) {

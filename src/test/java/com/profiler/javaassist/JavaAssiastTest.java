@@ -46,8 +46,8 @@ public class JavaAssiastTest {
 
     @Test
     public void test() {
-        sout("java/lang/String");
-        sout("java.lang.String");
+        sout("/java/lang/String.class");
+        sout("java.lang.String.class");
 
     }
 

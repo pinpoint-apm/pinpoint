@@ -96,7 +96,7 @@ public class Span {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
-		sb.append("\n\t TraceID = ").append(traceID);
+		sb.append("\\n\\t TraceID = ").append(traceID);
 		sb.append(",\n\t CreateTime = ").append(createTime);
 		sb.append(",\n\t Name = ").append(name);
 		sb.append(",\n\t ServiceName = ").append(serviceName);
