@@ -2,16 +2,10 @@ package com.profiler.modifier.db.mysql.interceptors;
 
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.modifier.db.ConnectionTrace;
-import com.profiler.util.ReflectionUtils;
 
-import java.beans.Statement;
-import java.io.FileDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.logging.Level;
