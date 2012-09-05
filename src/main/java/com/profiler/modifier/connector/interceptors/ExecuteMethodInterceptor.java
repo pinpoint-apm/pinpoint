@@ -26,7 +26,7 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
-	public void before(Object target, String className, String methodName, Object[] args) {
+	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		System.out.println("\n\n\n\nINVOKE HTTP START ----------------------------------------------------------------------------------------------------------------------------------------------------");
 
 		HttpHost host = (HttpHost) args[0];
@@ -50,7 +50,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, Object[] args, Object result) {
+	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteMethodInterceptor"));
 		System.out.println("\n\n\n\nINVOKE HTTP END ----------------------------------------------------------------------------------------------------------------------------------------------------");
 	}

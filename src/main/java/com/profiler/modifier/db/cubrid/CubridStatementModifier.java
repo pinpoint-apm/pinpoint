@@ -38,12 +38,12 @@ public class CubridStatementModifier extends AbstractModifier {
 
         StaticAroundInterceptor interceptor = new StaticAroundInterceptor() {
             @Override
-            public void after(Object target, String className, String methodName, Object[] args, Object result) {
+            public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
                 DatabaseRequestTracer.putSqlQuery(TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY, (String) args[0]);
             }
 
             @Override
-            public void before(Object target, String className, String methodName, Object[] args) {
+            public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
                 DatabaseRequestTracer.put(TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY);;
             }
         };

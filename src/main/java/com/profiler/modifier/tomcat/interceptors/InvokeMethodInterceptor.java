@@ -18,7 +18,7 @@ import com.profiler.util.NumberUtils;
 public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
-	public void before(Object target, String className, String methodName, Object[] args) {
+	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		try {
 			HttpServletRequest request = (HttpServletRequest) args[0];
 			String requestURL = request.getRequestURI();
@@ -50,7 +50,7 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, Object[] args, Object result) {
+	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		// TODO result 가 Exception 타입일경우 호출 실패임.
 		Trace.record(Annotation.ServerSend, StopWatch.stopAndGetElapsed("InvokeMethodInterceptor-starttime"));
 		RequestTracer.endTransaction();

@@ -13,9 +13,9 @@ public class CloseConnectionInterceptor implements StaticBeforeInterceptor {
 
     private final Logger logger = Logger.getLogger(CloseConnectionInterceptor.class.getName());
 
-    public void before(Object target, String className, String methodName, Object[] args) {
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("before className:" + className + " methodName:" + methodName + " args:" + Arrays.toString(args));
+            logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         if (target instanceof Connection) {

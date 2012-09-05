@@ -18,9 +18,9 @@ public class CreateStatementInterceptor implements StaticAfterInterceptor {
     private Method setUrl = null;
 
     @Override
-    public void after(Object target, String className, String methodName, Object[] args, Object result) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("after className:" + className + " methodName:" + methodName + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
         if (Trace.getCurrentTraceId() == null) {
             return;

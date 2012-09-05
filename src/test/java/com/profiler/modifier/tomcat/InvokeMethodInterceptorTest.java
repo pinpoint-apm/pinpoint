@@ -33,11 +33,11 @@ public class InvokeMethodInterceptorTest {
 
 		InvokeMethodInterceptor interceptor = new InvokeMethodInterceptor();
 
-		interceptor.before("target", "classname", "methodname", new Object[] { request, response });
-		interceptor.after("target", "classname", "methodname", new Object[] { request, response }, new Object());
+		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
+		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());
 
-		interceptor.before("target", "classname", "methodname", new Object[] { request, response });
-		interceptor.after("target", "classname", "methodname", new Object[] { request, response }, new Object());
+		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
+		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());
 	}
 
 	@Test
@@ -58,10 +58,10 @@ public class InvokeMethodInterceptorTest {
 
 		InvokeMethodInterceptor interceptor = new InvokeMethodInterceptor();
 
-		interceptor.before("target", "classname", "methodname", new Object[] { request, response });
-		interceptor.after("target", "classname", "methodname", new Object[] { request, response }, new Object());
+		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
+		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());
 
-		interceptor.before("target", "classname", "methodname", new Object[] { request, response });
-		interceptor.after("target", "classname", "methodname", new Object[] { request, response }, new Object());
+		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
+		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());
 	}
 }

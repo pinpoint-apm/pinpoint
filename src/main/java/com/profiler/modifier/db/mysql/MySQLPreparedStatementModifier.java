@@ -53,7 +53,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 			CtClass cc = classPool.get(javassistClassName);
 
 			updateSetInternalMethod(cc);
-			 updateExecuteQueryMethod(cc);
+			updateExecuteQueryMethod(cc);
 			updateConstructor(cc);
 
 			printClassConvertComplete(javassistClassName);

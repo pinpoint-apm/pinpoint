@@ -1,7 +1,5 @@
 package com.profiler.interceptor;
 
-import com.profiler.interceptor.StaticBeforeInterceptor;
-
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -15,8 +13,8 @@ public class TestBeforeInterceptor implements StaticBeforeInterceptor {
         public Object[] args;
 
         @Override
-        public void before(Object target, String className, String methodName, Object[] args) {
-            logger.info("before target:" + target  + " className:" + className + " methodName:" + methodName + " args:" + Arrays.toString(args));
+        public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+            logger.info("before target:" + target  + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
             this.target = target;
             this.className = className;
             this.methodName = methodName;

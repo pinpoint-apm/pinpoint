@@ -5,6 +5,7 @@ import java.util.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.util.JavaAssistUtils;
 import javassist.*;
 
 import com.profiler.interceptor.Interceptor;
@@ -196,12 +197,15 @@ public class JavaAssistClass implements InstrumentClass {
 	}
 
 	private void addStaticAfterInterceptor(String methodName, int id, CtBehavior behavior) throws NotFoundException, CannotCompileException {
-		StringBuilder after = new StringBuilder(1024);
+
+        String target = getTarget(behavior);
+		String returnType = getReturnType(behavior);
+        String parameterTypeString = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
+
+        StringBuilder after = new StringBuilder(1024);
 		after.append("{");
         format(after, "  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-		String target = getTarget(behavior);
-		String returnType = getReturnType(behavior);
-        format(after, "  interceptor.after(%1$s, \"%2$s\", \"%3$s\", $args, %4$s);", target, ctClass.getName(), methodName, returnType);
+        format(after, "  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args, %5$s);", target, ctClass.getName(), methodName, parameterTypeString, returnType);
 		after.append("}");
 		String buildAfter = after.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -213,7 +217,7 @@ public class JavaAssistClass implements InstrumentClass {
 		StringBuilder catchCode = new StringBuilder(1024);
 		catchCode.append("{");
         format(catchCode, "  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-        format(catchCode, "  interceptor.after(%1$s, \"%2$s\", \"%3$s\", $args, $e);", target, ctClass.getName(), methodName);
+        format(catchCode, "  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args, $e);", target, ctClass.getName(), methodName, parameterTypeString);
 		catchCode.append("  throw $e;");
 		catchCode.append("}");
 		String buildCatch = catchCode.toString();
@@ -249,12 +253,14 @@ public class JavaAssistClass implements InstrumentClass {
 		return java.lang.reflect.Modifier.isStatic(modifiers);
 	}
 
-	private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior) throws CannotCompileException {
+	private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior) throws CannotCompileException, NotFoundException {
 		StringBuilder code = new StringBuilder(1024);
 		code.append("{");
         format(code, "  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticBeforeInterceptor.class.getName(), id);
 		String target = getTarget(behavior);
-        format(code, "  interceptor.before(%1$s, \"%2$s\", \"%3$s\", $args);", target, ctClass.getName(), methodName);
+        // 인터셉터 호출시 최대한 연산량을 줄이기 위해서 정보는 가능한 정적 데이터로 생성한다.
+        String parameterDescription = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
+        format(code, "  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args);", target, ctClass.getName(), methodName, parameterDescription );
 		code.append("}");
 		String buildBefore = code.toString();
 		if (logger.isLoggable(Level.INFO)) {
