@@ -105,7 +105,7 @@ public final class Trace {
 	static void logSpan(Span span) {
 		try {
 			// TODO: send span to the server.
-			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ", Value=" + span + ", SpanMap.size=" + spanMap.size() + ", CurrentThreadID=" + Thread.currentThread().getId() + ", CurrentThreadName=" + Thread.currentThread().getName() +"\n\n");
+			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ",\n\t " + span + ",\n\t SpanMap.size=" + spanMap.size() + ",\n\t CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() +"\n\n");
 
 			// TODO: remove this, just for debugging
 			if (spanMap.size() > 0) {

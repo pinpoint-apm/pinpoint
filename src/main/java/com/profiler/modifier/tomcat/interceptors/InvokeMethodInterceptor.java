@@ -54,6 +54,8 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 		// TODO result 가 Exception 타입일경우 호출 실패임.
 		Trace.record(Annotation.ServerSend, StopWatch.stopAndGetElapsed("InvokeMethodInterceptor-starttime"));
 		RequestTracer.endTransaction();
+		
+		Trace.removeTraceId();
 	}
 
 	/**

@@ -95,14 +95,25 @@ public class Span {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Span={");
-		sb.append("TraceID=").append(traceID);
-		sb.append(", CreateTime=").append(createTime);
-		sb.append(", Name=").append(name);
-		sb.append(", ServiceName=").append(serviceName);
-		sb.append(", EndPoint=").append(endPoint);
-		sb.append(", Annotations=").append(annotations);
-		sb.append(", BinaryAnnotations=").append(binaryAnnotations);
+		sb.append("{");
+		sb.append("\n\t TraceID = ").append(traceID);
+		sb.append(",\n\t CreateTime = ").append(createTime);
+		sb.append(",\n\t Name = ").append(name);
+		sb.append(",\n\t ServiceName = ").append(serviceName);
+		sb.append(",\n\t EndPoint = ").append(endPoint);
+
+		sb.append(",\n\t Annotations = {");
+		for (HippoAnnotation a : annotations) {
+			sb.append("\n\t\t").append(a);
+		}
+		sb.append("\n\t}");
+
+		sb.append(",\n\t BinaryAnnotations=");
+		for (HippoBinaryAnnotation a : binaryAnnotations) {
+			sb.append("\n\t\t").append(a);
+		}
+		sb.append("\n\t}");
+
 		sb.append("}");
 
 		return sb.toString();

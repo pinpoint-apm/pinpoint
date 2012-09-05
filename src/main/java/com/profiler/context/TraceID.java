@@ -106,7 +106,7 @@ public class TraceID {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("TraceID={");
+		sb.append("{");
 		sb.append("id=").append(id);
 		sb.append(", parentSpanId=").append(parentSpanId);
 		sb.append(", spanId=").append(spanId);

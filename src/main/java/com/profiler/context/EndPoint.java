@@ -11,7 +11,7 @@ public class EndPoint {
 	}
 
 	public String toString() {
-		return "EndPoint{ip=" + ip + ", port=" + port + "}";
+		return "{ip=" + ip + ", port=" + port + "}";
 	}
 
 	public com.profiler.context.gen.Endpoint toThrift() {
