@@ -35,8 +35,16 @@ public class StopWatch {
 			// TODO application 에러로 전달되는경우가 있어서 일단 0으로
 			return -1;
 		} else {
-			if (map.containsKey(id)) {
-				return System.nanoTime() - map.get(id);
+			Long startTime = map.get(id);
+
+			map.remove(id);
+			// TODO: if using thread pool, this is unnecessary.
+			// if (map.size() == 0) {
+			// local.remove();
+			// }
+
+			if (startTime != null) {
+				return System.nanoTime() - startTime;
 			} else {
 				return -1;
 			}

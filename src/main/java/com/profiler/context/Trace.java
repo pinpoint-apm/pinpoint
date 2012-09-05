@@ -43,10 +43,10 @@ public final class Trace {
 	}
 
 	public static boolean removeTraceId() {
-		TraceID traceID = traceIdLocal.get();
-		if (traceID != null) {
+		TraceID traceId = traceIdLocal.get();
+		if (traceId != null) {
 			traceIdLocal.remove();
-			spanMap.remove(traceID);
+			spanMap.remove(traceId);
 			return true;
 		}
 		return false;
@@ -77,6 +77,18 @@ public final class Trace {
 	public static void setTraceId(TraceID traceId) {
 		if (getCurrentTraceId() != null) {
 			logger.log(Level.WARNING, "TraceID is already exists. But overwritten.");
+			
+			//TODO: remove this, just for debugging.
+			System.out.println("###############################################################################################################");
+			System.out.println("# [DEBUG MSG] TraceID is overwritten.");
+			System.out.println("#   Before : " + getCurrentTraceId());
+			System.out.println("#   After  : " + traceId);
+			System.out.println("###############################################################################################################");
+			try {
+				throw new RuntimeException("TraceID overwritten.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		Trace.traceIdLocal.set(traceId);
 	}
@@ -84,7 +96,7 @@ public final class Trace {
 	private static void mutate(TraceID traceId, SpanUpdater spanUpdater) {
 		Span span = spanMap.update(traceId, spanUpdater);
 
-		if (span.isExistsAnnotationType("CR") || span.isExistsAnnotationType("SS")) {
+		if (span.isExistsAnnotationType(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationType(Annotation.ServerSend.getCode())) {
 			spanMap.remove(traceId);
 			logSpan(span);
 		}
@@ -93,15 +105,15 @@ public final class Trace {
 	static void logSpan(Span span) {
 		try {
 			// TODO: send span to the server.
-			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ", Value=" + span + ", SpanMap.size=" + spanMap.size() + ", CurrentThreadID=" + Thread.currentThread().getId() + "\n\n");
+			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ", Value=" + span + ", SpanMap.size=" + spanMap.size() + ", CurrentThreadID=" + Thread.currentThread().getId() + ", CurrentThreadName=" + Thread.currentThread().getName() +"\n\n");
 
 			// TODO: remove this, just for debugging
-			if(spanMap.size() > 0) {
-				System.out.println("###############################################################");
-				System.out.println("#          WARNING SpanMap size > 0 check spanMap.            #");
-				System.out.println("###############################################################");
+			if (spanMap.size() > 0) {
+				System.out.println("##################################################################");
+				System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
+				System.out.println("##################################################################");
 			}
-			
+
 			DataSender.getInstance().addDataToSend(span.toThrift());
 
 			span.cancelTimer();
