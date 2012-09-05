@@ -27,15 +27,15 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
 	public void before(Object target, String className, String methodName, Object[] args) {
-		System.out.println("\n\n\n\nHTTP BEFORE");
+		System.out.println("\n\n\n\nINVOKE HTTP START ----------------------------------------------------------------------------------------------------------------------------------------------------");
 
 		HttpHost host = (HttpHost) args[0];
 		HttpRequest request = (HttpRequest) args[1];
 
-		TraceID nextId = Trace.getNextId();
+		TraceID nextId = Trace.getNextTraceId();
 
 		// UUID format을 그대로.
-		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTraceId().toString());
+		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
 		request.addHeader(Header.HTTP_SPAN_ID.toString(), Long.toString(nextId.getSpanId()));
 		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
 		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
@@ -51,7 +51,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
 	public void after(Object target, String className, String methodName, Object[] args, Object result) {
-		System.out.println("\n\n\n\nHTTP AFTER");
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteMethodInterceptor"));
+		System.out.println("\n\n\n\nINVOKE HTTP END ----------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
 }

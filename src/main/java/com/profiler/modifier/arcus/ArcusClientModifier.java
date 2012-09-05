@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.StopWatch;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
@@ -40,7 +41,7 @@ public class ArcusClientModifier extends AbstractModifier {
 			 */
 			aClass.addTraceVariable("__traceId", "__setTraceId", "__getTraceId", "com.profiler.context.TraceID");
 			aClass.addTraceVariable("__nextTraceId", "__setNextTraceId", "__getNextTraceId", "com.profiler.context.TraceID");
-			aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextId()); }");
+			aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextTraceId()); }");
 
 			aClass.insertCodeBeforeMethod("transitionState", new String[] { "net.spy.memcached.ops.OperationState" }, getTransitionStateAfterCode());
 
@@ -79,6 +80,10 @@ public class ArcusClientModifier extends AbstractModifier {
 		// code.append("System.out.println(\"\");");
 
 		code.append("if (newState == net.spy.memcached.ops.OperationState.READING) {");
+		
+		// TODO: remove, debugging
+		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS BEFORE  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
+		
 		code.append("	java.net.SocketAddress socketAddress = handlingNode.getSocketAddress();");
 		code.append("	if (socketAddress instanceof java.net.InetSocketAddress) {");
 		code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
@@ -87,10 +92,15 @@ public class ArcusClientModifier extends AbstractModifier {
 		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", \"\");");
 		code.append("	com.profiler.context.Trace.recordAttribute(\"arcus.command\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
 		code.append("	System.out.println(\"CS\");");
+		code.append("	com.profiler.StopWatch.start(this.hashCode());");
 		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend);");
 		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE) {");
 		code.append("	System.out.println(\"CR\");");
-		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv);");
+		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, com.profiler.StopWatch.stopAndGetElapsed(this.hashCode()));");
+
+		// TODO: remove, debugging
+		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS AFTER  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
+		
 		code.append("}");
 
 		code.append("}");

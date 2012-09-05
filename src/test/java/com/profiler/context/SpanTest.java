@@ -49,7 +49,7 @@ public class SpanTest {
 				e.printStackTrace();
 			}
 
-			Trace.setTraceId(Trace.getNextId());
+			Trace.setTraceId(Trace.getNextTraceId());
 
 			Trace.recordMessage("msg:client send");
 			Trace.record(Annotation.ClientSend);

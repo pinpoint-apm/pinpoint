@@ -9,25 +9,37 @@ public class StopWatch {
 
 	private static ThreadLocal<Map<String, Long>> local = new NamedThreadLocal<Map<String, Long>>("StopWatch");
 
-	public static void start(String name) {
+	public static void start(int id) {
+		start(String.valueOf(id));
+	}
+
+	public static long stopAndGetElapsed(int id) {
+		return stopAndGetElapsed(String.valueOf(id));
+	}
+
+	public static void start(String id) {
 		Map<String, Long> map = local.get();
 		if (map == null) {
 			map = new HashMap<String, Long>(1);
-			map.put(name, System.nanoTime());
+			map.put(id, System.nanoTime());
 			local.set(map);
 		} else {
-			map.put(name, System.nanoTime());
+			map.put(id, System.nanoTime());
 		}
 	}
 
-	public static long stopAndGetElapsed(String name) {
+	public static long stopAndGetElapsed(String id) {
 		Map<String, Long> map = local.get();
 		if (map == null) {
-			//throw new IllegalStateException("Stopwatch is not started.");
-            // TODO application 에러로 전달되는경우가 있어서 일단 0으로
-            return 0;
+			// throw new IllegalStateException("Stopwatch is not started.");
+			// TODO application 에러로 전달되는경우가 있어서 일단 0으로
+			return -1;
 		} else {
-			return System.nanoTime() - map.get(name);
+			if (map.containsKey(id)) {
+				return System.nanoTime() - map.get(id);
+			} else {
+				return -1;
+			}
 		}
 	}
 }

@@ -17,7 +17,7 @@ public final class Trace {
 
 	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
-	private static final ThreadLocal<TraceID> traceId = new NamedThreadLocal<TraceID>("TraceId");
+	private static final ThreadLocal<TraceID> traceIdLocal = new NamedThreadLocal<TraceID>("TraceId");
 
 	private static volatile boolean tracingEnabled = true;
 
@@ -30,12 +30,12 @@ public final class Trace {
 	 * 
 	 * @return
 	 */
-	public static TraceID getTraceId() {
-		TraceID id = traceId.get();
+	public static TraceID getTraceIdOrCreateNew() {
+		TraceID id = traceIdLocal.get();
 
 		if (id == null) {
 			id = TraceID.newTraceId();
-			traceId.set(id);
+			traceIdLocal.set(id);
 			return id;
 		}
 
@@ -43,9 +43,10 @@ public final class Trace {
 	}
 
 	public static boolean removeTraceId() {
-		TraceID traceID = traceId.get();
+		TraceID traceID = traceIdLocal.get();
 		if (traceID != null) {
-			traceId.remove();
+			traceIdLocal.remove();
+			spanMap.remove(traceID);
 			return true;
 		}
 		return false;
@@ -57,7 +58,7 @@ public final class Trace {
 	 * @return
 	 */
 	public static TraceID getCurrentTraceId() {
-		return traceId.get();
+		return traceIdLocal.get();
 	}
 
 	public static void enable() {
@@ -68,13 +69,16 @@ public final class Trace {
 		tracingEnabled = false;
 	}
 
-	public static TraceID getNextId() {
-		TraceID current = getTraceId();
-		return new TraceID(current.getTraceId(), current.getSpanId(), SpanID.newSpanID(), current.isSampled(), current.getFlags());
+	public static TraceID getNextTraceId() {
+		TraceID current = getTraceIdOrCreateNew();
+		return new TraceID(current.getId(), current.getSpanId(), SpanID.newSpanID(), current.isSampled(), current.getFlags());
 	}
 
 	public static void setTraceId(TraceID traceId) {
-		Trace.traceId.set(traceId);
+		if (getCurrentTraceId() != null) {
+			logger.log(Level.WARNING, "TraceID is already exists. But overwritten.");
+		}
+		Trace.traceIdLocal.set(traceId);
 	}
 
 	private static void mutate(TraceID traceId, SpanUpdater spanUpdater) {
@@ -88,9 +92,16 @@ public final class Trace {
 
 	static void logSpan(Span span) {
 		try {
-			// TODO: send span to server
-			System.out.println("\n\nWrite span hash=" + span.hashCode() + ", value=" + span + ", spanMap.size=" + spanMap.size() + ", threadid=" + Thread.currentThread().getId() + "\n\n");
+			// TODO: send span to the server.
+			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ", Value=" + span + ", SpanMap.size=" + spanMap.size() + ", CurrentThreadID=" + Thread.currentThread().getId() + "\n\n");
 
+			// TODO: remove this, just for debugging
+			if(spanMap.size() > 0) {
+				System.out.println("###############################################################");
+				System.out.println("#          WARNING SpanMap size > 0 check spanMap.            #");
+				System.out.println("###############################################################");
+			}
+			
 			DataSender.getInstance().addDataToSend(span.toThrift());
 
 			span.cancelTimer();
@@ -116,13 +127,13 @@ public final class Trace {
 	public static void recordAttribute(final String key, final String value) {
 		recordAttibute(key, (Object) value);
 	}
-	
+
 	public static void recordAttibute(final String key, final Object value) {
 		if (!tracingEnabled)
 			return;
 
 		try {
-			mutate(getTraceId(), new SpanUpdater() {
+			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
 					span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value));
@@ -144,8 +155,9 @@ public final class Trace {
 	public static void recordRpcName(final String service, final String rpc) {
 		if (!tracingEnabled)
 			return;
+
 		try {
-			mutate(getTraceId(), new SpanUpdater() {
+			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
 					span.setServiceName(service);
@@ -163,7 +175,7 @@ public final class Trace {
 			return;
 
 		try {
-			mutate(getTraceId(), new SpanUpdater() {
+			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
 					// set endpoint to both span and annotations
@@ -181,7 +193,7 @@ public final class Trace {
 			return;
 
 		try {
-			mutate(getTraceId(), new SpanUpdater() {
+			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
 					span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, duration));

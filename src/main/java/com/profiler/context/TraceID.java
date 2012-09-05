@@ -3,7 +3,7 @@ package com.profiler.context;
 import java.util.UUID;
 
 public class TraceID {
-	private UUID traceId;
+	private UUID id;
 	private long parentSpanId;
 	private long spanId;
 	private boolean sampled;
@@ -14,21 +14,21 @@ public class TraceID {
 		return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
 	}
 
-	public TraceID(UUID traceId, long parentSpanId, long spanId, boolean sampled, int flags) {
-		this.traceId = traceId;
+	public TraceID(UUID id, long parentSpanId, long spanId, boolean sampled, int flags) {
+		this.id = id;
 		this.parentSpanId = parentSpanId;
 		this.spanId = spanId;
 		this.sampled = sampled;
 		this.flags = flags;
 	}
 
-	public UUID getTraceId() {
-		return traceId;
+	public UUID getId() {
+		return id;
 	}
 
 	public TraceKey getTraceKey() {
-		long most = traceId.getMostSignificantBits();
-		long least = traceId.getLeastSignificantBits();
+		long most = id.getMostSignificantBits();
+		long least = id.getLeastSignificantBits();
 		return new TraceKey(most, least);
 	}
 
@@ -83,7 +83,7 @@ public class TraceID {
 	}
 
 	public void setTraceId(UUID traceId) {
-		this.traceId = traceId;
+		this.id = traceId;
 	}
 
 	public void setParentSpanId(long parentSpanId) {
@@ -107,7 +107,7 @@ public class TraceID {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("TraceID={");
-		sb.append("traceId=").append(traceId);
+		sb.append("id=").append(id);
 		sb.append(", parentSpanId=").append(parentSpanId);
 		sb.append(", spanId=").append(spanId);
 		sb.append(", sampled=").append(sampled);

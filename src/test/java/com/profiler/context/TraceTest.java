@@ -6,8 +6,8 @@ public class TraceTest {
 
 	@Test
 	public void trace() {
-		TraceID nextId = Trace.getNextId();
-		nextId.setSampled(Trace.getTraceId().isSampled());
+		TraceID nextId = Trace.getNextTraceId();
+		nextId.setSampled(Trace.getTraceIdOrCreateNew().isSampled());
 
 		Trace.setTraceId(nextId);
 

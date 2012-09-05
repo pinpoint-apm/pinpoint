@@ -24,16 +24,20 @@ public class Span {
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 	private final Set<String> annotationValues = new HashSet<String>(5);
 
+	/**
+	 * Cancel timer logic.
+	 * TODO: refactor this.
+	 */
 	private TimerTask timerTask;
-	
+
 	public void setTimerTask(TimerTask task) {
 		this.timerTask = task;
 	}
-	
+
 	public boolean cancelTimer() {
 		return timerTask.cancel();
 	}
-	
+
 	public Span(TraceID traceId, String name, EndPoint endPoint) {
 		this.traceID = traceId;
 		this.name = name;
@@ -108,8 +112,8 @@ public class Span {
 		com.profiler.context.gen.Span span = new com.profiler.context.gen.Span();
 
 		span.setTimestamp(createTime);
-		span.setMostTraceID(traceID.getTraceId().getMostSignificantBits());
-		span.setLeastTraceID(traceID.getTraceId().getLeastSignificantBits());
+		span.setMostTraceID(traceID.getId().getMostSignificantBits());
+		span.setLeastTraceID(traceID.getId().getLeastSignificantBits());
 		span.setName(name);
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());

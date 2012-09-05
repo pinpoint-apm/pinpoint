@@ -48,7 +48,7 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("password", "testlucy");
         Connection connect = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
-        Trace.getTraceId();
+        Trace.getTraceIdOrCreateNew();
         logger.info("Connection class name:" + connect.getClass().getName());
         logger.info("Connection class cl:" + connect.getClass().getClassLoader());
 

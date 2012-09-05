@@ -7,6 +7,12 @@ public class HippoAnnotation {
 	protected final Long duration;
 	protected final String threadname; // TODO: remove, just for debug.
 
+	/**
+	 * 
+	 * @param time
+	 * @param value
+	 * @param duration duration in nano second.
+	 */
 	public HippoAnnotation(long time, String value, Long duration) {
 		this.time = time;
 		this.value = value;
