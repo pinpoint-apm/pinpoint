@@ -7,7 +7,7 @@ package com.profiler.context;
  */
 public class TraceIDStack {
 
-	private TraceID[] traceIDs = new TraceID[1];
+	private TraceID[] traceIDs = new TraceID[3];
 
 	private volatile int index = 0;
 
