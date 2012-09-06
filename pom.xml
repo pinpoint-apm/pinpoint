@@ -54,23 +54,23 @@
 	<dependencies>
 		<!-- [Start] Compile Interceptors -->
         <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.16.1-GA</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
 			<groupId>com.nhncorp.lucy</groupId>
 			<artifactId>lucy-npc</artifactId>
 			<version>1.5.10</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.0.3</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.14</version>
+            <scope>provided</scope>
+        </dependency>
 		<!-- [End] Compile Interceptors -->
 	
         <dependency>
@@ -120,13 +120,8 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.0</version>
-		</dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.14</version>
             <scope>test</scope>
-        </dependency>
+		</dependency>
 	</dependencies>
 
 	<build>
