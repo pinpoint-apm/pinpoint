@@ -18,25 +18,28 @@ import java.util.logging.Logger;
  */
 public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = Logger.getLogger(ExecuteQueryMethodInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(ExecuteQueryMethodInterceptor.class.getName());
 
-    private Method getUrl = null;
+	private Method getUrl = null;
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
-        }
-        if (Trace.getCurrentTraceId() == null) {
-            return;
-        }
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		}
+
+		if (Trace.getCurrentTraceId() == null) {
+			return;
+		}
+
+		Trace.traceBlockBegin();
 
 		try {
 			/**
 			 * If method was not called by request handler, we skip tagging.
 			 */
-            String url = getUrl(target);
-            Trace.recordRpcName("mysql", url);
+			String url = getUrl(target);
+			Trace.recordRpcName("mysql", url);
 
 			if (args.length > 0) {
 				Trace.recordAttibute("Query", args[0]);
@@ -47,43 +50,46 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 			StopWatch.start("ExecuteQueryMethodInterceptor");
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			Trace.traceBlockEnd();
 		}
 	}
 
-    private String getUrl(Object target) {
-        try {
-            // TODO classloading 시 해당 mehtod를 한번에 가져올수 없는지 검토.
-            if(getUrl == null) {
-                getUrl = target.getClass().getMethod("__getUrl");
-            }
-            return (String) getUrl.invoke(target);
-        } catch (NoSuchMethodException e) {
-            if (logger.isLoggable(Level.WARNING)) {
+	private String getUrl(Object target) {
+		try {
+			// TODO classloading 시 해당 mehtod를 한번에 가져올수 없는지 검토.
+			if (getUrl == null) {
+				getUrl = target.getClass().getMethod("__getUrl");
+			}
+			return (String) getUrl.invoke(target);
+		} catch (NoSuchMethodException e) {
+			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        } catch (IllegalAccessException e) {
-            if (logger.isLoggable(Level.WARNING)) {
+		} catch (IllegalAccessException e) {
+			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        } catch (InvocationTargetException e) {
-            if (logger.isLoggable(Level.WARNING)) {
+		} catch (InvocationTargetException e) {
+			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
 			}
-        }
-        return null;
-    }
+		}
+		return null;
+	}
 
-    @Override
+	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-        }
-
-        if (Trace.getCurrentTraceId() == null) {
-			return;
+			logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 
-
+		if (Trace.getCurrentTraceId() == null) {
+			return;
+		}
+		
+		Trace.traceBlockBegin();
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteQueryMethodInterceptor"));
+		Trace.traceBlockEnd();
 	}
 }

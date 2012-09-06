@@ -17,13 +17,16 @@ public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		System.out.println("ExecuteUpdateMethodInterceptor.before");
+
+		/**
+		 * If method was not called by request handler, we skip tagging.
+		 */
+		if (Trace.getCurrentTraceId() == null) {
+			return;
+		}
+
 		try {
-			/**
-			 * If method was not called by request handler, we skip tagging.
-			 */
-			if (Trace.getCurrentTraceId() == null) {
-				return;
-			}
+			Trace.traceBlockBegin();
 
 			Trace.recordRpcName("mysql", "");
 
@@ -40,6 +43,8 @@ public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
 			StopWatch.start("ExecuteUpdateMethodInterceptor");
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			Trace.traceBlockEnd();
 		}
 	}
 
@@ -49,7 +54,9 @@ public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
 		if (Trace.getCurrentTraceId() == null) {
 			return;
 		}
-
+		
+		Trace.traceBlockBegin();
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteUpdateMethodInterceptor"));
+		Trace.traceBlockEnd();
 	}
 }

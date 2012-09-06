@@ -8,23 +8,18 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class CloseConnectionInterceptor implements StaticBeforeInterceptor {
 
-    private final Logger logger = Logger.getLogger(CloseConnectionInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(CloseConnectionInterceptor.class.getName());
 
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
-        }
+	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		}
 
-        if (target instanceof Connection) {
-            ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-            connectionTrace.closeConnection((Connection) target);
-        }
-    }
-
-
-
-
+		if (target instanceof Connection) {
+			ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
+			connectionTrace.closeConnection((Connection) target);
+		}
+	}
 }
