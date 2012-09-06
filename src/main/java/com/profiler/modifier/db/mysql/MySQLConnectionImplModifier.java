@@ -3,6 +3,7 @@ package com.profiler.modifier.db.mysql;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.interceptor.bci.InstrumentException;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -36,29 +37,24 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             if (mysqlConnection == null) {
                 return null;
             }
+
+            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
+            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
+            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
+            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreatePreparedStatementInterceptor");
+
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
             };
-            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
-            if (createConnection == null) {
-                return null;
-            }
-            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
-            if (closeConnection == null) {
-                return null;
-            }
-            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
-            if (createStatement == null) {
-                return null;
-            }
             mysqlConnection.addInterceptor("getInstance", params, createConnection);
             mysqlConnection.addInterceptor("close", null, closeConnection);
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
+            mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, createStatement);
 
 			printClassConvertComplete(javassistClassName);
 
 			return mysqlConnection.toBytecode();
-		} catch (Exception e) {
+		} catch (InstrumentException e) {
             if (logger.isLoggable(Level.WARNING)) {
 			    logger.log(Level.WARNING, e.getMessage(), e);
             }

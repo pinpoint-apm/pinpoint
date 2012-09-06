@@ -6,6 +6,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.bci.InstrumentException;
 import javassist.*;
 
 import com.profiler.interceptor.Interceptor;
@@ -38,20 +39,19 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
 		}
 
 		addRequiredCladdToCurrentClassLoader(classLoader);
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+        classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
-		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.InvokeMethodInterceptor");
-		if (interceptor == null) {
-			return null;
-		}
-
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
-
-		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-		aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, interceptor);
-
-		return aClass.toBytecode();
-	}
+        try {
+            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.InvokeMethodInterceptor");
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, interceptor);
+            return aClass.toBytecode();
+        } catch (InstrumentException e) {
+            logger.log(Level.WARNING, "modify fail Cause:" + e.getMessage(), e);
+            return null;
+        }
+    }
 
 	private void addRequiredCladdToCurrentClassLoader(ClassLoader classLoader) {
 		try {

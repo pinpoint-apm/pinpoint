@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.bci.InstrumentException;
 import javassist.ClassPool;
 
 import com.profiler.interceptor.Interceptor;
@@ -31,19 +32,14 @@ public abstract class AbstractModifier implements Modifier {
 		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 	}
 
-	protected Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) {
+	protected Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) throws InstrumentException {
 		Class<?> aClass = this.byteCodeInstrumentor.defineClass(classLoader, interceptorFQCN, protectedDomain);
 		try {
             return (Interceptor) aClass.newInstance();
 		} catch (InstantiationException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
+			throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
+			throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
 		}
-		return null;
 	}
 }

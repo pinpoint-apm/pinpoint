@@ -48,14 +48,11 @@ public class CubridStatementModifier extends AbstractModifier {
             }
         };
 
-        InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
-        aClass.addInterceptor("executeQuery", new String[] {"java.lang.String"}, interceptor);
-
-        printClassConvertComplete(javassistClassName);
-//        return aClass.toBytecode();
-
-
         try {
+            // TODO  추가로 고쳐야 될듯.
+            InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
+            aClass.addInterceptor("executeQuery", new String[] {"java.lang.String"}, interceptor);
+            printClassConvertComplete(javassistClassName);
 			CtClass cc = classPool.get(javassistClassName);
 
 			updateExecuteQueryMethod(cc);

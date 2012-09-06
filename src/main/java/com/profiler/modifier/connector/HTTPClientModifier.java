@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.bci.InstrumentException;
 import javassist.ByteArrayClassPath;
 
 import com.profiler.interceptor.Interceptor;
@@ -52,18 +53,16 @@ public class HTTPClientModifier extends AbstractModifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
-		if (interceptor == null) {
-			return null;
-		}
-
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
-
-		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-		aClass.addInterceptor("execute", new String[] { "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext" }, interceptor);
-
-		return aClass.toBytecode();
-	}
+        classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
+        try {
+            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            aClass.addInterceptor("execute", new String[] { "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext" }, interceptor);
+            return aClass.toBytecode();
+        } catch (InstrumentException e) {
+            // TODO log
+            return null;
+        }
+    }
 }

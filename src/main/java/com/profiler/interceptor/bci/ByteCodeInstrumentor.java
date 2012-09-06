@@ -11,7 +11,7 @@ public interface ByteCodeInstrumentor {
 
 	void checkLibrary(ClassLoader classLoader, String javassistClassName);
 
-	InstrumentClass getClass(String javassistClassName);
+	InstrumentClass getClass(String javassistClassName) throws InstrumentException;
 
-	Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain);
+	Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException;
 }

@@ -8,19 +8,21 @@ public interface InstrumentClass {
 
 	boolean insertCodeAfterMethod(String methodName, String[] args, String code);
 
-	boolean addInterceptor(String methodName, String[] args, Interceptor interceptor);
+    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException;
 
-	boolean addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type);
+	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException;
+
+	int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException;
 
 	boolean addDebugLogBeforeAfterMethod();
 
 	boolean addDebugLogBeforeAfterConstructor();
 
-	byte[] toBytecode();
+	byte[] toBytecode() throws InstrumentException ;
 
-	Class<?> toClass();
+	Class<?> toClass() throws InstrumentException ;
 
-	boolean addTraceVariable(String variableName, String setterName, String getterName, String variableType);
+	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException ;
 
 	boolean insertCodeAfterConstructor(String[] args, String code);
 

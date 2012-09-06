@@ -1,10 +1,12 @@
 package com.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
+import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.JavaAssistClass;
 import javassist.*;
 
@@ -31,28 +33,21 @@ public class MySQLStatementModifier extends AbstractModifier {
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-//        classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
-        InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor");
-        boolean executeQuery = aClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("executeQuery =" + executeQuery);
+        try {
+            InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor");
+            statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
+
+
+            Interceptor interceptor1 = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteUpdateMethodInterceptor");
+            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, interceptor1);
+
+            statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            return statementClass.toBytecode();
+        } catch (InstrumentException e) {
+            return null;
         }
-
-        Interceptor interceptor1 = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteUpdateMethodInterceptor");
-        boolean executeUpdate = aClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, interceptor1);
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("executeUpdate =" + executeUpdate);
-        }
-        // TODO 아무래도 에러 체크를 Exception으로 변경하는게 좋을것 같음.
-        aClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
-
-
-        if (executeQuery && executeQuery) {
-            return aClass.toBytecode();
-        }
-        return null;
     }
 
 

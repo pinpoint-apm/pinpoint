@@ -61,34 +61,29 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 	}
 
 	@Override
-	public InstrumentClass getClass(String javassistClassName) {
+	public InstrumentClass getClass(String javassistClassName) throws InstrumentException {
 		try {
 			CtClass cc = classPool.get(javassistClassName);
 			return new JavaAssistClass(this, cc);
 		} catch (NotFoundException e) {
-			// TODO 실패시 더미 객체를 반환해서 잘 에러를 숨길수 있도록 수정필요.
-			return null;
+            throw new InstrumentException(javassistClassName + " class not fund. Cause:" + e.getMessage(), e);
 		}
 	}
 
 	@Override
-	public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) {
-		try {
-			if (logger.isLoggable(Level.INFO)) {
+	public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
+        if (logger.isLoggable(Level.INFO)) {
 				logger.info("defineClass classLoader:" + classLoader + " class:" + defineClass);
-			}
+		}
+
+		try {
 			CtClass clazz = classPool.get(defineClass);
 			return clazz.toClass(classLoader, protectedDomain);
 		} catch (NotFoundException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, "defineClass classLoader:" + classLoader + " " + e.getMessage(), e);
-			}
+            throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
 		} catch (CannotCompileException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, "defineClass classLoader:" + classLoader + " " + e.getMessage(), e);
-			}
+            throw new InstrumentException(defineClass + " class define fail. cl:" + classLoader + " Cause:" + e.getMessage(), e);
 		}
-		return null;
 	}
 
 	public boolean findClass(String javassistClassName) {
@@ -119,7 +114,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 					}
 				} catch (NotFoundException e) {
 					if (logger.isLoggable(Level.WARNING)) {
-						logger.log(Level.WARNING, "lib not fail. " + e.getMessage(), e);
+						logger.log(Level.WARNING, "lib not fail. path:" + filePath + " cl:" + classLoader + " Cause:" + e.getMessage(), e);
 					}
 				}
 			}

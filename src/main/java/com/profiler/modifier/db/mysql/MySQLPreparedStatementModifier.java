@@ -4,7 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javassist.ByteArrayClassPath;
+import com.profiler.interceptor.bci.InstrumentException;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
@@ -33,6 +33,14 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 		}
 
 		checkLibrary(classLoader, javassistClassName);
+        try {
+            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.PreparedStatementMethodInterceptor");
+
+            preparedStatement.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, interceptor);
+        } catch (InstrumentException e) {
+            return null;
+        }
 
 //		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteMethodInterceptor");
 //		if (interceptor == null) {

@@ -5,6 +5,7 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.bytecode.ClassFile;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -12,15 +13,22 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 public class JavaAssiastTest {
+    private ClassPool pool;
+
+    @Before
+    public void setUp() throws Exception {
+        pool = new ClassPool();
+        pool.appendSystemPath();
+    }
+
     @Test
     public void newClass() {
-
 
     }
     @Test
     public void testAssist() throws NotFoundException, NoSuchMethodException {
-        ClassPool getDefault = ClassPool.getDefault();
-        CtClass ctClass = getDefault.get(String.class.getName());
+
+        CtClass ctClass = pool.get(String.class.getName());
 //        System.out.println(ctClass)  ;
         String s = "";
 //        ctClass.getMethod("valueOf", "(D)");
@@ -56,5 +64,22 @@ public class JavaAssiastTest {
         System.out.println(resource);
 
 //        new URLClassLoader()
+    }
+
+    @Test
+    public void innerClass() throws NotFoundException {
+        CtClass testClass = pool.get("com.profiler.javaassist.TestClass");
+        System.out.println(testClass);
+        CtClass[] nestedClasses = testClass.getNestedClasses();
+        for(CtClass nested : nestedClasses) {
+            System.out.println("nestedClass:" + nested);
+        }
+
+
+        CtClass innerClass = pool.get("com.profiler.javaassist.TestClass$InnerClass");
+        System.out.println(innerClass);
+
+        CtClass class1 = pool.get("com.profiler.javaassist.TestClass$1");
+        System.out.println(class1);
     }
 }
