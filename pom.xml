@@ -242,6 +242,7 @@
 		                        <phase>generate-sources</phase>
 		                        <configuration>
 		                            <tasks>
+                                        <mkdir dir="${basedir}/generated-sources/thrift"/>
 		                                <delete>
 		                                     <fileset dir="${basedir}/generated-sources/thrift" includes="**/*"/>
 		                                </delete>
@@ -251,35 +252,33 @@
 		                                    <arg value="java:beans"/>
 		                                    <arg value="-o"/>
 		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/JVMInfoThriftDTO.thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/JVMInfoThriftDTO.thrift"/>
 		                                </exec>
 		                                <exec executable="${thrift.executable}" failonerror="true">
 		                                    <arg value="--gen"/>
 		                                    <arg value="java:beans"/>
 		                                    <arg value="-o"/>
 		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/RequestDataThriftDTO.thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/RequestDataThriftDTO.thrift"/>
 		                                </exec>
 		                                <exec executable="${thrift.executable}" failonerror="true">
 		                                    <arg value="--gen"/>
 		                                    <arg value="java:beans"/>
 		                                    <arg value="-o"/>
 		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/RequestThriftDTO.thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/RequestThriftDTO.thrift"/>
 		                                </exec>
 		                                <exec executable="${thrift.executable}" failonerror="true">
 		                                    <arg value="--gen"/>
 		                                    <arg value="java:beans"/>
 		                                    <arg value="-o"/>
 		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/thrift/Trace.thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/Trace.thrift"/>
 		                                </exec>
-		                                <!--<delete>-->
-		                                <!--<fileset dir="src/main/java" includes="**/*"/>-->
-		                                <!--</delete>-->
 		                                <copy todir="src/main/java" overwrite="true">
 		                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean"/>
 		                                </copy>
+                                        <delete dir="${basedir}/generated-sources"/>
 		                            </tasks>
 		                        </configuration>
 		                        <goals>

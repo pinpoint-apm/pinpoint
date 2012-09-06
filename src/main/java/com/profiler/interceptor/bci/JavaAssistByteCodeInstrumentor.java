@@ -73,12 +73,13 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 	@Override
 	public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
         if (logger.isLoggable(Level.INFO)) {
-				logger.info("defineClass classLoader:" + classLoader + " class:" + defineClass);
+			logger.info("defineClass classLoader:" + classLoader + " class:" + defineClass);
 		}
 
 		try {
 			CtClass clazz = classPool.get(defineClass);
-			return clazz.toClass(classLoader, protectedDomain);
+            defineNestedClass(clazz, classLoader, protectedDomain);
+            return clazz.toClass(classLoader, protectedDomain);
 		} catch (NotFoundException e) {
             throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
 		} catch (CannotCompileException e) {
@@ -86,7 +87,22 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 		}
 	}
 
-	public boolean findClass(String javassistClassName) {
+    private void defineNestedClass(CtClass clazz, ClassLoader classLoader, ProtectionDomain protectedDomain) throws NotFoundException, CannotCompileException {
+        CtClass[] nestedClasses = clazz.getNestedClasses();
+        if (nestedClasses.length == 0) {
+            return;
+        }
+        for(CtClass nested : nestedClasses) {
+            // 재귀하면서 최하위부터 로드
+            defineNestedClass(nested, classLoader, protectedDomain);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("defineNestedClass classLoader:" + classLoader + " class:" + nested.getName());
+            }
+            nested.toClass(classLoader, protectedDomain);
+        }
+    }
+
+    public boolean findClass(String javassistClassName) {
 		// TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
 		// 필요
 		URL url = classPool.find(javassistClassName);
