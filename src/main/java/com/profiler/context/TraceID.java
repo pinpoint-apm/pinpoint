@@ -14,6 +14,10 @@ public class TraceID {
 		return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
 	}
 
+	public TraceID getNextTraceId() {
+		return new TraceID(id, spanId, SpanID.nextSpanID(spanId), sampled, flags);
+	}
+
 	public TraceID(UUID id, long parentSpanId, long spanId, boolean sampled, int flags) {
 		this.id = id;
 		this.parentSpanId = parentSpanId;
@@ -29,16 +33,18 @@ public class TraceID {
 	public TraceKey getTraceKey() {
 		long most = id.getMostSignificantBits();
 		long least = id.getLeastSignificantBits();
-		return new TraceKey(most, least);
+		return new TraceKey(most, least, spanId);
 	}
 
 	public static class TraceKey {
 		private long most;
 		private long least;
+		private long span;
 
-		public TraceKey(long most, long least) {
+		public TraceKey(long most, long least, long span) {
 			this.most = most;
 			this.least = least;
+			this.span = span;
 		}
 
 		@Override
@@ -53,6 +59,8 @@ public class TraceID {
 			if (least != that.least)
 				return false;
 			if (most != that.most)
+				return false;
+			if (span != that.span)
 				return false;
 
 			return true;

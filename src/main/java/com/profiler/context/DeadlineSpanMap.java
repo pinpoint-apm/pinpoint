@@ -50,4 +50,9 @@ public class DeadlineSpanMap {
 			Trace.logSpan(this.span);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return map.toString();
+	}
 }

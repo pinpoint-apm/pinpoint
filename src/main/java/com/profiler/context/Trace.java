@@ -17,12 +17,65 @@ public final class Trace {
 
 	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
 
-	private static final ThreadLocal<TraceID> traceIdLocal = new NamedThreadLocal<TraceID>("TraceId");
+	// private static final ThreadLocal<TraceID> traceIdLocal = new
+	// NamedThreadLocal<TraceID>("TraceId");
+
+	private static final ThreadLocal<TraceIDStack> traceIdLocal = new NamedThreadLocal<TraceIDStack>("TraceId");
+
+	// private static final TraceIDStack traceIdStack = new TraceIDStack();
 
 	private static volatile boolean tracingEnabled = true;
 
 	private Trace() {
 
+	}
+
+	public static void handle(TraceHandler handler) {
+		TraceIDStack traceIDStack = traceIdLocal.get();
+		if (traceIDStack == null) {
+			traceIDStack = new TraceIDStack();
+			traceIdLocal.set(traceIDStack);
+		}
+
+		try {
+			TraceID nextId = getNextTraceId();
+			traceIDStack.incr();
+
+			if (traceIDStack.getTraceId() == null) {
+				System.out.println(getCurrentTraceId());
+				traceIDStack.setTraceId(nextId);
+			}
+
+			handler.handle();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			traceIDStack.decr();
+		}
+	}
+
+	public static void traceBlockBegin() {
+		TraceIDStack traceIDStack = traceIdLocal.get();
+		if (traceIDStack == null) {
+			traceIDStack = new TraceIDStack();
+			traceIdLocal.set(traceIDStack);
+		}
+
+		try {
+			TraceID nextId = getNextTraceId();
+			traceIDStack.incr();
+
+			if (traceIDStack.getTraceId() == null) {
+				traceIDStack.setTraceId(nextId);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void traceBlockEnd() {
+		TraceIDStack traceIDStack = traceIdLocal.get();
+		traceIDStack.decr();
 	}
 
 	/**
@@ -31,11 +84,24 @@ public final class Trace {
 	 * @return
 	 */
 	public static TraceID getTraceIdOrCreateNew() {
-		TraceID id = traceIdLocal.get();
+		// TraceID id = traceIdLocal.get();
+		TraceIDStack stack = traceIdLocal.get();
+		TraceID id = null;
+		if (stack != null) {
+			id = stack.getTraceId();
+		}
 
 		if (id == null) {
+			System.out.println("create new traceid");
+
 			id = TraceID.newTraceId();
-			traceIdLocal.set(id);
+			// traceIdLocal.set(id);
+
+			if (stack == null) {
+				traceIdLocal.set(new TraceIDStack());
+			}
+
+			traceIdLocal.get().setTraceId(id);
 			return id;
 		}
 
@@ -43,9 +109,21 @@ public final class Trace {
 	}
 
 	public static boolean removeTraceId() {
-		TraceID traceId = traceIdLocal.get();
+		// TraceID traceId = traceIdLocal.get();
+		TraceIDStack stack = traceIdLocal.get();
+		TraceID traceId = null;
+		if (stack != null)
+			traceId = stack.getTraceId();
+
 		if (traceId != null) {
-			traceIdLocal.remove();
+			// traceIdLocal.remove();
+
+			if (stack == null) {
+				traceIdLocal.set(new TraceIDStack());
+			}
+
+			traceIdLocal.get().clear();
+
 			spanMap.remove(traceId);
 			return true;
 		}
@@ -58,7 +136,14 @@ public final class Trace {
 	 * @return
 	 */
 	public static TraceID getCurrentTraceId() {
-		return traceIdLocal.get();
+		// return traceIdLocal.get();
+		TraceIDStack stack = traceIdLocal.get();
+
+		if (stack == null) {
+			return null;
+		}
+
+		return stack.getTraceId();
 	}
 
 	public static void enable() {
@@ -71,15 +156,18 @@ public final class Trace {
 
 	public static TraceID getNextTraceId() {
 		TraceID current = getTraceIdOrCreateNew();
-        long currentSpanId = current.getSpanId();
-        return new TraceID(current.getId(), currentSpanId, SpanID.nextSpanID(currentSpanId), current.isSampled(), current.getFlags());
+		return current.getNextTraceId();
+		// long currentSpanId = current.getSpanId();
+		// return new TraceID(current.getId(), currentSpanId,
+		// SpanID.nextSpanID(currentSpanId), current.isSampled(),
+		// current.getFlags());
 	}
 
 	public static void setTraceId(TraceID traceId) {
 		if (getCurrentTraceId() != null) {
 			logger.log(Level.WARNING, "TraceID is already exists. But overwritten.");
-			
-			//TODO: remove this, just for debugging.
+
+			// TODO: remove this, just for debugging.
 			System.out.println("###############################################################################################################");
 			System.out.println("# [DEBUG MSG] TraceID is overwritten.");
 			System.out.println("#   Before : " + getCurrentTraceId());
@@ -91,7 +179,14 @@ public final class Trace {
 				e.printStackTrace();
 			}
 		}
-		Trace.traceIdLocal.set(traceId);
+
+		TraceIDStack stack = traceIdLocal.get();
+
+		if (stack == null)
+			traceIdLocal.set(new TraceIDStack());
+
+		Trace.traceIdLocal.get().setTraceId(traceId);
+		// Trace.traceIdLocal.set(traceId);
 	}
 
 	private static void mutate(TraceID traceId, SpanUpdater spanUpdater) {
@@ -106,14 +201,15 @@ public final class Trace {
 	static void logSpan(Span span) {
 		try {
 			// TODO: send span to the server.
-			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ",\n\t " + span + ",\n\t SpanMap.size=" + spanMap.size() + ",\n\t CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() +"\n\n");
+			System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ",\n\t " + span + ",\n\t SpanMap.size=" + spanMap.size() + ",\n\t CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
 
 			// TODO: remove this, just for debugging
-			if (spanMap.size() > 0) {
-				System.out.println("##################################################################");
-				System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
-				System.out.println("##################################################################");
-			}
+			// if (spanMap.size() > 0) {
+			// System.out.println("##################################################################");
+			// System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
+			// System.out.println("##################################################################");
+			// System.out.println("current spamMap=" + spanMap);
+			// }
 
 			DataSender.getInstance().addDataToSend(span.toThrift());
 

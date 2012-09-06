@@ -47,6 +47,12 @@ public class HTTPClientModifier extends AbstractModifier {
 			logger.info("Modifing. " + javassistClassName);
 		}
 
+		try {
+			classLoader.loadClass("com.profiler.context.TraceHandler");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
 		if (interceptor == null) {
 			return null;
