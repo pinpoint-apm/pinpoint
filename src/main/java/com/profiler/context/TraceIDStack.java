@@ -19,7 +19,6 @@ public class TraceIDStack {
 		if (index > 0) {
 			return traceIDs[index - 1];
 		}
-		System.out.println("PID is NULL");
 		return null;
 	}
 
@@ -30,7 +29,6 @@ public class TraceIDStack {
 	public void incr() {
 		index++;
 		if (index > traceIDs.length - 1) {
-			System.out.println("INCR");
 			TraceID[] old = traceIDs;
 			traceIDs = new TraceID[index + 1];
 			System.arraycopy(old, 0, traceIDs, 0, old.length);
