@@ -108,22 +108,24 @@ public final class Trace {
 		return id;
 	}
 
-	public static boolean removeTraceId() {
-		// TraceID traceId = traceIdLocal.get();
+	public static boolean removeCurrentTraceIdFromStack() {
 		TraceIDStack stack = traceIdLocal.get();
 		TraceID traceId = null;
-		if (stack != null)
+		
+		if (stack != null) {
 			traceId = stack.getTraceId();
+		} else {
+			// TODO : remove this log.
+			System.out.println("#############################################################");
+			System.out.println("# Something's going wrong. Stack is not exists.             #");
+			System.out.println("#############################################################");
+
+			stack = new TraceIDStack();
+			traceIdLocal.set(stack);
+		}
 
 		if (traceId != null) {
-			// traceIdLocal.remove();
-
-			if (stack == null) {
-				traceIdLocal.set(new TraceIDStack());
-			}
-
-			traceIdLocal.get().clear();
-
+			stack.clear();
 			spanMap.remove(traceId);
 			return true;
 		}
@@ -193,7 +195,8 @@ public final class Trace {
 		Span span = spanMap.update(traceId, spanUpdater);
 
 		if (span.isExistsAnnotationType(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationType(Annotation.ServerSend.getCode())) {
-			spanMap.remove(traceId);
+			// remove current context threadId from stack
+			removeCurrentTraceIdFromStack();
 			logSpan(span);
 		}
 	}

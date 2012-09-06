@@ -64,7 +64,7 @@ public class MySQLConnectionImplModifierTest {
         Assert.assertEquals(connectionList.size(), 0);
         logger.info("connection size:" + connectionList.size());
 
-        Trace.removeTraceId();
+        Trace.removeCurrentTraceIdFromStack();
     }
 
 }

@@ -55,7 +55,8 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 		Trace.record(Annotation.ServerSend, StopWatch.stopAndGetElapsed("InvokeMethodInterceptor-starttime"));
 		RequestTracer.endTransaction();
 		
-		Trace.removeTraceId();
+		// TODO: I'v changed point of removing. Trace.mutate()
+		// Trace.removeTraceId();
 	}
 
 	/**
