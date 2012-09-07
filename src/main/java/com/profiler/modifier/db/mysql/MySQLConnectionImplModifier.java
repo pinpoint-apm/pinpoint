@@ -34,9 +34,6 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		checkLibrary(classLoader, javassistClassName);
 		try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
-            if (mysqlConnection == null) {
-                return null;
-            }
 
             Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
             Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
@@ -49,39 +46,39 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("getInstance", params, createConnection);
             mysqlConnection.addInterceptor("close", null, closeConnection);
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
-            mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, createStatement);
+            mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
 			printClassConvertComplete(javassistClassName);
 
 			return mysqlConnection.toBytecode();
 		} catch (InstrumentException e) {
             if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
+			    logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
+            return null;
 		}
-		return null;
 	}
 
 
-	private void updateCreateStatementMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("createStatement", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
-	}
-
-	private void updateGetInstanceMethod(CtClass cc) throws Exception {
-		CtClass[] params = new CtClass[5];
-		params[0] = classPool.getCtClass("java.lang.String");
-		params[1] = classPool.getCtClass("int");
-		params[2] = classPool.getCtClass("java.util.Properties");
-		params[3] = classPool.getCtClass("java.lang.String");
-		params[4] = classPool.getCtClass("java.lang.String");
-		CtMethod method = cc.getDeclaredMethod("getInstance", params);
-
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
-	}
-
-	private void updateCloseMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
-	}
+//	private void updateCreateStatementMethod(CtClass cc) throws Exception {
+//		CtMethod method = cc.getDeclaredMethod("createStatement", null);
+//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
+//	}
+//
+//	private void updateGetInstanceMethod(CtClass cc) throws Exception {
+//		CtClass[] params = new CtClass[5];
+//		params[0] = classPool.getCtClass("java.lang.String");
+//		params[1] = classPool.getCtClass("int");
+//		params[2] = classPool.getCtClass("java.util.Properties");
+//		params[3] = classPool.getCtClass("java.lang.String");
+//		params[4] = classPool.getCtClass("java.lang.String");
+//		CtMethod method = cc.getDeclaredMethod("getInstance", params);
+//
+//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
+//	}
+//
+//	private void updateCloseMethod(CtClass cc) throws Exception {
+//		CtMethod method = cc.getDeclaredMethod("close", null);
+//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
+//	}
 }

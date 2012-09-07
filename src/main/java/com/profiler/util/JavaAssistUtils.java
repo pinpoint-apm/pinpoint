@@ -1,6 +1,7 @@
 package com.profiler.util;
 
-import javassist.CtClass;
+import javassist.*;
+import javassist.bytecode.Descriptor;
 
 public class JavaAssistUtils {
     private final static String NULL = "()";
@@ -43,4 +44,49 @@ public class JavaAssistUtils {
         sb.append(")");
         return sb.toString();
     }
+
+    public static String getParameterDescription(String[] params) {
+        if(params == null) {
+            return NULL;
+        }
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("(");
+        int end = params.length - 1;
+        for (int i = 0; i < params.length; i++) {
+            sb.append(params[i]);
+            if (i < end) {
+                sb.append(", ");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public static CtClass[] getCtParameter(String[] args, ClassPool pool) throws NotFoundException {
+		if (args == null) {
+			return null;
+		}
+		CtClass[] params = new CtClass[args.length];
+		for (int i = 0; i < args.length; i++) {
+			params[i] = pool.getCtClass(args[i]);
+		}
+		return params;
+	}
+
+    public CtMethod findAllMethod(CtClass ctClass, String methodName, String[] args) throws NotFoundException {
+        CtClass[] params = getCtParameter(args, ctClass.getClassPool());
+        String paramDescriptor = Descriptor.ofParameters(params);
+        CtMethod[] methods = ctClass.getMethods();
+        for (CtMethod method : methods) {
+            if(method.getName().equals(methodName) && method.getMethodInfo2().getDescriptor().startsWith(paramDescriptor)) {
+                return method;
+            }
+        }
+        throw new NotFoundException(methodName+ "(..) is not found in " + ctClass.getName());
+    }
+
+    public static boolean isStaticBehavior(CtBehavior behavior) {
+		int modifiers = behavior.getModifiers();
+		return java.lang.reflect.Modifier.isStatic(modifiers);
+	}
 }

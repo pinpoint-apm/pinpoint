@@ -42,7 +42,7 @@ public class InterceptorRegistry {
             // 로직이 잘못되었을 경우 에러가 발생하지 않도록 더미를 리턴.
             return DUMMY;
         }
-        return index[key];
+        return interceptor;
 	}
 
 	public static int addInterceptor(Interceptor interceptor) {

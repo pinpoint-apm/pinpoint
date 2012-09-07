@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
+import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
 	public String getTargetClass() {
 		return "com/mysql/jdbc/PreparedStatement";
+        // 상속관계일 경우 byte코드를 수정할 객체를 타겟으로해야 됨.
+//        return "com/mysql/jdbc/JDBC4PreparedStatement";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -36,9 +39,16 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
             Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.PreparedStatementMethodInterceptor");
+            preparedStatement.addInterceptor("executeQuery", null, interceptor);
 
-            preparedStatement.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, interceptor);
+            preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.String");
+
+            return preparedStatement.toBytecode();
         } catch (InstrumentException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+			    logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+            }
             return null;
         }
 
@@ -53,7 +63,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 //		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 //		aClass.addInterceptor("executeQuery", null, interceptor);
 
-		return changeMethod(javassistClassName, classFileBuffer);
+//		return changeMethod(javassistClassName, classFileBuffer);
 	}
 
 	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {

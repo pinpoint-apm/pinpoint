@@ -73,7 +73,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 	@Override
 	public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
         if (logger.isLoggable(Level.INFO)) {
-			logger.info("defineClass classLoader:" + classLoader + " class:" + defineClass);
+			logger.info("defineClass class:" + defineClass + " cl:" + classLoader);
 		}
 
 		try {
@@ -96,7 +96,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             // 재귀하면서 최하위부터 로드
             defineNestedClass(nested, classLoader, protectedDomain);
             if (logger.isLoggable(Level.INFO)) {
-                logger.info("defineNestedClass classLoader:" + classLoader + " class:" + nested.getName());
+                logger.info("defineNestedClass class:" + nested.getName() + " cl:" + classLoader);
             }
             nested.toClass(classLoader, protectedDomain);
         }

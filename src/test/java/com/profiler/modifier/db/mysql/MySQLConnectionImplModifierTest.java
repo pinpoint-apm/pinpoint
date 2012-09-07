@@ -7,9 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -29,6 +27,8 @@ public class MySQLConnectionImplModifierTest {
         MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor());
         loader.addModifier(statementModifier);
 
+        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor());
+        loader.addModifier(preparedStatementModifier);
 
 //        loader.delegateLoadingOf(ConnectionTrace.class.getName());
 
@@ -56,15 +56,28 @@ public class MySQLConnectionImplModifierTest {
         Assert.assertEquals(connectionList.size(), 1);
         logger.info("connection size:" + connectionList.size());
 
-        Statement statement = connect.createStatement();
-        statement.executeQuery("select 1");
-        statement.close();
+        statement(connect);
+
+        preparedStatement(connect);
 
         connect.close();
         Assert.assertEquals(connectionList.size(), 0);
         logger.info("connection size:" + connectionList.size());
 
         Trace.removeCurrentTraceIdFromStack();
+    }
+
+    private void statement(Connection connect) throws SQLException {
+        Statement statement = connect.createStatement();
+        statement.executeQuery("select 1");
+        statement.close();
+    }
+
+    private void preparedStatement(Connection connect) throws SQLException {
+        PreparedStatement preparedStatement = connect.prepareStatement("select 1");
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.close();
+        preparedStatement.close();
     }
 
 }

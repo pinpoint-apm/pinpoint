@@ -16,7 +16,7 @@ public class CloseConnectionInterceptor implements StaticBeforeInterceptor {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
-
+        // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.
 		if (target instanceof Connection) {
 			ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
 			connectionTrace.closeConnection((Connection) target);

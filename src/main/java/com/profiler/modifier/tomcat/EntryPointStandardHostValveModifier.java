@@ -48,7 +48,7 @@ public class EntryPointStandardHostValveModifier extends AbstractModifier {
             aClass.addInterceptor("invoke", new String[] { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, interceptor);
             return aClass.toBytecode();
         } catch (InstrumentException e) {
-            logger.log(Level.WARNING, "modify fail Cause:" + e.getMessage(), e);
+            logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
             return null;
         }
     }

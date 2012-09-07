@@ -18,8 +18,7 @@ public class CreateConnectionInterceptor implements StaticAfterInterceptor {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
-
-		if (InterceptorUtils.isThrowable(result)) {
+		if (!InterceptorUtils.isSuccess(result)) {
 			return;
 		}
 

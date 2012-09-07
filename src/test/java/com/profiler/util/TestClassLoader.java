@@ -54,6 +54,7 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(Trace.class.getName());
         this.delegateLoadingOf(Annotation.class.getName());
         this.delegateLoadingOf(StopWatch.class.getName());
+        this.delegateLoadingOf(MetaObject.class.getName());
     }
 
     @Override
