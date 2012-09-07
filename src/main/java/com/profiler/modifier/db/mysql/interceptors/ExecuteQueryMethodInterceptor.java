@@ -4,7 +4,9 @@ import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
+import com.profiler.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -19,12 +21,12 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 
 	private final Logger logger = Logger.getLogger(ExecuteQueryMethodInterceptor.class.getName());
 
-	private final MetaObject getUrl = new MetaObject("", "__getUrl");
+	private final MetaObject<String> getUrl = new MetaObject("", "__getUrl");
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (logger.isLoggable(Level.INFO)) {
-			logger.info("before " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 
 		if (Trace.getCurrentTraceId() == null) {
@@ -58,7 +60,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
     @Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 
 		if (Trace.getCurrentTraceId() == null) {
@@ -66,6 +68,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 		}
 		
 		Trace.traceBlockBegin();
+        Trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteQueryMethodInterceptor"));
 		Trace.traceBlockEnd();
 	}

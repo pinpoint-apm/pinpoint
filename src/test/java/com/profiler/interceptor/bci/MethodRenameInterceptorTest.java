@@ -21,7 +21,7 @@ public class MethodRenameInterceptorTest {
             } else {
                 // add timing interceptor to the class
                 addTiming(clas, methodName);
-                clas.writeFile();
+                clas.writeFile("debug");
                 System.out.println("Added timing to method " + objectName + "." + methodName);
 
             }

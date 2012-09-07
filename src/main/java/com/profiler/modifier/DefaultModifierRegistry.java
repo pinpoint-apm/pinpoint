@@ -30,6 +30,7 @@ import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
 public class DefaultModifierRegistry implements ModifierRegistry {
 	// TODO 혹시 동시성을 고려 해야 되는지 검토.
+    // 왠간해서는 동시성 상황이 안나올것으로 보임.
 	private Map<String, Modifier> registry = new HashMap<String, Modifier>();
 
 	private final ByteCodeInstrumentor byteCodeInstrumentor;
@@ -102,7 +103,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addMsSqlDriver() {
-		Map<String, Modifier> registry = this.registry;
+
 		Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(byteCodeInstrumentor);
 		addModifier(mssqlConnectionModifier);
 
@@ -118,7 +119,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addOracleDriver() {
-		Map<String, Modifier> registry = this.registry;
+
 		// TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
 		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor);
 		addModifier(oraclePreparedStatementModifier);
@@ -131,7 +132,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addCubridDriver() {
-		Map<String, Modifier> registry = this.registry;
+
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier cubridStatementModifier = new CubridStatementModifier(byteCodeInstrumentor);
 		addModifier(cubridStatementModifier);
@@ -147,7 +148,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addDbcpDriver() {
-		Map<String, Modifier> registry = this.registry;
+
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor);
 		addModifier(dbcpBasicDataSourceModifier);

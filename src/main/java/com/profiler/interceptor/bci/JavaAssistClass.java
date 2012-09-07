@@ -100,9 +100,9 @@ public class JavaAssistClass implements InstrumentClass {
                 ctClass.addMethod(getterMethod);
             }
         } catch (NotFoundException e) {
-            throw new InstrumentException("addTraceVariable fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(variableName + " addTraceVariable fail. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            throw new InstrumentException("addTraceVariable fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(variableName + " addTraceVariable fail. Cause:" + e.getMessage(), e);
         }
     }
 
@@ -172,11 +172,12 @@ public class JavaAssistClass implements InstrumentClass {
         String target = getTarget(behavior);
 		String returnType = getReturnType(behavior);
         String parameterTypeString = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
+        String parameter = getParameter(behavior);
 
         CodeBuilder after = new CodeBuilder();
 		after.begin();
         after.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-        after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args, %5$s);", target, ctClass.getName(), methodName, parameterTypeString, returnType);
+        after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s);", target, ctClass.getName(), methodName, parameterTypeString, parameter,returnType);
 		after.end();
 		String buildAfter = after.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -188,7 +189,7 @@ public class JavaAssistClass implements InstrumentClass {
 		CodeBuilder catchCode = new CodeBuilder();
 		catchCode.begin();
         catchCode.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-        catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args, $e);", target, ctClass.getName(), methodName, parameterTypeString);
+        catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameter);
 		catchCode.append("  throw $e;");
 		catchCode.end();
 		String buildCatch = catchCode.toString();
@@ -222,13 +223,15 @@ public class JavaAssistClass implements InstrumentClass {
 
 
 	private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior) throws CannotCompileException, NotFoundException {
-		CodeBuilder code = new CodeBuilder();
-		code.begin();
-        code.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticBeforeInterceptor.class.getName(), id);
 		String target = getTarget(behavior);
         // 인터셉터 호출시 최대한 연산량을 줄이기 위해서 정보는 가능한 정적 데이터로 생성한다.
         String parameterDescription = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
-        code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", $args);", target, ctClass.getName(), methodName, parameterDescription);
+        String parameter = getParameter(behavior);
+
+        CodeBuilder code = new CodeBuilder();
+		code.begin();
+        code.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticBeforeInterceptor.class.getName(), id);
+        code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameter);
 		code.end();
 		String buildBefore = code.toString();
 		if (logger.isLoggable(Level.INFO)) {
@@ -242,7 +245,15 @@ public class JavaAssistClass implements InstrumentClass {
 		}
 	}
 
-	public boolean addDebugLogBeforeAfterMethod() {
+    private String getParameter(CtBehavior behavior) throws NotFoundException {
+        CtClass[] parameterTypes = behavior.getParameterTypes();
+        if (parameterTypes.length == 0) {
+            return "null";
+        }
+        return "$args";
+    }
+
+    public boolean addDebugLogBeforeAfterMethod() {
 		String className = this.ctClass.getName();
 		LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
 		int id = InterceptorRegistry.addInterceptor(loggingInterceptor);

@@ -34,7 +34,7 @@ public class JavaAssistClassTest {
         Assert.assertEquals(interceptor.call, 1);
         Assert.assertEquals(interceptor.className, "com.profiler.interceptor.bci.TestObject");
         Assert.assertEquals(interceptor.methodName, methodName);
-        Assert.assertEquals(interceptor.args.length, 0);
+        Assert.assertEquals(interceptor.args, null);
         Assert.assertEquals(interceptor.target, testObject);
         
     }
@@ -62,7 +62,7 @@ public class JavaAssistClassTest {
         Assert.assertEquals(callaInterceptor.call, 1);
         Assert.assertEquals(callaInterceptor.className, "com.profiler.interceptor.bci.TestObject2");
         Assert.assertEquals(callaInterceptor.methodName, callA);
-        Assert.assertEquals(callaInterceptor.args.length, 0);
+        Assert.assertNull(callaInterceptor.args);
         Assert.assertEquals(callaInterceptor.target, testObject);
         Assert.assertEquals(callaInterceptor.result, result);
 
@@ -72,7 +72,7 @@ public class JavaAssistClassTest {
         Assert.assertEquals(callbInterceptor.call, 1);
         Assert.assertEquals(callbInterceptor.className, "com.profiler.interceptor.bci.TestObject2");
         Assert.assertEquals(callbInterceptor.methodName, callB);
-        Assert.assertEquals(callbInterceptor.args.length, 0);
+        Assert.assertNull(callbInterceptor.args);
         Assert.assertEquals(callbInterceptor.target, testObject);
         Assert.assertNull(callbInterceptor.result);
 

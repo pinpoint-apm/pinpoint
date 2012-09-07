@@ -2,11 +2,10 @@ package com.profiler.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MetaObject {
+public class MetaObject<R> {
 
     private final Logger logger = Logger.getLogger(MetaObject.class.getName());
 
@@ -15,20 +14,20 @@ public class MetaObject {
     // 이것을 class loading시 정적 타임에서 생성해 둘수 없는가?
     private Method methodRef;
 
-    private Object defaultReturnValue = null;
+    private R defaultReturnValue = null;
 
     public MetaObject(String methodName, Class... args) {
         this.methodName = methodName;
         this.args = args;
     }
 
-    public MetaObject(Object defaultReturnValue, String methodName, Class... args) {
+    public MetaObject(R defaultReturnValue, String methodName, Class... args) {
         this.methodName = methodName;
         this.args = args;
         this.defaultReturnValue = defaultReturnValue;
     }
 
-    public Object invoke(Object target, Object... args) {
+    public R invoke(Object target, Object... args) {
         if (target == null) {
             return defaultReturnValue;
         }
@@ -43,12 +42,12 @@ public class MetaObject {
         return invoke(method, target, args);
     }
 
-    private Object invoke(Method method, Object target, Object[] args) {
+    private R invoke(Method method, Object target, Object[] args) {
         if (method == null) {
             return defaultReturnValue;
         }
         try {
-            return method.invoke(target, args);
+            return (R) method.invoke(target, args);
         } catch (IllegalAccessException e) {
             logger.log(Level.WARNING, "invoke fail", e);
             return defaultReturnValue;
@@ -60,9 +59,9 @@ public class MetaObject {
 
     private Method getMethod(Class aClass) {
         try {
-            return aClass.getDeclaredMethod(this.methodName, this.args);
+            return aClass.getMethod(this.methodName, this.args);
         } catch (NoSuchMethodException e) {
-            logger.warning(this.methodName + Arrays.toString(this.args) + " not found cls:" + aClass);
+            logger.warning(this.methodName + JavaAssistUtils.getParameterDescription(this.args) + " not found cls:" + aClass);
             return null;
         }
     }

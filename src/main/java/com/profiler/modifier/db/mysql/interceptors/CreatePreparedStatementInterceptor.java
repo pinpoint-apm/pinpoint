@@ -5,6 +5,7 @@ import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
+import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class CreatePreparedStatementInterceptor implements StaticAfterIntercepto
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
         if(!InterceptorUtils.isSuccess(result)) {
             return;
