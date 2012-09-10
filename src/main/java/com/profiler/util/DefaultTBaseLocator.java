@@ -20,6 +20,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
 			return new RequestDataListThriftDTO();
 		case REQUEST_THRIFT_DTO:
 			return new RequestThriftDTO();
+		case SPAN:
+			return new Span();
 		}
 		throw new IllegalArgumentException("Unsupported type:" + type);
 	}
