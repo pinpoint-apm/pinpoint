@@ -1,4 +1,4 @@
-package com.profiler.data.read;
+package com.profiler.data.reader;
 
 import java.util.Date;
 import java.util.List;

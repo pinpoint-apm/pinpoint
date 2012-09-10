@@ -1,4 +1,4 @@
-package com.profiler.data.read;
+package com.profiler.data.reader;
 
 import java.net.DatagramPacket;
 
@@ -9,10 +9,10 @@ import com.profiler.config.TomcatProfilerReceiverConfig;
 import com.profiler.config.TomcatProfilerReceiverConstant;
 import com.profiler.dto.JVMInfoThriftDTO;
 
-public class ReadJVMData implements ReadHandler {
-	private static final Logger logger = Logger.getLogger(ReadJVMData.class.getName());
+public class JVMDataReader implements Reader {
+	private static final Logger logger = Logger.getLogger(JVMDataReader.class.getName());
 	
-	public ReadJVMData() {
+	public JVMDataReader() {
 	}
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
