@@ -1,4 +1,4 @@
-namespace java com.profiler.context.gen
+namespace java com.profiler.common.dto.thrift
 
 const string CLIENT_SEND = "CS"
 const string CLIENT_RECV = "CR"
@@ -24,7 +24,7 @@ struct BinaryAnnotation {
 }
 
 struct Span {
-  1: string agent
+  1: string agentID
   2: i64 timestamp,
   3: i64 mostTraceID
   4: i64 leastTraceID

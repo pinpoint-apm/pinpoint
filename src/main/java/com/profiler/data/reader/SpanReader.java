@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 
-import com.profiler.context.gen.Span;
+import com.profiler.common.dto.thrift.Span;
 
 public class SpanReader implements Reader {
 	private static final Logger logger = Logger.getLogger(SpanReader.class.getName());

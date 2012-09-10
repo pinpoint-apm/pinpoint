@@ -1,11 +1,11 @@
-package com.profiler.util;
+package com.profiler.common.util;
 
 import org.apache.thrift.TBase;
 
-import com.profiler.context.gen.Span;
-import com.profiler.dto.JVMInfoThriftDTO;
-import com.profiler.dto.RequestDataListThriftDTO;
-import com.profiler.dto.RequestThriftDTO;
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
+import com.profiler.common.dto.thrift.RequestThriftDTO;
+import com.profiler.common.dto.thrift.Span;
 
 public class DefaultTBaseLocator implements TBaseLocator {
 

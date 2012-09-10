@@ -6,14 +6,14 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.profiler.context.gen.Span;
+import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.util.DefaultTBaseLocator;
+import com.profiler.common.util.HeaderTBaseDeserializer;
+import com.profiler.common.util.TBaseLocator;
 import com.profiler.data.reader.JVMDataReader;
 import com.profiler.data.reader.Reader;
 import com.profiler.data.reader.SpanReader;
 import com.profiler.dto.JVMInfoThriftDTO;
-import com.profiler.util.DefaultTBaseLocator;
-import com.profiler.util.HeaderTBaseDeserializer;
-import com.profiler.util.TBaseLocator;
 
 public class MulplexedPacketHandler implements Runnable {
 

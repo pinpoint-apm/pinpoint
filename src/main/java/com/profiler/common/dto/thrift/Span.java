@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package com.profiler.context.gen;
+package com.profiler.common.dto.thrift;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
 
-  private static final org.apache.thrift.protocol.TField AGENT_FIELD_DESC = new org.apache.thrift.protocol.TField("agent", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentID", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceID", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceID", org.apache.thrift.protocol.TType.I64, (short)4);
@@ -47,7 +47,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     schemes.put(TupleScheme.class, new SpanTupleSchemeFactory());
   }
 
-  private String agent; // required
+  private String agentID; // required
   private long timestamp; // required
   private long mostTraceID; // required
   private long leastTraceID; // required
@@ -60,7 +60,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    AGENT((short)1, "agent"),
+    AGENT_ID((short)1, "agentID"),
     TIMESTAMP((short)2, "timestamp"),
     MOST_TRACE_ID((short)3, "mostTraceID"),
     LEAST_TRACE_ID((short)4, "leastTraceID"),
@@ -84,8 +84,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // AGENT
-          return AGENT;
+        case 1: // AGENT_ID
+          return AGENT_ID;
         case 2: // TIMESTAMP
           return TIMESTAMP;
         case 3: // MOST_TRACE_ID
@@ -155,7 +155,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.AGENT, new org.apache.thrift.meta_data.FieldMetaData("agent", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
@@ -187,7 +187,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   }
 
   public Span(
-    String agent,
+    String agentID,
     long timestamp,
     long mostTraceID,
     long leastTraceID,
@@ -197,7 +197,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     List<BinaryAnnotation> binaryAnnotations)
   {
     this();
-    this.agent = agent;
+    this.agentID = agentID;
     this.timestamp = timestamp;
     setTimestampIsSet(true);
     this.mostTraceID = mostTraceID;
@@ -217,8 +217,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public Span(Span other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    if (other.isSetAgent()) {
-      this.agent = other.agent;
+    if (other.isSetAgentID()) {
+      this.agentID = other.agentID;
     }
     this.timestamp = other.timestamp;
     this.mostTraceID = other.mostTraceID;
@@ -251,7 +251,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   @Override
   public void clear() {
-    this.agent = null;
+    this.agentID = null;
     setTimestampIsSet(false);
     this.timestamp = 0;
     setMostTraceIDIsSet(false);
@@ -269,26 +269,26 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   }
 
-  public String getAgent() {
-    return this.agent;
+  public String getAgentID() {
+    return this.agentID;
   }
 
-  public void setAgent(String agent) {
-    this.agent = agent;
+  public void setAgentID(String agentID) {
+    this.agentID = agentID;
   }
 
-  public void unsetAgent() {
-    this.agent = null;
+  public void unsetAgentID() {
+    this.agentID = null;
   }
 
-  /** Returns true if field agent is set (has been assigned a value) and false otherwise */
-  public boolean isSetAgent() {
-    return this.agent != null;
+  /** Returns true if field agentID is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentID() {
+    return this.agentID != null;
   }
 
-  public void setAgentIsSet(boolean value) {
+  public void setAgentIDIsSet(boolean value) {
     if (!value) {
-      this.agent = null;
+      this.agentID = null;
     }
   }
 
@@ -525,11 +525,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case AGENT:
+    case AGENT_ID:
       if (value == null) {
-        unsetAgent();
+        unsetAgentID();
       } else {
-        setAgent((String)value);
+        setAgentID((String)value);
       }
       break;
 
@@ -610,8 +610,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case AGENT:
-      return getAgent();
+    case AGENT_ID:
+      return getAgentID();
 
     case TIMESTAMP:
       return Long.valueOf(getTimestamp());
@@ -651,8 +651,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
 
     switch (field) {
-    case AGENT:
-      return isSetAgent();
+    case AGENT_ID:
+      return isSetAgentID();
     case TIMESTAMP:
       return isSetTimestamp();
     case MOST_TRACE_ID:
@@ -688,12 +688,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (that == null)
       return false;
 
-    boolean this_present_agent = true && this.isSetAgent();
-    boolean that_present_agent = true && that.isSetAgent();
-    if (this_present_agent || that_present_agent) {
-      if (!(this_present_agent && that_present_agent))
+    boolean this_present_agentID = true && this.isSetAgentID();
+    boolean that_present_agentID = true && that.isSetAgentID();
+    if (this_present_agentID || that_present_agentID) {
+      if (!(this_present_agentID && that_present_agentID))
         return false;
-      if (!this.agent.equals(that.agent))
+      if (!this.agentID.equals(that.agentID))
         return false;
     }
 
@@ -794,12 +794,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     int lastComparison = 0;
     Span typedOther = (Span)other;
 
-    lastComparison = Boolean.valueOf(isSetAgent()).compareTo(typedOther.isSetAgent());
+    lastComparison = Boolean.valueOf(isSetAgentID()).compareTo(typedOther.isSetAgentID());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetAgent()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agent, typedOther.agent);
+    if (isSetAgentID()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentID, typedOther.agentID);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -914,11 +914,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     StringBuilder sb = new StringBuilder("Span(");
     boolean first = true;
 
-    sb.append("agent:");
-    if (this.agent == null) {
+    sb.append("agentID:");
+    if (this.agentID == null) {
       sb.append("null");
     } else {
-      sb.append(this.agent);
+      sb.append(this.agentID);
     }
     first = false;
     if (!first) sb.append(", ");
@@ -1017,10 +1017,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           break;
         }
         switch (schemeField.id) {
-          case 1: // AGENT
+          case 1: // AGENT_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.agent = iprot.readString();
-              struct.setAgentIsSet(true);
+              struct.agentID = iprot.readString();
+              struct.setAgentIDIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1132,9 +1132,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.agent != null) {
-        oprot.writeFieldBegin(AGENT_FIELD_DESC);
-        oprot.writeString(struct.agent);
+      if (struct.agentID != null) {
+        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+        oprot.writeString(struct.agentID);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
@@ -1206,7 +1206,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     public void write(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetAgent()) {
+      if (struct.isSetAgentID()) {
         optionals.set(0);
       }
       if (struct.isSetTimestamp()) {
@@ -1237,8 +1237,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         optionals.set(9);
       }
       oprot.writeBitSet(optionals, 10);
-      if (struct.isSetAgent()) {
-        oprot.writeString(struct.agent);
+      if (struct.isSetAgentID()) {
+        oprot.writeString(struct.agentID);
       }
       if (struct.isSetTimestamp()) {
         oprot.writeI64(struct.timestamp);
@@ -1286,8 +1286,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(10);
       if (incoming.get(0)) {
-        struct.agent = iprot.readString();
-        struct.setAgentIsSet(true);
+        struct.agentID = iprot.readString();
+        struct.setAgentIDIsSet(true);
       }
       if (incoming.get(1)) {
         struct.timestamp = iprot.readI64();

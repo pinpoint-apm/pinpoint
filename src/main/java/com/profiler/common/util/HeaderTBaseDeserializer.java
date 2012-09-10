@@ -1,11 +1,10 @@
-package com.profiler.util;
+package com.profiler.common.util;
 
-import com.profiler.dto.Header;
+import com.profiler.common.dto.Header;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TMemoryInputTransport;
 
 public class HeaderTBaseDeserializer {
