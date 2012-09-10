@@ -7,8 +7,8 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
+import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.config.TomcatProfilerReceiverConfig;
-import com.profiler.dto.AgentInfoDTO;
 
 @Deprecated
 public class TCPReceiver extends Thread {

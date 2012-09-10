@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 
-import com.profiler.dto.JVMInfoThriftDTO;
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 
 public class JVMDataReader implements Reader {
 	private static final Logger logger = Logger.getLogger(JVMDataReader.class.getName());
