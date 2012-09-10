@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
+import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.context.Trace;
 import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.TestClassLoader;
@@ -60,6 +61,8 @@ public class MySQLConnectionImplModifierTest {
 
         preparedStatement(connect);
 
+        preparedStatement2(connect);
+
         connect.close();
         Assert.assertEquals(connectionList.size(), 0);
         logger.info("connection size:" + connectionList.size());
@@ -80,4 +83,20 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement.close();
     }
 
+    private void preparedStatement2(Connection connect) throws SQLException {
+        PreparedStatement preparedStatement = connect.prepareStatement("select * from member where id = ?");
+        preparedStatement.setInt(1, 1);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.close();
+        preparedStatement.close();
+    }
+
+    @Test
+    public void test() throws NoSuchMethodException {
+//        setNClob(int parameterIndex, NClob value)
+        JDBC4PreparedStatement.class.getDeclaredMethod("setNClob", new Class[]{int.class, NClob.class});
+//        JDBC4PreparedStatement.class.getDeclaredMethod("addBatch", null);
+        JDBC4PreparedStatement.class.getMethod("addBatch", null);
+
+    }
 }

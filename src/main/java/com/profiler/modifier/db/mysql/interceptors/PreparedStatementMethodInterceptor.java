@@ -9,7 +9,7 @@ import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
-import java.util.Arrays;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +19,9 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
 
     private final MetaObject<String> getSql = new MetaObject("__getSql");
     private final MetaObject<String> getUrl = new MetaObject("__getUrl");
+    private final MetaObject<List<String>> getBindValue = new MetaObject("__getBindValue");
+    private final MetaObject<List<String>> setBindValue = new MetaObject("__setBindValue");
+
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -30,10 +33,16 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
         }
         Trace.traceBlockBegin();
         try {
-            String url = getUrl.invoke(target, null);
+            String url = getUrl.invoke(target);
             Trace.recordRpcName("mysql", url);
-            String sql = getSql.invoke(target, null);
-            Trace.recordAttibute("Query", sql);
+
+            String sql = getSql.invoke(target);
+            Trace.recordAttibute("PreparedStatement", sql);
+
+            List<String> bindValue = getBindValue.invoke(target);
+            Trace.recordAttibute("BindValue", bindValue.toString());
+            setBindValue.invoke(target, Collections.synchronizedList(new LinkedList<String>()));
+
             Trace.record(Annotation.ClientSend);
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

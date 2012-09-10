@@ -43,7 +43,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 			Trace.recordRpcName("mysql", url);
 
 			if (args.length > 0) {
-				Trace.recordAttibute("Query", args[0]);
+				Trace.recordAttibute("Statement", args[0]);
 			}
 
 			Trace.record(Annotation.ClientSend);

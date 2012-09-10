@@ -28,6 +28,17 @@ public class JavaAssistUtils {
         return sb.toString();
     }
 
+    public static String[] getParameterType(Class[] paramsClass) {
+        if (paramsClass == null) {
+            return null;
+        }
+        String[] paramsString = new String[paramsClass.length];
+        for (int i = 0; i < paramsClass.length; i++) {
+            paramsString[i] = paramsClass[i].getName();
+        }
+        return paramsString;
+    }
+
     public static String getParameterDescription(Class[] params) {
         if(params == null) {
             return NULL;

@@ -8,11 +8,11 @@ public interface InstrumentClass {
 
 	boolean insertCodeAfterMethod(String methodName, String[] args, String code);
 
-    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException;
+    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
-	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException;
+	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
-	int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException;
+	int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
 	boolean addDebugLogBeforeAfterMethod();
 
@@ -22,7 +22,9 @@ public interface InstrumentClass {
 
 	Class<?> toClass() throws InstrumentException ;
 
-	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException ;
+    void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
+
+	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
 
 	boolean insertCodeAfterConstructor(String[] args, String code);
 
