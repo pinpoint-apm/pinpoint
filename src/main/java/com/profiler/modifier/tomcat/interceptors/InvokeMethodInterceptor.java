@@ -41,7 +41,7 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 			Trace.recordAttibute("http.params", parameters);
 			Trace.record(Annotation.ServerRecv);
 
-			RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
+//			RequestTracer.startTransaction(requestURL, clientIP, System.currentTimeMillis(), parameters);
 
 			StopWatch.start("InvokeMethodInterceptor-starttime");
 		} catch (Exception e) {
@@ -53,7 +53,7 @@ public class InvokeMethodInterceptor implements StaticAroundInterceptor {
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		// TODO result 가 Exception 타입일경우 호출 실패임.
 		Trace.record(Annotation.ServerSend, StopWatch.stopAndGetElapsed("InvokeMethodInterceptor-starttime"));
-		RequestTracer.endTransaction();
+//		RequestTracer.endTransaction();
 		
 		// TODO: I'v changed point of removing. Trace.mutate()
 		// Trace.removeTraceId();
