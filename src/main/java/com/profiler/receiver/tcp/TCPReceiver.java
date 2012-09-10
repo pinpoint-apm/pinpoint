@@ -29,6 +29,8 @@ public class TCPReceiver extends Thread {
 				ObjectInputStream objStream = new ObjectInputStream(stream);
 				Object receivedObj = objStream.readObject();
 
+				System.out.println("Got a data. " + receivedObj);
+
 				if (receivedObj instanceof AgentInfoDTO) {
 					// AgentTableCreator creator = new AgentTableCreator();
 					// creator.setAgentTable((AgentInfoDTO) receivedObj);
