@@ -7,9 +7,6 @@ import org.apache.thrift.TBase;
 
 import com.profiler.config.TomcatProfilerReceiverConfig;
 import com.profiler.config.TomcatProfilerReceiverConstant;
-import com.profiler.data.manager.RequestTransactionDataManager;
-import com.profiler.data.store.hbase.put2.DataPutThreadManager;
-import com.profiler.data.store.hbase.put2.PutJVMData;
 import com.profiler.dto.JVMInfoThriftDTO;
 
 public class ReadJVMData implements ReadHandler {
@@ -26,15 +23,15 @@ public class ReadJVMData implements ReadHandler {
             JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 			int agentHashCode=dto.getAgentHashCode();
 			
-			RequestTransactionDataManager manager=new RequestTransactionDataManager();
-			manager.addAgentHashCode(agentHashCode);
+//			RequestTransactionDataManager manager=new RequestTransactionDataManager();
+//			manager.addAgentHashCode(agentHashCode);
 			
 			checkAgentHashCodeIsExist(agentHashCode);
 
 			if(TomcatProfilerReceiverConfig.USING_HBASE) {
 				String tableName=TomcatProfilerReceiverConstant.HBASE_JVM_TABLE+"_"+agentHashCode;
-				PutJVMData put=new PutJVMData(tableName,dto);
-				DataPutThreadManager.execute(put);
+//				PutJVMData put=new PutJVMData(tableName,dto);
+//				DataPutThreadManager.execute(put);
 			}
 			
 		} catch (Exception e) {
@@ -42,11 +39,11 @@ public class ReadJVMData implements ReadHandler {
 		}
 	}
 	private void checkAgentHashCodeIsExist(int agentHashCode) {
-		RequestTransactionDataManager manager=new RequestTransactionDataManager();
-		if(manager.containsAgentInfo(agentHashCode)) {
-//			System.out.println(ReceivedDataManager.getAgentVO(agentHashCode));
-		} else {
-//			System.out.println("No host data");
-		}
+//		RequestTransactionDataManager manager=new RequestTransactionDataManager();
+//		if(manager.containsAgentInfo(agentHashCode)) {
+////			System.out.println(ReceivedDataManager.getAgentVO(agentHashCode));
+//		} else {
+////			System.out.println("No host data");
+//		}
 	}
 }

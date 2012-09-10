@@ -55,24 +55,24 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     schemes.put(TupleScheme.class, new RequestThriftDTOTupleSchemeFactory());
   }
 
-  public int hostHashCode; // required
-  public int requestHashCode; // required
-  public int dataType; // required
-  public long dataTime; // required
-  public long threadCPUTime; // required
-  public long threadUserTime; // required
-  public String requestID; // optional
-  public String requestURL; // optional
-  public String clientIP; // optional
-  public String extraData1; // optional
-  public String extraData2; // optional
-  public String extraData3; // optional
-  public int extraInt1; // optional
-  public int extraInt2; // optional
-  public int extraInt3; // optional
-  public long extraLong1; // optional
-  public long extraLong2; // optional
-  public long extraLong3; // optional
+  private int hostHashCode; // required
+  private int requestHashCode; // required
+  private int dataType; // required
+  private long dataTime; // required
+  private long threadCPUTime; // required
+  private long threadUserTime; // required
+  private String requestID; // optional
+  private String requestURL; // optional
+  private String clientIP; // optional
+  private String extraData1; // optional
+  private String extraData2; // optional
+  private String extraData3; // optional
+  private int extraInt1; // optional
+  private int extraInt2; // optional
+  private int extraInt3; // optional
+  private long extraLong1; // optional
+  private long extraLong2; // optional
+  private long extraLong3; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -347,10 +347,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.hostHashCode;
   }
 
-  public RequestThriftDTO setHostHashCode(int hostHashCode) {
+  public void setHostHashCode(int hostHashCode) {
     this.hostHashCode = hostHashCode;
     setHostHashCodeIsSet(true);
-    return this;
   }
 
   public void unsetHostHashCode() {
@@ -370,10 +369,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.requestHashCode;
   }
 
-  public RequestThriftDTO setRequestHashCode(int requestHashCode) {
+  public void setRequestHashCode(int requestHashCode) {
     this.requestHashCode = requestHashCode;
     setRequestHashCodeIsSet(true);
-    return this;
   }
 
   public void unsetRequestHashCode() {
@@ -393,10 +391,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.dataType;
   }
 
-  public RequestThriftDTO setDataType(int dataType) {
+  public void setDataType(int dataType) {
     this.dataType = dataType;
     setDataTypeIsSet(true);
-    return this;
   }
 
   public void unsetDataType() {
@@ -416,10 +413,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.dataTime;
   }
 
-  public RequestThriftDTO setDataTime(long dataTime) {
+  public void setDataTime(long dataTime) {
     this.dataTime = dataTime;
     setDataTimeIsSet(true);
-    return this;
   }
 
   public void unsetDataTime() {
@@ -439,10 +435,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.threadCPUTime;
   }
 
-  public RequestThriftDTO setThreadCPUTime(long threadCPUTime) {
+  public void setThreadCPUTime(long threadCPUTime) {
     this.threadCPUTime = threadCPUTime;
     setThreadCPUTimeIsSet(true);
-    return this;
   }
 
   public void unsetThreadCPUTime() {
@@ -462,10 +457,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.threadUserTime;
   }
 
-  public RequestThriftDTO setThreadUserTime(long threadUserTime) {
+  public void setThreadUserTime(long threadUserTime) {
     this.threadUserTime = threadUserTime;
     setThreadUserTimeIsSet(true);
-    return this;
   }
 
   public void unsetThreadUserTime() {
@@ -485,9 +479,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.requestID;
   }
 
-  public RequestThriftDTO setRequestID(String requestID) {
+  public void setRequestID(String requestID) {
     this.requestID = requestID;
-    return this;
   }
 
   public void unsetRequestID() {
@@ -509,9 +502,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.requestURL;
   }
 
-  public RequestThriftDTO setRequestURL(String requestURL) {
+  public void setRequestURL(String requestURL) {
     this.requestURL = requestURL;
-    return this;
   }
 
   public void unsetRequestURL() {
@@ -533,9 +525,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.clientIP;
   }
 
-  public RequestThriftDTO setClientIP(String clientIP) {
+  public void setClientIP(String clientIP) {
     this.clientIP = clientIP;
-    return this;
   }
 
   public void unsetClientIP() {
@@ -557,9 +548,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraData1;
   }
 
-  public RequestThriftDTO setExtraData1(String extraData1) {
+  public void setExtraData1(String extraData1) {
     this.extraData1 = extraData1;
-    return this;
   }
 
   public void unsetExtraData1() {
@@ -581,9 +571,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraData2;
   }
 
-  public RequestThriftDTO setExtraData2(String extraData2) {
+  public void setExtraData2(String extraData2) {
     this.extraData2 = extraData2;
-    return this;
   }
 
   public void unsetExtraData2() {
@@ -605,9 +594,8 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraData3;
   }
 
-  public RequestThriftDTO setExtraData3(String extraData3) {
+  public void setExtraData3(String extraData3) {
     this.extraData3 = extraData3;
-    return this;
   }
 
   public void unsetExtraData3() {
@@ -629,10 +617,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraInt1;
   }
 
-  public RequestThriftDTO setExtraInt1(int extraInt1) {
+  public void setExtraInt1(int extraInt1) {
     this.extraInt1 = extraInt1;
     setExtraInt1IsSet(true);
-    return this;
   }
 
   public void unsetExtraInt1() {
@@ -652,10 +639,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraInt2;
   }
 
-  public RequestThriftDTO setExtraInt2(int extraInt2) {
+  public void setExtraInt2(int extraInt2) {
     this.extraInt2 = extraInt2;
     setExtraInt2IsSet(true);
-    return this;
   }
 
   public void unsetExtraInt2() {
@@ -675,10 +661,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraInt3;
   }
 
-  public RequestThriftDTO setExtraInt3(int extraInt3) {
+  public void setExtraInt3(int extraInt3) {
     this.extraInt3 = extraInt3;
     setExtraInt3IsSet(true);
-    return this;
   }
 
   public void unsetExtraInt3() {
@@ -698,10 +683,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraLong1;
   }
 
-  public RequestThriftDTO setExtraLong1(long extraLong1) {
+  public void setExtraLong1(long extraLong1) {
     this.extraLong1 = extraLong1;
     setExtraLong1IsSet(true);
-    return this;
   }
 
   public void unsetExtraLong1() {
@@ -721,10 +705,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraLong2;
   }
 
-  public RequestThriftDTO setExtraLong2(long extraLong2) {
+  public void setExtraLong2(long extraLong2) {
     this.extraLong2 = extraLong2;
     setExtraLong2IsSet(true);
-    return this;
   }
 
   public void unsetExtraLong2() {
@@ -744,10 +727,9 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
     return this.extraLong3;
   }
 
-  public RequestThriftDTO setExtraLong3(long extraLong3) {
+  public void setExtraLong3(long extraLong3) {
     this.extraLong3 = extraLong3;
     setExtraLong3IsSet(true);
-    return this;
   }
 
   public void unsetExtraLong3() {
@@ -1723,8 +1705,6 @@ public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDT
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
       struct.validate();
     }
 

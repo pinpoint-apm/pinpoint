@@ -49,18 +49,18 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     schemes.put(TupleScheme.class, new JVMInfoThriftDTOTupleSchemeFactory());
   }
 
-  public int agentHashCode; // required
-  public long dataTime; // required
-  public int activeThreadCount; // required
-  public long gc1Count; // optional
-  public long gc1Time; // optional
-  public long gc2Count; // optional
-  public long gc2Time; // optional
-  public long heapUsed; // required
-  public long heapCommitted; // required
-  public long nonHeapUsed; // required
-  public long nonHeapCommitted; // required
-  public double processCPUTime; // optional
+  private int agentHashCode; // required
+  private long dataTime; // required
+  private int activeThreadCount; // required
+  private long gc1Count; // optional
+  private long gc1Time; // optional
+  private long gc2Count; // optional
+  private long gc2Time; // optional
+  private long heapUsed; // required
+  private long heapCommitted; // required
+  private long nonHeapUsed; // required
+  private long nonHeapCommitted; // required
+  private double processCPUTime; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -284,10 +284,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.agentHashCode;
   }
 
-  public JVMInfoThriftDTO setAgentHashCode(int agentHashCode) {
+  public void setAgentHashCode(int agentHashCode) {
     this.agentHashCode = agentHashCode;
     setAgentHashCodeIsSet(true);
-    return this;
   }
 
   public void unsetAgentHashCode() {
@@ -307,10 +306,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.dataTime;
   }
 
-  public JVMInfoThriftDTO setDataTime(long dataTime) {
+  public void setDataTime(long dataTime) {
     this.dataTime = dataTime;
     setDataTimeIsSet(true);
-    return this;
   }
 
   public void unsetDataTime() {
@@ -330,10 +328,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.activeThreadCount;
   }
 
-  public JVMInfoThriftDTO setActiveThreadCount(int activeThreadCount) {
+  public void setActiveThreadCount(int activeThreadCount) {
     this.activeThreadCount = activeThreadCount;
     setActiveThreadCountIsSet(true);
-    return this;
   }
 
   public void unsetActiveThreadCount() {
@@ -353,10 +350,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.gc1Count;
   }
 
-  public JVMInfoThriftDTO setGc1Count(long gc1Count) {
+  public void setGc1Count(long gc1Count) {
     this.gc1Count = gc1Count;
     setGc1CountIsSet(true);
-    return this;
   }
 
   public void unsetGc1Count() {
@@ -376,10 +372,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.gc1Time;
   }
 
-  public JVMInfoThriftDTO setGc1Time(long gc1Time) {
+  public void setGc1Time(long gc1Time) {
     this.gc1Time = gc1Time;
     setGc1TimeIsSet(true);
-    return this;
   }
 
   public void unsetGc1Time() {
@@ -399,10 +394,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.gc2Count;
   }
 
-  public JVMInfoThriftDTO setGc2Count(long gc2Count) {
+  public void setGc2Count(long gc2Count) {
     this.gc2Count = gc2Count;
     setGc2CountIsSet(true);
-    return this;
   }
 
   public void unsetGc2Count() {
@@ -422,10 +416,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.gc2Time;
   }
 
-  public JVMInfoThriftDTO setGc2Time(long gc2Time) {
+  public void setGc2Time(long gc2Time) {
     this.gc2Time = gc2Time;
     setGc2TimeIsSet(true);
-    return this;
   }
 
   public void unsetGc2Time() {
@@ -445,10 +438,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.heapUsed;
   }
 
-  public JVMInfoThriftDTO setHeapUsed(long heapUsed) {
+  public void setHeapUsed(long heapUsed) {
     this.heapUsed = heapUsed;
     setHeapUsedIsSet(true);
-    return this;
   }
 
   public void unsetHeapUsed() {
@@ -468,10 +460,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.heapCommitted;
   }
 
-  public JVMInfoThriftDTO setHeapCommitted(long heapCommitted) {
+  public void setHeapCommitted(long heapCommitted) {
     this.heapCommitted = heapCommitted;
     setHeapCommittedIsSet(true);
-    return this;
   }
 
   public void unsetHeapCommitted() {
@@ -491,10 +482,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.nonHeapUsed;
   }
 
-  public JVMInfoThriftDTO setNonHeapUsed(long nonHeapUsed) {
+  public void setNonHeapUsed(long nonHeapUsed) {
     this.nonHeapUsed = nonHeapUsed;
     setNonHeapUsedIsSet(true);
-    return this;
   }
 
   public void unsetNonHeapUsed() {
@@ -514,10 +504,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.nonHeapCommitted;
   }
 
-  public JVMInfoThriftDTO setNonHeapCommitted(long nonHeapCommitted) {
+  public void setNonHeapCommitted(long nonHeapCommitted) {
     this.nonHeapCommitted = nonHeapCommitted;
     setNonHeapCommittedIsSet(true);
-    return this;
   }
 
   public void unsetNonHeapCommitted() {
@@ -537,10 +526,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     return this.processCPUTime;
   }
 
-  public JVMInfoThriftDTO setProcessCPUTime(double processCPUTime) {
+  public void setProcessCPUTime(double processCPUTime) {
     this.processCPUTime = processCPUTime;
     setProcessCPUTimeIsSet(true);
-    return this;
   }
 
   public void unsetProcessCPUTime() {
@@ -1214,8 +1202,6 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
       struct.validate();
     }
 

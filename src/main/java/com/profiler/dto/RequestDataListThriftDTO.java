@@ -40,9 +40,9 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     schemes.put(TupleScheme.class, new RequestDataListThriftDTOTupleSchemeFactory());
   }
 
-  public int hostHashCode; // required
-  public int requestHashCode; // required
-  public List<RequestDataThriftDTO> requestDataList; // required
+  private int hostHashCode; // required
+  private int requestHashCode; // required
+  private List<RequestDataThriftDTO> requestDataList; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -176,10 +176,9 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     return this.hostHashCode;
   }
 
-  public RequestDataListThriftDTO setHostHashCode(int hostHashCode) {
+  public void setHostHashCode(int hostHashCode) {
     this.hostHashCode = hostHashCode;
     setHostHashCodeIsSet(true);
-    return this;
   }
 
   public void unsetHostHashCode() {
@@ -199,10 +198,9 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     return this.requestHashCode;
   }
 
-  public RequestDataListThriftDTO setRequestHashCode(int requestHashCode) {
+  public void setRequestHashCode(int requestHashCode) {
     this.requestHashCode = requestHashCode;
     setRequestHashCodeIsSet(true);
-    return this;
   }
 
   public void unsetRequestHashCode() {
@@ -237,9 +235,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     return this.requestDataList;
   }
 
-  public RequestDataListThriftDTO setRequestDataList(List<RequestDataThriftDTO> requestDataList) {
+  public void setRequestDataList(List<RequestDataThriftDTO> requestDataList) {
     this.requestDataList = requestDataList;
-    return this;
   }
 
   public void unsetRequestDataList() {
@@ -524,8 +521,6 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
       struct.validate();
     }
 
