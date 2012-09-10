@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
 
+import com.profiler.Agent;
+
 /**
  * 
  * @author netspider
@@ -119,9 +121,10 @@ public class Span {
 		return sb.toString();
 	}
 
-	public com.profiler.context.gen.Span toThrift() {
-		com.profiler.context.gen.Span span = new com.profiler.context.gen.Span();
+	public com.profiler.common.dto.thrift.Span toThrift() {
+		com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
+		span.setAgentID(String.valueOf(Agent.getInstance().getAgentHashCode()));
 		span.setTimestamp(createTime);
 		span.setMostTraceID(traceID.getId().getMostSignificantBits());
 		span.setLeastTraceID(traceID.getId().getLeastSignificantBits());
@@ -129,13 +132,13 @@ public class Span {
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 
-		List<com.profiler.context.gen.Annotation> annotationList = new ArrayList<com.profiler.context.gen.Annotation>(annotations.size());
+		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
 		for (HippoAnnotation a : annotations) {
 			annotationList.add(a.toThrift());
 		}
 		span.setAnnotations(annotationList);
 
-		List<com.profiler.context.gen.BinaryAnnotation> binaryAnnotationList = new ArrayList<com.profiler.context.gen.BinaryAnnotation>(binaryAnnotations.size());
+		List<com.profiler.common.dto.thrift.BinaryAnnotation> binaryAnnotationList = new ArrayList<com.profiler.common.dto.thrift.BinaryAnnotation>(binaryAnnotations.size());
 		for (HippoBinaryAnnotation a : binaryAnnotations) {
 			binaryAnnotationList.add(a.toThrift());
 		}

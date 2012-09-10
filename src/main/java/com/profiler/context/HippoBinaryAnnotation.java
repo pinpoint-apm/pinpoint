@@ -32,8 +32,8 @@ public class HippoBinaryAnnotation {
 		return sb.toString();
 	}
 
-	public com.profiler.context.gen.BinaryAnnotation toThrift() {
-		com.profiler.context.gen.BinaryAnnotation ann = new com.profiler.context.gen.BinaryAnnotation();
+	public com.profiler.common.dto.thrift.BinaryAnnotation toThrift() {
+		com.profiler.common.dto.thrift.BinaryAnnotation ann = new com.profiler.common.dto.thrift.BinaryAnnotation();
 
 		ann.setTimestamp(time);
 		ann.setKey(key);

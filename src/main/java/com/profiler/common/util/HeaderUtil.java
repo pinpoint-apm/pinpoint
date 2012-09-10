@@ -1,7 +1,7 @@
-package com.profiler.util;
+package com.profiler.common.util;
 
 
-import com.profiler.dto.Header;
+import com.profiler.common.dto.Header;
 
 public class HeaderUtil {
     public static boolean validateSignature(byte signature){

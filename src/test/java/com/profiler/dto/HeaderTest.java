@@ -2,6 +2,8 @@ package com.profiler.dto;
 
 import org.junit.Test;
 
+import com.profiler.common.dto.Header;
+
 import java.util.logging.Logger;
 
 public class HeaderTest {

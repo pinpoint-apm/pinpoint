@@ -38,8 +38,8 @@ public class HippoAnnotation {
 		return sb.toString();
 	}
 
-	public com.profiler.context.gen.Annotation toThrift() {
-		com.profiler.context.gen.Annotation ann = new com.profiler.context.gen.Annotation();
+	public com.profiler.common.dto.thrift.Annotation toThrift() {
+		com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
 
 		ann.setTimestamp(time);
 		ann.setValue(value);

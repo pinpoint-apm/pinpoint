@@ -14,7 +14,7 @@ public class EndPoint {
 		return "{ip=" + ip + ", port=" + port + "}";
 	}
 
-	public com.profiler.context.gen.Endpoint toThrift() {
-		return new com.profiler.context.gen.Endpoint(ip, (short) port);
+	public com.profiler.common.dto.thrift.Endpoint toThrift() {
+		return new com.profiler.common.dto.thrift.Endpoint(ip, (short) port);
 	}
 }

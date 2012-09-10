@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.profiler.Agent;
+import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
+import com.profiler.common.dto.thrift.RequestThriftDTO;
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.dto.RequestDataListThriftDTO;
-import com.profiler.dto.RequestThriftDTO;
 import com.profiler.sender.DataSender;
 import com.profiler.util.SystemUtils;
 

@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import com.profiler.dto.JVMInfoThriftDTO;
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.sender.DataSender;
 import com.profiler.trace.RequestTracer;
 import com.sun.management.OperatingSystemMXBean;

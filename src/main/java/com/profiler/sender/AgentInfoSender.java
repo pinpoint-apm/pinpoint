@@ -5,8 +5,8 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.config.TomcatProfilerConfig;
-import com.profiler.dto.AgentInfoDTO;
 
 public class AgentInfoSender extends Thread {
 

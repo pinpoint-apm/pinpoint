@@ -1,4 +1,4 @@
-package com.profiler.dto;
+package com.profiler.common.dto;
 
 import java.io.Serializable;
 import java.util.Map.Entry;

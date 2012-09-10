@@ -24,7 +24,7 @@ public class TomcatProfilerConstant {
 	// public static final int DATA_TYPE_NON_HEAP_MEMORY_STAT=1520;
 
 //	public static final String CLASS_NAME_REQUEST_TRACER = "com.profiler.trace.RequestTransactionTracer";
-	public static final String CLASS_NAME_REQUEST_THRIFT_DTO = "com.profiler.dto.RequestThriftDTO";
+	public static final String CLASS_NAME_REQUEST_THRIFT_DTO = "com.profiler.common.dto.thrift.RequestThriftDTO";
 //	public static final String CLASS_NAME_REQUEST_DATA_TRACER = "com.profiler.trace.RequestDataTracer";
 //	public static final String CLASS_NAME_AGENT_STATE_MANAGER = "com.profiler.thread.AgentStateManager";
 

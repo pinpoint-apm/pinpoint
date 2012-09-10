@@ -1,4 +1,4 @@
-package com.profiler.util;
+package com.profiler.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -10,7 +10,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
 
-import com.profiler.dto.Header;
+import com.profiler.common.dto.Header;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java

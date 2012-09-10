@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package com.profiler.dto;
+package com.profiler.common.dto.thrift;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -27,33 +27,43 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestDataThriftDTO, RequestDataThriftDTO._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestDataThriftDTO");
+public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDTO, RequestThriftDTO._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestThriftDTO");
 
-  private static final org.apache.thrift.protocol.TField DATA_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("dataType", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField DATA_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("dataHashCode", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField DATA_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("dataString", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData1", org.apache.thrift.protocol.TType.STRING, (short)5);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData2", org.apache.thrift.protocol.TType.STRING, (short)6);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData3", org.apache.thrift.protocol.TType.STRING, (short)7);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt1", org.apache.thrift.protocol.TType.I32, (short)8);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt2", org.apache.thrift.protocol.TType.I32, (short)9);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt3", org.apache.thrift.protocol.TType.I32, (short)10);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong1", org.apache.thrift.protocol.TType.I64, (short)11);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong2", org.apache.thrift.protocol.TType.I64, (short)12);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong3", org.apache.thrift.protocol.TType.I64, (short)13);
+  private static final org.apache.thrift.protocol.TField HOST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hostHashCode", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField REQUEST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("requestHashCode", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField DATA_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("dataType", org.apache.thrift.protocol.TType.I32, (short)3);
+  private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField THREAD_CPUTIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadCPUTime", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField THREAD_USER_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadUserTime", org.apache.thrift.protocol.TType.I64, (short)6);
+  private static final org.apache.thrift.protocol.TField REQUEST_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("requestID", org.apache.thrift.protocol.TType.STRING, (short)7);
+  private static final org.apache.thrift.protocol.TField REQUEST_URL_FIELD_DESC = new org.apache.thrift.protocol.TField("requestURL", org.apache.thrift.protocol.TType.STRING, (short)8);
+  private static final org.apache.thrift.protocol.TField CLIENT_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("clientIP", org.apache.thrift.protocol.TType.STRING, (short)9);
+  private static final org.apache.thrift.protocol.TField EXTRA_DATA1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData1", org.apache.thrift.protocol.TType.STRING, (short)10);
+  private static final org.apache.thrift.protocol.TField EXTRA_DATA2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData2", org.apache.thrift.protocol.TType.STRING, (short)11);
+  private static final org.apache.thrift.protocol.TField EXTRA_DATA3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData3", org.apache.thrift.protocol.TType.STRING, (short)12);
+  private static final org.apache.thrift.protocol.TField EXTRA_INT1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt1", org.apache.thrift.protocol.TType.I32, (short)13);
+  private static final org.apache.thrift.protocol.TField EXTRA_INT2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt2", org.apache.thrift.protocol.TType.I32, (short)14);
+  private static final org.apache.thrift.protocol.TField EXTRA_INT3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt3", org.apache.thrift.protocol.TType.I32, (short)15);
+  private static final org.apache.thrift.protocol.TField EXTRA_LONG1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong1", org.apache.thrift.protocol.TType.I64, (short)16);
+  private static final org.apache.thrift.protocol.TField EXTRA_LONG2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong2", org.apache.thrift.protocol.TType.I64, (short)17);
+  private static final org.apache.thrift.protocol.TField EXTRA_LONG3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong3", org.apache.thrift.protocol.TType.I64, (short)18);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new RequestDataThriftDTOStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new RequestDataThriftDTOTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new RequestThriftDTOStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new RequestThriftDTOTupleSchemeFactory());
   }
 
+  private int hostHashCode; // required
+  private int requestHashCode; // required
   private int dataType; // required
   private long dataTime; // required
-  private int dataHashCode; // optional
-  private String dataString; // optional
+  private long threadCPUTime; // required
+  private long threadUserTime; // required
+  private String requestID; // optional
+  private String requestURL; // optional
+  private String clientIP; // optional
   private String extraData1; // optional
   private String extraData2; // optional
   private String extraData3; // optional
@@ -66,19 +76,24 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    DATA_TYPE((short)1, "dataType"),
-    DATA_TIME((short)2, "dataTime"),
-    DATA_HASH_CODE((short)3, "dataHashCode"),
-    DATA_STRING((short)4, "dataString"),
-    EXTRA_DATA1((short)5, "extraData1"),
-    EXTRA_DATA2((short)6, "extraData2"),
-    EXTRA_DATA3((short)7, "extraData3"),
-    EXTRA_INT1((short)8, "extraInt1"),
-    EXTRA_INT2((short)9, "extraInt2"),
-    EXTRA_INT3((short)10, "extraInt3"),
-    EXTRA_LONG1((short)11, "extraLong1"),
-    EXTRA_LONG2((short)12, "extraLong2"),
-    EXTRA_LONG3((short)13, "extraLong3");
+    HOST_HASH_CODE((short)1, "hostHashCode"),
+    REQUEST_HASH_CODE((short)2, "requestHashCode"),
+    DATA_TYPE((short)3, "dataType"),
+    DATA_TIME((short)4, "dataTime"),
+    THREAD_CPUTIME((short)5, "threadCPUTime"),
+    THREAD_USER_TIME((short)6, "threadUserTime"),
+    REQUEST_ID((short)7, "requestID"),
+    REQUEST_URL((short)8, "requestURL"),
+    CLIENT_IP((short)9, "clientIP"),
+    EXTRA_DATA1((short)10, "extraData1"),
+    EXTRA_DATA2((short)11, "extraData2"),
+    EXTRA_DATA3((short)12, "extraData3"),
+    EXTRA_INT1((short)13, "extraInt1"),
+    EXTRA_INT2((short)14, "extraInt2"),
+    EXTRA_INT3((short)15, "extraInt3"),
+    EXTRA_LONG1((short)16, "extraLong1"),
+    EXTRA_LONG2((short)17, "extraLong2"),
+    EXTRA_LONG3((short)18, "extraLong3");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -93,31 +108,41 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // DATA_TYPE
+        case 1: // HOST_HASH_CODE
+          return HOST_HASH_CODE;
+        case 2: // REQUEST_HASH_CODE
+          return REQUEST_HASH_CODE;
+        case 3: // DATA_TYPE
           return DATA_TYPE;
-        case 2: // DATA_TIME
+        case 4: // DATA_TIME
           return DATA_TIME;
-        case 3: // DATA_HASH_CODE
-          return DATA_HASH_CODE;
-        case 4: // DATA_STRING
-          return DATA_STRING;
-        case 5: // EXTRA_DATA1
+        case 5: // THREAD_CPUTIME
+          return THREAD_CPUTIME;
+        case 6: // THREAD_USER_TIME
+          return THREAD_USER_TIME;
+        case 7: // REQUEST_ID
+          return REQUEST_ID;
+        case 8: // REQUEST_URL
+          return REQUEST_URL;
+        case 9: // CLIENT_IP
+          return CLIENT_IP;
+        case 10: // EXTRA_DATA1
           return EXTRA_DATA1;
-        case 6: // EXTRA_DATA2
+        case 11: // EXTRA_DATA2
           return EXTRA_DATA2;
-        case 7: // EXTRA_DATA3
+        case 12: // EXTRA_DATA3
           return EXTRA_DATA3;
-        case 8: // EXTRA_INT1
+        case 13: // EXTRA_INT1
           return EXTRA_INT1;
-        case 9: // EXTRA_INT2
+        case 14: // EXTRA_INT2
           return EXTRA_INT2;
-        case 10: // EXTRA_INT3
+        case 15: // EXTRA_INT3
           return EXTRA_INT3;
-        case 11: // EXTRA_LONG1
+        case 16: // EXTRA_LONG1
           return EXTRA_LONG1;
-        case 12: // EXTRA_LONG2
+        case 17: // EXTRA_LONG2
           return EXTRA_LONG2;
-        case 13: // EXTRA_LONG3
+        case 18: // EXTRA_LONG3
           return EXTRA_LONG3;
         default:
           return null;
@@ -159,27 +184,40 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
   }
 
   // isset id assignments
-  private static final int __DATATYPE_ISSET_ID = 0;
-  private static final int __DATATIME_ISSET_ID = 1;
-  private static final int __DATAHASHCODE_ISSET_ID = 2;
-  private static final int __EXTRAINT1_ISSET_ID = 3;
-  private static final int __EXTRAINT2_ISSET_ID = 4;
-  private static final int __EXTRAINT3_ISSET_ID = 5;
-  private static final int __EXTRALONG1_ISSET_ID = 6;
-  private static final int __EXTRALONG2_ISSET_ID = 7;
-  private static final int __EXTRALONG3_ISSET_ID = 8;
-  private BitSet __isset_bit_vector = new BitSet(9);
-  private _Fields optionals[] = {_Fields.DATA_HASH_CODE,_Fields.DATA_STRING,_Fields.EXTRA_DATA1,_Fields.EXTRA_DATA2,_Fields.EXTRA_DATA3,_Fields.EXTRA_INT1,_Fields.EXTRA_INT2,_Fields.EXTRA_INT3,_Fields.EXTRA_LONG1,_Fields.EXTRA_LONG2,_Fields.EXTRA_LONG3};
+  private static final int __HOSTHASHCODE_ISSET_ID = 0;
+  private static final int __REQUESTHASHCODE_ISSET_ID = 1;
+  private static final int __DATATYPE_ISSET_ID = 2;
+  private static final int __DATATIME_ISSET_ID = 3;
+  private static final int __THREADCPUTIME_ISSET_ID = 4;
+  private static final int __THREADUSERTIME_ISSET_ID = 5;
+  private static final int __EXTRAINT1_ISSET_ID = 6;
+  private static final int __EXTRAINT2_ISSET_ID = 7;
+  private static final int __EXTRAINT3_ISSET_ID = 8;
+  private static final int __EXTRALONG1_ISSET_ID = 9;
+  private static final int __EXTRALONG2_ISSET_ID = 10;
+  private static final int __EXTRALONG3_ISSET_ID = 11;
+  private BitSet __isset_bit_vector = new BitSet(12);
+  private _Fields optionals[] = {_Fields.REQUEST_ID,_Fields.REQUEST_URL,_Fields.CLIENT_IP,_Fields.EXTRA_DATA1,_Fields.EXTRA_DATA2,_Fields.EXTRA_DATA3,_Fields.EXTRA_INT1,_Fields.EXTRA_INT2,_Fields.EXTRA_INT3,_Fields.EXTRA_LONG1,_Fields.EXTRA_LONG2,_Fields.EXTRA_LONG3};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.HOST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hostHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.REQUEST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("requestHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.DATA_TYPE, new org.apache.thrift.meta_data.FieldMetaData("dataType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.DATA_TIME, new org.apache.thrift.meta_data.FieldMetaData("dataTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.DATA_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("dataHashCode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.DATA_STRING, new org.apache.thrift.meta_data.FieldMetaData("dataString", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.THREAD_CPUTIME, new org.apache.thrift.meta_data.FieldMetaData("threadCPUTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.THREAD_USER_TIME, new org.apache.thrift.meta_data.FieldMetaData("threadUserTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.REQUEST_ID, new org.apache.thrift.meta_data.FieldMetaData("requestID", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.REQUEST_URL, new org.apache.thrift.meta_data.FieldMetaData("requestURL", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.CLIENT_IP, new org.apache.thrift.meta_data.FieldMetaData("clientIP", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.EXTRA_DATA1, new org.apache.thrift.meta_data.FieldMetaData("extraData1", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -200,34 +238,55 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     tmpMap.put(_Fields.EXTRA_LONG3, new org.apache.thrift.meta_data.FieldMetaData("extraLong3", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(RequestDataThriftDTO.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(RequestThriftDTO.class, metaDataMap);
   }
 
-  public RequestDataThriftDTO() {
+  public RequestThriftDTO() {
   }
 
-  public RequestDataThriftDTO(
+  public RequestThriftDTO(
+    int hostHashCode,
+    int requestHashCode,
     int dataType,
-    long dataTime)
+    long dataTime,
+    long threadCPUTime,
+    long threadUserTime)
   {
     this();
+    this.hostHashCode = hostHashCode;
+    setHostHashCodeIsSet(true);
+    this.requestHashCode = requestHashCode;
+    setRequestHashCodeIsSet(true);
     this.dataType = dataType;
     setDataTypeIsSet(true);
     this.dataTime = dataTime;
     setDataTimeIsSet(true);
+    this.threadCPUTime = threadCPUTime;
+    setThreadCPUTimeIsSet(true);
+    this.threadUserTime = threadUserTime;
+    setThreadUserTimeIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public RequestDataThriftDTO(RequestDataThriftDTO other) {
+  public RequestThriftDTO(RequestThriftDTO other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
+    this.hostHashCode = other.hostHashCode;
+    this.requestHashCode = other.requestHashCode;
     this.dataType = other.dataType;
     this.dataTime = other.dataTime;
-    this.dataHashCode = other.dataHashCode;
-    if (other.isSetDataString()) {
-      this.dataString = other.dataString;
+    this.threadCPUTime = other.threadCPUTime;
+    this.threadUserTime = other.threadUserTime;
+    if (other.isSetRequestID()) {
+      this.requestID = other.requestID;
+    }
+    if (other.isSetRequestURL()) {
+      this.requestURL = other.requestURL;
+    }
+    if (other.isSetClientIP()) {
+      this.clientIP = other.clientIP;
     }
     if (other.isSetExtraData1()) {
       this.extraData1 = other.extraData1;
@@ -246,19 +305,27 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     this.extraLong3 = other.extraLong3;
   }
 
-  public RequestDataThriftDTO deepCopy() {
-    return new RequestDataThriftDTO(this);
+  public RequestThriftDTO deepCopy() {
+    return new RequestThriftDTO(this);
   }
 
   @Override
   public void clear() {
+    setHostHashCodeIsSet(false);
+    this.hostHashCode = 0;
+    setRequestHashCodeIsSet(false);
+    this.requestHashCode = 0;
     setDataTypeIsSet(false);
     this.dataType = 0;
     setDataTimeIsSet(false);
     this.dataTime = 0;
-    setDataHashCodeIsSet(false);
-    this.dataHashCode = 0;
-    this.dataString = null;
+    setThreadCPUTimeIsSet(false);
+    this.threadCPUTime = 0;
+    setThreadUserTimeIsSet(false);
+    this.threadUserTime = 0;
+    this.requestID = null;
+    this.requestURL = null;
+    this.clientIP = null;
     this.extraData1 = null;
     this.extraData2 = null;
     this.extraData3 = null;
@@ -274,6 +341,50 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     this.extraLong2 = 0;
     setExtraLong3IsSet(false);
     this.extraLong3 = 0;
+  }
+
+  public int getHostHashCode() {
+    return this.hostHashCode;
+  }
+
+  public void setHostHashCode(int hostHashCode) {
+    this.hostHashCode = hostHashCode;
+    setHostHashCodeIsSet(true);
+  }
+
+  public void unsetHostHashCode() {
+    __isset_bit_vector.clear(__HOSTHASHCODE_ISSET_ID);
+  }
+
+  /** Returns true if field hostHashCode is set (has been assigned a value) and false otherwise */
+  public boolean isSetHostHashCode() {
+    return __isset_bit_vector.get(__HOSTHASHCODE_ISSET_ID);
+  }
+
+  public void setHostHashCodeIsSet(boolean value) {
+    __isset_bit_vector.set(__HOSTHASHCODE_ISSET_ID, value);
+  }
+
+  public int getRequestHashCode() {
+    return this.requestHashCode;
+  }
+
+  public void setRequestHashCode(int requestHashCode) {
+    this.requestHashCode = requestHashCode;
+    setRequestHashCodeIsSet(true);
+  }
+
+  public void unsetRequestHashCode() {
+    __isset_bit_vector.clear(__REQUESTHASHCODE_ISSET_ID);
+  }
+
+  /** Returns true if field requestHashCode is set (has been assigned a value) and false otherwise */
+  public boolean isSetRequestHashCode() {
+    return __isset_bit_vector.get(__REQUESTHASHCODE_ISSET_ID);
+  }
+
+  public void setRequestHashCodeIsSet(boolean value) {
+    __isset_bit_vector.set(__REQUESTHASHCODE_ISSET_ID, value);
   }
 
   public int getDataType() {
@@ -320,48 +431,116 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     __isset_bit_vector.set(__DATATIME_ISSET_ID, value);
   }
 
-  public int getDataHashCode() {
-    return this.dataHashCode;
+  public long getThreadCPUTime() {
+    return this.threadCPUTime;
   }
 
-  public void setDataHashCode(int dataHashCode) {
-    this.dataHashCode = dataHashCode;
-    setDataHashCodeIsSet(true);
+  public void setThreadCPUTime(long threadCPUTime) {
+    this.threadCPUTime = threadCPUTime;
+    setThreadCPUTimeIsSet(true);
   }
 
-  public void unsetDataHashCode() {
-    __isset_bit_vector.clear(__DATAHASHCODE_ISSET_ID);
+  public void unsetThreadCPUTime() {
+    __isset_bit_vector.clear(__THREADCPUTIME_ISSET_ID);
   }
 
-  /** Returns true if field dataHashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetDataHashCode() {
-    return __isset_bit_vector.get(__DATAHASHCODE_ISSET_ID);
+  /** Returns true if field threadCPUTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetThreadCPUTime() {
+    return __isset_bit_vector.get(__THREADCPUTIME_ISSET_ID);
   }
 
-  public void setDataHashCodeIsSet(boolean value) {
-    __isset_bit_vector.set(__DATAHASHCODE_ISSET_ID, value);
+  public void setThreadCPUTimeIsSet(boolean value) {
+    __isset_bit_vector.set(__THREADCPUTIME_ISSET_ID, value);
   }
 
-  public String getDataString() {
-    return this.dataString;
+  public long getThreadUserTime() {
+    return this.threadUserTime;
   }
 
-  public void setDataString(String dataString) {
-    this.dataString = dataString;
+  public void setThreadUserTime(long threadUserTime) {
+    this.threadUserTime = threadUserTime;
+    setThreadUserTimeIsSet(true);
   }
 
-  public void unsetDataString() {
-    this.dataString = null;
+  public void unsetThreadUserTime() {
+    __isset_bit_vector.clear(__THREADUSERTIME_ISSET_ID);
   }
 
-  /** Returns true if field dataString is set (has been assigned a value) and false otherwise */
-  public boolean isSetDataString() {
-    return this.dataString != null;
+  /** Returns true if field threadUserTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetThreadUserTime() {
+    return __isset_bit_vector.get(__THREADUSERTIME_ISSET_ID);
   }
 
-  public void setDataStringIsSet(boolean value) {
+  public void setThreadUserTimeIsSet(boolean value) {
+    __isset_bit_vector.set(__THREADUSERTIME_ISSET_ID, value);
+  }
+
+  public String getRequestID() {
+    return this.requestID;
+  }
+
+  public void setRequestID(String requestID) {
+    this.requestID = requestID;
+  }
+
+  public void unsetRequestID() {
+    this.requestID = null;
+  }
+
+  /** Returns true if field requestID is set (has been assigned a value) and false otherwise */
+  public boolean isSetRequestID() {
+    return this.requestID != null;
+  }
+
+  public void setRequestIDIsSet(boolean value) {
     if (!value) {
-      this.dataString = null;
+      this.requestID = null;
+    }
+  }
+
+  public String getRequestURL() {
+    return this.requestURL;
+  }
+
+  public void setRequestURL(String requestURL) {
+    this.requestURL = requestURL;
+  }
+
+  public void unsetRequestURL() {
+    this.requestURL = null;
+  }
+
+  /** Returns true if field requestURL is set (has been assigned a value) and false otherwise */
+  public boolean isSetRequestURL() {
+    return this.requestURL != null;
+  }
+
+  public void setRequestURLIsSet(boolean value) {
+    if (!value) {
+      this.requestURL = null;
+    }
+  }
+
+  public String getClientIP() {
+    return this.clientIP;
+  }
+
+  public void setClientIP(String clientIP) {
+    this.clientIP = clientIP;
+  }
+
+  public void unsetClientIP() {
+    this.clientIP = null;
+  }
+
+  /** Returns true if field clientIP is set (has been assigned a value) and false otherwise */
+  public boolean isSetClientIP() {
+    return this.clientIP != null;
+  }
+
+  public void setClientIPIsSet(boolean value) {
+    if (!value) {
+      this.clientIP = null;
     }
   }
 
@@ -568,6 +747,22 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
+    case HOST_HASH_CODE:
+      if (value == null) {
+        unsetHostHashCode();
+      } else {
+        setHostHashCode((Integer)value);
+      }
+      break;
+
+    case REQUEST_HASH_CODE:
+      if (value == null) {
+        unsetRequestHashCode();
+      } else {
+        setRequestHashCode((Integer)value);
+      }
+      break;
+
     case DATA_TYPE:
       if (value == null) {
         unsetDataType();
@@ -584,19 +779,43 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
       }
       break;
 
-    case DATA_HASH_CODE:
+    case THREAD_CPUTIME:
       if (value == null) {
-        unsetDataHashCode();
+        unsetThreadCPUTime();
       } else {
-        setDataHashCode((Integer)value);
+        setThreadCPUTime((Long)value);
       }
       break;
 
-    case DATA_STRING:
+    case THREAD_USER_TIME:
       if (value == null) {
-        unsetDataString();
+        unsetThreadUserTime();
       } else {
-        setDataString((String)value);
+        setThreadUserTime((Long)value);
+      }
+      break;
+
+    case REQUEST_ID:
+      if (value == null) {
+        unsetRequestID();
+      } else {
+        setRequestID((String)value);
+      }
+      break;
+
+    case REQUEST_URL:
+      if (value == null) {
+        unsetRequestURL();
+      } else {
+        setRequestURL((String)value);
+      }
+      break;
+
+    case CLIENT_IP:
+      if (value == null) {
+        unsetClientIP();
+      } else {
+        setClientIP((String)value);
       }
       break;
 
@@ -677,17 +896,32 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
+    case HOST_HASH_CODE:
+      return Integer.valueOf(getHostHashCode());
+
+    case REQUEST_HASH_CODE:
+      return Integer.valueOf(getRequestHashCode());
+
     case DATA_TYPE:
       return Integer.valueOf(getDataType());
 
     case DATA_TIME:
       return Long.valueOf(getDataTime());
 
-    case DATA_HASH_CODE:
-      return Integer.valueOf(getDataHashCode());
+    case THREAD_CPUTIME:
+      return Long.valueOf(getThreadCPUTime());
 
-    case DATA_STRING:
-      return getDataString();
+    case THREAD_USER_TIME:
+      return Long.valueOf(getThreadUserTime());
+
+    case REQUEST_ID:
+      return getRequestID();
+
+    case REQUEST_URL:
+      return getRequestURL();
+
+    case CLIENT_IP:
+      return getClientIP();
 
     case EXTRA_DATA1:
       return getExtraData1();
@@ -727,14 +961,24 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     }
 
     switch (field) {
+    case HOST_HASH_CODE:
+      return isSetHostHashCode();
+    case REQUEST_HASH_CODE:
+      return isSetRequestHashCode();
     case DATA_TYPE:
       return isSetDataType();
     case DATA_TIME:
       return isSetDataTime();
-    case DATA_HASH_CODE:
-      return isSetDataHashCode();
-    case DATA_STRING:
-      return isSetDataString();
+    case THREAD_CPUTIME:
+      return isSetThreadCPUTime();
+    case THREAD_USER_TIME:
+      return isSetThreadUserTime();
+    case REQUEST_ID:
+      return isSetRequestID();
+    case REQUEST_URL:
+      return isSetRequestURL();
+    case CLIENT_IP:
+      return isSetClientIP();
     case EXTRA_DATA1:
       return isSetExtraData1();
     case EXTRA_DATA2:
@@ -761,14 +1005,32 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof RequestDataThriftDTO)
-      return this.equals((RequestDataThriftDTO)that);
+    if (that instanceof RequestThriftDTO)
+      return this.equals((RequestThriftDTO)that);
     return false;
   }
 
-  public boolean equals(RequestDataThriftDTO that) {
+  public boolean equals(RequestThriftDTO that) {
     if (that == null)
       return false;
+
+    boolean this_present_hostHashCode = true;
+    boolean that_present_hostHashCode = true;
+    if (this_present_hostHashCode || that_present_hostHashCode) {
+      if (!(this_present_hostHashCode && that_present_hostHashCode))
+        return false;
+      if (this.hostHashCode != that.hostHashCode)
+        return false;
+    }
+
+    boolean this_present_requestHashCode = true;
+    boolean that_present_requestHashCode = true;
+    if (this_present_requestHashCode || that_present_requestHashCode) {
+      if (!(this_present_requestHashCode && that_present_requestHashCode))
+        return false;
+      if (this.requestHashCode != that.requestHashCode)
+        return false;
+    }
 
     boolean this_present_dataType = true;
     boolean that_present_dataType = true;
@@ -788,21 +1050,48 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
         return false;
     }
 
-    boolean this_present_dataHashCode = true && this.isSetDataHashCode();
-    boolean that_present_dataHashCode = true && that.isSetDataHashCode();
-    if (this_present_dataHashCode || that_present_dataHashCode) {
-      if (!(this_present_dataHashCode && that_present_dataHashCode))
+    boolean this_present_threadCPUTime = true;
+    boolean that_present_threadCPUTime = true;
+    if (this_present_threadCPUTime || that_present_threadCPUTime) {
+      if (!(this_present_threadCPUTime && that_present_threadCPUTime))
         return false;
-      if (this.dataHashCode != that.dataHashCode)
+      if (this.threadCPUTime != that.threadCPUTime)
         return false;
     }
 
-    boolean this_present_dataString = true && this.isSetDataString();
-    boolean that_present_dataString = true && that.isSetDataString();
-    if (this_present_dataString || that_present_dataString) {
-      if (!(this_present_dataString && that_present_dataString))
+    boolean this_present_threadUserTime = true;
+    boolean that_present_threadUserTime = true;
+    if (this_present_threadUserTime || that_present_threadUserTime) {
+      if (!(this_present_threadUserTime && that_present_threadUserTime))
         return false;
-      if (!this.dataString.equals(that.dataString))
+      if (this.threadUserTime != that.threadUserTime)
+        return false;
+    }
+
+    boolean this_present_requestID = true && this.isSetRequestID();
+    boolean that_present_requestID = true && that.isSetRequestID();
+    if (this_present_requestID || that_present_requestID) {
+      if (!(this_present_requestID && that_present_requestID))
+        return false;
+      if (!this.requestID.equals(that.requestID))
+        return false;
+    }
+
+    boolean this_present_requestURL = true && this.isSetRequestURL();
+    boolean that_present_requestURL = true && that.isSetRequestURL();
+    if (this_present_requestURL || that_present_requestURL) {
+      if (!(this_present_requestURL && that_present_requestURL))
+        return false;
+      if (!this.requestURL.equals(that.requestURL))
+        return false;
+    }
+
+    boolean this_present_clientIP = true && this.isSetClientIP();
+    boolean that_present_clientIP = true && that.isSetClientIP();
+    if (this_present_clientIP || that_present_clientIP) {
+      if (!(this_present_clientIP && that_present_clientIP))
+        return false;
+      if (!this.clientIP.equals(that.clientIP))
         return false;
     }
 
@@ -895,14 +1184,34 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     return 0;
   }
 
-  public int compareTo(RequestDataThriftDTO other) {
+  public int compareTo(RequestThriftDTO other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    RequestDataThriftDTO typedOther = (RequestDataThriftDTO)other;
+    RequestThriftDTO typedOther = (RequestThriftDTO)other;
 
+    lastComparison = Boolean.valueOf(isSetHostHashCode()).compareTo(typedOther.isSetHostHashCode());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetHostHashCode()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hostHashCode, typedOther.hostHashCode);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRequestHashCode()).compareTo(typedOther.isSetRequestHashCode());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequestHashCode()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestHashCode, typedOther.requestHashCode);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetDataType()).compareTo(typedOther.isSetDataType());
     if (lastComparison != 0) {
       return lastComparison;
@@ -923,22 +1232,52 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetDataHashCode()).compareTo(typedOther.isSetDataHashCode());
+    lastComparison = Boolean.valueOf(isSetThreadCPUTime()).compareTo(typedOther.isSetThreadCPUTime());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetDataHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataHashCode, typedOther.dataHashCode);
+    if (isSetThreadCPUTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadCPUTime, typedOther.threadCPUTime);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetDataString()).compareTo(typedOther.isSetDataString());
+    lastComparison = Boolean.valueOf(isSetThreadUserTime()).compareTo(typedOther.isSetThreadUserTime());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetDataString()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataString, typedOther.dataString);
+    if (isSetThreadUserTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadUserTime, typedOther.threadUserTime);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRequestID()).compareTo(typedOther.isSetRequestID());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequestID()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestID, typedOther.requestID);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRequestURL()).compareTo(typedOther.isSetRequestURL());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequestURL()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestURL, typedOther.requestURL);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetClientIP()).compareTo(typedOther.isSetClientIP());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetClientIP()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.clientIP, typedOther.clientIP);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1050,9 +1389,17 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("RequestDataThriftDTO(");
+    StringBuilder sb = new StringBuilder("RequestThriftDTO(");
     boolean first = true;
 
+    sb.append("hostHashCode:");
+    sb.append(this.hostHashCode);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("requestHashCode:");
+    sb.append(this.requestHashCode);
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("dataType:");
     sb.append(this.dataType);
     first = false;
@@ -1060,19 +1407,41 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     sb.append("dataTime:");
     sb.append(this.dataTime);
     first = false;
-    if (isSetDataHashCode()) {
+    if (!first) sb.append(", ");
+    sb.append("threadCPUTime:");
+    sb.append(this.threadCPUTime);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("threadUserTime:");
+    sb.append(this.threadUserTime);
+    first = false;
+    if (isSetRequestID()) {
       if (!first) sb.append(", ");
-      sb.append("dataHashCode:");
-      sb.append(this.dataHashCode);
-      first = false;
-    }
-    if (isSetDataString()) {
-      if (!first) sb.append(", ");
-      sb.append("dataString:");
-      if (this.dataString == null) {
+      sb.append("requestID:");
+      if (this.requestID == null) {
         sb.append("null");
       } else {
-        sb.append(this.dataString);
+        sb.append(this.requestID);
+      }
+      first = false;
+    }
+    if (isSetRequestURL()) {
+      if (!first) sb.append(", ");
+      sb.append("requestURL:");
+      if (this.requestURL == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.requestURL);
+      }
+      first = false;
+    }
+    if (isSetClientIP()) {
+      if (!first) sb.append(", ");
+      sb.append("clientIP:");
+      if (this.clientIP == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.clientIP);
       }
       first = false;
     }
@@ -1168,15 +1537,15 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     }
   }
 
-  private static class RequestDataThriftDTOStandardSchemeFactory implements SchemeFactory {
-    public RequestDataThriftDTOStandardScheme getScheme() {
-      return new RequestDataThriftDTOStandardScheme();
+  private static class RequestThriftDTOStandardSchemeFactory implements SchemeFactory {
+    public RequestThriftDTOStandardScheme getScheme() {
+      return new RequestThriftDTOStandardScheme();
     }
   }
 
-  private static class RequestDataThriftDTOStandardScheme extends StandardScheme<RequestDataThriftDTO> {
+  private static class RequestThriftDTOStandardScheme extends StandardScheme<RequestThriftDTO> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, RequestDataThriftDTO struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1186,7 +1555,23 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
           break;
         }
         switch (schemeField.id) {
-          case 1: // DATA_TYPE
+          case 1: // HOST_HASH_CODE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.hostHashCode = iprot.readI32();
+              struct.setHostHashCodeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // REQUEST_HASH_CODE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.requestHashCode = iprot.readI32();
+              struct.setRequestHashCodeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // DATA_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.dataType = iprot.readI32();
               struct.setDataTypeIsSet(true);
@@ -1194,7 +1579,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // DATA_TIME
+          case 4: // DATA_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.dataTime = iprot.readI64();
               struct.setDataTimeIsSet(true);
@@ -1202,23 +1587,47 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // DATA_HASH_CODE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.dataHashCode = iprot.readI32();
-              struct.setDataHashCodeIsSet(true);
+          case 5: // THREAD_CPUTIME
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.threadCPUTime = iprot.readI64();
+              struct.setThreadCPUTimeIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // DATA_STRING
+          case 6: // THREAD_USER_TIME
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.threadUserTime = iprot.readI64();
+              struct.setThreadUserTimeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 7: // REQUEST_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.dataString = iprot.readString();
-              struct.setDataStringIsSet(true);
+              struct.requestID = iprot.readString();
+              struct.setRequestIDIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // EXTRA_DATA1
+          case 8: // REQUEST_URL
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.requestURL = iprot.readString();
+              struct.setRequestURLIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 9: // CLIENT_IP
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.clientIP = iprot.readString();
+              struct.setClientIPIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 10: // EXTRA_DATA1
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.extraData1 = iprot.readString();
               struct.setExtraData1IsSet(true);
@@ -1226,7 +1635,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // EXTRA_DATA2
+          case 11: // EXTRA_DATA2
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.extraData2 = iprot.readString();
               struct.setExtraData2IsSet(true);
@@ -1234,7 +1643,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // EXTRA_DATA3
+          case 12: // EXTRA_DATA3
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.extraData3 = iprot.readString();
               struct.setExtraData3IsSet(true);
@@ -1242,7 +1651,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // EXTRA_INT1
+          case 13: // EXTRA_INT1
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.extraInt1 = iprot.readI32();
               struct.setExtraInt1IsSet(true);
@@ -1250,7 +1659,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 9: // EXTRA_INT2
+          case 14: // EXTRA_INT2
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.extraInt2 = iprot.readI32();
               struct.setExtraInt2IsSet(true);
@@ -1258,7 +1667,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // EXTRA_INT3
+          case 15: // EXTRA_INT3
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.extraInt3 = iprot.readI32();
               struct.setExtraInt3IsSet(true);
@@ -1266,7 +1675,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 11: // EXTRA_LONG1
+          case 16: // EXTRA_LONG1
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.extraLong1 = iprot.readI64();
               struct.setExtraLong1IsSet(true);
@@ -1274,7 +1683,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 12: // EXTRA_LONG2
+          case 17: // EXTRA_LONG2
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.extraLong2 = iprot.readI64();
               struct.setExtraLong2IsSet(true);
@@ -1282,7 +1691,7 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // EXTRA_LONG3
+          case 18: // EXTRA_LONG3
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.extraLong3 = iprot.readI64();
               struct.setExtraLong3IsSet(true);
@@ -1299,25 +1708,46 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, RequestDataThriftDTO struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
+      oprot.writeFieldBegin(HOST_HASH_CODE_FIELD_DESC);
+      oprot.writeI32(struct.hostHashCode);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(REQUEST_HASH_CODE_FIELD_DESC);
+      oprot.writeI32(struct.requestHashCode);
+      oprot.writeFieldEnd();
       oprot.writeFieldBegin(DATA_TYPE_FIELD_DESC);
       oprot.writeI32(struct.dataType);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(DATA_TIME_FIELD_DESC);
       oprot.writeI64(struct.dataTime);
       oprot.writeFieldEnd();
-      if (struct.isSetDataHashCode()) {
-        oprot.writeFieldBegin(DATA_HASH_CODE_FIELD_DESC);
-        oprot.writeI32(struct.dataHashCode);
-        oprot.writeFieldEnd();
+      oprot.writeFieldBegin(THREAD_CPUTIME_FIELD_DESC);
+      oprot.writeI64(struct.threadCPUTime);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(THREAD_USER_TIME_FIELD_DESC);
+      oprot.writeI64(struct.threadUserTime);
+      oprot.writeFieldEnd();
+      if (struct.requestID != null) {
+        if (struct.isSetRequestID()) {
+          oprot.writeFieldBegin(REQUEST_ID_FIELD_DESC);
+          oprot.writeString(struct.requestID);
+          oprot.writeFieldEnd();
+        }
       }
-      if (struct.dataString != null) {
-        if (struct.isSetDataString()) {
-          oprot.writeFieldBegin(DATA_STRING_FIELD_DESC);
-          oprot.writeString(struct.dataString);
+      if (struct.requestURL != null) {
+        if (struct.isSetRequestURL()) {
+          oprot.writeFieldBegin(REQUEST_URL_FIELD_DESC);
+          oprot.writeString(struct.requestURL);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.clientIP != null) {
+        if (struct.isSetClientIP()) {
+          oprot.writeFieldBegin(CLIENT_IP_FIELD_DESC);
+          oprot.writeString(struct.clientIP);
           oprot.writeFieldEnd();
         }
       }
@@ -1378,69 +1808,99 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
 
   }
 
-  private static class RequestDataThriftDTOTupleSchemeFactory implements SchemeFactory {
-    public RequestDataThriftDTOTupleScheme getScheme() {
-      return new RequestDataThriftDTOTupleScheme();
+  private static class RequestThriftDTOTupleSchemeFactory implements SchemeFactory {
+    public RequestThriftDTOTupleScheme getScheme() {
+      return new RequestThriftDTOTupleScheme();
     }
   }
 
-  private static class RequestDataThriftDTOTupleScheme extends TupleScheme<RequestDataThriftDTO> {
+  private static class RequestThriftDTOTupleScheme extends TupleScheme<RequestThriftDTO> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, RequestDataThriftDTO struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetDataType()) {
+      if (struct.isSetHostHashCode()) {
         optionals.set(0);
       }
-      if (struct.isSetDataTime()) {
+      if (struct.isSetRequestHashCode()) {
         optionals.set(1);
       }
-      if (struct.isSetDataHashCode()) {
+      if (struct.isSetDataType()) {
         optionals.set(2);
       }
-      if (struct.isSetDataString()) {
+      if (struct.isSetDataTime()) {
         optionals.set(3);
       }
-      if (struct.isSetExtraData1()) {
+      if (struct.isSetThreadCPUTime()) {
         optionals.set(4);
       }
-      if (struct.isSetExtraData2()) {
+      if (struct.isSetThreadUserTime()) {
         optionals.set(5);
       }
-      if (struct.isSetExtraData3()) {
+      if (struct.isSetRequestID()) {
         optionals.set(6);
       }
-      if (struct.isSetExtraInt1()) {
+      if (struct.isSetRequestURL()) {
         optionals.set(7);
       }
-      if (struct.isSetExtraInt2()) {
+      if (struct.isSetClientIP()) {
         optionals.set(8);
       }
-      if (struct.isSetExtraInt3()) {
+      if (struct.isSetExtraData1()) {
         optionals.set(9);
       }
-      if (struct.isSetExtraLong1()) {
+      if (struct.isSetExtraData2()) {
         optionals.set(10);
       }
-      if (struct.isSetExtraLong2()) {
+      if (struct.isSetExtraData3()) {
         optionals.set(11);
       }
-      if (struct.isSetExtraLong3()) {
+      if (struct.isSetExtraInt1()) {
         optionals.set(12);
       }
-      oprot.writeBitSet(optionals, 13);
+      if (struct.isSetExtraInt2()) {
+        optionals.set(13);
+      }
+      if (struct.isSetExtraInt3()) {
+        optionals.set(14);
+      }
+      if (struct.isSetExtraLong1()) {
+        optionals.set(15);
+      }
+      if (struct.isSetExtraLong2()) {
+        optionals.set(16);
+      }
+      if (struct.isSetExtraLong3()) {
+        optionals.set(17);
+      }
+      oprot.writeBitSet(optionals, 18);
+      if (struct.isSetHostHashCode()) {
+        oprot.writeI32(struct.hostHashCode);
+      }
+      if (struct.isSetRequestHashCode()) {
+        oprot.writeI32(struct.requestHashCode);
+      }
       if (struct.isSetDataType()) {
         oprot.writeI32(struct.dataType);
       }
       if (struct.isSetDataTime()) {
         oprot.writeI64(struct.dataTime);
       }
-      if (struct.isSetDataHashCode()) {
-        oprot.writeI32(struct.dataHashCode);
+      if (struct.isSetThreadCPUTime()) {
+        oprot.writeI64(struct.threadCPUTime);
       }
-      if (struct.isSetDataString()) {
-        oprot.writeString(struct.dataString);
+      if (struct.isSetThreadUserTime()) {
+        oprot.writeI64(struct.threadUserTime);
+      }
+      if (struct.isSetRequestID()) {
+        oprot.writeString(struct.requestID);
+      }
+      if (struct.isSetRequestURL()) {
+        oprot.writeString(struct.requestURL);
+      }
+      if (struct.isSetClientIP()) {
+        oprot.writeString(struct.clientIP);
       }
       if (struct.isSetExtraData1()) {
         oprot.writeString(struct.extraData1);
@@ -1472,58 +1932,78 @@ public class RequestDataThriftDTO implements org.apache.thrift.TBase<RequestData
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, RequestDataThriftDTO struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(13);
+      BitSet incoming = iprot.readBitSet(18);
       if (incoming.get(0)) {
+        struct.hostHashCode = iprot.readI32();
+        struct.setHostHashCodeIsSet(true);
+      }
+      if (incoming.get(1)) {
+        struct.requestHashCode = iprot.readI32();
+        struct.setRequestHashCodeIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.dataType = iprot.readI32();
         struct.setDataTypeIsSet(true);
       }
-      if (incoming.get(1)) {
+      if (incoming.get(3)) {
         struct.dataTime = iprot.readI64();
         struct.setDataTimeIsSet(true);
       }
-      if (incoming.get(2)) {
-        struct.dataHashCode = iprot.readI32();
-        struct.setDataHashCodeIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.dataString = iprot.readString();
-        struct.setDataStringIsSet(true);
-      }
       if (incoming.get(4)) {
+        struct.threadCPUTime = iprot.readI64();
+        struct.setThreadCPUTimeIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.threadUserTime = iprot.readI64();
+        struct.setThreadUserTimeIsSet(true);
+      }
+      if (incoming.get(6)) {
+        struct.requestID = iprot.readString();
+        struct.setRequestIDIsSet(true);
+      }
+      if (incoming.get(7)) {
+        struct.requestURL = iprot.readString();
+        struct.setRequestURLIsSet(true);
+      }
+      if (incoming.get(8)) {
+        struct.clientIP = iprot.readString();
+        struct.setClientIPIsSet(true);
+      }
+      if (incoming.get(9)) {
         struct.extraData1 = iprot.readString();
         struct.setExtraData1IsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(10)) {
         struct.extraData2 = iprot.readString();
         struct.setExtraData2IsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(11)) {
         struct.extraData3 = iprot.readString();
         struct.setExtraData3IsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(12)) {
         struct.extraInt1 = iprot.readI32();
         struct.setExtraInt1IsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(13)) {
         struct.extraInt2 = iprot.readI32();
         struct.setExtraInt2IsSet(true);
       }
-      if (incoming.get(9)) {
+      if (incoming.get(14)) {
         struct.extraInt3 = iprot.readI32();
         struct.setExtraInt3IsSet(true);
       }
-      if (incoming.get(10)) {
+      if (incoming.get(15)) {
         struct.extraLong1 = iprot.readI64();
         struct.setExtraLong1IsSet(true);
       }
-      if (incoming.get(11)) {
+      if (incoming.get(16)) {
         struct.extraLong2 = iprot.readI64();
         struct.setExtraLong2IsSet(true);
       }
-      if (incoming.get(12)) {
+      if (incoming.get(17)) {
         struct.extraLong3 = iprot.readI64();
         struct.setExtraLong3IsSet(true);
       }

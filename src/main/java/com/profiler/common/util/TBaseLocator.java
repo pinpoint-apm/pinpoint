@@ -1,6 +1,7 @@
-package com.profiler.util;
+package com.profiler.common.util;
 
-import com.profiler.dto.Header;
+import com.profiler.common.dto.Header;
+
 import org.apache.thrift.TBase;
 
 public interface TBaseLocator {

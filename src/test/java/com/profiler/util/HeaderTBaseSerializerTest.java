@@ -1,7 +1,11 @@
 package com.profiler.util;
 
-import com.profiler.dto.Header;
-import com.profiler.dto.JVMInfoThriftDTO;
+import com.profiler.common.dto.Header;
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.common.util.DefaultTBaseLocator;
+import com.profiler.common.util.HeaderTBaseDeserializer;
+import com.profiler.common.util.HeaderTBaseSerializer;
+import com.profiler.common.util.TBaseLocator;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;

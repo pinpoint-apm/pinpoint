@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.profiler.Agent;
+import com.profiler.common.dto.AgentInfoDTO;
+import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
+import com.profiler.common.dto.thrift.RequestDataThriftDTO;
 import com.profiler.config.TomcatProfilerConfig;
 import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.dto.AgentInfoDTO;
-import com.profiler.dto.RequestDataListThriftDTO;
-import com.profiler.dto.RequestDataThriftDTO;
 import com.profiler.util.NamedThreadLocal;
 import com.profiler.util.QueryStringUtil;
 
