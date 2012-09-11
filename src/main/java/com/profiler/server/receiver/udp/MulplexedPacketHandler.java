@@ -1,4 +1,4 @@
-package com.profiler.receiver.udp;
+package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
@@ -11,9 +11,9 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.TBaseLocator;
-import com.profiler.data.reader.JVMDataReader;
-import com.profiler.data.reader.Reader;
-import com.profiler.data.reader.SpanReader;
+import com.profiler.server.data.reader.JVMDataReader;
+import com.profiler.server.data.reader.Reader;
+import com.profiler.server.data.reader.SpanReader;
 
 public class MulplexedPacketHandler implements Runnable {
 

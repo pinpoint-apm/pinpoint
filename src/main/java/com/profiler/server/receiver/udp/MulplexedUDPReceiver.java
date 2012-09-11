@@ -1,4 +1,4 @@
-package com.profiler.receiver.udp;
+package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -8,7 +8,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.log4j.Logger;
 
-import com.profiler.config.TomcatProfilerReceiverConfig;
+import com.profiler.server.config.TomcatProfilerReceiverConfig;
 
 public class MulplexedUDPReceiver implements DataReceiver {
 

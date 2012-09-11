@@ -1,9 +1,9 @@
-package com.profiler.util;
+package com.profiler.server.util;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
 
-import com.profiler.config.TomcatProfilerReceiverConstant;
+import com.profiler.server.config.TomcatProfilerReceiverConstant;
 
 public class Converter {
 	public static ByteBuffer toByteBuffer(String data) {

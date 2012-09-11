@@ -1,4 +1,4 @@
-package com.profiler.config;
+package com.profiler.server.config;
 
 import java.nio.ByteBuffer;
 import java.text.DateFormat;

@@ -1,4 +1,4 @@
-package com.profiler.config;
+package com.profiler.server.config;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

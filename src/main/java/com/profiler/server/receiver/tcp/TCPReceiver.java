@@ -1,4 +1,4 @@
-package com.profiler.receiver.tcp;
+package com.profiler.server.receiver.tcp;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -8,7 +8,7 @@ import java.net.Socket;
 import org.apache.log4j.Logger;
 
 import com.profiler.common.dto.AgentInfoDTO;
-import com.profiler.config.TomcatProfilerReceiverConfig;
+import com.profiler.server.config.TomcatProfilerReceiverConfig;
 
 @Deprecated
 public class TCPReceiver extends Thread {

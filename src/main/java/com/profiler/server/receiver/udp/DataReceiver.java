@@ -1,4 +1,4 @@
-package com.profiler.receiver.udp;
+package com.profiler.server.receiver.udp;
 
 public interface DataReceiver {
     void start();

@@ -1,17 +1,16 @@
-package com.profiler;
+package com.profiler.server;
 
-import com.profiler.receiver.tcp.TCPReceiver;
-import com.profiler.receiver.udp.DataReceiver;
-import com.profiler.receiver.udp.MulplexedUDPReceiver;
+import com.profiler.server.receiver.tcp.TCPReceiver;
+import com.profiler.server.receiver.udp.DataReceiver;
+import com.profiler.server.receiver.udp.MulplexedUDPReceiver;
 
-public class TomcatProfileDataReceiver {
+public class Server {
 	public static void main(String[] args) {
 		// Log4jConfigurer.configure("log4j.xml");
-		TomcatProfileDataReceiver receiver = new TomcatProfileDataReceiver();
-		receiver.collect();
+		new Server().start();
 	}
 
-	public void collect() {
+	public void start() {
 		System.out.println("Start MulplexedUDPReceiver Receive UDP Thread");
 		DataReceiver mulplexDataReceiver = new MulplexedUDPReceiver();
 		mulplexDataReceiver.start();
@@ -24,6 +23,5 @@ public class TomcatProfileDataReceiver {
 		// FetchTPSDataThread fetchRPS = new FetchTPSDataThread();
 		// fetchRPS.start();
 		// System.out.println("*********************************************************");
-
 	}
 }

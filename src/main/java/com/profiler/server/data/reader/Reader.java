@@ -1,4 +1,4 @@
-package com.profiler.data.reader;
+package com.profiler.server.data.reader;
 
 import org.apache.thrift.TBase;
 
