@@ -16,18 +16,10 @@ public final class Trace {
 	private static final Logger logger = Logger.getLogger(Trace.class.getName());
 
 	private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
-
-	// private static final ThreadLocal<TraceID> traceIdLocal = new
-	// NamedThreadLocal<TraceID>("TraceId");
-
 	private static final ThreadLocal<TraceIDStack> traceIdLocal = new NamedThreadLocal<TraceIDStack>("TraceId");
-
-	// private static final TraceIDStack traceIdStack = new TraceIDStack();
-
 	private static volatile boolean tracingEnabled = true;
 
 	private Trace() {
-
 	}
 
 	public static void handle(TraceHandler handler) {
@@ -111,7 +103,7 @@ public final class Trace {
 	public static boolean removeCurrentTraceIdFromStack() {
 		TraceIDStack stack = traceIdLocal.get();
 		TraceID traceId = null;
-		
+
 		if (stack != null) {
 			traceId = stack.getTraceId();
 		} else {
@@ -159,10 +151,6 @@ public final class Trace {
 	public static TraceID getNextTraceId() {
 		TraceID current = getTraceIdOrCreateNew();
 		return current.getNextTraceId();
-		// long currentSpanId = current.getSpanId();
-		// return new TraceID(current.getId(), currentSpanId,
-		// SpanID.nextSpanID(currentSpanId), current.isSampled(),
-		// current.getFlags());
 	}
 
 	public static void setTraceId(TraceID traceId) {

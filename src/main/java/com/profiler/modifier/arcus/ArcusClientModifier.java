@@ -4,7 +4,6 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.StopWatch;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
@@ -43,6 +42,15 @@ public class ArcusClientModifier extends AbstractModifier {
 			aClass.addTraceVariable("__nextTraceId", "__setNextTraceId", "__getNextTraceId", "com.profiler.context.TraceID");
 			aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextTraceId()); }");
 
+			/**
+			 * inject nano time for checking send time.
+			 */
+			aClass.addTraceVariable("__commandCreatedTime", "__setCommandCreatedTime", "__getCommandCreatedTime", "long");
+			aClass.insertCodeAfterConstructor(null, "{ __setCommandCreatedTime(System.nanoTime()); }");
+
+			/**
+			 * insert trace code.
+			 */
 			aClass.insertCodeBeforeMethod("transitionState", new String[] { "net.spy.memcached.ops.OperationState" }, getTransitionStateAfterCode());
 
 			return aClass.toBytecode();
@@ -54,14 +62,11 @@ public class ArcusClientModifier extends AbstractModifier {
 		}
 	}
 
-	/**
-	 * Logic is different in OperationState.
-	 * 
-	 * @return
-	 */
 	private String getTransitionStateAfterCode() {
 		StringBuilder code = new StringBuilder();
+
 		code.append("{");
+		code.append("com.profiler.context.Trace.traceBlockBegin();");
 
 		/**
 		 * If current traceID is not exists, take nextId for current traceID.
@@ -79,11 +84,15 @@ public class ArcusClientModifier extends AbstractModifier {
 		// code.append("System.out.println(\"\");");
 		// code.append("System.out.println(\"\");");
 
+		/**
+		 * After sending command to the Arcus server. now waiting server
+		 * response.
+		 */
 		code.append("if (newState == net.spy.memcached.ops.OperationState.READING) {");
-		
+
 		// TODO: remove, debugging
 		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS BEFORE  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
-		
+
 		code.append("	java.net.SocketAddress socketAddress = handlingNode.getSocketAddress();");
 		code.append("	if (socketAddress instanceof java.net.InetSocketAddress) {");
 		code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
@@ -91,18 +100,21 @@ public class ArcusClientModifier extends AbstractModifier {
 		code.append("	}");
 		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", \"\");");
 		code.append("	com.profiler.context.Trace.recordAttribute(\"arcus.command\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
-		code.append("	System.out.println(\"CS\");");
 		code.append("	com.profiler.StopWatch.start(this.hashCode());");
-		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend);");
-		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE) {");
-		code.append("	System.out.println(\"CR\");");
+		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend, System.nanoTime() - __commandCreatedTime);");
+
+		/**
+		 * Received all response or timed out.
+		 */
+		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE || newState == net.spy.memcached.ops.OperationState.TIMEDOUT) {");
 		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, com.profiler.StopWatch.stopAndGetElapsed(this.hashCode()));");
 
 		// TODO: remove, debugging
 		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS AFTER  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
-		
+
 		code.append("}");
 
+		code.append("com.profiler.context.Trace.traceBlockEnd();");
 		code.append("}");
 
 		return code.toString();

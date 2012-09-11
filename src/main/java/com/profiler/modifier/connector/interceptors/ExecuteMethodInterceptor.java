@@ -32,23 +32,24 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 		final HttpHost host = (HttpHost) args[0];
 		final HttpRequest request = (HttpRequest) args[1];
 
-		Trace.traceBlockBegin();
+		try {
+			Trace.traceBlockBegin();
+			TraceID nextId = Trace.getNextTraceId();
 
-		TraceID nextId = Trace.getNextTraceId();
+			// UUID format을 그대로.
+			request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
+			request.addHeader(Header.HTTP_SPAN_ID.toString(), Long.toString(nextId.getSpanId()));
+			request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
+			request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
+			request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
-		// UUID format을 그대로.
-		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
-		request.addHeader(Header.HTTP_SPAN_ID.toString(), Long.toString(nextId.getSpanId()));
-		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
-		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
-		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-
-		Trace.recordRpcName("http-call", "");
-		Trace.recordEndPoint(host.getHostName(), host.getPort());
-		Trace.recordAttibute("http.url", request.toString());
-		Trace.record(Annotation.ClientSend);
-
-		Trace.traceBlockEnd();
+			Trace.recordRpcName("http-call", "");
+			Trace.recordEndPoint(host.getHostName(), host.getPort());
+			Trace.recordAttibute("http.url", request.toString());
+			Trace.record(Annotation.ClientSend);
+		} finally {
+			Trace.traceBlockEnd();
+		}
 
 		StopWatch.start("ExecuteMethodInterceptor");
 	}
