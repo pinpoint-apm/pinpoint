@@ -23,4 +23,15 @@ public class NumberUtils {
         }
     }
 
+    public static Integer toInteger(Object integer) {
+        if(integer == null) {
+            return null;
+        }
+        if (integer instanceof Integer) {
+            return (Integer)integer;
+        } else {
+            return null;
+        }
+    }
+
 }

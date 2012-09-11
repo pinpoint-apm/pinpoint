@@ -4,10 +4,7 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
@@ -57,7 +54,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
             preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.String");
 
-            preparedStatement.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.List", "java.util.Collections.synchronizedList(new java.util.LinkedList());");
+            preparedStatement.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");
             bindVariableIntercept(preparedStatement, classLoader, protectedDomain);
 
             return preparedStatement.toBytecode();
@@ -90,14 +87,15 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             String methodName = method.getName();
             String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
             try {
-                preparedStatement.addInterceptor(methodName, parameterType , interceptor);
+                preparedStatement.addInterceptor(methodName, parameterType, interceptor);
             } catch (NotFoundInstrumentException e) {
-                // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시
-                if (logger.isLoggable(Level.WARNING)) {
-                    logger.log(Level.WARNING, "bindVariable api modify fail. Cause:" + e.getMessage(), e);
+                // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
+                if (logger.isLoggable(Level.INFO)) {
+                    logger.log(Level.INFO, "bindVariable api not found. Cause:" + e.getMessage(), e);
                 }
             }
         }
+
     }
 
 

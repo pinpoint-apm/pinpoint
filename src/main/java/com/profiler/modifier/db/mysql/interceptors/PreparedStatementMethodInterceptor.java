@@ -1,9 +1,7 @@
 package com.profiler.modifier.db.mysql.interceptors;
 
-import com.mysql.jdbc.PreparedStatement;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
-import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -19,8 +17,8 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
 
     private final MetaObject<String> getSql = new MetaObject("__getSql");
     private final MetaObject<String> getUrl = new MetaObject("__getUrl");
-    private final MetaObject<List<String>> getBindValue = new MetaObject("__getBindValue");
-    private final MetaObject<List<String>> setBindValue = new MetaObject("__setBindValue");
+    private final MetaObject<Map> getBindValue = new MetaObject("__getBindValue");
+    private final MetaObject<Map> setBindValue = new MetaObject("__setBindValue");
 
 
     @Override
@@ -39,7 +37,8 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
             String sql = getSql.invoke(target);
             Trace.recordAttibute("PreparedStatement", sql);
 
-            List<String> bindValue = getBindValue.invoke(target);
+            Map bindValue = getBindValue.invoke(target);
+            String bindString = toBindVariable(bindValue);
             Trace.recordAttibute("BindValue", bindValue.toString());
             setBindValue.invoke(target, Collections.synchronizedList(new LinkedList<String>()));
 
@@ -50,6 +49,14 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
             Trace.traceBlockEnd();
         }
 
+    }
+
+    private String toBindVariable(Map bindValue) {
+        StringBuilder sb = new StringBuilder();
+        for(int i =0; i<bindValue.size(); i++) {
+            Object o = bindValue.get(i);
+        }
+        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
     @Override
