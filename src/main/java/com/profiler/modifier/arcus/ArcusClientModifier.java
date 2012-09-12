@@ -66,12 +66,12 @@ public class ArcusClientModifier extends AbstractModifier {
 		StringBuilder code = new StringBuilder();
 
 		code.append("{");
-		code.append("com.profiler.context.Trace.traceBlockBegin();");
+		// code.append("com.profiler.context.Trace.traceBlockBegin();");
 
 		/**
-		 * If current traceID is not exists, take nextId for current traceID.
+		 * always override traceid
 		 */
-		code.append("if (com.profiler.context.Trace.getCurrentTraceId() == null) { com.profiler.context.Trace.setTraceId(__nextTraceId); }");
+		code.append("com.profiler.context.Trace.setTraceId(__nextTraceId); System.out.println(\"set next TraceID\" + __nextTraceId);");
 
 		// code.append("System.out.println(__traceId);");
 		// code.append("System.out.println($1);");
@@ -114,7 +114,7 @@ public class ArcusClientModifier extends AbstractModifier {
 
 		code.append("}");
 
-		code.append("com.profiler.context.Trace.traceBlockEnd();");
+		// code.append("com.profiler.context.Trace.traceBlockEnd();");
 		code.append("}");
 
 		return code.toString();
