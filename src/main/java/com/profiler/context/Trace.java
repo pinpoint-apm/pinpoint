@@ -154,20 +154,14 @@ public final class Trace {
 	}
 
 	public static void setTraceId(TraceID traceId) {
+		// TODO: remove this, just for debugging.
 		if (getCurrentTraceId() != null) {
-			logger.log(Level.WARNING, "TraceID is already exists. But overwritten.");
-
-			// TODO: remove this, just for debugging.
 			System.out.println("###############################################################################################################");
 			System.out.println("# [DEBUG MSG] TraceID is overwritten.");
 			System.out.println("#   Before : " + getCurrentTraceId());
 			System.out.println("#   After  : " + traceId);
 			System.out.println("###############################################################################################################");
-			try {
-				throw new RuntimeException("TraceID overwritten.");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			new RuntimeException("TraceID overwritten.").printStackTrace();
 		}
 
 		TraceIDStack stack = traceIdLocal.get();
