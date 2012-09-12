@@ -71,7 +71,7 @@ public class ArcusClientModifier extends AbstractModifier {
 		/**
 		 * always override traceid
 		 */
-		code.append("com.profiler.context.Trace.setTraceId(__nextTraceId); System.out.println(\"set next TraceID\" + __nextTraceId);");
+		code.append("com.profiler.context.Trace.setTraceId(__nextTraceId);");
 
 		// code.append("System.out.println(__traceId);");
 		// code.append("System.out.println($1);");
