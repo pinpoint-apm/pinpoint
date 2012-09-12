@@ -18,12 +18,10 @@ import com.profiler.server.data.reader.SpanReader;
 public class MulplexedPacketHandler implements Runnable {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
-
 	private final JVMDataReader jvmDataReader = new JVMDataReader();
 	private final SpanReader spanReader = new SpanReader();
-
-	private DatagramPacket datagramPacket;
-	private TBaseLocator locator = new DefaultTBaseLocator();
+	private final DatagramPacket datagramPacket;
+	private final TBaseLocator locator = new DefaultTBaseLocator();
 
 	public MulplexedPacketHandler(DatagramPacket datagramPacket) {
 		this.datagramPacket = datagramPacket;
@@ -33,6 +31,7 @@ public class MulplexedPacketHandler implements Runnable {
 	public void run() {
 		HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
 		TBase<?, ?> tBase = null;
+
 		try {
 			tBase = deserializer.deserialize(locator, datagramPacket.getData());
 			dispatch(tBase, datagramPacket);
@@ -43,9 +42,11 @@ public class MulplexedPacketHandler implements Runnable {
 
 	private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
 		Reader readHandler = getReadHandler(tBase, datagramPacket);
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("handler name:" + readHandler.getClass().getName());
 		}
+
 		readHandler.handler(tBase, datagramPacket);
 	}
 
@@ -56,6 +57,9 @@ public class MulplexedPacketHandler implements Runnable {
 		if (tBase instanceof Span) {
 			return spanReader;
 		}
+
+		logger.warn("Unknown type of data received. data=" + tBase);
+
 		throw new UnsupportedOperationException();
 	}
 }

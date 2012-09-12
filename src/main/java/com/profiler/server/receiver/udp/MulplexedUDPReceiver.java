@@ -12,11 +12,13 @@ import com.profiler.server.config.TomcatProfilerReceiverConfig;
 
 public class MulplexedUDPReceiver implements DataReceiver {
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private static final int AcceptedSize = 65507;
 
-	private ExecutorService worker = Executors.newFixedThreadPool(1024);
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final ExecutorService worker = Executors.newFixedThreadPool(1024);
 
 	private DatagramSocket udpSocket = null;
+	long rejectedExecutionCount = 0;
 
 	private Thread packetReader = new Thread(MulplexedUDPReceiver.class.getSimpleName()) {
 		@Override
@@ -25,56 +27,59 @@ public class MulplexedUDPReceiver implements DataReceiver {
 		}
 	};
 
-	private static final int AcceptedSize = 65507;
-
-	public MulplexedUDPReceiver() {
-	}
-
-	long rejectedExecutionCount = 0;
-
 	public void receive() {
 		try {
 			this.udpSocket = new DatagramSocket(TomcatProfilerReceiverConfig.DEFUALT_PORT);
-			System.out.println("ddddd");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
+
 		if (udpSocket != null) {
-			System.out.println("Waiting for " + MulplexedUDPReceiver.class.getSimpleName());
+			if (logger.isInfoEnabled()) {
+				logger.info("Waiting for " + MulplexedUDPReceiver.class.getSimpleName());
+			}
+
 			while (true) {
 				// TODO 최대 사이즈로 수정필요.
-
 				byte[] buffer = new byte[AcceptedSize];
+
 				try {
-					System.out.println("ReceiveBufferSize=" + udpSocket.getReceiveBufferSize());
+					if (logger.isInfoEnabled()) {
+						logger.info("ReceiveBufferSize=" + udpSocket.getReceiveBufferSize());
+					}
+
 					DatagramPacket packet = new DatagramPacket(buffer, AcceptedSize);
 					udpSocket.receive(packet);
+
 					if (logger.isDebugEnabled()) {
 						logger.debug("DatagramPacket read size:" + packet.getLength());
 					}
+
 					worker.execute(new MulplexedPacketHandler(packet));
 				} catch (RejectedExecutionException ree) {
 					rejectedExecutionCount++;
 					if (rejectedExecutionCount > 1000) {
-						System.out.println("rejectedExecutionCount=1000");
+						logger.warn("RejectedExecutionCount=1000");
 						rejectedExecutionCount = 0;
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			}
 		} else {
-			System.out.println("There is problem with making UDP Socket connection.");
+			logger.fatal("There is problem with making UDP Socket connection.");
 		}
 	}
 
 	@Override
 	public void start() {
 		this.packetReader.start();
+		logger.info("UDP Packet reader started.");
 	}
 
 	@Override
 	public void shutdown() {
+		logger.info("Shutting down UDP Packet reader.");
 		// TODO 가능한 gracefull shutdown 구현필요.
 		// this.udpSocket.close();
 		// this.worker.shutdown();
@@ -83,6 +88,5 @@ public class MulplexedUDPReceiver implements DataReceiver {
 		// } catch (InterruptedException e) {
 		// Thread.currentThread().interrupt();
 		// }
-
 	}
 }

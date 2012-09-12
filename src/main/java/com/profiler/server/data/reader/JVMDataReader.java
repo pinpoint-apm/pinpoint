@@ -8,19 +8,17 @@ import org.apache.thrift.TBase;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 
 public class JVMDataReader implements Reader {
-	private static final Logger logger = Logger.getLogger(JVMDataReader.class.getName());
-
-	public JVMDataReader() {
-	}
+	private final Logger logger = Logger.getLogger(JVMDataReader.class.getName());
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("handle " + tbase);
-		}
+		assert (tbase instanceof JVMInfoThriftDTO);
+
 		try {
 			JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 
-			System.out.println("Got JVM DTO. " + dto);
+			if (logger.isInfoEnabled()) {
+				logger.info("Received JVM=" + dto);
+			}
 		} catch (Exception e) {
 			logger.warn("ReadJVMData handle error " + e.getMessage(), e);
 		}
