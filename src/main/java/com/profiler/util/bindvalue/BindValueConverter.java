@@ -1,12 +1,19 @@
 package com.profiler.util.bindvalue;
 
+import com.profiler.util.BindVariableFilter;
 import com.profiler.util.bindvalue.converter.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BindValueConverter {
-    public static final Map<String, Converter> convertermap = new HashMap<String, Converter>() ;
+    private static final BindValueConverter converter;
+    static {
+        converter = new BindValueConverter();
+        converter.register();
+    }
+
+    public final Map<String, Converter> convertermap = new HashMap<String, Converter>() ;
 
     private void register() {
         simpleType();
@@ -18,9 +25,8 @@ public class BindValueConverter {
         BytesConverter bytesConverter = new BytesConverter();
         convertermap.put("setBytes", bytesConverter);
 
-
         // setObject
-        convertermap.put("setObject", null);
+        convertermap.put("setObject", new ObjectConverter());
     }
 
     private void classNameType() {
@@ -41,13 +47,8 @@ public class BindValueConverter {
         // 3개 짜리 존재
         convertermap.put("setNClob", classNameConverter);
 
-
         convertermap.put("setCharacterStream", classNameConverter);
         convertermap.put("setSQLXML", classNameConverter);
-        convertermap.put("setSQLXML", classNameConverter);
-        convertermap.put("setSQLXML", classNameConverter);
-        convertermap.put("setSQLXML", classNameConverter);
-
     }
 
     private void simpleType() {
@@ -77,20 +78,16 @@ public class BindValueConverter {
         // ref도 문자열로 치환 가능할것으로 보임
         convertermap.put("setRef", simpleTypeConverter);
         convertermap.put("setNString", simpleTypeConverter);
-
-
-
     }
 
-
-    public String bindValueToString(String methodName, Object[] args) {
-        Converter converter = convertermap.get(methodName);
-        if (converter == null) {
-            return "";
-        }
+    public String convert0(String methodName, Object[] args) {
+        Converter converter = this.convertermap.get(methodName);
         return converter.convert(args);
     }
 
 
+    public static String convert(String methodName, Object[] args) {
+        return converter.convert0(methodName, args);
+    }
 
 }

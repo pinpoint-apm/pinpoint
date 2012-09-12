@@ -2,6 +2,8 @@ package com.profiler.util;
 
 import java.util.logging.Logger;
 
+import com.profiler.util.bindvalue.BindValueConverter;
+import com.profiler.util.bindvalue.converter.Converter;
 import javassist.CannotCompileException;
 import javassist.Loader;
 import javassist.NotFoundException;
@@ -45,6 +47,7 @@ public class TestClassLoader extends Loader {
     }
 
     private void addDefaultDelegateLoadingOf() {
+        // 패키지명 필터로 바꾸던지 개선해야 될것으로 보임.
         this.delegateLoadingOf(Interceptor.class.getName());
         this.delegateLoadingOf(StaticAroundInterceptor.class.getName());
         this.delegateLoadingOf(StaticBeforeInterceptor.class.getName());
@@ -55,6 +58,9 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(Annotation.class.getName());
         this.delegateLoadingOf(StopWatch.class.getName());
         this.delegateLoadingOf(MetaObject.class.getName());
+        this.delegateLoadingOf(StringUtils.class.getName());
+
+        this.delegateLoadingOf(BindValueConverter.class.getPackage() + ".");
     }
 
     @Override

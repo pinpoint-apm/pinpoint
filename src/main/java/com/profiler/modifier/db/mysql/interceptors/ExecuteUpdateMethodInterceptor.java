@@ -5,6 +5,9 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean
  * returnGeneratedKeys)
@@ -13,6 +16,8 @@ import com.profiler.interceptor.StaticAroundInterceptor;
  * 
  */
 public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
+
+    private final Logger logger = Logger.getLogger(ExecuteUpdateMethodInterceptor.class.getName());
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -25,15 +30,11 @@ public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
 			return;
 		}
 
-		try {
-			Trace.traceBlockBegin();
-
+        Trace.traceBlockBegin();
+        try {
 			Trace.recordRpcName("mysql", "");
 
-			//
 			// TODO: add destination address
-			//
-
 			if (args.length > 0) {
 				Trace.recordAttibute("Query", args[0]);
 			}
@@ -42,7 +43,9 @@ public class ExecuteUpdateMethodInterceptor implements StaticAroundInterceptor {
 
 			StopWatch.start("ExecuteUpdateMethodInterceptor");
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
 		} finally {
 			Trace.traceBlockEnd();
 		}

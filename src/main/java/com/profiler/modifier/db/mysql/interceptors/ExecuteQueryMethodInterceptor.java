@@ -50,7 +50,9 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 
 			StopWatch.start("ExecuteQueryMethodInterceptor");
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
 		} finally {
 			Trace.traceBlockEnd();
 		}

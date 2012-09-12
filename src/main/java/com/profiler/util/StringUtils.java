@@ -14,22 +14,25 @@ public class StringUtils {
     }
 
     public static String drop(String str) {
-        return drop(str, 20, getDropString(str));
+        return drop(str, 30);
     }
 
     public static String getDropString(String str) {
         return "...(" + str.length() + ")";
     }
 
-    public static String drop(String str, int length, String padding) {
+    public static String drop(String str, int length) {
         if (str == null) {
             return "null";
         }
-        StringBuilder buffer = new StringBuilder(length + 10);
-        if(str.length() > length) {
+
+        if (str.length() > length) {
+            StringBuilder buffer = new StringBuilder(length + 10);
             buffer.append(str.substring(0, length));
-            buffer.append(padding);
+            buffer.append(getDropString(str));
+            return buffer.toString();
+        } else {
+            return str;
         }
-        return buffer.toString();
     }
 }

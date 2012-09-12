@@ -9,12 +9,10 @@ public class SimpleTypeConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            String str = StringUtils.toString(args[0]) + ":" + StringUtils.toString(args[1]);
-            return StringUtils.drop(str);
+            return StringUtils.drop(StringUtils.toString(args[1]));
         } else if (args.length == 3) {
             // TODO 3일때 추가 처리?
-            String str = StringUtils.toString(args[0]) + ":" + StringUtils.toString(args[1]);
-            return StringUtils.drop(str);
+            return StringUtils.drop(StringUtils.toString(args[1]));
         }
         return "error";
     }

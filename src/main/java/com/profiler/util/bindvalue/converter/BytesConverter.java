@@ -15,7 +15,7 @@ public class BytesConverter implements Converter {
             if (bytes == null) {
                 return "null";
             } else {
-                return StringUtils.drop(ArrayUtils.dropToString(bytes));
+                return ArrayUtils.dropToString(bytes);
             }
         }
         return "error";

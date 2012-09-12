@@ -1,13 +1,15 @@
 package com.profiler.modifier.db.mysql.interceptors;
 
+import com.nhncorp.lucy.net.util.ConverterUtil;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.util.MetaObject;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
+import com.profiler.util.bindvalue.BindValueConverter;
 
 import java.util.Arrays;
-import java.util.List;
+
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,12 +28,19 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
             return;
         }
         Map bindList = getBindValue.invoke(target);
+        if (bindList == null) {
+            if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, "bindValue is null");
+			}
+            return;
+        }
         Integer index = NumberUtils.toInteger(args[0]);
         if(index == null) {
             // 어딘가 잘못됨.
             return;
         }
-        String value = StringUtils.toString(args[1]);
+        String value = BindValueConverter.convert(methodName, args);
         bindList.put(index, value);
+
     }
 }

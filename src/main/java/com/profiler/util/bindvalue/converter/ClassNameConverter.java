@@ -9,17 +9,15 @@ public class ClassNameConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            String str = StringUtils.toString(args[0]) + ":" + StringUtils.toString(getClassName(args[1]));
-            return StringUtils.drop(str);
-        } else if (args.length == 3) {
-            // TODO 3일때 추가 처리?
-            String str = StringUtils.toString(args[0]) + ":" + StringUtils.toString(getClassName(args[1]));
-            return StringUtils.drop(str);
+            return StringUtils.drop(getClassName(args[1]));
+        } else if(args.length == 3) {
+            // 3일때의 추가 처리?
+            return StringUtils.drop(getClassName(args[1]));
         }
         return "error";
     }
 
-    private Object getClassName(Object args) {
+    private String getClassName(Object args) {
         if (args == null) {
             return "null";
         }

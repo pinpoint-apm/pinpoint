@@ -39,6 +39,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
             Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
             Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreatePreparedStatementInterceptor");
+            Interceptor transaction = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.TransactionInterceptor");
 
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
@@ -47,6 +48,10 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("close", null, closeConnection);
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
+
+            mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, transaction);
+            mysqlConnection.addInterceptor("commit", null, transaction);
+            mysqlConnection.addInterceptor("rollback", null, transaction);
 
 			printClassConvertComplete(javassistClassName);
 

@@ -39,24 +39,36 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            Trace.recordAttibute("BindValue", bindValue.toString());
-            setBindValue.invoke(target, Collections.synchronizedList(new LinkedList<String>()));
+            Trace.recordAttibute("BindValue", bindString);
+
+            clean(target);
 
             Trace.record(Annotation.ClientSend);
         } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
         } finally {
             Trace.traceBlockEnd();
         }
 
     }
 
+    private void clean(Object target) {
+        setBindValue.invoke(target, Collections.synchronizedList(new LinkedList<String>()));
+    }
+
     private String toBindVariable(Map bindValue) {
-        StringBuilder sb = new StringBuilder();
-        for(int i =0; i<bindValue.size(); i++) {
-            Object o = bindValue.get(i);
+        String[] temp = new String[bindValue.size()];
+        for (Object obj : bindValue.entrySet()) {
+            Map.Entry<Integer, String> entry = (Map.Entry<Integer, String>) obj;
+            Integer key = entry.getKey() - 1;
+            if (temp.length < key) {
+                continue;
+            }
+            temp[key] = entry.getValue();
         }
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        return Arrays.toString(temp);
     }
 
     @Override
@@ -73,9 +85,15 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
             boolean success = InterceptorUtils.isSuccess(result);
             Trace.recordAttibute("Success", success);
+            if(!success) {
+                Throwable th = (Throwable) result;
+                Trace.recordAttibute("Exception", th.getMessage());
+            }
             Trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
-            e.printStackTrace();
+            if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, e.getMessage(), e);
+			}
         } finally {
             Trace.traceBlockEnd();
         }

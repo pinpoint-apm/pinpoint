@@ -63,6 +63,8 @@ public class MySQLConnectionImplModifierTest {
 
         preparedStatement2(connect);
 
+        preparedStatement3(connect);
+
         connect.close();
         Assert.assertEquals(connectionList.size(), 0);
         logger.info("connection size:" + connectionList.size());
@@ -89,6 +91,25 @@ public class MySQLConnectionImplModifierTest {
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.close();
         preparedStatement.close();
+    }
+
+    private void preparedStatement3(Connection connect) throws SQLException {
+        connect.setAutoCommit(false);
+
+        PreparedStatement preparedStatement = connect.prepareStatement("select * from member where id = ? or id = ?  or id = ?");
+        preparedStatement.setInt(1, 1);
+        preparedStatement.setInt(2, 2);
+        preparedStatement.setString(3, "3");
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.close();
+        preparedStatement.close();
+
+        connect.commit();
+
+
+
+
+        connect.setAutoCommit(true);
     }
 
     @Test
