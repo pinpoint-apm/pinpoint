@@ -7,11 +7,6 @@
 	<name>hippo tomcat profiler</name>
 	<packaging>jar</packaging>
 
-    <properties>
-        <thrift.executable>${thrift.executable.property}</thrift.executable>
-    </properties>
-
-
 	<distributionManagement>
 		<repository>
 			<id>nhn.release.repository</id>
@@ -52,6 +47,12 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.nhn.hippo</groupId>
+			<artifactId>hippo-commons</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+	
 		<!-- [Start] Compile Interceptors -->
         <dependency>
 			<groupId>com.nhncorp.lucy</groupId>
@@ -97,7 +98,6 @@
 			<version>1.5.8</version>
             <scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -137,7 +137,6 @@
 				<directory>${basedir}/src/main/resources</directory>
 			</resource>
 		</resources>
-
 		<testResources>
 			<testResource>
 				<directory>${basedir}/src/test/java</directory>
@@ -159,7 +158,6 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -172,7 +170,6 @@
 					<showDeprecations>true</showDeprecations>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -185,7 +182,6 @@
                     </archive>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -205,77 +201,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>thrift.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-             </plugin>
-
-
 		</plugins>
 	</build>
-	
-	<profiles>
-		<profile>
-			<id>withThrift</id>
-			<build>
-				<plugins>
-		            <plugin>
-		                <artifactId>maven-antrun-plugin</artifactId>
-		                <executions>
-		                    <execution>
-		                        <id>generate-sources</id>
-		                        <phase>generate-sources</phase>
-		                        <configuration>
-		                            <tasks>
-                                        <mkdir dir="${basedir}/generated-sources/thrift"/>
-		                                <delete>
-		                                     <fileset dir="${basedir}/generated-sources/thrift" includes="**/*"/>
-		                                </delete>
-		                                <mkdir dir="${basedir}/generated-sources/thrift"/>
-		                                <exec executable="${thrift.executable}" failonerror="true">
-		                                    <arg value="--gen"/>
-		                                    <arg value="java:beans"/>
-		                                    <arg value="-o"/>
-		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/src/main/thrift/Hippo.thrift"/>
-		                                </exec>
-		                                <exec executable="${thrift.executable}" failonerror="true">
-		                                    <arg value="--gen"/>
-		                                    <arg value="java:beans"/>
-		                                    <arg value="-o"/>
-		                                    <arg value="${basedir}/generated-sources/thrift"/>
-		                                    <arg value="${basedir}/src/main/thrift/Trace.thrift"/>
-		                                </exec>
-		                                <copy todir="src/main/java" overwrite="true">
-		                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean"/>
-		                                </copy>
-                                        <delete dir="${basedir}/generated-sources"/>
-		                            </tasks>
-		                        </configuration>
-		                        <goals>
-		                            <goal>run</goal>
-		                        </goals>
-		                    </execution>
-		                </executions>
-		            </plugin>				
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-	
 </project>

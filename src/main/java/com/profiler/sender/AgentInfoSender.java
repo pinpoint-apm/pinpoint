@@ -2,9 +2,11 @@ package com.profiler.sender;
 
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
 import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.config.TomcatProfilerConfig;
 
@@ -33,20 +35,24 @@ public class AgentInfoSender extends Thread {
 		try {
 			connectToServer();
 
-			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
-			AgentInfoDTO dto = new AgentInfoDTO();
+			Agent agent = Agent.getInstance();
+			String ip = agent.getServerInfo().getHostip();
+			String portNumbers = "";
+			for (Entry<Integer, String> entry : agent.getServerInfo().getConnectors().entrySet()) {
+				portNumbers += " " + entry.getKey();
+			}
+			
+			AgentInfoDTO dto = new AgentInfoDTO(ip, portNumbers);
+			
 			dto.setIsDead();
+			
 			if (logger.isLoggable(Level.INFO)) {
 				logger.info("send agent stop info. " + dto.toString());
 			}
 
+			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
 			stream.writeObject(dto);
 			stream.close();
-
-			if (logger.isLoggable(Level.INFO)) {
-				logger.info("Agent Stopped message is sent. " + dto.toString());
-			}
-
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, "AgentInfoSender Exception occured:" + e.getMessage(), e);
@@ -66,13 +72,20 @@ public class AgentInfoSender extends Thread {
 		}
 
 		try {
-			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
-			AgentInfoDTO dto = new AgentInfoDTO();
+			Agent agent = Agent.getInstance();
+			String ip = agent.getServerInfo().getHostip();
+			String portNumbers = "";
+			for (Entry<Integer, String> entry : agent.getServerInfo().getConnectors().entrySet()) {
+				portNumbers += " " + entry.getKey();
+			}
+
+			AgentInfoDTO dto = new AgentInfoDTO(ip, portNumbers);
 
 			if (logger.isLoggable(Level.INFO)) {
 				logger.info("send agent startup info. " + dto.toString());
 			}
 
+			ObjectOutputStream stream = new ObjectOutputStream(requestSocket.getOutputStream());
 			stream.writeObject(dto);
 			stream.close();
 		} catch (Exception e) {
