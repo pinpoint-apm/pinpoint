@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 public class TransactionInterceptor implements StaticAroundInterceptor {
 
-        private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
+    private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
 
     private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
 

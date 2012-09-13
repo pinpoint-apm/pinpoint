@@ -29,12 +29,12 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
         Map bindList = getBindValue.invoke(target);
         if (bindList == null) {
             if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, "bindValue is null");
-			}
+                logger.log(Level.WARNING, "bindValue is null");
+            }
             return;
         }
         Integer index = NumberUtils.toInteger(args[0]);
-        if(index == null) {
+        if (index == null) {
             // 어딘가 잘못됨.
             return;
         }

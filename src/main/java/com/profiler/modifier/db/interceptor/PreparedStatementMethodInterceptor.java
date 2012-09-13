@@ -46,8 +46,8 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
             Trace.record(Annotation.ClientSend);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
         } finally {
             Trace.traceBlockEnd();
         }
@@ -85,15 +85,15 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
             boolean success = InterceptorUtils.isSuccess(result);
             Trace.recordAttibute("Success", success);
-            if(!success) {
+            if (!success) {
                 Throwable th = (Throwable) result;
                 Trace.recordAttibute("Exception", th.getMessage());
             }
             Trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
         } finally {
             Trace.traceBlockEnd();
         }

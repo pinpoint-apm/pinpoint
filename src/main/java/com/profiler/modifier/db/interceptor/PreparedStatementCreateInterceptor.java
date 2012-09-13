@@ -20,24 +20,24 @@ public class PreparedStatementCreateInterceptor implements StaticAfterIntercepto
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
     private final MetaObject setSql = new MetaObject("__setSql", String.class);
 
-	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-		}
-        if(!InterceptorUtils.isSuccess(result)) {
+    @Override
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+        if (!InterceptorUtils.isSuccess(result)) {
             return;
         }
-		if (Trace.getCurrentTraceId() == null) {
-			return;
-		}
-		if (target instanceof Connection) {
+        if (Trace.getCurrentTraceId() == null) {
+            return;
+        }
+        if (target instanceof Connection) {
             String connectionUrl = getUrl.invoke(target);
             this.setUrl.invoke(result, connectionUrl);
             String sql = (String) args[0];
             this.setSql.invoke(result, sql);
-		}
-	}
+        }
+    }
 
 
 }
