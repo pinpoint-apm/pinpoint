@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 
 public class TransactionInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
+        private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
 
-     private final MetaObject<String> getUrl = new MetaObject<String>("_getUrl", String.class);
+    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -26,6 +26,16 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         }
         if (Trace.getCurrentTraceId() == null) {
             return;
+        }
+        if (target instanceof Connection) {
+            Connection con = (Connection) target;
+            if ("setAutoCommit".equals(methodName)) {
+                beforeStartTransaction(con);
+            } else if ("commit".equals(methodName)) {
+                beforeCommit(con);
+            } else if ("rollback".equals(methodName)) {
+                beforeRollback(con);
+            }
         }
     }
 
@@ -37,23 +47,33 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
-
-        if ("setAutoCommit".equals(methodName)) {
-            startTransaction(target, args[0], result);
-        } else if ("commit".equals(methodName)) {
-            commit(target, result);
-        } else if ("rollback".equals(methodName)) {
-            rollback(target, result);
+        if (target instanceof Connection) {
+            Connection con = (Connection) target;
+            if ("setAutoCommit".equals(methodName)) {
+                afterStartTransaction(con, args[0], result);
+            } else if ("commit".equals(methodName)) {
+                afterCommit(con, result);
+            } else if ("rollback".equals(methodName)) {
+                afterRollback(con, result);
+            }
         }
     }
 
+    private void beforeStartTransaction(Connection target) {
 
-
-    private void startTransaction(Object target, Object arg, Object result) {
         Trace.traceBlockBegin();
         try {
-            String connectionUrl = this.getUrl.invoke((Connection) target);
+            String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("mysql", connectionUrl);
+            Trace.record(Annotation.ClientSend);
+        } finally {
+            Trace.traceBlockEnd();
+        }
+    }
+
+    private void afterStartTransaction(Connection target, Object arg, Object result) {
+        Trace.traceBlockBegin();
+        try {
             Boolean autocommit = (Boolean) arg;
             boolean success = InterceptorUtils.isSuccess(result);
             if (!autocommit) {
@@ -65,7 +85,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                     Throwable th = (Throwable) result;
                     Trace.recordAttibute("Exception", th.getMessage());
                 }
-                Trace.record(Annotation.ClientSend);
                 Trace.record(Annotation.ClientRecv);
             } else {
                 if (success) {
@@ -75,7 +94,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                     Throwable th = (Throwable) result;
                     Trace.recordAttibute("Exception", th.getMessage());
                 }
-                Trace.record(Annotation.ClientSend);
                 Trace.record(Annotation.ClientRecv);
             }
         } catch (Exception e) {
@@ -87,10 +105,21 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         }
     }
 
-    private void commit(Object target, Object result) {
+    private void beforeCommit(Connection target) {
         Trace.traceBlockBegin();
         try {
-            String connectionUrl = this.getUrl.invoke((Connection) target);
+            String connectionUrl = this.getUrl.invoke(target);
+            Trace.recordRpcName("mysql", connectionUrl);
+            Trace.record(Annotation.ClientSend);
+        } finally {
+            Trace.traceBlockEnd();
+        }
+    }
+
+    private void afterCommit(Connection target, Object result) {
+        Trace.traceBlockBegin();
+        try {
+            String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("mysql", connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
@@ -101,7 +130,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                 Throwable th = (Throwable) result;
                 Trace.recordAttibute("Exception", th.getMessage());
             }
-            Trace.record(Annotation.ClientSend);
             Trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -112,18 +140,30 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         }
     }
 
-    private void rollback(Object target, Object result) {
+
+    private void beforeRollback(Connection target) {
+        Trace.traceBlockBegin();
+        try {
+            String connectionUrl = this.getUrl.invoke(target);
+            Trace.recordRpcName("mysql", connectionUrl);
+            Trace.record(Annotation.ClientSend);
+        } finally {
+            Trace.traceBlockEnd();
+        }
+    }
+
+    private void afterRollback(Connection target, Object result) {
         Trace.traceBlockBegin();
         try {
             // TODO 너무 인터널 레벨로 byte code를 수정하다보니, 드라이버내의 close() 메소드가 rollback을 호출하는 것 까지 보임.
             // ex : mysql
             //java.lang.Exception
-	        //  at com.profiler.modifier.db.mysql.interceptors.TransactionInterceptor.after(TransactionInterceptor.java:24)
-	        //	at com.mysql.jdbc.ConnectionImpl.rollback(ConnectionImpl.java:4761) 여기에서 다시 부름.
-		    //  at com.mysql.jdbc.ConnectionImpl.realClose(ConnectionImpl.java:4345)
-		    //  at com.mysql.jdbc.ConnectionImpl.close(ConnectionImpl.java:1564)
+            //  at com.profiler.modifier.db.mysql.interceptor.TransactionInterceptor.after(TransactionInterceptor.java:24)
+            //	at com.mysql.jdbc.ConnectionImpl.rollback(ConnectionImpl.java:4761) 여기에서 다시 부름.
+            //  at com.mysql.jdbc.ConnectionImpl.realClose(ConnectionImpl.java:4345)
+            //  at com.mysql.jdbc.ConnectionImpl.close(ConnectionImpl.java:1564)
 
-            String connectionUrl = this.getUrl.invoke((Connection) target);
+            String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("mysql", connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
