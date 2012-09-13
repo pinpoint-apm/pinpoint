@@ -4,13 +4,9 @@ import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
-import com.profiler.modifier.db.mysql.interceptors.*;
-import javassist.CtClass;
-import javassist.CtMethod;
+import com.profiler.modifier.db.interceptor.*;
 
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -40,7 +36,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
 
             // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
-//            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
+//            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.CreateConnectionInterceptor");
             Interceptor createConnection  = new CreateConnectionInterceptor();
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
@@ -48,17 +44,17 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("getInstance", params, createConnection);
 
 
-//            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
+//            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.CloseConnectionInterceptor");
             Interceptor closeConnection = new CloseConnectionInterceptor();
             mysqlConnection.addInterceptor("close", null, closeConnection);
 
 
-//            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
+//            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.CreateStatementInterceptor");
             Interceptor createStatement = new CreateStatementInterceptor();
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
 
 
-//            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreatePreparedStatementInterceptor");
+//            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.CreatePreparedStatementInterceptor");
             Interceptor preparedStatement = new CreatePreparedStatementInterceptor();
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 

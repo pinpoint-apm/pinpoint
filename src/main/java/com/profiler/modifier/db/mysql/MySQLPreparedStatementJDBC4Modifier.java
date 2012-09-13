@@ -6,7 +6,7 @@ import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.profiler.modifier.AbstractModifier;
-import com.profiler.modifier.db.mysql.interceptors.PreparedStatementBindVariableInterceptor;
+import com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.profiler.util.*;
 
 import java.lang.reflect.Method;
@@ -51,7 +51,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier  {
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         BindVariableFilter exclude = new IncludeBindVariableFilter(includes);
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
-//        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.PreparedStatementBindVariableInterceptor");
+//        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor");
         Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
         for (Method method : bindMethod) {
             String methodName = method.getName();

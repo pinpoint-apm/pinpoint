@@ -2,18 +2,14 @@ package com.profiler.modifier.db.mysql;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.NotFoundInstrumentException;
-import com.profiler.modifier.db.mysql.interceptors.PreparedStatementBindVariableInterceptor;
-import com.profiler.modifier.db.mysql.interceptors.PreparedStatementMethodInterceptor;
+import com.profiler.modifier.db.interceptor.PreparedStatementMethodInterceptor;
+import com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.profiler.util.ExcludeBindVariableFilter;
 import com.profiler.util.JavaAssistUtils;
 import com.profiler.util.PreparedStatementUtils;
@@ -50,7 +46,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 		checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
-//            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.PreparedStatementMethodInterceptor");
+//            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementMethodInterceptor");
             Interceptor interceptor = new PreparedStatementMethodInterceptor();
             preparedStatement.addInterceptor("executeQuery", null, interceptor);
 
@@ -85,7 +81,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
-//        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.PreparedStatementBindVariableInterceptor");
+//        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor");
         Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
         for (Method method : bindMethod) {
             String methodName = method.getName();

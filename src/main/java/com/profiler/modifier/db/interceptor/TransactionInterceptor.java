@@ -1,9 +1,8 @@
-package com.profiler.modifier.db.mysql.interceptors;
+package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;

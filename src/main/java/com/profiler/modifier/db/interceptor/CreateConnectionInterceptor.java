@@ -1,4 +1,4 @@
-package com.profiler.modifier.db.mysql.interceptors;
+package com.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
 import java.util.Arrays;

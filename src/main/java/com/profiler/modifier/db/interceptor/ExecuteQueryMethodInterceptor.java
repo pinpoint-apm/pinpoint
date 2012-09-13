@@ -1,4 +1,4 @@
-package com.profiler.modifier.db.mysql.interceptors;
+package com.profiler.modifier.db.interceptor;
 
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;

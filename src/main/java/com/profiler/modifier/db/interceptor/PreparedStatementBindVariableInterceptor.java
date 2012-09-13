@@ -1,6 +1,5 @@
-package com.profiler.modifier.db.mysql.interceptors;
+package com.profiler.modifier.db.interceptor;
 
-import com.nhncorp.lucy.net.util.ConverterUtil;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.util.MetaObject;
