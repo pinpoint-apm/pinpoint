@@ -10,9 +10,9 @@ import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
-public class CreateConnectionInterceptor implements StaticAfterInterceptor {
+public class ConnectionCreateInterceptor implements StaticAfterInterceptor {
 
-	private final Logger logger = Logger.getLogger(CreateConnectionInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(ConnectionCreateInterceptor.class.getName());
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {

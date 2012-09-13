@@ -11,14 +11,14 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CreateStatementInterceptor implements StaticAfterInterceptor {
-
-	private final Logger logger = Logger.getLogger(CreateStatementInterceptor.class.getName());
+public class PreparedStatementCreateInterceptor implements StaticAfterInterceptor {
+    private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
 
     // connection 용.
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl", String.class);
+    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
 
-	private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
+    private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
+    private final MetaObject setSql = new MetaObject("__setSql", String.class);
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
@@ -33,8 +33,11 @@ public class CreateStatementInterceptor implements StaticAfterInterceptor {
 		}
 		if (target instanceof Connection) {
             String connectionUrl = getUrl.invoke(target);
-            setUrl.invoke(result, connectionUrl);
+            this.setUrl.invoke(result, connectionUrl);
+            String sql = (String) args[0];
+            this.setSql.invoke(result, sql);
 		}
 	}
+
 
 }

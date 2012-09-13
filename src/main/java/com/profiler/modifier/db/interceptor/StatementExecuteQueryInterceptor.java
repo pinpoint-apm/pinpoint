@@ -17,9 +17,9 @@ import java.util.logging.Logger;
  * @author netspider
  * 
  */
-public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
+public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor {
 
-	private final Logger logger = Logger.getLogger(ExecuteQueryMethodInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(StatementExecuteQueryInterceptor.class.getName());
 
 	private final MetaObject<String> getUrl = new MetaObject("", "__getUrl");
 
@@ -48,7 +48,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 
 			Trace.record(Annotation.ClientSend);
 
-			StopWatch.start("ExecuteQueryMethodInterceptor");
+			StopWatch.start("StatementExecuteQueryInterceptor");
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {
 				logger.log(Level.WARNING, e.getMessage(), e);
@@ -71,7 +71,7 @@ public class ExecuteQueryMethodInterceptor implements StaticAroundInterceptor {
 		
 		Trace.traceBlockBegin();
         Trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
-		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteQueryMethodInterceptor"));
+		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("StatementExecuteQueryInterceptor"));
 		Trace.traceBlockEnd();
 	}
 }

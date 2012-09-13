@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CloseConnectionInterceptor implements StaticBeforeInterceptor {
+public class ConnectionCloseInterceptor implements StaticBeforeInterceptor {
 
-	private final Logger logger = Logger.getLogger(CloseConnectionInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(ConnectionCloseInterceptor.class.getName());
 
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 
