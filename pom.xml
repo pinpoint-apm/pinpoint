@@ -1,0 +1,241 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nhn.hippo</groupId>
+	<artifactId>hippo-commons</artifactId>
+	<version>0.0.1</version>
+	<name>hippo tomcat profiler</name>
+	<packaging>jar</packaging>
+
+    <properties>
+        <thrift.executable>${thrift.executable.property}</thrift.executable>
+    </properties>
+
+
+	<distributionManagement>
+		<repository>
+			<id>nhn.release.repository</id>
+			<name>nhncorp.release</name>
+			<url>dav:http://repo.nhncorp.com/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>nhn.snapshot.repository</id>
+			<name>nhncorp.snapshot</name>
+			<url>dav:http://repo.nhncorp.com/m2-snapshot-repository</url>
+			<uniqueVersion>true</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<repositories>
+		<repository>
+			<id>nhn.release.repository</id>
+			<url>http://repo.nhncorp.com/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>nhn.snapshot.repository</id>
+			<url>http://repo.nhncorp.com/m2-snapshot-repository</url>
+			<snapshots>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>0.8.0</version>
+            <scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.8</version>
+            <scope>provided</scope>
+		</dependency>
+        <dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.5.8</version>
+            <scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+            <scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/main/resources</directory>
+			</resource>
+		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<debug>true</debug>
+					<optimize>true</optimize>
+					<encoding>utf-8</encoding>
+					<showDeprecations>true</showDeprecations>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>com.profiler.TomcatProfiler</Premain-Class>
+                        </manifestEntries>
+                    </archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/dependency</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>thrift.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+             </plugin>
+
+
+		</plugins>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>withThrift</id>
+			<build>
+				<plugins>
+		            <plugin>
+		                <artifactId>maven-antrun-plugin</artifactId>
+		                <executions>
+		                    <execution>
+		                        <id>generate-sources</id>
+		                        <phase>generate-sources</phase>
+		                        <configuration>
+		                            <tasks>
+                                        <mkdir dir="${basedir}/generated-sources/thrift"/>
+		                                <delete>
+		                                     <fileset dir="${basedir}/generated-sources/thrift" includes="**/*"/>
+		                                </delete>
+		                                <mkdir dir="${basedir}/generated-sources/thrift"/>
+		                                <exec executable="${thrift.executable}" failonerror="true">
+		                                    <arg value="--gen"/>
+		                                    <arg value="java:beans"/>
+		                                    <arg value="-o"/>
+		                                    <arg value="${basedir}/generated-sources/thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/Hippo.thrift"/>
+		                                </exec>
+		                                <exec executable="${thrift.executable}" failonerror="true">
+		                                    <arg value="--gen"/>
+		                                    <arg value="java:beans"/>
+		                                    <arg value="-o"/>
+		                                    <arg value="${basedir}/generated-sources/thrift"/>
+		                                    <arg value="${basedir}/src/main/thrift/Trace.thrift"/>
+		                                </exec>
+		                                <copy todir="src/main/java" overwrite="true">
+		                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean"/>
+		                                </copy>
+                                        <delete dir="${basedir}/generated-sources"/>
+		                            </tasks>
+		                        </configuration>
+		                        <goals>
+		                            <goal>run</goal>
+		                        </goals>
+		                    </execution>
+		                </executions>
+		            </plugin>				
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
+</project>
