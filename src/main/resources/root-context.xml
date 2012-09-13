@@ -13,8 +13,14 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<!-- 
 	<bean id="mysql" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+	-->
+	<bean id="mysql" class="org.apache.commons.dbcp.BasicDataSource">
+	<!-- 
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+	 -->
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8" />
 		<property name="username" value="root" />
 		<property name="password" value="skdnsnfl" />
@@ -23,7 +29,6 @@
 	<beans:bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource">
 		<beans:property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
 		<beans:property name="url" value="jdbc:sqlserver://10.64.80.37:1433;DatabaseName=test" />
-		<beans:property name="defaultAutoCommit" value="false" />
 		<beans:property name="username" value="netspider" />
 		<beans:property name="password" value="chitty!!" />
 	</beans:bean>

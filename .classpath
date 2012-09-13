@@ -58,22 +58,22 @@
   <classpathentry kind="var" path="M2_REPO/com/nhncorp/lucy/lucy-npc/1.5.10/lucy-npc-1.5.10.jar"/>
   <classpathentry kind="var" path="M2_REPO/external/org/apache/mina/mina-core/2.0.0.6-external/mina-core-2.0.0.6-external.jar"/>
   <classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.20/mysql-connector-java-5.1.20.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.aop/3.1.2.RELEASE/org.springframework.aop-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.asm/3.1.2.RELEASE/org.springframework.asm-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.aspects/3.1.2.RELEASE/org.springframework.aspects-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.beans/3.1.2.RELEASE/org.springframework.beans-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.context/3.1.2.RELEASE/org.springframework.context-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.context.support/3.1.2.RELEASE/org.springframework.context.support-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.core/3.1.2.RELEASE/org.springframework.core-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.expression/3.1.2.RELEASE/org.springframework.expression-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.instrument/3.1.2.RELEASE/org.springframework.instrument-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.jdbc/3.1.2.RELEASE/org.springframework.jdbc-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.orm/3.1.2.RELEASE/org.springframework.orm-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.oxm/3.1.2.RELEASE/org.springframework.oxm-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.test/3.1.2.RELEASE/org.springframework.test-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.transaction/3.1.2.RELEASE/org.springframework.transaction-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.web/3.1.2.RELEASE/org.springframework.web-3.1.2.RELEASE.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.web.servlet/3.1.2.RELEASE/org.springframework.web.servlet-3.1.2.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.aop/3.1.0.RELEASE/org.springframework.aop-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.asm/3.1.0.RELEASE/org.springframework.asm-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.aspects/3.1.0.RELEASE/org.springframework.aspects-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.beans/3.1.0.RELEASE/org.springframework.beans-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.context/3.1.0.RELEASE/org.springframework.context-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.context.support/3.1.0.RELEASE/org.springframework.context.support-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.core/3.1.0.RELEASE/org.springframework.core-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.expression/3.1.0.RELEASE/org.springframework.expression-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.instrument/3.1.0.RELEASE/org.springframework.instrument-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.jdbc/3.1.0.RELEASE/org.springframework.jdbc-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.orm/3.1.0.RELEASE/org.springframework.orm-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.oxm/3.1.0.RELEASE/org.springframework.oxm-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.test/3.1.0.RELEASE/org.springframework.test-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.transaction/3.1.0.RELEASE/org.springframework.transaction-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.web/3.1.0.RELEASE/org.springframework.web-3.1.0.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/org.springframework.web.servlet/3.1.0.RELEASE/org.springframework.web.servlet-3.1.0.RELEASE.jar"/>
   <classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.2-507.jdbc3/postgresql-8.2-507.jdbc3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/tomcat/servlet-api/6.0.35/servlet-api-6.0.35.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.10/slf4j-api-1.5.10.jar"/>

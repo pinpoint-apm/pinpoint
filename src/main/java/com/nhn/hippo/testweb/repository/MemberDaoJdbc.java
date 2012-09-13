@@ -34,26 +34,26 @@ public class MemberDaoJdbc implements MemberDao {
 
 	public void add(Member member) {
 		jdbcTemplate.update(
-				"insert into member(id, name, joined) values (?, ?, ?)",
+				"/* testquery */ insert into member(id, name, joined) values (?, ?, ?)",
 				member.getId(), member.getName(), member.getJoined());
 	}
 
 	public void delete(int id) {
-		jdbcTemplate.update("delete from member where id = ?", id);
+		jdbcTemplate.update("/* testquery */ delete from member where id = ?", id);
 	}
 
 	public Member get(int id) {
-		return jdbcTemplate.queryForObject("select * from member where id = ?",
+		return jdbcTemplate.queryForObject("/* testquery */ select * from member where id = ?",
 				memberMapper, id);
 	}
 
 	public List<Member> list() {
-		return jdbcTemplate.query("select * from member", memberMapper);
+		return jdbcTemplate.query("/* testquery */ select * from member", memberMapper);
 	}
 
 	public void update(Member member) {
 		jdbcTemplate
-				.update("update member set name = :name, joined = :joined where id = :id",
+				.update("/* testquery */ update member set name = :name, joined = :joined where id = :id",
 						new BeanPropertySqlParameterSource(member));
 	}
 }
