@@ -18,7 +18,7 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
     private final MetaObject<String> getSql = new MetaObject("__getSql");
     private final MetaObject<String> getUrl = new MetaObject("__getUrl");
     private final MetaObject<Map> getBindValue = new MetaObject("__getBindValue");
-    private final MetaObject<Map> setBindValue = new MetaObject("__setBindValue");
+    private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
 
     @Override
@@ -55,7 +55,7 @@ public class PreparedStatementMethodInterceptor implements StaticAroundIntercept
     }
 
     private void clean(Object target) {
-        setBindValue.invoke(target, Collections.synchronizedList(new LinkedList<String>()));
+        setBindValue.invoke(target, Collections.synchronizedMap(new HashMap()));
     }
 
     private String toBindVariable(Map bindValue) {
