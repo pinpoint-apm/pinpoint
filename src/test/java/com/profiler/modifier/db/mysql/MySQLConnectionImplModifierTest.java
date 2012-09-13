@@ -31,6 +31,8 @@ public class MySQLConnectionImplModifierTest {
         MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor());
         loader.addModifier(preparedStatementModifier);
 
+        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor());
+        loader.addModifier(preparedStatementJDBC4Modifier);
 //        loader.delegateLoadingOf(ConnectionTrace.class.getName());
 
         loader.initialize();
@@ -80,6 +82,7 @@ public class MySQLConnectionImplModifierTest {
 
     private void preparedStatement(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("select 1");
+        logger.info("PreparedStatement className:" + preparedStatement.getClass().getName());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.close();
         preparedStatement.close();

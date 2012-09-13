@@ -16,10 +16,7 @@ import com.profiler.modifier.db.mssql.MSSQLConnectionModifier;
 import com.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
 import com.profiler.modifier.db.mssql.MSSQLResultSetModifier;
 import com.profiler.modifier.db.mssql.MSSQLStatementModifier;
-import com.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
-import com.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
-import com.profiler.modifier.db.mysql.MySQLResultSetModifier;
-import com.profiler.modifier.db.mysql.MySQLStatementModifier;
+import com.profiler.modifier.db.mysql.*;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
@@ -97,6 +94,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor);
 		addModifier(mysqlPreparedStatementModifier);
+
+        MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor);
+		addModifier(myqlPreparedStatementJDBC4Modifier);
 
 		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor);
 		addModifier(mysqlResultSetModifier);

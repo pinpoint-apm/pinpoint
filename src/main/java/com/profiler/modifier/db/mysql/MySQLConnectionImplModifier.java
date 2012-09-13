@@ -37,6 +37,8 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 
             mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+
+            // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
             Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"

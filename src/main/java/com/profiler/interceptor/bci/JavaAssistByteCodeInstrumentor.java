@@ -3,6 +3,7 @@ package com.profiler.interceptor.bci;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	private ClassPool classPool;
+
+    private ClassLoadChecker classLoadChecker = new ClassLoadChecker();
 
 	public JavaAssistByteCodeInstrumentor() {
 		this.classPool = createClassPool(null);
@@ -75,17 +78,24 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         if (logger.isLoggable(Level.INFO)) {
 			logger.info("defineClass class:" + defineClass + " cl:" + classLoader);
 		}
-
 		try {
-			CtClass clazz = classPool.get(defineClass);
-            defineNestedClass(clazz, classLoader, protectedDomain);
-            return clazz.toClass(classLoader, protectedDomain);
+//            아래 classLoaderChecker가 생겼으니 classLoader 를 같이 락으로 잡아야 되지 않는가?
+//            synchronized (classLoader)
+            if (this.classLoadChecker.exist(classLoader, defineClass)) {
+                return classLoader.loadClass(defineClass);
+            } else  {
+                CtClass clazz = classPool.get(defineClass);
+                defineNestedClass(clazz, classLoader, protectedDomain);
+                return clazz.toClass(classLoader, protectedDomain);
+            }
 		} catch (NotFoundException e) {
             throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
 		} catch (CannotCompileException e) {
             throw new InstrumentException(defineClass + " class define fail. cl:" + classLoader + " Cause:" + e.getMessage(), e);
-		}
-	}
+		} catch (ClassNotFoundException e) {
+            throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
+        }
+    }
 
     private void defineNestedClass(CtClass clazz, ClassLoader classLoader, ProtectionDomain protectedDomain) throws NotFoundException, CannotCompileException {
         CtClass[] nestedClasses = clazz.getNestedClasses();

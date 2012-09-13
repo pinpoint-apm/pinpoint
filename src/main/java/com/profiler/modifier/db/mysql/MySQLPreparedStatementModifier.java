@@ -90,8 +90,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
                 preparedStatement.addInterceptor(methodName, parameterType, interceptor);
             } catch (NotFoundInstrumentException e) {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
-                if (logger.isLoggable(Level.INFO)) {
-                    logger.log(Level.INFO, "bindVariable api not found. Cause:" + e.getMessage(), e);
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "bindVariable api not found. Cause:" + e.getMessage(), e);
                 }
             }
         }
