@@ -28,6 +28,7 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-core/1.0.1/hadoop-core-1.0.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/hbase/hbase/0.92.1/hbase-0.92.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/github/stephenc/high-scale-lib/high-scale-lib/1.1.1/high-scale-lib-1.1.1.jar"/>
+  <classpathentry kind="src" path="/hippo-commons"/>
   <classpathentry kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.10/hsqldb-1.8.0.10.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpclient/4.1.2/httpclient-4.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.1.3/httpcore-4.1.3.jar"/>

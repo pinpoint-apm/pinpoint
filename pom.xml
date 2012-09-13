@@ -52,6 +52,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.nhn.hippo</groupId>
+			<artifactId>hippo-commons</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
 			<version>1.0.1</version>
