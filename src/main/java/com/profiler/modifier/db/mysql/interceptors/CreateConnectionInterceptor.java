@@ -6,14 +6,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.InterceptorUtils;
+import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
 public class CreateConnectionInterceptor implements StaticAfterInterceptor {
 
 	private final Logger logger = Logger.getLogger(CreateConnectionInterceptor.class.getName());
-
+    private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (logger.isLoggable(Level.INFO)) {
@@ -26,8 +26,7 @@ public class CreateConnectionInterceptor implements StaticAfterInterceptor {
 		if (result instanceof Connection) {
 			Object url = args[4];
 			if (url instanceof String) {
-				ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-				connectionTrace.createConnection((Connection) result, (String) url);
+                this.setUrl.invoke(result, url);
 			}
 		}
 	}

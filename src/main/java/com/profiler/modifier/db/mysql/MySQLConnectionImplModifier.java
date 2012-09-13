@@ -35,19 +35,28 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 		try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
-            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
-            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
-            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreatePreparedStatementInterceptor");
-            Interceptor transaction = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.TransactionInterceptor");
 
+            mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateConnectionInterceptor");
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
             };
             mysqlConnection.addInterceptor("getInstance", params, createConnection);
+
+
+            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CloseConnectionInterceptor");
             mysqlConnection.addInterceptor("close", null, closeConnection);
+
+
+            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreateStatementInterceptor");
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
+
+
+            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.CreatePreparedStatementInterceptor");
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
+
+
+            Interceptor transaction = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.TransactionInterceptor");
 
             mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, transaction);
             mysqlConnection.addInterceptor("commit", null, transaction);

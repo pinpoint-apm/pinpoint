@@ -2,7 +2,6 @@ package com.profiler.modifier.db.mysql.interceptors;
 
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -15,6 +14,9 @@ import java.util.logging.Logger;
 public class CreateStatementInterceptor implements StaticAfterInterceptor {
 
 	private final Logger logger = Logger.getLogger(CreateStatementInterceptor.class.getName());
+
+    // connection 용.
+    private final MetaObject<String> getUrl = new MetaObject<String>("_getUrl", String.class);
 
 	private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 
@@ -30,9 +32,8 @@ public class CreateStatementInterceptor implements StaticAfterInterceptor {
 			return;
 		}
 		if (target instanceof Connection) {
-			ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-			String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
-			setUrl.invoke(result, connectionUrl);
+            String connectionUrl = getUrl.invoke(target);
+            setUrl.invoke(result, connectionUrl);
 		}
 	}
 

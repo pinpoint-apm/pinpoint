@@ -2,12 +2,10 @@ package com.profiler.modifier.db.mysql.interceptors;
 
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
-import com.profiler.context.TraceHandler;
-import com.profiler.context.TraceID;
-import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.ConnectionTrace;
 import com.profiler.util.InterceptorUtils;
+import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
@@ -18,6 +16,8 @@ import java.util.logging.Logger;
 public class TransactionInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
+
+     private final MetaObject<String> getUrl = new MetaObject<String>("_getUrl", String.class);
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -52,8 +52,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
     private void startTransaction(Object target, Object arg, Object result) {
         Trace.traceBlockBegin();
         try {
-            ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-            String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
+            String connectionUrl = this.getUrl.invoke((Connection) target);
             Trace.recordRpcName("mysql", connectionUrl);
             Boolean autocommit = (Boolean) arg;
             boolean success = InterceptorUtils.isSuccess(result);
@@ -91,8 +90,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
     private void commit(Object target, Object result) {
         Trace.traceBlockBegin();
         try {
-            ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-            String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
+            String connectionUrl = this.getUrl.invoke((Connection) target);
             Trace.recordRpcName("mysql", connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
@@ -125,9 +123,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 		    //  at com.mysql.jdbc.ConnectionImpl.realClose(ConnectionImpl.java:4345)
 		    //  at com.mysql.jdbc.ConnectionImpl.close(ConnectionImpl.java:1564)
 
-            // TODO 이거 connection에 url추가하는 방식으로 변경해야 될것 같음.
-            ConnectionTrace connectionTrace = ConnectionTrace.getConnectionTrace();
-            String connectionUrl = connectionTrace.getConnectionUrl((Connection) target);
+            String connectionUrl = this.getUrl.invoke((Connection) target);
             Trace.recordRpcName("mysql", connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);

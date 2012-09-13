@@ -2,7 +2,7 @@ package com.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.context.Trace;
-import com.profiler.modifier.db.ConnectionTrace;
+import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,6 +36,7 @@ public class MySQLConnectionImplModifierTest {
         loader.initialize();
     }
 
+    private MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
     @Test
     public void testModify() throws Exception {
 
@@ -47,56 +48,55 @@ public class MySQLConnectionImplModifierTest {
         Properties properties = new Properties();
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
-        Connection connect = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
+        Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
         Trace.getTraceIdOrCreateNew();
-        logger.info("Connection class name:" + connect.getClass().getName());
-        logger.info("Connection class cl:" + connect.getClass().getClassLoader());
+        logger.info("Connection class name:" + connection.getClass().getName());
+        logger.info("Connection class cl:" + connection.getClass().getClassLoader());
 
-        Set<Connection> connectionList = ConnectionTrace.getConnectionTrace().getConnectionList();
-        Assert.assertEquals(connectionList.size(), 1);
-        logger.info("connection size:" + connectionList.size());
+        String url = getUrl.invoke(connection);
+        Assert.assertNotNull(url);
 
-        statement(connect);
+        statement(connection);
 
-        preparedStatement(connect);
+        preparedStatement(connection);
 
-        preparedStatement2(connect);
+        preparedStatement2(connection);
 
-        preparedStatement3(connect);
+        preparedStatement3(connection);
 
-        connect.close();
-        Assert.assertEquals(connectionList.size(), 0);
-        logger.info("connection size:" + connectionList.size());
+        connection.close();
+        String clearUrl = getUrl.invoke(connection);
+        Assert.assertNull(clearUrl);
 
         Trace.removeCurrentTraceIdFromStack();
     }
 
-    private void statement(Connection connect) throws SQLException {
-        Statement statement = connect.createStatement();
+    private void statement(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
         statement.executeQuery("select 1");
         statement.close();
     }
 
-    private void preparedStatement(Connection connect) throws SQLException {
-        PreparedStatement preparedStatement = connect.prepareStatement("select 1");
+    private void preparedStatement(Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("select 1");
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.close();
         preparedStatement.close();
     }
 
-    private void preparedStatement2(Connection connect) throws SQLException {
-        PreparedStatement preparedStatement = connect.prepareStatement("select * from member where id = ?");
+    private void preparedStatement2(Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?");
         preparedStatement.setInt(1, 1);
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.close();
         preparedStatement.close();
     }
 
-    private void preparedStatement3(Connection connect) throws SQLException {
-        connect.setAutoCommit(false);
+    private void preparedStatement3(Connection connection) throws SQLException {
+        connection.setAutoCommit(false);
 
-        PreparedStatement preparedStatement = connect.prepareStatement("select * from member where id = ? or id = ?  or id = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?");
         preparedStatement.setInt(1, 1);
         preparedStatement.setInt(2, 2);
         preparedStatement.setString(3, "3");
@@ -104,12 +104,12 @@ public class MySQLConnectionImplModifierTest {
         resultSet.close();
         preparedStatement.close();
 
-        connect.commit();
+        connection.commit();
 
 
 
 
-        connect.setAutoCommit(true);
+        connection.setAutoCommit(true);
     }
 
     @Test
