@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.JavaAssistClass;
+import com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor;
 import javassist.*;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -36,7 +37,8 @@ public class MySQLStatementModifier extends AbstractModifier {
 
         try {
             InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
-            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor");
+//            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteQueryMethodInterceptor");
+            Interceptor interceptor = new ExecuteQueryMethodInterceptor();
             statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
 
 
