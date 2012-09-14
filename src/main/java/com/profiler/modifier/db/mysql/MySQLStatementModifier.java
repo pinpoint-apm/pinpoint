@@ -33,13 +33,12 @@ public class MySQLStatementModifier extends AbstractModifier {
 
         try {
             InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
-//            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor");
             Interceptor interceptor = new StatementExecuteQueryInterceptor();
             statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
 
-
-            Interceptor interceptor1 = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.ExecuteUpdateMethodInterceptor");
-            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, interceptor1);
+            // TODO 이거 고쳐야 됨.
+            Interceptor executeUpdate = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, executeUpdate);
 
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
             return statementClass.toBytecode();

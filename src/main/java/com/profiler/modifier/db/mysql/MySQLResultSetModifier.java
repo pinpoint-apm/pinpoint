@@ -10,7 +10,7 @@ import com.profiler.trace.DatabaseRequestTracer;
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+// TODO 추가 개발해야 될듯.
 public class MySQLResultSetModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(MySQLResultSetModifier.class.getName());

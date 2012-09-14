@@ -4,7 +4,6 @@ import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
@@ -13,11 +12,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
+ *
  * @author netspider
  */
-public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor {
+public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = Logger.getLogger(StatementExecuteQueryInterceptor.class.getName());
+    private final Logger logger = Logger.getLogger(StatementExecuteUpdateInterceptor.class.getName());
 
     private final MetaObject<String> getUrl = new MetaObject("__getUrl", String.class);
 
@@ -32,21 +33,18 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         }
 
         Trace.traceBlockBegin();
-
         try {
-            /**
-             * If method was not called by request handler, we skip tagging.
-             */
-            String url = (String) this.getUrl.invoke(target);
-            Trace.recordRpcName("mysql", url);
+            Trace.recordRpcName("mysql", "");
+
 
             if (args.length > 0) {
-                Trace.recordAttibute("Statement", args[0]);
+                String url = (String) this.getUrl.invoke(target);
+                Trace.recordAttibute("Query", url);
             }
 
             Trace.record(Annotation.ClientSend);
 
-            StopWatch.start("StatementExecuteQueryInterceptor");
+            StopWatch.start("StatementExecuteUpdateInterceptor");
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -56,20 +54,18 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         }
     }
 
-
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
-
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
 
         Trace.traceBlockBegin();
-        Trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
-        Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("StatementExecuteQueryInterceptor"));
+        // TODO 결과, 수행시간을.알수 있어야 될듯.
+        Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("StatementExecuteUpdateInterceptor"));
         Trace.traceBlockEnd();
     }
 }

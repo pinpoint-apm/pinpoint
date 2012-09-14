@@ -33,7 +33,6 @@ public class MySQLConnectionImplModifierTest {
 
         MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor());
         loader.addModifier(preparedStatementJDBC4Modifier);
-//        loader.delegateLoadingOf(ConnectionTrace.class.getName());
 
         loader.initialize();
     }

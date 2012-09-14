@@ -53,7 +53,6 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(StaticBeforeInterceptor.class.getName());
         this.delegateLoadingOf(StaticAfterInterceptor.class.getName());
         this.delegateLoadingOf(InterceptorRegistry.class.getName());
-//        this.delegateLoadingOf(ConnectionTrace.class.getName());
         this.delegateLoadingOf(Trace.class.getName());
         this.delegateLoadingOf(Annotation.class.getName());
         this.delegateLoadingOf(StopWatch.class.getName());

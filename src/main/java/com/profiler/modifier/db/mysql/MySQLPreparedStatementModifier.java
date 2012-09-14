@@ -8,14 +8,13 @@ import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.NotFoundInstrumentException;
-import com.profiler.modifier.db.interceptor.PreparedStatementMethodInterceptor;
+import com.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
 import com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.profiler.util.ExcludeBindVariableFilter;
 import com.profiler.util.JavaAssistUtils;
 import com.profiler.util.PreparedStatementUtils;
 import javassist.CtClass;
 import javassist.CtConstructor;
-import javassist.CtMethod;
 
 import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.interceptor.Interceptor;
@@ -46,8 +45,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 		checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
-//            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementMethodInterceptor");
-            Interceptor interceptor = new PreparedStatementMethodInterceptor();
+
+            Interceptor interceptor = new PreparedStatementExecuteQueryInterceptor();
             preparedStatement.addInterceptor("executeQuery", null, interceptor);
 
             preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
@@ -81,13 +80,18 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
-//        Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor");
+
         Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
+        int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();
             String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
             try {
-                preparedStatement.addInterceptor(methodName, parameterType, interceptor);
+                if (interceptorId == -1) {
+                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
+                } else {
+                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
+                }
             } catch (NotFoundInstrumentException e) {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
                 if (logger.isLoggable(Level.FINE)) {
@@ -98,41 +102,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
     }
 
-
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-		try {
-			CtClass cc = classPool.get(javassistClassName);
-
-			updateSetInternalMethod(cc);
-			updateExecuteQueryMethod(cc);
-			updateConstructor(cc);
-
-			printClassConvertComplete(javassistClassName);
-
-			return cc.toBytecode();
-		} catch (Exception e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		return null;
-	}
-
-	private void updateSetInternalMethod(CtClass cc) throws Exception {
-		CtClass[] params1 = new CtClass[2];
-		params1[0] = classPool.getCtClass("int");
-		params1[1] = classPool.getCtClass("java.lang.String");
-		CtMethod method1 = cc.getDeclaredMethod("setInternal", params1);
-
-		method1.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2); }");
-
-		CtClass[] params2 = new CtClass[2];
-		params2[0] = classPool.getCtClass("int");
-		params2[1] = classPool.getCtClass("byte[]");
-		CtMethod method2 = cc.getDeclaredMethod("setInternal", params2);
-
-		method2.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2); }");
-	}
 
 	private void updateConstructor(CtClass cc) throws Exception {
 		CtConstructor[] constructorList = cc.getConstructors();
@@ -146,8 +115,5 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 		}
 	}
 
-	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("executeQuery", null);
-		method.insertAfter("{System.out.println(\"EXECUTE QUERY\");" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
-	}
+
 }

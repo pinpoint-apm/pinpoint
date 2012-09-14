@@ -36,7 +36,6 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
 
             // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
-//            Interceptor createConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.ConnectionCreateInterceptor");
             Interceptor createConnection  = new ConnectionCreateInterceptor();
             String[] params = new String[] {
                 "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
@@ -44,26 +43,21 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("getInstance", params, createConnection);
 
 
-//            Interceptor closeConnection = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.ConnectionCloseInterceptor");
             Interceptor closeConnection = new ConnectionCloseInterceptor();
             mysqlConnection.addInterceptor("close", null, closeConnection);
 
-
-//            Interceptor createStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementCreateInterceptor");
             Interceptor createStatement = new StatementCreateInterceptor();
             mysqlConnection.addInterceptor("createStatement", null, createStatement);
 
 
-//            Interceptor preparedStatement = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.PreparedStatementCreateInterceptor");
             Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
 
-//            Interceptor transaction = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.c");
             Interceptor transaction = new TransactionInterceptor();
-            mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, transaction);
-            mysqlConnection.addInterceptor("commit", null, transaction);
-            mysqlConnection.addInterceptor("rollback", null, transaction);
+            int interceptorId = mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, transaction);
+            mysqlConnection.reuseInterceptor("commit", null, interceptorId);
+            mysqlConnection.reuseInterceptor("rollback", null, interceptorId);
 
 			printClassConvertComplete(javassistClassName);
 
@@ -77,25 +71,4 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 	}
 
 
-//	private void updateCreateStatementMethod(CtClass cc) throws Exception {
-//		CtMethod method = cc.getDeclaredMethod("createStatement", null);
-//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
-//	}
-//
-//	private void updateGetInstanceMethod(CtClass cc) throws Exception {
-//		CtClass[] params = new CtClass[5];
-//		params[0] = classPool.getCtClass("java.lang.String");
-//		params[1] = classPool.getCtClass("int");
-//		params[2] = classPool.getCtClass("java.util.Properties");
-//		params[3] = classPool.getCtClass("java.lang.String");
-//		params[4] = classPool.getCtClass("java.lang.String");
-//		CtMethod method = cc.getDeclaredMethod("getInstance", params);
-//
-//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$5); }");
-//	}
-//
-//	private void updateCloseMethod(CtClass cc) throws Exception {
-//		CtMethod method = cc.getDeclaredMethod("close", null);
-//		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
-//	}
 }

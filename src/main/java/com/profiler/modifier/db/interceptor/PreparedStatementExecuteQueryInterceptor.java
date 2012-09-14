@@ -11,9 +11,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementMethodInterceptor implements StaticAroundInterceptor {
+public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = Logger.getLogger(PreparedStatementMethodInterceptor.class.getName());
+    private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
     private final MetaObject<String> getSql = new MetaObject("__getSql");
     private final MetaObject<String> getUrl = new MetaObject("__getUrl");
