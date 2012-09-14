@@ -160,11 +160,17 @@ public class JavaAssistClass implements InstrumentClass {
             behavior = getBehavior(methodName, args);
         } catch (NotFoundException e) {
             // target method나 constructor를 차지 못했을 경우는 NotFoundInstrumentException을 던진다.
-            throw new NotFoundInstrumentException(interceptor.getClass().getSimpleName() + " add fail. Cause:" + e.getMessage(), e);
+            if (interceptor == null) {
+                throw new NotFoundInstrumentException(interceptorId + " add fail. Cause:" + e.getMessage(), e);
+            } else {
+                throw new NotFoundInstrumentException(interceptor.getClass().getSimpleName() + " add fail. Cause:" + e.getMessage(), e);
+            }
         }
         try {
             if (interceptor != null) {
                 interceptorId = InterceptorRegistry.addInterceptor(interceptor);
+            } else {
+                interceptor = InterceptorRegistry.getInterceptor(interceptorId);
             }
             if (type == Type.auto) {
                 if (interceptor instanceof StaticAroundInterceptor) {
