@@ -1,0 +1,12 @@
+
+
+disable 'TraceIndex'
+drop 'TraceIndex'
+create 'TraceIndex', { NAME => 'Trace', VERSION => 1 }
+
+
+disable 'Traces'
+drop 'Traces'
+create 'Traces', { NAME => 'Span', VERSION => 1 }
+
+

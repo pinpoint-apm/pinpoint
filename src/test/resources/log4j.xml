@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
-
-	<!--  appender /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	<appender name="general" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%F:%L) %m%n"/>
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%F:%L) %m%n" />
 		</layout>
 	</appender>
 
-
-	<!-- ibatis log가 나오도록 하려면 DEBUG로 수정.-->
 	<logger name="com.profiler" additivity="false">
-		<level value="DEBUG"/>
-		<appender-ref ref="general"/>
+		<level value="DEBUG" />
+		<appender-ref ref="general" />
+	</logger>
+	<logger name="org.apache.hadoop.hbase" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="general" />
 	</logger>
 
-    <logger name="org.apache.hadoop.hbase" additivity="false">
-		<level value="DEBUG"/>
-		<appender-ref ref="general"/>
-	</logger>
-
-	<!-- // define root // -->
 	<root>
-		<level value="DEBUG"/>
-		<appender-ref ref="general"/>
+		<level value="INFO" />
+		<appender-ref ref="general" />
 	</root>
 </log4j:configuration>
