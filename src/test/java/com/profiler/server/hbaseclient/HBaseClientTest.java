@@ -64,9 +64,9 @@ public class HBaseClientTest {
 			put.add(Bytes.toBytes(COLUMN_FAMILY), Bytes.toBytes("qual2"), Bytes.toBytes("val2"));
 			putList.add(put);
 		}
-		client.insert(Bytes.toBytes(TABLE_NAME), putList);
+		client.insert(TABLE_NAME, putList);
 
-		client.flush(Bytes.toBytes(TABLE_NAME));
+//		client.flush(TABLE_NAME);
 
 		try {
 			Thread.sleep(10000L);
