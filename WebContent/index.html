@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>HIPPO Web UI</title>
+
+    <meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
+	<style>
+	body {
+		padding-top: 60px;
+	}
+	
+	.hubblechart {
+		height: 500px; 
+	}
+	</style>
+	<link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	
+	<script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
+	
+	<link href="/select2/select2-customized.css" rel="stylesheet"/>
+	<script type="text/javascript" src="/select2/select2.js"></script>
+	
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	
+	<script src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
+	<script src="/common/js/sankey/sankey.js"></script>
+	
+	<style>
+	@import url(/style.css);
+	#chart {
+		height: 500px;
+	}
+	.node rect {
+		cursor: move;
+		fill-opacity: .9;
+		shape-rendering: crispEdges;
+	}
+	.node text {
+		pointer-events: none;
+		text-shadow: 0 1px 0 #fff;
+	}
+	.link {
+		fill: none;
+		stroke: #000;
+		stroke-opacity: .2;
+	}
+	.linkOver {
+		stroke-opacity: .5;
+	}
+	.link:hover {
+		stroke-opacity: .5;
+	}
+	</style>
+</head>
+<body>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span
+					class="icon-bar"></span> <span class="icon-bar"></span>
+				</a> <a class="brand" href="/">HIPPO</a>
+				<div class="nav-collapse">
+					<ul class="nav">
+						<li><a data-toggle="modal" href="#myModal">Add Chart</a></li>
+						<li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
+						<li><a href="#">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL -->
+	<div class="modal hide fade" id="myModal" style="width:1000px; margin-left:-500px">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">×</button>
+			<h3>Add Chart</h3>
+		</div>
+		<div class="modal-body">
+		
+			<form class="form-horizontal" id="frmAddChart">
+			<fieldset>
+			  
+			  <div class="row">
+			  <div class="span5">
+			  
+			  	<!-- merge method -->
+			    <div class="control-group">
+					<div class="row">
+						<div class="span2">
+							<label class="control-label" for="mergetarget" style="width:90px;">Merge</label>
+							<div class="controls" style="margin-left:100px;">
+									<label class="radio">
+							      		<input name="mergetarget" type="radio" value="NONE" checked="checked">None</input>
+						      		</label>
+						      		<label class="radio">
+							      		<input name="mergetarget" type="radio" value="UID">UID</input>
+							      	</label>
+							      	<label class="radio">
+								      	<input name="mergetarget" type="radio" value="STAT">STAT</input>
+							      	</label>
+							      	<label class="radio">
+								      	<input name="mergetarget" type="radio" value="ALL">ALL</input>
+							      	</label>
+							</div>
+						</div>
+						<div class="span1">
+							<label class="control-label" for="mergetarget" style="width:90px;">Merge Function</label>
+							<div class="controls" style="margin-left:100px;">
+								<label class="radio">
+						      		<input name="mergefunc" type="radio" value="SUM" checked="checked">SUM</input>
+					      		</label>
+					      		<label class="radio">
+						      		<input name="mergefunc" type="radio" value="AVG">AVG</input>
+						      	</label>
+							</div>
+						</div>
+					</div>
+			    </div>
+			  
+			  	<!-- UID -->
+				<div class="control-group">
+					<label class="control-label" for="uidlist" style="width:90px;">UID</label>
+					<div class="controls" style="margin-left:100px;">
+						<select id="uidlist" style="width:400px;"></select>
+					</div>
+				</div>
+			  
+			  	<!-- STAT -->
+				<div class="control-group">
+					<label class="control-label" for="statlist" style="width:90px;">Stat</label>
+					<div class="controls" style="margin-left:100px;">
+						<select id="statlist" style="width:400px;"></select>
+					</div>
+				</div>
+				
+				<!-- DATASET -->
+				<div class="control-group">
+					<label class="control-label" for="datasetlist" style="width:90px;">Dataset</label>
+					<div class="controls" style="margin-left:100px;">
+						<select id="datasetlist" style="width:400px;"></select>
+					</div>
+				</div>
+				
+			  </div>
+			  <div class="span5">
+
+				
+				<!-- CHART TYPE -->
+				<div class="control-group">
+					<label class="control-label" for="input01">Chart type</label>
+					<div class="controls">
+						<select name="chartType" class="input-xlarge">
+							<option value="line" selected="selected">LINE</option>
+							<option value="area">AREA</option>
+							<option value="table">TABLE</option>
+						</select>
+					</div>
+			    </div>
+			    
+			    <!-- TITLE -->
+				<div class="control-group">
+					<label class="control-label" for="input01">Chart Title</label>
+					<div class="controls">
+						<input name="chartTitle" type="text" value="UNTITLED" style="width:260px;"/>
+					</div>
+				</div>
+
+			  </div>
+			  </div>
+
+			  <div class="row">
+			  	<div class="control-group" style="height:90px;"></div>
+			  </div>
+
+			</fieldset>
+			</form>			
+		</div>
+		<div class="modal-footer">
+			<a href="#" class="btn" data-dismiss="modal">Close</a>
+			<a href="#" class="btn btn-primary" onclick="saveNewChart();">Add to dashboard</a>
+		</div>
+	</div>
+	<!-- END OF MODAL -->
+
+	<!-- MENU -->
+	<div class="container">
+		<form class="well form-inline" id="hubbleChartCondition">
+			<label class="control-label" for="from">From</label>
+			<input class="input-medium" name="from" value="2012/06/27-11:00:00" size="20" />
+			
+			&nbsp;&nbsp;
+			
+			<label class="control-label" for="to">To</label>
+			<input class="input-medium" name="to" value="2012/06/27-19:40:00" size="20" />
+			
+			&nbsp;&nbsp;
+			
+			<label class="control-label" for="resolution">Resolution</label>
+			<select class="input-mini" name="resolution">
+				<option value="5">5s</option>
+				<option value="60">1m</option>
+				<option value="3600">1h</option>
+				<option value="86400">1d</option>
+			</select>
+			
+			&nbsp;&nbsp;
+			
+			<button type="button" class="btn btn-primary" onclick="drawChart()">TRACE !</button>
+		</form>
+	</div>
+	<!-- END OF MENU -->
+
+	<p id="chart"></p>
+
+	<script>
+		var margin = {
+			top : 1,
+			right : 1,
+			bottom : 6,
+			left : 1
+		}, width = 800 - margin.left - margin.right, height = 300 - margin.top - margin.bottom;
+
+		var formatNumber = d3.format(",.0f"), format = function(d) {
+			return formatNumber(d) + " Requests";
+		}, color = d3.scale.category20();
+
+		var svg = d3.select("#chart").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
+
+		var path = sankey.link();
+
+		d3.json("data.json", function(energy) {
+			sankey.nodes(energy.nodes).links(energy.links).layout(32);
+
+			/*
+			LINKS			
+			*/
+			var link = svg.append("g").selectAll(".link").data(energy.links)
+					.enter().append("path")
+					.attr("class", "link")
+					.attr("d", path).style("stroke-width", function(d) {
+						return Math.max(1, d.dy);
+					}).sort(function(a, b) {
+						return b.dy - a.dy;
+					}).on("click", function(a, b) {
+						console.log("[LINK CLICK] Get request details here.");
+						console.log(a);
+						console.log(b);
+					});
+
+			link.append("title").text(
+					function(d) {
+						return d.source.name + " → " + d.target.name + "\n"
+								+ format(d.value);
+					});
+
+			/*
+			NODES
+			*/
+			var node = svg.append("g").selectAll(".node").data(energy.nodes)
+					.enter().append("g").attr("class", "node").attr(
+							"transform", function(d) {
+								return "translate(" + d.x + "," + d.y + ")";
+							}).call(d3.behavior.drag().origin(function(d) {
+						return d;
+					}).on("dragstart", function() {
+						this.parentNode.appendChild(this);
+					}).on("drag", dragmove));
+
+			node.on("mouseover", function(d) {
+				//console.log(d.name);
+				
+				//console.log(d3.selectAll(".link"));
+				
+				//console.log(d3.selectAll(".link")[0][0]);
+				
+				console.log(d3.selectAll("#chart .link").select().attr("class", ""));
+				
+				console.log("mouse over");
+			}).on("mouseout", function(d) {
+
+			});
+
+			node.append("rect").attr("height", function(d) {
+				return d.dy;
+			}).attr("width", sankey.nodeWidth()).style("fill", function(d) {
+				return d.color = color(d.name.replace(/ .*/, ""));
+			}).style("stroke", function(d) {
+				return d3.rgb(d.color).darker(2);
+			}).append("title").text(function(d) {
+				return d.name + "\n" + format(d.value);
+			});
+
+			node.append("text").attr("x", -6).attr("y", function(d) {
+				return d.dy / 2;
+			}).attr("dy", ".35em").attr("text-anchor", "end").attr("transform",
+					null).text(function(d) {
+				return d.name;
+			}).filter(function(d) {
+				return d.x < width / 2;
+			}).attr("x", 6 + sankey.nodeWidth()).attr("text-anchor", "start");
+
+			function dragmove(d) {
+				d3.select(this).attr(
+						"transform",
+						"translate("
+								+ d.x
+								+ ","
+								+ (d.y = Math.max(0, Math.min(height - d.dy,
+										d3.event.y))) + ")");
+				sankey.relayout();
+				link.attr("d", path);
+			}
+		});
+	</script>
+
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+/*
+NHN WebStandard Team (http://html.nhndesign.com/)
+*/
+@charset "utf-8";
+body{ margin:0px 20px 0px 0px; padding:0px 0px 0px 0px; width:100%; height:100%;  }
+h1, h2, h3, h4, h5, h6{ margin:0; padding:0; }
+div, table, th, td, ol, ul, li, dl, dt, dd, form,  input, select, textarea, label{	
+	 list-style:none; margin:1; padding:0; color:#333; font-size:12px; font-family: Calibri, Arial, Helvetica, sans-serif;
+
+}
+
+img{border:none;}
+table{border-collapse:collapse;}
+
+/* Link */
+a{color:#333; text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* Text */
+.u, a.u:link, a.u:visited, a.u:hover, a.u:active{text-decoration:underline;}
+.n, a.n:link, a.n:visited, a.n:hover, a.n:active{text-decoration:none;}
+.b{font-weight:bold;}
+.eng{font-size:12px; font-family:Arial;}
+.jap{font-size:12px; font-family:MSP Gothic;}
+.chi{font-size:12px; font-family:NSimsun;}
+.num{font-size:11px; font-family:Tahoma;}
+.ls{letter-spacing:-1px;}
+.ls0{letter-spacing:0px;}
+.p11{font-size:11px; letter-spacing:-1px;}
+
+/* Display */
+.tl{text-align:left;}
+.tc{text-align:center;}
+.tr{text-align:right;}
+.fl{float:left;}
+.fr{float:right;}
+.cboth{clear:both;}
+.vm{vertical-align:middle;}
+.vt{vertical-align:top;}
+
+/* Color */
+.white, a.white:link, a.white:visited, a.white:hover, a.white:active{color:#fff;}
+.black, a.black:link, a.black:visited, a.black:hover, a.black:active{color:#000;}
+.gray, a.gray:link, a.gray:visited, a.gray:hover, a.gray:active{color:#666;}
+.gray2, a.gray2:link, a.gray2:visited, a.gray2:hover, a.gray2:active{color:#333;}
+.gray3, a.gray3:link, a.gray3:visited, a.gray3:hover, a.gray3:active{color:#999;}
+.blue, a.blue:link, a.blue:visited, a.blue:hover, a.blue:active{color:#003371;}
+.blue2, a.blue2:link, a.blue2:visited, a.blue2:hover, a.blue:active{color:#21859D;}
+.red, a.red:link, a.red:visited, a.red:visited, a.red:active{color:#FF0000;}
+.red2, a.red2:link, a.red2:visited, a.red2:hover, a.red2:active{color:#FF7141;}
+.red3, a.red3:link, a.red3:visited, a.red3:hover, a.red3:active{color:#CC0000; font-weight:normal;}
+.red4, a.red4:link, a.red4:visited, a.red4:hover, a.red4:active{color:#ED1C24;}
+/* input */
+.input1{padding-left:4px; border:1px solid #ccc;}
+
+/* flow */
+/* tabflow_box */
+.tabflow_box {width:100%; height:25px; background:url(../../images/img/bg_tabflow.gif) no-repeat; }
+ul.tabflowx {overflow:hidden; }
+ul.tabflowx li {float:left; height:18px; _height:25px; margin:0; padding:8px 22px 0 10px; font-size:11px; background:url(../../images/img/bg_tabflow_off.gif) right top no-repeat; color:#666; letter-spacing:-1px; }
+ul.tabflowx li.titx {width:72px; font-weight:bold;height:18px; _height:25px; padding:8px 0 0 0; background:url(../../images/img/bg_step.gif) no-repeat; color:#fff; text-align:center; letter-spacing:0;}
+ul.tabflowx li.onx {background:url(../../images/img/bg_tabflow_on.gif) right top no-repeat; color:#fff; }
+ul.tabflowx li.on_arwx {background:url(../../images/img/bg_tabflow_arw.gif) right top no-repeat; }
+
+/*paging*/
+.paginate {margin:0; padding:0; text-align:center;}
+.paginate a,
+.paginate strong { _position:relative; margin-left:-5px;font-weight:bold; display:inline-block; _width /**/:31px; padding:3px 8px 1px 7px; color:#313031; border-left:1px solid #CCCCCC; border-right:1px solid #CCCCCC; text-decoration:none; line-height:normal; font:bold 12px "����", Dotum, "����", Gulim, AppleGothic, Sans-serif;}
+.paginate strong { color:#327CC3 !important;}
+.paginate a:hover { background:#F7F7F7; }
+.paginate a.pre { padding:3px 8px 1px 16px; _width /**/:49px; background:url(../../images_ko_KR/v2/bu_pg1_l1.gif) no-repeat 8px 6px !important; border:none; font-weight:normal; }
+.paginate a.pre_end { padding:3px 8px 1px 16px; _width /**/:49px; background:url(../../images_ko_KR/v2/bu_pg1_l2.gif) no-repeat 4px 6px !important; border:none; border-right:1px solid #CCCCCC; font-weight:normal;}
+.paginate a.next { padding:3px 16px 1px 8px; _width /**/:49px; background:url(../../images_ko_KR/v2/bu_pg1_r1.gif) no-repeat 37px 6px !important; border:none; font-weight:normal; }
+.paginate a.next_end { padding:3px 16px 1px 8px; _width /**/:49px; background:url(../../images_ko_KR/v2/bu_pg1_r2.gif) no-repeat 37px 6px !important; border:none; border-left:1px solid #CCCCCC; font-weight:normal;}
+
+.paginate2 {margin:0;padding:0; text-align:center;}
+.paginate2 a,
+.paginate2 strong { _position:relative; margin-left:-5px;font-weight:bold; display:inline-block; _width:31px; padding:3px 8px 1px 7px; color:#313031; border-left:1px solid #CCCCCC; border-right:1px solid #CCCCCC; text-decoration:none; line-height:normal; font:bold 12px "����", Dotum, "����", Gulim, AppleGothic, Sans-serif;}
+.paginate2 strong { color:#ff7141 !important;}
+.paginate2 a:hover { background:#F7F7F7; }
+.paginate2 a.pre { padding:3px 8px 1px 16px; _width:49px; background:url(../../images_ko_KR/v2/bu_pg1_l1.gif) no-repeat 8px 6px !important; border:none; font-weight:normal; }
+.paginate2 a.pre_end { padding:3px 8px 1px 16px; _width:49px; background:url(../../images_ko_KR/v2/bu_pg1_l2.gif) no-repeat 4px 6px !important; border:none; border-right:1px solid #CCCCCC; font-weight:normal;}
+.paginate2 a.next { padding:3px 16px 1px 8px; _width:49px; background:url(../../images_ko_KR/v2/bu_pg1_r1.gif) no-repeat 37px 6px !important; border:none; font-weight:normal; }
+.paginate2 a.next_end { padding:3px 16px 1px 8px; _width:49px; background:url(../../images_ko_KR/v2/bu_pg1_r2.gif) no-repeat 37px 6px !important; border:none; border-left:1px solid #CCCCCC; font-weight:normal;}
+
+
+/* pagenavigation */
+.pagenavigation{margin:0;display:block; position:relative; clear:both; padding:12px 0; font:bold 12px Dotum, Gulim, AppleGothic, Sans-serif; text-align:center;}
+.pagenavigation a,
+.pagenavigation strong{display:inline-block; position:relative; margin-left:-6px; padding:3px 8px 0 7px; border-left:1px solid #ccc; border-right:1px solid #ccc; color:#333; font:bold 12px Dotum, Gulim, AppleGothic, Sans-serif; text-decoration:none; line-height:100%;}
+.pagenavigation strong{color:#ff8400 !important;}
+.pagenavigation a:hover{background:#F7F7F7;}
+.pagenavigation a.pre{padding:3px 9px 0 8px; border:none; background:url(http://static.naver.com/application/desktop/img_2007/bu_pg01_l01.gif) no-repeat left 50% !important; font-weight:normal;}
+.pagenavigation a.pre_end{margin-right:8px; padding-left:12px; border:none; border-right:1px solid #ccc; background:url(http://static.naver.com/application/desktop/img_2007/bu_pgarLL.gif) no-repeat left 50% !important; font-weight:normal;}
+.pagenavigation a.next{padding:3px 8px 0 8px; border:none; background:url(http://static.naver.com/application/desktop/img_2007/bu_pg01_r01.gif) no-repeat right 50% !important; font-weight:normal;}
+.pagenavigation a.next_end{margin-left:8px; padding-right:12px; border:none; border-left:1px solid #ccc; background:url(http://static.naver.com/application/desktop/img_2007/bu_pgarRR.gif) no-repeat right 50% !important; font-weight:normal;}
+.pagenavigation p a{position:absolute; right:6px; top:6px; border:0; background:none;}
+
+.scroll{margin-right:0px; scrollbar-highlight-color:#dcdee2; scrollbar-shadow-color:#dcdee2; scrollbar-arrow-color:#8b8b8b; scrollbar-face-color:#fff; scrollbar-3dlight-color:#fff; scrollbar-darkshadow-color:#fff; scrollbar-track-color:#f7f7f7;}
+
+.suggestion_div_main{ position:relative;}
+.suggestion_div_main *{ margin:0; padding:0; font-style:normal; font-size:12px; font-family:����, Dotum, ����, Gulim, AppleGothic, Sans-serif;}
+.suggestion_div_main img,
+.suggestion_div_main button{ border:none;}
+.suggestion_div_main .input_search{ position:relative; top:1px; _top:0; _width /**/:400px; height:16px; _height /**/:21px; padding:3px 5px 0 5px; border:1px solid #bbb; font:13px "����", Gulim, "����", Dotum, AppleGothic, Sans-serif; letter-spacing:-1px; color:#000;}
+.suggestion_div_main .suggestion{}
+.suggestion_div_main .suggestion .btn_hint{ display:block; width:7px; height:4px; padding:6px 6px 7px 6px; _padding:7px 7px 8px 7px; background:#fff;}
+.suggestion_div_main .suggestion .btn_hint img{ display:block;}
+.suggestion_div_main .suggestion #suggestion ul{ position:relative; overflow:auto; overflow-x:hidden; x; _height /**/:96px; padding:5px 0 0 0; border-top:1px solid #fff;}
+.suggestion_div_main .suggestion #suggestion ul li{ margin:0 0 3px 0; _margin:0 0 2px 0; _width:382px; list-style:none;}
+.suggestion_div_main .suggestion #suggestion ul a{ position:relative; _left /**/:-16px; display:block; height:13px; _height /**/:19px; padding:3px 0 3px 9px; color:#666; font-family:"����", Gulim, "����", Dotum, AppleGothic, Sans-serif; text-decoration:none;}
+.suggestion_div_main .suggestion #suggestion ul a:hover,
+.suggestion_div_main .suggestion #suggestion ul a:active,
+.suggestion_div_main .suggestion #suggestion ul a:focus{ background:#f5f5f5; margin:0 1px 0 0;}
+.suggestion_div_main .suggestion #suggestion p{ position:absolute; top:97px; left:0; width:391px; _width /**/:398px; height:16px; _height /**/:23px; padding:7px 0 0 7px; color:#737373; font-size:11px; letter-spacing:-1px; border-top:1px solid #ebebeb; background:#f5f5f5;}
+.suggestion_div_main .suggestion #suggestion p button{ position:absolute; top:3px; _top:2px; right:1px; width:50px; height:20px; font-size:11px; color:#737373; cursor:pointer; _cursor /**/:hand; background:none;}
+*:first-child+html .suggestion_div_main .suggestion #suggestion p button{ top:2px;}
+.suggestion_div_main .suggestion #suggestion p button *{ position:relative; display:block; _padding:5px 0 0 0; font-size:11px; color:#737373;}
+*:first-child+html .suggestion_div_main .suggestion #suggestion p button *{ padding:5px 0 0 0;}
+.suggestion_div_main .scroll{scrollbar-base-color:#fff; scrollbar-arrow-color:#8d8d8d; scrollbar-3dlight-color:#eaeaea; scrollbar-darkshadow-color:#fff; scrollbar-face-color:#eaeaea; scrollbar-highlight-color:#eaeaea; scrollbar-shadow-color:#eaeaea; scrollbar-track-color:#fff;}
+
+.data_box1 {clear:both; position:relative; height:68px; padding:0 0 0 45px; background:url(../../images_ko_KR/v2/bg_databox.gif) repeat-x left bottom;}
+table.data_info td {height:27px;}
+table.data_info td label {padding:0 8px 0 22px; color:#666666; font-weight:bold;}
+table.data_info td select {margin-right:5px;}
+table.data_info td input,
+table.data_info td select,
+table.data_info td img {vertical-align:middle;}
+table.data_info td .data_text {padding-right:95px; color:#333333;}
+
+.box_type3 {position:relative; height:42px; background:#f8f8f8 url(../../images_ko_KR/v2/bg_box_url.gif) repeat-x left top;}
+.box_type3 h2 {padding:17px 0 0 30px; color:#666666; font-size:12px; letter-spacing:-1px;}
+.box_type3 h2 span {color:#666666; font-weight:normal; letter-spacing:-1px;}
+.box_type3 ul.check_icon {position:absolute; right:12px; top:15px;}
+.box_type3 ul.check_icon li {float:left; padding-right:5px;}
+.box_type3 ul.check_icon li img {vertical-align:top;}
+
+table.show_helper {margin:0 0 0 10px; line-height:23px; background:#FFFFFF; border-width:1px; border-style:solid; border-color:#716E65 #9D9DA1 #9D9DA1 #9D9DA1;}
+table.show_helper td{padding:0 5 0 5}
+
+
+/* tabmenu */
+ul.tabmenu {float:left; width:98%; margin:0px 0 10px 0; padding:0 0 0 15px; background:url(../../images/tab_menu.gif) repeat-x left bottom;overflow:hidden;}
+ul.tabmenu li {display:block; float:left; margin:0 -1px 0 0; background:url(../../images/tab_menu_off.gif) no-repeat left top;}
+ul.tabmenu li a {display:block; position:relative; padding:7px 16px 3px 15px; background:url(../../images/tab_menu_off.gif) no-repeat right top; text-align:center; font-weight:bold; color:#666; text-decoration:none;}
+ul.tabmenu li a:hover {color:#ff7141; text-decoration:none;}
+ul.tabmenu li.on {background:url(../../images/tab_menu_on.gif) no-repeat left top;}
+ul.tabmenu li.on a {padding-bottom:4px; background:url(../../images/tab_menu_on.gif) no-repeat right top; color:#ff7141;}
+
+ul.tabmenu2 {width:100%; float:left; margin-bottom:10px; background:url(../../images_ko_KR/common/tab_menu.gif) repeat-x left bottom;}
+ul.tabmenu2 li {display:inline; float:left; margin:0 1px 0 0; background:url(../../images_ko_KR/common/tab_menu_off2.gif) no-repeat left top;}
+ul.tabmenu2 li a {display:block; position:relative; margin-right:-2px; padding:7px 16px 3px 15px; background:url(../../images_ko_KR/common/tab_menu_on2.gif) no-repeat right top; text-align:center; font:bold 12px/14px ����; color:#686868; text-decoration:none;}
+ul.tabmenu2 li a:hover {color:#ff7141; text-decoration:none;}
+ul.tabmenu2 li.on {background:url(../../images_ko_KR/common/tab_menu_on2.gif) no-repeat left top;}
+ul.tabmenu2 li.on a {padding-bottom:4px; background:url(../../images_ko_KR/common/tab_menu_on2.gif) no-repeat right top; color:#ff7141;}
+
