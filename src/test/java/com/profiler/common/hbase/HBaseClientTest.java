@@ -9,6 +9,8 @@ import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.BeforeClass;
@@ -44,11 +46,13 @@ public class HBaseClientTest {
 
 		Assert.assertTrue("Table is not exists", client.isTableExists(TABLE_NAME));
 
-		client.dropTable(TABLE_NAME);
+
+        client.dropTable(TABLE_NAME);
 		client.isTableExists(TABLE_NAME);
 
 		Assert.assertFalse("Table is not dropped", client.isTableExists(TABLE_NAME));
 	}
+
 
 	@Test
 	public void insertRow() {
@@ -66,14 +70,7 @@ public class HBaseClientTest {
 		}
 		client.insert(Bytes.toBytes(TABLE_NAME), putList);
 
-		client.flush(Bytes.toBytes(TABLE_NAME));
 
-		try {
-			Thread.sleep(10000L);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 		List<HbaseColumn> list = new ArrayList<HBaseQuery.HbaseColumn>();
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual1"));
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual2"));

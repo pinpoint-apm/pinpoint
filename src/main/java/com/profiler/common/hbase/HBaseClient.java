@@ -106,16 +106,20 @@ public class HBaseClient {
 	}
 
 	public void close() {
-		for (String htableName : htableList.keySet()) {
-			try {
-				tablePool.closeTablePool(htableName);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		// htableList는 안지워워도 되지.
+        try {
+            tablePool.close();
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 	}
 
-	public Iterator<Map<String, Object>> getHBaseData(HBaseQuery query) {
+    HTablePool getTablePool() {
+        return tablePool;
+    }
+
+    public Iterator<Map<String, Object>> getHBaseData(HBaseQuery query) {
 		ResultSetIterator r = new ResultSetIterator(query);
 		return r.getIterator();
 	}
@@ -158,14 +162,14 @@ public class HBaseClient {
 		}
 	}
 
-	public void flush(byte[] tablename) {
-		HTable htable = (HTable) tablePool.getTable(tablename);
-		try {
-			htable.flushCommits();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	public void flush(byte[] tablename) {
+//		HTable htable = (HTable) tablePool.getTable(tablename);
+//		try {
+//			htable.flushCommits();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public void insert(byte[] tablename, Put put) {
 		HTable htable = (HTable) tablePool.getTable(tablename);
@@ -173,7 +177,9 @@ public class HBaseClient {
 			htable.put(put);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            closeHTable(htable);
+        }
 	}
 
 	public void insert(byte[] tablename, List<Put> put) {
@@ -182,7 +188,9 @@ public class HBaseClient {
 			htable.put(put);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            closeHTable(htable);
+        }
 	}
 
 	public void delete(byte[] tablename, Delete delete) {
@@ -191,8 +199,32 @@ public class HBaseClient {
 			htable.delete(delete);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            closeHTable(htable);
+        }
 	}
+
+    public void execute(String tableName, HTableCallBack callBack) {
+        HTable htable = (HTable) tablePool.getTable(tableName);
+        try {
+            callBack.doExecute(htable);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO ex 처리
+        } finally {
+            closeHTable(htable);
+        }
+    }
+
+    private void closeHTable(HTable htable) {
+        if (htable != null) {
+            try {
+                htable.close();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage(), e);
+            }
+        }
+    }
 
 	private class ResultSetIterator {
 		ResultScanner resultScanner = null;
