@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TSerializer;
 
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.server.hbaseclient.HBaseClient;
+import com.profiler.common.hbase.HBaseClient;
 
 public class Traces {
 
