@@ -48,9 +48,27 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.nhn.hippo</groupId>
+            <groupId>com.nhn.hippo</groupId>
 			<artifactId>hippo-commons</artifactId>
 			<version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+			        <artifactId>hadoop-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+			        <artifactId>libthrift</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hbase</groupId>
+			        <artifactId>hbase</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+			        <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 	
 		<!-- [Start] Compile Interceptors -->
