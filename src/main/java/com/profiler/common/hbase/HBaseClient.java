@@ -162,16 +162,8 @@ public class HBaseClient {
 		}
 	}
 
-//	public void flush(byte[] tablename) {
-//		HTable htable = (HTable) tablePool.getTable(tablename);
-//		try {
-//			htable.flushCommits();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
-	public void insert(byte[] tablename, Put put) {
+	public void insert(String tablename, Put put) {
 		HTable htable = (HTable) tablePool.getTable(tablename);
 		try {
 			htable.put(put);
@@ -182,7 +174,7 @@ public class HBaseClient {
         }
 	}
 
-	public void insert(byte[] tablename, List<Put> put) {
+	public void insert(String tablename, List<Put> put) {
 		HTable htable = (HTable) tablePool.getTable(tablename);
 		try {
 			htable.put(put);
@@ -193,7 +185,7 @@ public class HBaseClient {
         }
 	}
 
-	public void delete(byte[] tablename, Delete delete) {
+	public void delete(String tablename, Delete delete) {
 		HTable htable = (HTable) tablePool.getTable(tablename);
 		try {
 			htable.delete(delete);
