@@ -154,7 +154,6 @@
 				
 			  </div>
 			  <div class="span5">
-
 				
 				<!-- CHART TYPE -->
 				<div class="control-group">
@@ -195,35 +194,23 @@
 
 	<!-- MENU -->
 	<div class="container">
-		<form class="well form-inline" id="hubbleChartCondition">
-			<label class="control-label" for="from">From</label>
-			<input class="input-medium" name="from" value="2012/06/27-11:00:00" size="20" />
-			
-			&nbsp;&nbsp;
-			
-			<label class="control-label" for="to">To</label>
-			<input class="input-medium" name="to" value="2012/06/27-19:40:00" size="20" />
-			
-			&nbsp;&nbsp;
-			
-			<label class="control-label" for="resolution">Resolution</label>
-			<select class="input-mini" name="resolution">
-				<option value="5">5s</option>
-				<option value="60">1m</option>
-				<option value="3600">1h</option>
-				<option value="86400">1d</option>
+		<form class="form-inline">
+			<select id="servers">
+				<option>localhost</option>
 			</select>
-			
-			&nbsp;&nbsp;
-			
-			<button type="button" class="btn btn-primary" onclick="drawChart()">TRACE !</button>
+			<input type="text" class="input-medium" placeholder="StartTime"> ~ 
+			<input type="text" class="input-medium" placeholder="EndTime">
+			<button type="button" class="btn btn-primary" onclick="drawChart()">Trace !</button>
 		</form>
+		
+		<p id="chart"></p>
 	</div>
 	<!-- END OF MENU -->
 
-	<p id="chart"></p>
 
-	<script>
+	
+
+	<script type="text/javascript">
 		var margin = {
 			top : 1,
 			right : 1,
@@ -329,6 +316,10 @@
 		});
 	</script>
 
-
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$("#servers").select2();
+	});
+	</script>
 </body>
 </html>
