@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
-			<version>0.92.1</version>
+			<version>0.94.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
