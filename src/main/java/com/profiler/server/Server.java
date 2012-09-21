@@ -2,7 +2,7 @@ package com.profiler.server;
 
 import com.profiler.server.receiver.tcp.TCPReceiver;
 import com.profiler.server.receiver.udp.DataReceiver;
-import com.profiler.server.receiver.udp.MulplexedUDPReceiver;
+import com.profiler.server.receiver.udp.MultiplexedUDPReceiver;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -20,9 +20,9 @@ public class Server {
     public void start() {
 
         context = createContext();
-        System.out.println("Start MulplexedUDPReceiver Receive UDP Thread");
+        System.out.println("Start MultiplexedUDPReceiver Receive UDP Thread");
 
-        mulplexDataReceiver = new MulplexedUDPReceiver(context);
+        mulplexDataReceiver = new MultiplexedUDPReceiver(context);
         mulplexDataReceiver.start();
 
         System.out.println("Start Tomcat Agent Data Receive TDP Thread");
@@ -38,7 +38,7 @@ public class Server {
 
     private GenericApplicationContext createContext() {
         GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-        ClassPathResource resource = new ClassPathResource("application-context.xml");
+        ClassPathResource resource = new ClassPathResource("applicationContext.xml");
         context.load(resource);
 
         context.refresh();
@@ -50,9 +50,9 @@ public class Server {
 
     private void shutdown() {
         if (mulplexDataReceiver != null) {
-            System.out.println("Shutdown MulplexedUDPReceiver Receive UDP Thread");
+            System.out.println("Shutdown MultiplexedUDPReceiver Receive UDP Thread");
             mulplexDataReceiver.shutdown();
-            System.out.println("Shutdown MulplexedUDPReceiver complete");
+            System.out.println("Shutdown MultiplexedUDPReceiver complete");
         }
         if (context != null) {
             context.close();

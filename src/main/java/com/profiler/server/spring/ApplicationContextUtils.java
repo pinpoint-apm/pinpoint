@@ -11,7 +11,7 @@ public class ApplicationContextUtils {
     }
 
     public static GenericApplicationContext createContext() {
-        return createContext0("application-context.xml");
+        return createContext0("applicationContext.xml");
     }
 
     private static GenericApplicationContext createContext0(String contextClassPath) {

@@ -96,6 +96,32 @@
 			<artifactId>org.springframework.context</artifactId>
 			<version>${spring-version}</version>
 		</dependency>
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.orm</artifactId>
+			<version>${spring-version}</version>
+		</dependency>
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.test</artifactId>
+			<version>${spring-version}</version>
+            <scope>test</scope>
+		</dependency>
+        <dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-hadoop</artifactId>
+			<version>1.0.0.M2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-core</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hbase</groupId>
+                      <artifactId>hbase</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
 	</dependencies>
 
 	<build>

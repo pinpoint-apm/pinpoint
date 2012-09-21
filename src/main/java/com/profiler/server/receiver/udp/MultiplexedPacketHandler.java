@@ -2,6 +2,7 @@ package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
+import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.server.spring.SpringConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -12,19 +13,17 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.TBaseLocator;
 import com.profiler.server.data.reader.Reader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
 
-public class MulplexedPacketHandler implements Runnable {
+public class MultiplexedPacketHandler implements Runnable {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private final DatagramPacket datagramPacket;
 	private final GenericApplicationContext context;
 
-	@Autowired
-	private TBaseLocator locator;
+	private static final TBaseLocator locator = new DefaultTBaseLocator();
 
-	public MulplexedPacketHandler(DatagramPacket datagramPacket, GenericApplicationContext context) {
+	public MultiplexedPacketHandler(DatagramPacket datagramPacket, GenericApplicationContext context) {
 		this.datagramPacket = datagramPacket;
 		this.context = context;
 	}

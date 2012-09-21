@@ -1,5 +1,6 @@
 package com.profiler.server.datasource;
 
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
@@ -9,7 +10,10 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.SpanUtils;
+import org.hsqldb.Table;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.hadoop.hbase.HbaseOperations;
+import org.springframework.data.hadoop.hbase.TableCallback;
 
 public class Traces {
 
@@ -20,14 +24,24 @@ public class Traces {
     @Autowired
 	private HBaseClient client;
 
-	public boolean insert(Span span) {
+    @Autowired
+    private HbaseOperations hbaseTemplate;
+
+	public boolean insert(final Span span) {
 		try {
-			byte[] value = new TSerializer().serialize(span);
+			final byte[] value = new TSerializer().serialize(span);
+             // 이거 왜 put은 없지?
+            hbaseTemplate.execute(HBaseTables.TRACES, new TableCallback<Object>() {
+                @Override
+                public Object doInTable(HTable table) throws Throwable {
 
-			Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
-			put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), value);
+                    Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
+			        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), value);
+                    table.put(put);
 
-			client.insert(HBaseTables.TRACES, put);
+                    return null;
+                }
+            });
 			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
