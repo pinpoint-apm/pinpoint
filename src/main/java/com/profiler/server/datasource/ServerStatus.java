@@ -6,8 +6,4 @@ public class ServerStatus {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	private byte[] generateRowkey() {
-		return null;
-	}
-	
 }
