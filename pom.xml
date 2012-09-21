@@ -7,25 +7,31 @@
 	<name>hippo data receiver</name>
 	<packaging>jar</packaging>
 
-	<distributionManagement>
-		<repository>
-			<id>nhn.release.repository</id>
-			<name>nhncorp.release</name>
-			<url>dav:http://repo.nhncorp.com/maven2</url>
-		</repository>
-		<snapshotRepository>
-			<id>nhn.snapshot.repository</id>
-			<name>nhncorp.snapshot</name>
-			<url>dav:http://repo.nhncorp.com/m2-snapshot-repository</url>
-			<uniqueVersion>true</uniqueVersion>
-		</snapshotRepository>
-	</distributionManagement>
-
-    <properties>
-        <spring-version>3.1.2.RELEASE</spring-version>
-    </properties>
+	<properties>
+		<spring-version>3.1.2.RELEASE</spring-version>
+	</properties>
 
 	<repositories>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>spring-milestone</id>
+			<name>Spring Maven MILESTONE Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+		</repository>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
 		<repository>
 			<id>nhn.release.repository</id>
 			<url>http://repo.nhncorp.com/maven2</url>
@@ -56,22 +62,22 @@
 			<artifactId>hippo-commons</artifactId>
 			<version>0.0.1</version>
 		</dependency>
-		
-		<!--<dependency>-->
-			<!--<groupId>org.apache.hadoop</groupId>-->
-			<!--<artifactId>hadoop-core</artifactId>-->
-			<!--<version>1.0.1</version>-->
-		<!--</dependency>-->
-		<!--<dependency>-->
-			<!--<groupId>org.apache.thrift</groupId>-->
-			<!--<artifactId>libthrift</artifactId>-->
-			<!--<version>0.8.0</version>-->
-		<!--</dependency>-->
-		<!--<dependency>-->
-			<!--<groupId>org.apache.hbase</groupId>-->
-			<!--<artifactId>hbase</artifactId>-->
-			<!--<version>0.94.1</version>-->
-		<!--</dependency>-->
+
+		<!--<dependency> -->
+		<!--<groupId>org.apache.hadoop</groupId> -->
+		<!--<artifactId>hadoop-core</artifactId> -->
+		<!--<version>1.0.1</version> -->
+		<!--</dependency> -->
+		<!--<dependency> -->
+		<!--<groupId>org.apache.thrift</groupId> -->
+		<!--<artifactId>libthrift</artifactId> -->
+		<!--<version>0.8.0</version> -->
+		<!--</dependency> -->
+		<!--<dependency> -->
+		<!--<groupId>org.apache.hbase</groupId> -->
+		<!--<artifactId>hbase</artifactId> -->
+		<!--<version>0.94.1</version> -->
+		<!--</dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -79,18 +85,18 @@
 			<scope>test</scope>
 		</dependency>
 
-        <dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 			<version>${spring-version}</version>
 			<scope>compile</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.context</artifactId>
-            <version>${spring-version}</version>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.context</artifactId>
+			<version>${spring-version}</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
