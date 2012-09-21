@@ -1,4 +1,4 @@
-package com.profiler.server.datasource;
+package com.profiler.server.dao;
 
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;

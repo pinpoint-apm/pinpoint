@@ -31,11 +31,11 @@
 	<bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
 
-	<bean id="testTraceIndex" class="com.profiler.server.datasource.TraceIndex">
+	<bean id="testTraceIndex" class="com.profiler.server.dao.TraceIndex">
         <property name="tableName" value="TestTraceIndex"/>
 	</bean>
 
-	<bean class="com.profiler.server.datasource.Traces"></bean>
+	<bean class="com.profiler.server.dao.Traces"></bean>
 
 
 </beans>

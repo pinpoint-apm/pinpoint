@@ -20,7 +20,6 @@ import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.data.hadoop.hbase.TableCallback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.UnsupportedEncodingException;
@@ -46,7 +45,7 @@ public class TracesTest {
 
     @Autowired
     @Qualifier("testTraceIndex")
-    private TraceIndex traceIndex;
+    private com.profiler.server.dao.TraceIndex traceIndex;
 
 
     //	@BeforeClass

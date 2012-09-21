@@ -1,4 +1,4 @@
-package com.profiler.server.datasource;
+package com.profiler.server.dao;
 
 import org.apache.log4j.Logger;
 

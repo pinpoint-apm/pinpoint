@@ -2,12 +2,12 @@ package com.profiler.server.data.reader;
 
 import java.net.DatagramPacket;
 
+import com.profiler.server.dao.TraceIndex;
+import com.profiler.server.dao.Traces;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.server.datasource.TraceIndex;
-import com.profiler.server.datasource.Traces;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SpanReader implements Reader {
@@ -15,7 +15,8 @@ public class SpanReader implements Reader {
 	private final Logger logger = Logger.getLogger(SpanReader.class.getName());
 
     @Autowired
-	private TraceIndex tindex;
+	private TraceIndex traceIndex;
+
     @Autowired
 	private Traces trace;
 
@@ -26,7 +27,7 @@ public class SpanReader implements Reader {
 			Span span = (Span) tbase;
 
             trace.insert(span);
-            tindex.insert(span);
+            traceIndex.insert(span);
 
 			if (logger.isInfoEnabled()) {
 				logger.info("Received SPAN=" + span);
