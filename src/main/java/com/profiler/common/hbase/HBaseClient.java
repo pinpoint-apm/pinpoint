@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -44,60 +45,40 @@ public class HBaseClient {
 	private final Map<String, Integer> fieldNameVsType = new HashMap<String, Integer>();
 	private boolean convertType = false;
 
-	private static class SingletonHolder {
-		// TODO: configuration this.
-		public static final HBaseClient INSTANCE = new HBaseClient(10);
-	}
-
-	public static HBaseClient getInstance() {
-		return SingletonHolder.INSTANCE;
-	}
-
-	public HBaseClient(int poolSize) {
-		Properties properties = readProperties();
-		String host = properties.getProperty("hbase.client.host");
-		String port = properties.getProperty("hbase.client.port");
-		init(host, port, poolSize);
+    public HBaseClient(Properties properties) {
+        String host = properties.getProperty("hbase.client.host", "localhost");
+        String port = properties.getProperty("hbase.client.port", "2181");
+        Integer poolSize = NumberUtils.toInt(properties.getProperty("hbase.client.poolSize"), 16);
+        init(host, port, poolSize, null);
 	}
 
 	public HBaseClient(String zk, String port, int poolSize) {
-		init(zk, port, poolSize);
+		init(zk, port, poolSize, null);
 	}
 
-	Properties readProperties() {
-		Properties properties = new Properties();
-		InputStream stream = HBaseClient.class.getClassLoader().getResourceAsStream("hbase.properties");
-		if (stream == null) {
-			throw new RuntimeException("hbase.properties not found");
-		}
-		try {
-			properties.load(stream);
-		} catch (IOException e) {
-			throw new RuntimeException("hbase.properties load fail. " + e.getMessage(), e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// 무시
-				}
-			}
-		}
-		return properties;
+    public HBaseClient(String zk, String port, int poolSize, Configuration configuration) {
+		init(zk, port, poolSize, configuration);
 	}
 
-	private void init(String zk, String port, int poolSize) {
-		Configuration cfg = HBaseConfiguration.create();
-		if (zk != null) {
-			cfg.set("hbase.zookeeper.quorum", zk);
-		}
-		if (port != null) {
-			cfg.set("hbase.zookeeper.property.clientPort", port);
-		}
+    public HBaseClient(Configuration configuration, int poolSize) {
+		init(null, null, poolSize, configuration);
+	}
 
-		tablePool = new HTablePool(cfg, poolSize);
+	private void init(String zk, String port, int poolSize, Configuration configuration) {
+        if(configuration == null) {
+		    Configuration cfg = HBaseConfiguration.create();
+            if (zk != null) {
+                cfg.set("hbase.zookeeper.quorum", zk);
+            }
+            if (port != null) {
+                cfg.set("hbase.zookeeper.property.clientPort", port);
+            }
+            configuration = cfg;
+        }
+
+		tablePool = new HTablePool(configuration, poolSize);
 		try {
-			admin = new HBaseAdmin(cfg);
+			admin = new HBaseAdmin(configuration);
 		} catch (MasterNotRunningException e) {
 			e.printStackTrace();
 		} catch (ZooKeeperConnectionException e) {

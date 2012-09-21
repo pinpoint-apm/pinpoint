@@ -15,13 +15,10 @@ public class SpanUtils {
 	}
 
 	public static byte[] getTracesRowkey(Span span) {
-		return ArrayUtils.addAll(Bytes.toBytes(span.getMostTraceID()), Bytes.toBytes(span.getLeastTraceID()));
+        return BytesUtils.longLongToBytes(span.getMostTraceID(), span.getLeastTraceID());
 	}
 
 	public static byte[] getTraceId(Span span) {
-		byte[] mostTid = Bytes.toBytes(span.getMostTraceID());
-		byte[] leastTid = Bytes.toBytes(span.getLeastTraceID());
-
-		return ArrayUtils.addAll(mostTid, leastTid);
+        return BytesUtils.longLongToBytes(span.getMostTraceID(), span.getLeastTraceID());
 	}
 }

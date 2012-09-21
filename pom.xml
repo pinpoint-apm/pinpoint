@@ -4,7 +4,7 @@
 	<groupId>com.nhn.hippo</groupId>
 	<artifactId>hippo-commons</artifactId>
 	<version>0.0.1</version>
-	<name>hippo tomcat profiler</name>
+	<name>hippo-commons</name>
 	<packaging>jar</packaging>
 
     <properties>

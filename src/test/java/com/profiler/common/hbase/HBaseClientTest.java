@@ -1,18 +1,15 @@
 package com.profiler.common.hbase;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.profiler.common.util.PropertyUtils;
 import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,17 +19,19 @@ public class HBaseClientTest {
 
 	private static final String TABLE_NAME = "TEST_TABLE";
 	private static final String COLUMN_FAMILY = "COLUMN_FAMILY";
-	private static final HBaseClient client = HBaseClient.getInstance();
+	private static HBaseClient client;
 
 	@BeforeClass
 	public static void init() {
+        Properties properties = PropertyUtils.readProperties("test-hbase.properties");
+        client = new HBaseClient(properties);
 		if (client.isTableExists(TABLE_NAME)) {
 			client.dropTable(TABLE_NAME);
 		}
 		Assert.assertNotNull(client);
 	}
 
-	@BeforeClass
+	@AfterClass
 	public static void destroy() {
 		if (client.isTableExists(TABLE_NAME)) {
 			client.dropTable(TABLE_NAME);
