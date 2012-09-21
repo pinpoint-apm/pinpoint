@@ -21,6 +21,8 @@ public class FlowChartController {
 	@RequestMapping(value = "/flow", method = RequestMethod.GET)
 	public String arcus(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 
+		String[] selectAgentIds = flow.selectAgentIds(hosts);
+		
 		Iterator<Map<String, Object>> iterator = flow.selectTraces(hosts, from, to);
 
 		while (iterator.hasNext()) {

@@ -23,6 +23,22 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Qualifier("hbaseClient")
 	HBaseClient client;
 
+	@Override
+	public String[] selectAgentIds(String[] hosts) {
+		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+		column.add(new HbaseColumn("Agents", "AgentID"));
+
+		HBaseQuery query = new HBaseQuery(HBaseTables.SERVERS, null, null, column);
+		Iterator<Map<String, Object>> iterator = client.getHBaseData(query);
+
+		while (iterator.hasNext()) {
+			System.out.println(iterator.next());
+		}
+
+		return null;
+	}
+
+	@Override
 	public Iterator<Map<String, Object>> selectTraces(String[] agentIds, long from, long to) {
 		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
 		column.add(new HbaseColumn("Trace", "ID"));
