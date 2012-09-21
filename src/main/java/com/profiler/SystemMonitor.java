@@ -56,7 +56,7 @@ public class SystemMonitor {
 		public void run() {
 			try {
 				currentDto = new JVMInfoThriftDTO();
-				currentDto.setAgentHashCode(Agent.getInstance().getAgentHashCode());
+				currentDto.setAgentId(Agent.getInstance().getAgentId());
 				currentDto.setDataTime(System.currentTimeMillis());
 
 				getActiveThreadCount();

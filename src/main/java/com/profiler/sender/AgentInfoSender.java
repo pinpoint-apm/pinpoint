@@ -10,6 +10,7 @@ import com.profiler.Agent;
 import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.config.TomcatProfilerConfig;
 
+@Deprecated
 public class AgentInfoSender extends Thread {
 
 	private final Logger logger = Logger.getLogger(AgentInfoSender.class.getName());

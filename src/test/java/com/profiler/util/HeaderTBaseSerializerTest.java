@@ -1,17 +1,17 @@
 package com.profiler.util;
 
+import java.util.Arrays;
+import java.util.logging.Logger;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.profiler.common.dto.Header;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.HeaderTBaseSerializer;
 import com.profiler.common.util.TBaseLocator;
-import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
 
 public class HeaderTBaseSerializerTest {
     private final Logger logger = Logger.getLogger(HeaderTBaseSerializerTest.class.getName());
@@ -28,8 +28,8 @@ public class HeaderTBaseSerializerTest {
         JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
         int activeThreadount = 10;
         jvmInfoThriftDTO.setActiveThreadCount(activeThreadount);
-        int agentHashCde = 123;
-        jvmInfoThriftDTO.setAgentHashCode(agentHashCde);
+        String agentId = "agentId";
+        jvmInfoThriftDTO.setAgentId(agentId);
         byte[] serialize = serializer.serialize(header, jvmInfoThriftDTO);
         dump(serialize);
 
@@ -39,7 +39,7 @@ public class HeaderTBaseSerializerTest {
         logger.info("deserialize:" + deserialize.getClass());
 
         Assert.assertEquals(deserialize.getActiveThreadCount(), activeThreadount);
-        Assert.assertEquals(deserialize.getAgentHashCode(), agentHashCde);
+        Assert.assertEquals(deserialize.getAgentId(), agentId);
     }
 
     public void dump(byte[] data) {

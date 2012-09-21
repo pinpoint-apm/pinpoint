@@ -3,7 +3,6 @@ package com.profiler.trace;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +11,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.profiler.Agent;
-import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
 import com.profiler.common.dto.thrift.RequestDataThriftDTO;
 import com.profiler.config.TomcatProfilerConfig;
@@ -261,7 +259,7 @@ public class DatabaseRequestTracer {
 	 */
 	private static RequestDataListThriftDTO checkDTO(RequestDataListThriftDTO dto) {
 		if (dto == null) {
-			dto = new RequestDataListThriftDTO(Agent.getInstance().getAgentHashCode(), RequestTracer.getCurrentRequestHash(), new ArrayList<RequestDataThriftDTO>());
+			dto = new RequestDataListThriftDTO(Agent.getInstance().getAgentId(), RequestTracer.getCurrentRequestHash(), new ArrayList<RequestDataThriftDTO>());
 		}
 		return dto;
 	}

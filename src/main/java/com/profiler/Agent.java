@@ -3,7 +3,8 @@ package com.profiler;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import com.profiler.sender.AgentInfoSender;
+import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.sender.DataSender;
 
 public class Agent {
 
@@ -15,8 +16,6 @@ public class Agent {
 
 	private final ServerInfo serverInfo;
 	private final SystemMonitor systemMonitor;
-
-	private int agentHash = 0;
 
 	private Agent() {
 		this.serverInfo = new ServerInfo();
@@ -48,19 +47,11 @@ public class Agent {
 	 * 
 	 * @return
 	 */
-	public int getAgentHashCode() {
-		// TODO: string format으로 변경, DTO때문에 일단 int로 구현함.
-		// TODO: hashcode 생성 방법도 변경해야함.
-		if (agentHash == 0) {
-			String portNumbers = "";
-			for (Entry<Integer, String> entry : serverInfo.getConnectors().entrySet()) {
-				portNumbers += " " + entry.getKey();
-			}
-			portNumbers = portNumbers.trim();
-			agentHash = (serverInfo.getHostip() + portNumbers).hashCode();
-		}
+	public String getAgentId() {
+		// TODO: agent id 생성 방법 변경이 필요함.
+		logger.warning("Generating agent id is not implementd. use default 'TEST_AGENT_ID");
 
-		return agentHash;
+		return "TEST_AGENT_ID";
 	}
 
 	/**
@@ -71,8 +62,21 @@ public class Agent {
 	public void sendStartupInfo() {
 		logger.info("Send startup information to HIPPO server.");
 
-		AgentInfoSender sender = new AgentInfoSender(true);
-		sender.start();
+		String ip = getServerInfo().getHostip();
+		String ports = "";
+		for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
+			ports += " " + entry.getKey();
+		}
+
+		AgentInfo agentInfo = new AgentInfo();
+
+		agentInfo.setHostname(ip);
+		agentInfo.setPorts(ports);
+		agentInfo.setIsAlive(true);
+		agentInfo.setTimestamp(System.currentTimeMillis());
+		agentInfo.setAgentId(getAgentId());
+
+		DataSender.getInstance().addDataToSend(agentInfo);
 	}
 
 	public void start() {
@@ -84,8 +88,21 @@ public class Agent {
 		logger.info("Stopping HIPPO Agent.");
 		systemMonitor.stop();
 
-		AgentInfoSender sender = new AgentInfoSender(false);
-		sender.start();
+		String ip = getServerInfo().getHostip();
+		String ports = "";
+		for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
+			ports += " " + entry.getKey();
+		}
+
+		AgentInfo agentInfo = new AgentInfo();
+
+		agentInfo.setHostname(ip);
+		agentInfo.setPorts(ports);
+		agentInfo.setIsAlive(false);
+		agentInfo.setTimestamp(System.currentTimeMillis());
+		agentInfo.setAgentId(getAgentId());
+
+		DataSender.getInstance().addDataToSend(agentInfo);
 	}
 
 	public static void startAgent() {
