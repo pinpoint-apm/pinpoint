@@ -19,20 +19,19 @@ public class MulplexedPacketHandler implements Runnable {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private final DatagramPacket datagramPacket;
-    private final GenericApplicationContext context;
+	private final GenericApplicationContext context;
 
-    @Autowired
+	@Autowired
 	private TBaseLocator locator;
 
+	public MulplexedPacketHandler(DatagramPacket datagramPacket, GenericApplicationContext context) {
+		this.datagramPacket = datagramPacket;
+		this.context = context;
+	}
 
-    public MulplexedPacketHandler(DatagramPacket datagramPacket, GenericApplicationContext context) {
-        this.datagramPacket = datagramPacket;
-        this.context = context;
-    }
-
-    @Override
+	@Override
 	public void run() {
-        // 캐쉬하는게 좋을거 같음.
+		// 캐쉬하는게 좋을거 같음.
 		HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
 		try {
 			TBase<?, ?> tBase = deserializer.deserialize(locator, datagramPacket.getData());
@@ -54,10 +53,10 @@ public class MulplexedPacketHandler implements Runnable {
 
 	private Reader getReadHandler(TBase<?, ?> tBase) {
 		if (tBase instanceof JVMInfoThriftDTO) {
-            return context.getBean(SpringConstants.JVM_DATA_READER_BEAN_NAME, Reader.class);
+			return context.getBean(SpringConstants.JVM_DATA_READER_BEAN_NAME, Reader.class);
 		}
 		if (tBase instanceof Span) {
-            return context.getBean(SpringConstants.SPAN_READER_BEAN_NAME, Reader.class);
+			return context.getBean(SpringConstants.SPAN_READER_BEAN_NAME, Reader.class);
 		}
 		logger.warn("Unknown type of data received. data=" + tBase);
 
