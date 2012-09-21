@@ -46,13 +46,11 @@ public class HBaseClientTest {
 
 		Assert.assertTrue("Table is not exists", client.isTableExists(TABLE_NAME));
 
-
-        client.dropTable(TABLE_NAME);
+		client.dropTable(TABLE_NAME);
 		client.isTableExists(TABLE_NAME);
 
 		Assert.assertFalse("Table is not dropped", client.isTableExists(TABLE_NAME));
 	}
-
 
 	@Test
 	public void insertRow() {
@@ -70,11 +68,10 @@ public class HBaseClientTest {
 		}
 		client.insert(TABLE_NAME, putList);
 
-
 		List<HbaseColumn> list = new ArrayList<HBaseQuery.HbaseColumn>();
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual1"));
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual2"));
-		Iterator<Map<String, Object>> result = client.getHBaseData(new HBaseQuery(TABLE_NAME, "0", "9", list));
+		Iterator<Map<String, Object>> result = client.getHBaseData(new HBaseQuery(TABLE_NAME, Bytes.toBytes("0"), Bytes.toBytes("9"), list));
 
 		while (result.hasNext()) {
 			Map<String, Object> next = result.next();

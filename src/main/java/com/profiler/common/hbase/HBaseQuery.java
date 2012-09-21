@@ -8,9 +8,9 @@ public class HBaseQuery {
 
 	private String tableName;
 
-	private String startRow;
+	private byte[] startRow;
 
-	private String stopRow;
+	private byte[] stopRow;
 
 	private List<HbaseColumn> columns;
 
@@ -44,7 +44,7 @@ public class HBaseQuery {
 		super();
 	}
 
-	public HBaseQuery(String tableName, String startRow, String stopRow, List<HbaseColumn> columns) {
+	public HBaseQuery(String tableName, byte[] startRow, byte[] stopRow, List<HbaseColumn> columns) {
 		super();
 		this.tableName = tableName;
 		this.startRow = startRow;
@@ -92,19 +92,19 @@ public class HBaseQuery {
 		this.tableName = tableName;
 	}
 
-	public String getStartRow() {
+	public byte[] getStartRow() {
 		return startRow;
 	}
 
-	public void setStartRow(String startRow) {
+	public void setStartRow(byte[] startRow) {
 		this.startRow = startRow;
 	}
 
-	public String getStopRow() {
+	public byte[] getStopRow() {
 		return stopRow;
 	}
 
-	public void setStopRow(String stopRow) {
+	public void setStopRow(byte[] stopRow) {
 		this.stopRow = stopRow;
 	}
 

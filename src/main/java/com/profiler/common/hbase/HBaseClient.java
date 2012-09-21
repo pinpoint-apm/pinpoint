@@ -54,39 +54,39 @@ public class HBaseClient {
 	}
 
 	private HBaseClient(int poolSize) {
-        Properties properties = readProperties();
-        String host = properties.getProperty("hbase.client.host");
-        String port = properties.getProperty("hbase.client.port");
-        init(host, port, poolSize);
+		Properties properties = readProperties();
+		String host = properties.getProperty("hbase.client.host");
+		String port = properties.getProperty("hbase.client.port");
+		init(host, port, poolSize);
 	}
 
-    public HBaseClient(String zk, String port, int poolSize) {
-        init(zk, port, poolSize);
-    }
+	public HBaseClient(String zk, String port, int poolSize) {
+		init(zk, port, poolSize);
+	}
 
-    Properties readProperties() {
-        Properties properties = new Properties();
-        InputStream stream = HBaseClient.class.getClassLoader().getResourceAsStream("hbase.properties");
-        if(stream == null) {
-            throw new RuntimeException("hbase.properties not found");
-        }
-        try {
-            properties.load(stream);
-        } catch (IOException e) {
-            throw new RuntimeException("hbase.properties load fail. " + e.getMessage(), e);
-        } finally {
-            if(stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    // 무시
-                }
-            }
-        }
-        return properties;
-    }
+	Properties readProperties() {
+		Properties properties = new Properties();
+		InputStream stream = HBaseClient.class.getClassLoader().getResourceAsStream("hbase.properties");
+		if (stream == null) {
+			throw new RuntimeException("hbase.properties not found");
+		}
+		try {
+			properties.load(stream);
+		} catch (IOException e) {
+			throw new RuntimeException("hbase.properties load fail. " + e.getMessage(), e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// 무시
+				}
+			}
+		}
+		return properties;
+	}
 
-    private void init(String zk, String port, int poolSize) {
+	private void init(String zk, String port, int poolSize) {
 		Configuration cfg = HBaseConfiguration.create();
 		if (zk != null) {
 			cfg.set("hbase.zookeeper.quorum", zk);
@@ -107,19 +107,20 @@ public class HBaseClient {
 
 	public void close() {
 		// htableList는 안지워워도 되지.
-        try {
-            tablePool.close();
-        } catch (IOException e) {
-            // TODO
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+		try {
+			tablePool.close();
+		} catch (IOException e) {
+			// TODO
+			e.printStackTrace(); // To change body of catch statement use File |
+									// Settings | File Templates.
+		}
 	}
 
-    HTablePool getTablePool() {
-        return tablePool;
-    }
+	HTablePool getTablePool() {
+		return tablePool;
+	}
 
-    public Iterator<Map<String, Object>> getHBaseData(HBaseQuery query) {
+	public Iterator<Map<String, Object>> getHBaseData(HBaseQuery query) {
 		ResultSetIterator r = new ResultSetIterator(query);
 		return r.getIterator();
 	}
@@ -162,7 +163,6 @@ public class HBaseClient {
 		}
 	}
 
-
 	public void insert(String tablename, Put put) {
 		HTable htable = (HTable) tablePool.getTable(tablename);
 		try {
@@ -170,8 +170,8 @@ public class HBaseClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-            closeHTable(htable);
-        }
+			closeHTable(htable);
+		}
 	}
 
 	public void insert(String tablename, List<Put> put) {
@@ -181,8 +181,8 @@ public class HBaseClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-            closeHTable(htable);
-        }
+			closeHTable(htable);
+		}
 	}
 
 	public void delete(String tablename, Delete delete) {
@@ -192,31 +192,45 @@ public class HBaseClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-            closeHTable(htable);
-        }
+			closeHTable(htable);
+		}
 	}
 
-    public void execute(String tableName, HTableCallBack callBack) {
-        HTable htable = (HTable) tablePool.getTable(tableName);
-        try {
-            callBack.doExecute(htable);
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO ex 처리
-        } finally {
-            closeHTable(htable);
-        }
-    }
+	public void execute(String tableName, HTableCallBack callBack) {
+		HTable htable = (HTable) tablePool.getTable(tableName);
+		try {
+			callBack.doExecute(htable);
+		} catch (IOException e) {
+			e.printStackTrace();
+			// TODO ex 처리
+		} finally {
+			closeHTable(htable);
+		}
+	}
 
-    private void closeHTable(HTable htable) {
-        if (htable != null) {
-            try {
-                htable.close();
-            } catch (IOException e) {
-                LOG.warn(e.getMessage(), e);
-            }
-        }
-    }
+	public Result[] get(String tablename, List<Get> get) {
+		HTable htable = (HTable) tablePool.getTable(tablename);
+
+		try {
+			return htable.get(get);
+		} catch (IOException e) {
+			e.printStackTrace();
+			// TODO ex 처리
+		} finally {
+			closeHTable(htable);
+		}
+		return new Result[0];
+	}
+
+	private void closeHTable(HTable htable) {
+		if (htable != null) {
+			try {
+				htable.close();
+			} catch (IOException e) {
+				LOG.warn(e.getMessage(), e);
+			}
+		}
+	}
 
 	private class ResultSetIterator {
 		ResultScanner resultScanner = null;
@@ -226,8 +240,8 @@ public class HBaseClient {
 
 		public ResultSetIterator(HBaseQuery query) {
 			try {
-				String startRow = query.getStartRow();
-				String stopRow = query.getStopRow();
+				byte[] startRow = query.getStartRow();
+				byte[] stopRow = query.getStopRow();
 				String tableName = query.getTableName();
 
 				System.out.println("startRow=" + startRow);
@@ -240,7 +254,7 @@ public class HBaseClient {
 				if (query.isSingleRow()) {
 					System.out.println("Query single row");
 
-					Get get = new Get(Bytes.toBytes(startRow));
+					Get get = new Get(startRow);
 
 					if (columns != null) {
 						for (HbaseColumn column : columns) {
@@ -258,11 +272,11 @@ public class HBaseClient {
 					Scan scan = new Scan();
 
 					if (startRow != null) {
-						scan.setStartRow(startRow.getBytes());
+						scan.setStartRow(startRow);
 					}
 
 					if (stopRow != null) {
-						scan.setStopRow(stopRow.getBytes());
+						scan.setStopRow(stopRow);
 					}
 
 					if (columns != null) {
