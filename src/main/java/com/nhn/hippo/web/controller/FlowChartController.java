@@ -1,5 +1,8 @@
 package com.nhn.hippo.web.controller;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +18,15 @@ public class FlowChartController {
 	@Autowired
 	private FlowChartService flow;
 
-	@RequestMapping(value = "/flow", method = RequestMethod.POST)
-	public String arcus(Model model, @RequestParam("id") int id) {
+	@RequestMapping(value = "/flow", method = RequestMethod.GET)
+	public String arcus(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
+
+		Iterator<Map<String, Object>> iterator = flow.selectTraces(hosts, from, to);
+
+		while (iterator.hasNext()) {
+			System.out.println(iterator.next());
+		}
+
 		return "flow";
 	}
 }
