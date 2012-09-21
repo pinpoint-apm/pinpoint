@@ -8,6 +8,7 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.SpanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class TraceIndex {
 
@@ -16,7 +17,8 @@ public class TraceIndex {
 	private final byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
 	private final byte[] COLNAME_ID = Bytes.toBytes("ID");
 
-	private final HBaseClient client = HBaseClient.getInstance();
+    @Autowired
+	private HBaseClient client;
 
 	public boolean insert(Span span) {
 		try {

@@ -3,25 +3,69 @@ package com.profiler.server;
 import com.profiler.server.receiver.tcp.TCPReceiver;
 import com.profiler.server.receiver.udp.DataReceiver;
 import com.profiler.server.receiver.udp.MulplexedUDPReceiver;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
 public class Server {
-	public static void main(String[] args) {
-		// Log4jConfigurer.configure("log4j.xml");
-		new Server().start();
-	}
+    public static void main(String[] args) {
+        // Log4jConfigurer.configure("log4j.xml");
+        new Server().start();
+    }
 
-	public void start() {
-		System.out.println("Start MulplexedUDPReceiver Receive UDP Thread");
-		DataReceiver mulplexDataReceiver = new MulplexedUDPReceiver();
-		mulplexDataReceiver.start();
+    private DataReceiver mulplexDataReceiver;
+    private TCPReceiver tcpReceiver;
+    GenericApplicationContext context;
 
-		System.out.println("Start Tomcat Agent Data Receive TDP Thread");
-		TCPReceiver tcpReceiver = new TCPReceiver();
-		tcpReceiver.start();
+    public void start() {
 
-		// System.out.println("***** Start Fetch data Thread                    ********");
-		// FetchTPSDataThread fetchRPS = new FetchTPSDataThread();
-		// fetchRPS.start();
-		// System.out.println("*********************************************************");
-	}
+        context = createContext();
+        System.out.println("Start MulplexedUDPReceiver Receive UDP Thread");
+
+        mulplexDataReceiver = new MulplexedUDPReceiver(context);
+        mulplexDataReceiver.start();
+
+        System.out.println("Start Tomcat Agent Data Receive TDP Thread");
+        tcpReceiver = new TCPReceiver();
+        tcpReceiver.start();
+
+        addShutdownHook();
+        // System.out.println("***** Start Fetch data Thread                    ********");
+        // FetchTPSDataThread fetchRPS = new FetchTPSDataThread();
+        // fetchRPS.start();
+        // System.out.println("*********************************************************");
+    }
+
+    private GenericApplicationContext createContext() {
+        GenericXmlApplicationContext context = new GenericXmlApplicationContext();
+        ClassPathResource resource = new ClassPathResource("application-context.xml");
+        context.load(resource);
+
+        context.refresh();
+        // 순서 보장을 할수가 없음.
+        //context.registerShutdownHook();
+        return context;
+    }
+
+
+    private void shutdown() {
+        if (mulplexDataReceiver != null) {
+            System.out.println("Shutdown MulplexedUDPReceiver Receive UDP Thread");
+            mulplexDataReceiver.shutdown();
+            System.out.println("Shutdown MulplexedUDPReceiver complete");
+        }
+        if (context != null) {
+            context.close();
+        }
+
+    }
+
+    private void addShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                shutdown();
+            }
+        }));
+    }
 }

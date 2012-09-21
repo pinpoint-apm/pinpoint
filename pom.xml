@@ -21,6 +21,10 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+    <properties>
+        <spring-version>3.1.2.RELEASE</spring-version>
+    </properties>
+
 	<repositories>
 		<repository>
 			<id>nhn.release.repository</id>
@@ -74,7 +78,19 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring-version}</version>
+			<scope>compile</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.context</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>hbase.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="JvmDataReader" class="com.profiler.server.data.reader.JVMDataReader">
+    </bean>
+
+    <bean id="SpanReader" class="com.profiler.server.data.reader.SpanReader">
+    </bean>
+
+    <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
+
+    <bean class="com.profiler.server.datasource.TraceIndex"></bean>
+
+    <bean class="com.profiler.server.datasource.Traces"></bean>
+
+
+    <bean class="com.profiler.common.hbase.HBaseClient" destroy-method="close">
+        <constructor-arg value="${hbase.client.host}" index="0"></constructor-arg>
+        <constructor-arg value="${hbase.client.port}" index="1"></constructor-arg>
+        <constructor-arg value="32" index="2"></constructor-arg>
+    </bean>
+    
+
+</beans>
