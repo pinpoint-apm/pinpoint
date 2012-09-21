@@ -31,7 +31,7 @@
 	<bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
 
-	<bean class="com.profiler.server.dao.TraceIndex"></bean>
+	<bean class="com.profiler.server.dao.HbaseTraceIndex"></bean>
 
 	<bean class="com.profiler.server.dao.Traces"></bean>
 

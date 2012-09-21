@@ -1,10 +1,11 @@
-package com.profiler.server.datasource;
+package com.profiler.server.dao;
 
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.BinaryAnnotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.util.SpanUtils;
+import com.profiler.server.dao.HbaseTraceIndex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -45,7 +46,7 @@ public class TracesTest {
 
     @Autowired
     @Qualifier("testTraceIndex")
-    private com.profiler.server.dao.TraceIndex traceIndex;
+    private HbaseTraceIndex traceIndex;
 
 
     //	@BeforeClass
