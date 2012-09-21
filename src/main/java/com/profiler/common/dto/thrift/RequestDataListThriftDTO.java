@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class RequestDataListThriftDTO implements org.apache.thrift.TBase<RequestDataListThriftDTO, RequestDataListThriftDTO._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestDataListThriftDTO");
 
-  private static final org.apache.thrift.protocol.TField HOST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hostHashCode", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField REQUEST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("requestHashCode", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField REQUEST_DATA_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("requestDataList", org.apache.thrift.protocol.TType.LIST, (short)3);
 
@@ -40,13 +40,13 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     schemes.put(TupleScheme.class, new RequestDataListThriftDTOTupleSchemeFactory());
   }
 
-  private int hostHashCode; // required
+  private String agentId; // required
   private int requestHashCode; // required
   private List<RequestDataThriftDTO> requestDataList; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    HOST_HASH_CODE((short)1, "hostHashCode"),
+    AGENT_ID((short)1, "agentId"),
     REQUEST_HASH_CODE((short)2, "requestHashCode"),
     REQUEST_DATA_LIST((short)3, "requestDataList");
 
@@ -63,8 +63,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // HOST_HASH_CODE
-          return HOST_HASH_CODE;
+        case 1: // AGENT_ID
+          return AGENT_ID;
         case 2: // REQUEST_HASH_CODE
           return REQUEST_HASH_CODE;
         case 3: // REQUEST_DATA_LIST
@@ -109,14 +109,13 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
   }
 
   // isset id assignments
-  private static final int __HOSTHASHCODE_ISSET_ID = 0;
-  private static final int __REQUESTHASHCODE_ISSET_ID = 1;
-  private BitSet __isset_bit_vector = new BitSet(2);
+  private static final int __REQUESTHASHCODE_ISSET_ID = 0;
+  private BitSet __isset_bit_vector = new BitSet(1);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.HOST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hostHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.REQUEST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("requestHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.REQUEST_DATA_LIST, new org.apache.thrift.meta_data.FieldMetaData("requestDataList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -130,13 +129,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
   }
 
   public RequestDataListThriftDTO(
-    int hostHashCode,
+    String agentId,
     int requestHashCode,
     List<RequestDataThriftDTO> requestDataList)
   {
     this();
-    this.hostHashCode = hostHashCode;
-    setHostHashCodeIsSet(true);
+    this.agentId = agentId;
     this.requestHashCode = requestHashCode;
     setRequestHashCodeIsSet(true);
     this.requestDataList = requestDataList;
@@ -148,7 +146,9 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
   public RequestDataListThriftDTO(RequestDataListThriftDTO other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    this.hostHashCode = other.hostHashCode;
+    if (other.isSetAgentId()) {
+      this.agentId = other.agentId;
+    }
     this.requestHashCode = other.requestHashCode;
     if (other.isSetRequestDataList()) {
       List<RequestDataThriftDTO> __this__requestDataList = new ArrayList<RequestDataThriftDTO>();
@@ -165,33 +165,33 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
 
   @Override
   public void clear() {
-    setHostHashCodeIsSet(false);
-    this.hostHashCode = 0;
+    this.agentId = null;
     setRequestHashCodeIsSet(false);
     this.requestHashCode = 0;
     this.requestDataList = null;
   }
 
-  public int getHostHashCode() {
-    return this.hostHashCode;
+  public String getAgentId() {
+    return this.agentId;
   }
 
-  public void setHostHashCode(int hostHashCode) {
-    this.hostHashCode = hostHashCode;
-    setHostHashCodeIsSet(true);
+  public void setAgentId(String agentId) {
+    this.agentId = agentId;
   }
 
-  public void unsetHostHashCode() {
-    __isset_bit_vector.clear(__HOSTHASHCODE_ISSET_ID);
+  public void unsetAgentId() {
+    this.agentId = null;
   }
 
-  /** Returns true if field hostHashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetHostHashCode() {
-    return __isset_bit_vector.get(__HOSTHASHCODE_ISSET_ID);
+  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentId() {
+    return this.agentId != null;
   }
 
-  public void setHostHashCodeIsSet(boolean value) {
-    __isset_bit_vector.set(__HOSTHASHCODE_ISSET_ID, value);
+  public void setAgentIdIsSet(boolean value) {
+    if (!value) {
+      this.agentId = null;
+    }
   }
 
   public int getRequestHashCode() {
@@ -256,11 +256,11 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case HOST_HASH_CODE:
+    case AGENT_ID:
       if (value == null) {
-        unsetHostHashCode();
+        unsetAgentId();
       } else {
-        setHostHashCode((Integer)value);
+        setAgentId((String)value);
       }
       break;
 
@@ -285,8 +285,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case HOST_HASH_CODE:
-      return Integer.valueOf(getHostHashCode());
+    case AGENT_ID:
+      return getAgentId();
 
     case REQUEST_HASH_CODE:
       return Integer.valueOf(getRequestHashCode());
@@ -305,8 +305,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     }
 
     switch (field) {
-    case HOST_HASH_CODE:
-      return isSetHostHashCode();
+    case AGENT_ID:
+      return isSetAgentId();
     case REQUEST_HASH_CODE:
       return isSetRequestHashCode();
     case REQUEST_DATA_LIST:
@@ -328,12 +328,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     if (that == null)
       return false;
 
-    boolean this_present_hostHashCode = true;
-    boolean that_present_hostHashCode = true;
-    if (this_present_hostHashCode || that_present_hostHashCode) {
-      if (!(this_present_hostHashCode && that_present_hostHashCode))
+    boolean this_present_agentId = true && this.isSetAgentId();
+    boolean that_present_agentId = true && that.isSetAgentId();
+    if (this_present_agentId || that_present_agentId) {
+      if (!(this_present_agentId && that_present_agentId))
         return false;
-      if (this.hostHashCode != that.hostHashCode)
+      if (!this.agentId.equals(that.agentId))
         return false;
     }
 
@@ -371,12 +371,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     int lastComparison = 0;
     RequestDataListThriftDTO typedOther = (RequestDataListThriftDTO)other;
 
-    lastComparison = Boolean.valueOf(isSetHostHashCode()).compareTo(typedOther.isSetHostHashCode());
+    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetHostHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hostHashCode, typedOther.hostHashCode);
+    if (isSetAgentId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -421,8 +421,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     StringBuilder sb = new StringBuilder("RequestDataListThriftDTO(");
     boolean first = true;
 
-    sb.append("hostHashCode:");
-    sb.append(this.hostHashCode);
+    sb.append("agentId:");
+    if (this.agentId == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.agentId);
+    }
     first = false;
     if (!first) sb.append(", ");
     sb.append("requestHashCode:");
@@ -480,10 +484,10 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
           break;
         }
         switch (schemeField.id) {
-          case 1: // HOST_HASH_CODE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.hostHashCode = iprot.readI32();
-              struct.setHostHashCodeIsSet(true);
+          case 1: // AGENT_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.agentId = iprot.readString();
+              struct.setAgentIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -528,9 +532,11 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(HOST_HASH_CODE_FIELD_DESC);
-      oprot.writeI32(struct.hostHashCode);
-      oprot.writeFieldEnd();
+      if (struct.agentId != null) {
+        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+        oprot.writeString(struct.agentId);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(REQUEST_HASH_CODE_FIELD_DESC);
       oprot.writeI32(struct.requestHashCode);
       oprot.writeFieldEnd();
@@ -564,7 +570,7 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     public void write(org.apache.thrift.protocol.TProtocol prot, RequestDataListThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetHostHashCode()) {
+      if (struct.isSetAgentId()) {
         optionals.set(0);
       }
       if (struct.isSetRequestHashCode()) {
@@ -574,8 +580,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         optionals.set(2);
       }
       oprot.writeBitSet(optionals, 3);
-      if (struct.isSetHostHashCode()) {
-        oprot.writeI32(struct.hostHashCode);
+      if (struct.isSetAgentId()) {
+        oprot.writeString(struct.agentId);
       }
       if (struct.isSetRequestHashCode()) {
         oprot.writeI32(struct.requestHashCode);
@@ -596,8 +602,8 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
-        struct.hostHashCode = iprot.readI32();
-        struct.setHostHashCodeIsSet(true);
+        struct.agentId = iprot.readString();
+        struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
         struct.requestHashCode = iprot.readI32();

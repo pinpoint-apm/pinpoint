@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDTO, JVMInfoThriftDTO._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("JVMInfoThriftDTO");
 
-  private static final org.apache.thrift.protocol.TField AGENT_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("agentHashCode", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField ACTIVE_THREAD_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("activeThreadCount", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField GC1_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("gc1Count", org.apache.thrift.protocol.TType.I64, (short)4);
@@ -49,7 +49,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     schemes.put(TupleScheme.class, new JVMInfoThriftDTOTupleSchemeFactory());
   }
 
-  private int agentHashCode; // required
+  private String agentId; // required
   private long dataTime; // required
   private int activeThreadCount; // required
   private long gc1Count; // optional
@@ -64,7 +64,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    AGENT_HASH_CODE((short)1, "agentHashCode"),
+    AGENT_ID((short)1, "agentId"),
     DATA_TIME((short)2, "dataTime"),
     ACTIVE_THREAD_COUNT((short)3, "activeThreadCount"),
     GC1_COUNT((short)4, "gc1Count"),
@@ -90,8 +90,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // AGENT_HASH_CODE
-          return AGENT_HASH_CODE;
+        case 1: // AGENT_ID
+          return AGENT_ID;
         case 2: // DATA_TIME
           return DATA_TIME;
         case 3: // ACTIVE_THREAD_COUNT
@@ -154,25 +154,24 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   }
 
   // isset id assignments
-  private static final int __AGENTHASHCODE_ISSET_ID = 0;
-  private static final int __DATATIME_ISSET_ID = 1;
-  private static final int __ACTIVETHREADCOUNT_ISSET_ID = 2;
-  private static final int __GC1COUNT_ISSET_ID = 3;
-  private static final int __GC1TIME_ISSET_ID = 4;
-  private static final int __GC2COUNT_ISSET_ID = 5;
-  private static final int __GC2TIME_ISSET_ID = 6;
-  private static final int __HEAPUSED_ISSET_ID = 7;
-  private static final int __HEAPCOMMITTED_ISSET_ID = 8;
-  private static final int __NONHEAPUSED_ISSET_ID = 9;
-  private static final int __NONHEAPCOMMITTED_ISSET_ID = 10;
-  private static final int __PROCESSCPUTIME_ISSET_ID = 11;
-  private BitSet __isset_bit_vector = new BitSet(12);
+  private static final int __DATATIME_ISSET_ID = 0;
+  private static final int __ACTIVETHREADCOUNT_ISSET_ID = 1;
+  private static final int __GC1COUNT_ISSET_ID = 2;
+  private static final int __GC1TIME_ISSET_ID = 3;
+  private static final int __GC2COUNT_ISSET_ID = 4;
+  private static final int __GC2TIME_ISSET_ID = 5;
+  private static final int __HEAPUSED_ISSET_ID = 6;
+  private static final int __HEAPCOMMITTED_ISSET_ID = 7;
+  private static final int __NONHEAPUSED_ISSET_ID = 8;
+  private static final int __NONHEAPCOMMITTED_ISSET_ID = 9;
+  private static final int __PROCESSCPUTIME_ISSET_ID = 10;
+  private BitSet __isset_bit_vector = new BitSet(11);
   private _Fields optionals[] = {_Fields.GC1_COUNT,_Fields.GC1_TIME,_Fields.GC2_COUNT,_Fields.GC2_TIME,_Fields.PROCESS_CPUTIME};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.AGENT_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("agentHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.DATA_TIME, new org.apache.thrift.meta_data.FieldMetaData("dataTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.ACTIVE_THREAD_COUNT, new org.apache.thrift.meta_data.FieldMetaData("activeThreadCount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -203,7 +202,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   }
 
   public JVMInfoThriftDTO(
-    int agentHashCode,
+    String agentId,
     long dataTime,
     int activeThreadCount,
     long heapUsed,
@@ -212,8 +211,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     long nonHeapCommitted)
   {
     this();
-    this.agentHashCode = agentHashCode;
-    setAgentHashCodeIsSet(true);
+    this.agentId = agentId;
     this.dataTime = dataTime;
     setDataTimeIsSet(true);
     this.activeThreadCount = activeThreadCount;
@@ -234,7 +232,9 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   public JVMInfoThriftDTO(JVMInfoThriftDTO other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    this.agentHashCode = other.agentHashCode;
+    if (other.isSetAgentId()) {
+      this.agentId = other.agentId;
+    }
     this.dataTime = other.dataTime;
     this.activeThreadCount = other.activeThreadCount;
     this.gc1Count = other.gc1Count;
@@ -254,8 +254,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   @Override
   public void clear() {
-    setAgentHashCodeIsSet(false);
-    this.agentHashCode = 0;
+    this.agentId = null;
     setDataTimeIsSet(false);
     this.dataTime = 0;
     setActiveThreadCountIsSet(false);
@@ -280,26 +279,27 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     this.processCPUTime = 0.0;
   }
 
-  public int getAgentHashCode() {
-    return this.agentHashCode;
+  public String getAgentId() {
+    return this.agentId;
   }
 
-  public void setAgentHashCode(int agentHashCode) {
-    this.agentHashCode = agentHashCode;
-    setAgentHashCodeIsSet(true);
+  public void setAgentId(String agentId) {
+    this.agentId = agentId;
   }
 
-  public void unsetAgentHashCode() {
-    __isset_bit_vector.clear(__AGENTHASHCODE_ISSET_ID);
+  public void unsetAgentId() {
+    this.agentId = null;
   }
 
-  /** Returns true if field agentHashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetAgentHashCode() {
-    return __isset_bit_vector.get(__AGENTHASHCODE_ISSET_ID);
+  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentId() {
+    return this.agentId != null;
   }
 
-  public void setAgentHashCodeIsSet(boolean value) {
-    __isset_bit_vector.set(__AGENTHASHCODE_ISSET_ID, value);
+  public void setAgentIdIsSet(boolean value) {
+    if (!value) {
+      this.agentId = null;
+    }
   }
 
   public long getDataTime() {
@@ -546,11 +546,11 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case AGENT_HASH_CODE:
+    case AGENT_ID:
       if (value == null) {
-        unsetAgentHashCode();
+        unsetAgentId();
       } else {
-        setAgentHashCode((Integer)value);
+        setAgentId((String)value);
       }
       break;
 
@@ -647,8 +647,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case AGENT_HASH_CODE:
-      return Integer.valueOf(getAgentHashCode());
+    case AGENT_ID:
+      return getAgentId();
 
     case DATA_TIME:
       return Long.valueOf(getDataTime());
@@ -694,8 +694,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     }
 
     switch (field) {
-    case AGENT_HASH_CODE:
-      return isSetAgentHashCode();
+    case AGENT_ID:
+      return isSetAgentId();
     case DATA_TIME:
       return isSetDataTime();
     case ACTIVE_THREAD_COUNT:
@@ -735,12 +735,12 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     if (that == null)
       return false;
 
-    boolean this_present_agentHashCode = true;
-    boolean that_present_agentHashCode = true;
-    if (this_present_agentHashCode || that_present_agentHashCode) {
-      if (!(this_present_agentHashCode && that_present_agentHashCode))
+    boolean this_present_agentId = true && this.isSetAgentId();
+    boolean that_present_agentId = true && that.isSetAgentId();
+    if (this_present_agentId || that_present_agentId) {
+      if (!(this_present_agentId && that_present_agentId))
         return false;
-      if (this.agentHashCode != that.agentHashCode)
+      if (!this.agentId.equals(that.agentId))
         return false;
     }
 
@@ -859,12 +859,12 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     int lastComparison = 0;
     JVMInfoThriftDTO typedOther = (JVMInfoThriftDTO)other;
 
-    lastComparison = Boolean.valueOf(isSetAgentHashCode()).compareTo(typedOther.isSetAgentHashCode());
+    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetAgentHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentHashCode, typedOther.agentHashCode);
+    if (isSetAgentId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -999,8 +999,12 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     StringBuilder sb = new StringBuilder("JVMInfoThriftDTO(");
     boolean first = true;
 
-    sb.append("agentHashCode:");
-    sb.append(this.agentHashCode);
+    sb.append("agentId:");
+    if (this.agentId == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.agentId);
+    }
     first = false;
     if (!first) sb.append(", ");
     sb.append("dataTime:");
@@ -1100,10 +1104,10 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
           break;
         }
         switch (schemeField.id) {
-          case 1: // AGENT_HASH_CODE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.agentHashCode = iprot.readI32();
-              struct.setAgentHashCodeIsSet(true);
+          case 1: // AGENT_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.agentId = iprot.readString();
+              struct.setAgentIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1209,9 +1213,11 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(AGENT_HASH_CODE_FIELD_DESC);
-      oprot.writeI32(struct.agentHashCode);
-      oprot.writeFieldEnd();
+      if (struct.agentId != null) {
+        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+        oprot.writeString(struct.agentId);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(DATA_TIME_FIELD_DESC);
       oprot.writeI64(struct.dataTime);
       oprot.writeFieldEnd();
@@ -1273,7 +1279,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     public void write(org.apache.thrift.protocol.TProtocol prot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetAgentHashCode()) {
+      if (struct.isSetAgentId()) {
         optionals.set(0);
       }
       if (struct.isSetDataTime()) {
@@ -1310,8 +1316,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
         optionals.set(11);
       }
       oprot.writeBitSet(optionals, 12);
-      if (struct.isSetAgentHashCode()) {
-        oprot.writeI32(struct.agentHashCode);
+      if (struct.isSetAgentId()) {
+        oprot.writeString(struct.agentId);
       }
       if (struct.isSetDataTime()) {
         oprot.writeI64(struct.dataTime);
@@ -1353,8 +1359,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(12);
       if (incoming.get(0)) {
-        struct.agentHashCode = iprot.readI32();
-        struct.setAgentHashCodeIsSet(true);
+        struct.agentId = iprot.readString();
+        struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
         struct.dataTime = iprot.readI64();

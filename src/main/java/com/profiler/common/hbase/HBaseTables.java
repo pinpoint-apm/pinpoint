@@ -5,4 +5,6 @@ public class HBaseTables {
 	public static final String TRACE_INDEX = "TraceIndex";
 
 	public static final String TRACES = "Traces";
+
+	public static final String SERVERS = "Servers";
 }

@@ -1,7 +1,15 @@
 namespace java com.profiler.common.dto.thrift
 
+struct AgentInfo {
+	1: string	hostname
+	2: string	ports
+	3: string	agentId
+	4: bool	isAlive
+	5: i64	timestamp
+}
+
 struct JVMInfoThriftDTO {
-	1: i32		agentHashCode,
+	1: string	agentId,
 	2: i64 		dataTime,
 	3: i32		activeThreadCount,
 	4: optional i64		gc1Count,
@@ -32,13 +40,13 @@ struct RequestDataThriftDTO {
 }
 
 struct RequestDataListThriftDTO {
-	1: i32		hostHashCode,
+	1: string	agentId,
 	2: i32		requestHashCode,
 	3: list<RequestDataThriftDTO> requestDataList
 }
 
 struct RequestThriftDTO {
-	1: i32		hostHashCode,
+	1: string	agentId,
 	2: i32		requestHashCode,
 	3: i32		dataType,
 	4: i64 		dataTime,
