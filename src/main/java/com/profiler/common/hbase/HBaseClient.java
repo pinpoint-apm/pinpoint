@@ -53,7 +53,7 @@ public class HBaseClient {
 		return SingletonHolder.INSTANCE;
 	}
 
-	private HBaseClient(int poolSize) {
+	public HBaseClient(int poolSize) {
 		Properties properties = readProperties();
 		String host = properties.getProperty("hbase.client.host");
 		String port = properties.getProperty("hbase.client.port");
@@ -163,8 +163,8 @@ public class HBaseClient {
 		}
 	}
 
-	public void insert(String tablename, Put put) {
-		HTable htable = (HTable) tablePool.getTable(tablename);
+	public void insert(String tableName, Put put) {
+		HTable htable = (HTable) tablePool.getTable(tableName);
 		try {
 			htable.put(put);
 		} catch (IOException e) {
@@ -174,8 +174,8 @@ public class HBaseClient {
 		}
 	}
 
-	public void insert(String tablename, List<Put> put) {
-		HTable htable = (HTable) tablePool.getTable(tablename);
+	public void insert(String tableName, List<Put> put) {
+		HTable htable = (HTable) tablePool.getTable(tableName);
 		try {
 			htable.put(put);
 		} catch (IOException e) {
@@ -185,8 +185,8 @@ public class HBaseClient {
 		}
 	}
 
-	public void delete(String tablename, Delete delete) {
-		HTable htable = (HTable) tablePool.getTable(tablename);
+	public void delete(String tableName, Delete delete) {
+		HTable htable = (HTable) tablePool.getTable(tableName);
 		try {
 			htable.delete(delete);
 		} catch (IOException e) {
