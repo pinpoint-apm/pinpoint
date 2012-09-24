@@ -8,6 +8,29 @@ public class BytesUtils {
         return buffer;
     }
 
+	public static final long[] bytesToLongLong(byte[] b) {
+		long[] result = new long[2];
+
+		result[0] = byteToLong(b, 0);
+		result[1] = byteToLong(b, 8);
+
+		return result;
+	}
+
+	public static final long byteToLong(byte[] b, int offset) {
+		if (b.length < offset + 8) {
+			throw new IllegalArgumentException("Illegal bytes or offset.");
+		}
+
+		long rv = 0;
+		for (int index = offset; index < offset + 8; index++) {
+			byte i = b[index];
+			rv = (rv << 8) | (i < 0 ? 256 + i : i);
+		}
+
+		return rv;
+	}
+    
     private static void writeLong(long value, byte[] buf, int offset) {
 //        for (int i = offset + 7; i > offset; i--) {
 //          buf [i]= (byte) val;

@@ -233,8 +233,6 @@ public class HBaseClient {
 				HTableInterface htable = getHTable(tableName);
 
 				if (query.isSingleRow()) {
-					System.out.println("Query single row");
-
 					Get get = new Get(startRow);
 
 					if (columns != null) {
@@ -247,9 +245,7 @@ public class HBaseClient {
 					List<Result> resultList = new ArrayList<Result>(1);
 					resultList.add(result);
 					resultIterator = resultList.iterator();
-
 				} else {
-					System.out.println("Query multiple rows");
 					Scan scan = new Scan();
 
 					if (startRow != null) {
@@ -269,18 +265,9 @@ public class HBaseClient {
 
 					LOG.debug("Executing scanner: " + query);
 
-					System.out.println("executing scanner:" + query);
-
 					long start = System.currentTimeMillis();
 
 					resultScanner = htable.getScanner(scan);
-
-					System.out.println("result scanner:" + resultScanner);
-
-					Iterator<Result> it = resultScanner.iterator();
-					while (it.hasNext()) {
-						System.out.println("R=" + it.next());
-					}
 
 					LOG.trace("Time taken for scanner: " + (System.currentTimeMillis() - start));
 
