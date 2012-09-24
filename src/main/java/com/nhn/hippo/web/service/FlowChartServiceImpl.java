@@ -82,6 +82,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		Result[] results = client.get(HBaseTables.TRACES, gets);
 
+		// traceId, SpanList
 		Map<byte[], List<Span>> result = new HashMap<byte[], List<Span>>();
 
 		for (Result r : results) {
@@ -96,6 +97,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 	private List<Span> populateSpans(Result res) {
 		List<Span> list = new ArrayList<Span>();
 
+		TDeserializer deserializer = new TDeserializer();
+
+		/**
+		 * Map<FAMILY, Map<COLUMN_NAME, Map<Timestamp, VALUE>>>
+		 */
 		NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> map = res.getMap();
 
 		for (Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : map.entrySet()) {
@@ -113,7 +119,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				for (Entry<Long, byte[]> v : valueSeries.entrySet()) {
 					Span span = new Span();
 					try {
-						new TDeserializer().deserialize(span, v.getValue());
+						deserializer.deserialize(span, v.getValue());
 						list.add(span);
 					} catch (TException e) {
 						e.printStackTrace();
