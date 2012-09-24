@@ -70,10 +70,10 @@ public class HBaseClientTest {
 		List<HbaseColumn> list = new ArrayList<HBaseQuery.HbaseColumn>();
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual1"));
 		list.add(new HbaseColumn(COLUMN_FAMILY, "qual2"));
-		Iterator<Map<String, Object>> result = client.getHBaseData(new HBaseQuery(TABLE_NAME, Bytes.toBytes("0"), Bytes.toBytes("9"), list));
+		Iterator<Map<String, byte[]>> result = client.getHBaseData(new HBaseQuery(TABLE_NAME, Bytes.toBytes("0"), Bytes.toBytes("9"), list));
 
 		while (result.hasNext()) {
-			Map<String, Object> next = result.next();
+			Map<String, byte[]> next = result.next();
 			System.out.println(next);
 		}
 	}

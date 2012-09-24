@@ -1,9 +1,7 @@
 package com.profiler.common.hbase;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +24,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,45 +33,41 @@ public class HBaseClient {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HBaseClient.class);
 
-	public final static String HBASE_ROW_ID = "ROW_KEY";
-
 	private HTablePool tablePool;
 	private HBaseAdmin admin;
 
 	private final Map<String, HTableInterface> htableList = new HashMap<String, HTableInterface>();
-	private final Map<String, Integer> fieldNameVsType = new HashMap<String, Integer>();
-	private boolean convertType = false;
 
-    public HBaseClient(Properties properties) {
-        String host = properties.getProperty("hbase.client.host", "localhost");
-        String port = properties.getProperty("hbase.client.port", "2181");
-        Integer poolSize = NumberUtils.toInt(properties.getProperty("hbase.client.poolSize"), 16);
-        init(host, port, poolSize, null);
+	public HBaseClient(Properties properties) {
+		String host = properties.getProperty("hbase.client.host", "localhost");
+		String port = properties.getProperty("hbase.client.port", "2181");
+		Integer poolSize = NumberUtils.toInt(properties.getProperty("hbase.client.poolSize"), 16);
+		init(host, port, poolSize, null);
 	}
 
 	public HBaseClient(String zk, String port, int poolSize) {
 		init(zk, port, poolSize, null);
 	}
 
-    public HBaseClient(String zk, String port, int poolSize, Configuration configuration) {
+	public HBaseClient(String zk, String port, int poolSize, Configuration configuration) {
 		init(zk, port, poolSize, configuration);
 	}
 
-    public HBaseClient(Configuration configuration, int poolSize) {
+	public HBaseClient(Configuration configuration, int poolSize) {
 		init(null, null, poolSize, configuration);
 	}
 
 	private void init(String zk, String port, int poolSize, Configuration configuration) {
-        if(configuration == null) {
-		    Configuration cfg = HBaseConfiguration.create();
-            if (zk != null) {
-                cfg.set("hbase.zookeeper.quorum", zk);
-            }
-            if (port != null) {
-                cfg.set("hbase.zookeeper.property.clientPort", port);
-            }
-            configuration = cfg;
-        }
+		if (configuration == null) {
+			Configuration cfg = HBaseConfiguration.create();
+			if (zk != null) {
+				cfg.set("hbase.zookeeper.quorum", zk);
+			}
+			if (port != null) {
+				cfg.set("hbase.zookeeper.property.clientPort", port);
+			}
+			configuration = cfg;
+		}
 
 		tablePool = new HTablePool(configuration, poolSize);
 		try {
@@ -101,7 +94,7 @@ public class HBaseClient {
 		return tablePool;
 	}
 
-	public Iterator<Map<String, Object>> getHBaseData(HBaseQuery query) {
+	public Iterator<Map<String, byte[]>> getHBaseData(HBaseQuery query) {
 		ResultSetIterator r = new ResultSetIterator(query);
 		return r.getIterator();
 	}
@@ -217,17 +210,13 @@ public class HBaseClient {
 		ResultScanner resultScanner = null;
 		Iterator<Result> resultIterator;
 		List<HbaseColumn> columns;
-		Iterator<Map<String, Object>> rSetIterator;
+		Iterator<Map<String, byte[]>> rSetIterator;
 
 		public ResultSetIterator(HBaseQuery query) {
 			try {
 				byte[] startRow = query.getStartRow();
 				byte[] stopRow = query.getStopRow();
 				String tableName = query.getTableName();
-
-				System.out.println("startRow=" + startRow);
-				System.out.println("stopRow=" + stopRow);
-				System.out.println("tableName=" + tableName);
 
 				columns = query.getColumns();
 				HTableInterface htable = getHTable(tableName);
@@ -278,16 +267,16 @@ public class HBaseClient {
 			}
 
 			if (!resultIterator.hasNext()) {
-				rSetIterator = new ArrayList<Map<String, Object>>().iterator();
+				rSetIterator = new ArrayList<Map<String, byte[]>>().iterator();
 				return;
 			}
 
-			rSetIterator = new Iterator<Map<String, Object>>() {
+			rSetIterator = new Iterator<Map<String, byte[]>>() {
 				public boolean hasNext() {
 					return hasnext();
 				}
 
-				public Map<String, Object> next() {
+				public Map<String, byte[]> next() {
 					return getARow();
 				}
 
@@ -296,62 +285,16 @@ public class HBaseClient {
 			};
 		}
 
-		private Iterator<Map<String, Object>> getIterator() {
+		private Iterator<Map<String, byte[]>> getIterator() {
 			return rSetIterator;
 		}
 
-		private void addConvertedType(byte[] value, String colName, Map<String, Object> result) {
-			Integer type = fieldNameVsType.get(colName);
-
-			if (type == null) {
-				type = HBaseTypes.STRING;
-			}
-			switch (type) {
-			case HBaseTypes.INTEGER:
-				// result.put(colName, Bytes.toInt(value));
-				result.put(colName, Integer.valueOf(Bytes.toString(value)));
-				break;
-			case HBaseTypes.FLOAT:
-				// result.put(colName, Bytes.toFloat(value));
-				result.put(colName, Float.valueOf(Bytes.toString(value)));
-				break;
-			case HBaseTypes.LONG:
-				// result.put(colName, Bytes.toLong(value));
-				result.put(colName, Long.valueOf(Bytes.toString(value)));
-				break;
-			case HBaseTypes.DOUBLE:
-				// result.put(colName, Bytes.toDouble(value));
-				result.put(colName, Double.valueOf(Bytes.toString(value)));
-				break;
-			case HBaseTypes.DATE:
-				result.put(colName, new Date(Bytes.toLong(value)));
-				// result.put(colName, new
-				// Date(Long.valueOf(Bytes.toString(value))));
-				break;
-			case HBaseTypes.BOOLEAN:
-				// result.put(colName, Bytes.toBoolean(value));
-				result.put(colName, Boolean.valueOf(Bytes.toString(value)));
-				break;
-			case HBaseTypes.BINARY:
-				result.put(colName, value);
-				break;
-			case HBaseTypes.STRING:
-				result.put(colName, Bytes.toString(value));
-				break;
-			default:
-				result.put(colName, Bytes.toString(value));
-				break;
-			}
-		}
-
-		private Map<String, Object> getARow() {
+		private Map<String, byte[]> getARow() {
 			if (resultIterator == null)
 				return null;
 			Result res = resultIterator.next();
 
-			System.out.println("next=" + res);
-
-			Map<String, Object> result = new HashMap<String, Object>();
+			Map<String, byte[]> result = new HashMap<String, byte[]>();
 			if (!res.isEmpty()) {
 				byte[] value;
 				if (columns != null) {
@@ -363,18 +306,10 @@ public class HBaseClient {
 							continue;
 						}
 
-						if (!convertType) {
-							result.put(colName, Bytes.toString(value));
-							continue;
-						}
-
-						// convert type
-						addConvertedType(value, colName, result);
+						result.put(colName, value);
 					}
 				}
 				value = res.getRow();
-
-				addConvertedType(value, HBASE_ROW_ID, result);
 			}
 
 			return result;
@@ -390,7 +325,6 @@ public class HBaseClient {
 					close();
 					return false;
 				}
-
 			} catch (Exception e) {
 				close();
 				e.printStackTrace();
@@ -409,6 +343,4 @@ public class HBaseClient {
 			}
 		}
 	}
-
-	public static final String CONVERT_TYPE = "convertType";
 }
