@@ -4,7 +4,7 @@
 	<groupId>com.nhn.hippo</groupId>
 	<artifactId>hippo-web</artifactId>
 	<version>0.0.1</version>
-	<name>HIPPO TEST Web</name>
+	<name>hippo-web</name>
 	<packaging>war</packaging>
 
 	<repositories>
