@@ -72,7 +72,8 @@ public class TracesTest {
         if (hbaseClient.isTableExists(traceIndex.getTableName())) {
             hbaseClient.dropTable(traceIndex.getTableName());
         }
-        hbaseClient.close();
+
+//        hbaseClient.close();
     }
 
     RowMapper<byte[]> valueMapper = new RowMapper<byte[]>() {

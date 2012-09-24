@@ -27,10 +27,13 @@
 
 	<import resource="classpath:hbase-applicationContext.xml"></import>
 
+    <bean id="MultiplexedPacketHandler" class="com.profiler.server.receiver.udp.MultiplexedPacketHandler"></bean>
+
 	<bean id="JvmDataHandler" class="com.profiler.server.data.handler.JVMDataHandler" />
 	<bean id="SpanHandler" class="com.profiler.server.data.handler.SpanHandler" />
 
 	<bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
+
 	<bean class="com.profiler.server.dao.HbaseTraceIndex"></bean>
 	<bean class="com.profiler.server.dao.Traces"></bean>
 </beans>

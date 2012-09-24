@@ -26,6 +26,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 	private DatagramSocket socket = null;
 
     private GenericApplicationContext context;
+    MultiplexedPacketHandler multiplexedPacketHandler;
 
 	long rejectedExecutionCount = 0;
 
@@ -34,6 +35,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     public MultiplexedUDPReceiver(GenericApplicationContext context) {
         this.context = context;
         this.socket = createSocket();
+        this.multiplexedPacketHandler = this.context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
     }
 
     private Thread ioThread = new Thread(MultiplexedUDPReceiver.class.getSimpleName()) {
@@ -75,7 +77,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
             try {
                 logger.debug("Dispatch packet");
-                worker.execute(new MultiplexedPacketHandler(packet, context));
+                worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
                 rejectedExecutionCount++;
                 if (rejectedExecutionCount > 1000) {
@@ -120,4 +122,20 @@ public class MultiplexedUDPReceiver implements DataReceiver {
         }
 
 	}
+
+    private class DispatchPacket implements Runnable {
+
+        private final DatagramPacket packet;
+
+        private DispatchPacket(DatagramPacket packet) {
+            this.packet = packet;
+        }
+
+        @Override
+        public void run() {
+            multiplexedPacketHandler.handlePacket(packet);
+            // packet에 대한 캐쉬를 해야 될듯.
+            // packet.return(); 등등
+        }
+    }
 }
