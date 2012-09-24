@@ -4,8 +4,8 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
 	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:util="http://www.springframework.org/schema/util" 	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-    xmlns:hdp="http://www.springframework.org/schema/hadoop"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:hdp="http://www.springframework.org/schema/hadoop"
 	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
@@ -14,26 +14,23 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>hbase.properties</value>
-            </list>
-        </property>
-    </bean>
+	<context:annotation-config />
 
-    <import resource="classpath:hbase-applicationContext.xml"></import>
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>hbase.properties</value>
+			</list>
+		</property>
+	</bean>
 
+	<import resource="classpath:hbase-applicationContext.xml"></import>
 
-	<bean id="JvmDataReader" class="com.profiler.server.data.reader.JVMDataReader" />
-	<bean id="SpanReader" class="com.profiler.server.data.reader.SpanReader" />
+	<bean id="JvmDataHandler" class="com.profiler.server.data.handler.JVMDataHandler" />
+	<bean id="SpanHandler" class="com.profiler.server.data.handler.SpanHandler" />
 
 	<bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
-
-
 	<bean class="com.profiler.server.dao.HbaseTraceIndex"></bean>
-
 	<bean class="com.profiler.server.dao.Traces"></bean>
-
-
 </beans>

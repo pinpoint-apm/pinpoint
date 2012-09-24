@@ -12,7 +12,8 @@ import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.TBaseLocator;
-import com.profiler.server.data.reader.Reader;
+import com.profiler.server.data.handler.Handler;
+
 import org.springframework.context.support.GenericApplicationContext;
 
 public class MultiplexedPacketHandler implements Runnable {
@@ -41,7 +42,7 @@ public class MultiplexedPacketHandler implements Runnable {
 	}
 
 	private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
-		Reader readHandler = getReadHandler(tBase);
+		Handler readHandler = getReadHandler(tBase);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("handler name:" + readHandler.getClass().getName());
@@ -50,12 +51,12 @@ public class MultiplexedPacketHandler implements Runnable {
 		readHandler.handler(tBase, datagramPacket);
 	}
 
-	private Reader getReadHandler(TBase<?, ?> tBase) {
+	private Handler getReadHandler(TBase<?, ?> tBase) {
 		if (tBase instanceof JVMInfoThriftDTO) {
-			return context.getBean(SpringConstants.JVM_DATA_READER_BEAN_NAME, Reader.class);
+			return context.getBean(SpringConstants.JVM_DATA_READER_BEAN_NAME, Handler.class);
 		}
 		if (tBase instanceof Span) {
-			return context.getBean(SpringConstants.SPAN_READER_BEAN_NAME, Reader.class);
+			return context.getBean(SpringConstants.SPAN_READER_BEAN_NAME, Handler.class);
 		}
 		logger.warn("Unknown type of data received. data=" + tBase);
 

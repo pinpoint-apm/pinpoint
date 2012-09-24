@@ -1,4 +1,4 @@
-package com.profiler.server.data.reader;
+package com.profiler.server.data.handler;
 
 import java.net.DatagramPacket;
 
@@ -7,8 +7,8 @@ import org.apache.thrift.TBase;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 
-public class JVMDataReader implements Reader {
-	private final Logger logger = Logger.getLogger(JVMDataReader.class.getName());
+public class JVMDataHandler implements Handler {
+	private final Logger logger = Logger.getLogger(JVMDataHandler.class.getName());
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 		assert (tbase instanceof JVMInfoThriftDTO);
@@ -20,7 +20,7 @@ public class JVMDataReader implements Reader {
 				logger.info("Received JVM=" + dto);
 			}
 		} catch (Exception e) {
-			logger.warn("ReadJVMData handle error " + e.getMessage(), e);
+			logger.warn("JVMData handle error " + e.getMessage(), e);
 		}
 	}
 }

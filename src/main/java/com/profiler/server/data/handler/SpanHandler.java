@@ -1,4 +1,4 @@
-package com.profiler.server.data.reader;
+package com.profiler.server.data.handler;
 
 import java.net.DatagramPacket;
 
@@ -10,9 +10,9 @@ import org.apache.thrift.TBase;
 import com.profiler.common.dto.thrift.Span;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SpanReader implements Reader {
+public class SpanHandler implements Handler {
 
-	private final Logger logger = Logger.getLogger(SpanReader.class.getName());
+	private final Logger logger = Logger.getLogger(SpanHandler.class.getName());
 
     @Autowired
 	private TraceIndex traceIndex;
@@ -26,6 +26,9 @@ public class SpanReader implements Reader {
 		try {
 			Span span = (Span) tbase;
 
+			System.out.println(trace);
+			System.out.println(traceIndex);
+			
             trace.insert(span);
             traceIndex.insert(span);
 
@@ -33,7 +36,7 @@ public class SpanReader implements Reader {
 				logger.info("Received SPAN=" + span);
 			}
 		} catch (Exception e) {
-			logger.warn("ReadJVMData handle error " + e.getMessage(), e);
+			logger.warn("Span handle error " + e.getMessage(), e);
 		}
 	}
 }
