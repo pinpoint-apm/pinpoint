@@ -12,6 +12,7 @@
   <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.1/jaxb-api-2.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/servlet/jstl/1.1.0/jstl-1.1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/arcus/arcus-client/1.6.2.1/arcus-client-1.6.2.1.jar" sourcepath="M2_REPO/arcus/arcus-client/1.6.2.1/arcus-client-1.6.2.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/arcus/arcus-spring/0.3.5/arcus-spring-0.3.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/asm/asm/3.1/asm-3.1.jar"/>
@@ -129,6 +130,13 @@
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.5.8/slf4j-log4j12-1.5.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/xerial/snappy/snappy-java/1.0.3.2/snappy-java-1.0.3.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.0.7.RELEASE/spring-aop-3.0.7.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-asm/3.0.7.RELEASE/spring-asm-3.0.7.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.0.7.RELEASE/spring-beans-3.0.7.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/3.0.7.RELEASE/spring-context-3.0.7.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context-support/3.0.7.RELEASE/spring-context-support-3.0.7.RELEASE.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-hadoop/1.0.0.M2/spring-data-hadoop-1.0.0.M2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-expression/3.0.7.RELEASE/spring-expression-3.0.7.RELEASE.jar"/>
   <classpathentry kind="var" path="M2_REPO/taglibs/standard/1.1.2/standard-1.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/stax/stax-api/1.0.1/stax-api-1.0.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/velocity/velocity/1.7/velocity-1.7.jar"/>
