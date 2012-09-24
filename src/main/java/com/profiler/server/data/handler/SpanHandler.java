@@ -26,9 +26,6 @@ public class SpanHandler implements Handler {
 		try {
 			Span span = (Span) tbase;
 
-			System.out.println(trace);
-			System.out.println(traceIndex);
-			
             trace.insert(span);
             traceIndex.insert(span);
 
