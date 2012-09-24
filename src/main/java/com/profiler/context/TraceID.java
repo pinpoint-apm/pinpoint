@@ -47,32 +47,28 @@ public class TraceID {
 			this.span = span;
 		}
 
-		@Override
-		public boolean equals(Object o) {
-			if (this == o)
-				return true;
-			if (o == null || getClass() != o.getClass())
-				return false;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
-			TraceKey that = (TraceKey) o;
+            TraceKey traceKey = (TraceKey) o;
 
-			if (least != that.least)
-				return false;
-			if (most != that.most)
-				return false;
-			if (span != that.span)
-				return false;
+            if (least != traceKey.least) return false;
+            if (most != traceKey.most) return false;
+            if (span != traceKey.span) return false;
 
-			return true;
-		}
+            return true;
+        }
 
-		@Override
-		public int hashCode() {
-			int result = (int) (most ^ (most >>> 32));
-			result = 31 * result + (int) (least ^ (least >>> 32));
-			return result;
-		}
-	}
+        @Override
+        public int hashCode() {
+            int result = (int) (most ^ (most >>> 32));
+            result = 31 * result + (int) (least ^ (least >>> 32));
+            result = 31 * result + (int) (span ^ (span >>> 32));
+            return result;
+        }
+    }
 
 	public long getParentSpanId() {
 		return parentSpanId;

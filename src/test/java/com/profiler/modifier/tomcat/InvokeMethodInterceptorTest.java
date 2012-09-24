@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
 import com.profiler.context.Header;
-import com.profiler.modifier.tomcat.interceptors.InvokeMethodInterceptor;
+import com.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
 
 public class InvokeMethodInterceptorTest {
 
@@ -31,7 +31,7 @@ public class InvokeMethodInterceptorTest {
 		Enumeration<?> enumeration = mock(Enumeration.class);
 		when(request.getParameterNames()).thenReturn(enumeration);
 
-		InvokeMethodInterceptor interceptor = new InvokeMethodInterceptor();
+		StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
 
 		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
 		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());
@@ -56,7 +56,7 @@ public class InvokeMethodInterceptorTest {
 		Enumeration<?> enumeration = mock(Enumeration.class);
 		when(request.getParameterNames()).thenReturn(enumeration);
 
-		InvokeMethodInterceptor interceptor = new InvokeMethodInterceptor();
+		StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
 
 		interceptor.before("target", "classname", "methodname", null, new Object[] { request, response });
 		interceptor.after("target", "classname", "methodname", null, new Object[] { request, response }, new Object());

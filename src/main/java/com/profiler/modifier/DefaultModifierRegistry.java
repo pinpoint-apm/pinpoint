@@ -21,7 +21,7 @@ import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.profiler.modifier.tomcat.CatalinaModifier;
-import com.profiler.modifier.tomcat.EntryPointStandardHostValveModifier;
+import com.profiler.modifier.tomcat.StandardHostValveInvokeInterceptor;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
@@ -57,8 +57,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	public void addTomcatModifier() {
-		Modifier entryPointStandardHostValveModifier = new EntryPointStandardHostValveModifier(byteCodeInstrumentor);
-		addModifier(entryPointStandardHostValveModifier);
+        StandardHostValveInvokeInterceptor standardHostValveInvokeInterceptor = new StandardHostValveInvokeInterceptor(byteCodeInstrumentor);
+		addModifier(standardHostValveInvokeInterceptor);
 
 		Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor);
 		addModifier(tomcatStandardServiceModifier);

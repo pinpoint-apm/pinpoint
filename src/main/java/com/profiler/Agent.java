@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
 
 public class Agent {
@@ -81,6 +82,8 @@ public class Agent {
 
 	public void start() {
 		logger.info("Starting HIPPO Agent.");
+        // trace context 새롭게 생성.
+        TraceContext.initialize();
 		systemMonitor.start();
 	}
 

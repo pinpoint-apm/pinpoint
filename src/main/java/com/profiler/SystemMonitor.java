@@ -2,6 +2,7 @@ package com.profiler;
 
 import static com.profiler.config.TomcatProfilerConfig.JVM_STAT_GAP;
 
+import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -11,11 +12,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
-import com.profiler.trace.RequestTracer;
 import com.sun.management.OperatingSystemMXBean;
 
 /**
@@ -49,53 +51,64 @@ public class SystemMonitor {
 		executor.shutdown();
 	}
 
-	private static class Worker implements Runnable {
-
-		private JVMInfoThriftDTO currentDto = new JVMInfoThriftDTO();
+	static class Worker implements Runnable {
 
 		public void run() {
+            JVMInfoThriftDTO jvmInfo = new JVMInfoThriftDTO();
 			try {
-				currentDto = new JVMInfoThriftDTO();
-				currentDto.setAgentId(Agent.getInstance().getAgentId());
-				currentDto.setDataTime(System.currentTimeMillis());
+				jvmInfo = new JVMInfoThriftDTO();
+				jvmInfo.setAgentId(Agent.getInstance().getAgentId());
+				jvmInfo.setDataTime(System.currentTimeMillis());
 
-				getActiveThreadCount();
-				getGCState();
-				getMemoryState();
-				getProcessCPUUsage();
+                TraceContext traceContext = TraceContext.getTraceContext();
+                activeThread(traceContext, jvmInfo);
 
-				DataSender.getInstance().addDataToSend(currentDto);
+                setGCState(jvmInfo);
+				setMemoryState(jvmInfo);
+				setProcessCPUUsage(jvmInfo);
+
+				DataSender.getInstance().addDataToSend(jvmInfo);
 			} catch (Exception e) {
-
+                logger.log(Level.INFO, "JvmInfo collect error Cause:" + e.getMessage(), e);
 			}
 		}
 
-		private void getActiveThreadCount() throws Exception {
-			int currentSize = RequestTracer.getActiveThreadCount();
-			currentDto.setActiveThreadCount(currentSize);
-		}
+        private void activeThread(TraceContext traceContext, JVMInfoThriftDTO jvmInfo) {
+            int activeThread = traceContext.getActiveThreadCounter().getActiveThread();
+            jvmInfo.setActiveThreadCount(activeThread);
+        }
 
-		private void getGCState() throws Exception {
+
+		private void setGCState(JVMInfoThriftDTO jvmInfo) throws Exception {
 			List<GarbageCollectorMXBean> list = ManagementFactory.getGarbageCollectorMXBeans();
 			if (list.size() == 2) {
-				GarbageCollectorMXBean bean1 = list.get(0);
-				currentDto.setGc1Count(bean1.getCollectionCount());
-				currentDto.setGc1Time(bean1.getCollectionTime());
-				GarbageCollectorMXBean bean2 = list.get(1);
-				currentDto.setGc2Count(bean2.getCollectionCount());
-				currentDto.setGc2Time(bean2.getCollectionTime());
-			}
+                // 제네레이션 기반일 경우 young, old 2개.
+//                young.getName() // young gc type
+				GarbageCollectorMXBean young = list.get(0);
+                jvmInfo.setGc1Count(young.getCollectionCount());
+                jvmInfo.setGc1Time(young.getCollectionTime());
+
+				GarbageCollectorMXBean old = list.get(1);
+//                old.getName() // old gc type
+                jvmInfo.setGc2Count(old.getCollectionCount());
+                jvmInfo.setGc2Time(old.getCollectionTime());
+			} else {
+                // g1 ?
+                if(logger.isLoggable(Level.FINE)) {
+                    logger.fine("unknown gc type. gc collector size:"  + list.size());
+                }
+            }
 		}
 
-		public void getMemoryState() throws Exception {
+		public void setMemoryState(JVMInfoThriftDTO jvmInfo) throws Exception {
 			MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heap = bean.getHeapMemoryUsage();
 			MemoryUsage nonHeap = bean.getNonHeapMemoryUsage();
 
-			currentDto.setHeapUsed(heap.getUsed());
-			currentDto.setHeapCommitted(heap.getCommitted());
-			currentDto.setNonHeapUsed(nonHeap.getUsed());
-			currentDto.setNonHeapCommitted(nonHeap.getCommitted());
+            jvmInfo.setHeapUsed(heap.getUsed());
+            jvmInfo.setHeapCommitted(heap.getCommitted());
+            jvmInfo.setNonHeapUsed(nonHeap.getUsed());
+            jvmInfo.setNonHeapCommitted(nonHeap.getCommitted());
 		}
 
 		long previousCpuTime = 0;
@@ -104,11 +117,10 @@ public class SystemMonitor {
 
 		/**
 		 * I don't know why should I divide by 10 in this result. But it works.
-		 * - -;
-		 * 
+		 *
 		 * @throws Exception
 		 */
-		private void getProcessCPUUsage() throws Exception {
+		private void setProcessCPUUsage(JVMInfoThriftDTO jvmInfo) throws Exception {
 			try {
 				if (processCPUAvailable) {
 					OperatingSystemMXBean sunOSMBean = ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(), ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
@@ -121,12 +133,13 @@ public class SystemMonitor {
 					if (previousCpuTime != 0) {
 						long usedCPUTotal = (cpuTime - previousCpuTime) / 1000000;
 						double usedCPU = (0.1D * usedCPUTotal) / (processorCount * JVM_STAT_GAP / 1000.0);
-						currentDto.setProcessCPUTime(usedCPU);
+                        jvmInfo.setProcessCPUTime(usedCPU);
 					}
 					previousCpuTime = cpuTime;
+
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (IOException e) {
+
 				processCPUAvailable = false;
 			}
 		}
