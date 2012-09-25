@@ -129,6 +129,7 @@ public class Span {
 		span.setMostTraceID(traceID.getId().getMostSignificantBits());
 		span.setLeastTraceID(traceID.getId().getLeastSignificantBits());
 		span.setName(name);
+		span.setServiceName(serviceName);
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 
