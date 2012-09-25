@@ -2,9 +2,8 @@ package com.profiler.server.dao;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.hbase.HBaseClient;
+import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.TBaseLocator;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TSerializer;
@@ -13,8 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.HbaseOperations;
-import org.springframework.data.hadoop.hbase.TableCallback;
+import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -27,7 +25,7 @@ public class HbaseJvmInfoDaoTest {
 
 
     @Autowired
-    private HbaseOperations hbaseOperations;
+    private HbaseOperations2 hbaseOperations;
 
     // static 하니 inject가 잘안됨 방안을 찾아봐야 될듯.
     @Autowired
@@ -41,7 +39,12 @@ public class HbaseJvmInfoDaoTest {
     @Autowired
     TBaseLocator locator;
 
-
+    RowMapper<byte[]> valueRowMapper = new RowMapper<byte[]>() {
+        @Override
+        public byte[] mapRow(Result result, int rowNum) throws Exception {
+            return result.value();
+        }
+    };
 
     @Test
     public void testRowKey() throws Exception {
@@ -69,16 +72,9 @@ public class HbaseJvmInfoDaoTest {
         byte[] bytes = tSerializer.serialize(jvmInfoThriftDTO);
         hbaseJvmInfoDao.insert(jvmInfoThriftDTO, bytes);
 
-        byte[] execute = hbaseOperations.execute("SystemInfo", new TableCallback<byte[]>() {
-            @Override
-            public byte[] doInTable(HTable table) throws Throwable {
-                byte[] rowKey = hbaseJvmInfoDao.getRowKey(jvmInfoThriftDTO);
-                Get get = new Get(rowKey);
-                get.addColumn(Bytes.toBytes("JVM"), Bytes.toBytes("info"));
-                Result result = table.get(get);
-                return result.value();
-            }
-        });
+        byte[] rowKey = hbaseJvmInfoDao.getRowKey(jvmInfoThriftDTO);
+
+        byte[] execute = hbaseOperations.get("SystemInfo", rowKey, Bytes.toBytes("JVM"), Bytes.toBytes("info"), valueRowMapper);
 
         Assert.assertArrayEquals(execute, bytes);
     }

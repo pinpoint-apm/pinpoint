@@ -2,12 +2,10 @@ package com.profiler.server.dao;
 
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import org.apache.hadoop.hbase.client.HTable;
+import com.profiler.common.hbase.HbaseOperations2;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.hbase.HbaseOperations;
-import org.springframework.data.hadoop.hbase.TableCallback;
 
 
 public class HbaseJvmInfoDao implements JvmInfoDao {
@@ -18,22 +16,15 @@ public class HbaseJvmInfoDao implements JvmInfoDao {
 
 
     @Autowired
-    private HbaseOperations hbaseOperations;
+    private HbaseOperations2 hbaseOperations;
 
     @Override
     public void insert(final JVMInfoThriftDTO jvmInfoThriftDTO, final byte[] jvmInfoBytes) {
-        hbaseOperations.execute("SystemInfo", new TableCallback<Object>() {
-            @Override
-            public Object doInTable(HTable table) throws Throwable {
-                byte[] rowKey = getRowKey(jvmInfoThriftDTO);
+        byte[] rowKey = getRowKey(jvmInfoThriftDTO);
+        Put put = new Put(rowKey, jvmInfoThriftDTO.getDataTime());
+        put.add(FamilyJvm, QualifierInfo, jvmInfoBytes);
 
-                Put put = new Put(rowKey, jvmInfoThriftDTO.getDataTime());
-                put.add(FamilyJvm, QualifierInfo, jvmInfoBytes);
-                table.put(put);
-
-                return null;
-            }
-        });
+        hbaseOperations.put("SystemInfo", put);
     }
 
     byte[] getRowKey(JVMInfoThriftDTO jvmInfoThriftDTO) {

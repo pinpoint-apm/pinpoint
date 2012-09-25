@@ -63,21 +63,21 @@
 			<version>0.0.1</version>
 		</dependency>
 
-		<!--<dependency> -->
-		<!--<groupId>org.apache.hadoop</groupId> -->
-		<!--<artifactId>hadoop-core</artifactId> -->
-		<!--<version>1.0.1</version> -->
-		<!--</dependency> -->
-		<!--<dependency> -->
-		<!--<groupId>org.apache.thrift</groupId> -->
-		<!--<artifactId>libthrift</artifactId> -->
-		<!--<version>0.8.0</version> -->
-		<!--</dependency> -->
-		<!--<dependency> -->
-		<!--<groupId>org.apache.hbase</groupId> -->
-		<!--<artifactId>hbase</artifactId> -->
-		<!--<version>0.94.1</version> -->
-		<!--</dependency> -->
+		<dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>1.0.1</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.8.0</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase</artifactId>
+            <version>0.94.1</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -113,8 +113,12 @@
 			<version>1.0.0.M2</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>spring-core</artifactId>
                     <groupId>org.springframework</groupId>
+                    <artifactId>spring-context-support</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.hbase</groupId>

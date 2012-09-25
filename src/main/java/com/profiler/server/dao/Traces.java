@@ -1,12 +1,10 @@
 package com.profiler.server.dao;
 
-import org.apache.hadoop.hbase.client.HTable;
+import com.profiler.common.hbase.HbaseOperations2;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.hbase.HbaseOperations;
-import org.springframework.data.hadoop.hbase.TableCallback;
 
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
@@ -23,23 +21,14 @@ public class Traces {
 	private HBaseClient client;
 
     @Autowired
-    private HbaseOperations hbaseTemplate;
+    private HbaseOperations2 hbaseTemplate;
 
 	public boolean insert(final Span span, final byte[] spanBytes) {
 		try {
-             // 이거 왜 put은 없지?
-            hbaseTemplate.execute(HBaseTables.TRACES, new TableCallback<Object>() {
-                @Override
-                public Object doInTable(HTable table) throws Throwable {
+            Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
+            put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
+            hbaseTemplate.put(HBaseTables.TRACES, put);
 
-                    Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
-
-                    put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
-                    table.put(put);
-
-                    return null;
-                }
-            });
 			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
