@@ -29,9 +29,10 @@ struct Span {
   3: i64 mostTraceID
   4: i64 leastTraceID
   5: string name,
-  6: i64 spanID,
-  7: optional i64 parentSpanId,
-  8: list<Annotation> annotations,
-  9: list<BinaryAnnotation> binaryAnnotations
-  10: optional i32 flag = 0
+  6: string serviceName
+  7: i64 spanID,
+  8: optional i64 parentSpanId,
+  9: list<Annotation> annotations,
+  10: list<BinaryAnnotation> binaryAnnotations
+  11: optional i32 flag = 0
 }
