@@ -4,6 +4,8 @@ public class Header {
 
     public static final byte SIGNATURE = (byte) 0xef;
 
+    public static final int HEADER_SIZE = 4;
+
     private byte signature = SIGNATURE;
     private byte version = 0x10;
     private short type = 0;
