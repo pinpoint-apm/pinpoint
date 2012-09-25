@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.TableCallback;
 
+
 public class HbaseTraceIndex implements TraceIndex {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());

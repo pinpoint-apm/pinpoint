@@ -2,8 +2,6 @@ package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
-import com.profiler.common.util.DefaultTBaseLocator;
-import com.profiler.server.spring.SpringConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -46,15 +44,15 @@ public class MultiplexedPacketHandler {
     }
 
 	private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
-		Handler readHandler = getReadHandler(tBase);
+		Handler handler = getHandler(tBase);
 		if (logger.isDebugEnabled()) {
-			logger.debug("handler name:" + readHandler.getClass().getName());
+			logger.debug("handler name:" + handler.getClass().getName());
 		}
 
-		readHandler.handler(tBase, datagramPacket);
+		handler.handler(tBase, datagramPacket);
 	}
 
-	private Handler getReadHandler(TBase<?, ?> tBase) {
+	private Handler getHandler(TBase<?, ?> tBase) {
 		if (tBase instanceof JVMInfoThriftDTO) {
 			return jvmDataHandler;
 		}

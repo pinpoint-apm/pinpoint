@@ -10,3 +10,9 @@ drop 'Traces'
 create 'Traces', { NAME => 'Span', VERSION => 1 }
 
 
+
+disable 'SystemInfo'
+drop 'SystemInfo'
+create 'SystemInfo', { NAME => 'JVM', VERSION => 1 }
+
+

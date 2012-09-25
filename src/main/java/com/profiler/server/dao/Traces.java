@@ -4,7 +4,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
-import org.apache.thrift.TSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.TableCallback;
@@ -26,16 +25,16 @@ public class Traces {
     @Autowired
     private HbaseOperations hbaseTemplate;
 
-	public boolean insert(final Span span) {
+	public boolean insert(final Span span, final byte[] spanBytes) {
 		try {
-			final byte[] value = new TSerializer().serialize(span);
              // 이거 왜 put은 없지?
             hbaseTemplate.execute(HBaseTables.TRACES, new TableCallback<Object>() {
                 @Override
                 public Object doInTable(HTable table) throws Throwable {
 
                     Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
-			        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), value);
+
+                    put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
                     table.put(put);
 
                     return null;

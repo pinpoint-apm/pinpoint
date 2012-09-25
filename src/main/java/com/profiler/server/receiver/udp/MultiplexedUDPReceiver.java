@@ -26,7 +26,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 	private DatagramSocket socket = null;
 
     private GenericApplicationContext context;
-    MultiplexedPacketHandler multiplexedPacketHandler;
+    private MultiplexedPacketHandler multiplexedPacketHandler;
 
 	long rejectedExecutionCount = 0;
 
@@ -67,7 +67,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                     logger.debug("DatagramPacket read size:" + packet.getLength());
                 }
             } catch (IOException e) {
-                if (state.get()== false) {
+                if (state.get() == false) {
                     // shutdown
                 } else {
                     logger.error(e.getMessage(), e);
@@ -76,7 +76,6 @@ public class MultiplexedUDPReceiver implements DataReceiver {
             }
 
             try {
-                logger.debug("Dispatch packet");
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
                 rejectedExecutionCount++;

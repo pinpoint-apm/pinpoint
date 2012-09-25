@@ -2,6 +2,8 @@ package com.profiler.server.data.handler;
 
 import java.net.DatagramPacket;
 
+import com.profiler.common.dto.Header;
+import com.profiler.common.util.PacketUtils;
 import com.profiler.server.dao.TraceIndex;
 import com.profiler.server.dao.Traces;
 import org.apache.log4j.Logger;
@@ -25,8 +27,8 @@ public class SpanHandler implements Handler {
 
 		try {
 			Span span = (Span) tbase;
-
-            trace.insert(span);
+            byte[] spanBytes = PacketUtils.sliceData(datagramPacket, Header.HEADER_SIZE);
+            trace.insert(span, spanBytes);
             traceIndex.insert(span);
 
 			if (logger.isInfoEnabled()) {

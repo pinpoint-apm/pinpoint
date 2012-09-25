@@ -25,15 +25,15 @@
     <import resource="classpath:hbase-applicationContext.xml"></import>
 
 
-	<bean id="JvmDataReader" class="com.profiler.server.data.reader.JVMDataReader" />
-	<bean id="SpanReader" class="com.profiler.server.data.reader.SpanReader" />
-
 	<bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
 
 	<bean id="testTraceIndex" class="com.profiler.server.dao.HbaseTraceIndex">
         <property name="tableName" value="TestTraceIndex"/>
 	</bean>
+
+    <bean id="testHbaseJvmInfoDaoTest" class="com.profiler.server.dao.HbaseJvmInfoDao">
+    </bean>
 
 	<bean class="com.profiler.server.dao.Traces"></bean>
 
