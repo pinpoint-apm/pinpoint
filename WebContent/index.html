@@ -216,7 +216,7 @@
 			right : 1,
 			bottom : 6,
 			left : 1
-		}, width = 800 - margin.left - margin.right, height = 300 - margin.top - margin.bottom;
+		}, width = 1300 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
 
 		var formatNumber = d3.format(",.0f"), format = function(d) {
 			return formatNumber(d) + " Requests";
@@ -231,7 +231,8 @@
 
 		var path = sankey.link();
 
-		d3.json("data.json", function(energy) {
+//		d3.json("/flow.hippo?host=TEST_AGENT_ID&from=1348565386677&to=1348565386677", function(energy) {
+		d3.json("/flow.hippo?host=TEST_AGENT_ID&from=1348647506695&to=1348647536693", function(energy) {
 			sankey.nodes(energy.nodes).links(energy.links).layout(32);
 
 			/*

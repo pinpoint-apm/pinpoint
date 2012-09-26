@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
@@ -99,20 +100,17 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		TDeserializer deserializer = new TDeserializer();
 
-		/**
-		 * Map<FAMILY, Map<COLUMN_NAME, Map<Timestamp, VALUE>>>
-		 */
 		NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> map = res.getMap();
 
 		for (Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : map.entrySet()) {
-			byte[] family = entry.getKey();
-			System.out.println("family=" + Bytes.toString(family));
+//			byte[] family = entry.getKey();
+//			System.out.println("family=" + Bytes.toString(family));
 
 			NavigableMap<byte[], NavigableMap<Long, byte[]>> values = entry.getValue();
 
 			for (Entry<byte[], NavigableMap<Long, byte[]>> value : values.entrySet()) {
-				byte[] colname = value.getKey();
-				System.out.println("colname=" + Bytes.toString(colname));
+//				byte[] colname = value.getKey();
+//				System.out.println("colname=" + Bytes.toString(colname));
 
 				NavigableMap<Long, byte[]> valueSeries = value.getValue();
 
@@ -131,4 +129,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return list;
 	}
 
+	@Override
+	public RPCCallTree selectCallTree(List<byte[]> traceIds) {
+		List<Get> gets = new ArrayList<Get>(traceIds.size());
+		for (byte[] traceId : traceIds) {
+			gets.add(new Get(traceId));
+		}
+
+		Result[] results = client.get(HBaseTables.TRACES, gets);
+
+		return TracesProcessor.process(results);
+	}
 }

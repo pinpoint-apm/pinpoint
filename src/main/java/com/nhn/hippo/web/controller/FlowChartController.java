@@ -10,8 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
 
+/**
+ * retrieve data for drawing call tree.
+ * 
+ * @author netspider
+ * 
+ */
 @Controller
 public class FlowChartController {
 
@@ -20,8 +27,7 @@ public class FlowChartController {
 
 	/**
 	 * <pre>
-	 * testurl = http://localhost:7080/flow.hippo?host=TEST_AGENT_ID&from=1348453800000&to=1348453900000
-	 * testurl = http://localhost:7080/flow.hippo?host=TEST_AGENT_ID&from=0&to=1348493900000
+	 * testurl = netscurl "http://localhost:7080/flow.hippo?host=TEST_AGENT_ID&from=1348565386677&to=1348565386677"
 	 * </pre>
 	 * 
 	 * @param model
@@ -36,18 +42,22 @@ public class FlowChartController {
 		 * get agentId list from 'Servers'
 		 */
 		String[] selectAgentIds = flow.selectAgentIds(hosts);
-
 		System.out.println("selectedAgentIds=" + Arrays.toString(selectAgentIds));
 
 		/**
 		 * get traceId list from 'TraceIndex'
 		 */
-		List<byte[]> iterator = flow.selectTraceIdsFromTraceIndex(hosts, from, to);
+		List<byte[]> traceIds = flow.selectTraceIdsFromTraceIndex(hosts, from, to);
 
 		/**
-		 * get all traces from 'Trace'
+		 * get call tree
 		 */
-		flow.selectTraces(iterator);
+		RPCCallTree callTree = flow.selectCallTree(traceIds);
+		model.addAttribute("nodes", callTree.getNodes());
+		model.addAttribute("links", callTree.getLinks());
+		model.addAttribute("value", "hello world");
+
+		System.out.println(callTree.toString());
 
 		return "flow";
 	}
