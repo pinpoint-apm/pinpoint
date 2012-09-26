@@ -104,18 +104,23 @@
 			<version>0.8.0</version>
             <scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.5.8</version>
-            <scope>provided</scope>
-		</dependency>
+
+        <!-- thrift depedencies -->
         <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.5.8</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.6</version>
             <scope>test</scope>
-		</dependency>
+        </dependency>
+        <!-- commons-logging-adapter -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.6.6</version>
+            <scope>test</scope>
+        </dependency>
+
+
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -128,6 +133,9 @@
 			<version>6.0.35</version>
             <scope>provided</scope>
 		</dependency>
+
+
+        <!-- unit test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
