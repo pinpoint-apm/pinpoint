@@ -58,7 +58,49 @@
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
 			<version>1.0.1</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jsp-2.1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jsp-api-2.1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-compiler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api-2.5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-httpclient</groupId>
+                    <artifactId>commons-httpclient</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.thrift</groupId>
 			<artifactId>libthrift</artifactId>
@@ -67,16 +109,74 @@
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
-			<version>0.92.1</version>
-		</dependency>
+			<version>0.94.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jsp-2.1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jsp-api-2.1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api-2.5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-compiler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jersey-core</artifactId>
+                    <groupId>com.sun.jersey</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-json</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-hadoop</artifactId>
 			<version>1.0.0.M2</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>spring-core</artifactId>
                     <groupId>org.springframework</groupId>
+                    <artifactId>spring-context-support</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.hbase</groupId>
@@ -84,7 +184,12 @@
                 </exclusion>
             </exclusions>
 		</dependency>
-		
+        <dependency>
+            <groupId>com.nhn.hippo</groupId>
+            <artifactId>hippo-tomcat-profiler</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
 		
 		<dependency>
 			<groupId>com.nhncorp.lucy</groupId>
@@ -95,6 +200,12 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -123,7 +234,7 @@
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>6.0.35</version>
-			<scope>test</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -237,121 +348,90 @@
 			<version>${spring.version}</version>
 		</dependency>
 
-		<!-- Hibernate dependecies -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>com.springsource.org.hibernate</artifactId>
-			<version>3.3.2.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>com.springsource.org.hibernate.annotations</artifactId>
-			<version>3.4.0.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>com.springsource.org.hibernate.annotations.common</artifactId>
-			<version>3.3.0.ga</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>com.springsource.org.hibernate.ejb</artifactId>
-			<version>3.4.0.GA</version>
-		</dependency>
 		<!-- Caching dependecies -->
 		<dependency>
-			<groupId>net.sourceforge.ehcache</groupId>
-			<artifactId>com.springsource.net.sf.ehcache</artifactId>
+            <artifactId>com.springsource.net.sf.ehcache</artifactId>
+            <groupId>net.sourceforge.ehcache</groupId>
 			<version>1.6.2</version>
 		</dependency>
 		<!-- DBMS dependecies -->
 		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>com.springsource.javax.persistence</artifactId>
+            <artifactId>com.springsource.javax.persistence</artifactId>
+            <groupId>javax.persistence</groupId>
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>com.springsource.javax.transaction</artifactId>
+            <artifactId>com.springsource.javax.transaction</artifactId>
+            <groupId>javax.transaction</groupId>
 			<version>1.1.0</version>
 		</dependency>
-		<dependency>
-			<groupId>c3p0</groupId>
-			<artifactId>c3p0</artifactId>
-			<version>0.9.1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>8.2-507.jdbc3</version>
-		</dependency>
+
+
 		<!-- Logging depedencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- commons-logging-adapter -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.5.10</version>
+			<version>1.6.6</version>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>com.springsource.ch.qos.logback.classic</artifactId>
-			<version>0.9.9</version>
-		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+
+
 		<!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.org.junit</artifactId>
-			<version>4.8.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>com.springsource.org.hamcrest</artifactId>
+            <artifactId>com.springsource.org.hamcrest</artifactId>
+            <groupId>org.hamcrest</groupId>
 			<version>1.1.0</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>com.springsource.org.mockito</artifactId>
+            <artifactId>com.springsource.org.mockito</artifactId>
+            <groupId>org.mockito</groupId>
 			<version>1.8.4</version>
+            <scope>test</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>org.dbunit</groupId>
-			<artifactId>com.springsource.org.dbunit</artifactId>
-			<version>2.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.2.6</version>
-		</dependency>
-		<!-- Web dependencies <dependency> <groupId>javax.servlet</groupId> <artifactId>com.springsource.javax.servlet.jsp.jstl</artifactId> 
-			<version>1.2.0</version> </dependency> <dependency> <groupId>javax.servlet</groupId> 
-			<artifactId>com.springsource.javax.servlet</artifactId> <version>2.5.0</version> 
-			<scope>provided</scope> </dependency> <dependency> <groupId>javax.servlet</groupId> 
-			<artifactId>com.springsource.javax.servlet.jsp</artifactId> <version>2.1.0</version> 
-			<scope>provided</scope> </dependency> <dependency> <groupId>org.tuckey</groupId> 
-			<artifactId>com.springsource.org.tuckey.web.filters.urlrewrite</artifactId> 
-			<version>3.1.0</version> </dependency> <dependency> <groupId>org.apache.commons</groupId> 
-			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId> <version>1.2.1</version> 
-			</dependency> <dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>com.springsource.org.codehaus.jackson</artifactId> 
-			<version>1.4.2</version> </dependency> <dependency> <groupId>org.codehaus.jackson</groupId> 
-			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId> <version>1.4.2</version> 
-			</dependency> -->
-		<!-- AspectJ dependencies -->
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>com.springsource.org.aspectj.runtime</artifactId>
+            <artifactId>com.springsource.org.aspectj.runtime</artifactId>
+            <groupId>org.aspectj</groupId>
 			<version>1.6.5.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>com.springsource.org.aspectj.weaver</artifactId>
+            <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+            <groupId>org.aspectj</groupId>
 			<version>1.6.5.RELEASE</version>
 		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>com.springsource.javax.mail</artifactId>
-			<version>1.4.1</version>
-		</dependency>
+		<!--<dependency>-->
+            <!--<artifactId>com.springsource.javax.mail</artifactId>-->
+            <!--<groupId>javax.mail</groupId>-->
+			<!--<version>1.4.1</version>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>
