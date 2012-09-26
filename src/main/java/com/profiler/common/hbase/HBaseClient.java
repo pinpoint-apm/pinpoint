@@ -248,7 +248,6 @@ public class HBaseClient {
 					if (columns != null) {
 						for (HbaseColumn column : columns) {
 							scan.addColumn(column.getFamily().getBytes(), column.getColumnName().getBytes());
-							System.out.println("add column to scanner " + column);
 						}
 					}
 
