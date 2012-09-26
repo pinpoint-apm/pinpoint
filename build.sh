@@ -1,5 +1,5 @@
 # agent
-mvn clean eclipse:eclipse package -Dmaven.test.skip
+mvn clean install eclipse:eclipse package -Dmaven.test.skip
 
 cd ./target/classes
 jar cvfM HippoAgent.jar ./src/META-INF/MANIFEST.MF ./*
