@@ -54,6 +54,7 @@
 			<artifactId>hippo-commons</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
@@ -101,11 +102,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		<dependency>
-			<groupId>org.apache.thrift</groupId>
-			<artifactId>libthrift</artifactId>
-			<version>0.8.0</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
@@ -163,8 +160,23 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+
         <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-hadoop</artifactId>
@@ -184,6 +196,7 @@
                 </exclusion>
             </exclusions>
 		</dependency>
+
         <dependency>
             <groupId>com.nhn.hippo</groupId>
             <artifactId>hippo-tomcat-profiler</artifactId>
@@ -283,68 +296,74 @@
 		<!-- Spring depedencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.oxm</artifactId>
+			<artifactId>spring-oxm</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.core</artifactId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-instrument</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.instrument</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.test</artifactId>
+			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web</artifactId>
+			<artifactId>spring-web</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
+			<artifactId>spring-servlet</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.jdbc</artifactId>
+			<artifactId>spring-jdbc</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.context</artifactId>
+			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.context.support</artifactId>
+			<artifactId>spring-context-support</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.aop</artifactId>
+			<artifactId>spring-aop</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.aspects</artifactId>
+			<artifactId>spring-aspects</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.orm</artifactId>
+			<artifactId>spring-orm</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.transaction</artifactId>
+			<artifactId>spring-tx</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
 
@@ -366,8 +385,7 @@
 			<version>1.1.0</version>
 		</dependency>
 
-
-		<!-- Logging depedencies -->
+        <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -375,12 +393,12 @@
             <scope>compile</scope>
         </dependency>
         <!-- commons-logging-adapter -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.6.6</version>
-			<scope>runtime</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.6</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -393,8 +411,6 @@
             <version>1.2.16</version>
             <scope>runtime</scope>
         </dependency>
-
-
 
 
 		<!-- Test dependencies -->
@@ -418,13 +434,13 @@
 		</dependency>
 
 		<dependency>
-            <artifactId>com.springsource.org.aspectj.runtime</artifactId>
             <groupId>org.aspectj</groupId>
+            <artifactId>com.springsource.org.aspectj.runtime</artifactId>
 			<version>1.6.5.RELEASE</version>
 		</dependency>
 		<dependency>
-            <artifactId>com.springsource.org.aspectj.weaver</artifactId>
             <groupId>org.aspectj</groupId>
+            <artifactId>com.springsource.org.aspectj.weaver</artifactId>
 			<version>1.6.5.RELEASE</version>
 		</dependency>
 		<!--<dependency>-->
