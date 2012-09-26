@@ -1,9 +1,10 @@
 package com.nhn.hippo.testweb.controller;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ConnectionFactoryBuilder;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.hippo.testweb.domain.Member;
 import com.nhn.hippo.testweb.service.MemberService;
 import com.nhn.hippo.testweb.util.HttpConnectorOptions;
 import com.nhn.hippo.testweb.util.HttpInvoker;
@@ -29,10 +31,10 @@ public class HelloWorldController {
 
 	@RequestMapping(value = "/arcus", method = RequestMethod.POST)
 	public String arcus(Model model, @RequestParam("id") int id) {
-//		// delete
-//		System.out.println("before service.delete");
-//		service.delete(id);
-//		System.out.println("after service.delete");
+		// delete
+		System.out.println("before service.delete");
+		service.delete(id);
+		System.out.println("after service.delete");
 
 		arcusSet(model);
 		arcusSet(model);
@@ -50,7 +52,7 @@ public class HelloWorldController {
 		try {
 			System.out.println("before arcus.set");
 			Future<Boolean> future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
-			//future.get(1000L, TimeUnit.MILLISECONDS);
+			// future.get(1000L, TimeUnit.MILLISECONDS);
 			System.out.println("after arcus.set");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,30 +63,30 @@ public class HelloWorldController {
 	public String mysql(Model model) {
 		int id = (new Random()).nextInt();
 
-//		Member member = new Member();
-//		member.setId(id);
-//		member.setName("chisu");
-//		member.setJoined(new Date());
-//
-//		// add
-//		System.out.println("before service.add");
-//		service.add(member);
-//		System.out.println("after service.add");
-//
-//		// list
-//		System.out.println("before service.list");
-//		List<Member> list = service.list();
-//		System.out.println("after service.list");
+		Member member = new Member();
+		member.setId(id);
+		member.setName("chisu");
+		member.setJoined(new Date());
+
+		// add
+		System.out.println("before service.add");
+		service.add(member);
+		System.out.println("after service.add");
+
+		// list
+		System.out.println("before service.list");
+		List<Member> list = service.list();
+		System.out.println("after service.list");
 
 		// invoke http
-//		System.out.println("before invoke.http");
-//		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-//		String executeToBloc = client.executeToBloc("http://localhost:9080/arcus.hippo?id=" + id, new HashMap<String, Object>());
-//		System.out.println("after invoke.http");
+		System.out.println("before invoke.http");
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		String executeToBloc = client.executeToBloc("http://localhost:9080/arcus.hippo?id=" + id, new HashMap<String, Object>());
+		System.out.println("after invoke.http");
 
-		setDataIntoArcus();
-		setDataIntoArcus();
-		
+		// setDataIntoArcus();
+		// setDataIntoArcus();
+
 		return "helloworld";
 	}
 }
