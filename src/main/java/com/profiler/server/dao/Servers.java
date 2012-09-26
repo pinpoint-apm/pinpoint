@@ -1,10 +1,11 @@
 package com.profiler.server.dao;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Servers {
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
 	public boolean upsert(String hostname, String agentId, long upTime) {
 		try {

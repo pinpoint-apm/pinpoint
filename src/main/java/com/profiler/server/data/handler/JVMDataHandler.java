@@ -5,14 +5,15 @@ import java.net.DatagramPacket;
 import com.profiler.common.dto.Header;
 import com.profiler.common.util.PacketUtils;
 import com.profiler.server.dao.JvmInfoDao;
-import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class JVMDataHandler implements Handler {
-	private final Logger logger = Logger.getLogger(JVMDataHandler.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(JVMDataHandler.class.getName());
     @Autowired
     private JvmInfoDao jvmInfoDao;
 

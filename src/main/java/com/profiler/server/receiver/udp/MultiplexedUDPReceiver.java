@@ -11,16 +11,16 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
-
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
 
 public class MultiplexedUDPReceiver implements DataReceiver {
 
 	private static final int AcceptedSize = 65507;
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 	private final ExecutorService worker = Executors.newFixedThreadPool(1024);
 
 	private DatagramSocket socket = null;

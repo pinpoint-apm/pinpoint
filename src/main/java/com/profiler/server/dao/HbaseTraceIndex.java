@@ -3,17 +3,18 @@ package com.profiler.server.dao;
 import com.profiler.common.hbase.HbaseOperations2;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.log4j.Logger;
 
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.SpanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class HbaseTraceIndex implements TraceIndex {
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private String tableName = HBaseTables.TRACE_INDEX;
 	private byte[] COLFAM_TRACE = Bytes.toBytes("Trace");

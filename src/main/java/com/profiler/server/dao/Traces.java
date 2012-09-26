@@ -3,7 +3,8 @@ package com.profiler.server.dao;
 import com.profiler.common.hbase.HbaseOperations2;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.dto.thrift.Span;
@@ -13,7 +14,7 @@ import com.profiler.common.util.SpanUtils;
 
 public class Traces {
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
 	private final byte[] COLFAM_SPAN = Bytes.toBytes("Span");
 

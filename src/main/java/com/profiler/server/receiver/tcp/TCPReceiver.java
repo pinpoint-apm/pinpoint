@@ -5,14 +5,14 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.apache.log4j.Logger;
-
 import com.profiler.common.dto.AgentInfoDTO;
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class TCPReceiver extends Thread {
-	private static final Logger logger = Logger.getLogger("com.profiler.receiver.tcp.TCPReceiver");
+	private static final Logger logger = LoggerFactory.getLogger("com.profiler.receiver.tcp.TCPReceiver");
 
 	ServerSocket serverSocket = null;
 

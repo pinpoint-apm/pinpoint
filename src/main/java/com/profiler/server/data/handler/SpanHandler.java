@@ -6,15 +6,16 @@ import com.profiler.common.dto.Header;
 import com.profiler.common.util.PacketUtils;
 import com.profiler.server.dao.TraceIndex;
 import com.profiler.server.dao.Traces;
-import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 
 import com.profiler.common.dto.thrift.Span;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SpanHandler implements Handler {
 
-	private final Logger logger = Logger.getLogger(SpanHandler.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
 
     @Autowired
 	private TraceIndex traceIndex;
