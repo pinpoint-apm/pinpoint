@@ -1,27 +1,26 @@
 package com.profiler.modifier.db.mysql;
 
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.profiler.config.ProfilerConstant;
+import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.interceptor.bci.NotFoundInstrumentException;
-import com.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
+import com.profiler.modifier.AbstractModifier;
 import com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
+import com.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
+import com.profiler.trace.DatabaseRequestTracer;
 import com.profiler.util.ExcludeBindVariableFilter;
 import com.profiler.util.JavaAssistUtils;
 import com.profiler.util.PreparedStatementUtils;
 import javassist.CtClass;
 import javassist.CtConstructor;
 
-import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.DatabaseRequestTracer;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
 	private final Logger logger = Logger.getLogger(MySQLPreparedStatementModifier.class.getName());
@@ -109,7 +108,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 			for (CtConstructor constructor : constructorList) {
 				CtClass params[] = constructor.getParameterTypes();
 				if (params.length == 3) {
-					constructor.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
+					constructor.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
 				}
 			}
 		}

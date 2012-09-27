@@ -1,12 +1,11 @@
 package com.profiler.modifier.db.mssql;
 
+import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
+import javassist.CtClass;
+import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -56,11 +55,11 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 		params[1] = classPool.getCtClass("int");
 		CtMethod method = cc.getDeclaredMethod("createStatement", params);
 
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
 	}
 
 	private void updateCloseMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
 	}
 }

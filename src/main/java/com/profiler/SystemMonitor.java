@@ -1,6 +1,9 @@
 package com.profiler;
 
-import static com.profiler.config.TomcatProfilerConfig.JVM_STAT_GAP;
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.context.TraceContext;
+import com.profiler.sender.DataSender;
+import com.sun.management.OperatingSystemMXBean;
 
 import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
@@ -15,10 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import com.profiler.context.TraceContext;
-import com.profiler.sender.DataSender;
-import com.sun.management.OperatingSystemMXBean;
+import static com.profiler.config.ProfilerConfig.JVM_STAT_GAP;
 
 /**
  * System monitor

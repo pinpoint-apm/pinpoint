@@ -1,19 +1,18 @@
 package com.profiler;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.profiler.modifier.DefaultModifierRegistry;
 import com.profiler.modifier.Modifier;
 import com.profiler.modifier.ModifierRegistry;
 
-import com.profiler.config.TomcatProfilerConfig;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TomcatProfiler implements ClassFileTransformer {
 
@@ -24,21 +23,26 @@ public class TomcatProfiler implements ClassFileTransformer {
 	private ByteCodeInstrumentor byteCodeInstrumentor;
 
 	private final ModifierRegistry modifierRepository;
-	private TomcatProfilerConfig tomcatProfilerConfig;
+	private ProfilerConfig profilerConfig;
 
 	public static void premain(String agentArgs, Instrumentation inst) {
-		TomcatProfilerConfig tomcatProfilerConfig = TomcatProfilerConfig.readConfigFile();
-		new TomcatProfiler(agentArgs, inst, tomcatProfilerConfig);
+        try {
+            ProfilerConfig profilerConfig = new ProfilerConfig();
+            profilerConfig.readConfigFile();
+		    new TomcatProfiler(agentArgs, inst, profilerConfig);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Profiler Agent start fail. Cause:" + e.getMessage(), e);
+        }
 	}
 
-	public TomcatProfiler(String agentArgs, Instrumentation inst, TomcatProfilerConfig tomcatProfilerConfig) {
+	public TomcatProfiler(String agentArgs, Instrumentation inst, ProfilerConfig profilerConfig) {
 		this.agentArgString = agentArgs;
-		this.instrumentation = inst;
-		this.instrumentation.addTransformer(this);
+        this.profilerConfig = profilerConfig;
+        this.instrumentation = inst;
+        this.instrumentation.addTransformer(this);
         String[] paths = getTomcatlibPath();
-		this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths);
-		this.modifierRepository = createModifierRegistry(byteCodeInstrumentor, tomcatProfilerConfig);
-		this.tomcatProfilerConfig = tomcatProfilerConfig;
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths);
+        this.modifierRepository = createModifierRegistry(byteCodeInstrumentor);
 
 	}
 
@@ -53,12 +57,14 @@ public class TomcatProfiler implements ClassFileTransformer {
         return new String[] {catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar"};
     }
 
-    private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, TomcatProfilerConfig tomcatProfilerConfig) {
-		DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor);
+    private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor) {
+		DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor, profilerConfig);
+
 		modifierRepository.addTomcatModifier();
-		if (tomcatProfilerConfig.enableJdbcProfile()) {
-			modifierRepository.addJdbcModifier();
-		}
+
+        // jdbc
+		modifierRepository.addJdbcModifier();
+        // rpc
 		modifierRepository.addConnectorModifier();
 		return modifierRepository;
 	}

@@ -1,13 +1,12 @@
 package com.profiler.modifier.db.mssql;
 
+import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.DatabaseRequestTracer;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
-
-import com.profiler.config.TomcatProfilerConstant;
-import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -69,12 +68,12 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 		
 		if (constructorList.length == 1) {
 			CtConstructor constructor = constructorList[0];
-			constructor.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
+			constructor.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
 		}
 	}
 
 	private void updateExecuteQueryMethod(CtClass cc) throws Exception {
 		CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
-		serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
+		serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
 	}
 }

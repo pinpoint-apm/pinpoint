@@ -1,12 +1,11 @@
 package com.profiler.modifier.db.dbcp;
 
+import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
+import javassist.CtClass;
+import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -51,6 +50,6 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 
 	private void updateGetConnectionMethod(CtClass cc) throws Exception {
 		CtMethod method = cc.getDeclaredMethod("getConnection", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$0.getUrl()); }");
+		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + ProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$0.getUrl()); }");
 	}
 }

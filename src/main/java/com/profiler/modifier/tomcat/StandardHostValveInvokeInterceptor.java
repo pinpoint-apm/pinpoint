@@ -1,19 +1,17 @@
 package com.profiler.modifier.tomcat;
 
-import static com.profiler.config.TomcatProfilerConstant.CLASS_NAME_REQUEST_THRIFT_DTO;
+import com.profiler.config.ProfilerConstant;
+import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.modifier.AbstractModifier;
+import com.profiler.trace.RequestTracer;
+import javassist.ByteArrayClassPath;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.profiler.interceptor.bci.InstrumentException;
-import javassist.*;
-
-import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.RequestTracer;
 
 /**
  * Modify org.apache.catalina.core.StandardHostValve class
@@ -57,7 +55,7 @@ public class StandardHostValveInvokeInterceptor extends AbstractModifier {
 		try {
             // TODO 이제 인터셉터에서 아래 클래스를 직접적으로 접근하는 일이 없으므로 없어도 될것 같음.
 			classLoader.loadClass(RequestTracer.FQCN);
-			classLoader.loadClass(CLASS_NAME_REQUEST_THRIFT_DTO);
+			classLoader.loadClass(ProfilerConstant.CLASS_NAME_REQUEST_THRIFT_DTO);
             // thrift에 대한 lib를 별도 가지고 있을려면 system및의 별도 classloader를 가지고 있어야 되는게 아닌지?
 			classLoader.loadClass("org.apache.thrift.TBase");
 		} catch (Exception e) {

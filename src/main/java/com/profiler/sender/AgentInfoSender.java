@@ -1,14 +1,14 @@
 package com.profiler.sender;
 
+import com.profiler.Agent;
+import com.profiler.common.dto.AgentInfoDTO;
+import com.profiler.config.ProfilerConfig;
+
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.profiler.Agent;
-import com.profiler.common.dto.AgentInfoDTO;
-import com.profiler.config.TomcatProfilerConfig;
 
 @Deprecated
 public class AgentInfoSender extends Thread {
@@ -66,7 +66,7 @@ public class AgentInfoSender extends Thread {
 	private void sendAgentStartInfo() {
 		while (connectToServer()) {
 			try {
-				Thread.sleep(TomcatProfilerConfig.SERVER_CONNECT_RETRY_GAP);
+				Thread.sleep(ProfilerConfig.SERVER_CONNECT_RETRY_GAP);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -101,25 +101,25 @@ public class AgentInfoSender extends Thread {
 	private boolean connectToServer() {
 		try {
 			if (logger.isLoggable(Level.INFO)) {
-				logger.info("Trying to connect server. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+				logger.info("Trying to connect server. " + ProfilerConfig.SERVER_IP + ":" + ProfilerConfig.SERVER_TCP_LISTEN_PORT);
 			}
-			requestSocket = new Socket(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+			requestSocket = new Socket(ProfilerConfig.SERVER_IP, ProfilerConfig.SERVER_TCP_LISTEN_PORT);
 			// TODO timeout 처리가 없음. api를 변경해야 될듯.
 			if (logger.isLoggable(Level.INFO)) {
-				logger.info("Connected to server. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT);
+				logger.info("Connected to server. " + ProfilerConfig.SERVER_IP + ":" + ProfilerConfig.SERVER_TCP_LISTEN_PORT);
 			}
 
 			return false;
 		} catch (java.net.ConnectException ce) {
 
 			if (logger.isLoggable(Level.SEVERE)) {
-				logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT, ce);
+				logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + ProfilerConfig.SERVER_IP + ":" + ProfilerConfig.SERVER_TCP_LISTEN_PORT, ce);
 			}
 
 			return true;
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.SEVERE)) {
-				logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + TomcatProfilerConfig.SERVER_IP + ":" + TomcatProfilerConfig.SERVER_TCP_LISTEN_PORT, e);
+				logger.log(Level.SEVERE, "Connect to TomcatProfiler server is failed. " + ProfilerConfig.SERVER_IP + ":" + ProfilerConfig.SERVER_TCP_LISTEN_PORT, e);
 			}
 			return true;
 		}

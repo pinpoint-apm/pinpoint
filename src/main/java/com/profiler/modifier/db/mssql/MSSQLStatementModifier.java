@@ -1,12 +1,11 @@
 package com.profiler.modifier.db.mssql;
 
+import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
+import javassist.CtClass;
+import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -55,8 +54,8 @@ public class MSSQLStatementModifier extends AbstractModifier {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-		sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
-		sb.append(DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
+		sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
+		sb.append(DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
 		sb.append("}");
 
 		serviceMethod.insertAfter(sb.toString());

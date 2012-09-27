@@ -1,14 +1,13 @@
 package com.profiler.modifier.db.cubrid;
 
+import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.config.TomcatProfilerConstant;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
+import javassist.CtClass;
+import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -39,12 +38,12 @@ public class CubridStatementModifier extends AbstractModifier {
         StaticAroundInterceptor interceptor = new StaticAroundInterceptor() {
             @Override
             public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-                DatabaseRequestTracer.putSqlQuery(TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY, (String) args[0]);
+                DatabaseRequestTracer.putSqlQuery(ProfilerConstant.REQ_DATA_TYPE_DB_QUERY, (String) args[0]);
             }
 
             @Override
             public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-                DatabaseRequestTracer.put(TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY);;
+                DatabaseRequestTracer.put(ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY);;
             }
         };
 
@@ -75,8 +74,8 @@ public class CubridStatementModifier extends AbstractModifier {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-		sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
-		sb.append(DatabaseRequestTracer.FQCN + ".put(" + TomcatProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
+		sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
+		sb.append(DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
 		sb.append("}");
 
 		method.insertAfter(sb.toString());

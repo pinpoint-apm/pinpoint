@@ -3,7 +3,7 @@ package com.profiler.config;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class TomcatProfilerConstant {
+public class ProfilerConstant {
 	public final static DateFormat DATE_FORMAT_YMD_HMS = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 	public final static DateFormat DATE_FORMAT_HMS_MS = new SimpleDateFormat("HH:mm:ss,SSS");
 	public static final long DATA_FETCH_INTERVAL = 2000;

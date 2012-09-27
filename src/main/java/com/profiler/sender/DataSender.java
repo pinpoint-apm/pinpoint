@@ -1,5 +1,13 @@
 package com.profiler.sender;
 
+import com.profiler.common.dto.Header;
+import com.profiler.common.util.DefaultTBaseLocator;
+import com.profiler.common.util.HeaderTBaseSerializer;
+import com.profiler.common.util.TBaseLocator;
+import com.profiler.config.ProfilerConfig;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,15 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
-import com.profiler.common.dto.Header;
-import com.profiler.common.util.DefaultTBaseLocator;
-import com.profiler.common.util.HeaderTBaseSerializer;
-import com.profiler.common.util.TBaseLocator;
-import com.profiler.config.TomcatProfilerConfig;
-
 /**
  * @author netspider
  */
@@ -28,7 +27,7 @@ public class DataSender extends Thread {
 
 	private final LinkedBlockingQueue<TBase<?, ?>> addedQueue = new LinkedBlockingQueue<TBase<?, ?>>(4096);
 
-	private final InetSocketAddress serverAddress = new InetSocketAddress(TomcatProfilerConfig.SERVER_IP, TomcatProfilerConfig.DEFUALT_PORT);
+	private final InetSocketAddress serverAddress = new InetSocketAddress(ProfilerConfig.SERVER_IP, ProfilerConfig.SERVER_UDP_PORT);
 
 	private DatagramSocket udpSocket = null;
 	private TBaseLocator locator = new DefaultTBaseLocator();

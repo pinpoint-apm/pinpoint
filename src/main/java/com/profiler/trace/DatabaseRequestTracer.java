@@ -1,22 +1,17 @@
 package com.profiler.trace;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 import com.profiler.Agent;
 import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
 import com.profiler.common.dto.thrift.RequestDataThriftDTO;
-import com.profiler.config.TomcatProfilerConfig;
-import com.profiler.config.TomcatProfilerConstant;
+import com.profiler.config.ProfilerConfig;
+import com.profiler.config.ProfilerConstant;
 import com.profiler.util.NamedThreadLocal;
 import com.profiler.util.QueryStringUtil;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class DatabaseRequestTracer {
 
@@ -26,7 +21,7 @@ public class DatabaseRequestTracer {
 
 	private static Set<Integer> sqlSet = null;
 	static {
-		if (TomcatProfilerConfig.QUERY_COUNT_OVER_10000) {
+		if (ProfilerConfig.QUERY_COUNT_OVER_10000) {
 			sqlSet = new CopyOnWriteArraySet<Integer>();
 		} else {
 			sqlSet = new HashSet<Integer>(1024);
@@ -148,7 +143,7 @@ public class DatabaseRequestTracer {
 	 * @return
 	 */
 	private static boolean checkHashCode(int dataHashCode) {
-		if (TomcatProfilerConfig.QUERY_COUNT_OVER_10000) {
+		if (ProfilerConfig.QUERY_COUNT_OVER_10000) {
 			// If sqlSet is CopyOnWriteArraySet, it removes data.
 			if (sqlSet.size() > 10000) {
 				Iterator<Integer> iterator = sqlSet.iterator();
@@ -180,7 +175,7 @@ public class DatabaseRequestTracer {
 					params.append(map.get(loop)).append(",");
 				}
 
-				RequestDataThriftDTO dataDto = new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_PREPARED_STATEMENT_PARAM, System.currentTimeMillis());
+				RequestDataThriftDTO dataDto = new RequestDataThriftDTO(ProfilerConstant.REQ_DATA_TYPE_DB_PREPARED_STATEMENT_PARAM, System.currentTimeMillis());
 				dataDto.setDataString(params.toString());
 				list.add(dataDto);
 			}
@@ -304,8 +299,8 @@ public class DatabaseRequestTracer {
 				List<RequestDataThriftDTO> list = dto.getRequestDataList();
 				int listSize = list.size();
 				RequestDataThriftDTO previousDTO = list.get(listSize - 1);
-				if (previousDTO.getDataType() != TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH) {
-					RequestDataThriftDTO dataDto = new RequestDataThriftDTO(TomcatProfilerConstant.REQ_DATA_TYPE_DB_FETCH, System.currentTimeMillis());
+				if (previousDTO.getDataType() != ProfilerConstant.REQ_DATA_TYPE_DB_FETCH) {
+					RequestDataThriftDTO dataDto = new RequestDataThriftDTO(ProfilerConstant.REQ_DATA_TYPE_DB_FETCH, System.currentTimeMillis());
 					dataDto.setExtraInt1(fetchCount);
 					dataDto.setExtraInt2(totalFetchCount);
 					list.add(dataDto);
