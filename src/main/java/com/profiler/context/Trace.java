@@ -264,7 +264,7 @@ public final class Trace {
 		}
 	}
 
-	public static void recordEndPoint(final String ip, final int port) {
+	public static void recordEndPoint(final String protocol, final String ip, final int port) {
 		if (!tracingEnabled)
 			return;
 
@@ -273,7 +273,7 @@ public final class Trace {
 				@Override
 				public Span updateSpan(Span span) {
 					// set endpoint to both span and annotations
-					span.setEndPoint(new EndPoint(ip, port));
+					span.setEndPoint(new EndPoint(protocol, ip, port));
 					return span;
 				}
 			});

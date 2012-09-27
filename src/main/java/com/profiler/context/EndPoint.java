@@ -2,19 +2,21 @@ package com.profiler.context;
 
 public class EndPoint {
 
+	private final String protocol;
 	private final String ip;
 	private final int port;
 
-	public EndPoint(String ip, int port) {
+	public EndPoint(String protocol, String ip, int port) {
+		this.protocol = protocol;
 		this.ip = ip;
 		this.port = port;
 	}
-
+	
 	public String toString() {
-		return "{ip=" + ip + ", port=" + port + "}";
+		return protocol + "://" + ip + ":" + port;
 	}
 
 	public com.profiler.common.dto.thrift.Endpoint toThrift() {
-		return new com.profiler.common.dto.thrift.Endpoint(ip, (short) port);
+		return new com.profiler.common.dto.thrift.Endpoint(protocol, ip, (short) port);
 	}
 }

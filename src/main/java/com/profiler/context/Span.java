@@ -132,7 +132,8 @@ public class Span {
 		span.setServiceName(serviceName);
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
-
+		span.setEndPoint(endPoint.toThrift());
+		
 		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
 		for (HippoAnnotation a : annotations) {
 			annotationList.add(a.toThrift());
