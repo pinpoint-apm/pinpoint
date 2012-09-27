@@ -2,6 +2,7 @@ package com.profiler.server.dao;
 
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.BinaryAnnotation;
+import com.profiler.common.dto.thrift.Endpoint;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HbaseOperations2;
@@ -96,7 +97,7 @@ public class TracesTest {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         List<BinaryAnnotation> bano = Collections.emptyList();
-        Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, bano);
+		Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, bano, new Endpoint("protocol", "ip", (short) 8080));
         return span;
     }
 }
