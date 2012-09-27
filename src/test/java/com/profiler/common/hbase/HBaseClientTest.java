@@ -1,10 +1,8 @@
 package com.profiler.common.hbase;
 
-import java.util.*;
-
+import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
 import com.profiler.common.util.PropertyUtils;
 import junit.framework.Assert;
-
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Put;
@@ -13,7 +11,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
+import java.io.IOException;
+import java.util.*;
 
 public class HBaseClientTest {
 
@@ -22,7 +21,7 @@ public class HBaseClientTest {
 	private static HBaseClient client;
 
 	@BeforeClass
-	public static void init() {
+	public static void init() throws IOException {
         Properties properties = PropertyUtils.readProperties("test-hbase.properties");
         client = new HBaseClient(properties);
 		if (client.isTableExists(TABLE_NAME)) {
