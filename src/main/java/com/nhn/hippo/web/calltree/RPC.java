@@ -50,6 +50,6 @@ public class RPC implements Comparable<RPC> {
 
 	@Override
 	public String toString() {
-		return id + ", seq=" + sequence;
+		return id;
 	}
 }

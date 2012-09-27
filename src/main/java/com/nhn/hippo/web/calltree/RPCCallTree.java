@@ -34,6 +34,12 @@ public class RPCCallTree {
 		 */
 		// TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
 		RPC rpc = new RPC(span.getAgentID(), span.getServiceName(), span.getName());
+		
+		// TODO: remove this later.
+		if(rpc.getId().contains("mysql:jdbc:") || rpc.getId().contains("favicon")) {
+			return;
+		}
+		
 		if (!rpcs.containsKey(rpc.getId())) {
 			rpcs.put(rpc.getId(), rpc);
 		}
