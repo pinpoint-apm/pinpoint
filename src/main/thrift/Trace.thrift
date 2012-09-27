@@ -6,8 +6,9 @@ const string SERVER_SEND = "SS"
 const string SERVER_RECV = "SR"
 
 struct Endpoint {
-  1: string ip,
-  2: i16 port,
+  1: string protocol,
+  2: string ip,
+  3: i16 port,
 }
 
 struct Annotation {
@@ -35,4 +36,5 @@ struct Span {
   9: list<Annotation> annotations,
   10: list<BinaryAnnotation> binaryAnnotations
   11: optional i32 flag = 0
+  12: Endpoint endPoint
 }
