@@ -1,5 +1,6 @@
 package com.profiler.context;
 
+@Deprecated
 public class EndPoint {
 
 	private final String protocol;

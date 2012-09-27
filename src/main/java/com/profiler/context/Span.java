@@ -20,7 +20,7 @@ public class Span {
 
 	private String serviceName;
 	private String name;
-	private EndPoint endPoint;
+	private String endPoint;
 
 	private final List<HippoBinaryAnnotation> binaryAnnotations = new ArrayList<HippoBinaryAnnotation>(5);
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
@@ -40,7 +40,7 @@ public class Span {
 		return timerTask.cancel();
 	}
 
-	public Span(TraceID traceId, String name, EndPoint endPoint) {
+	public Span(TraceID traceId, String name, String endPoint) {
 		this.traceID = traceId;
 		this.name = name;
 		this.endPoint = endPoint;
@@ -70,7 +70,7 @@ public class Span {
 		return annotationValues.contains(value);
 	}
 
-	public EndPoint getEndPoint() {
+	public String getEndPoint() {
 		return this.endPoint;
 	}
 
@@ -90,7 +90,7 @@ public class Span {
 		this.name = name;
 	}
 
-	public void setEndPoint(EndPoint endPoint) {
+	public void setEndPoint(String endPoint) {
 		this.endPoint = endPoint;
 	}
 
@@ -132,7 +132,7 @@ public class Span {
 		span.setServiceName(serviceName);
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
-		span.setEndPoint(endPoint.toThrift());
+		span.setEndPoint(endPoint);
 		
 		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
 		for (HippoAnnotation a : annotations) {

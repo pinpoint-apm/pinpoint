@@ -264,7 +264,8 @@ public final class Trace {
 		}
 	}
 
-	public static void recordEndPoint(final String protocol, final String ip, final int port) {
+	// TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
+	public static void recordEndPoint(final String endPoint) {
 		if (!tracingEnabled)
 			return;
 
@@ -273,7 +274,7 @@ public final class Trace {
 				@Override
 				public Span updateSpan(Span span) {
 					// set endpoint to both span and annotations
-					span.setEndPoint(new EndPoint(protocol, ip, port));
+					span.setEndPoint(endPoint);
 					return span;
 				}
 			});

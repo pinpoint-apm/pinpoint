@@ -11,7 +11,7 @@ public class TraceTest {
 
 		// http server receive
 		Trace.recordRpcName("service_name", "http://");
-		Trace.recordEndPoint("http", "localhost", 8080);
+		Trace.recordEndPoint("http:localhost:8080");
 		Trace.recordAttibute("KEY", "VALUE");
 		Trace.record(Annotation.ServerRecv);
 
