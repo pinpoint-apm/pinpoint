@@ -1,6 +1,7 @@
 package com.profiler.config;
 
 import com.profiler.common.util.PropertyUtils;
+import com.profiler.util.NumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,6 +15,7 @@ public class ProfilerConfig {
 
     private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
 
+    private boolean profileEnable = true;
     public static String SERVER_IP = "127.0.0.1";
     public static int SERVER_UDP_PORT = 9995;
 
@@ -68,6 +70,10 @@ public class ProfilerConfig {
         }
     }
 
+    public boolean isProfileEnable() {
+        return profileEnable;
+    }
+
     public boolean isJdbcProfile() {
         return jdbcProfile;
     }
@@ -91,6 +97,7 @@ public class ProfilerConfig {
     private void readPropertyValues(Properties prop) {
         // TODO : use Properties defaultvalue instead of using temp variable.
 
+        this.profileEnable = readBoolean(prop, "PROFILE_ENABLE", true);
 
         this.SERVER_IP = readString(prop, "SERVER_IP", "127.0.0.1");
         this.SERVER_UDP_PORT = readInt(prop, "SERVER_UDP_PORT", 9995);
@@ -148,12 +155,7 @@ public class ProfilerConfig {
 
     private int readInt(Properties prop, String propertyName, int defaultValue) {
         String value = prop.getProperty(propertyName);
-        int result;
-        try {
-            result = Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            result = defaultValue;
-        }
+        int result = NumberUtils.parseInteger(value, defaultValue);
         if (logger.isLoggable(Level.INFO)) {
             logger.info(propertyName + "=" + result);
         }

@@ -1,15 +1,18 @@
 package com.profiler.util;
 
 import com.profiler.modifier.Modifier;
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.NotFoundException;
+import javassist.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class InstrumentTranslator implements Translator {
-    private final Logger logger = Logger.getLogger(InstrumentTranslator.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(InstrumentTranslator.class.getName());
 
     private ConcurrentMap<String, Modifier> modifierMap = new ConcurrentHashMap<String, Modifier>();
 
@@ -30,9 +33,7 @@ public class InstrumentTranslator implements Translator {
 
     @Override
     public void onLoad(ClassPool pool, String classname) throws NotFoundException, CannotCompileException {
-        if(logger.isLoggable(Level.FINE)) {
-            logger.fine("loading className:" + classname);
-        }
+        logger.debug("loading className:{}", classname);
 
         Modifier modifier = modifierMap.get(classname);
         if(modifier == null) {

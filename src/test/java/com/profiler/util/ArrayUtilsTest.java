@@ -2,12 +2,11 @@ package com.profiler.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArrayUtilsTest {
-    private final Logger logger = Logger.getLogger(ArrayUtilsTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(ArrayUtilsTest.class.getName());
     @Test
     public void toStringTest() {
         byte[] bytes = new byte[] {1, 2, 3, 4};

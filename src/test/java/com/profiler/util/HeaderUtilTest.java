@@ -2,17 +2,15 @@ package com.profiler.util;
 
 import com.profiler.common.dto.Header;
 import com.profiler.common.util.HeaderUtil;
-import com.profiler.dto.*;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HeaderUtilTest {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Test
     public void validateSignature() throws TException {

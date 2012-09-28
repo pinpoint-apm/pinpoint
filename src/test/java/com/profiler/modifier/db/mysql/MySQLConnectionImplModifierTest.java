@@ -7,15 +7,15 @@ import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Logger;
 
 public class MySQLConnectionImplModifierTest {
 
-    private final Logger logger = Logger.getLogger(MySQLConnectionImplModifierTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifierTest.class.getName());
 
     private TestClassLoader loader;
     @Before

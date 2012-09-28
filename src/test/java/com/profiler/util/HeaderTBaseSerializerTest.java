@@ -1,20 +1,20 @@
 package com.profiler.util;
 
-import java.util.Arrays;
-import java.util.logging.Logger;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.profiler.common.dto.Header;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.HeaderTBaseSerializer;
 import com.profiler.common.util.TBaseLocator;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class HeaderTBaseSerializerTest {
-    private final Logger logger = Logger.getLogger(HeaderTBaseSerializerTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(HeaderTBaseSerializerTest.class.getName());
 
 
     @Test

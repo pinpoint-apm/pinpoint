@@ -1,24 +1,19 @@
 package com.profiler.interceptor;
 
+import com.profiler.interceptor.bci.TestObject;
+import javassist.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.logging.Logger;
-
-import com.profiler.interceptor.bci.TestObject;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 public class InterceptorRegistryTest {
 
-    private final Logger logger = Logger.getLogger(InterceptorRegistryTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(InterceptorRegistryTest.class.getName());
 
     private InterceptorRegistry registry = new InterceptorRegistry();
 

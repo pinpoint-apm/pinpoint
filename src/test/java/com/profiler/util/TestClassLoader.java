@@ -1,28 +1,22 @@
 package com.profiler.util;
 
-import java.util.logging.Logger;
-
-import com.profiler.util.bindvalue.BindValueConverter;
-import com.profiler.util.bindvalue.converter.Converter;
-import javassist.CannotCompileException;
-import javassist.Loader;
-import javassist.NotFoundException;
-
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
-import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.InterceptorRegistry;
-import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.StaticBeforeInterceptor;
+import com.profiler.interceptor.*;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.profiler.modifier.Modifier;
-import com.profiler.modifier.db.ConnectionTrace;
+import com.profiler.util.bindvalue.BindValueConverter;
+import javassist.CannotCompileException;
+import javassist.Loader;
+import javassist.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+//import java.util.logging.Logger;
 
 public class TestClassLoader extends Loader {
-    private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(TestClassLoader.class.getName());
 
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;

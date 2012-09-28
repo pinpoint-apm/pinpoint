@@ -6,11 +6,11 @@ import javassist.CtMethod;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JavaAssistUtilsTest {
-    private final Logger logger = Logger.getLogger(JavaAssistUtilsTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
     private ClassPool pool;
 
     @Before

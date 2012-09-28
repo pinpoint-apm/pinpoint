@@ -4,18 +4,18 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class UdpSocketTest {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private static int PORT = 9993;
     // The correct maximum UDP message size is 65507, as determined by the following formula:
@@ -77,7 +77,7 @@ public class UdpSocketTest {
             sender.send(packet1);
             Assert.fail("실패해야 정상인데 성공.");
         } catch (IOException e) {
-            logger.log(Level.INFO, "메시지가 너무 크다. " + e.getMessage(), e);
+            logger.info("메시지가 너무 크다. " + e.getMessage(), e);
         }
     }
 
@@ -117,12 +117,12 @@ public class UdpSocketTest {
                 receiver.receive(datagramPacket);
                 logger.info("data size:" + datagramPacket.getLength());
             } catch (IOException e) {
-                logger.log(Level.WARNING, "receive error:" + e.getMessage(), e);
+                logger.warn("receive error:" + e.getMessage(), e);
             }
         }
     }
 
-//    @Test
+    //    @Test
     public void testRemoteSend() throws IOException, InterruptedException {
         DatagramSocket send = new DatagramSocket();
         send.connect(new InetSocketAddress("10.66.18.78", PORT));
@@ -141,7 +141,7 @@ public class UdpSocketTest {
         send.send(newDatagramPacket(AcceptedSize));
 
         try {
-            send.send(newDatagramPacket(AcceptedSize+1));
+            send.send(newDatagramPacket(AcceptedSize + 1));
             Assert.fail("실패");
         } catch (IOException e) {
         }
@@ -152,10 +152,10 @@ public class UdpSocketTest {
         } catch (IOException e) {
         }
 
-        Thread.sleep(1000*3);
+        Thread.sleep(1000 * 3);
     }
 
-//    @Test
+    //    @Test
     public void createUdpSocket() throws IOException {
         DatagramSocket so = new DatagramSocket();
 //        so.bind(new InetSocketAddress("localhost", 8081));

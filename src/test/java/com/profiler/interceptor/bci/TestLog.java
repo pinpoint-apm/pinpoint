@@ -1,11 +1,13 @@
 package com.profiler.interceptor.bci;
 
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class TestLog {
 
-    private final Logger logger = Logger.getLogger(TestLog.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(TestLog.class.getName());
 
     public String constructor;
 

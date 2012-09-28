@@ -1,20 +1,19 @@
 package com.profiler.interceptor.bci;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.logging.Logger;
-
-import javassist.bytecode.Descriptor;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.profiler.interceptor.TestAfterInterceptor;
 import com.profiler.interceptor.TestBeforeInterceptor;
+import javassist.bytecode.Descriptor;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 
 public class JavaAssistClassTest {
-    private Logger logger = Logger.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+    private Logger logger = LoggerFactory.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
 
     @Test
     public void testBeforeAddInterceptor() throws Exception {

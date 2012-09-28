@@ -29,6 +29,10 @@ public class TomcatProfiler implements ClassFileTransformer {
         try {
             ProfilerConfig profilerConfig = new ProfilerConfig();
             profilerConfig.readConfigFile();
+            if (!profilerConfig.isProfileEnable()) {
+                logger.warning("Profiler Agent not started. PROFILE_ENABLE=" + profilerConfig.isProfileEnable());
+                return;
+            }
 		    new TomcatProfiler(agentArgs, inst, profilerConfig);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Profiler Agent start fail. Cause:" + e.getMessage(), e);
