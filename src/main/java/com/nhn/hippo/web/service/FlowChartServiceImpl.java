@@ -5,20 +5,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.thrift.TDeserializer;
-import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.nhn.hippo.web.calltree.RPCCallTree;
+import com.nhn.hippo.web.calltree.ServerCallTree;
+import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
@@ -49,7 +47,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 			System.out.println("selectedAgentId=" + iterator.next());
 		}
 
-		return null;
+		System.out.println("!!!==============WARNING==============!!!");
+		System.out.println("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+		System.out.println("!!!===================================!!!");
+
+		return hosts;
 	}
 
 	@Override
@@ -84,53 +86,26 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Result[] results = client.get(HBaseTables.TRACES, gets);
 
 		// traceId, SpanList
-		Map<byte[], List<Span>> result = new HashMap<byte[], List<Span>>();
+		final Map<byte[], List<Span>> result = new HashMap<byte[], List<Span>>();
 
-		for (Result r : results) {
-			result.put(r.getRow(), populateSpans(r));
-		}
-
-		System.out.println("result=" + result);
+		TracesProcessor.process(results, new SpanHandler() {
+			@Override
+			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
+				if (result.containsKey(row)) {
+					result.get(row).add(span);
+				} else {
+					List<Span> list = new ArrayList<Span>();
+					list.add(span);
+					result.put(row, list);
+				}
+			}
+		});
 
 		return result;
 	}
 
-	private List<Span> populateSpans(Result res) {
-		List<Span> list = new ArrayList<Span>();
-
-		TDeserializer deserializer = new TDeserializer();
-
-		NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> map = res.getMap();
-
-		for (Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : map.entrySet()) {
-//			byte[] family = entry.getKey();
-//			System.out.println("family=" + Bytes.toString(family));
-
-			NavigableMap<byte[], NavigableMap<Long, byte[]>> values = entry.getValue();
-
-			for (Entry<byte[], NavigableMap<Long, byte[]>> value : values.entrySet()) {
-//				byte[] colname = value.getKey();
-//				System.out.println("colname=" + Bytes.toString(colname));
-
-				NavigableMap<Long, byte[]> valueSeries = value.getValue();
-
-				for (Entry<Long, byte[]> v : valueSeries.entrySet()) {
-					Span span = new Span();
-					try {
-						deserializer.deserialize(span, v.getValue());
-						list.add(span);
-					} catch (TException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		return list;
-	}
-
 	@Override
-	public RPCCallTree selectCallTree(List<byte[]> traceIds) {
+	public RPCCallTree selectRPCCallTree(List<byte[]> traceIds) {
 		List<Get> gets = new ArrayList<Get>(traceIds.size());
 		for (byte[] traceId : traceIds) {
 			gets.add(new Get(traceId));
@@ -138,6 +113,36 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		Result[] results = client.get(HBaseTables.TRACES, gets);
 
-		return TracesProcessor.process(results);
+		final RPCCallTree tree = new RPCCallTree();
+
+		TracesProcessor.process(results, new SpanHandler() {
+			@Override
+			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
+				tree.addSpan(span);
+			}
+		});
+
+		return tree.build();
+	}
+
+	@Override
+	public ServerCallTree selectServerCallTree(List<byte[]> traceIds) {
+		List<Get> gets = new ArrayList<Get>(traceIds.size());
+		for (byte[] traceId : traceIds) {
+			gets.add(new Get(traceId));
+		}
+
+		Result[] results = client.get(HBaseTables.TRACES, gets);
+
+		final ServerCallTree tree = new ServerCallTree();
+
+		TracesProcessor.process(results, new SpanHandler() {
+			@Override
+			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
+				tree.addSpan(span);
+			}
+		});
+
+		return tree.build();
 	}
 }

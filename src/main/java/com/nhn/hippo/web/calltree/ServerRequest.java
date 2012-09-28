@@ -5,13 +5,13 @@ package com.nhn.hippo.web.calltree;
  * @author netspider
  * 
  */
-public class Request {
+public class ServerRequest {
 	private final String id;
-	private final RPC from;
-	private final RPC to;
+	private final Server from;
+	private final Server to;
 	private int callCount = 1;
 
-	public Request(RPC from, RPC to) {
+	public ServerRequest(Server from, Server to) {
 		this.from = from;
 		this.to = to;
 		this.id = from.getId() + to.getId();
@@ -25,11 +25,11 @@ public class Request {
 		return id;
 	}
 
-	public RPC getFrom() {
+	public Server getFrom() {
 		return from;
 	}
 
-	public RPC getTo() {
+	public Server getTo() {
 		return to;
 	}
 

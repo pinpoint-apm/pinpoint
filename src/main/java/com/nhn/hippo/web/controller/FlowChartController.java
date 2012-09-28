@@ -1,6 +1,5 @@
 package com.nhn.hippo.web.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,21 +37,10 @@ public class FlowChartController {
 	 */
 	@RequestMapping(value = "/flow", method = RequestMethod.GET)
 	public String arcus(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
-		/**
-		 * get agentId list from 'Servers'
-		 */
-		String[] selectAgentIds = flow.selectAgentIds(hosts);
-		System.out.println("selectedAgentIds=" + Arrays.toString(selectAgentIds));
+		String[] agentIds = flow.selectAgentIds(hosts);
+		List<byte[]> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
+		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
 
-		/**
-		 * get traceId list from 'TraceIndex'
-		 */
-		List<byte[]> traceIds = flow.selectTraceIdsFromTraceIndex(hosts, from, to);
-
-		/**
-		 * get call tree
-		 */
-		RPCCallTree callTree = flow.selectCallTree(traceIds);
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
 		model.addAttribute("value", "hello world");

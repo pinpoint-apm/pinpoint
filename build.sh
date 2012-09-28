@@ -1,2 +1,2 @@
 # web ui
-mvn clean eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip
+mvn clean eclipse:eclipse package war:exploded -Dmaven.test.skip

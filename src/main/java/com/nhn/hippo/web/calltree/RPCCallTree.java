@@ -21,7 +21,7 @@ public class RPCCallTree {
 
 	private final Map<String, RPC> rpcs = new HashMap<String, RPC>();
 	private final Map<String, String> spanIdToRPCId = new HashMap<String, String>();
-	private final Map<String, Request> requests = new HashMap<String, Request>();
+	private final Map<String, RPCRequest> requests = new HashMap<String, RPCRequest>();
 	private final List<Span> spans = new ArrayList<Span>();
 
 	private boolean isBuilt = false;
@@ -77,7 +77,7 @@ public class RPCCallTree {
 				fromRPC = rpcs.get(spanIdToRPCId.get(PREFIX_CLIENT + to));
 			}
 
-			Request request = new Request(fromRPC, toRPC);
+			RPCRequest request = new RPCRequest(fromRPC, toRPC);
 			if (requests.containsKey(request.getId())) {
 				requests.get(request.getId()).increaseCallCount();
 			} else {
@@ -93,7 +93,7 @@ public class RPCCallTree {
 		return this.rpcs.values();
 	}
 	
-	public Collection<Request> getLinks() {
+	public Collection<RPCRequest> getLinks() {
 		return this.requests.values();
 	}
 	

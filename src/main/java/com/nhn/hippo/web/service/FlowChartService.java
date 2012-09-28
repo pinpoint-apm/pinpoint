@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.nhn.hippo.web.calltree.RPCCallTree;
+import com.nhn.hippo.web.calltree.ServerCallTree;
 import com.profiler.common.dto.thrift.Span;
 
 /**
@@ -45,5 +46,13 @@ public interface FlowChartService {
 	 * @param traceIds
 	 * @return
 	 */
-	public RPCCallTree selectCallTree(List<byte[]> traceIds);
+	public RPCCallTree selectRPCCallTree(List<byte[]> traceIds);
+	
+	/**
+	 * select call tree
+	 * 
+	 * @param traceIds
+	 * @return
+	 */
+	public ServerCallTree selectServerCallTree(List<byte[]> traceIds);
 }

@@ -4,17 +4,24 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;
 
-import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.profiler.common.dto.thrift.Span;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
 public class TracesProcessor {
 
-	public static RPCCallTree process(Result[] results) {
-		RPCCallTree callTree = new RPCCallTree();
+	public static interface SpanHandler {
+		void handleSpan(byte[] row, byte[] family, byte[] column, Span span);
+	}
 
+	public static void process(Result[] results, SpanHandler handler) {
 		TDeserializer deserializer = new TDeserializer();
 
 		for (Result res : results) {
@@ -25,12 +32,18 @@ public class TracesProcessor {
 			NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> map = res.getMap();
 
 			for (Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : map.entrySet()) {
+				byte[] family = entry.getKey();
+				System.out.println("family=" + Bytes.toString(family));
+
 				NavigableMap<byte[], NavigableMap<Long, byte[]>> values = entry.getValue();
 
 				/**
 				 * For each column (SpanID)
 				 */
 				for (Entry<byte[], NavigableMap<Long, byte[]>> value : values.entrySet()) {
+					byte[] colname = value.getKey();
+					System.out.println("colname=" + Bytes.toString(colname));
+
 					NavigableMap<Long, byte[]> valueSeries = value.getValue();
 
 					/**
@@ -40,7 +53,7 @@ public class TracesProcessor {
 						Span span = new Span();
 						try {
 							deserializer.deserialize(span, v.getValue());
-							callTree.addSpan(span);
+							handler.handleSpan(res.getRow(), family, colname, span);
 						} catch (TException e) {
 							e.printStackTrace();
 						}
@@ -48,7 +61,5 @@ public class TracesProcessor {
 				}
 			}
 		}
-
-		return callTree.build();
 	}
 }
