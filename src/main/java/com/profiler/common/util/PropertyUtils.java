@@ -1,27 +1,19 @@
 package com.profiler.common.util;
 
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyUtils {
 
-    public static Properties readProperties(String propertyName) throws IOException {
-        return readProperties(propertyName, PropertyUtils.class.getClassLoader());
-    }
-
-    public static Properties readProperties(String propertyName, ClassLoader cl) throws IOException {
-		Properties properties = new Properties();
-		InputStream stream = cl.getResourceAsStream(propertyName);
-		if (stream == null) {
-			throw new FileNotFoundException(propertyName + " not found.");
-		}
+    public static Properties readProperties(String propertyPath) throws IOException {
+        Properties properties = new Properties();
+        FileReader fileReader = new FileReader(propertyPath);
 		try {
-			properties.load(stream);
+			properties.load(fileReader);
 		} finally {
             try {
-                stream.close();
+                fileReader.close();
             } catch (IOException e) {
                 // 무시
             }
