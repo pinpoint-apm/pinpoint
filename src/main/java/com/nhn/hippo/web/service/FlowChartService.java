@@ -2,9 +2,11 @@ package com.nhn.hippo.web.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.nhn.hippo.web.calltree.ServerCallTree;
+import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;
 
 /**
@@ -30,7 +32,7 @@ public interface FlowChartService {
 	 * @param to
 	 * @return
 	 */
-	public List<byte[]> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to);
+	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to);
 
 	/**
 	 * select Traces from Trace table
@@ -46,8 +48,8 @@ public interface FlowChartService {
 	 * @param traceIds
 	 * @return
 	 */
-	public RPCCallTree selectRPCCallTree(List<byte[]> traceIds);
-	
+	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds);
+
 	/**
 	 * select call tree
 	 * 

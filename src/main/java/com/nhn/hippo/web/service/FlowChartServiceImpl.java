@@ -2,9 +2,11 @@ package com.nhn.hippo.web.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.client.Get;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.nhn.hippo.web.calltree.ServerCallTree;
 import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
+import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
@@ -55,11 +58,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public List<byte[]> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
+	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
 		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
 		column.add(new HbaseColumn("Trace", "ID"));
 
-		List<byte[]> list = new ArrayList<byte[]>();
+		Set<TraceId> set = new HashSet<TraceId>();
 
 		for (String agentId : agentIds) {
 			byte[] s = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(from));
@@ -69,11 +72,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 			Iterator<Map<String, byte[]>> result = client.getHBaseData(query);
 
 			while (result.hasNext()) {
-				list.add(result.next().get("ID"));
+				set.add(new TraceId(result.next().get("ID")));
 			}
 		}
 
-		return list;
+		return set;
 	}
 
 	@Override
@@ -105,10 +108,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public RPCCallTree selectRPCCallTree(List<byte[]> traceIds) {
+	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
 		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (byte[] traceId : traceIds) {
-			gets.add(new Get(traceId));
+		for (TraceId traceId : traceIds) {
+			gets.add(new Get(traceId.getBytes()));
 		}
 
 		Result[] results = client.get(HBaseTables.TRACES, gets);

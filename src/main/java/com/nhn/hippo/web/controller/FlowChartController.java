@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.controller;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.hippo.web.calltree.RPCCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
+import com.nhn.hippo.web.vo.TraceId;
 
 /**
  * retrieve data for drawing call tree.
@@ -38,13 +40,24 @@ public class FlowChartController {
 	@RequestMapping(value = "/flow", method = RequestMethod.GET)
 	public String arcus(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
-		List<byte[]> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
+		System.out.println("");
+		System.out.println("--------------------------------------");
+		System.out.println("agentIds=" + Arrays.toString(agentIds));
+		
+		Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
+		for(TraceId tid : traceIds) {
+			System.out.println("traceIds=" + tid);
+		}
+		System.out.println("--------------------------------------");
+		System.out.println("");
+		
 		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-		model.addAttribute("value", "hello world");
 
+		System.out.println("");
+		System.out.println("--------------------------------------");
 		System.out.println(callTree.toString());
 
 		return "flow";
