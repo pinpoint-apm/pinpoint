@@ -75,11 +75,17 @@ public class ServerCallTree {
 				fromServer = servers.get(spanIdToServerId.get(PREFIX_CLIENT + to));
 			}
 
-			ServerRequest ServerRequest = new ServerRequest(fromServer, toServer);
-			if (ServerRequests.containsKey(ServerRequest.getId())) {
-				ServerRequests.get(ServerRequest.getId()).increaseCallCount();
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
+			
+			// TODO: local call인 경우 보여주지 않음.
+			if (serverRequest.isSelfCalled()) {
+				continue;
+			}
+			
+			if (ServerRequests.containsKey(serverRequest.getId())) {
+				ServerRequests.get(serverRequest.getId()).increaseCallCount();
 			} else {
-				ServerRequests.put(ServerRequest.getId(), ServerRequest);
+				ServerRequests.put(serverRequest.getId(), serverRequest);
 			}
 		}
 

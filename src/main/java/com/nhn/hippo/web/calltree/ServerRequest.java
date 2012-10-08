@@ -17,6 +17,10 @@ public class ServerRequest {
 		this.id = from.getId() + to.getId();
 	}
 
+	public boolean isSelfCalled() {
+		return from.getSequence() == to.getSequence();
+	}
+	
 	public void increaseCallCount() {
 		callCount++;
 	}
