@@ -27,8 +27,6 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		System.out.println("\n\n\n\nINVOKE HTTP START ----------------------------------------------------------------------------------------------------------------------------------------------------");
-
 		final HttpHost host = (HttpHost) args[0];
 		final HttpRequest request = (HttpRequest) args[1];
 
@@ -43,8 +41,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 			request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 			request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
-			Trace.recordRpcName("http-call", "");
-			Trace.recordEndPoint("http:" + host.getHostName() + ":" + host.getPort());
+			Trace.recordRpcName(request.getProtocolVersion().toString(), request.toString());
+			Trace.recordEndPoint(request.getProtocolVersion().toString() + ":" + host.getHostName() + ":" + host.getPort());
 			Trace.recordAttibute("http.url", request.toString());
 			Trace.record(Annotation.ClientSend);
 		} finally {
@@ -59,7 +57,5 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 		Trace.traceBlockBegin();
 		Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("ExecuteMethodInterceptor"));
 		Trace.traceBlockEnd();
-
-		System.out.println("\n\n\n\nINVOKE HTTP END ----------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
 }

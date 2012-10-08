@@ -73,17 +73,6 @@ public class ArcusClientModifier extends AbstractModifier {
 		 */
 		code.append("com.profiler.context.Trace.setTraceId(__nextTraceId);");
 
-		// code.append("System.out.println(__traceId);");
-		// code.append("System.out.println($1);");
-		// code.append("System.out.println(\"Change state \" + state + \" -> \" + newState);");
-		// code.append("System.out.println(handlingNode);");
-		// code.append("System.out.println(\"cmd=\" + ((cmd == null) ? null : new String(cmd.array())));");
-		// code.append("System.out.println(Thread.currentThread().getId());");
-		// code.append("System.out.println(Thread.currentThread().getName());");
-		// code.append("System.out.println(\"\");");
-		// code.append("System.out.println(\"\");");
-		// code.append("System.out.println(\"\");");
-
 		/**
 		 * After sending command to the Arcus server. now waiting server
 		 * response.
@@ -96,7 +85,7 @@ public class ArcusClientModifier extends AbstractModifier {
 		code.append("	java.net.SocketAddress socketAddress = handlingNode.getSocketAddress();");
 		code.append("	if (socketAddress instanceof java.net.InetSocketAddress) {");
 		code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
-		code.append("		com.profiler.context.Trace.recordEndPoint(\"arcus:\" + addr.getHostName() + \":\" + addr.getPort());");
+		code.append("		com.profiler.context.Trace.recordEndPoint(\"ARCUS:\" + addr.getHostName() + \":\" + addr.getPort());");
 		code.append("	}");
 		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", \"\");");
 		code.append("	com.profiler.context.Trace.recordAttribute(\"arcus.command\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
