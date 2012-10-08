@@ -56,5 +56,5 @@ public interface FlowChartService {
 	 * @param traceIds
 	 * @return
 	 */
-	public ServerCallTree selectServerCallTree(List<byte[]> traceIds);
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds);
 }

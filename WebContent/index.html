@@ -198,8 +198,12 @@
 			<select id="servers">
 				<option>localhost</option>
 			</select>
-			<input type="text" class="input-medium" placeholder="StartTime"> ~ 
-			<input type="text" class="input-medium" placeholder="EndTime">
+			<input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-01-01">
+			<input id="starttime" type="text" class="input-small" placeholder="StartTime" value="01:00">
+			 ~ 
+			<input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-12-31">
+			<input id="endtime" type="text" class="input-small" placeholder="EndTime" value="23:59">
+
 			<button type="button" class="btn btn-primary" onclick="drawChart('flow')">Trace RPC !</button>
 			<button type="button" class="btn btn-primary" onclick="drawChart('flowserver')">Trace Server !</button>
 		</form>
@@ -210,6 +214,14 @@
 	
 
 	<script type="text/javascript">
+	function getStartTime() {
+		return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
+	}
+	
+	function getEndTime() {
+		return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
+	}
+	
 		var margin = {
 			top : 1,
 			right : 1,
@@ -231,8 +243,9 @@
 		var path = sankey.link();
 
 		function drawChart(chartType) {
-//			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349342029106&to=1349342029572", function(energy) {
-			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349424219830&to=1349424219998", function(energy) {
+			// d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349660578944&to=1349660778944", function(energy) {
+			// d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349650904661&to=1349670904661", function(energy) {
+			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=" + getStartTime() + "&to=" + getEndTime(), function(energy) {
 				sankey.nodes(energy.nodes).links(energy.links).layout(32);
 	
 				/*

@@ -27,8 +27,6 @@ public class ServerCallTree {
 	private boolean isBuilt = false;
 
 	public void addSpan(Span span) {
-		System.out.println("Add span to calltree=" + span + "\n");
-
 		/**
 		 * make Servers
 		 */

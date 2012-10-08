@@ -5,11 +5,9 @@ import java.util.Arrays;
 public class TraceId {
 
 	private final byte[] id;
-	private final int hashcode;
 
 	public TraceId(byte[] traceId) {
 		this.id = traceId;
-		this.hashcode = new String(id).hashCode();
 	}
 
 	public byte[] getBytes() {
@@ -17,19 +15,29 @@ public class TraceId {
 	}
 
 	@Override
-	public boolean equals(Object traceId) {
-		if (traceId instanceof TraceId) {
-			return Arrays.equals(id, ((TraceId) traceId).id);
-		}
-		return false;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(id);
+		return result;
 	}
 
 	@Override
-	public int hashCode() {
-		return hashcode;
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TraceId other = (TraceId) obj;
+		if (!Arrays.equals(id, other.id))
+			return false;
+		return true;
 	}
 
+	@Override
 	public String toString() {
-		return Arrays.toString(id);
+		return "TraceId [id=" + Arrays.toString(id) + "]";
 	}
 }

@@ -33,8 +33,6 @@ public class TracesProcessor {
 
 			for (Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : map.entrySet()) {
 				byte[] family = entry.getKey();
-				System.out.println("family=" + Bytes.toString(family));
-
 				NavigableMap<byte[], NavigableMap<Long, byte[]>> values = entry.getValue();
 
 				/**
@@ -42,8 +40,6 @@ public class TracesProcessor {
 				 */
 				for (Entry<byte[], NavigableMap<Long, byte[]>> value : values.entrySet()) {
 					byte[] colname = value.getKey();
-					System.out.println("colname=" + Bytes.toString(colname));
-
 					NavigableMap<Long, byte[]> valueSeries = value.getValue();
 
 					/**

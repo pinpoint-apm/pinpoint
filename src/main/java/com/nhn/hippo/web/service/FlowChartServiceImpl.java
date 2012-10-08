@@ -129,10 +129,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public ServerCallTree selectServerCallTree(List<byte[]> traceIds) {
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
 		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (byte[] traceId : traceIds) {
-			gets.add(new Get(traceId));
+		for (TraceId traceId : traceIds) {
+			gets.add(new Get(traceId.getBytes()));
 		}
 
 		Result[] results = client.get(HBaseTables.TRACES, gets);
