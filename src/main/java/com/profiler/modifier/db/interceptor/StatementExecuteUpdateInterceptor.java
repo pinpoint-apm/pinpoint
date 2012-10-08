@@ -40,6 +40,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             if (args.length > 0) {
                 String url = (String) this.getUrl.invoke(target);
                 Trace.recordAttibute("Query", url);
+                Trace.recordEndPoint(url);
             }
 
             Trace.record(Annotation.ClientSend);

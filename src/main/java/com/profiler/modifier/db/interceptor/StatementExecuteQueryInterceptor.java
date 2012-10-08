@@ -41,6 +41,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
              */
             String url = (String) this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", url);
+            Trace.recordEndPoint(url);
 
             if (args.length > 0) {
                 Trace.recordAttibute("Statement", args[0]);
