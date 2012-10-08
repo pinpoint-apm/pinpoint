@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
+import com.profiler.common.dto.thrift.AgentInfo;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.HeaderTBaseDeserializer;
@@ -30,6 +31,10 @@ public class MultiplexedPacketHandler {
     @Autowired()
     @Qualifier("SpanHandler")
     private Handler spanDataHandler;
+    
+    @Autowired()
+    @Qualifier("AgentInfoHandler")
+    private Handler agentInfoHandler;
 
 	public MultiplexedPacketHandler() {
 	}
@@ -59,6 +64,9 @@ public class MultiplexedPacketHandler {
 		}
 		if (tBase instanceof Span) {
 			return spanDataHandler;
+		}
+		if (tBase instanceof AgentInfo) {
+			return agentInfoHandler;
 		}
 		logger.warn("Unknown type of data received. data=" + tBase);
 		throw new UnsupportedOperationException();
