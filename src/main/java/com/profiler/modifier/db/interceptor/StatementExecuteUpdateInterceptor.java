@@ -1,15 +1,15 @@
 package com.profiler.modifier.db.interceptor;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
-
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
@@ -34,7 +34,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
 
         Trace.traceBlockBegin();
         try {
-            Trace.recordRpcName("mysql", "");
+            Trace.recordRpcName("MYSQL", "");
 
 
             if (args.length > 0) {

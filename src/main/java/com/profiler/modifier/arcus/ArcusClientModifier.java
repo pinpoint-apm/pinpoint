@@ -79,15 +79,12 @@ public class ArcusClientModifier extends AbstractModifier {
 		 */
 		code.append("if (newState == net.spy.memcached.ops.OperationState.READING) {");
 
-		// TODO: remove, debugging
-		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS BEFORE  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
-
 		code.append("	java.net.SocketAddress socketAddress = handlingNode.getSocketAddress();");
 		code.append("	if (socketAddress instanceof java.net.InetSocketAddress) {");
 		code.append("		java.net.InetSocketAddress addr = (java.net.InetSocketAddress) handlingNode.getSocketAddress();");
 		code.append("		com.profiler.context.Trace.recordEndPoint(\"ARCUS:\" + addr.getHostName() + \":\" + addr.getPort());");
 		code.append("	}");
-		code.append("	com.profiler.context.Trace.recordRpcName(\"arcus\", \"\");");
+		code.append("	com.profiler.context.Trace.recordRpcName(\"ARCUS\", \"\");");
 		code.append("	com.profiler.context.Trace.recordAttribute(\"arcus.command\", ((cmd == null) ? \"UNKNOWN\" : new String(cmd.array())));");
 		code.append("	com.profiler.StopWatch.start(this.hashCode());");
 		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientSend, System.nanoTime() - __commandCreatedTime);");
@@ -97,9 +94,6 @@ public class ArcusClientModifier extends AbstractModifier {
 		 */
 		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE || newState == net.spy.memcached.ops.OperationState.TIMEDOUT) {");
 		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, com.profiler.StopWatch.stopAndGetElapsed(this.hashCode()));");
-
-		// TODO: remove, debugging
-		code.append("System.out.println(\"\\n\\n\\nINVOKE ARCUS AFTER  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\");");
 
 		code.append("}");
 

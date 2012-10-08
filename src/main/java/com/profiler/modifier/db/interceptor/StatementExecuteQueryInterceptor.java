@@ -1,5 +1,9 @@
 package com.profiler.modifier.db.interceptor;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
@@ -7,10 +11,6 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
-
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author netspider
@@ -38,7 +38,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
              * If method was not called by request handler, we skip tagging.
              */
             String url = (String) this.getUrl.invoke(target);
-            Trace.recordRpcName("mysql", url);
+            Trace.recordRpcName("MYSQL", url);
 
             if (args.length > 0) {
                 Trace.recordAttibute("Statement", args[0]);

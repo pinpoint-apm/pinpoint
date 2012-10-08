@@ -9,7 +9,12 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import com.profiler.StopWatch;
-import com.profiler.context.*;
+import com.profiler.context.Annotation;
+import com.profiler.context.Header;
+import com.profiler.context.SpanID;
+import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
+import com.profiler.context.TraceID;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
@@ -44,7 +49,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 				Trace.setTraceId(newTraceID);
 			}
 			
-			Trace.recordRpcName("tomcat", requestURL);
+			Trace.recordRpcName("TOMCAT", requestURL);
 			Trace.recordEndPoint(request.getProtocol() + ":" + request.getLocalName() + ":" + request.getLocalPort());
 			Trace.recordAttibute("http.params", parameters);
 			Trace.record(Annotation.ServerRecv);

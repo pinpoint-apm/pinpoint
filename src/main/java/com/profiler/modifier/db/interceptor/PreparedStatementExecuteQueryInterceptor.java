@@ -1,15 +1,18 @@
 package com.profiler.modifier.db.interceptor;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor {
 
@@ -32,7 +35,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         Trace.traceBlockBegin();
         try {
             String url = getUrl.invoke(target);
-            Trace.recordRpcName("mysql", url);
+            Trace.recordRpcName("MYSQL", url);
 
             String sql = getSql.invoke(target);
             Trace.recordAttibute("PreparedStatement", sql);
