@@ -9,7 +9,6 @@ import org.springframework.core.io.ClassPathResource;
 
 public class Server {
     public static void main(String[] args) {
-        // Log4jConfigurer.configure("log4j.xml");
         new Server().start();
     }
 
