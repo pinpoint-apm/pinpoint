@@ -214,13 +214,17 @@
 	
 
 	<script type="text/javascript">
-	function getStartTime() {
-		return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
-	}
-	
-	function getEndTime() {
-		return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
-	}
+		function getStartTime() {
+			return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
+		}
+		
+		function getEndTime() {
+			return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
+		}
+		
+		function cleanChart() {
+			$("#chart").empty();
+		}
 	
 		var margin = {
 			top : 1,
@@ -233,18 +237,16 @@
 			return formatNumber(d) + " Requests";
 		}, color = d3.scale.category20();
 
-		var svg = d3.select("#chart").append("svg")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-		var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
-
-		var path = sankey.link();
-
 		function drawChart(chartType) {
-			// d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349660578944&to=1349660778944", function(energy) {
-			// d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=1349650904661&to=1349670904661", function(energy) {
+			cleanChart();
+
+			var svg = d3.select("#chart").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
+			var path = sankey.link();
+			
 			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=" + getStartTime() + "&to=" + getEndTime(), function(energy) {
 				sankey.nodes(energy.nodes).links(energy.links).layout(32);
 	
@@ -259,7 +261,6 @@
 						}).sort(function(a, b) {
 							return b.dy - a.dy;
 						}).on("click", function(a, b) {
-							console.log("[LINK CLICK] Get request details here.");
 							console.log(a);
 							console.log(b);
 						});
@@ -283,14 +284,8 @@
 							this.parentNode.appendChild(this);
 						}).on("drag", dragmove));
 	
-				node.on("mouseover", function(d) {
-					//console.log(d.name);
-					//console.log(d3.selectAll(".link"));
-					//console.log(d3.selectAll(".link")[0][0]);
-					console.log(d3.selectAll("#chart .link").select().attr("class", ""));
-					console.log("mouse over");
-				}).on("mouseout", function(d) {
-	
+				node.on("click", function(d) {
+					console.log(d);
 				});
 	
 				node.append("rect").attr("height", function(d) {
