@@ -16,7 +16,7 @@ public class StatementCreateInterceptor implements StaticAfterInterceptor {
     private final Logger logger = Logger.getLogger(StatementCreateInterceptor.class.getName());
 
     // connection 용.
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl", String.class);
+    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
 
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 

@@ -1,12 +1,5 @@
 package com.profiler.modifier.db.interceptor;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -14,13 +7,20 @@ import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
-    private final MetaObject<String> getSql = new MetaObject("__getSql");
-    private final MetaObject<String> getUrl = new MetaObject("__getUrl");
-    private final MetaObject<Map> getBindValue = new MetaObject("__getBindValue");
+    private final MetaObject<String> getSql = new MetaObject<String>("__getSql");
+    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
 
