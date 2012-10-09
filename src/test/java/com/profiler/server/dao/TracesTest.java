@@ -97,7 +97,7 @@ public class TracesTest {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         List<BinaryAnnotation> bano = Collections.emptyList();
-		Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, bano, "protocol:ip:port");
+		Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, bano, "protocol:ip:port", false);
         return span;
     }
 }
