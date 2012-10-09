@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-	id="hippo-testweb" version="3.0">
-
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="hippo-testweb" version="3.0">
+<!--
+  <listener>
+     <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  -->
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>classpath:log4j.xml</param-value>
 	</context-param>
+
+    <!-- root application context configuration -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:root-context.xml</param-value>
+    </context-param>
 
 	<!-- root application context -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-	<!-- root application context configuration -->
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:root-context.xml</param-value>
-	</context-param>
+
 
 	<!-- servlet application context -->
 	<servlet>

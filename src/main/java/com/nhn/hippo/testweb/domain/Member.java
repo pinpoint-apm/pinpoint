@@ -2,13 +2,8 @@ package com.nhn.hippo.testweb.domain;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
 public class Member {
 
-	@Id
 	int id;
 
 	String name;
