@@ -348,10 +348,9 @@
 				/*
 				Add transaction information
 				*/
-				console.log(traces.businessTransactions);
+				jQuery("#gridList").jqGrid('clearGridData');
 				var transactions = traces.businessTransactions;
 				for(var i = 0; i <= transactions.length; i++) {
-					console.log(transactions[i]);
 					jQuery("#gridList").jqGrid('addRowData', i + 1, transactions[i]);		
 				}
 				
