@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="tomcat_profiler_build"  basedir="." >
+<project name="hippo_profiler_build"  basedir="." >
     <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1" />
     <property name="agent.dir" value="${basedir}/../deploy/agent/agentlib/" />
     <property name="target.dir" value="${basedir}/target/" />
 
 
-    <target name="copy.agent" depends="mvn.build">
+    <target name="copy.agent.deploy.dir" depends="mvn.build">
         <copy file="${target.dir}/hippo-tomcat-profiler-0.0.1.jar" todir="${agent.dir}">
         </copy>
     </target>
