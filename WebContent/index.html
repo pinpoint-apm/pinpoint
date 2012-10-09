@@ -35,6 +35,10 @@
 	<script src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
 	<script src="/common/js/sankey/sankey.js"></script>
 	
+	<link rel="stylesheet" type="text/css" media="screen" href="/common/js/jqgrid/css/ui.jqgrid.css" />
+	<script src="/common/js/jqgrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+	<script src="/common/js/jqgrid/jquery.jqGrid.js" type="text/javascript"></script>
+	
 	<style>
 	#chart {
 		height: 500px;
@@ -70,7 +74,7 @@
 				</a> <a class="brand" href="/">HIPPO</a>
 				<div class="nav-collapse">
 					<ul class="nav">
-						<li><a data-toggle="modal" href="#myModal">Add Chart</a></li>
+						<li><a data-toggle="modal" href="#myModal">Configuration</a></li>
 						<li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
 						<li><a href="#">Help</a></li>
 					</ul>
@@ -83,7 +87,7 @@
 	<div class="modal hide fade" id="myModal" style="width:1000px; margin-left:-500px">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">×</button>
-			<h3>Add Chart</h3>
+			<h3>Configuration</h3>
 		</div>
 		<div class="modal-body">
 		
@@ -206,8 +210,26 @@
 			<button type="button" class="btn btn-primary" onclick="drawChart('flow')">Trace RPC !</button>
 			<button type="button" class="btn btn-primary" onclick="drawChart('flowserver')">Trace Server !</button>
 		</form>
+
+		<div class="row">
+			<div class="span10">Application Flow Map</div>
+		</div>
+		<div class="row">
+			<div class="span10">
+				<p id="chart"></p>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="span10">Business Transactions</div>
+		</div>
+		<div class="row">
+			<div class="span10">
+				<table id="gridList" class="scroll" ></table>
+				<div id="pager2"></div>
+			</div>
+		</div>
 		
-		<p id="chart"></p>
 	</div>
 	<!-- END OF MENU -->
 	
@@ -221,8 +243,12 @@
 			return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
 		}
 		
-		function cleanChart() {
+		function cleanupChart() {
 			$("#chart").empty();
+		}
+		
+		function cleanupTracesTable() {
+				
 		}
 	
 		var margin = {
@@ -230,14 +256,15 @@
 			right : 1,
 			bottom : 6,
 			left : 1
-		}, width = 1300 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+		}, width = 1300 - margin.left - margin.right, height = 450 - margin.top - margin.bottom;
 
 		var formatNumber = d3.format(",.0f"), format = function(d) {
 			return formatNumber(d) + " Requests";
 		}, color = d3.scale.category20();
 
 		function drawChart(chartType) {
-			cleanChart();
+			cleanupChart();
+			cleanupTracesTable();
 
 			var svg = d3.select("#chart").append("svg")
 				.attr("width", width + margin.left + margin.right)
@@ -246,13 +273,13 @@
 			var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
 			var path = sankey.link();
 			
-			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=" + getStartTime() + "&to=" + getEndTime(), function(energy) {
-				sankey.nodes(energy.nodes).links(energy.links).layout(32);
-	
+			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=" + getStartTime() + "&to=" + getEndTime(), function(traces) {
+				sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
+				
 				/*
 				LINKS			
 				*/
-				var link = svg.append("g").selectAll(".link").data(energy.links)
+				var link = svg.append("g").selectAll(".link").data(traces.graphdata.links)
 						.enter().append("path")
 						.attr("class", "link")
 						.attr("d", path).style("stroke-width", function(d) {
@@ -273,7 +300,7 @@
 				/*
 				NODES
 				*/
-				var node = svg.append("g").selectAll(".node").data(energy.nodes)
+				var node = svg.append("g").selectAll(".node").data(traces.graphdata.nodes)
 						.enter().append("g").attr("class", "node").attr(
 								"transform", function(d) {
 									return "translate(" + d.x + "," + d.y + ")";
@@ -317,13 +344,38 @@
 					sankey.relayout();
 					link.attr("d", path);
 				}
-			});
-		}
+
+				/*
+				Add transaction information
+				*/
+				console.log(traces.businessTransactions);
+				var transactions = traces.businessTransactions;
+				for(var i = 0; i <= transactions.length; i++) {
+					console.log(transactions[i]);
+					jQuery("#gridList").jqGrid('addRowData', i + 1, transactions[i]);		
+				}
+				
+			}); // end of d3.json
+			
+		} // end of draw chart
 	</script>
 
 	<script type="text/javascript">
 	$(document).ready(function() {
 		$("#servers").select2();
+		
+	    jQuery("#gridList").jqGrid({
+			datatype: "local",
+			height: 400,
+		   	colNames:['Name', 'Calls/min', 'Time(ms)', 'Health'],
+		   	colModel:[
+		   		{name:'name',index:'name', width:500, sortable:false},
+		   		{name:'calls',index:'calls', width:60, sorttype:"int"},
+		   		{name:'time',index:'time', width:60, sorttype:"int"},
+		   		{name:'health',index:'health', width:60, sorttype:"int"}
+		   	],
+		   	multiselect: false
+		});
 	});
 	</script>
 </body>

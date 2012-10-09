@@ -50,9 +50,10 @@ public class FlowChartController {
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-
+		model.addAttribute("businessTransactions", callTree.getBusinessTransaction());
+		
 		System.out.println(callTree.toString());
 
-		return "flow";
+		return "flowserver";
 	}
 }

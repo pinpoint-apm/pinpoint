@@ -43,6 +43,7 @@ public class RPCCallTree {
 		}
 		spanIdToRPCId.put(String.valueOf(span.getSpanID()), rpc.getId());
 
+		// TODO remove client node
 		if (span.getParentSpanId() == -1) {
 			RPC client = new RPC(PREFIX_CLIENT + span.getAgentID(), span.getServiceName(), span.getName());
 			rpcs.put(client.getId(), client);

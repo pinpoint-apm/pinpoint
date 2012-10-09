@@ -10,10 +10,14 @@ public class Server implements Comparable<Server> {
 	private int sequence;
 	private final String id;
 	private final String agentId;
+	private final String endPoint;
+	private final boolean terminal;
 
-	public Server(String agentId, String endPoint) {
+	public Server(String agentId, String endPoint, boolean terminal) {
 		this.id = agentId + ":" + endPoint;
 		this.agentId = agentId;
+		this.endPoint = endPoint;
+		this.terminal = terminal;
 	}
 
 	public String getId() {
@@ -30,6 +34,14 @@ public class Server implements Comparable<Server> {
 
 	public String getAgentId() {
 		return agentId;
+	}
+
+	public String getEndPoint() {
+		return endPoint;
+	}
+
+	public boolean isTerminal() {
+		return terminal;
 	}
 
 	@Override
