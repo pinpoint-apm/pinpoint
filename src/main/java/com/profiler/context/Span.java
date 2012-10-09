@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import com.profiler.Agent;
 
 /**
+ * Span represent RPC
  * 
  * @author netspider
  * 
@@ -21,6 +22,7 @@ public class Span {
 	private String serviceName;
 	private String name;
 	private String endPoint;
+	private boolean isTerminal = false;
 
 	private final List<HippoBinaryAnnotation> binaryAnnotations = new ArrayList<HippoBinaryAnnotation>(5);
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
@@ -93,6 +95,14 @@ public class Span {
 	public void setEndPoint(String endPoint) {
 		this.endPoint = endPoint;
 	}
+	
+	public boolean isTerminal() {
+		return isTerminal;
+	}
+
+	public void setTerminal(boolean isTerminal) {
+		this.isTerminal = isTerminal;
+	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -133,6 +143,7 @@ public class Span {
 		span.setSpanID(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 		span.setEndPoint(endPoint);
+		span.setTerminal(isTerminal);
 		
 		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
 		for (HippoAnnotation a : annotations) {

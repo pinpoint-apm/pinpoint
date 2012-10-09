@@ -64,7 +64,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         try {
             String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordEndPoint(connectionUrl);
+            Trace.recordTerminalEndPoint(connectionUrl);
             Trace.record(Annotation.ClientSend);
         } finally {
             Trace.traceBlockEnd();
@@ -110,7 +110,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         try {
             String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordEndPoint(connectionUrl);
+            Trace.recordTerminalEndPoint(connectionUrl);
             Trace.record(Annotation.ClientSend);
         } finally {
             Trace.traceBlockEnd();
@@ -122,7 +122,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         try {
             String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordEndPoint(connectionUrl);
+            Trace.recordTerminalEndPoint(connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
@@ -148,7 +148,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         try {
             String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordEndPoint(connectionUrl);
+            Trace.recordTerminalEndPoint(connectionUrl);
             Trace.record(Annotation.ClientSend);
         } finally {
             Trace.traceBlockEnd();
@@ -168,7 +168,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
             String connectionUrl = this.getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordEndPoint(connectionUrl);
+            Trace.recordTerminalEndPoint(connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {

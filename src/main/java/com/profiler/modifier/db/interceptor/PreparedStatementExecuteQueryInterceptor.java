@@ -36,7 +36,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         try {
             String url = getUrl.invoke(target);
             Trace.recordRpcName("MYSQL", url);
-            Trace.recordEndPoint(url);
+            Trace.recordTerminalEndPoint(url);
             String sql = getSql.invoke(target);
             Trace.recordAttibute("PreparedStatement", sql);
 

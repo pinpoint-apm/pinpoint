@@ -263,9 +263,17 @@ public final class Trace {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
+	
+	public static void recordTerminalEndPoint(final String endPoint) {
+		recordEndPoint(endPoint, true);
+	}
+	
+	public static void recordEndPoint(final String endPoint) {
+		recordEndPoint(endPoint, false);
+	}
 
 	// TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
-	public static void recordEndPoint(final String endPoint) {
+	private static void recordEndPoint(final String endPoint, final boolean isTerminal) {
 		if (!tracingEnabled)
 			return;
 
@@ -275,6 +283,7 @@ public final class Trace {
 				public Span updateSpan(Span span) {
 					// set endpoint to both span and annotations
 					span.setEndPoint(endPoint);
+					span.setTerminal(isTerminal);
 					return span;
 				}
 			});

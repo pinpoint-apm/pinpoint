@@ -34,13 +34,14 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
 
         Trace.traceBlockBegin();
         try {
-            Trace.recordRpcName("MYSQL", "");
-
-
             if (args.length > 0) {
                 String url = (String) this.getUrl.invoke(target);
+                Trace.recordRpcName("MYSQL", url);
                 Trace.recordAttibute("Query", url);
-                Trace.recordEndPoint(url);
+                Trace.recordTerminalEndPoint(url);
+            } else {
+            	Trace.recordRpcName("MYSQL", "");
+            	Trace.recordTerminalEndPoint("");
             }
 
             Trace.record(Annotation.ClientSend);
