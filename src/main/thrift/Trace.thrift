@@ -31,4 +31,5 @@ struct Span {
   10: list<BinaryAnnotation> binaryAnnotations
   11: optional i32 flag = 0
   12: string endPoint
+  13: bool terminal
 }
