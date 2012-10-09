@@ -1,49 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
     <!--
     <bean id="mysql" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="com.mysql.jdbc.Driver" />
     -->
 
-	<bean id="mysqlDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+    <bean id="mysqlDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
 
-        <property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8" />
-        <property name="username" value="root" />
-        <property name="password" value="skdnsnfl" />
+        <property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="skdnsnfl"/>
 
         <!--<property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8" />
 		<property name="username" value="lucytest" />
 		<property name="password" value="testlucy" />-->
 
-	</bean>
+    </bean>
 
-	<bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
-		<property name="url" value="jdbc:sqlserver://10.64.80.37:1433;DatabaseName=test" />
-		<property name="username" value="netspider" />
-		<property name="password" value="chitty!!" />
-	</bean>
+    <bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://10.64.80.37:1433;DatabaseName=test"/>
+        <property name="username" value="netspider"/>
+        <property name="password" value="chitty!!"/>
+    </bean>
 
 
-	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-		<constructor-arg name="dataSource" ref="mysqlDatasource" />
-	</bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="mysqlDatasource"/>
+    </bean>
 
-	<!-- ============================================================= -->
-	<!-- iBatis -->
-	<!-- ============================================================= -->
-	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
-		<property name="dataSource" ref="mysqlDatasource" />
-		<property name="configLocation" value="classpath:SqlMapConfig.xml" />
-	</bean>
+    <!-- ============================================================= -->
+    <!-- iBatis -->
+    <!-- ============================================================= -->
+    <bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="mysqlDatasource"/>
+        <property name="configLocation" value="classpath:SqlMapConfig.xml"/>
+    </bean>
 
-	<bean id="sqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
-		<constructor-arg name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
+    <bean id="sqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="sqlMapClient"/>
+    </bean>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="mysqlDatasource"/>
