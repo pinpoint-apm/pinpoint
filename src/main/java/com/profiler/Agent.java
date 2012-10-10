@@ -1,5 +1,8 @@
 package com.profiler;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -18,9 +21,15 @@ public class Agent {
 	private final ServerInfo serverInfo;
 	private final SystemMonitor systemMonitor;
 
+	private final String agentId;
+	private final String applicationName;
+	
 	private Agent() {
 		this.serverInfo = new ServerInfo();
 		this.systemMonitor = new SystemMonitor();
+		
+		this.agentId = System.getProperty("hippo.agentId", getMachineName());
+		this.applicationName = System.getProperty("hippo.applicationName", "TOMCAT");
 	}
 
 	private static class SingletonHolder {
@@ -43,18 +52,43 @@ public class Agent {
 		return this.serverInfo;
 	}
 
-	/**
-	 * Agent hash code.
-	 * 
-	 * @return
-	 */
 	public String getAgentId() {
-		// TODO: agent id 생성 방법 변경이 필요함.
-		logger.warning("Generating agent id is not implementd. use default 'TEST_AGENT_ID");
-
-		return "TEST_AGENT_ID";
+		return agentId;
 	}
 
+	public String getApplicationName() {
+		return applicationName;
+	}
+
+	private String getMachineName() {
+		try {
+			String name = null;
+			Enumeration<NetworkInterface> enet = NetworkInterface.getNetworkInterfaces();
+
+			while (enet.hasMoreElements() && (name == null)) {
+				NetworkInterface net = enet.nextElement();
+
+				if (net.isLoopback())
+					continue;
+
+				Enumeration<InetAddress> eaddr = net.getInetAddresses();
+
+				while (eaddr.hasMoreElements()) {
+					InetAddress inet = eaddr.nextElement();
+
+					if (inet.getCanonicalHostName().equalsIgnoreCase(inet.getHostAddress()) == false) {
+						name = inet.getCanonicalHostName();
+						break;
+					}
+				}
+			}
+			return name;
+		} catch (Exception e) {
+			logger.warning(e.getMessage());
+			return "UNKNOWN-HOST";
+		}
+	}
+	
 	/**
 	 * HIPPO 서버로 WAS정보를 전송한다.
 	 */
