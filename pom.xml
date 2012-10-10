@@ -53,6 +53,7 @@
 			<groupId>com.nhn.hippo</groupId>
 			<artifactId>hippo-commons</artifactId>
 			<version>0.0.1</version>
+            <scope>compile</scope>
 		</dependency>
 
 		<dependency>
@@ -198,7 +199,7 @@
         <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-hadoop</artifactId>
-			<version>1.0.0.M2</version>
+			<version>1.0.0.RC1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -439,17 +440,23 @@
             <scope>test</scope>
         </dependency>
 		<dependency>
-            <artifactId>com.springsource.org.hamcrest</artifactId>
             <groupId>org.hamcrest</groupId>
+            <artifactId>com.springsource.org.hamcrest</artifactId>
 			<version>1.1.0</version>
             <scope>test</scope>
 		</dependency>
 		<dependency>
-            <artifactId>com.springsource.org.mockito</artifactId>
             <groupId>org.mockito</groupId>
+            <artifactId>com.springsource.org.mockito</artifactId>
 			<version>1.8.4</version>
             <scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.nhn.hippo</groupId>
+            <artifactId>hippo-server</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
 
 		<dependency>
             <groupId>org.aspectj</groupId>
