@@ -6,7 +6,13 @@
 		"nodes":
 			[
 			<c:forEach items="${nodes}" var="node" varStatus="status">
-			{"name":"${node}"}<c:if test="${!status.last}">,</c:if>
+				<c:if test="${node.terminal}">
+				{"name":"${node.serviceName}:${node.rpc}"}
+				</c:if>
+				<c:if test="${not node.terminal}">
+				{"name":"${node}"}
+				</c:if>
+				<c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 			],
 		"links":

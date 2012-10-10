@@ -11,12 +11,14 @@ public class RPC implements Comparable<RPC> {
 	private final String agentId;
 	private final String serviceName;
 	private final String rpc;
+	private final boolean terminal;
 
-	public RPC(String agentId, String serviceName, String rpc) {
+	public RPC(String agentId, String serviceName, String rpc, boolean terminal) {
 		this.id = agentId + ":" + serviceName + ":" + rpc;
 		this.agentId = agentId;
 		this.serviceName = serviceName;
 		this.rpc = rpc;
+		this.terminal = terminal;
 	}
 
 	public String getId() {
@@ -41,6 +43,10 @@ public class RPC implements Comparable<RPC> {
 
 	public String getRpc() {
 		return rpc;
+	}
+
+	public boolean isTerminal() {
+		return terminal;
 	}
 
 	@Override
