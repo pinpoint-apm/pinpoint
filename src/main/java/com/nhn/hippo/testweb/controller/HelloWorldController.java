@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.nhn.hippo.testweb.domain.Member;
 import com.nhn.hippo.testweb.service.MemberService;
@@ -34,7 +33,7 @@ public class HelloWorldController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/donothing", method = RequestMethod.GET)
+	@RequestMapping(value = "/donothing")
 	public String donothing(Model model) {
 		System.out.println("do nothing.");
 		return "donothing";
@@ -46,7 +45,7 @@ public class HelloWorldController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/arcus", method = RequestMethod.POST)
+	@RequestMapping(value = "/arcus")
 	public String arcus(Model model) {
 		try {
 			Future<Boolean> future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
@@ -57,7 +56,7 @@ public class HelloWorldController {
 		return "arcus";
 	}
 
-	@RequestMapping(value = "/mysql", method = RequestMethod.GET)
+	@RequestMapping(value = "/mysql")
 	public String mysql(Model model) {
 		int id = (new Random()).nextInt();
 
@@ -77,23 +76,20 @@ public class HelloWorldController {
 
 		return "mysql";
 	}
-
-	@RequestMapping(value = "/invoke_arcus_http", method = RequestMethod.GET)
-	public String invoke_arcus_http(Model model) {
+	
+	@RequestMapping(value = "/remotecombination")
+	public String remotecombination(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:9080/arcus.hippo", new HashMap<String, Object>());
-
-		return "http";
+		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
+		
+		return "remotecombination";
 	}
 
-	@RequestMapping(value = "/combination", method = RequestMethod.GET)
+	@RequestMapping(value = "/combination")
 	public String combination(Model model) {
-		donothing(model);
-		arcus(model);
 		mysql(model);
-		invoke_arcus_http(model);
-
-		return "http";
+		arcus(model);
+		
+		return "combination";
 	}
-
 }
