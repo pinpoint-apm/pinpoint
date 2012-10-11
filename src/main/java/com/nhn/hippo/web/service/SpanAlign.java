@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.service;
 
 import com.profiler.common.dto.thrift.Span;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -17,6 +18,14 @@ public class SpanAlign {
     public int getDepth() {
         return depth;
     }
+
+//    public String getDepthSpace() {
+//        StringBuilder sb = new StringBuilder(depth);
+//        for (int i = 0; i < depth; i++) {
+//            sb.append(' ');
+//        }
+//        return sb.toString();
+//    }
 
     public Span getSpan() {
         return span;

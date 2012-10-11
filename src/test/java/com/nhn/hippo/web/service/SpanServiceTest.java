@@ -46,9 +46,10 @@ public class SpanServiceTest {
 
     private Span root;
     private List<Span> deleteSpans = new LinkedList<Span>();
+
     @Before
     public void before() throws TException {
-        Span span = createSpan();
+        Span span = createRootSpan();
         logger.debug("uuid:{}", new UUID(span.getMostTraceID(), span.getLeastTraceID()));
         insert(span);
         deleteSpans.add(span);
@@ -79,13 +80,14 @@ public class SpanServiceTest {
 
     public void after() {
         List list = new LinkedList();
-        for(Span span: deleteSpans) {
+        for (Span span : deleteSpans) {
             Delete delete = new Delete(SpanUtils.getTracesRowkey(span));
             list.add(delete);
         }
         template2.delete(HBaseTables.TRACES, list);
         deleteSpans.clear();
     }
+
     @Test
     public void testReadSpan() throws TException {
         doRead(root);
@@ -96,7 +98,7 @@ public class SpanServiceTest {
         UUID uuid = new UUID(span.getMostTraceID(), span.getLeastTraceID());
 
         List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
-        for(SpanAlign spanAlign : sort) {
+        for (SpanAlign spanAlign : sort) {
             logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpan());
         }
 //        reorder(spans);
@@ -111,7 +113,7 @@ public class SpanServiceTest {
 
     AtomicInteger id = new AtomicInteger(0);
 
-    private Span createSpan() {
+    private Span createRootSpan() {
         // 별도 생성기로 뽑을것.
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
@@ -130,7 +132,7 @@ public class SpanServiceTest {
 
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span sub = new Span("UnitTest", time, span.getMostTraceID(), span.getLeastTraceID(), "test", "rpc"+ andIncrement, andIncrement, ano, bano, "protocol:ip:port", false);
+        Span sub = new Span("UnitTest", time, span.getMostTraceID(), span.getLeastTraceID(), "test", "rpc" + andIncrement, andIncrement, ano, bano, "protocol:ip:port", false);
         sub.setParentSpanId(span.getSpanID());
         return sub;
     }

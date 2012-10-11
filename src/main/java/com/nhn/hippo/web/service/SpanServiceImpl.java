@@ -26,6 +26,7 @@ public class SpanServiceImpl implements SpanService {
     public List<SpanAlign> selectSpan(String uuid) {
         UUID id = UUID.fromString(uuid);
         List<Span> spans = traceDao.selectSpan(id);
+        logger.debug("spans11 {}", spans);
         if (spans == null) {
             return Collections.emptyList();
         }
@@ -39,6 +40,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private List<SpanAlign> order(List<Span> spans) {
+
         SpanAligner spanAligner = new SpanAligner(spans);
         return spanAligner.sort();
     }
