@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
-import com.nhn.hippo.web.calltree.ServerCallTree;
+import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;

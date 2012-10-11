@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
-import com.nhn.hippo.web.calltree.ServerCallTree;
+import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;
 

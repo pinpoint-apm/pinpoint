@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
-import com.nhn.hippo.web.calltree.ServerCallTree;
+import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.vo.TraceId;
 
