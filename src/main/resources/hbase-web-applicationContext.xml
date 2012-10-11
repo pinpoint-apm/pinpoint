@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        >
+
+    <bean id="hbaseConfiguration" class="org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
+                <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="hbaseClient" class="com.profiler.common.hbase.HBaseClient" destroy-method="close">
+        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
+        <constructor-arg value="32" index="1"></constructor-arg>
+    </bean>
+
+    <bean id="hbaseTemplate" class="com.profiler.common.hbase.HbaseTemplate2">
+        <property name="configuration" ref="hbaseConfiguration"></property>
+    </bean>
+</beans>
