@@ -81,7 +81,7 @@ public class FlowChartServiceImpl implements FlowChartService {
                 set.add(new TraceId(result.next().get("ID")));
             }
         }
-
+        
         return set;
     }
 
@@ -130,6 +130,7 @@ public class FlowChartServiceImpl implements FlowChartService {
         final ServerCallTree tree = new ServerCallTree();
 
         List<List<Span>> traces = this.traceDao.selectSpans(traceIds);
+        
         for (List<Span> transaction : traces) {
             for (Span eachTransaction : transaction) {
                 tree.addSpan(eachTransaction);

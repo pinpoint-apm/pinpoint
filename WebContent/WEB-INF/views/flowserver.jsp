@@ -31,7 +31,14 @@
 		"name":"${t.name}",
 		"calls":1,
 		"time":1,
-		"health":1
+		"health":1,
+		"traces":
+			[
+				<c:forEach items="${t.traces}" var="trace" varStatus="status2">
+					"${trace}"
+					<c:if test="${!status2.last}">,</c:if>
+				</c:forEach>
+			]
 		}
 		<c:if test="${!status.last}">,</c:if>
 		</c:forEach>

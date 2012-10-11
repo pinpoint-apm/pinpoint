@@ -225,8 +225,39 @@
 		</div>
 		<div class="row">
 			<div class="span10">
-				<table id="gridList" class="scroll" ></table>
-				<div id="pager2"></div>
+				<table id="businessTransactions" class="table table-bordered">
+				<thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Calls</th>
+                  <th>time(ms)</th>
+                  <th>health</th>
+                </tr>
+              	</thead>
+              	<tbody>
+              	
+              	</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="span10">Business Transactions Detail</div>
+		</div>
+		<div class="row">
+			<div class="span10">
+				<table id="businessTransactionsDetail" class="table table-bordered">
+				<thead>
+                <tr>
+                  <th>#</th>
+                  <th>TraceId</th>
+                </tr>
+              	</thead>
+              	<tbody>
+              	
+              	</tbody>
+				</table>
 			</div>
 		</div>
 		
@@ -248,7 +279,8 @@
 		}
 		
 		function cleanupTracesTable() {
-				
+			$("#businessTransactions TBODY").empty();		
+			$("#businessTransactionsDetail TBODY").empty();		
 		}
 	
 		var margin = {
@@ -273,7 +305,7 @@
 			var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
 			var path = sankey.link();
 			
-			d3.json("/" + chartType + ".hippo?host=TEST_AGENT_ID&from=" + getStartTime() + "&to=" + getEndTime(), function(traces) {
+			d3.json("/" + chartType + ".hippo?host=TEST_TOMCAT11&from=" + getStartTime() + "&to=" + getEndTime(), function(traces) {
 				sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
 				
 				/*
@@ -348,33 +380,84 @@
 				/*
 				Add transaction information
 				*/
-				jQuery("#gridList").jqGrid('clearGridData');
-				var transactions = traces.businessTransactions;
-				for(var i = 0; i <= transactions.length; i++) {
-					jQuery("#gridList").jqGrid('addRowData', i + 1, transactions[i]);		
+				transactions = traces.businessTransactions;
+				var html = [];
+				for(var i = 0; i < transactions.length; i++) {
+					html.push("<tr>");
+					
+					html.push("<td>");
+					html.push(i + 1);
+					html.push("</td>");
+					
+					html.push("<td><a href='#' onclick='openTransactionDetails(");
+					html.push(i);
+					html.push(", this);'>");
+					html.push(transactions[i].name);
+					html.push("</a></td>");
+
+					html.push("<td>");
+					html.push(transactions[i].calls);
+					html.push("</td>");
+					
+					html.push("<td>");
+					html.push(transactions[i].time);
+					html.push("</td>");
+					
+					html.push("<td>");
+					html.push(transactions[i].health);
+					html.push("</td>");
+					
+	                html.push("</tr>");
 				}
+				$("#businessTransactions TBODY").append(html.join(''));
 				
 			}); // end of d3.json
 			
 		} // end of draw chart
+		
+		var transactions;
+		
+		var prevDetaildRow;
+		
+		function openTransactionDetails(index, row) {
+			if (prevDetaildRow != null) {
+				prevDetaildRow.css({'background-color':'#FFFFFF'});
+			}
+			var currentRow = $(row).parent().parent(); 
+			currentRow.css({'background-color':'#FFFF00'});
+			prevDetaildRow = currentRow;
+
+			$("#businessTransactionsDetail TBODY").empty();
+			
+			var traces = transactions[index].traces;
+			var html = [];
+			for(var i = 0; i < traces.length; i++) {
+				html.push("<tr>");
+				
+				html.push("<td>");
+				html.push(i + 1);
+				html.push("</td>");
+				
+				html.push("<td><a href='#' onclick='openTrace(\"");
+				html.push(traces[i]);
+				html.push("\");'>");
+				html.push(traces[i]);
+				html.push("</a></td>");
+				
+                html.push("</tr>");
+			}
+			console.log(html.join(''));
+			$("#businessTransactionsDetail TBODY").append(html.join(''));
+		}
+		
+		function openTrace(uuid) {
+			alert(uuid);
+		}
 	</script>
 
 	<script type="text/javascript">
 	$(document).ready(function() {
 		$("#servers").select2();
-		
-	    jQuery("#gridList").jqGrid({
-			datatype: "local",
-			height: 400,
-		   	colNames:['Name', 'Calls/min', 'Time(ms)', 'Health'],
-		   	colModel:[
-		   		{name:'name',index:'name', width:500, sortable:false},
-		   		{name:'calls',index:'calls', width:60, sorttype:"int"},
-		   		{name:'time',index:'time', width:60, sorttype:"int"},
-		   		{name:'health',index:'health', width:60, sorttype:"int"}
-		   	],
-		   	multiselect: false
-		});
 	});
 	</script>
 </body>

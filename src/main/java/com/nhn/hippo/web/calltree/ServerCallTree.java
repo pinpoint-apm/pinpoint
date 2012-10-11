@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.profiler.common.dto.thrift.Span;
 
 /**
@@ -23,8 +24,8 @@ public class ServerCallTree {
 	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, ServerRequest> ServerRequests = new HashMap<String, ServerRequest>();
 	private final List<Span> spans = new ArrayList<Span>();
-	private final List<Span> businessTransaction = new ArrayList<Span>();
-	
+	private final BusinessTransactions businessTransactions = new BusinessTransactions();
+
 	private boolean isBuilt = false;
 
 	public void addSpan(Span span) {
@@ -55,7 +56,7 @@ public class ServerCallTree {
 		 * Preparing makes link (ServerRequests)
 		 */
 		if (span.getParentSpanId() == -1) {
-			businessTransaction.add(span);
+			businessTransactions.add(span);
 		} else {
 			spans.add(span);
 		}
@@ -82,12 +83,12 @@ public class ServerCallTree {
 			}
 
 			ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
-			
+
 			// TODO: local call인 경우 보여주지 않음.
 			if (serverRequest.isSelfCalled()) {
 				continue;
 			}
-			
+
 			if (ServerRequests.containsKey(serverRequest.getId())) {
 				ServerRequests.get(serverRequest.getId()).increaseCallCount();
 			} else {
@@ -106,9 +107,9 @@ public class ServerCallTree {
 	public Collection<ServerRequest> getLinks() {
 		return this.ServerRequests.values();
 	}
-	
-	public List<Span> getBusinessTransaction() {
-		return businessTransaction;
+
+	public BusinessTransactions getBusinessTransactions() {
+		return businessTransactions;
 	}
 
 	@Override

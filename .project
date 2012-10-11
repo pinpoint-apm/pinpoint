@@ -3,6 +3,7 @@
   <comment>NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
     <project>hippo-commons</project>
+    <project>hippo-server</project>
     <project>hippo-tomcat-profiler</project>
   </projects>
   <buildSpec>

@@ -50,7 +50,7 @@ public class FlowChartController {
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-		model.addAttribute("businessTransactions", callTree.getBusinessTransaction());
+		model.addAttribute("businessTransactions", callTree.getBusinessTransactions().iterator());
 		
 		System.out.println(callTree.toString());
 
