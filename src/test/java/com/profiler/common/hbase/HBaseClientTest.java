@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 public class HBaseClientTest {
@@ -22,7 +23,8 @@ public class HBaseClientTest {
 
 	@BeforeClass
 	public static void init() throws IOException {
-        Properties properties = PropertyUtils.readProperties("test-hbase.properties");
+        URL resource = HBaseClientTest.class.getClassLoader().getResource("test-hbase.properties");
+        Properties properties = PropertyUtils.readProperties(resource.getPath());
         client = new HBaseClient(properties);
 		if (client.isTableExists(TABLE_NAME)) {
 			client.dropTable(TABLE_NAME);

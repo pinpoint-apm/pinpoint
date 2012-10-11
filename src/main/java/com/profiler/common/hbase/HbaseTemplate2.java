@@ -1,7 +1,9 @@
 package com.profiler.common.hbase;
 
 import org.apache.hadoop.hbase.client.*;
-import org.springframework.data.hadoop.hbase.*;
+import org.springframework.data.hadoop.hbase.HbaseTemplate;
+import org.springframework.data.hadoop.hbase.RowMapper;
+import org.springframework.data.hadoop.hbase.TableCallback;
 
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
  *
  */
 public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
+//    private HTablePool tablePool;
 
     @Override
     public <T> T get(String tableName, byte[] rowName, RowMapper<T> mapper) {
@@ -86,21 +89,41 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
         });
     }
 
-    public <T> void put(String tableName, final Put put) {
-        execute(tableName, new TableCallback<T>() {
+    public void put(String tableName, final Put put) {
+        execute(tableName, new TableCallback() {
             @Override
-            public T doInTable(HTable htable) throws Throwable {
+            public Object doInTable(HTable htable) throws Throwable {
                 htable.put(put);
                 return null;
             }
         });
     }
 
-    public <T> void put(String tableName, final List<Put> puts) {
-        execute(tableName, new TableCallback<T>() {
+    public void put(String tableName, final List<Put> puts) {
+        execute(tableName, new TableCallback() {
             @Override
-            public T doInTable(HTable htable) throws Throwable {
+            public Object doInTable(HTable htable) throws Throwable {
                 htable.put(puts);
+                return null;
+            }
+        });
+    }
+
+    public void delete(String tableName, final Delete delete) {
+        execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(HTable htable) throws Throwable {
+                htable.delete(delete);
+                return null;
+            }
+        });
+    }
+
+    public void delete(String tableName, final List<Delete> deletes) {
+        execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(HTable htable) throws Throwable {
+                htable.delete(deletes);
                 return null;
             }
         });

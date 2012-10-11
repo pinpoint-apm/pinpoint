@@ -1,5 +1,6 @@
 package com.profiler.common.hbase;
 
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -52,7 +53,11 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
 
-    <T> void put(String tableName, final Put put);
+    void put(String tableName, final Put put);
 
-    <T> void put(String tableName, final List<Put> puts);
+    void put(String tableName, final List<Put> puts);
+
+    void delete(String tableName, final Delete delete);
+
+    void delete(String tableName, final List<Delete> deletes);
 }
