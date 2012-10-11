@@ -5,6 +5,7 @@ import org.springframework.data.hadoop.hbase.HbaseTemplate;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.data.hadoop.hbase.TableCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,13 +33,28 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
                 if (familyName != null) {
                     if (qualifier != null) {
                         get.addColumn(familyName, qualifier);
-                    }
-                    else {
+                    } else {
                         get.addFamily(familyName);
                     }
                 }
                 Result result = htable.get(get);
                 return mapper.mapRow(result, 0);
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> get(String tableName, final List<Get> get, final RowMapper<T> mapper) {
+        return execute(tableName, new TableCallback<List<T>>() {
+            @Override
+            public List<T> doInTable(HTable htable) throws Throwable {
+                Result[] result = htable.get(get);
+                List<T> list = new ArrayList<T>(result.length);
+                for (int i = 0; i < result.length; i++) {
+                    T t = mapper.mapRow(result[i], i);
+                    list.add(t);
+                }
+                return list;
             }
         });
     }
@@ -54,7 +70,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
             public Object doInTable(HTable htable) throws Throwable {
                 Put put = new Put(rowName);
                 if (familyName != null) {
-                    if(timestamp == null) {
+                    if (timestamp == null) {
                         put.add(familyName, qualifier, value);
                     } else {
                         put.add(familyName, qualifier, timestamp, value);
@@ -77,7 +93,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
                 Put put = new Put(rowName);
                 byte[] bytes = mapper.mapValue(value);
                 if (familyName != null) {
-                    if(timestamp == null) {
+                    if (timestamp == null) {
                         put.add(familyName, qualifier, bytes);
                     } else {
                         put.add(familyName, qualifier, timestamp, bytes);
