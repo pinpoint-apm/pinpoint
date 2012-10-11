@@ -32,7 +32,7 @@
 
     <bean class="com.nhn.hippo.web.dao.HbaseTraceDao"></bean>
     <bean class="com.nhn.hippo.web.service.SpanServiceImpl"></bean>
-    <bean class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
+    <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
 
 
 </beans>
