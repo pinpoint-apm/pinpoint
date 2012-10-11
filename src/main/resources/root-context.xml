@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
     <!--
     <bean id="mysql" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
@@ -18,9 +15,9 @@
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
-        <property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8" />
-		<property name="username" value="lucytest" />
-		<property name="password" value="testlucy" />
+        <property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8"/>
+        <property name="username" value="lucytest"/>
+        <property name="password" value="testlucy"/>
 
     </bean>
 
