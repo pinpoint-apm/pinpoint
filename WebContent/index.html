@@ -199,7 +199,9 @@
 	<div class="container">
 		<form class="form-inline">
 			<select id="servers">
-				<option>localhost</option>
+				<option value="TEST_AGENT_ID">TEST_AGENT_ID</option>
+				<option value="TEST_TOMCAT11">TEST_TOMCAT11</option>
+				<option value="TEST_TOMCAT22">TEST_TOMCAT22</option>
 			</select>
 			<input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-01-01">
 			<input id="starttime" type="text" class="input-small" placeholder="StartTime" value="01:00">
@@ -297,6 +299,8 @@
 		function drawChart(chartType) {
 			cleanupChart();
 			cleanupTracesTable();
+			
+			var hosts = $("#servers").val();
 
 			var svg = d3.select("#chart").append("svg")
 				.attr("width", width + margin.left + margin.right)
@@ -305,7 +309,7 @@
 			var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
 			var path = sankey.link();
 			
-			d3.json("/" + chartType + ".hippo?host=TEST_TOMCAT11&from=" + getStartTime() + "&to=" + getEndTime(), function(traces) {
+			d3.json("/" + chartType + ".hippo?host=" + hosts + "&from=" + getStartTime() + "&to=" + getEndTime(), function(traces) {
 				sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
 				
 				/*
