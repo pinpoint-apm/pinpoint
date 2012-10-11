@@ -23,7 +23,7 @@
         </property>
     </bean>
 
-    <import resource="classpath:hbase-web-applicationContext.xml"></import>
+    <import resource="classpath:hbase-applicationContext.xml"></import>
 
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>

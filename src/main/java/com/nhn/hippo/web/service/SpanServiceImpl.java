@@ -25,13 +25,13 @@ public class SpanServiceImpl implements SpanService {
     @Override
     public List<SpanAlign> selectSpan(String uuid) {
         UUID id = UUID.fromString(uuid);
-        List<Span> spans = traceDao.readSpan(id);
+        List<Span> spans = traceDao.selectSpan(id);
         if (spans == null) {
             return Collections.emptyList();
         }
         List<SpanAlign> order = order(spans);
 
-        if(order.size() != spans.size()) {
+        if (order.size() != spans.size()) {
             logger.info("span node not complete! ");
         }
         return order;

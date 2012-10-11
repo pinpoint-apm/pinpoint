@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.nhn.hippo.web.dao.TraceDao;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -27,125 +30,112 @@ import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
 import com.profiler.common.hbase.HBaseTables;
 
 /**
- * 
  * @author netspider
- * 
  */
 @Service
 public class FlowChartServiceImpl implements FlowChartService {
 
-	@Autowired
-	@Qualifier("hbaseClient")
-	HBaseClient client;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public String[] selectAgentIds(String[] hosts) {
-		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-		column.add(new HbaseColumn("Agents", "AgentID"));
+    @Autowired
+    @Qualifier("hbaseClient")
+    HBaseClient client;
 
-		HBaseQuery query = new HBaseQuery(HBaseTables.SERVERS, null, null, column);
-		Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+    @Autowired
+    private TraceDao traceDao;
 
-		while (iterator.hasNext()) {
-			System.out.println("selectedAgentId=" + iterator.next());
-		}
+    @Override
+    public String[] selectAgentIds(String[] hosts) {
+        List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+        column.add(new HbaseColumn("Agents", "AgentID"));
 
-		System.out.println("!!!==============WARNING==============!!!");
-		System.out.println("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
-		System.out.println("!!!===================================!!!");
+        HBaseQuery query = new HBaseQuery(HBaseTables.SERVERS, null, null, column);
+        Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
 
-		return hosts;
-	}
+        while (iterator.hasNext()) {
+            System.out.println("selectedAgentId=" + iterator.next());
+        }
 
-	@Override
-	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
-		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-		column.add(new HbaseColumn("Trace", "ID"));
+        System.out.println("!!!==============WARNING==============!!!");
+        System.out.println("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+        System.out.println("!!!===================================!!!");
 
-		Set<TraceId> set = new HashSet<TraceId>();
+        return hosts;
+    }
 
-		for (String agentId : agentIds) {
-			byte[] s = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(from));
-			byte[] e = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(to));
+    @Override
+    public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
+        List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+        column.add(new HbaseColumn("Trace", "ID"));
 
-			HBaseQuery query = new HBaseQuery(HBaseTables.TRACE_INDEX, s, e, column);
-			Iterator<Map<String, byte[]>> result = client.getHBaseData(query);
+        Set<TraceId> set = new HashSet<TraceId>();
 
-			while (result.hasNext()) {
-				set.add(new TraceId(result.next().get("ID")));
-			}
-		}
+        for (String agentId : agentIds) {
+            byte[] s = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(from));
+            byte[] e = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(to));
 
-		return set;
-	}
+            HBaseQuery query = new HBaseQuery(HBaseTables.TRACE_INDEX, s, e, column);
+            Iterator<Map<String, byte[]>> result = client.getHBaseData(query);
 
-	@Override
-	public Map<byte[], List<Span>> selectTraces(List<byte[]> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (byte[] traceId : traceIds) {
-			gets.add(new Get(traceId));
-		}
+            while (result.hasNext()) {
+                set.add(new TraceId(result.next().get("ID")));
+            }
+        }
 
-		Result[] results = client.get(HBaseTables.TRACES, gets);
+        return set;
+    }
 
-		// traceId, SpanList
-		final Map<byte[], List<Span>> result = new HashMap<byte[], List<Span>>();
+    @Override
+    public Map<byte[], List<Span>> selectTraces(List<byte[]> traceIds) {
+        List<Get> gets = new ArrayList<Get>(traceIds.size());
+        for (byte[] traceId : traceIds) {
+            gets.add(new Get(traceId));
+        }
 
-		TracesProcessor.process(results, new SpanHandler() {
-			@Override
-			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
-				if (result.containsKey(row)) {
-					result.get(row).add(span);
-				} else {
-					List<Span> list = new ArrayList<Span>();
-					list.add(span);
-					result.put(row, list);
-				}
-			}
-		});
+        Result[] results = client.get(HBaseTables.TRACES, gets);
 
-		return result;
-	}
+        // traceId, SpanList
+        final Map<byte[], List<Span>> result = new HashMap<byte[], List<Span>>();
 
-	@Override
-	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (TraceId traceId : traceIds) {
-			gets.add(new Get(traceId.getBytes()));
-		}
+        TracesProcessor.process(results, new SpanHandler() {
+            @Override
+            public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
+                if (result.containsKey(row)) {
+                    result.get(row).add(span);
+                } else {
+                    List<Span> list = new ArrayList<Span>();
+                    list.add(span);
+                    result.put(row, list);
+                }
+            }
+        });
 
-		Result[] results = client.get(HBaseTables.TRACES, gets);
+        return result;
+    }
 
-		final RPCCallTree tree = new RPCCallTree();
+    @Override
+    public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
+        final RPCCallTree tree = new RPCCallTree();
+        List<List<Span>> traces = this.traceDao.selectSpans(traceIds);
+        for (List<Span> transaction : traces) {
+            for (Span eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-		TracesProcessor.process(results, new SpanHandler() {
-			@Override
-			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
-				tree.addSpan(span);
-			}
-		});
+    @Override
+    public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
+        final ServerCallTree tree = new ServerCallTree();
 
-		return tree.build();
-	}
+        List<List<Span>> traces = this.traceDao.selectSpans(traceIds);
+        for (List<Span> transaction : traces) {
+            for (Span eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (TraceId traceId : traceIds) {
-			gets.add(new Get(traceId.getBytes()));
-		}
-
-		Result[] results = client.get(HBaseTables.TRACES, gets);
-
-		final ServerCallTree tree = new ServerCallTree();
-
-		TracesProcessor.process(results, new SpanHandler() {
-			@Override
-			public void handleSpan(byte[] row, byte[] family, byte[] column, Span span) {
-				tree.addSpan(span);
-			}
-		});
-
-		return tree.build();
-	}
 }
