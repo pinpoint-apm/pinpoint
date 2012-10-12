@@ -2154,13 +2154,13 @@
             return this.map(function () {
                 return this.elements ? c.makeArray(this.elements) : this
             }).filter(function () {
-                return this.name && !this.disabled && (this.checked || ub.test(this.nodeName) || vb.test(this.type))
-            }).map(function (a, b) {
-                a = c(this).val();
-                return a == null ? null : c.isArray(a) ? c.map(a, function (d) {
-                    return{name:b.name, value:d}
-                }) : {name:b.name, value:a}
-            }).get()
+                    return this.name && !this.disabled && (this.checked || ub.test(this.nodeName) || vb.test(this.type))
+                }).map(function (a, b) {
+                    a = c(this).val();
+                    return a == null ? null : c.isArray(a) ? c.map(a, function (d) {
+                        return{name:b.name, value:d}
+                    }) : {name:b.name, value:a}
+                }).get()
         }});
     c.each("ajaxStart ajaxStop ajaxComplete ajaxError ajaxSuccess ajaxSend".split(" "),
         function (a, b) {

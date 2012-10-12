@@ -292,12 +292,12 @@
         this.element.bind("mousedown." + this.widgetName,function (c) {
             return a._mouseDown(c)
         }).bind("click." + this.widgetName, function (c) {
-            if (true === b.data(c.target, a.widgetName + ".preventClickEvent")) {
-                b.removeData(c.target, a.widgetName + ".preventClickEvent");
-                c.stopImmediatePropagation();
-                return false
-            }
-        });
+                if (true === b.data(c.target, a.widgetName + ".preventClickEvent")) {
+                    b.removeData(c.target, a.widgetName + ".preventClickEvent");
+                    c.stopImmediatePropagation();
+                    return false
+                }
+            });
         this.started = false
     }, _mouseDestroy:function () {
         this.element.unbind("." +
@@ -2157,12 +2157,12 @@
         a.headers = a.element.find(b.header).addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all").bind("mouseenter.accordion",function () {
             b.disabled || c(this).addClass("ui-state-hover")
         }).bind("mouseleave.accordion",function () {
-            b.disabled || c(this).removeClass("ui-state-hover")
-        }).bind("focus.accordion",function () {
-            b.disabled || c(this).addClass("ui-state-focus")
-        }).bind("blur.accordion", function () {
-            b.disabled || c(this).removeClass("ui-state-focus")
-        });
+                b.disabled || c(this).removeClass("ui-state-hover")
+            }).bind("focus.accordion",function () {
+                b.disabled || c(this).addClass("ui-state-focus")
+            }).bind("blur.accordion", function () {
+                b.disabled || c(this).removeClass("ui-state-focus")
+            });
         a.headers.next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom");
         if (b.navigation) {
             var d = a.element.find("a").filter(b.navigationFilter).eq(0);
@@ -2468,26 +2468,26 @@
                 clearTimeout(a.closing)
             }, 13)
         }).menu({focus:function (c, f) {
-            f = f.item.data("item.autocomplete");
-            false !== a._trigger("focus", c, {item:f}) && /^key/.test(c.originalEvent.type) &&
-            a.element.val(f.value)
-        }, selected:function (c, f) {
-            var h = f.item.data("item.autocomplete"), i = a.previous;
-            if (a.element[0] !== b.activeElement) {
-                a.element.focus();
-                a.previous = i;
-                setTimeout(function () {
+                f = f.item.data("item.autocomplete");
+                false !== a._trigger("focus", c, {item:f}) && /^key/.test(c.originalEvent.type) &&
+                a.element.val(f.value)
+            }, selected:function (c, f) {
+                var h = f.item.data("item.autocomplete"), i = a.previous;
+                if (a.element[0] !== b.activeElement) {
+                    a.element.focus();
                     a.previous = i;
-                    a.selectedItem = h
-                }, 1)
-            }
-            false !== a._trigger("select", c, {item:h}) && a.element.val(h.value);
-            a.term = a.element.val();
-            a.close(c);
-            a.selectedItem = h
-        }, blur:function () {
-            a.menu.element.is(":visible") && a.element.val() !== a.term && a.element.val(a.term)
-        }}).zIndex(this.element.zIndex() + 1).css({top:0, left:0}).hide().data("menu");
+                    setTimeout(function () {
+                        a.previous = i;
+                        a.selectedItem = h
+                    }, 1)
+                }
+                false !== a._trigger("select", c, {item:h}) && a.element.val(h.value);
+                a.term = a.element.val();
+                a.close(c);
+                a.selectedItem = h
+            }, blur:function () {
+                a.menu.element.is(":visible") && a.element.val() !== a.term && a.element.val(a.term)
+            }}).zIndex(this.element.zIndex() + 1).css({top:0, left:0}).hide().data("menu");
         d.fn.bgiframe && this.menu.element.bgiframe()
     }, destroy:function () {
         this.element.removeClass("ui-autocomplete-input").removeAttr("autocomplete").removeAttr("role").removeAttr("aria-autocomplete").removeAttr("aria-haspopup");
@@ -2714,8 +2714,8 @@
         this.element.bind("focus.button",function () {
             a.buttonElement.addClass("ui-state-focus")
         }).bind("blur.button", function () {
-            a.buttonElement.removeClass("ui-state-focus")
-        });
+                a.buttonElement.removeClass("ui-state-focus")
+            });
         if (e) {
             this.element.bind("change.button", function () {
                 g || a.refresh()
@@ -2752,13 +2752,13 @@
                     h = null
                 })
             }).bind("mouseup.button",function () {
-                if (c.disabled)return false;
-                b(this).removeClass("ui-state-active")
-            }).bind("keydown.button",function (d) {
-                if (c.disabled)return false;
-                if (d.keyCode == b.ui.keyCode.SPACE ||
-                    d.keyCode == b.ui.keyCode.ENTER)b(this).addClass("ui-state-active")
-            }).bind("keyup.button", function () {
+                    if (c.disabled)return false;
+                    b(this).removeClass("ui-state-active")
+                }).bind("keydown.button",function (d) {
+                    if (c.disabled)return false;
+                    if (d.keyCode == b.ui.keyCode.SPACE ||
+                        d.keyCode == b.ui.keyCode.ENTER)b(this).addClass("ui-state-active")
+                }).bind("keyup.button", function () {
                     b(this).removeClass("ui-state-active")
                 });
             this.buttonElement.is("a") && this.buttonElement.keyup(function (d) {
@@ -2883,13 +2883,13 @@
             },function () {
                 h.removeClass("ui-state-hover")
             }).focus(function () {
-                h.addClass("ui-state-focus")
-            }).blur(function () {
-                h.removeClass("ui-state-focus")
-            }).click(function (i) {
-                a.close(i);
-                return false
-            }).appendTo(f);
+                    h.addClass("ui-state-focus")
+                }).blur(function () {
+                    h.removeClass("ui-state-focus")
+                }).click(function (i) {
+                    a.close(i);
+                    return false
+                }).appendTo(f);
         (a.uiDialogTitlebarCloseText = c("<span></span>")).addClass("ui-icon ui-icon-closethick").text(b.closeText).appendTo(h);
         c("<span></span>").addClass("ui-dialog-title").attr("id",
             e).html(d).prependTo(f);
@@ -3236,17 +3236,17 @@
         this.handles.add(this.range).filter("a").click(function (g) {
             g.preventDefault()
         }).hover(function () {
-            a.disabled || d(this).addClass("ui-state-hover")
-        },function () {
-            d(this).removeClass("ui-state-hover")
-        }).focus(function () {
-            if (a.disabled)d(this).blur(); else {
-                d(".ui-slider .ui-state-focus").removeClass("ui-state-focus");
-                d(this).addClass("ui-state-focus")
-            }
-        }).blur(function () {
-            d(this).removeClass("ui-state-focus")
-        });
+                a.disabled || d(this).addClass("ui-state-hover")
+            },function () {
+                d(this).removeClass("ui-state-hover")
+            }).focus(function () {
+                if (a.disabled)d(this).blur(); else {
+                    d(".ui-slider .ui-state-focus").removeClass("ui-state-focus");
+                    d(this).addClass("ui-state-focus")
+                }
+            }).blur(function () {
+                d(this).removeClass("ui-state-focus")
+            });
         this.handles.each(function (g) {
             d(this).data("index.ui-slider-handle",
                 g)
@@ -4145,7 +4145,7 @@
                 c.trigger.filter("button").each(function () {
                     this.disabled = true
                 }).end().filter("img").css({opacity:"0.5",
-                    cursor:"default"})
+                        cursor:"default"})
             } else if (e == "div" || e == "span") {
                 b = b.children("." + this._inlineClass);
                 b.children().addClass("ui-state-disabled");
@@ -4512,8 +4512,8 @@
                         [x, w]
                     ]
                 }).sort(function (w, x) {
-                    return-(w[1].length - x[1].length)
-                });
+                        return-(w[1].length - x[1].length)
+                    });
                 var E = -1;
                 d.each(p, function (w, x) {
                     w = x[1];
