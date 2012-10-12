@@ -12,24 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class Traces {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-	private final byte[] COLFAM_SPAN = Bytes.toBytes("Span");
+    private final byte[] COLFAM_SPAN = Bytes.toBytes("Span");
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
-	public boolean insert(final Span span, final byte[] spanBytes) {
-        try {
-            Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
-            put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
-            hbaseTemplate.put(HBaseTables.TRACES, put);
-
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return false;
+    public void insert(final Span span, final byte[] spanBytes) {
+        Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
+        // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
+        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
+        hbaseTemplate.put(HBaseTables.TRACES, put);
     }
 
 }
