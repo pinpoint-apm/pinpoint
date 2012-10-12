@@ -1,5 +1,7 @@
 package com.nhn.hippo.web.service;
 
+import com.nhn.hippo.web.calltree.span.SpanAlign;
+import com.nhn.hippo.web.calltree.span.SpanAligner;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.profiler.common.dto.thrift.Span;
 import org.slf4j.Logger;
@@ -31,8 +33,9 @@ public class SpanServiceImpl implements SpanService {
             return Collections.emptyList();
         }
         List<SpanAlign> order = order(spans);
-
+        // TODO root span not found시 row data라도 보여줘야 됨.
         if (order.size() != spans.size()) {
+            // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성?
             logger.info("span node not complete! ");
         }
         return order;

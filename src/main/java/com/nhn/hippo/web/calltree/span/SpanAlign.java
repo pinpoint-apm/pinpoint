@@ -1,4 +1,4 @@
-package com.nhn.hippo.web.service;
+package com.nhn.hippo.web.calltree.span;
 
 import com.profiler.common.dto.thrift.Span;
 import org.apache.commons.lang.StringUtils;

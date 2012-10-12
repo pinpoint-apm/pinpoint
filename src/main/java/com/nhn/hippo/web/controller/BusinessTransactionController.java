@@ -1,6 +1,8 @@
 package com.nhn.hippo.web.controller;
 
+import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.service.SpanService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class BusinessTransactionController {
     private SpanService spanService;
 
     @RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
-    public ModelAndView flow(@RequestParam(value = "traceId", required = false) String traceId) {
+    public ModelAndView flow(@RequestParam(value = "traceId") String traceId) {
         logger.debug("traceId:{}", traceId);
         List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
         ModelAndView mv = new ModelAndView("selectTransaction");
