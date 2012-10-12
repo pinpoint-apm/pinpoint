@@ -1,50 +1,135 @@
 package com.profiler.common.util;
 
+
 public class BytesUtils {
-    public static final byte[] longLongToBytes(long value1, long value2) {
+
+    public static byte[] longLongToBytes(long value1, long value2) {
         byte[] buffer = new byte[16];
-        writeLong(value1, buffer, 0);
-        writeLong(value2, buffer, 8);
+        writeFirstLong(value1, buffer);
+        writeSecondLong(value2, buffer);
         return buffer;
     }
 
-	public static final long[] bytesToLongLong(byte[] b) {
-		long[] result = new long[2];
+    public static long[] bytesToLongLong(byte[] buf) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < 16) {
+            throw new IllegalArgumentException("Illegal buf size.");
+        }
+        long[] result = new long[2];
 
-		result[0] = byteToLong(b, 0);
-		result[1] = byteToLong(b, 8);
+        result[0] = byteToFirstLong(buf);
+        result[1] = byteToSecondLong(buf);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static final long byteToLong(byte[] b, int offset) {
-		if (b.length < offset + 8) {
-			throw new IllegalArgumentException("Illegal bytes or offset.");
-		}
+    public static long byteToLong(byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 8) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 8);
+        }
 
-		long rv = 0;
-		for (int index = offset; index < offset + 8; index++) {
-			byte i = b[index];
-			rv = (rv << 8) | (i < 0 ? 256 + i : i);
-		}
+        long rv = (((long) buf[offset] & 0xff) << 56)
+                | (((long) buf[offset + 1] & 0xff) << 48)
+                | (((long) buf[offset + 2] & 0xff) << 40)
+                | (((long) buf[offset + 3] & 0xff) << 32)
+                | (((long) buf[offset + 4] & 0xff) << 24)
+                | (((long) buf[offset + 5] & 0xff) << 16)
+                | (((long) buf[offset + 6] & 0xff) << 8)
+                | (((long) buf[offset + 7] & 0xff));
+        return rv;
+    }
 
-		return rv;
-	}
-    
-    private static void writeLong(long value, byte[] buf, int offset) {
-//        for (int i = offset + 7; i > offset; i--) {
-//          buf [i]= (byte) val;
-//          val >>>= 8;
-//        }
-//        buf[offset] = (byte) val;
+    public static long byteToFirstLong(byte[] buf) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < 8) {
+            throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
+        }
 
+        long rv = (((long) buf[0] & 0xff) << 56)
+                | (((long) buf[1] & 0xff) << 48)
+                | (((long) buf[2] & 0xff) << 40)
+                | (((long) buf[3] & 0xff) << 32)
+                | (((long) buf[4] & 0xff) << 24)
+                | (((long) buf[5] & 0xff) << 16)
+                | (((long) buf[6] & 0xff) << 8)
+                | (((long) buf[7] & 0xff));
+        return rv;
+    }
+
+    public static long byteToSecondLong(byte[] buf) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < 16) {
+            throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
+        }
+
+        long rv = (((long) buf[8] & 0xff) << 56)
+                | (((long) buf[9] & 0xff) << 48)
+                | (((long) buf[10] & 0xff) << 40)
+                | (((long) buf[11] & 0xff) << 32)
+                | (((long) buf[12] & 0xff) << 24)
+                | (((long) buf[13] & 0xff) << 16)
+                | (((long) buf[14] & 0xff) << 8)
+                | (((long) buf[15] & 0xff));
+        return rv;
+    }
+
+    public static void writeLong(long value, byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 8) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 8);
+        }
         buf[offset++] = (byte) (value >> 56);
-		buf[offset++] = (byte) (value >> 48);
-		buf[offset++] = (byte) (value >> 40);
-		buf[offset++] = (byte) (value >> 32);
-		buf[offset++] = (byte) (value >> 24);
-		buf[offset++] = (byte) (value >> 16);
-		buf[offset++] = (byte) (value >> 8);
-		buf[offset] = (byte) (value);
+        buf[offset++] = (byte) (value >> 48);
+        buf[offset++] = (byte) (value >> 40);
+        buf[offset++] = (byte) (value >> 32);
+        buf[offset++] = (byte) (value >> 24);
+        buf[offset++] = (byte) (value >> 16);
+        buf[offset++] = (byte) (value >> 8);
+        buf[offset] = (byte) (value);
+    }
+
+    public static void writeFirstLong(long value, byte[] buf) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < 8) {
+            throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
+        }
+        buf[0] = (byte) (value >> 56);
+        buf[1] = (byte) (value >> 48);
+        buf[2] = (byte) (value >> 40);
+        buf[3] = (byte) (value >> 32);
+        buf[4] = (byte) (value >> 24);
+        buf[5] = (byte) (value >> 16);
+        buf[6] = (byte) (value >> 8);
+        buf[7] = (byte) (value);
+    }
+
+    public static void writeSecondLong(long value, byte[] buf) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < 16) {
+            throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
+        }
+        buf[8] = (byte) (value >> 56);
+        buf[9] = (byte) (value >> 48);
+        buf[10] = (byte) (value >> 40);
+        buf[11] = (byte) (value >> 32);
+        buf[12] = (byte) (value >> 24);
+        buf[13] = (byte) (value >> 16);
+        buf[14] = (byte) (value >> 8);
+        buf[15] = (byte) (value);
     }
 }
