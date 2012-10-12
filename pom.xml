@@ -1,63 +1,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.nhn.hippo</groupId>
-	<artifactId>hippo-testweb</artifactId>
-	<version>0.0.1</version>
-	<name>HIPPO TEST Web</name>
-	<packaging>war</packaging>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.nhn.hippo</groupId>
+    <artifactId>hippo-testweb</artifactId>
+    <version>0.0.1</version>
+    <name>HIPPO TEST Web</name>
+    <packaging>war</packaging>
 
-	<repositories>
-		<repository>
-			<id>com.springsource.repository.bundles.release</id>
-			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/release</url>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.external</id>
-			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/external</url>
-		</repository>
-		<repository>
-			<id>spring-milestone</id>
-			<name>Spring Maven MILESTONE Repository</name>
-			<url>http://maven.springframework.org/milestone</url>
-		</repository>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>nhn</id>
-			<url>http://repo.nhncorp.com/maven2/</url>
-		</repository>
-		<repository>
-			<id>cubrid.release.repository</id>
-			<url>http://maven.cubrid.org</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Maven MILESTONE Repository</name>
+            <url>http://maven.springframework.org/milestone</url>
+        </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Maven Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>nhn</id>
+            <url>http://repo.nhncorp.com/maven2/</url>
+        </repository>
+        <repository>
+            <id>cubrid.release.repository</id>
+            <url>http://maven.cubrid.org</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
-	<properties>
-		<spring.version>3.1.2.RELEASE</spring.version>
-	</properties>
+    <properties>
+        <spring.version>3.1.2.RELEASE</spring.version>
+    </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.nhncorp.lucy</groupId>
-			<artifactId>lucy-npc</artifactId>
-			<version>1.5.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.0.3</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.nhncorp.lucy</groupId>
+            <artifactId>lucy-npc</artifactId>
+            <version>1.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
@@ -66,165 +66,165 @@
             </exclusions>
         </dependency>
 
-		<dependency>
-			<groupId>arcus</groupId>
-			<artifactId>arcus-spring</artifactId>
-			<version>0.3.5</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>arcus-client</artifactId>
-					<groupId>arcus</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>spring-context</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>arcus</groupId>
-			<artifactId>arcus-client</artifactId>
-			<version>1.6.2.1</version>
-		</dependency>
+        <dependency>
+            <groupId>arcus</groupId>
+            <artifactId>arcus-spring</artifactId>
+            <version>0.3.5</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>arcus-client</artifactId>
+                    <groupId>arcus</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-context</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>arcus</groupId>
+            <artifactId>arcus-client</artifactId>
+            <version>1.6.2.1</version>
+        </dependency>
 
 
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>6.0.35</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>6.0.35</version>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.20</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.jtds</groupId>
-			<artifactId>jtds</artifactId>
-			<version>1.2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>cubrid</groupId>
-			<artifactId>cubrid-jdbc</artifactId>
-			<version>8.4.1.2032</version>
-		</dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.20</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <version>1.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>cubrid</groupId>
+            <artifactId>cubrid-jdbc</artifactId>
+            <version>8.4.1.2032</version>
+        </dependency>
 
-		<!-- web -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-		</dependency>
+        <!-- web -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.ibatis</groupId>
-			<artifactId>com.springsource.com.ibatis</artifactId>
-			<version>2.3.4.726</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>com.springsource.javax.inject</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<!-- Spring depedencies -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.oxm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.instrument</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.test</artifactId>
-			<version>${spring.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.jdbc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.context.support</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.aop</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.aspects</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.orm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.transaction</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.ibatis</groupId>
+            <artifactId>com.springsource.com.ibatis</artifactId>
+            <version>2.3.4.726</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>com.springsource.javax.inject</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- Spring depedencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.oxm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.instrument</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.web.servlet</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.context.support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.aspects</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.transaction</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 
 
-		<!-- Caching dependecies -->
-		<dependency>
-			<groupId>net.sourceforge.ehcache</groupId>
-			<artifactId>com.springsource.net.sf.ehcache</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-		<!-- DBMS dependecies -->
-		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>com.springsource.javax.persistence</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>com.springsource.javax.transaction</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<!-- Logging depedencies -->
+        <!-- Caching dependecies -->
+        <dependency>
+            <groupId>net.sourceforge.ehcache</groupId>
+            <artifactId>com.springsource.net.sf.ehcache</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+        <!-- DBMS dependecies -->
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>com.springsource.javax.persistence</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>com.springsource.javax.transaction</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -252,168 +252,168 @@
         </dependency>
 
 
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.org.junit</artifactId>
-			<version>4.8.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>com.springsource.org.hamcrest</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>com.springsource.org.mockito</artifactId>
-			<version>1.8.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.dbunit</groupId>
-			<artifactId>com.springsource.org.dbunit</artifactId>
-			<version>2.2.0</version>
-		</dependency>
-		<!-- Web dependencies <dependency> <groupId>javax.servlet</groupId> <artifactId>com.springsource.javax.servlet.jsp.jstl</artifactId>
-			<version>1.2.0</version> </dependency> <dependency> <groupId>javax.servlet</groupId> 
-			<artifactId>com.springsource.javax.servlet</artifactId> <version>2.5.0</version> 
-			<scope>provided</scope> </dependency> <dependency> <groupId>javax.servlet</groupId> 
-			<artifactId>com.springsource.javax.servlet.jsp</artifactId> <version>2.1.0</version> 
-			<scope>provided</scope> </dependency> <dependency> <groupId>org.tuckey</groupId> 
-			<artifactId>com.springsource.org.tuckey.web.filters.urlrewrite</artifactId> 
-			<version>3.1.0</version> </dependency> <dependency> <groupId>org.apache.commons</groupId> 
-			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId> <version>1.2.1</version> 
-			</dependency> <dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>com.springsource.org.codehaus.jackson</artifactId> 
-			<version>1.4.2</version> </dependency> <dependency> <groupId>org.codehaus.jackson</groupId> 
-			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId> <version>1.4.2</version> 
-			</dependency> -->
-		<!-- AspectJ dependencies -->
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>com.springsource.org.aspectj.runtime</artifactId>
-			<version>1.6.5.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>com.springsource.org.aspectj.weaver</artifactId>
-			<version>1.6.5.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>com.springsource.javax.mail</artifactId>
-			<version>1.4.1</version>
-		</dependency>
-	</dependencies>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit</groupId>
+            <artifactId>com.springsource.org.junit</artifactId>
+            <version>4.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>com.springsource.org.hamcrest</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>com.springsource.org.mockito</artifactId>
+            <version>1.8.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dbunit</groupId>
+            <artifactId>com.springsource.org.dbunit</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <!-- Web dependencies <dependency> <groupId>javax.servlet</groupId> <artifactId>com.springsource.javax.servlet.jsp.jstl</artifactId>
+              <version>1.2.0</version> </dependency> <dependency> <groupId>javax.servlet</groupId>
+              <artifactId>com.springsource.javax.servlet</artifactId> <version>2.5.0</version>
+              <scope>provided</scope> </dependency> <dependency> <groupId>javax.servlet</groupId>
+              <artifactId>com.springsource.javax.servlet.jsp</artifactId> <version>2.1.0</version>
+              <scope>provided</scope> </dependency> <dependency> <groupId>org.tuckey</groupId>
+              <artifactId>com.springsource.org.tuckey.web.filters.urlrewrite</artifactId>
+              <version>3.1.0</version> </dependency> <dependency> <groupId>org.apache.commons</groupId>
+              <artifactId>com.springsource.org.apache.commons.fileupload</artifactId> <version>1.2.1</version>
+              </dependency> <dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>com.springsource.org.codehaus.jackson</artifactId>
+              <version>1.4.2</version> </dependency> <dependency> <groupId>org.codehaus.jackson</groupId>
+              <artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId> <version>1.4.2</version>
+              </dependency> -->
+        <!-- AspectJ dependencies -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>com.springsource.org.aspectj.runtime</artifactId>
+            <version>1.6.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+            <version>1.6.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>com.springsource.javax.mail</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+    <build>
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
 
-		<resources>
-			<resource>
-				<directory>${basedir}/src/main/java</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<filtering>true</filtering>
-				<directory>${basedir}/src/main/resources</directory>
-			</resource>
-		</resources>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
 
-		<testResources>
-			<testResource>
-				<directory>${basedir}/src/test/java</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
-			<testResource>
-				<filtering>true</filtering>
-				<directory>${basedir}/src/test/resources</directory>
-			</testResource>
-		</testResources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
 
-		<plugins>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<debug>true</debug>
-					<optimize>true</optimize>
-					<encoding>utf-8</encoding>
-					<showDeprecations>true</showDeprecations>
-				</configuration>
-			</plugin>
-
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/dependency</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>-->
-
-			<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-                <version>2.2</version>
-				<configuration>
-					<warSourceDirectory>WebContent</warSourceDirectory>
-				</configuration>
-			</plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                    <optimize>true</optimize>
+                    <encoding>utf-8</encoding>
+                    <showDeprecations>true</showDeprecations>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat6-maven-plugin</artifactId>
-				<version>2.0-beta-1</version>
-				<configuration>
-					<path>/</path>
-					<classesDir>target/classes</classesDir>
-					<warSourceDirectory>WebContent</warSourceDirectory>
-					<port>20330</port>
-					<fork>true</fork>
-					<uriEncoding>utf-8</uriEncoding>
-				</configuration>
-				<executions>
-					<execution>
-						<id>start-tomcat</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>stop-tomcat</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>shutdown</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+            <!--<plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-dependency-plugin</artifactId>
+                   <version>2.4</version>
+                   <executions>
+                       <execution>
+                           <id>copy-dependencies</id>
+                           <phase>process-resources</phase>
+                           <goals>
+                               <goal>copy-dependencies</goal>
+                           </goals>
+                           <configuration>
+                               <outputDirectory>${basedir}/target/dependency</outputDirectory>
+                               <overWriteReleases>true</overWriteReleases>
+                               <overWriteSnapshots>true</overWriteSnapshots>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>-->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <warSourceDirectory>src/main/WebContent</warSourceDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat6-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
+                <configuration>
+                    <path>/</path>
+                    <classesDir>target/classes</classesDir>
+                    <warSourceDirectory>src/main/WebContent</warSourceDirectory>
+                    <port>20330</port>
+                    <fork>true</fork>
+                    <uriEncoding>utf-8</uriEncoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-tomcat</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-tomcat</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>shutdown</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
