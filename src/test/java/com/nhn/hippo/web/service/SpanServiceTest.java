@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.service;
 
+import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.BinaryAnnotation;
 import com.profiler.common.dto.thrift.Span;
