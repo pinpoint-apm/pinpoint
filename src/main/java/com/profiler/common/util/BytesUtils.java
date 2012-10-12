@@ -19,13 +19,13 @@ public class BytesUtils {
         }
         long[] result = new long[2];
 
-        result[0] = byteToFirstLong(buf);
-        result[1] = byteToSecondLong(buf);
+        result[0] = bytesToFirstLong(buf);
+        result[1] = bytesToSecondLong(buf);
 
         return result;
     }
 
-    public static long byteToLong(byte[] buf, int offset) {
+    public static long bytesToLong(byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -44,7 +44,7 @@ public class BytesUtils {
         return rv;
     }
 
-    public static long byteToFirstLong(byte[] buf) {
+    public static long bytesToFirstLong(byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -63,7 +63,7 @@ public class BytesUtils {
         return rv;
     }
 
-    public static long byteToSecondLong(byte[] buf) {
+    public static long bytesToSecondLong(byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }

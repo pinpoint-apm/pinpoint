@@ -31,8 +31,8 @@ public class BytesUtilsTest {
         Assert.assertEquals(least, longLong[1]);
 
 
-        long bMost = BytesUtils.byteToLong(bytes, 0);
-        long bLeast = BytesUtils.byteToLong(bytes, 8);
+        long bMost = BytesUtils.bytesToLong(bytes, 0);
+        long bLeast = BytesUtils.bytesToLong(bytes, 8);
         Assert.assertEquals(most, bMost);
         Assert.assertEquals(least, bLeast);
 
