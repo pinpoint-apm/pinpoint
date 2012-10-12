@@ -1,6 +1,8 @@
 package com.profiler.common.util;
 
 
+import org.apache.hadoop.hbase.util.Bytes;
+
 public class BytesUtils {
 
     public static byte[] longLongToBytes(long value1, long value2) {
@@ -131,5 +133,17 @@ public class BytesUtils {
         buf[13] = (byte) (value >> 16);
         buf[14] = (byte) (value >> 8);
         buf[15] = (byte) (value);
+    }
+
+    public static byte[] add(String prefix, long postfix) {
+        byte[] agentByte = Bytes.toBytes(prefix);
+        return add(agentByte, postfix);
+    }
+
+    public static byte[] add(byte[] preFix, long fostfix) {
+        byte[] buf = new byte[preFix.length + 8];
+        System.arraycopy(preFix, 0, buf, 0, preFix.length);
+        writeLong(fostfix, buf, preFix.length);
+        return buf;
     }
 }

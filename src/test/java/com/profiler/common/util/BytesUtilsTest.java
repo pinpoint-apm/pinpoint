@@ -41,4 +41,11 @@ public class BytesUtilsTest {
         BytesUtils.writeLong(least, bBytes, 8);
         Assert.assertArrayEquals(add, bBytes);
     }
+
+    @Test
+    public void testAddStringLong() throws Exception {
+        byte[] testAgents = BytesUtils.add("testAgent", 11L);
+        byte[] buf = Bytes.add(Bytes.toBytes("testAgent"), Bytes.toBytes(11L));
+        Assert.assertArrayEquals(testAgents, buf);
+    }
 }

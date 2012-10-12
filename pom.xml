@@ -260,6 +260,40 @@
             </exclusions>
         </dependency>
 
+        <!--jackson jsonMapper. hbase에서 일단 필요함. -->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.9</version>
+            <optional>true</optional>
+            <!--이것도 나옴-->
+            <!--<version>1.9.10</version>-->
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.9</version>
+            <optional>true</optional>
+            <!--이것도 나옴-->
+            <!--<version>1.9.10</version>-->
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-xc</artifactId>
+            <version>1.9.9</version>
+            <optional>true</optional>
+            <!--이것도 나옴-->
+            <!--<version>1.9.10</version>-->
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.9.9</version>
+            <optional>true</optional>
+            <!--이것도 나옴-->
+            <!--<version>1.9.10</version>-->
+        </dependency>
+
         <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -283,7 +317,7 @@
             <scope>test</scope>
         </dependency>
 
-    <!-- unit test -->
+        <!-- unit test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

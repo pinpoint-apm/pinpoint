@@ -2,6 +2,7 @@ package com.profiler.common.hbase;
 
 import org.apache.hadoop.hbase.client.*;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
+import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.data.hadoop.hbase.TableCallback;
 
@@ -12,7 +13,6 @@ import java.util.List;
  *
  */
 public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
-//    private HTablePool tablePool;
 
     @Override
     public <T> T get(String tableName, byte[] rowName, RowMapper<T> mapper) {
@@ -145,4 +145,28 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
         });
     }
 
+    @Override
+    public <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        return execute(tableName, new TableCallback<List<T>>() {
+            @Override
+            public List<T> doInTable(HTable htable) throws Throwable {
+                List<T> result = new ArrayList<T>(scans.size());
+                for (Scan scan : scans) {
+                    ResultScanner scanner = htable.getScanner(scan);
+                    try {
+                        T t = action.extractData(scanner);
+                        result.add(t);
+                    } finally {
+                        scanner.close();
+                    }
+                }
+                return result;
+            }
+        });
+    }
+
+    @Override
+    public <T> List<List<T>> find(String tableName, List<Scan> scans, RowMapper<T> action) {
+        return find(tableName, scans, new RowMapperResultsExtractor<T>(action));
+    }
 }

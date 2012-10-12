@@ -3,7 +3,9 @@ package com.profiler.common.hbase;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
+import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 
 import java.util.List;
@@ -63,4 +65,8 @@ public interface HbaseOperations2 extends HbaseOperations {
     void delete(String tableName, final Delete delete);
 
     void delete(String tableName, final List<Delete> deletes);
+
+    <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
+
+    <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
 }
