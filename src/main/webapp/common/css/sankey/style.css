@@ -1,0 +1,161 @@
+html {
+    min-width: 1040px;
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    margin: 1em auto 4em auto;
+    width: 960px;
+}
+
+h1 {
+    font-size: 64px;
+    font-weight: 300;
+    letter-spacing: -2px;
+    margin: .3em 0 .1em 0;
+}
+
+h2 {
+    margin-top: 2em;
+}
+
+h1, h2 {
+    text-rendering: optimizeLegibility;
+}
+
+h2 a {
+    color: #ccc;
+    margin-left: -20px;
+    position: absolute;
+    width: 740px;
+}
+
+footer {
+    font-size: small;
+    margin-top: 8em;
+}
+
+header aside {
+    margin-top: 88px;
+}
+
+header aside,
+footer aside {
+    color: #636363;
+    text-align: right;
+}
+
+aside {
+    font-size: small;
+    margin-left: 780px;
+    position: absolute;
+    width: 180px;
+}
+
+.attribution {
+    font-size: small;
+    margin-bottom: 2em;
+}
+
+body > p, li > p {
+    line-height: 1.5em;
+}
+
+body > p {
+    width: 720px;
+}
+
+body > blockquote {
+    width: 640px;
+}
+
+li {
+    width: 680px;
+}
+
+a {
+    color: steelblue;
+}
+
+a:not(:hover) {
+    text-decoration: none;
+}
+
+pre, code, textarea {
+    font-family: "Menlo", monospace;
+}
+
+code {
+    line-height: 1em;
+}
+
+textarea {
+    font-size: 100%;
+}
+
+body > pre {
+    border-left: solid 2px #ccc;
+    padding-left: 18px;
+    margin: 2em 0 2em -20px;
+}
+
+.html .value,
+.javascript .string,
+.javascript .regexp {
+    color: #756bb1;
+}
+
+.html .tag,
+.css .tag,
+.javascript .keyword {
+    color: #3182bd;
+}
+
+.comment {
+    color: #636363;
+}
+
+.html .doctype,
+.javascript .number {
+    color: #31a354;
+}
+
+.html .attribute,
+.css .attribute,
+.javascript .class,
+.javascript .special {
+    color: #e6550d;
+}
+
+svg {
+    font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+sup, sub {
+    line-height: 0;
+}
+
+q:before,
+blockquote:before {
+    content: "";
+}
+
+q:after,
+blockquote:after {
+    content: "";
+}
+
+blockquote:before {
+    position: absolute;
+    left: 2em;
+}
+
+blockquote:after {
+    position: absolute;
+}
