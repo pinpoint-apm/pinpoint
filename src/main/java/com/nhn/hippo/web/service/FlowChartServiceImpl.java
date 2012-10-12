@@ -1,26 +1,9 @@
 package com.nhn.hippo.web.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.nhn.hippo.web.dao.TraceDao;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.dao.TraceDao;
+import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;
@@ -28,6 +11,15 @@ import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
 import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
 import com.profiler.common.hbase.HBaseTables;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * @author netspider
@@ -44,6 +36,9 @@ public class FlowChartServiceImpl implements FlowChartService {
     @Autowired
     private TraceDao traceDao;
 
+    @Autowired
+    private TraceIndexDao traceIndexDao;
+
     @Override
     public String[] selectAgentIds(String[] hosts) {
         List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
@@ -52,37 +47,44 @@ public class FlowChartServiceImpl implements FlowChartService {
         HBaseQuery query = new HBaseQuery(HBaseTables.SERVERS, null, null, column);
         Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
 
-        while (iterator.hasNext()) {
-            System.out.println("selectedAgentId=" + iterator.next());
+        if (logger.isDebugEnabled()) {
+            while (iterator.hasNext()) {
+                logger.debug("selectedAgentId={}", iterator.next());
+            }
+            logger.debug("!!!==============WARNING==============!!!");
+            logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+            logger.debug("!!!===================================!!!");
         }
-
-        System.out.println("!!!==============WARNING==============!!!");
-        System.out.println("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
-        System.out.println("!!!===================================!!!");
 
         return hosts;
     }
 
     @Override
     public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
-        List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-        column.add(new HbaseColumn("Trace", "ID"));
-
-        Set<TraceId> set = new HashSet<TraceId>();
-
-        for (String agentId : agentIds) {
-            byte[] s = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(from));
-            byte[] e = ArrayUtils.addAll(Bytes.toBytes(agentId), Bytes.toBytes(to));
-
-            HBaseQuery query = new HBaseQuery(HBaseTables.TRACE_INDEX, s, e, column);
-            Iterator<Map<String, byte[]>> result = client.getHBaseData(query);
-
-            while (result.hasNext()) {
-                set.add(new TraceId(result.next().get("ID")));
-            }
+        if (agentIds == null) {
+            throw new NullPointerException("agentIds");
         }
 
-        return set;
+        if (agentIds.length == 1) {
+            // single scan
+            List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+            // 이런 필터로직을 scan filter에서 할수 없나?
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (byte[] traceId : bytes) {
+                result.add(new TraceId(traceId));
+            }
+            return result;
+        } else {
+            // multi scan 가능한 동일 htable 에서 액세스함.
+            List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (List<byte[]> scan : multiScan) {
+                for (byte[] traceId : scan) {
+                    result.add(new TraceId(traceId));
+                }
+            }
+            return result;
+        }
     }
 
     @Override

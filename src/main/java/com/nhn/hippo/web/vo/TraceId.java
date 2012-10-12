@@ -2,7 +2,6 @@ package com.nhn.hippo.web.vo;
 
 import com.profiler.common.util.BytesUtils;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 public class TraceId {
@@ -15,12 +14,12 @@ public class TraceId {
         if (traceId == null) {
             throw new NullPointerException("traceId");
         }
-        if (traceId.length < 8) {
+        if (traceId.length < 16) {
             throw new IllegalArgumentException("invalid traceId");
         }
         this.id = traceId;
-        this.most = BytesUtils.bytesToFirstLong(traceId);
-        this.least = BytesUtils.bytesToSecondLong(traceId);
+        this.most = BytesUtils.bytesToFirstLong(id);
+        this.least = BytesUtils.bytesToSecondLong(id);
     }
 
     public byte[] getBytes() {
@@ -50,6 +49,6 @@ public class TraceId {
     @Override
     public String toString() {
         UUID uuid = new UUID(most, least);
-        return "TraceId [id=" + uuid + "]";
+        return "TraceId [" + uuid + "]";
     }
 }

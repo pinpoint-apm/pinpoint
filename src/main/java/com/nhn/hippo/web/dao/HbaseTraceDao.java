@@ -1,10 +1,9 @@
 package com.nhn.hippo.web.dao;
 
-import com.nhn.hippo.web.mapper.SpanMapper;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseTemplate2;
+import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.BytesUtils;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -30,7 +29,7 @@ public class HbaseTraceDao implements TraceDao {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private HbaseTemplate2 template2;
+    private HbaseOperations2 template2;
 
     @Autowired
     @Qualifier("spanMapper")

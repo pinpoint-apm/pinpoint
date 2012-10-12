@@ -18,11 +18,11 @@
 
 
     <logger name="com.nhn.hippo" additivity="false">
-        <level value="DEBUG"/>
+        <level value="TRACE"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="nhn.hippo.web.mapper.SpanMapper" additivity="false">
+    <logger name="com.nhn.hippo.web.mapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
