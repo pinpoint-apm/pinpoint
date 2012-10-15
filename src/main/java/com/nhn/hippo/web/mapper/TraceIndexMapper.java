@@ -16,6 +16,8 @@ public class TraceIndexMapper implements RowMapper<byte[]> {
 
     @Override
     public byte[] mapRow(Result result, int rowNum) throws Exception {
+
+        // TODO null처리 해야 될듯.
         return result.getValue(COLFAM_TRACE, COLNAME_ID);
     }
 }

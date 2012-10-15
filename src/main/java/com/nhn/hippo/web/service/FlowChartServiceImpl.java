@@ -71,7 +71,9 @@ public class FlowChartServiceImpl implements FlowChartService {
             // 이런 필터로직을 scan filter에서 할수 없나?
             Set<TraceId> result = new HashSet<TraceId>();
             for (byte[] traceId : bytes) {
-                result.add(new TraceId(traceId));
+                TraceId tid = new TraceId(traceId);
+                result.add(tid);
+                logger.trace("traceid:{}", tid);
             }
             return result;
         } else {

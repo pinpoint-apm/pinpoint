@@ -67,6 +67,8 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
         byte[] bStart = BytesUtils.add(bAgent, start);
         scan.setStartRow(bStart);
+//      TODO 추가 filter를 구현하여 scan시 중복된 값을 제가 할수 있음. 단 server에도 Filter 클래스가 배포되어야 한다.
+//        scan.setFilter(new ValueFilter());
 
         byte[] bEnd = BytesUtils.add(bAgent, end);
         scan.setStopRow(bEnd);
