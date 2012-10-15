@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+@Deprecated
 public class HippoBinaryAnnotation {
 
 	private final long time;

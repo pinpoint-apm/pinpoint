@@ -3,6 +3,8 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.util.AnnotationTranscoder;
+import com.profiler.common.util.AnnotationTranscoder.Encoded;
 import com.profiler.sender.DataSender;
 import com.profiler.util.NamedThreadLocal;
 
@@ -19,6 +21,8 @@ public final class Trace {
 	private static final ThreadLocal<TraceIDStack> traceIdLocal = new NamedThreadLocal<TraceIDStack>("TraceId");
 	private static volatile boolean tracingEnabled = true;
 
+	private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+	
 	private Trace() {
 	}
 
@@ -176,7 +180,7 @@ public final class Trace {
 	private static void mutate(TraceID traceId, SpanUpdater spanUpdater) {
 		Span span = spanMap.update(traceId, spanUpdater);
 
-		if (span.isExistsAnnotationType(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationType(Annotation.ServerSend.getCode())) {
+		if (span.isExistsAnnotationKey(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationKey(Annotation.ServerSend.getCode())) {
 			// remove current context threadId from stack
 			removeCurrentTraceIdFromStack();
 			logSpan(span);
@@ -230,7 +234,8 @@ public final class Trace {
 			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
-					span.addAnnotation(new HippoBinaryAnnotation(System.currentTimeMillis(), key, value));
+					Encoded enc = transcoder.encode(value);
+					span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
 					return span;
 				}
 			});
@@ -292,7 +297,7 @@ public final class Trace {
 		}
 	}
 
-	private static void annotate(final String value, final Long duration) {
+	private static void annotate(final String key, final Long duration) {
 		if (!tracingEnabled)
 			return;
 
@@ -300,7 +305,7 @@ public final class Trace {
 			mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
 				@Override
 				public Span updateSpan(Span span) {
-					span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), value, duration));
+					span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
 					return span;
 				}
 			});

@@ -1,52 +1,58 @@
 package com.profiler.context;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
 public class HippoAnnotation {
 
-	protected final long time;
-	protected final String value;
-	protected final Long duration;
-	protected final String threadname; // TODO: remove, just for debug.
+	private final long timestamp;
+	private final Long duration;
+	private final String key;
+	private final int valueTypeCode;
+	private final byte[] value;
+	private final String threadname;
 
-	/**
-	 * 
-	 * @param time
-	 * @param value
-	 * @param duration duration in nano second.
-	 */
-	public HippoAnnotation(long time, String value, Long duration) {
-		this.time = time;
-		this.value = value;
+	public HippoAnnotation(long timestamp, String key, Long duration) {
+		this.timestamp = timestamp;
 		this.duration = duration;
+		this.key = key;
+		this.valueTypeCode = -1;
+		this.value = null;
 		this.threadname = Thread.currentThread().getName();
 	}
 
-	public String getValue() {
-		return this.value;
+	public HippoAnnotation(long timestamp, String key, int valueTypeCode, byte[] value, Long duration) {
+		this.timestamp = timestamp;
+		this.duration = duration;
+		this.key = key;
+		this.valueTypeCode = valueTypeCode;
+		this.value = value;
+		this.threadname = Thread.currentThread().getName();
+	}
+
+	public String getKey() {
+		return this.key;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("@={");
-		sb.append("time=").append(time);
-		sb.append(", value=").append(value);
-		sb.append(", duration=").append(duration);
-		sb.append(", threadname=").append(threadname);
-		sb.append("}");
-
-		return sb.toString();
+		return "HippoAnnotation [timestamp=" + timestamp + ", duration=" + duration + ", key=" + key + ", valueTypeCode=" + valueTypeCode + ", value=" + value + ", threadname=" + threadname + "]";
 	}
 
 	public com.profiler.common.dto.thrift.Annotation toThrift() {
 		com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
 
-		ann.setTimestamp(time);
-		ann.setValue(value);
+		ann.setTimestamp(timestamp);
 
 		if (duration != null) {
 			ann.setDuration(duration);
 		}
+
+		ann.setKey(key);
+		ann.setValueTypeCode(valueTypeCode);
+		ann.setValue(value);
 
 		return ann;
 	}

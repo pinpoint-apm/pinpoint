@@ -24,10 +24,9 @@ public class Span {
 	private String endPoint;
 	private boolean isTerminal = false;
 
-	private final List<HippoBinaryAnnotation> binaryAnnotations = new ArrayList<HippoBinaryAnnotation>(5);
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
-	private final Set<String> annotationValues = new HashSet<String>(5);
-
+	private final Set<String> annotationKeys = new HashSet<String>(5);
+	
 	/**
 	 * Cancel timer logic.
 	 * TODO: refactor this.
@@ -50,12 +49,8 @@ public class Span {
 	}
 
 	public boolean addAnnotation(HippoAnnotation annotation) {
-		annotationValues.add(annotation.getValue());
+		annotationKeys.add(annotation.getKey());
 		return annotations.add(annotation);
-	}
-
-	public boolean addAnnotation(HippoBinaryAnnotation annotation) {
-		return binaryAnnotations.add(annotation);
 	}
 
 	public int getAnnotationSize() {
@@ -68,8 +63,8 @@ public class Span {
 	 * @param value
 	 * @return
 	 */
-	public boolean isExistsAnnotationType(String value) {
-		return annotationValues.contains(value);
+	public boolean isExistsAnnotationKey(String key) {
+		return annotationKeys.contains(key);
 	}
 
 	public String getEndPoint() {
@@ -103,7 +98,7 @@ public class Span {
 	public void setTerminal(boolean isTerminal) {
 		this.isTerminal = isTerminal;
 	}
-
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
@@ -120,17 +115,11 @@ public class Span {
 		}
 		sb.append("\n\t}");
 
-		sb.append(",\n\t BinaryAnnotations=");
-		for (HippoBinaryAnnotation a : binaryAnnotations) {
-			sb.append("\n\t\t").append(a);
-		}
-		sb.append("\n\t}");
-
 		sb.append("}");
 
 		return sb.toString();
 	}
-
+	
 	public com.profiler.common.dto.thrift.Span toThrift() {
 		com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
@@ -150,12 +139,6 @@ public class Span {
 			annotationList.add(a.toThrift());
 		}
 		span.setAnnotations(annotationList);
-
-		List<com.profiler.common.dto.thrift.BinaryAnnotation> binaryAnnotationList = new ArrayList<com.profiler.common.dto.thrift.BinaryAnnotation>(binaryAnnotations.size());
-		for (HippoBinaryAnnotation a : binaryAnnotations) {
-			binaryAnnotationList.add(a.toThrift());
-		}
-		span.setBinaryAnnotations(binaryAnnotationList);
 
 		span.setFlag(traceID.getFlags());
 
