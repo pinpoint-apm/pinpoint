@@ -1,21 +1,11 @@
 namespace java com.profiler.common.dto.thrift
 
-const string CLIENT_SEND = "CS"
-const string CLIENT_RECV = "CR"
-const string SERVER_SEND = "SS"
-const string SERVER_RECV = "SR"
-
 struct Annotation {
   1: i64 timestamp,
-  2: string value,
-  3: optional i64 duration,
-}
-
-struct BinaryAnnotation {
-  1: i64 timestamp, 
-  2: string key,
-  3: binary value,
-  4: string valueType,
+  2: optional i64 duration,
+  3: string key,
+  4: i32 valueTypeCode,
+  5: optional binary value,
 }
 
 struct Span {
@@ -28,8 +18,7 @@ struct Span {
   7: i64 spanID,
   8: optional i64 parentSpanId,
   9: list<Annotation> annotations,
-  10: list<BinaryAnnotation> binaryAnnotations
-  11: optional i32 flag = 0
-  12: string endPoint
-  13: bool terminal
+  10: optional i32 flag = 0
+  11: string endPoint
+  12: bool terminal
 }
