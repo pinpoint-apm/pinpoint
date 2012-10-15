@@ -23,7 +23,7 @@ public class SpanMapper implements RowMapper<List<Span>> {
     private final byte[] COLFAM_SPAN = Bytes.toBytes("Span");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private BinaryAnnotationDecoder binaryAnnotationDecoder = new JavaObjectDecoder();
+//    private BinaryAnnotationDecoder binaryAnnotationDecoder = new JavaObjectDecoder();
 
     @Override
     public List<Span> mapRow(Result result, int rowNum) throws Exception {
@@ -40,9 +40,9 @@ public class SpanMapper implements RowMapper<List<Span>> {
             // spainid가 이미 value에 들어 있어서 일단 필요가 없음.
             //byte[] spanId = entry.getKey();
             de.deserialize(span, entry.getValue());
-            if (binaryAnnotationDecoder != null) {
-                binaryAnnotationDecoder.decode(span);
-            }
+//            if (binaryAnnotationDecoder != null) {
+//                binaryAnnotationDecoder.decode(span);
+//            }
             if (logger.isDebugEnabled()) {
                 logger.debug("deserailze span :{}", span);
             }

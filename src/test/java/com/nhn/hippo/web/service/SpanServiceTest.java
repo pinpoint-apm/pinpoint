@@ -118,22 +118,18 @@ public class SpanServiceTest {
         // 별도 생성기로 뽑을것.
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
-        List<BinaryAnnotation> bano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span span = new Span("UnitTest", time, uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc" + andIncrement, andIncrement, ano, bano, "protocol:ip:port", false);
+        Span span = new Span("UnitTest", time, uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         span.setParentSpanId(-1);
         return span;
     }
 
     private Span createSubSpan(Span span) {
-
         List<Annotation> ano = Collections.emptyList();
-        List<BinaryAnnotation> bano = Collections.emptyList();
-
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span sub = new Span("UnitTest", time, span.getMostTraceID(), span.getLeastTraceID(), "test", "rpc" + andIncrement, andIncrement, ano, bano, "protocol:ip:port", false);
+        Span sub = new Span("UnitTest", time, span.getMostTraceID(), span.getLeastTraceID(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         sub.setParentSpanId(span.getSpanID());
         return sub;
     }

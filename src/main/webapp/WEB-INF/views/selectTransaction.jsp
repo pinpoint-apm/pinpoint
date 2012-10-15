@@ -1,33 +1,61 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+    <title>Transaction details</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<html>
-<head>
-    <title>transaction detail</title>
+    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
+    <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
 </head>
 <body>
 
+		<h4>TraceId: ${traceId}</h4>
+		
+            <table id="businessTransactions" class="table table-bordered">
+                <thead>
+                <tr>
+                	<th>#</th>
+                    <th>TIME</th>
+                    <th>GAP</th>
+                    <th>Application</th>
+                    <th>time</th>
+                    <th>endpoint</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
 
-<br/>
-<h4>TraceId: ${traceId}</h4>
+				<c:forEach items="${spanList}" var="span" varStatus="status">
+				<c:set var="sp" scope="page" value="${span.span}"/>
+				    <c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
+					<tr>
+						<td>${status.count}</td>
+					    <td>${ano.timestamp}</td>
+					    <td>
+					    <c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
+					    </td>
+					    
+						<td>${sp.serviceName}</td>
+						<td>${sp.timestamp}</td>
+						<td>${sp.endPoint}</td>
+						<td>${ano.value}</td> 
+					</tr>
+				    <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+				    </c:forEach>
+				</c:forEach>
 
-<br/>
-<br/>
-
-<c:forEach items="${spanList}" var="span" varStatus="status">
-    <c:set var="sp" scope="page" value="${span.span}"/>
-    ${status.count} : ${span.depth} : ${sp.agentID} : time: ${sp.timestamp} :${sp.spanID}, ${sp.parentSpanId}
-    <br/>
-    &nbsp;&nbsp; &nbsp;${sp.serviceName} : ${sp.name} : endpoint:${sp.endPoint}
-    <br/>
-    <c:forEach items="${sp.annotations}" var="ano">
-        &nbsp;&nbsp; &nbsp; ${ano.value}: duration:${ano.duration}
-        <br/>
-    </c:forEach>
-    <br/>
-
-</c:forEach>
+                </tbody>
+            </table>
 
 </body>
 </html>
