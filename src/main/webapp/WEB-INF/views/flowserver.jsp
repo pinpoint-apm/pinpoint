@@ -29,8 +29,10 @@
 <c:forEach items="${businessTransactions}" var="t" varStatus="status">
     {
     "name":"${t.name}",
-    "calls":1,
-    "time":1,
+    "calls":${t.calls},
+    "time":${t.totalTime / t.calls},
+    "minTime":${t.minTime},
+    "maxTime":${t.maxTime},
     "health":1,
     "traces":
     [

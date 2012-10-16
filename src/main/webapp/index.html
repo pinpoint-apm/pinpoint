@@ -248,6 +248,8 @@
                     <th>Name</th>
                     <th>Calls</th>
                     <th>time(ms)</th>
+                    <th>min time(ms)</th>
+                    <th>max time(ms)</th>
                     <th>health</th>
                 </tr>
                 </thead>
@@ -419,6 +421,14 @@
 
                 html.push("<td>");
                 html.push(transactions[i].time);
+                html.push("</td>");
+                
+                html.push("<td>");
+                html.push(transactions[i].minTime);
+                html.push("</td>");
+                
+                html.push("<td>");
+                html.push(transactions[i].maxTime);
                 html.push("</td>");
 
                 html.push("<td>");

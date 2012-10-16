@@ -31,6 +31,7 @@
                     <th>time</th>
                     <th>endpoint</th>
                     <th>Action</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -48,6 +49,7 @@
 						<td>${sp.serviceName}</td>
 						<td>${sp.timestamp}</td>
 						<td>${sp.endPoint}</td>
+						<td>${ano.key}</td> 
 						<td>${ano.value}</td> 
 					</tr>
 				    <c:set var="bt" scope="page" value="${ano.timestamp}"/>
