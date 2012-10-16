@@ -1,4 +1,4 @@
-package com.profiler.server.data.handler;
+package com.profiler.server.handler;
 
 import org.apache.thrift.TBase;
 

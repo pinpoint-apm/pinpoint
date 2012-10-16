@@ -10,7 +10,7 @@ import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.TBaseLocator;
-import com.profiler.server.data.handler.Handler;
+import com.profiler.server.handler.Handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 public class MultiplexedPacketHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
-	private TBaseLocator locator;
+    private TBaseLocator locator;
 
     @Autowired()
     @Qualifier("JvmDataHandler")
@@ -31,13 +31,13 @@ public class MultiplexedPacketHandler {
     @Autowired()
     @Qualifier("SpanHandler")
     private Handler spanDataHandler;
-    
+
     @Autowired()
     @Qualifier("AgentInfoHandler")
     private Handler agentInfoHandler;
 
-	public MultiplexedPacketHandler() {
-	}
+    public MultiplexedPacketHandler() {
+    }
 
     public void handlePacket(DatagramPacket packet) {
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
@@ -49,27 +49,27 @@ public class MultiplexedPacketHandler {
         }
     }
 
-	private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
-		Handler handler = getHandler(tBase);
-		if (logger.isDebugEnabled()) {
-			logger.debug("handler name:" + handler.getClass().getName());
-		}
+    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
+        Handler handler = getHandler(tBase);
+        if (logger.isDebugEnabled()) {
+            logger.debug("handler name:" + handler.getClass().getName());
+        }
 
-		handler.handler(tBase, datagramPacket);
-	}
+        handler.handler(tBase, datagramPacket);
+    }
 
-	private Handler getHandler(TBase<?, ?> tBase) {
-		if (tBase instanceof JVMInfoThriftDTO) {
-			return jvmDataHandler;
-		}
-		if (tBase instanceof Span) {
-			return spanDataHandler;
-		}
-		if (tBase instanceof AgentInfo) {
-			return agentInfoHandler;
-		}
-		logger.warn("Unknown type of data received. data=" + tBase);
-		throw new UnsupportedOperationException();
-	}
+    private Handler getHandler(TBase<?, ?> tBase) {
+        if (tBase instanceof JVMInfoThriftDTO) {
+            return jvmDataHandler;
+        }
+        if (tBase instanceof Span) {
+            return spanDataHandler;
+        }
+        if (tBase instanceof AgentInfo) {
+            return agentInfoHandler;
+        }
+        logger.warn("Unknown type of data received. data=" + tBase);
+        throw new UnsupportedOperationException();
+    }
 
 }

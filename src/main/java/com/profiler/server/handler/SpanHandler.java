@@ -1,4 +1,4 @@
-package com.profiler.server.data.handler;
+package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
 
@@ -15,28 +15,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class SpanHandler implements Handler {
 
-	private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
 
     @Autowired
-	private TraceIndex traceIndex;
+    private TraceIndex traceIndex;
 
     @Autowired
-	private Traces trace;
+    private Traces trace;
 
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		assert (tbase instanceof Span);
+    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        assert (tbase instanceof Span);
 
-		try {
-			Span span = (Span) tbase;
+        try {
+            Span span = (Span) tbase;
             byte[] spanBytes = PacketUtils.sliceData(datagramPacket, Header.HEADER_SIZE);
             trace.insert(span, spanBytes);
             traceIndex.insert(span);
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SPAN=" + span);
-			}
-		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
-		}
-	}
+            if (logger.isInfoEnabled()) {
+                logger.info("Received SPAN=" + span);
+            }
+        } catch (Exception e) {
+            logger.warn("Span handle error " + e.getMessage(), e);
+        }
+    }
 }
