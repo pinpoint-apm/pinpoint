@@ -27,6 +27,9 @@ public class Span {
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 	private final Set<String> annotationKeys = new HashSet<String>(5);
 	
+	private long rpcStartTime;
+	private long rpcEndTime;
+	
 	/**
 	 * Cancel timer logic.
 	 * TODO: refactor this.
@@ -50,6 +53,12 @@ public class Span {
 
 	public boolean addAnnotation(HippoAnnotation annotation) {
 		annotationKeys.add(annotation.getKey());
+		if (annotation.getKey().equals(Annotation.ClientSend.getCode()) || annotation.getKey().equals(Annotation.ServerRecv.getCode())) {
+			rpcStartTime = annotation.getTimestamp();
+		}
+		if (annotation.getKey().equals(Annotation.ClientRecv.getCode()) || annotation.getKey().equals(Annotation.ServerSend.getCode())) {
+			rpcEndTime = annotation.getTimestamp();
+		}
 		return annotations.add(annotation);
 	}
 
@@ -99,6 +108,14 @@ public class Span {
 		this.isTerminal = isTerminal;
 	}
 	
+	public long getRpcStartTime() {
+		return rpcStartTime;
+	}
+
+	public long getRpcEndTime() {
+		return rpcEndTime;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
@@ -133,6 +150,8 @@ public class Span {
 		span.setParentSpanId(traceID.getParentSpanId());
 		span.setEndPoint(endPoint);
 		span.setTerminal(isTerminal);
+		
+		// TODO: set duration.
 		
 		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
 		for (HippoAnnotation a : annotations) {

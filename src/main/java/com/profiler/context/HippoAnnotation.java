@@ -36,6 +36,10 @@ public class HippoAnnotation {
 		return this.key;
 	}
 
+	public long getTimestamp() {
+		return this.timestamp;
+	}
+	
 	@Override
 	public String toString() {
 		return "HippoAnnotation [timestamp=" + timestamp + ", duration=" + duration + ", key=" + key + ", valueTypeCode=" + valueTypeCode + ", value=" + value + ", threadname=" + threadname + "]";
