@@ -74,15 +74,17 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         scan.setStopRow(bEnd);
 
         scan.addColumn(COLFAM_TRACE, COLNAME_ID);
+        scan.setId("traceIndexScan");
 
         // json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
         logger.debug("create scan:{}", scan);
         return scan;
     }
 
-
+    //    private ExecutorService executor = Executors.newFixedThreadPool(100);
     @Override
     public List parallelScanTraceIndex(String[] agents, long start, long end) {
+//        executor.invokeAll();
         throw new UnsupportedOperationException();
     }
 }

@@ -19,11 +19,6 @@
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
         <repository>
-            <id>spring-milestone</id>
-            <name>Spring Maven MILESTONE Repository</name>
-            <url>http://maven.springframework.org/milestone</url>
-        </repository>
-        <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Maven Repository Group</name>
             <url>https://repository.jboss.org/nexus/content/groups/public/</url>
@@ -545,7 +540,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -554,35 +549,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <inherited>true</inherited>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
                     <debug>true</debug>
                     <optimize>true</optimize>
-                    <encoding>utf-8</encoding>
-                    <showDeprecations>true</showDeprecations>
+                    <encoding>UTF-8</encoding>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
-
-            <!--<plugin>
-                   <groupId>org.apache.maven.plugins</groupId>
-                   <artifactId>maven-dependency-plugin</artifactId>
-                   <version>2.4</version>
-                   <executions>
-                       <execution>
-                           <id>copy-dependencies</id>
-                           <phase>process-resources</phase>
-                           <goals>
-                               <goal>copy-dependencies</goal>
-                           </goals>
-                           <configuration>
-                               <outputDirectory>${basedir}/target/dependency</outputDirectory>
-                               <overWriteReleases>true</overWriteReleases>
-                               <overWriteSnapshots>true</overWriteSnapshots>
-                           </configuration>
-                       </execution>
-                   </executions>
-               </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
