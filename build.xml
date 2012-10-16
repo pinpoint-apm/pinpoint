@@ -1,7 +1,7 @@
-<project name="hippo_common_build"  basedir="." >
-    <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1" />
-    <property name="common.dir" value="${basedir}/../deploy/agent/agentlib/lib" />
-    <property name="target.dir" value="${basedir}/target/" />
+<project name="hippo_common_build" basedir=".">
+    <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
+    <property name="common.dir" value="${basedir}/../deploy/agent/agentlib/lib"/>
+    <property name="target.dir" value="${basedir}/target/"/>
 
 
     <target name="copy.common.deploy.dir" depends="mvn.build">
@@ -9,8 +9,11 @@
         </copy>
     </target>
 
-    <target name="mvn.build" >
-        <exec command="${maven.dir}/bin/mvn.bat compile jar:jar" ></exec>
+    <target name="mvn.build">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="compile"/>
+            <arg value="jar:jar"/>
+        </exec>
     </target>
 
 
