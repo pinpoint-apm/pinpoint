@@ -56,6 +56,7 @@
 			</tr>
 			   <c:set var="bt" scope="page" value="${ano.timestamp}"/>
 			</c:forEach>
+			<tr><td colspan="8">&nbsp;</td></tr>
 		</c:forEach>
 	
 	    </tbody>
