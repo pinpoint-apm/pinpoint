@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
     <title>HIPPO Web UI</title>
@@ -8,17 +7,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <style>
         body {
             padding-top: 60px;
         }
-
-        .hubblechart {
-            height: 500px;
-        }
     </style>
+    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
+    <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -27,22 +23,14 @@
 
     <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
     <script type="text/javascript" src="/select2/select2.js"></script>
-
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
-    <script src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
-    <script src="/common/js/sankey/sankey.js"></script>
-
-    <link rel="stylesheet" type="text/css" media="screen" href="/common/js/jqgrid/css/ui.jqgrid.css"/>
-    <script src="/common/js/jqgrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
-    <script src="/common/js/jqgrid/jquery.jqGrid.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
+    <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
 
     <style>
         #chart {
-            height: 500px;
+            /* height: 500px; */
         }
 
         .node rect {
@@ -97,110 +85,7 @@
         <h3>Configuration</h3>
     </div>
     <div class="modal-body">
-
-        <form class="form-horizontal" id="frmAddChart">
-            <fieldset>
-
-                <div class="row">
-                    <div class="span5">
-
-                        <!-- merge method -->
-                        <div class="control-group">
-                            <div class="row">
-                                <div class="span2">
-                                    <label class="control-label" for="mergetarget" style="width:90px;">Merge</label>
-
-                                    <div class="controls" style="margin-left:100px;">
-                                        <label class="radio">
-                                            <input name="mergetarget" type="radio" value="NONE" checked="checked">None</input>
-                                        </label>
-                                        <label class="radio">
-                                            <input name="mergetarget" type="radio" value="UID">UID</input>
-                                        </label>
-                                        <label class="radio">
-                                            <input name="mergetarget" type="radio" value="STAT">STAT</input>
-                                        </label>
-                                        <label class="radio">
-                                            <input name="mergetarget" type="radio" value="ALL">ALL</input>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="span1">
-                                    <label class="control-label" for="mergetarget" style="width:90px;">Merge Function</label>
-
-                                    <div class="controls" style="margin-left:100px;">
-                                        <label class="radio">
-                                            <input name="mergefunc" type="radio" value="SUM" checked="checked">SUM</input>
-                                        </label>
-                                        <label class="radio">
-                                            <input name="mergefunc" type="radio" value="AVG">AVG</input>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- UID -->
-                        <div class="control-group">
-                            <label class="control-label" for="uidlist" style="width:90px;">UID</label>
-
-                            <div class="controls" style="margin-left:100px;">
-                                <select id="uidlist" style="width:400px;"></select>
-                            </div>
-                        </div>
-
-                        <!-- STAT -->
-                        <div class="control-group">
-                            <label class="control-label" for="statlist" style="width:90px;">Stat</label>
-
-                            <div class="controls" style="margin-left:100px;">
-                                <select id="statlist" style="width:400px;"></select>
-                            </div>
-                        </div>
-
-                        <!-- DATASET -->
-                        <div class="control-group">
-                            <label class="control-label" for="datasetlist" style="width:90px;">Dataset</label>
-
-                            <div class="controls" style="margin-left:100px;">
-                                <select id="datasetlist" style="width:400px;"></select>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="span5">
-
-                        <!-- CHART TYPE -->
-                        <div class="control-group">
-                            <label class="control-label" for="input01">Chart type</label>
-
-                            <div class="controls">
-                                <select name="chartType" class="input-xlarge">
-                                    <option value="line" selected="selected">LINE</option>
-                                    <option value="area">AREA</option>
-                                    <option value="table">TABLE</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- TITLE -->
-                        <div class="control-group">
-                            <label class="control-label" for="input01">Chart Title</label>
-
-                            <div class="controls">
-                                <input name="chartTitle" type="text" value="UNTITLED" style="width:260px;"/>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="control-group" style="height:90px;"></div>
-                </div>
-
-            </fieldset>
-        </form>
+		Configurations...
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -327,7 +212,12 @@
 
         d3.json("/" + chartType + ".hippo?host=" + hosts + "&from=" + getStartTime() + "&to=" + getEndTime(), function (traces) {
             sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
-
+            
+            if (traces.graphdata.nodes.length == 0) {
+            	alert("no data");
+            	return;
+            }
+            
             /*
              LINKS
              */
@@ -474,7 +364,6 @@
 
             html.push("</tr>");
         }
-        console.log(html.join(''));
         $("#businessTransactionsDetail TBODY").append(html.join(''));
     }
 
