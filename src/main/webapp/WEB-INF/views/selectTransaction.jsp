@@ -1,10 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-    <title>Transaction details</title>
+<%@ taglib prefix="hippo" uri="http://hippo.nhncorp.com/hippo" %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+    <title>Transaction details (${traceId})</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
@@ -18,46 +21,44 @@
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
 </head>
 <body>
-
-		<h4>TraceId: ${traceId}</h4>
+	<h4>TraceId: ${traceId}</h4>
 		
-            <table id="businessTransactions" class="table table-bordered">
-                <thead>
-                <tr>
-                	<th>#</th>
-                    <th>TIME</th>
-                    <th>GAP</th>
-                    <th>Application</th>
-                    <th>time</th>
-                    <th>endpoint</th>
-                    <th>Action</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-
-				<c:forEach items="${spanList}" var="span" varStatus="status">
-				<c:set var="sp" scope="page" value="${span.span}"/>
-				    <c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
-					<tr>
-						<td>${status.count}</td>
-					    <td>${ano.timestamp}</td>
-					    <td>
-					    <c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
-					    </td>
-					    
-						<td>${sp.serviceName}</td>
-						<td>${sp.timestamp}</td>
-						<td>${sp.endPoint}</td>
-						<td>${ano.key}</td> 
-						<td>${ano.value}</td> 
-					</tr>
-				    <c:set var="bt" scope="page" value="${ano.timestamp}"/>
-				    </c:forEach>
-				</c:forEach>
-
-                </tbody>
-            </table>
-
+	<table id="businessTransactions" class="table table-bordered">
+	    <thead>
+	    <tr>
+	    	<th>#</th>
+	        <th>TIME</th>
+	        <th>GAP</th>
+	        <th>Application</th>
+	        <th>time</th>
+	        <th>endpoint</th>
+	        <th>Action</th>
+	        <th>Action</th>
+	    </tr>
+	    </thead>
+	    <tbody>
+	
+		<c:forEach items="${spanList}" var="span" varStatus="status">
+		<c:set var="sp" scope="page" value="${span.span}"/>
+			<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
+			<tr>
+				<td>${status.count}</td>
+				<td>${ano.timestamp}</td>
+				<td>
+				<c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
+				</td>
+				   
+				<td>${sp.serviceName}</td>
+				<td>${sp.timestamp}</td>
+				<td>${sp.endPoint}</td>
+				<td>${ano.key}</td> 
+				<td>${hippo:bytesToString(ano.valueTypeCode, ano.value)}</td> 
+			</tr>
+			   <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+			</c:forEach>
+		</c:forEach>
+	
+	    </tbody>
+	</table>
 </body>
 </html>
