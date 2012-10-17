@@ -19,56 +19,72 @@
 
     <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    function showDetail(id) {
+    	$("#spanDetail" + id).css("display", "");
+    	$("#spanDetail" + id).css("top", event.pageY);
+    	$("#spanDetail" + id).css("left", event.pageX);
+    }
+    
+    function hideDetail(id) {
+    	$("#spanDetail" + id).css("display", "none");
+    }
+    </script>
 </head>
 <body>
 	<h4>TraceId: ${traceId}</h4>
 
 
-	<c:set var="startTime" scope="page" value="0"/>
 
+<div id="timeline" style="margin-left:100px;margin-top:50px;background-color:#E8E8E8;">
+	<c:set var="startTime" scope="page" value="0"/>
+	<c:set var="endTime" scope="page" value="0"/>
 	<c:forEach items="${spanList}" var="span" varStatus="status">
 		<c:set var="sp" scope="page" value="${span.span}"/>
 		<c:set var="begin" scope="page" value="0"/>
 		<c:set var="end" scope="page" value="0"/>
 		
+		<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+		<ul>
+			<li>service name = ${sp.serviceName}</li>
+			<li>timestamp = ${hippo:longToDateStr(sp.timestamp)}</li>
+			<li>endpoint = ${sp.endPoint}</li>
 		
-		<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
-			<c:if test="${ano.key eq 'CS' or ano.key eq 'SR'}">
-				<c:set var="begin" scope="page" value="${ano.timestamp}"/>
-				
-				<c:if test="${status.first}">
-					<c:set var="startTime" scope="page" value="${ano.timestamp}"/>
+			<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
+				<c:if test="${ano.key eq 'CS' or ano.key eq 'SR'}">
+					<c:set var="begin" scope="page" value="${ano.timestamp}"/>
+					
+					<c:if test="${status.first}">
+						<c:set var="startTime" scope="page" value="${ano.timestamp}"/>
+					</c:if>
 				</c:if>
-			</c:if>
-			<c:if test="${ano.key eq 'CR' or ano.key eq 'SS'}">
-				<c:set var="end" scope="page" value="${ano.timestamp}"/>
-			</c:if>
-			${hippo:bytesToString(ano.valueTypeCode, ano.value)} 
-		</c:forEach>
-		
-		
-		<div style="width:${end - begin}px; background-color:red;margin-left:px">
-		${sp.serviceName}<br/>
-		${end - begin}
+				<c:if test="${ano.key eq 'CR' or ano.key eq 'SS'}">
+					<c:set var="end" scope="page" value="${ano.timestamp}"/>
+					<c:if test="${status.first}">
+						<c:set var="endTime" scope="page" value="${ano.timestamp}"/>
+					</c:if>
+				</c:if>
+				<c:if test="${ano.key != 'CR' and ano.key != 'SS' and ano.key != 'CS' and ano.key != 'SR'}">
+				<li>${ano.key} = ${hippo:bytesToString(ano.valueTypeCode, ano.value)}</li>
+				</c:if>
+			</c:forEach>
+		</ul>
 		</div>
 		
-		
-		<br/>
-		<br/>
+		<div style="width:${end - begin}px; background-color:#69B2E9;margin-left:${begin - startTime}px;margin-top:3px;" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+			<div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
+		</div>
 	</c:forEach>
+</div>
 
+	<script type="text/javascript">
+	$("#timeline").css("width", ${endTime - startTime});
+	</script>
 
-
-
-
-
-
-
-
-
-
-
-
+	<br/>
+	<br/>
+	<br/>
+	<br/>
 
 		
 	<table id="businessTransactions" class="table table-bordered">
