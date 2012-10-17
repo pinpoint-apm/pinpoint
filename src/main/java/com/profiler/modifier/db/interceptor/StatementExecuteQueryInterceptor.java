@@ -30,9 +30,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
-        Throwable th = new Throwable();
-        logger.log(Level.WARNING,  "stack", th);
-        th.printStackTrace();
+        
         Trace.traceBlockBegin();
 
         try {
