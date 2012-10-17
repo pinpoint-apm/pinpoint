@@ -22,6 +22,54 @@
 </head>
 <body>
 	<h4>TraceId: ${traceId}</h4>
+
+
+	<c:set var="startTime" scope="page" value="0"/>
+
+	<c:forEach items="${spanList}" var="span" varStatus="status">
+		<c:set var="sp" scope="page" value="${span.span}"/>
+		<c:set var="begin" scope="page" value="0"/>
+		<c:set var="end" scope="page" value="0"/>
+		
+		
+		<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
+			<c:if test="${ano.key eq 'CS' or ano.key eq 'SR'}">
+				<c:set var="begin" scope="page" value="${ano.timestamp}"/>
+				
+				<c:if test="${status.first}">
+					<c:set var="startTime" scope="page" value="${ano.timestamp}"/>
+				</c:if>
+			</c:if>
+			<c:if test="${ano.key eq 'CR' or ano.key eq 'SS'}">
+				<c:set var="end" scope="page" value="${ano.timestamp}"/>
+			</c:if>
+			${hippo:bytesToString(ano.valueTypeCode, ano.value)} 
+		</c:forEach>
+		
+		
+		<div style="width:${end - begin}px; background-color:red;margin-left:px">
+		${sp.serviceName}<br/>
+		${end - begin}
+		</div>
+		
+		
+		<br/>
+		<br/>
+	</c:forEach>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		
 	<table id="businessTransactions" class="table table-bordered">
 	    <thead>
@@ -41,19 +89,19 @@
 		<c:forEach items="${spanList}" var="span" varStatus="status">
 		<c:set var="sp" scope="page" value="${span.span}"/>
 			<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
-			<tr>
-				<td>${status.count}</td>
-				<td>${ano.timestamp}</td>
-				<td>
-				<c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
-				</td>
-				   
-				<td>${sp.serviceName}</td>
-				<td>${sp.timestamp}</td>
-				<td>${sp.endPoint}</td>
-				<td>${ano.key}</td> 
-				<td>${hippo:bytesToString(ano.valueTypeCode, ano.value)}</td> 
-			</tr>
+				<tr>
+					<td>${status.count}</td>
+					<td>${ano.timestamp}</td>
+					<td>
+					<c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
+					</td>
+					   
+					<td>${sp.serviceName}</td>
+					<td>${sp.timestamp}</td>
+					<td>${sp.endPoint}</td>
+					<td>${ano.key}</td> 
+					<td>${hippo:bytesToString(ano.valueTypeCode, ano.value)}</td> 
+				</tr>
 			   <c:set var="bt" scope="page" value="${ano.timestamp}"/>
 			</c:forEach>
 			<tr><td colspan="8">&nbsp;</td></tr>
