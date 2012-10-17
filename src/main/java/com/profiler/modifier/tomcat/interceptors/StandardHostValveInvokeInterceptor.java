@@ -51,7 +51,10 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 			
 			Trace.recordRpcName("TOMCAT", requestURL);
 			Trace.recordEndPoint(request.getProtocol() + ":" + request.getLocalName() + ":" + request.getLocalPort());
-			Trace.recordAttibute("http.params", parameters);
+			Trace.recordAttibute("http.url", request.getRequestURI());
+			if (!org.apache.commons.lang.StringUtils.isEmpty(parameters)) {
+				Trace.recordAttibute("http.params", parameters);
+			}
 			Trace.record(Annotation.ServerRecv);
 
 			StopWatch.start("StandardHostValveInvokeInterceptor-starttime");

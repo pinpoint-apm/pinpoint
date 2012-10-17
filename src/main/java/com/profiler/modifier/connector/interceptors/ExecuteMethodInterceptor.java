@@ -43,7 +43,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
 
 			Trace.recordRpcName(request.getProtocolVersion().toString(), "CLIENT");
 			Trace.recordEndPoint(request.getProtocolVersion().toString() + ":" + host.getHostName() + ":" + host.getPort());
-			Trace.recordAttibute("http.url", request.toString());
+			Trace.recordAttibute("http.url", request.getRequestLine().getUri());
 			Trace.record(Annotation.ClientSend);
 		} finally {
 			Trace.traceBlockEnd();
