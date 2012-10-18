@@ -15,4 +15,18 @@
 		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
 		<function-signature>java.lang.String bytesToString(int, byte[])</function-signature>
 	</function>
+	
+	<function>
+		<description></description>
+		<name>longToDateStr</name>
+		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
+		<function-signature>java.lang.String longToDateStr(long)</function-signature>
+	</function>
+	
+	<function>
+		<description></description>
+		<name>longLongToUUID</name>
+		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
+		<function-signature>java.lang.String longLongToUUID(long, long)</function-signature>
+	</function>
 </taglib>

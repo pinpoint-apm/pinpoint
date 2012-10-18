@@ -109,11 +109,11 @@ public class SpanAligner {
 
 
     private List<Span> nextSpan(Span parent) {
-        List<Span> child = this.parentSpanIdMap.get(parent.getSpanID());
+        List<Span> child = this.parentSpanIdMap.get(parent.getSpanId());
         if (child == null) {
             return null;
         }
-        this.parentSpanIdMap.remove(parent.getSpanID());
+        this.parentSpanIdMap.remove(parent.getSpanId());
         // 동일 레벨은 시간순으로 정렬.
         Collections.sort(child, timeComparator);
         return child;
@@ -142,11 +142,11 @@ public class SpanAligner {
         }
 
         public void check(Span span) {
-            Span before = spanCheck.put(span.getSpanID(), span);
+            Span before = spanCheck.put(span.getSpanId(), span);
             if (before != null) {
                 // span id 중복체크
                 deplicatedSpanIdDump(span);
-                throw new IllegalStateException("duplicated spanId. id:" + span.getSpanID());
+                throw new IllegalStateException("duplicated spanId. id:" + span.getSpanId());
             }
         }
 

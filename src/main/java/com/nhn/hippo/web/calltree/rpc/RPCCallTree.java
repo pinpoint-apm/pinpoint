@@ -30,7 +30,7 @@ public class RPCCallTree {
          * make RPCs
          */
         // TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
-        RPC rpc = new RPC(span.getAgentID(), span.getServiceName(), span.getName(), span.isTerminal());
+        RPC rpc = new RPC(span.getAgentId(), span.getServiceName(), span.getName(), span.isTerminal());
 
         // TODO: remove this later.
         if (rpc.getId().contains("mysql:jdbc:") || rpc.getId().contains("favicon")) {
@@ -40,13 +40,13 @@ public class RPCCallTree {
         if (!rpcs.containsKey(rpc.getId())) {
             rpcs.put(rpc.getId(), rpc);
         }
-        spanIdToRPCId.put(String.valueOf(span.getSpanID()), rpc.getId());
+        spanIdToRPCId.put(String.valueOf(span.getSpanId()), rpc.getId());
 
         // TODO remove client node
         if (span.getParentSpanId() == -1) {
-            RPC client = new RPC(PREFIX_CLIENT + span.getAgentID(), span.getServiceName(), span.getName(), false);
+            RPC client = new RPC(PREFIX_CLIENT + span.getAgentId(), span.getServiceName(), span.getName(), false);
             rpcs.put(client.getId(), client);
-            spanIdToRPCId.put(PREFIX_CLIENT + span.getSpanID(), client.getId());
+            spanIdToRPCId.put(PREFIX_CLIENT + span.getSpanId(), client.getId());
         }
 
         /**
@@ -66,7 +66,7 @@ public class RPCCallTree {
 
         for (Span span : spans) {
             String from = String.valueOf(span.getParentSpanId());
-            String to = String.valueOf(span.getSpanID());
+            String to = String.valueOf(span.getSpanId());
 
             RPC fromRPC = rpcs.get(spanIdToRPCId.get(from));
             RPC toRPC = rpcs.get(spanIdToRPCId.get(to));

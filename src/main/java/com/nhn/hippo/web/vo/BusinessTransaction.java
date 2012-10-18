@@ -18,7 +18,7 @@ public class BusinessTransaction {
 
 	public BusinessTransaction(Span span) {
 		this.name = span.getName();
-		this.traces.add(new UUID(span.getMostTraceID(), span.getLeastTraceID()).toString());
+		this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
 		calls++;
 
 		List<Annotation> annotations = span.getAnnotations();
@@ -37,7 +37,7 @@ public class BusinessTransaction {
 	}
 
 	public void add(Span span) {
-		this.traces.add(new UUID(span.getMostTraceID(), span.getLeastTraceID()).toString());
+		this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
 		if (span.getParentSpanId() == -1) {
 			calls++;
 		}

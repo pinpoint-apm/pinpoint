@@ -51,7 +51,7 @@ public class SpanServiceTest {
     @Before
     public void before() throws TException {
         Span span = createRootSpan();
-        logger.debug("uuid:{}", new UUID(span.getMostTraceID(), span.getLeastTraceID()));
+        logger.debug("uuid:{}", new UUID(span.getMostTraceId(), span.getLeastTraceId()));
         insert(span);
         deleteSpans.add(span);
 
@@ -96,7 +96,7 @@ public class SpanServiceTest {
 
 
     private void doRead(Span span) {
-        UUID uuid = new UUID(span.getMostTraceID(), span.getLeastTraceID());
+        UUID uuid = new UUID(span.getMostTraceId(), span.getLeastTraceId());
 
         List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
         for (SpanAlign spanAlign : sort) {
@@ -129,8 +129,8 @@ public class SpanServiceTest {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span sub = new Span("UnitTest", time, span.getMostTraceID(), span.getLeastTraceID(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
-        sub.setParentSpanId(span.getSpanID());
+        Span sub = new Span("UnitTest", time, span.getMostTraceId(), span.getLeastTraceId(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
+        sub.setParentSpanId(span.getSpanId());
         return sub;
     }
 

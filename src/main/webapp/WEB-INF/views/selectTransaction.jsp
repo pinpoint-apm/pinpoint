@@ -46,20 +46,27 @@
 		
 		<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
 		<ul>
-			<li>service name = ${sp.serviceName}</li>
+			<li>AgentId = ${sp.agentId}</li>
+			<li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
+			<li>spanId = ${sp.spanId}</li>
+			<li>parentSpanId = ${sp.parentSpanId}</li>
+			<li>service = ${sp.serviceName}</li>
+			<li>name = ${sp.name}</li>
 			<li>timestamp = ${hippo:longToDateStr(sp.timestamp)}</li>
 			<li>endpoint = ${sp.endPoint}</li>
+			<li>terminal = ${sp.terminal}</li>
 		
 			<c:forEach items="${sp.annotations}" var="ano" varStatus="annoStatus">
 				<c:if test="${ano.key eq 'CS' or ano.key eq 'SR'}">
 					<c:set var="begin" scope="page" value="${ano.timestamp}"/>
-					
+					<li>${ano.key} = ${ano.duration}</li>				
 					<c:if test="${status.first}">
 						<c:set var="startTime" scope="page" value="${ano.timestamp}"/>
 					</c:if>
 				</c:if>
 				<c:if test="${ano.key eq 'CR' or ano.key eq 'SS'}">
 					<c:set var="end" scope="page" value="${ano.timestamp}"/>
+					<li>${ano.key} = ${ano.duration}</li>				
 					<c:if test="${status.first}">
 						<c:set var="endTime" scope="page" value="${ano.timestamp}"/>
 					</c:if>
@@ -80,6 +87,33 @@
 	<script type="text/javascript">
 	$("#timeline").css("width", ${endTime - startTime});
 	</script>
+
+
+struct Annotation {
+  1: i64 timestamp,
+  2: optional i64 duration,
+  3: string key,
+  4: i32 valueTypeCode,
+  5: optional binary value,
+}
+
+struct Span {
+  1: string agentID
+  2: i64 timestamp,
+  3: i64 mostTraceID
+  4: i64 leastTraceID
+  5: string name,
+  6: string serviceName
+  7: i64 spanID,
+  8: optional i64 parentSpanId,
+  9: list<Annotation> annotations,
+  10: optional i32 flag = 0
+  11: string endPoint
+  12: bool terminal
+}
+
+
+
 
 	<br/>
 	<br/>
