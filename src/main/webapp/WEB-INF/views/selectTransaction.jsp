@@ -35,8 +35,7 @@
 	<h4>TraceId: ${traceId}</h4>
 
 
-
-<div id="timeline" style="margin-left:100px;margin-top:50px;background-color:#E8E8E8;">
+<div id="timeline" style="margin-left:100px;margin-top:50px;background-color:#E8E8E8;width:1000px;">
 	<c:set var="startTime" scope="page" value="0"/>
 	<c:set var="endTime" scope="page" value="0"/>
 	<c:forEach items="${spanList}" var="span" varStatus="status">
@@ -78,14 +77,18 @@
 		</ul>
 		</div>
 		
-		<div style="width:${end - begin}px; background-color:#69B2E9;margin-left:${begin - startTime}px;margin-top:3px;" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+		<c:if test="${status.first}">
+			<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+		</c:if>
+		
+		<div style="width:${(end - begin) * barRatio}px; background-color:#69B2E9;margin-left:${(begin - startTime) * barRatio}px;margin-top:3px;" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
 			<div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
 		</div>
 	</c:forEach>
 </div>
 
 	<script type="text/javascript">
-	$("#timeline").css("width", ${endTime - startTime});
+	//$("#timeline").css("width", ${endTime - startTime});
 	</script>
 
 
