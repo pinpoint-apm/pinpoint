@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class HbaseTraceIndex implements TraceIndex {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private String tableName = HBaseTables.TRACE_INDEX;
-	private byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
-	private byte[] COLNAME_ID = Bytes.toBytes("ID");
+    private byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
+    private byte[] COLNAME_ID = Bytes.toBytes("ID");
 
     public HbaseTraceIndex() {
     }
@@ -31,18 +31,16 @@ public class HbaseTraceIndex implements TraceIndex {
         this.tableName = tableName;
     }
 
-//    @Autowired
-//	private HBaseClient client;
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
 
-	@Override
+    @Override
     public boolean insert(final Span span) {
         Put put = new Put(SpanUtils.getTraceIndexRowKey(span), span.getTimestamp());
         put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(span));
 
         hbaseTemplate.put(tableName, put);
         return true;
-	}
+    }
 }
