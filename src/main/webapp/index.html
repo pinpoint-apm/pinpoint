@@ -85,7 +85,7 @@
         <h3>Configuration</h3>
     </div>
     <div class="modal-body">
-		Configurations...
+        Configurations...
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -98,7 +98,7 @@
 <div class="container">
     <form class="form-inline">
         <select id="servers">
-            <option value="TEST_AGENT_ID">TEST_AGENT_ID</option>
+            <option value="emeroad-nhn-pc">emeroad-nhn-pc</option>
             <option value="TEST_TOMCAT11">TEST_TOMCAT11</option>
             <option value="TEST_TOMCAT22">TEST_TOMCAT22</option>
         </select>
@@ -170,209 +170,209 @@
 
 
 <script type="text/javascript">
-    function getStartTime() {
-        return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
-    }
+function getStartTime() {
+    return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
+}
 
-    function getEndTime() {
-        return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
-    }
+function getEndTime() {
+    return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
+}
 
-    function cleanupChart() {
-        $("#chart").empty();
-    }
+function cleanupChart() {
+    $("#chart").empty();
+}
 
-    function cleanupTracesTable() {
-        $("#businessTransactions TBODY").empty();
-        $("#businessTransactionsDetail TBODY").empty();
-    }
+function cleanupTracesTable() {
+    $("#businessTransactions TBODY").empty();
+    $("#businessTransactionsDetail TBODY").empty();
+}
 
-    var margin = {
-        top:1,
-        right:1,
-        bottom:6,
-        left:1
-    }, width = 1300 - margin.left - margin.right, height = 450 - margin.top - margin.bottom;
+var margin = {
+    top:1,
+    right:1,
+    bottom:6,
+    left:1
+}, width = 1300 - margin.left - margin.right, height = 450 - margin.top - margin.bottom;
 
-    var formatNumber = d3.format(",.0f"), format = function (d) {
-        return formatNumber(d) + " Requests";
-    }, color = d3.scale.category20();
+var formatNumber = d3.format(",.0f"), format = function (d) {
+    return formatNumber(d) + " Requests";
+}, color = d3.scale.category20();
 
-    function drawChart(chartType) {
-        cleanupChart();
-        cleanupTracesTable();
+function drawChart(chartType) {
+    cleanupChart();
+    cleanupTracesTable();
 
-        var hosts = $("#servers").val();
+    var hosts = $("#servers").val();
 
-        var svg = d3.select("#chart").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
-        var path = sankey.link();
+    var svg = d3.select("#chart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var sankey = d3.sankey().nodeWidth(15).nodePadding(10).size([ width, height ]);
+    var path = sankey.link();
 
-        d3.json("/" + chartType + ".hippo?host=" + hosts + "&from=" + getStartTime() + "&to=" + getEndTime(), function (traces) {
-            sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
-            
-            if (traces.graphdata.nodes.length == 0) {
-            	alert("no data");
-            	return;
-            }
-            
-            /*
-             LINKS
-             */
-            var link = svg.append("g").selectAll(".link").data(traces.graphdata.links)
-                    .enter().append("path")
-                    .attr("class", "link")
-                    .attr("d", path).style("stroke-width",function (d) {
-                        return Math.max(1, d.dy);
-                    }).sort(function (a, b) {
-                        return b.dy - a.dy;
-                    }).on("click", function (a, b) {
-                        console.log(a);
-                        console.log(b);
-                    });
+    d3.json("/" + chartType + ".hippo?host=" + hosts + "&from=" + getStartTime() + "&to=" + getEndTime(), function (traces) {
+        sankey.nodes(traces.graphdata.nodes).links(traces.graphdata.links).layout(32);
 
-            link.append("title").text(
-                    function (d) {
-                        return d.source.name + " → " + d.target.name + "\n"
-                                + format(d.value);
-                    });
-
-            /*
-             NODES
-             */
-            var node = svg.append("g").selectAll(".node").data(traces.graphdata.nodes)
-                    .enter().append("g").attr("class", "node").attr(
-                    "transform",function (d) {
-                        return "translate(" + d.x + "," + d.y + ")";
-                    }).call(d3.behavior.drag().origin(function (d) {
-                return d;
-            }).on("dragstart",function () {
-                        this.parentNode.appendChild(this);
-                    }).on("drag", dragmove));
-
-            node.on("click", function (d) {
-                console.log(d);
-            });
-
-            node.append("rect").attr("height",function (d) {
-                return d.dy;
-            }).attr("width", sankey.nodeWidth()).style("fill",function (d) {
-                        return d.color = color(d.name.replace(/ .*/, ""));
-                    }).style("stroke",function (d) {
-                        return d3.rgb(d.color).darker(2);
-                    }).append("title").text(function (d) {
-                        return d.name + "\n" + format(d.value);
-                    });
-
-            node.append("text").attr("x", -6).attr("y",function (d) {
-                return d.dy / 2;
-            }).attr("dy", ".35em").attr("text-anchor", "end").attr("transform",
-                    null).text(function (d) {
-                        return d.name;
-                    }).filter(function (d) {
-                        return d.x < width / 2;
-                    }).attr("x", 6 + sankey.nodeWidth()).attr("text-anchor", "start");
-
-            function dragmove(d) {
-                d3.select(this).attr(
-                        "transform",
-                        "translate("
-                                + d.x
-                                + ","
-                                + (d.y = Math.max(0, Math.min(height - d.dy,
-                                d3.event.y))) + ")");
-                sankey.relayout();
-                link.attr("d", path);
-            }
-
-            /*
-             Add transaction information
-             */
-            transactions = traces.businessTransactions;
-            var html = [];
-            for (var i = 0; i < transactions.length; i++) {
-                html.push("<tr>");
-
-                html.push("<td>");
-                html.push(i + 1);
-                html.push("</td>");
-
-                html.push("<td><a href='#' onclick='openTransactionDetails(");
-                html.push(i);
-                html.push(", this);'>");
-                html.push(transactions[i].name);
-                html.push("</a></td>");
-
-                html.push("<td>");
-                html.push(transactions[i].calls);
-                html.push("</td>");
-
-                html.push("<td>");
-                html.push(transactions[i].time);
-                html.push("</td>");
-                
-                html.push("<td>");
-                html.push(transactions[i].minTime);
-                html.push("</td>");
-                
-                html.push("<td>");
-                html.push(transactions[i].maxTime);
-                html.push("</td>");
-
-                html.push("<td>");
-                html.push(transactions[i].health);
-                html.push("</td>");
-
-                html.push("</tr>");
-            }
-            $("#businessTransactions TBODY").append(html.join(''));
-
-        }); // end of d3.json
-
-    } // end of draw chart
-
-    var transactions;
-
-    var prevDetaildRow;
-
-    function openTransactionDetails(index, row) {
-        if (prevDetaildRow != null) {
-            prevDetaildRow.css({'background-color':'#FFFFFF'});
+        if (traces.graphdata.nodes.length == 0) {
+            alert("no data");
+            return;
         }
-        var currentRow = $(row).parent().parent();
-        currentRow.css({'background-color':'#FFFF00'});
-        prevDetaildRow = currentRow;
 
-        $("#businessTransactionsDetail TBODY").empty();
+        /*
+         LINKS
+         */
+        var link = svg.append("g").selectAll(".link").data(traces.graphdata.links)
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", path).style("stroke-width",function (d) {
+                    return Math.max(1, d.dy);
+                }).sort(function (a, b) {
+                    return b.dy - a.dy;
+                }).on("click", function (a, b) {
+                    console.log(a);
+                    console.log(b);
+                });
 
-        var traces = transactions[index].traces;
+        link.append("title").text(
+                function (d) {
+                    return d.source.name + " → " + d.target.name + "\n"
+                            + format(d.value);
+                });
+
+        /*
+         NODES
+         */
+        var node = svg.append("g").selectAll(".node").data(traces.graphdata.nodes)
+                .enter().append("g").attr("class", "node").attr(
+                "transform",function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                }).call(d3.behavior.drag().origin(function (d) {
+            return d;
+        }).on("dragstart",function () {
+                    this.parentNode.appendChild(this);
+                }).on("drag", dragmove));
+
+        node.on("click", function (d) {
+            console.log(d);
+        });
+
+        node.append("rect").attr("height",function (d) {
+            return d.dy;
+        }).attr("width", sankey.nodeWidth()).style("fill",function (d) {
+                    return d.color = color(d.name.replace(/ .*/, ""));
+                }).style("stroke",function (d) {
+                    return d3.rgb(d.color).darker(2);
+                }).append("title").text(function (d) {
+                    return d.name + "\n" + format(d.value);
+                });
+
+        node.append("text").attr("x", -6).attr("y",function (d) {
+            return d.dy / 2;
+        }).attr("dy", ".35em").attr("text-anchor", "end").attr("transform",
+                null).text(function (d) {
+                    return d.name;
+                }).filter(function (d) {
+                    return d.x < width / 2;
+                }).attr("x", 6 + sankey.nodeWidth()).attr("text-anchor", "start");
+
+        function dragmove(d) {
+            d3.select(this).attr(
+                    "transform",
+                    "translate("
+                            + d.x
+                            + ","
+                            + (d.y = Math.max(0, Math.min(height - d.dy,
+                            d3.event.y))) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+        }
+
+        /*
+         Add transaction information
+         */
+        transactions = traces.businessTransactions;
         var html = [];
-        for (var i = 0; i < traces.length; i++) {
+        for (var i = 0; i < transactions.length; i++) {
             html.push("<tr>");
 
             html.push("<td>");
             html.push(i + 1);
             html.push("</td>");
 
-            html.push("<td><a href='#' onclick='openTrace(\"");
-            html.push(traces[i]);
-            html.push("\");'>");
-            html.push(traces[i]);
+            html.push("<td><a href='#' onclick='openTransactionDetails(");
+            html.push(i);
+            html.push(", this);'>");
+            html.push(transactions[i].name);
             html.push("</a></td>");
 
-            html.push("<td>&nbsp;</td>");
-            
+            html.push("<td>");
+            html.push(transactions[i].calls);
+            html.push("</td>");
+
+            html.push("<td>");
+            html.push(transactions[i].time);
+            html.push("</td>");
+
+            html.push("<td>");
+            html.push(transactions[i].minTime);
+            html.push("</td>");
+
+            html.push("<td>");
+            html.push(transactions[i].maxTime);
+            html.push("</td>");
+
+            html.push("<td>");
+            html.push(transactions[i].health);
+            html.push("</td>");
+
             html.push("</tr>");
         }
-        $("#businessTransactionsDetail TBODY").append(html.join(''));
-    }
+        $("#businessTransactions TBODY").append(html.join(''));
 
-    function openTrace(uuid) {
-        window.open("/selectTransaction.hippo?traceId=" + uuid);
+    }); // end of d3.json
+
+} // end of draw chart
+
+var transactions;
+
+var prevDetaildRow;
+
+function openTransactionDetails(index, row) {
+    if (prevDetaildRow != null) {
+        prevDetaildRow.css({'background-color':'#FFFFFF'});
     }
+    var currentRow = $(row).parent().parent();
+    currentRow.css({'background-color':'#FFFF00'});
+    prevDetaildRow = currentRow;
+
+    $("#businessTransactionsDetail TBODY").empty();
+
+    var traces = transactions[index].traces;
+    var html = [];
+    for (var i = 0; i < traces.length; i++) {
+        html.push("<tr>");
+
+        html.push("<td>");
+        html.push(i + 1);
+        html.push("</td>");
+
+        html.push("<td><a href='#' onclick='openTrace(\"");
+        html.push(traces[i]);
+        html.push("\");'>");
+        html.push(traces[i]);
+        html.push("</a></td>");
+
+        html.push("<td>&nbsp;</td>");
+
+        html.push("</tr>");
+    }
+    $("#businessTransactionsDetail TBODY").append(html.join(''));
+}
+
+function openTrace(uuid) {
+    window.open("/selectTransaction.hippo?traceId=" + uuid);
+}
 </script>
 
 <script type="text/javascript">
