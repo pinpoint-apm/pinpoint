@@ -44,11 +44,22 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
     }
 
     @Override
-    public <T> List<T> get(String tableName, final List<Get> get, final RowMapper<T> mapper) {
+    public <T> T get(String tableName, final Get get, final RowMapper<T> mapper) {
+        return execute(tableName, new TableCallback<T>() {
+            @Override
+            public T doInTable(HTable htable) throws Throwable {
+                Result result = htable.get(get);
+                return mapper.mapRow(result, 0);
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> get(String tableName, final List<Get> gets, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTable htable) throws Throwable {
-                Result[] result = htable.get(get);
+                Result[] result = htable.get(gets);
                 List<T> list = new ArrayList<T>(result.length);
                 for (int i = 0; i < result.length; i++) {
                     T t = mapper.mapRow(result[i], i);

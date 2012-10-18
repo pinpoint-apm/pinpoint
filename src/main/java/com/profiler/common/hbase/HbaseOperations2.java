@@ -47,6 +47,8 @@ public interface HbaseOperations2 extends HbaseOperations {
      */
     <T> T get(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper);
 
+    <T> T get(String tableName, final Get get, final RowMapper<T> mapper);
+
     <T> List<T> get(String tableName, final List<Get> get, final RowMapper<T> mapper);
 
 

@@ -10,6 +10,7 @@ public class HBaseTables {
 
     public static final String TRACES = "Traces";
     public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("Span");
+    public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("Annotation");
 
     public static final String SERVERS = "Servers";
 }

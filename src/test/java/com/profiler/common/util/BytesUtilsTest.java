@@ -18,6 +18,21 @@ public class BytesUtilsTest {
         test(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
     }
 
+    @Test
+    public void testInt() {
+        int i = Integer.MAX_VALUE - 5;
+        checkInt(i);
+        checkInt(23464);
+    }
+
+    private void checkInt(int i) {
+        byte[] bytes = Bytes.toBytes(i);
+        int i2 = BytesUtils.bytesToInt(bytes, 0);
+        Assert.assertEquals(i, i2);
+        int i3 = Bytes.toInt(bytes);
+        Assert.assertEquals(i, i3);
+    }
+
     private void test(long most, long least) {
         byte[] bytes1 = Bytes.toBytes(most);
         byte[] bytes2 = Bytes.toBytes(least);

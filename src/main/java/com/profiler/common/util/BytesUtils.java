@@ -46,6 +46,22 @@ public class BytesUtils {
         return rv;
     }
 
+    public static int bytesToInt(byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 4) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 4);
+        }
+
+        int v = ((buf[offset] & 0xff) << 24)
+                | ((buf[offset + 1] & 0xff) << 16)
+                | ((buf[offset + 2] & 0xff) << 8)
+                | ((buf[offset + 3] & 0xff));
+
+        return v;
+    }
+
     public static long bytesToFirstLong(byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -101,6 +117,30 @@ public class BytesUtils {
         buf[offset] = (byte) (value);
     }
 
+    public static void writeShort(short value, byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 4) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 4);
+        }
+        buf[offset++] = (byte) (value >> 8);
+        buf[offset] = (byte) (value);
+    }
+
+    public static void writeInt(int value, byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 4) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 4);
+        }
+        buf[offset++] = (byte) (value >> 24);
+        buf[offset++] = (byte) (value >> 16);
+        buf[offset++] = (byte) (value >> 8);
+        buf[offset] = (byte) (value);
+    }
+
     public static void writeFirstLong(long value, byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -146,4 +186,6 @@ public class BytesUtils {
         writeLong(fostfix, buf, preFix.length);
         return buf;
     }
+
+
 }
