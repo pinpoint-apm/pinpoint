@@ -29,7 +29,7 @@ import java.util.UUID;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration("classpath:test-applicationContext.xml")
-public class TracesTest {
+public class TraceDaoTest {
 
     private static final String TRACE = "Trace";
     private static final String ID = "ID";
@@ -96,7 +96,7 @@ public class TracesTest {
     private Span createSpan() {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
-		Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, "protocol:ip:port", false);
+        Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, "protocol:ip:port", false);
         return span;
     }
 }
