@@ -140,13 +140,13 @@ public class Span {
 	public com.profiler.common.dto.thrift.Span toThrift() {
 		com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
-		span.setAgentID(Agent.getInstance().getAgentId());
+		span.setAgentId(Agent.getInstance().getAgentId());
 		span.setTimestamp(createTime);
-		span.setMostTraceID(traceID.getId().getMostSignificantBits());
-		span.setLeastTraceID(traceID.getId().getLeastSignificantBits());
+		span.setMostTraceId(traceID.getId().getMostSignificantBits());
+		span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
 		span.setName(name);
 		span.setServiceName(serviceName);
-		span.setSpanID(traceID.getSpanId());
+		span.setSpanId(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 		span.setEndPoint(endPoint);
 		span.setTerminal(isTerminal);
