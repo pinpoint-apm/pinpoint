@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.calltree.span;
 
+import com.profiler.common.bo.SpanBo;
 import com.profiler.common.dto.thrift.Span;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,18 +14,18 @@ public class SpanAligner {
 
     public static final Long SPAN_ROOT = -1L;
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private List<Span> spans;
+    private List<SpanBo> spans;
 
     //    private Map<Long, Span> spanIdMap;
-    private Map<Long, List<Span>> parentSpanIdMap;
+    private Map<Long, List<SpanBo>> parentSpanIdMap;
 
     private int depth = 0;
 
-    private static final Comparator<Span> timeComparator = new Comparator<Span>() {
+    private static final Comparator<SpanBo> timeComparator = new Comparator<SpanBo>() {
         @Override
-        public int compare(Span o1, Span o2) {
+        public int compare(SpanBo o1, SpanBo o2) {
             long o1Timestamp = o1.getTimestamp();
             long o2Timestamp = o2.getTimestamp();
             if (o1Timestamp > o2Timestamp) {
@@ -37,7 +38,7 @@ public class SpanAligner {
         }
     };
 
-    public SpanAligner(List<Span> spans) {
+    public SpanAligner(List<SpanBo> spans) {
         this.spans = spans;
     }
 
@@ -46,28 +47,28 @@ public class SpanAligner {
 
         List<SpanAlign> result = new ArrayList<SpanAlign>(spans.size());
 
-        Span root = findRoot();
+        SpanBo root = findRoot();
         logger.debug("find root {}", root);
         result.add(new SpanAlign(0, root));
 
-        List<Span> next = nextSpan(root);
+        List<SpanBo> next = nextSpan(root);
         doNext(next, result);
         return result;
     }
 
     public void buildIndex() {
         SpanIdChecker spanIdCheck = new SpanIdChecker(spans);
-        Map<Long, List<Span>> parentSpanIdMap = new HashMap<Long, List<Span>>();
+        Map<Long, List<SpanBo>> parentSpanIdMap = new HashMap<Long, List<SpanBo>>();
 
-        for (Span span : spans) {
+        for (SpanBo span : spans) {
             spanIdCheck.check(span);
 
             long parentSpanId = span.getParentSpanId();
-            List<Span> spanList = parentSpanIdMap.get(parentSpanId);
+            List<SpanBo> spanList = parentSpanIdMap.get(parentSpanId);
             if (spanList != null) {
                 spanList.add(span);
             } else {
-                LinkedList<Span> newSpanList = new LinkedList<Span>();
+                LinkedList<SpanBo> newSpanList = new LinkedList<SpanBo>();
                 newSpanList.add(span);
                 parentSpanIdMap.put(parentSpanId, newSpanList);
             }
@@ -77,20 +78,20 @@ public class SpanAligner {
         this.parentSpanIdMap = parentSpanIdMap;
     }
 
-    private void doNext(List<Span> spans, List<SpanAlign> result) {
+    private void doNext(List<SpanBo> spans, List<SpanAlign> result) {
         if (spans == null) {
             return;
         }
         depth++;
         try {
-            for (Span next : spans) {
+            for (SpanBo next : spans) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("{} {} next {}", new Object[]{getSpace(), depth, next});
                 }
 
                 result.add(new SpanAlign(depth, next));
 
-                List<Span> nextSpan = nextSpan(next);
+                List<SpanBo> nextSpan = nextSpan(next);
                 doNext(nextSpan, result);
             }
         } finally {
@@ -108,8 +109,8 @@ public class SpanAligner {
     }
 
 
-    private List<Span> nextSpan(Span parent) {
-        List<Span> child = this.parentSpanIdMap.get(parent.getSpanId());
+    private List<SpanBo> nextSpan(SpanBo parent) {
+        List<SpanBo> child = this.parentSpanIdMap.get(parent.getSpanId());
         if (child == null) {
             return null;
         }
@@ -120,8 +121,8 @@ public class SpanAligner {
     }
 
 
-    private Span findRoot() {
-        List<Span> root = this.parentSpanIdMap.get(SPAN_ROOT);
+    private SpanBo findRoot() {
+        List<SpanBo> root = this.parentSpanIdMap.get(SPAN_ROOT);
         if (root == null) {
             logger.warn("root span not found. {}", spans);
             throw new IllegalStateException("root span not found");
@@ -134,15 +135,15 @@ public class SpanAligner {
     }
 
     public static class SpanIdChecker {
-        private Map<Long, Span> spanCheck = new HashMap<Long, Span>();
-        private List<Span> spans;
+        private Map<Long, SpanBo> spanCheck = new HashMap<Long, SpanBo>();
+        private List<SpanBo> spans;
 
-        public SpanIdChecker(List<Span> spans) {
+        public SpanIdChecker(List<SpanBo> spans) {
             this.spans = spans;
         }
 
-        public void check(Span span) {
-            Span before = spanCheck.put(span.getSpanId(), span);
+        public void check(SpanBo span) {
+            SpanBo before = spanCheck.put(span.getSpanId(), span);
             if (before != null) {
                 // span id 중복체크
                 deplicatedSpanIdDump(span);
@@ -150,7 +151,7 @@ public class SpanAligner {
             }
         }
 
-        private void deplicatedSpanIdDump(Span span) {
+        private void deplicatedSpanIdDump(SpanBo span) {
             // 중복 span dump
             Logger internalLog = LoggerFactory.getLogger(this.getClass());
             internalLog.info("duplicated spanId {}, list:{}", span, spans);

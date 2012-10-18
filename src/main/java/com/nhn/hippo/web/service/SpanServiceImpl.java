@@ -3,7 +3,7 @@ package com.nhn.hippo.web.service;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.calltree.span.SpanAligner;
 import com.nhn.hippo.web.dao.TraceDao;
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.bo.SpanBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,7 @@ public class SpanServiceImpl implements SpanService {
     @Override
     public List<SpanAlign> selectSpan(String uuid) {
         UUID id = UUID.fromString(uuid);
-        List<Span> spans = traceDao.selectSpan(id);
-        logger.debug("spans11 {}", spans);
+        List<SpanBo> spans = traceDao.selectSpanAndAnnotation(id);
         if (spans == null) {
             return Collections.emptyList();
         }
@@ -42,7 +41,7 @@ public class SpanServiceImpl implements SpanService {
 
     }
 
-    private List<SpanAlign> order(List<Span> spans) {
+    private List<SpanAlign> order(List<SpanBo> spans) {
 
         SpanAligner spanAligner = new SpanAligner(spans);
         return spanAligner.sort();

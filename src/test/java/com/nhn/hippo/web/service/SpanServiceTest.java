@@ -2,15 +2,13 @@ package com.nhn.hippo.web.service;
 
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.BinaryAnnotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseTemplate2;
 import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.Traces;
+import com.profiler.server.dao.TraceDao;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
-import org.apache.thrift.TSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,7 +30,7 @@ public class SpanServiceTest {
 
 
     @Autowired
-    private Traces traces;
+    private TraceDao traceDao;
 
     @Autowired
     private SpanService spanService;
@@ -82,7 +77,7 @@ public class SpanServiceTest {
     public void after() {
         List list = new LinkedList();
         for (Span span : deleteSpans) {
-            Delete delete = new Delete(SpanUtils.getTracesRowkey(span));
+            Delete delete = new Delete(SpanUtils.getTraceId(span));
             list.add(delete);
         }
         template2.delete(HBaseTables.TRACES, list);
@@ -91,6 +86,11 @@ public class SpanServiceTest {
 
     @Test
     public void testReadSpan() throws TException {
+        doRead(root);
+    }
+
+    @Test
+    public void testReadSpanAndAnnotation() throws TException {
         doRead(root);
     }
 
@@ -107,9 +107,7 @@ public class SpanServiceTest {
 
 
     private void insert(Span span) throws TException {
-        TSerializer se = new TSerializer();
-        byte[] serialize = se.serialize(span);
-        traces.insert(span, serialize);
+        traceDao.insert(span);
     }
 
     AtomicInteger id = new AtomicInteger(0);
@@ -122,6 +120,9 @@ public class SpanServiceTest {
         int andIncrement = id.getAndIncrement();
         Span span = new Span("UnitTest", time, uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         span.setParentSpanId(-1);
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        annotations.add(new Annotation(0, "root ann", 0));
+        span.setAnnotations(annotations);
         return span;
     }
 
@@ -131,6 +132,9 @@ public class SpanServiceTest {
         int andIncrement = id.getAndIncrement();
         Span sub = new Span("UnitTest", time, span.getMostTraceId(), span.getLeastTraceId(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         sub.setParentSpanId(span.getSpanId());
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        annotations.add(new Annotation(0, "sub ann" + andIncrement, 0));
+        sub.setAnnotations(annotations);
         return sub;
     }
 

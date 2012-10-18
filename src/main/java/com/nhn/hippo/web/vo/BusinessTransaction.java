@@ -4,84 +4,86 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.profiler.common.bo.AnnotationBo;
+import com.profiler.common.bo.SpanBo;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 
 public class BusinessTransaction {
-	private final List<String> traces = new ArrayList<String>();
-	private final String name;
+    private final List<String> traces = new ArrayList<String>();
+    private final String name;
 
-	private int calls = 0;
-	private long totalTime = 0;
-	private long maxTime = 0;
-	private long minTime = 0;
+    private int calls = 0;
+    private long totalTime = 0;
+    private long maxTime = 0;
+    private long minTime = 0;
 
-	public BusinessTransaction(Span span) {
-		this.name = span.getName();
-		this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
-		calls++;
+    public BusinessTransaction(SpanBo span) {
+        this.name = span.getName();
+        this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
+        calls++;
 
-		List<Annotation> annotations = span.getAnnotations();
-		long begin = 0;
-		long end = 0;
-		for (Annotation a : annotations) {
-			if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
-				begin = a.getTimestamp();
-			}
-			if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
-				end = a.getTimestamp();
-			}
-		}
-		long elapsed = end - begin;
-		totalTime = maxTime = minTime = elapsed;
-	}
+        List<AnnotationBo> annotations = span.getAnnotationBoList();
+        long begin = 0;
+        long end = 0;
+        for (AnnotationBo a : annotations) {
+            if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
+                begin = a.getTimestamp();
+            }
+            if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
+                end = a.getTimestamp();
+            }
+        }
+        long elapsed = end - begin;
+        totalTime = maxTime = minTime = elapsed;
+    }
 
-	public void add(Span span) {
-		this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
-		if (span.getParentSpanId() == -1) {
-			calls++;
-		}
+    public void add(SpanBo span) {
+        this.traces.add(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString());
+        if (span.getParentSpanId() == -1) {
+            calls++;
+        }
 
-		List<Annotation> annotations = span.getAnnotations();
-		long begin = 0;
-		long end = 0;
-		for (Annotation a : annotations) {
-			if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
-				begin = a.getTimestamp();
-			}
-			if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
-				end = a.getTimestamp();
-			}
-		}
-		long elapsed = end - begin;
-		totalTime += elapsed;
-		if (maxTime < elapsed)
-			maxTime = elapsed;
-		if (minTime > elapsed)
-			minTime = elapsed;
-	}
+        List<AnnotationBo> annotations = span.getAnnotationBoList();
+        long begin = 0;
+        long end = 0;
+        for (AnnotationBo a : annotations) {
+            if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
+                begin = a.getTimestamp();
+            }
+            if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
+                end = a.getTimestamp();
+            }
+        }
+        long elapsed = end - begin;
+        totalTime += elapsed;
+        if (maxTime < elapsed)
+            maxTime = elapsed;
+        if (minTime > elapsed)
+            minTime = elapsed;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public List<String> getTraces() {
-		return traces;
-	}
+    public List<String> getTraces() {
+        return traces;
+    }
 
-	public int getCalls() {
-		return calls;
-	}
+    public int getCalls() {
+        return calls;
+    }
 
-	public long getTotalTime() {
-		return totalTime;
-	}
+    public long getTotalTime() {
+        return totalTime;
+    }
 
-	public long getMaxTime() {
-		return maxTime;
-	}
+    public long getMaxTime() {
+        return maxTime;
+    }
 
-	public long getMinTime() {
-		return minTime;
-	}
+    public long getMinTime() {
+        return minTime;
+    }
 }

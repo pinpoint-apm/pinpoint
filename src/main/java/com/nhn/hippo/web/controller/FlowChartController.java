@@ -2,6 +2,8 @@ package com.nhn.hippo.web.controller;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +24,8 @@ import com.nhn.hippo.web.vo.TraceId;
 @Controller
 public class FlowChartController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private FlowChartService flow;
 
@@ -35,7 +39,7 @@ public class FlowChartController {
         model.addAttribute("nodes", callTree.getNodes());
         model.addAttribute("links", callTree.getLinks());
 
-        System.out.println(callTree.toString());
+        logger.debug("callTree:{}", callTree);
 
         return "flow";
     }
@@ -51,7 +55,7 @@ public class FlowChartController {
         model.addAttribute("links", callTree.getLinks());
         model.addAttribute("businessTransactions", callTree.getBusinessTransactions().iterator());
 
-        System.out.println(callTree.toString());
+        logger.debug("callTree:{}", callTree);
 
         return "flowserver";
     }

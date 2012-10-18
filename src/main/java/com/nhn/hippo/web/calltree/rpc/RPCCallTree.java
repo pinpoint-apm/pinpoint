@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.bo.SpanBo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Call Tree
@@ -16,16 +18,18 @@ import com.profiler.common.dto.thrift.Span;
  */
 public class RPCCallTree {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String PREFIX_CLIENT = "CLIENT:";
 
     private final Map<String, RPC> rpcs = new HashMap<String, RPC>();
     private final Map<String, String> spanIdToRPCId = new HashMap<String, String>();
     private final Map<String, RPCRequest> requests = new HashMap<String, RPCRequest>();
-    private final List<Span> spans = new ArrayList<Span>();
+    private final List<SpanBo> spans = new ArrayList<SpanBo>();
 
     private boolean isBuilt = false;
 
-    public void addSpan(Span span) {
+    public void addSpan(SpanBo span) {
         /**
          * make RPCs
          */
@@ -64,7 +68,7 @@ public class RPCCallTree {
             entry.getValue().setSequence(i++);
         }
 
-        for (Span span : spans) {
+        for (SpanBo span : spans) {
             String from = String.valueOf(span.getParentSpanId());
             String to = String.valueOf(span.getSpanId());
 
@@ -74,7 +78,12 @@ public class RPCCallTree {
             if (fromRPC == null) {
                 fromRPC = rpcs.get(spanIdToRPCId.get(PREFIX_CLIENT + to));
             }
-
+            // TODO 없는 url에 대한 호출이 고려되어야 함. 일단 임시로 회피.
+            if (fromRPC == null) {
+                logger.debug("invalid fromrpc {}", from);
+                continue;
+            }
+            logger.debug("form:{}, to:{}", fromRPC, to);
             RPCRequest request = new RPCRequest(fromRPC, toRPC);
             if (requests.containsKey(request.getId())) {
                 requests.get(request.getId()).increaseCallCount();

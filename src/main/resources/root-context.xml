@@ -16,5 +16,9 @@
 
     <context:annotation-config/>
 
-
+    <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
+    <bean id="annotationMapper" class="com.nhn.hippo.web.mapper.AnnotationMapper"></bean>
+    <bean id="spanAnnotationMapper" class="com.nhn.hippo.web.mapper.SpanMapper">
+        <property name="annotationMapper" ref="annotationMapper"/>
+    </bean>
 </beans>

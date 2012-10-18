@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.nhn.hippo.web.vo.BusinessTransactions;
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.bo.SpanBo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Call Tree
@@ -17,17 +19,19 @@ import com.profiler.common.dto.thrift.Span;
  */
 public class ServerCallTree {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String PREFIX_CLIENT = "CLIENT:";
 
     private final Map<String, Server> servers = new HashMap<String, Server>();
     private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
     private final Map<String, ServerRequest> ServerRequests = new HashMap<String, ServerRequest>();
-    private final List<Span> spans = new ArrayList<Span>();
+    private final List<SpanBo> spans = new ArrayList<SpanBo>();
     private final BusinessTransactions businessTransactions = new BusinessTransactions();
 
     private boolean isBuilt = false;
 
-    public void addSpan(Span span) {
+    public void addSpan(SpanBo span) {
         /**
          * make Servers
          */
@@ -70,7 +74,7 @@ public class ServerCallTree {
             entry.getValue().setSequence(i++);
         }
 
-        for (Span span : spans) {
+        for (SpanBo span : spans) {
             String from = String.valueOf(span.getParentSpanId());
             String to = String.valueOf(span.getSpanId());
 
@@ -81,6 +85,11 @@ public class ServerCallTree {
                 fromServer = servers.get(spanIdToServerId.get(PREFIX_CLIENT + to));
             }
 
+            // TODO 없는 url에 대한 호출이 고려되어야 함. 일단 임시로 회피.
+            if (fromServer == null) {
+                logger.debug("invalid form server {}", from);
+                continue;
+            }
             ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
 
             // TODO: local call인 경우 보여주지 않음.

@@ -10,6 +10,12 @@ public class RPCRequest {
     private int callCount = 1;
 
     public RPCRequest(RPC from, RPC to) {
+        if (from == null) {
+            throw new NullPointerException("form must not be null");
+        }
+        if (to == null) {
+            throw new NullPointerException("to must not be null");
+        }
         this.from = from;
         this.to = to;
         this.id = from.getId() + to.getId();

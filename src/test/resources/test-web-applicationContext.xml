@@ -28,11 +28,15 @@
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
-    <bean id="trace" class="com.profiler.server.dao.Traces"></bean>
+    <bean id="trace" class="com.profiler.server.dao.HbaseTraceDao"></bean>
 
     <bean class="com.nhn.hippo.web.dao.HbaseTraceDao"></bean>
     <bean class="com.nhn.hippo.web.service.SpanServiceImpl"></bean>
-    <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
 
+    <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
+    <bean id="annotationMapper" class="com.nhn.hippo.web.mapper.AnnotationMapper"></bean>
+    <bean id="spanAnnotationMapper" class="com.nhn.hippo.web.mapper.SpanMapper">
+        <property name="annotationMapper" ref="annotationMapper"/>
+    </bean>
 
 </beans>

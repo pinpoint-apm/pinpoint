@@ -33,8 +33,8 @@ public class JavaObjectDecoder implements BinaryAnnotationDecoder {
 //        ByteArrayInputStream ins = new ByteArrayInputStream(binaryAnnotation.getValue());
 //        try {
 //            ObjectInputStream in = new ObjectInputStream(ins);
-//            Object readObject = in.readObject();
-//            return readObject;
+//            Object readValue = in.readValue();
+//            return readValue;
 //        } catch (IOException e) {
 //            logger.warn("binaryAnnotation decode fail Cause:{}", e.getMessage(), e);
 //            return "binaryAnnotation decode fail Cause:" + e.getMessage();

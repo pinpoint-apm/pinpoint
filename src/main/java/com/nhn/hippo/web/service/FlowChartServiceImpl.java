@@ -6,6 +6,7 @@ import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
 import com.nhn.hippo.web.vo.TraceId;
+import com.profiler.common.bo.SpanBo;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
@@ -67,6 +68,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
         if (agentIds.length == 1) {
             // single scan
+            if (logger.isTraceEnabled()) {
+                logger.trace("scan {}, {}, {}", new Object[]{agentIds[0], from, to});
+            }
             List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
             // 이런 필터로직을 scan filter에서 할수 없나?
             Set<TraceId> result = new HashSet<TraceId>();
@@ -120,9 +124,9 @@ public class FlowChartServiceImpl implements FlowChartService {
     @Override
     public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
         final RPCCallTree tree = new RPCCallTree();
-        List<List<Span>> traces = this.traceDao.selectSpans(traceIds);
-        for (List<Span> transaction : traces) {
-            for (Span eachTransaction : transaction) {
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+        for (List<SpanBo> transaction : traces) {
+            for (SpanBo eachTransaction : transaction) {
                 tree.addSpan(eachTransaction);
             }
         }
@@ -133,10 +137,10 @@ public class FlowChartServiceImpl implements FlowChartService {
     public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
         final ServerCallTree tree = new ServerCallTree();
 
-        List<List<Span>> traces = this.traceDao.selectSpans(traceIds);
+        List<List<SpanBo>> traces = this.traceDao.selectSpansAndAnnotation(traceIds);
 
-        for (List<Span> transaction : traces) {
-            for (Span eachTransaction : transaction) {
+        for (List<SpanBo> transaction : traces) {
+            for (SpanBo eachTransaction : transaction) {
                 tree.addSpan(eachTransaction);
             }
         }
