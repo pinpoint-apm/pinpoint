@@ -87,7 +87,7 @@ public class TracesTest {
 
         traceIndex.insert(span);
 
-        byte[] s = ArrayUtils.addAll(Bytes.toBytes(span.getAgentID()), Bytes.toBytes(span.getTimestamp()));
+        byte[] s = ArrayUtils.addAll(Bytes.toBytes(span.getAgentId()), Bytes.toBytes(span.getTimestamp()));
         byte[] result = hbaseOperations.get(traceIndex.getTableName(), s, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
 
         Assert.assertArrayEquals(SpanUtils.getTraceId(span), result);

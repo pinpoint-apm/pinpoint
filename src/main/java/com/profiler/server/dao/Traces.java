@@ -22,7 +22,7 @@ public class Traces {
     public void insert(final Span span, final byte[] spanBytes) {
         Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
         // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
-        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), spanBytes);
+        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanId()), spanBytes);
         hbaseTemplate.put(HBaseTables.TRACES, put);
     }
 
