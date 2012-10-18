@@ -1,9 +1,10 @@
 package com.profiler.common.bo;
 
+import java.nio.charset.Charset;
+
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.util.Buffer;
-
-import java.nio.charset.Charset;
+import com.profiler.common.util.BytesUtils;
 
 /**
  *
@@ -67,7 +68,7 @@ public class AnnotationBo {
 
     public byte[] getKeyBytes() {
         if (keyBytes == null) {
-            keyBytes = this.key.getBytes(UTF8);
+        	keyBytes = BytesUtils.getBytes(key);;
         }
         return keyBytes;
     }

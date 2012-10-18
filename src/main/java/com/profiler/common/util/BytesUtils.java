@@ -1,10 +1,15 @@
 package com.profiler.common.util;
 
 
+import java.nio.charset.Charset;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class BytesUtils {
 
+	private static final byte[] EMPTY_BYTES = new byte[0];
+	private static final Charset UTF8 = Charset.forName("UTF-8");
+	
     public static byte[] longLongToBytes(long value1, long value2) {
         byte[] buffer = new byte[16];
         writeFirstLong(value1, buffer);
@@ -187,5 +192,9 @@ public class BytesUtils {
         return buf;
     }
 
-
+    public static byte[] getBytes(String value) {
+    	if (value == null)
+    		return EMPTY_BYTES;
+    	return value.getBytes(UTF8);
+    }
 }

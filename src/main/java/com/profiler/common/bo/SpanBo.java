@@ -3,6 +3,7 @@ package com.profiler.common.bo;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.Buffer;
+import com.profiler.common.util.BytesUtils;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -13,8 +14,6 @@ import java.util.List;
  *
  */
 public class SpanBo {
-
-    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로
@@ -217,10 +216,10 @@ public class SpanBo {
 
     public byte[] writeValue() {
 
-        byte[] agentIDBytes = agentId.getBytes(UTF8);
-        byte[] nameBytes = name.getBytes(UTF8);
-        byte[] serviceNameBytes = serviceName.getBytes(UTF8);
-        byte[] endPointBytes = endPoint.getBytes(UTF8);
+        byte[] agentIDBytes = BytesUtils.getBytes(agentId);
+        byte[] nameBytes = BytesUtils.getBytes(name);
+        byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
+        byte[] endPointBytes = BytesUtils.getBytes(endPoint);
         int bufferLength = getBufferLength(agentIDBytes.length, nameBytes.length, serviceNameBytes.length, endPointBytes.length);
 
         Buffer buffer = new Buffer(bufferLength);
