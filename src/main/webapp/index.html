@@ -155,6 +155,7 @@
                 <tr>
                     <th>#</th>
                     <th>TraceId</th>
+                    <th>time (ms)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -362,6 +363,8 @@
             html.push(traces[i]);
             html.push("</a></td>");
 
+            html.push("<td>&nbsp;</td>");
+            
             html.push("</tr>");
         }
         $("#businessTransactionsDetail TBODY").append(html.join(''));
