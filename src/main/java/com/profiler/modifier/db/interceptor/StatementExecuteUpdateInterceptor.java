@@ -40,8 +40,8 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
                 Trace.recordAttibute("Query", url);
                 Trace.recordTerminalEndPoint(url);
             } else {
-            	Trace.recordRpcName("MYSQL", "");
-            	Trace.recordTerminalEndPoint("");
+            	Trace.recordRpcName("MYSQL", "UNKNOWN");
+            	Trace.recordTerminalEndPoint("UNKNOWN");
             }
 
             Trace.record(Annotation.ClientSend);
