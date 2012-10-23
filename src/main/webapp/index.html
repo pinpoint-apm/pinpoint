@@ -358,12 +358,14 @@ function openTransactionDetails(index, row) {
         html.push("</td>");
 
         html.push("<td><a href='#' onclick='openTrace(\"");
-        html.push(traces[i]);
+        html.push(traces[i].traceId);
         html.push("\");'>");
-        html.push(traces[i]);
+        html.push(traces[i].traceId);
         html.push("</a></td>");
 
-        html.push("<td>&nbsp;</td>");
+        html.push("<td>");
+        html.push(traces[i].time);
+        html.push("</td>");
 
         html.push("</tr>");
     }

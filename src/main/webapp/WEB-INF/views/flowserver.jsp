@@ -3,41 +3,41 @@
 {
 "graphdata":
 {
-"nodes":
+"nodes" :
 [
 <c:forEach items="${nodes}" var="node" varStatus="status">
     <c:if test="${node.terminal}">
-        {"name":"${node.endPoint}"}
+        { "name" : "${node.endPoint}" }
     </c:if>
     <c:if test="${not node.terminal}">
-        {"name":"${node}"}
+        { "name" : "${node}" }
     </c:if>
     <c:if test="${!status.last}">,</c:if>
 </c:forEach>
 ],
-"links":
+"links" :
 [
 <c:forEach items="${links}" var="link" varStatus="status">
-    {"source":${link.from.sequence},"target":${link.to.sequence},"value":${link.callCount}}
+    {"source" : ${link.from.sequence}, "target" : ${link.to.sequence}, "value" : ${link.callCount}}
     <c:if test="${!status.last}">,</c:if>
 </c:forEach>
 ]
 },
 
-"businessTransactions":
+"businessTransactions" :
 [
 <c:forEach items="${businessTransactions}" var="t" varStatus="status">
     {
-    "name":"${t.name}",
-    "calls":${t.calls},
-    "time":${t.totalTime / t.calls},
-    "minTime":${t.minTime},
-    "maxTime":${t.maxTime},
-    "health":1,
-    "traces":
+    "name" : "${t.name}",
+    "calls" : ${t.calls},
+    "time" : ${t.totalTime / t.calls},
+    "minTime" : ${t.minTime},
+    "maxTime" : ${t.maxTime},
+    "health" : 1,
+    "traces" :
     [
     <c:forEach items="${t.traces}" var="trace" varStatus="status2">
-        "${trace}"
+        { "traceId" : "${trace.traceId}", "time" : ${trace.time} }
         <c:if test="${!status2.last}">,</c:if>
     </c:forEach>
     ]
