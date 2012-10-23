@@ -36,17 +36,21 @@ public class ServerCallTree {
          * make Servers
          */
         // TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
-        Server Server = new Server(span.getAgentId(), span.getEndPoint(), span.isTerminal());
+        Server server = new Server(span.getAgentId(), span.getEndPoint(), span.isTerminal());
 
+        if (server.getId() == null) {
+        	return;
+        }
+        
         // TODO: remove this later.
-        if (Server.getId().contains("mysql:jdbc:") || Server.getId().contains("favicon")) {
+        if (server.getId().contains("mysql:jdbc:") || server.getId().contains("favicon")) {
             return;
         }
 
-        if (!servers.containsKey(Server.getId())) {
-            servers.put(Server.getId(), Server);
+        if (!servers.containsKey(server.getId())) {
+            servers.put(server.getId(), server);
         }
-        spanIdToServerId.put(String.valueOf(span.getSpanId()), Server.getId());
+        spanIdToServerId.put(String.valueOf(span.getSpanId()), server.getId());
 
         // TODO: remove client node
 //		if (span.getParentSpanId() == -1) {

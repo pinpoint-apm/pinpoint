@@ -11,7 +11,8 @@ public class Server implements Comparable<Server> {
     private final boolean terminal;
 
     public Server(String agentId, String endPoint, boolean terminal) {
-        this.id = agentId + ":" + endPoint;
+//        this.id = agentId + ":" + endPoint;
+        this.id = endPoint;
         this.agentId = agentId;
         this.endPoint = endPoint;
         this.terminal = terminal;
