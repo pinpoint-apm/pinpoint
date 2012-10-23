@@ -26,6 +26,10 @@
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
+    <!-- 
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+     -->
+    
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
 
     <style>
@@ -57,6 +61,19 @@
         .link:hover {
             stroke-opacity: .5;
         }
+        
+        
+        .axis path,
+		.axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}
+		
+		.dot {
+		  stroke: #000;
+		}
+        
     </style>
 </head>
 <body>
@@ -117,7 +134,16 @@
     </div>
     <div class="row">
         <div class="span10">
-            <p id="chart"></p>
+            <p id="graph"></p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span10">Scatterplot</div>
+    </div>
+    <div class="row">
+        <div class="span10">
+            <p id="scatter"></p>
         </div>
     </div>
 
@@ -179,7 +205,7 @@ function getEndTime() {
 }
 
 function cleanupChart() {
-    $("#chart").empty();
+    $("#graph").empty();
 }
 
 function cleanupTracesTable() {
@@ -204,7 +230,7 @@ function drawChart(chartType) {
 
     var hosts = $("#servers").val();
 
-    var svg = d3.select("#chart").append("svg")
+    var svg = d3.select("#graph").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -330,6 +356,8 @@ function drawChart(chartType) {
         }
         $("#businessTransactions TBODY").append(html.join(''));
 
+        drawScatter(traces.scatter);
+        
     }); // end of d3.json
 
 } // end of draw chart
@@ -374,6 +402,99 @@ function openTransactionDetails(index, row) {
 
 function openTrace(uuid) {
     window.open("/selectTransaction.hippo?traceId=" + uuid);
+}
+
+
+function drawScatter(data) {
+	var margin = {top: 20, right: 20, bottom: 30, left: 40},
+	    width = 960 - margin.left - margin.right,
+	    height = 500 - margin.top - margin.bottom;
+
+	var x = d3.scale.linear()
+	    .range([0, width]);
+
+	var y = d3.scale.linear()
+	    .range([height, 0]);
+
+	var color = d3.scale.category10();
+
+	var xAxis = d3.svg.axis()
+	    .scale(x)
+	    .orient("bottom");
+
+	var yAxis = d3.svg.axis()
+	    .scale(y)
+	    .orient("left");
+	
+	var svg = d3.select("#scatter").append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //d3.json("/data.tsv", function (data) {
+    //d3.tsv("data.tsv", function(error, data) {
+    	
+	  data.forEach(function(d) {
+	    d.sepalLength = +d.sepalLength;
+	    d.sepalWidth = +d.sepalWidth;
+	  });
+
+	  x.domain(d3.extent(data, function(d) { return d.timestamp; })).nice();
+	  y.domain(d3.extent(data, function(d) { return d.executionTime; })).nice();
+
+	  svg.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis)
+	    .append("text")
+	      .attr("class", "label")
+	      .attr("x", width)
+	      .attr("y", -6)
+	      .style("text-anchor", "end")
+	      .text("Timestamp (HH:mm)");
+
+	  svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	    .append("text")
+	      .attr("class", "label")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+	      .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+	      .text("Execute time (ms)")
+
+	  svg.selectAll(".dot")
+	      .data(data)
+	    .enter().append("circle")
+	      .attr("class", "dot")
+	      .attr("r", 3.5)
+	      .attr("cx", function(d) { return x(d.timestamp); })
+	      .attr("cy", function(d) { return y(d.executionTime); })
+	      .style("fill", function(d) { return color(d.name); });
+
+	  var legend = svg.selectAll(".legend")
+	      .data(color.domain())
+	    .enter().append("g")
+	      .attr("class", "legend")
+	      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+	  legend.append("rect")
+	      .attr("x", width - 18)
+	      .attr("width", 18)
+	      .attr("height", 18)
+	      .style("fill", color);
+
+	  legend.append("text")
+	      .attr("x", width - 24)
+	      .attr("y", 9)
+	      .attr("dy", ".35em")
+	      .style("text-anchor", "end")
+	      .text(function(d) { return d; });
+
+	//});
+	
 }
 </script>
 
