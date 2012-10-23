@@ -6,8 +6,6 @@ import java.util.UUID;
 
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Span;
 
 public class BusinessTransaction {
     private final List<String> traces = new ArrayList<String>();
