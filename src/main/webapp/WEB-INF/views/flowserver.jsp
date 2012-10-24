@@ -45,6 +45,7 @@
 	<c:forEach items="${traces}" var="t" varStatus="status3">
 	    <c:forEach items="${t.traces}" var="trace" varStatus="status4">
 		{
+			"traceId" : "${trace.traceId}",
 			"timestamp" : ${trace.timestamp},
 			"executionTime" : ${trace.executionTime},
 			"name" : "${t.name}"

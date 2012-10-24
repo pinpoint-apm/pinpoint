@@ -7,11 +7,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            padding-top: 60px;
-        }
-    </style>
+    <link href="/common/css/hippo/hippo.css" rel="stylesheet">
+    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
@@ -26,64 +23,18 @@
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
-    <!-- 
-    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-     -->
-    
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
-
-    <style>
-        #chart {
-            /* height: 500px; */
-        }
-
-        .node rect {
-            cursor: move;
-            fill-opacity: .9;
-            shape-rendering: crispEdges;
-        }
-
-        .node text {
-            pointer-events: none;
-            text-shadow: 0 1px 0 #fff;
-        }
-
-        .link {
-            fill: none;
-            stroke: #000;
-            stroke-opacity: .2;
-        }
-
-        .linkOver {
-            stroke-opacity: .5;
-        }
-
-        .link:hover {
-            stroke-opacity: .5;
-        }
-        
-        
-        .axis path,
-		.axis line {
-		  fill: none;
-		  stroke: #000;
-		  shape-rendering: crispEdges;
-		}
-		
-		.dot {
-		  stroke: #000;
-		}
-        
-    </style>
 </head>
 <body>
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span
-                    class="icon-bar"></span> <span class="icon-bar"></span>
-            </a> <a class="brand" href="/">HIPPO</a>
-
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+            </a>
+			<a class="brand" href="/">HIPPO</a>
             <div class="nav-collapse">
                 <ul class="nav">
                     <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
@@ -125,8 +76,8 @@
         <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-12-31">
         <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="23:59">
 
-        <button type="button" class="btn btn-primary" onclick="drawChart('flow')">Trace RPC !</button>
-        <button type="button" class="btn btn-primary" onclick="drawChart('flowserver')">Trace Server !</button>
+        <button id="btnTraceRPC" type="button" class="btn btn-primary">Trace RPC !</button>
+        <button id="btnTraceServer" type="button" class="btn btn-primary">Trace Server !</button>
     </form>
 
     <div class="row">
@@ -165,7 +116,6 @@
                 </tr>
                 </thead>
                 <tbody>
-
                 </tbody>
             </table>
         </div>
@@ -185,7 +135,6 @@
                 </tr>
                 </thead>
                 <tbody>
-
                 </tbody>
             </table>
         </div>
@@ -206,6 +155,7 @@ function getEndTime() {
 
 function cleanupChart() {
     $("#graph").empty();
+    $("#scatter").empty();
 }
 
 function cleanupTracesTable() {
@@ -213,21 +163,18 @@ function cleanupTracesTable() {
     $("#businessTransactionsDetail TBODY").empty();
 }
 
-var margin = {
-    top:1,
-    right:1,
-    bottom:6,
-    left:1
-}, width = 1300 - margin.left - margin.right, height = 450 - margin.top - margin.bottom;
-
-var formatNumber = d3.format(",.0f"), format = function (d) {
-    return formatNumber(d) + " Requests";
-}, color = d3.scale.category20();
-
 function drawChart(chartType) {
-    cleanupChart();
-    cleanupTracesTable();
+	var margin = {
+		    top:1,
+		    right:1,
+		    bottom:6,
+		    left:1
+		}, width = 1300 - margin.left - margin.right, height = 450 - margin.top - margin.bottom;
 
+	var formatNumber = d3.format(",.0f"), format = function (d) {
+	    	return formatNumber(d) + " Requests";
+		}, color = d3.scale.category20();
+	
     var hosts = $("#servers").val();
 
     var svg = d3.select("#graph").append("svg")
@@ -314,48 +261,7 @@ function drawChart(chartType) {
             link.attr("d", path);
         }
 
-        /*
-         Add transaction information
-         */
-        transactions = traces.businessTransactions;
-        var html = [];
-        for (var i = 0; i < transactions.length; i++) {
-            html.push("<tr>");
-
-            html.push("<td>");
-            html.push(i + 1);
-            html.push("</td>");
-
-            html.push("<td><a href='#' onclick='openTransactionDetails(");
-            html.push(i);
-            html.push(", this);'>");
-            html.push(transactions[i].name);
-            html.push("</a></td>");
-
-            html.push("<td>");
-            html.push(transactions[i].calls);
-            html.push("</td>");
-
-            html.push("<td>");
-            html.push(transactions[i].time);
-            html.push("</td>");
-
-            html.push("<td>");
-            html.push(transactions[i].minTime);
-            html.push("</td>");
-
-            html.push("<td>");
-            html.push(transactions[i].maxTime);
-            html.push("</td>");
-
-            html.push("<td>");
-            html.push(transactions[i].health);
-            html.push("</td>");
-
-            html.push("</tr>");
-        }
-        $("#businessTransactions TBODY").append(html.join(''));
-
+        showTransactionList(traces.businessTransactions);
         drawScatter(traces.scatter);
         
     }); // end of d3.json
@@ -363,8 +269,47 @@ function drawChart(chartType) {
 } // end of draw chart
 
 var transactions;
-
 var prevDetaildRow;
+
+function showTransactionList(transactions) {
+   var html = [];
+   for (var i = 0; i < transactions.length; i++) {
+       html.push("<tr>");
+
+       html.push("<td>");
+       html.push(i + 1);
+       html.push("</td>");
+
+       html.push("<td><a href='#' onclick='openTransactionDetails(");
+       html.push(i);
+       html.push(", this);'>");
+       html.push(transactions[i].name);
+       html.push("</a></td>");
+
+       html.push("<td>");
+       html.push(transactions[i].calls);
+       html.push("</td>");
+
+       html.push("<td>");
+       html.push(transactions[i].time);
+       html.push("</td>");
+
+       html.push("<td>");
+       html.push(transactions[i].minTime);
+       html.push("</td>");
+
+       html.push("<td>");
+       html.push(transactions[i].maxTime);
+       html.push("</td>");
+
+       html.push("<td>");
+       html.push(transactions[i].health);
+       html.push("</td>");
+
+       html.push("</tr>");
+   }
+   $("#businessTransactions TBODY").append(html.join(''));	
+}
 
 function openTransactionDetails(index, row) {
     if (prevDetaildRow != null) {
@@ -400,22 +345,13 @@ function openTransactionDetails(index, row) {
     $("#businessTransactionsDetail TBODY").append(html.join(''));
 }
 
-function openTrace(uuid) {
-    window.open("/selectTransaction.hippo?traceId=" + uuid);
-}
-
-
 function drawScatter(data) {
 	var margin = {top: 20, right: 20, bottom: 30, left: 40},
 	    width = 960 - margin.left - margin.right,
 	    height = 500 - margin.top - margin.bottom;
 
-	var x = d3.scale.linear()
-	    .range([0, width]);
-
-	var y = d3.scale.linear()
-	    .range([height, 0]);
-
+	var x = d3.time.scale().range([0, width]);
+	var y = d3.scale.linear().range([height, 0]);
 	var color = d3.scale.category10();
 
 	var xAxis = d3.svg.axis()
@@ -432,16 +368,13 @@ function drawScatter(data) {
 	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    //d3.json("/data.tsv", function (data) {
-    //d3.tsv("data.tsv", function(error, data) {
-    	
-	  data.forEach(function(d) {
-	    d.sepalLength = +d.sepalLength;
-	    d.sepalWidth = +d.sepalWidth;
-	  });
+	  //data.forEach(function(d) {
+	  //  d.timestamp = +d.timestamp;
+	  //  d.executionTime = +d.executionTime;
+	  //});
 
-	  x.domain(d3.extent(data, function(d) { return d.timestamp; })).nice();
-	  y.domain(d3.extent(data, function(d) { return d.executionTime; })).nice();
+	  x.domain(d3.extent(data, function(d) { return d.timestamp; }));//.nice();
+	  y.domain(d3.extent(data, function(d) { return d.executionTime; }));//.nice();
 
 	  svg.append("g")
 	      .attr("class", "x axis")
@@ -472,7 +405,8 @@ function drawScatter(data) {
 	      .attr("r", 3.5)
 	      .attr("cx", function(d) { return x(d.timestamp); })
 	      .attr("cy", function(d) { return y(d.executionTime); })
-	      .style("fill", function(d) { return color(d.name); });
+	      .style("fill", function(d) { return color(d.name); })
+	      .on("click", function(d) { openTrace(d.traceId); });
 
 	  var legend = svg.selectAll(".legend")
 	      .data(color.domain())
@@ -492,16 +426,28 @@ function drawScatter(data) {
 	      .attr("dy", ".35em")
 	      .style("text-anchor", "end")
 	      .text(function(d) { return d; });
-
-	//});
-	
 }
-</script>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        $("#servers").select2();
+function openTrace(uuid) {
+    window.open("/selectTransaction.hippo?traceId=" + uuid);
+}
+
+$(document).ready(function () {
+    $("#servers").select2();
+    
+    $("#btnTraceRPC").click(function() { 
+        cleanupChart();
+        cleanupTracesTable();
+        drawChart("flow");
     });
+    
+    $("#btnTraceServer").click(function() { 
+        cleanupChart();
+        cleanupTracesTable();
+        drawChart("flowserver");
+    });
+    
+});
 </script>
 </body>
 </html>
