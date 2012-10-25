@@ -1,15 +1,10 @@
 exec ./hbase shell <<EOF
-disable 'Servers'
-disable 'TraceIndex'
-disable 'Traces'
-disable 'SystemInfo'
+disable_all
 
-drop 'Servers'
-drop 'TraceIndex'
-drop 'Traces'
-drop 'SystemInfo'
+drop_all
 
 create 'Servers', { NAME => 'Agents' }
+create 'RootTraceIndex', { NAME => 'Trace' }
 create 'TraceIndex', { NAME => 'Trace' }
 create 'Traces', { NAME => 'Span' }, { NAME => 'Annotation' }
 create 'SystemInfo', { NAME => 'JVM' }
