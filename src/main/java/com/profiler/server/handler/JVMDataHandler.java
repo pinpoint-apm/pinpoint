@@ -29,7 +29,7 @@ public class JVMDataHandler implements Handler {
                 logger.info("Received JVM=" + dto);
             }
         } catch (Exception e) {
-            logger.warn("JVMData handle error " + e.getMessage(), e);
+            logger.warn("JVMData handle error. Caused:" + e.getMessage(), e);
         }
     }
 }

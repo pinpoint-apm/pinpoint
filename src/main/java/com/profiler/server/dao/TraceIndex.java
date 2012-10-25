@@ -6,6 +6,6 @@ import java.net.DatagramPacket;
 
 public interface TraceIndex {
 
-    boolean insert(Span span);
+    void insert(Span span);
 
 }

@@ -2,6 +2,7 @@ package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
 
+import com.profiler.server.dao.RootTraceIndexDao;
 import com.profiler.server.dao.TraceIndex;
 import com.profiler.server.dao.TraceDao;
 import org.apache.thrift.TBase;
@@ -21,12 +22,18 @@ public class SpanHandler implements Handler {
     @Autowired
     private TraceDao traceDao;
 
+    @Autowired
+    private RootTraceIndexDao rootTraceIndexDao;
+
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         assert (tbase instanceof Span);
 
         try {
             Span span = (Span) tbase;
             traceDao.insert(span);
+            if (span.getParentSpanId() == -1) {
+                rootTraceIndexDao.insert(span);
+            }
             traceIndexDao.insert(span);
 
             if (logger.isInfoEnabled()) {

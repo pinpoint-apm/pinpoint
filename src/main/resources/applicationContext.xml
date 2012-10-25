@@ -35,6 +35,7 @@
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
+    <bean class="com.profiler.server.dao.HbaseRootTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.HbaseTraceIndex"></bean>
     <bean class="com.profiler.server.dao.HbaseTraceDao"></bean>
     <bean class="com.profiler.server.dao.HbaseJvmInfoDao"></bean>

@@ -36,11 +36,10 @@ public class HbaseTraceIndex implements TraceIndex {
 
 
     @Override
-    public boolean insert(final Span span) {
+    public void insert(final Span span) {
         Put put = new Put(SpanUtils.getTraceIndexRowKey(span), span.getTimestamp());
         put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(span));
 
         hbaseTemplate.put(tableName, put);
-        return true;
     }
 }
