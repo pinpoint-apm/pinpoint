@@ -68,38 +68,6 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
         return spanList;
 
-//        NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(COLFAM_SPAN);
-//        if (familyMap == null) {
-//            return Collections.emptyList();
-//        }
-
-//        List<SpanBo> spanList = new ArrayList<SpanBo>(familyMap.size());
-//        Put put = new Put(SpanUtils.getTracesRowkey(span), span.getTimestamp());
-//        // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
-//        put.add(COLFAM_SPAN, Bytes.toBytes(span.getSpanID()), value);
-
-//        byte[] rowKey = result.getRow();
-//        long most = BytesUtils.bytesToFirstLong(rowKey);
-//        long least = BytesUtils.bytesToSecondLong(rowKey);
-//
-//        for (NavigableMap.Entry<byte[], byte[]> entry : familyMap.entrySet()) {
-//            SpanBo spanBo = new SpanBo();
-//
-//            spanBo.setMostTraceID(most);
-//            spanBo.setLeastTraceID(least);
-//            spanBo.setSpanID(Bytes.toLong(entry.getKey()));
-//            //
-//            //byte[] spanId = entry.getKey();
-////            if (binaryAnnotationDecoder != null) {
-////                binaryAnnotationDecoder.decode(span);
-////            }
-//
-//            if (logger.isDebugEnabled()) {
-//                logger.debug("read span :{}", spanBo);
-//            }
-//            spanList.add(spanBo);
-//        }
-//        return spanList;
     }
 
     private void addAnnotation(List<SpanBo> spanList, Map<Long, List<AnnotationBo>> annotationMap) {

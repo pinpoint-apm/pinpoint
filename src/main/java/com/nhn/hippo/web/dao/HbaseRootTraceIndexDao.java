@@ -19,9 +19,9 @@ import java.util.List;
  *
  */
 @Repository
-public class HbaseTraceIndexDao implements TraceIndexDao {
+public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
     private final byte[] COLNAME_ID = Bytes.toBytes("ID");
@@ -44,7 +44,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     @Override
     public List<byte[]> scanTraceIndex(String agent, long start, long end) {
         Scan scan = createScan(agent, start, end);
-        return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIndexMapper);
+        return hbaseOperations2.find(HBaseTables.ROOT_TRACE_INDEX, scan, traceIndexMapper);
     }
 
     @Override
@@ -54,12 +54,10 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
             Scan scan = createScan(agent, start, end);
             multiScan.add(scan);
         }
-        return hbaseOperations2.find(HBaseTables.TRACE_INDEX, multiScan, traceIndexMapper);
+        return hbaseOperations2.find(HBaseTables.ROOT_TRACE_INDEX, multiScan, traceIndexMapper);
     }
 
-
     private Scan createScan(String agent, long start, long end) {
-
         Scan scan = new Scan();
         // cache size를 지정해야 되는거 같음.??
         scan.setCaching(this.scanCacheSize);
@@ -72,18 +70,17 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
         byte[] bEnd = BytesUtils.add(bAgent, end);
         scan.setStopRow(bEnd);
+
         scan.addColumn(COLFAM_TRACE, COLNAME_ID);
-        scan.setId("traceIndexScan");
+        scan.setId("rootTraceIndexScan");
 
         // json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
         logger.debug("create scan:{}", scan);
         return scan;
     }
 
-    //    private ExecutorService executor = Executors.newFixedThreadPool(100);
     @Override
     public List parallelScanTraceIndex(String[] agents, long start, long end) {
-//        executor.invokeAll();
-        throw new UnsupportedOperationException();
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

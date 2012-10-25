@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,9 +48,16 @@ public class FlowChartController {
     @RequestMapping(value = "/flowserver", method = RequestMethod.GET)
     public String flowserver(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
         String[] agentIds = flow.selectAgentIds(hosts);
+        // TODO 제거 하거나, interceptor로 할것.
+        StopWatch watch = new StopWatch();
+        watch.start("scanTraceindex");
         Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
-
+        watch.stop();
+        logger.info("time:{} {}", watch.getLastTaskTimeMillis(), traceIds.size());
+        watch.start("selectServerCallTree");
         ServerCallTree callTree = flow.selectServerCallTree(traceIds);
+        watch.stop();
+        logger.info("time:{}", watch.getLastTaskTimeMillis());
 
         model.addAttribute("nodes", callTree.getNodes());
         model.addAttribute("links", callTree.getLinks());

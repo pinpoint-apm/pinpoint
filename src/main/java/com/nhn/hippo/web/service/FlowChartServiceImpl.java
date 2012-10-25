@@ -2,6 +2,7 @@ package com.nhn.hippo.web.service;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.dao.RootTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.service.TracesProcessor.SpanHandler;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -36,6 +38,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
     @Autowired
     private TraceDao traceDao;
+
+    @Autowired
+    private RootTraceIndexDao rootTraceIndexDao;
 
     @Autowired
     private TraceIndexDao traceIndexDao;
@@ -71,7 +76,8 @@ public class FlowChartServiceImpl implements FlowChartService {
             if (logger.isTraceEnabled()) {
                 logger.trace("scan {}, {}, {}", new Object[]{agentIds[0], from, to});
             }
-            List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+//            List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+            List<byte[]> bytes = this.rootTraceIndexDao.scanTraceIndex(agentIds[0], from, to);
             // 이런 필터로직을 scan filter에서 할수 없나?
             Set<TraceId> result = new HashSet<TraceId>();
             for (byte[] traceId : bytes) {
@@ -82,7 +88,8 @@ public class FlowChartServiceImpl implements FlowChartService {
             return result;
         } else {
             // multi scan 가능한 동일 htable 에서 액세스함.
-            List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+//            List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+            List<List<byte[]>> multiScan = this.rootTraceIndexDao.multiScanTraceIndex(agentIds, from, to);
             Set<TraceId> result = new HashSet<TraceId>();
             for (List<byte[]> scan : multiScan) {
                 for (byte[] traceId : scan) {

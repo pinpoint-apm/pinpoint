@@ -31,27 +31,26 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
 
             int offset = kv.getValueOffset();
             if (kv.getFamilyLength() == HBaseTables.TRACES_CF_ANNOTATION.length) {
-//                byte[] value = kv.getValue();
-//                if(value == null) {
-//                    continue;
-//                }
                 int valueLength = kv.getValueLength();
                 if (valueLength == 0) {
                     continue;
                 }
 
                 int size = BytesUtils.bytesToInt(buffer, offset);
+                offset += 4;
                 if (size == 0) {
                     continue;
                 }
-                offset += 4;
+
                 List<AnnotationBo> bos = new ArrayList<AnnotationBo>(size);
                 for (int i = 0; i < size; i++) {
                     AnnotationBo annotationBo = new AnnotationBo();
                     annotationBo.setSpanId(spanId);
                     offset = annotationBo.readValue(buffer, offset);
                     bos.add(annotationBo);
-                    logger.trace("read annotation:{}", annotationBo);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("read annotation:{}", annotationBo);
+                    }
                 }
                 annotationList.put(spanId, bos);
             }
