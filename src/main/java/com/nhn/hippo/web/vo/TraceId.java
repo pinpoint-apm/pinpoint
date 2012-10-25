@@ -21,6 +21,12 @@ public class TraceId {
         this.most = BytesUtils.bytesToFirstLong(id);
         this.least = BytesUtils.bytesToSecondLong(id);
     }
+    
+	public TraceId(UUID uuid) {
+		this.most = uuid.getMostSignificantBits();
+		this.least = uuid.getLeastSignificantBits();
+		this.id = BytesUtils.longLongToBytes(most, least);
+	}
 
     public byte[] getBytes() {
         return id;
