@@ -32,8 +32,8 @@ function drawSankeyChart(graphdata, targetId) {
 	        }).sort(function (a, b) {
 	            return b.dy - a.dy;
 	        }).on("click", function (a, b) {
-	            console.log(a);
-	            console.log(b);
+	            //console.log(a);
+	            //console.log(b);
 	        });
 	
 	link.append("title").text(
@@ -53,7 +53,7 @@ function drawSankeyChart(graphdata, targetId) {
 	        }).on("drag", dragmove));
 	
 	node.on("click", function (d) {
-	    console.log(d);
+	    // console.log(d);
 	});
 	
 	node.append("rect").attr("height",function (d) {
@@ -218,12 +218,14 @@ function displaySelectedTraceIdList(traces) {
 	
     var html = [];
     for (var i = 0; i < keys.length; i++) {
-    	console.log(traces[keys[i]]);
-    	
         html.push("<tr>");
 
         html.push("<td>");
         html.push(i + 1);
+        html.push("</td>");
+        
+        html.push("<td>");
+        html.push(new Date(traces[keys[i]].timestamp));
         html.push("</td>");
 
         html.push("<td><a href='#' onclick='openTrace(\"");

@@ -76,6 +76,7 @@
 			<thead>
 			<tr>
 			    <th>#</th>
+			    <th>Time</th>
 			    <th>TraceId</th>
 			    <th>Response Time (ms)</th>
 			    <th>Application</th>
@@ -103,8 +104,8 @@
         <input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-10-26">
         <input id="starttime" type="text" class="input-small" placeholder="StartTime" value="11:10">
         ~
-        <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-12-31">
-        <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="23:59">
+        <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-10-26">
+        <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="13:00">
 
         <button id="btnTraceRPC" type="button" class="btn btn-primary">Trace RPC !</button>
         <button id="btnTraceServer" type="button" class="btn btn-primary">Trace Server !</button>
@@ -139,7 +140,7 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Calls</th>
-                    <th>Respoinse Time(ms)</th>
+                    <th>Response Time(ms)</th>
                     <th>min res. time(ms)</th>
                     <th>max res. time(ms)</th>
                     <th>health</th>
@@ -160,6 +161,7 @@
                 <thead>
                 <tr>
                     <th>#</th>
+                    <th>Time</th>
                     <th>TraceId</th>
                     <th>Response Time (ms)</th>
                 </tr>
@@ -211,7 +213,7 @@ function showTransactionList(transactions) {
 	    html.push("</td>");
 	
 	    html.push("<td>");
-	    html.push(transactions[i].time);
+	    html.push(transactions[i].avgTime);
 	    html.push("</td>");
 	
 	    html.push("<td>");
@@ -249,6 +251,10 @@ function openTransactionDetails(index, row) {
         html.push("<td>");
         html.push(i + 1);
         html.push("</td>");
+        
+        html.push("<td>");
+        html.push(new Date(traces[i].timestamp));
+        html.push("</td>");
 
         html.push("<td><a href='#' onclick='openTrace(\"");
         html.push(traces[i].traceId);
@@ -257,7 +263,7 @@ function openTransactionDetails(index, row) {
         html.push("</a></td>");
 
         html.push("<td>");
-        html.push(traces[i].time);
+        html.push(traces[i].executionTime);
         html.push("</td>");
 
         html.push("</tr>");

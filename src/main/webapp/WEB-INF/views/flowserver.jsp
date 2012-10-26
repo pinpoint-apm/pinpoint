@@ -26,13 +26,13 @@
 	    {
 		    "name" : "${t.name}",
 		    "calls" : ${t.calls},
-		    "time" : ${t.totalTime / t.calls},
+		    "avgTime" : ${t.totalTime / t.calls},
 		    "minTime" : ${t.minTime},
 		    "maxTime" : ${t.maxTime},
 		    "health" : 1,
 		    "traces" : [
 		    <c:forEach items="${t.traces}" var="trace" varStatus="status2">
-		        { "traceId" : "${trace.traceId}", "time" : ${trace.executionTime} }
+		        { "traceId" : "${trace.traceId}", "executionTime" : ${trace.executionTime}, "timestamp" : ${trace.timestamp} }
 		        <c:if test="${!status2.last}">,</c:if>
 		    </c:forEach>
 		    ]
