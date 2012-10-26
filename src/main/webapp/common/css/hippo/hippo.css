@@ -6,6 +6,18 @@ body {
     /* height: 500px; */
 }
 
+rect.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+
+rect.frame {
+  fill: #fff;
+  fill-opacity: .7;
+  stroke: #aaa;
+}
+
 .node rect {
     cursor: move;
     fill-opacity: .9;

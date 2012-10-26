@@ -54,7 +54,7 @@
         <h3>Configuration</h3>
     </div>
     <div class="modal-body">
-        Configurations...
+	Configuration.
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -62,6 +62,33 @@
     </div>
 </div>
 <!-- END OF MODAL -->
+
+<!-- MODAL -->
+<div class="modal hide fade" id="traceIdSelectModal" style="width:1000px; margin-left:-500px">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Selected Traces</h3>
+    </div>
+    <div class="modal-body">
+		<table id="selectedBusinessTransactionsDetail" class="table table-bordered">
+			<thead>
+			<tr>
+			    <th>#</th>
+			    <th>TraceId</th>
+			    <th>time (ms)</th>
+			</tr>
+			</thead>
+			<tbody>
+			</tbody>
+       </table>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+        <a href="#" class="btn btn-primary" onclick="saveNewChart();">Add to dashboard</a>
+    </div>
+</div>
+<!-- END OF MODAL -->
+
 
 <!-- MENU -->
 <div class="container">
