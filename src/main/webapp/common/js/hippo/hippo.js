@@ -235,6 +235,10 @@ function displaySelectedTraceIdList(traces) {
         html.push("<td>");
         html.push(traces[keys[i]].executionTime);
         html.push("</td>");
+        
+        html.push("<td>");
+        html.push(traces[keys[i]].name);
+        html.push("</td>");
 
         html.push("</tr>");
     }
