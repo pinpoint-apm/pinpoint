@@ -47,11 +47,13 @@ public class HelloWorldController {
 	 */
 	@RequestMapping(value = "/arcus")
 	public String arcus(Model model) {
+		Future<Boolean> future = null;
 		try {
-			Future<Boolean> future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
+			future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
 			future.get(1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (future != null)
+				future.cancel(true);
 		}
 		return "arcus";
 	}
@@ -76,12 +78,12 @@ public class HelloWorldController {
 
 		return "mysql";
 	}
-	
+
 	@RequestMapping(value = "/remotecombination")
 	public String remotecombination(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
-		
+
 		return "remotecombination";
 	}
 
@@ -89,7 +91,26 @@ public class HelloWorldController {
 	public String combination(Model model) {
 		mysql(model);
 		arcus(model);
-		
+
 		return "combination";
+	}
+
+	@RequestMapping(value = "/error500")
+	public String error500(Model model) {
+		int i = 1 / 0;
+		return "error";
+	}
+
+	@RequestMapping(value = "/arcustimeout")
+	public String arcustimeout(Model model) {
+		Future<Boolean> future = null;
+		try {
+			future = arcus.set("hippo:expect-timeout", 10, "Hello, Timeout.");
+			future.get(100L, TimeUnit.MICROSECONDS);
+		} catch (Exception e) {
+			if (future != null)
+				future.cancel(true);
+		}
+		return "timeout";
 	}
 }
