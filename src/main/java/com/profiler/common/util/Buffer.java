@@ -78,6 +78,10 @@ public class Buffer {
         if (size == 0) {
             return EMPTY;
         }
+        return readBytes(size);
+    }
+
+    private byte[] readBytes(int size) {
         byte[] b = new byte[size];
         System.arraycopy(buffer, offset, b, 0, size);
         this.offset = offset + size;
@@ -89,6 +93,10 @@ public class Buffer {
         if (size == 0) {
             return "";
         }
+        return readString(size);
+    }
+
+    private String readString(int size) {
         String s = new String(buffer, offset, size, UTF8);
         this.offset = offset + size;
         return s;
