@@ -2,7 +2,7 @@ package com.nhn.hippo.web.dao;
 
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
+import com.profiler.common.util.SpanUtils;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -65,13 +65,13 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         scan.setCaching(this.scanCacheSize);
 
         byte[] bAgent = Bytes.toBytes(agent);
-        byte[] bStart = BytesUtils.add(bAgent, start);
-        scan.setStartRow(bStart);
+        byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, start);
+        scan.setStartRow(traceIndexStartKey);
 //      TODO 추가 filter를 구현하여 scan시 중복된 값을 제가 할수 있음. 단 server에도 Filter 클래스가 배포되어야 한다.
 //        scan.setFilter(new ValueFilter());
 
-        byte[] bEnd = BytesUtils.add(bAgent, end);
-        scan.setStopRow(bEnd);
+        byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
+        scan.setStopRow(traceIndexEndKey);
         scan.addColumn(COLFAM_TRACE, COLNAME_ID);
         scan.setId("traceIndexScan");
 
@@ -80,10 +80,4 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         return scan;
     }
 
-    //    private ExecutorService executor = Executors.newFixedThreadPool(100);
-    @Override
-    public List parallelScanTraceIndex(String[] agents, long start, long end) {
-//        executor.invokeAll();
-        throw new UnsupportedOperationException();
-    }
 }

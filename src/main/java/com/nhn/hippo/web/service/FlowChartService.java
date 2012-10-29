@@ -33,14 +33,6 @@ public interface FlowChartService {
     public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to);
 
     /**
-     * select Traces from Trace table
-     *
-     * @param traceIds
-     * @return
-     */
-    public Map<byte[], List<Span>> selectTraces(List<byte[]> traceIds);
-
-    /**
      * select call tree
      *
      * @param traceIds

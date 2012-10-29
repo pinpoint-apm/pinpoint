@@ -9,6 +9,4 @@ public interface TraceIndexDao {
     List<byte[]> scanTraceIndex(String agent, long start, long end);
 
     List<List<byte[]>> multiScanTraceIndex(String[] agents, long start, long end);
-
-    List parallelScanTraceIndex(String[] agents, long start, long end);
 }
