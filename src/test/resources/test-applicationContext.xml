@@ -24,6 +24,10 @@
 
     <import resource="classpath:hbase-applicationContext.xml"></import>
 
+    <bean id="hBaseAdminTemplate" class="com.profiler.common.hbase.HBaseAdminTemplate" destroy-method="close">
+        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
+    </bean>
+
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 

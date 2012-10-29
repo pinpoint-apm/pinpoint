@@ -1,13 +1,10 @@
 package com.profiler.server.dao;
 
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.BinaryAnnotation;
-import com.profiler.common.dto.thrift.Endpoint;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.hbase.HBaseClient;
+import com.profiler.common.hbase.HBaseAdminTemplate;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.HbaseTraceIndex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -21,6 +18,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
@@ -37,9 +35,8 @@ public class TraceDaoTest {
     @Autowired
     private HbaseOperations2 hbaseOperations;
 
-    // static 하니 inject가 잘안됨 방안을 찾아봐야 될듯.
     @Autowired
-    public HBaseClient hbaseClient;
+    private HBaseAdminTemplate hBaseAdminTemplate;
 
 
     @Autowired
@@ -49,29 +46,25 @@ public class TraceDaoTest {
 
     //	@BeforeClass
     @Before
-    public void init() {
-        if (hbaseClient == null) {
-            System.out.println("hbaseClient is null-------");
+    public void init() throws IOException {
+        if (hBaseAdminTemplate == null) {
+            System.out.println("hBaseAdmin is null-------");
             return;
         }
-        if (!hbaseClient.isTableExists(traceIndex.getTableName())) {
-            HTableDescriptor testTrace = new HTableDescriptor(traceIndex.getTableName());
+        String tableName = traceIndex.getTableName();
 
-            testTrace.addFamily(new HColumnDescriptor(TRACE));
-
-            hbaseClient.createTable(testTrace);
-        }
+        HTableDescriptor testTrace = new HTableDescriptor(traceIndex.getTableName());
+        testTrace.addFamily(new HColumnDescriptor(TRACE));
+        hBaseAdminTemplate.createTableIfNotExist(testTrace);
 
     }
 
     //	@AfterClass
     @After
-    public void destroy() {
-        if (hbaseClient.isTableExists(traceIndex.getTableName())) {
-            hbaseClient.dropTable(traceIndex.getTableName());
-        }
+    public void destroy() throws IOException {
+        String tableName = traceIndex.getTableName();
+        hBaseAdminTemplate.dropTableIfExist(tableName);
 
-//        hbaseClient.close();
     }
 
     RowMapper<byte[]> valueRowMapper = new RowMapper<byte[]>() {
