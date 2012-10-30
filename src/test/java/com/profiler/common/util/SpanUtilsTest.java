@@ -10,6 +10,13 @@ import org.junit.Test;
  */
 public class SpanUtilsTest {
     @Test
+    public void testGetTraceIndexRowKeyWhiteSpace() throws Exception {
+        String agentId = "test test";
+        long time = System.currentTimeMillis();
+        check(agentId, time);
+    }
+
+    @Test
     public void testGetTraceIndexRowKey1() throws Exception {
         String agentId = "test";
         long time = System.currentTimeMillis();
@@ -49,7 +56,7 @@ public class SpanUtilsTest {
 
         byte[] traceIndexRowKey = SpanUtils.getTraceIndexRowKey(span);
 
-        String agentId = Bytes.toString(traceIndexRowKey, 0, agentId0.length());
+        String agentId = Bytes.toString(traceIndexRowKey, 0, 24).trim();
         Assert.assertEquals(agentId0, agentId);
 
         long time = Bytes.toLong(traceIndexRowKey, SpanUtils.AGENT_NAME_LIMIT);
