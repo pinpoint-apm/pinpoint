@@ -49,10 +49,16 @@ public class ArcusClientModifier extends AbstractModifier {
 			aClass.insertCodeAfterConstructor(null, "{ __setCommandCreatedTime(System.nanoTime()); }");
 
 			/**
+			 * inject cancelled time
+			 */
+			aClass.addTraceVariable("__cancelledTime", "__setCancelledTime", "__getCancelledTime", "long");
+
+			/**
 			 * insert trace code.
 			 */
 			aClass.insertCodeBeforeMethod("transitionState", new String[] { "net.spy.memcached.ops.OperationState" }, getTransitionStateAfterCode());
-
+			aClass.insertCodeBeforeMethod("cancel", null, getCancelBeforeCode());
+			
 			return aClass.toBytecode();
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {
@@ -62,11 +68,23 @@ public class ArcusClientModifier extends AbstractModifier {
 		}
 	}
 
+	private String getCancelBeforeCode() {
+		StringBuilder code = new StringBuilder();
+		
+		code.append("{");
+		code.append("	if (!cancelled) {");
+		code.append("		__setCancelledTime(System.nanoTime());");
+		code.append("	}");
+		code.append("}");
+		
+		return code.toString();
+	}
+	
 	private String getTransitionStateAfterCode() {
 		StringBuilder code = new StringBuilder();
 
 		code.append("{");
-		// code.append("com.profiler.context.Trace.traceBlockBegin();");
+//		code.append("com.profiler.context.Trace.traceBlockBegin();");
 
 		/**
 		 * always override traceid
@@ -93,11 +111,20 @@ public class ArcusClientModifier extends AbstractModifier {
 		 * Received all response or timed out.
 		 */
 		code.append("} else if (newState == net.spy.memcached.ops.OperationState.COMPLETE || newState == net.spy.memcached.ops.OperationState.TIMEDOUT) {");
-		code.append("	com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, com.profiler.StopWatch.stopAndGetElapsed(this.hashCode()));");
-
+		code.append("	if (exception != null) { ");
+		code.append("		com.profiler.context.Trace.recordAttribute(\"exception\", com.profiler.util.InterceptorUtils.exceptionToString(exception));");
+		code.append("	}");
+		
+		code.append("	if (!cancelled) {");
+		code.append("		com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, com.profiler.StopWatch.stopAndGetElapsed(this.hashCode()));");
+		code.append("	} else {");
+		code.append("		com.profiler.context.Trace.recordAttribute(\"exception\", \"cancelled by user\");");
+		code.append("		com.profiler.context.Trace.record(com.profiler.context.Annotation.ClientRecv, System.nanoTime() - __cancelledTime);");
+		code.append("	}");
+		
 		code.append("}");
 
-		// code.append("com.profiler.context.Trace.traceBlockEnd();");
+//		code.append("com.profiler.context.Trace.traceBlockEnd();");
 		code.append("}");
 
 		return code.toString();

@@ -1,14 +1,34 @@
 package com.profiler.util;
 
-public class InterceptorUtils {
-    public static boolean isThrowable(Object result) {
-        if (result instanceof Throwable) {
-            return true;
-        }
-        return false;
-    }
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
-    public static boolean isSuccess(Object result) {
-        return !isThrowable(result);
-    }
+public class InterceptorUtils {
+	public static boolean isThrowable(Object result) {
+		if (result instanceof Throwable) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isSuccess(Object result) {
+		return !isThrowable(result);
+	}
+
+	public static String exceptionToString(Exception e) {
+		if (e != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(e.toString()).append("\n");
+
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e.printStackTrace(printWriter);
+
+			sb.append(writer.toString());
+
+			return sb.toString();
+		}
+		return null;
+	}
 }
