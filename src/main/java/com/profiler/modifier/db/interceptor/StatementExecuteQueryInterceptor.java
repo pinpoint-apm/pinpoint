@@ -26,11 +26,15 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
-
+        new Exception("executeQuery").printStackTrace();
+        ;
+        if (JDBCScope.isInternal()) {
+            return;
+        }
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
-        
+
         Trace.traceBlockBegin();
 
         try {
@@ -63,7 +67,9 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
-
+        if (JDBCScope.isInternal()) {
+            return;
+        }
         if (Trace.getCurrentTraceId() == null) {
             return;
         }

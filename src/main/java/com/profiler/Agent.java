@@ -23,23 +23,33 @@ public class Agent {
     private final SystemMonitor systemMonitor;
 
     private final String agentId;
+    private final String nodeName;
     private final String applicationName;
 //    private boolean validate = true;
 
     private Agent() {
         this.serverInfo = new ServerInfo();
         this.systemMonitor = new SystemMonitor();
+
+//        this.agentId = getId("hippo.agentId", "UnkonwnAgentId");
+//        일단 임시로 호환성을 위해 agentid에 머신name을넣도록 하자
         String machineName = NetworkUtils.getMachineName();
-        this.agentId = System.getProperty("hippo.agentId", machineName);
-        validateAgentId();
-        this.applicationName = System.getProperty("hippo.applicationName", "TOMCAT");
+        this.agentId = getId("hippo.agentId", machineName);
+        this.nodeName = getId("hippo.nodeName", machineName);
+        this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
     }
 
-    private void validateAgentId() {
+    private String getId(String key, String defaultValue) {
+        String value = System.getProperty(key, defaultValue);
+        validateId(value, key);
+        return value;
+    }
+
+    private void validateId(String id, String idName) {
         try {
-            byte[] bytes = agentId.getBytes("UTF-8");
+            byte[] bytes = id.getBytes("UTF-8");
             if (bytes.length > SpanUtils.AGENT_NAME_LIMIT) {
-                logger.warning("AgentId is too long(1~24) " + agentId);
+                logger.warning(idName + " is too long(1~24) " + agentId);
             }
 //            validate = false;
             // TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..

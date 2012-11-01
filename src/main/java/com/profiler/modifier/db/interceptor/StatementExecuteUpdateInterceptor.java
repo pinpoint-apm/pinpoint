@@ -27,7 +27,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
-
+        if (JDBCScope.isInternal()) {
+            return;
+        }
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
@@ -40,8 +42,8 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
                 Trace.recordAttibute("Query", url);
                 Trace.recordTerminalEndPoint(url);
             } else {
-            	Trace.recordRpcName("MYSQL", "UNKNOWN");
-            	Trace.recordTerminalEndPoint("UNKNOWN");
+                Trace.recordRpcName("MYSQL", "UNKNOWN");
+                Trace.recordTerminalEndPoint("UNKNOWN");
             }
 
             Trace.record(Annotation.ClientSend);
@@ -60,6 +62,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+        if (JDBCScope.isInternal()) {
+            return;
         }
         if (Trace.getCurrentTraceId() == null) {
             return;

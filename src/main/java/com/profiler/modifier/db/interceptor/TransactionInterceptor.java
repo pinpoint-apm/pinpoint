@@ -23,6 +23,9 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
+        if (JDBCScope.isInternal()) {
+            return;
+        }
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
@@ -42,6 +45,9 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+        if (JDBCScope.isInternal()) {
+            return;
         }
         if (Trace.getCurrentTraceId() == null) {
             return;
@@ -88,9 +94,9 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                 Trace.record(Annotation.ClientRecv);
             } else {
                 if (success) {
-                    Trace.recordAttibute("Transaction", "state restore");
+                    Trace.recordAttibute("Transaction", "autoCommit:false");
                 } else {
-                    Trace.recordAttibute("Transaction", "state restore fail");
+                    Trace.recordAttibute("Transaction", "autoCommit:false fail");
                     Throwable th = (Throwable) result;
                     Trace.recordAttibute("Exception", th.getMessage());
                 }

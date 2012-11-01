@@ -90,11 +90,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (profilerConfig.isJdbcProfileOracle()) {
             addOracleDriver();
         }
-        if(profilerConfig.isJdbcProfileCubrid()) {
+        if (profilerConfig.isJdbcProfileCubrid()) {
             addCubridDriver();
         }
 
-        if(profilerConfig.isJdbcProfileDbcp()) {
+        if (profilerConfig.isJdbcProfileDbcp()) {
             addDbcpDriver();
         }
     }
@@ -102,6 +102,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private void addMySqlDriver() {
         // TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
         // 확인필요.
+
+        Modifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor);
+        addModifier(mysqlNonRegisteringDriverModifier);
+
         Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor);
         addModifier(mysqlConnectionImplModifier);
 

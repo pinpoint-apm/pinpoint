@@ -29,6 +29,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
+        if (JDBCScope.isInternal()) {
+            return;
+        }
         if (Trace.getCurrentTraceId() == null) {
             return;
         }
@@ -78,6 +81,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+        if (JDBCScope.isInternal()) {
+            return;
         }
         if (Trace.getCurrentTraceId() == null) {
             return;
