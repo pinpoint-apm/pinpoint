@@ -1,9 +1,6 @@
 package com.profiler;
 
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +10,6 @@ import com.profiler.common.util.SpanUtils;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
 import com.profiler.util.NetworkUtils;
-import sun.management.resources.agent;
 
 public class Agent {
 
@@ -100,9 +96,10 @@ public class Agent {
 
         agentInfo.setHostname(ip);
         agentInfo.setPorts(ports);
+        agentInfo.setAgentId(getAgentId());
+        agentInfo.setApplicationName(getApplicationName());
         agentInfo.setIsAlive(true);
         agentInfo.setTimestamp(System.currentTimeMillis());
-        agentInfo.setAgentId(getAgentId());
 
         DataSender.getInstance().addDataToSend(agentInfo);
     }

@@ -1,6 +1,5 @@
 package com.profiler.context;
 
-import com.profiler.util.NamedThreadLocal;
 
 public class TraceContext {
 
