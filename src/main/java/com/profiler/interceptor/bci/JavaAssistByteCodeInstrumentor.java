@@ -124,8 +124,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private void loadClassLoaderLibraries(ClassLoader classLoader) {
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            // TODO classLoader가 가지고 있는 전체 리소스를 모두 로드해야 되는것인지? 테스트 케이스 만들어서
-            // 확인해봐야 할듯.
+            // classLoader가 가지고 있는 전체 리소스를 가능한 패스로 다 걸어야 됨
+            // 임의의 class가 없을 경우 class의 byte code를 classpool에 적재 할 수 없음.
             URL[] urlList = urlClassLoader.getURLs();
             for (URL tempURL : urlList) {
                 String filePath = tempURL.getFile();
