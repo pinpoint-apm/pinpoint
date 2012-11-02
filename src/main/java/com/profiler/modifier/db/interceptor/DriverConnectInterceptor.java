@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class DriverInterceptor implements StaticAroundInterceptor {
+public class DriverConnectInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = Logger.getLogger(ConnectionCreateInterceptor.class.getName());
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);

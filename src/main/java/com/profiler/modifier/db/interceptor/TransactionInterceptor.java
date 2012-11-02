@@ -24,6 +24,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
         if (JDBCScope.isInternal()) {
+            logger.info("internal jdbc scope. skip trace");
             return;
         }
         if (Trace.getCurrentTraceId() == null) {

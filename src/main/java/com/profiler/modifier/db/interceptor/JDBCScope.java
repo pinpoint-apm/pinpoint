@@ -14,15 +14,15 @@ public class JDBCScope {
     };
 
     public static void pushScope() {
-        scope.set(true);
+        scope.set(Boolean.TRUE);
     }
 
     public static boolean isInternal() {
-        return scope.get();
+        return scope.get() != null;
     }
 
     public static void popScope() {
-        scope.set(false);
+        scope.set(null);
     }
 
 }

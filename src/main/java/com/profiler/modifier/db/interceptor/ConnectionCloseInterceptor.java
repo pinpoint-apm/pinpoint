@@ -20,6 +20,10 @@ public class ConnectionCloseInterceptor implements StaticBeforeInterceptor {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
+        if (JDBCScope.isInternal()) {
+            logger.info("internal jdbc scope. skip trace");
+            return;
+        }
         // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.
         if (target instanceof Connection) {
             this.setUrl.invoke(target, new Object[]{null});

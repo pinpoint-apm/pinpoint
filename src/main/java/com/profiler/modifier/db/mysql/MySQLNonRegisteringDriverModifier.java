@@ -1,6 +1,5 @@
 package com.profiler.modifier.db.mysql;
 
-import com.mysql.jdbc.NonRegisteringDriver;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -36,7 +35,7 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
 
-            Interceptor createConnection = new DriverInterceptor();
+            Interceptor createConnection = new DriverConnectInterceptor();
             String[] params = new String[]{
                     "java.lang.String", "java.util.Properties"
             };

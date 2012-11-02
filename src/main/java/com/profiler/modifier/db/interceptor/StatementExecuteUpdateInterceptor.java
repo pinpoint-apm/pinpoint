@@ -28,6 +28,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
         if (JDBCScope.isInternal()) {
+            logger.info("internal jdbc scope. skip trace");
             return;
         }
         if (Trace.getCurrentTraceId() == null) {

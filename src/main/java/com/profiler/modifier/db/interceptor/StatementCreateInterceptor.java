@@ -25,6 +25,10 @@ public class StatementCreateInterceptor implements StaticAfterInterceptor {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
+        if (JDBCScope.isInternal()) {
+            logger.info("internal jdbc scope. skip trace");
+            return;
+        }
         if (!InterceptorUtils.isSuccess(result)) {
             return;
         }

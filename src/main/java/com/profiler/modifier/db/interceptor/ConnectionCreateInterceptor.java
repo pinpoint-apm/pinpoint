@@ -10,6 +10,7 @@ import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
+@Deprecated
 public class ConnectionCreateInterceptor implements StaticAfterInterceptor {
 
     private final Logger logger = Logger.getLogger(ConnectionCreateInterceptor.class.getName());
