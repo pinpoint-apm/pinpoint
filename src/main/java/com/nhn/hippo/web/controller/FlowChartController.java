@@ -19,53 +19,53 @@ import com.nhn.hippo.web.vo.TraceId;
 
 /**
  * retrieve data for drawing call tree.
- *
+ * 
  * @author netspider
  */
 @Controller
 public class FlowChartController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private FlowChartService flow;
+	@Autowired
+	private FlowChartService flow;
 
-    @RequestMapping(value = "/flow", method = RequestMethod.GET)
-    public String flow(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
-        String[] agentIds = flow.selectAgentIds(hosts);
-        Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
+	@RequestMapping(value = "/flow", method = RequestMethod.GET)
+	public String flow(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		String[] agentIds = flow.selectAgentIdsFromApplicationName(applicationName);
+		Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
 
-        RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
+		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
 
-        model.addAttribute("nodes", callTree.getNodes());
-        model.addAttribute("links", callTree.getLinks());
+		model.addAttribute("nodes", callTree.getNodes());
+		model.addAttribute("links", callTree.getLinks());
 
-        logger.debug("callTree:{}", callTree);
+		logger.debug("callTree:{}", callTree);
 
-        return "flow";
-    }
+		return "flow";
+	}
 
-    @RequestMapping(value = "/flowserver", method = RequestMethod.GET)
-    public String flowserver(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
-        String[] agentIds = flow.selectAgentIds(hosts);
-        // TODO 제거 하거나, interceptor로 할것.
-        StopWatch watch = new StopWatch();
-        watch.start("scanTraceindex");
-        Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
-        watch.stop();
-        logger.info("time:{} {}", watch.getLastTaskTimeMillis(), traceIds.size());
-        watch.start("selectServerCallTree");
-        ServerCallTree callTree = flow.selectServerCallTree(traceIds);
-        watch.stop();
-        logger.info("time:{}", watch.getLastTaskTimeMillis());
+	@RequestMapping(value = "/flowserver", method = RequestMethod.GET)
+	public String flowserver(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		String[] agentIds = flow.selectAgentIdsFromApplicationName(applicationName);
+		// TODO 제거 하거나, interceptor로 할것.
+		StopWatch watch = new StopWatch();
+		watch.start("scanTraceindex");
+		Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
+		watch.stop();
+		logger.info("time:{} {}", watch.getLastTaskTimeMillis(), traceIds.size());
+		watch.start("selectServerCallTree");
+		ServerCallTree callTree = flow.selectServerCallTree(traceIds);
+		watch.stop();
+		logger.info("time:{}", watch.getLastTaskTimeMillis());
 
-        model.addAttribute("nodes", callTree.getNodes());
-        model.addAttribute("links", callTree.getLinks());
-        model.addAttribute("businessTransactions", callTree.getBusinessTransactions().getBusinessTransactionIterator());
-        model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
+		model.addAttribute("nodes", callTree.getNodes());
+		model.addAttribute("links", callTree.getLinks());
+		model.addAttribute("businessTransactions", callTree.getBusinessTransactions().getBusinessTransactionIterator());
+		model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
 
-        logger.debug("callTree:{}", callTree);
+		logger.debug("callTree:{}", callTree);
 
-        return "flowserver";
-    }
+		return "flowserver";
+	}
 }

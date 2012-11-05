@@ -1,13 +1,12 @@
 package com.nhn.hippo.web.dao;
 
 
-import com.nhn.hippo.web.vo.TraceId;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.dto.thrift.Span;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import com.nhn.hippo.web.vo.TraceId;
+import com.profiler.common.bo.SpanBo;
 
 /**
  *

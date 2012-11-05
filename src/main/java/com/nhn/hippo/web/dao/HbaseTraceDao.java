@@ -1,13 +1,11 @@
 package com.nhn.hippo.web.dao;
 
-import com.nhn.hippo.web.vo.TraceId;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +13,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import com.nhn.hippo.web.vo.TraceId;
+import com.profiler.common.bo.SpanBo;
+import com.profiler.common.hbase.HBaseTables;
+import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.BytesUtils;
 
 /**
  *

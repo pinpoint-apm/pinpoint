@@ -96,16 +96,14 @@
 <!-- MENU -->
 <div class="container">
     <form class="form-inline">
-        <select id="servers">
-            <option value="emeroad-nhn-pc">emeroad-nhn-pc</option>
-            <option value="TEST_TOMCAT11">TEST_TOMCAT11</option>
-            <option value="TEST_TOMCAT22">TEST_TOMCAT22</option>
+        <select id="application">
+        	<option></option>
         </select>
-        <input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-10-26">
-        <input id="starttime" type="text" class="input-small" placeholder="StartTime" value="11:10">
+        <input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-10-29">
+        <input id="starttime" type="text" class="input-small" placeholder="StartTime" value="12:00">
         ~
-        <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-10-26">
-        <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="13:00">
+        <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-12-31">
+        <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="12:00">
 
         <button id="btnTraceRPC" type="button" class="btn btn-primary">Trace RPC !</button>
         <button id="btnTraceServer" type="button" class="btn btn-primary">Trace Server !</button>
@@ -185,8 +183,8 @@ function getEndTime() {
 }
 
 function getChartData(chartType, callback) {
-    var hosts = $("#servers").val();
-	d3.json("/" + chartType + ".hippo?host=" + hosts + "&from=" + getStartTime() + "&to=" + getEndTime(), function(d) { callback(d); });
+    var application = $("#application").val();
+	d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + getStartTime() + "&to=" + getEndTime(), function(d) { callback(d); });
 }
 
 var transactionsCache;
@@ -272,7 +270,9 @@ function openTransactionDetails(index, row) {
 }
 
 $(document).ready(function () {
-    $("#servers").select2();
+    $("#application").select2({
+		placeholder: "Select a application.",
+	});
     
     $("#btnTraceRPC").click(function() { 
     	// cleanup chart
@@ -305,6 +305,20 @@ $(document).ready(function () {
 	        drawScatter(data.scatter, "#scatter");
         });
     });
+    
+	$.getJSON("/applications.hippo", function(json) {
+        var target = $("#application");
+		$(json).each(function(i, e) {
+            var html = [];
+            html.push('<option value="');
+            html.push(e);
+            html.push('">');
+            html.push(e);
+            html.push('</option>');
+            
+            target.append(html.join(''));
+		});
+	});
 });
 </script>
 </body>

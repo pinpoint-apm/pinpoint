@@ -21,4 +21,6 @@
     <bean id="spanAnnotationMapper" class="com.nhn.hippo.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
+    <bean id="applicationNameMapper" class="com.nhn.hippo.web.mapper.ApplicationNameMapper"></bean>
+    <bean id="agentIdMapper" class="com.nhn.hippo.web.mapper.AgentIdMapper"></bean>
 </beans>
