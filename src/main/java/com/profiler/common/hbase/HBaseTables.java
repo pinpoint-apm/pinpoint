@@ -18,6 +18,6 @@ public class HBaseTables {
 	public static final String SERVERS_INDEX = "ServersIndex";
 	public static final byte[] SERVERS_CF_AGENTS = Bytes.toBytes("Agents");
 
-	public static final String APPLICATIONS_INDEX = "ApplicationsIndex";
-	public static final byte[] APPLICATIONS_CF_AGENTS = Bytes.toBytes("Agents");
+	public static final String APPLICATION_INDEX = "ApplicationIndex";
+	public static final byte[] APPLICATION_CF_AGENTS = Bytes.toBytes("Agents");
 }

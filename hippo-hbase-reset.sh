@@ -1,6 +1,6 @@
 exec ./hbase shell <<EOF
 disable 'Servers'
-disable 'ApplicationsIndex'
+disable 'ApplicationIndex'
 disable 'RootTraceIndex'
 disable 'TraceIndex'
 disable 'Traces'
@@ -8,7 +8,7 @@ disable 'SystemInfo'
 disable 'RootTraceIndex'
 
 drop 'Servers'
-drop 'ApplicationNames'
+drop 'ApplicationIndex'
 drop 'RootTraceIndex'
 drop 'TraceIndex'
 drop 'Traces'
@@ -16,7 +16,7 @@ drop 'SystemInfo'
 drop 'RootTraceIndex'
 
 create 'Servers', { NAME => 'Agents' }
-create 'ApplicationsIndex', { NAME => 'Agents' }
+create 'ApplicationIndex', { NAME => 'Agents' }
 create 'RootTraceIndex', { NAME => 'Trace' }
 create 'TraceIndex', { NAME => 'Trace' }
 create 'Traces', { NAME => 'Span' }, { NAME => 'Annotation' }
