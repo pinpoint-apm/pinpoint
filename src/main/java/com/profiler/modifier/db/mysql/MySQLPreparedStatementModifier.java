@@ -69,7 +69,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 //		}
 //
 //		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-//		classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 //
 //		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 //		aClass.addInterceptor("executeQuery", null, interceptor);

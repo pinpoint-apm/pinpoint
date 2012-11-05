@@ -48,7 +48,6 @@ public class HTTPClientModifier extends AbstractModifier {
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
         try {
             Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);

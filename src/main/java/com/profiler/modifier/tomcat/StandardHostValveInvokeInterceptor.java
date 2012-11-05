@@ -36,7 +36,6 @@ public class StandardHostValveInvokeInterceptor extends AbstractModifier {
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        classPool.insertClassPath(new ByteArrayClassPath(javassistClassName, classFileBuffer));
 
         try {
             Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor");
