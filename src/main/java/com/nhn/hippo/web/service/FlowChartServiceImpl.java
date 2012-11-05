@@ -45,7 +45,7 @@ public class FlowChartServiceImpl implements FlowChartService {
         List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
         column.add(new HbaseColumn("Agents", "AgentID"));
 
-        HBaseQuery query = new HBaseQuery(HBaseTables.SERVERS, null, null, column);
+        HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATIONS_INDEX, null, null, column);
         Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
 
         if (logger.isDebugEnabled()) {
