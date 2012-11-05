@@ -30,15 +30,16 @@ public class SpanHandler implements Handler {
 
         try {
             Span span = (Span) tbase;
+            
+            if (logger.isDebugEnabled()) {
+            	logger.debug("Received SPAN={}", span);
+            }
+            
             traceDao.insert(span);
             if (span.getParentSpanId() == -1) {
                 rootTraceIndexDao.insert(span);
             }
             traceIndexDao.insert(span);
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Received SPAN={}", span);
-            }
         } catch (Exception e) {
             logger.warn("Span handle error " + e.getMessage(), e);
         }
