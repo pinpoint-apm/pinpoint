@@ -142,6 +142,7 @@ public class Agent {
         agentInfo.setIsAlive(false);
         agentInfo.setTimestamp(System.currentTimeMillis());
         agentInfo.setAgentId(getAgentId());
+        agentInfo.setApplicationName(getApplicationName());
 
         this.dataSender.send(agentInfo);
         // 종료 처리 필요.
