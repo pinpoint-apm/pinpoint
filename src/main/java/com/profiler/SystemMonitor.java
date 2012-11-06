@@ -45,8 +45,8 @@ public class SystemMonitor {
     public SystemMonitor() {
     }
 
-    public void setDataSender(DataSender udpDataSender) {
-        this.dataSender = udpDataSender;
+    public void setDataSender(DataSender dataSender) {
+        this.dataSender = dataSender;
     }
 
     public void start() {
@@ -59,7 +59,7 @@ public class SystemMonitor {
         executor.shutdown();
     }
 
-    static class Worker implements Runnable {
+    private static class Worker implements Runnable {
 
         private DataSender dataSender;
 

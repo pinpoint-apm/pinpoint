@@ -1,5 +1,7 @@
 package com.profiler;
 
+import com.profiler.sender.DataSender;
+import com.profiler.sender.LoggingDataSender;
 import org.junit.Test;
 
 /**
@@ -12,8 +14,15 @@ import org.junit.Test;
 public class SystemMonitorTest {
     @Test
     public void testStart() throws Exception {
-        SystemMonitor.Worker systemMonitor = new SystemMonitor.Worker();
-        systemMonitor.run();
+        DataSender loggingDataSender = new LoggingDataSender();
+
+        SystemMonitor systemMonitor = new SystemMonitor();
+        systemMonitor.setDataSender(loggingDataSender);
+        systemMonitor.start();
+
+        Thread.sleep(10000);
+
+        systemMonitor.stop();
     }
 
     @Test
