@@ -1,46 +1,49 @@
 package com.profiler.context;
 
 /**
- * 
  * @author netspider
- * 
  */
 public class TraceIDStack {
 
-	private TraceID[] traceIDs = new TraceID[3];
+    private TraceID[] stack = new TraceID[4];
 
-	private volatile int index = 0;
+    // TODO 개별변수에 volatile 을 건다고 해서 전체의 동시성이 해결되지 않으므로 일단 제거.
+    private int index = 0;
 
-	public TraceID getTraceId() {
-		return traceIDs[index];
-	}
 
-	public TraceID getParentTraceId() {
-		if (index > 0) {
-			return traceIDs[index - 1];
-		}
-		return null;
-	}
+    public TraceID getTraceId() {
+        return stack[index];
+    }
 
-	public void setTraceId(TraceID traceId) {
-		traceIDs[index] = traceId;
-	}
+    public TraceID getParentTraceId() {
+        if (index > 0) {
+            return stack[index - 1];
+        }
+        return null;
+    }
 
-	public void incr() {
-		index++;
-		if (index > traceIDs.length - 1) {
-			TraceID[] old = traceIDs;
-			traceIDs = new TraceID[index + 1];
-			System.arraycopy(old, 0, traceIDs, 0, old.length);
-		}
-	}
+    public void setTraceId(TraceID traceId) {
+        stack[index] = traceId;
+    }
 
-	public void decr() {
-		if (index > 0)
-			index--;
-	}
+    public void push() {
+        index++;
+        if (index > stack.length - 1) {
+            TraceID[] old = stack;
+            stack = new TraceID[index + 4];
+            System.arraycopy(old, 0, stack, 0, old.length);
+        }
+    }
 
-	public void clear() {
-		traceIDs[index] = null;
-	}
+    public void pop() {
+        if (index > 0) {
+//            TODO 이전 reference를 제거해야 될거 같음.
+//            stack[index] = null;
+            index--;
+        }
+    }
+
+    public void clear() {
+        stack[index] = null;
+    }
 }

@@ -5,56 +5,51 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import javassist.CtClass;
-import javassist.CtMethod;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.modifier.tomcat.interceptors.StandardServiceStartInterceptor;
+import com.profiler.modifier.tomcat.interceptors.StandardServiceStopInterceptor;
 
-import com.profiler.Agent;
 import com.profiler.modifier.AbstractModifier;
 
 /**
  * When org.apache.catalina.core.StandardService class is loaded in ClassLoader,
  * this class modifies methods.
- * 
+ *
  * @author cowboy93, netspider
- * 
  */
 public class TomcatStandardServiceModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
+    private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
 
 
-	public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-		super(byteCodeInstrumentor);
-	}
+    public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        super(byteCodeInstrumentor);
+    }
 
-	public String getTargetClass() {
-		return "org/apache/catalina/core/StandardService";
-	}
+    public String getTargetClass() {
+        return "org/apache/catalina/core/StandardService";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("Modifing. " + javassistClassName);
-		}
-		return changeMethod(javassistClassName, classFileBuffer);
-	}
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("Modifing. " + javassistClassName);
+        }
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
-	public byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-		try {
-			CtClass cc = classPool.get(javassistClassName);
-//            byteCodeInstrumentor.addInterceptor(, "startAgent", null);
-			CtMethod startMethod = cc.getDeclaredMethod("start", null);
-			startMethod.insertBefore("{" + Agent.FQCN + ".startAgent();" + "}");
+        try {
 
-			CtMethod stopMethod = cc.getDeclaredMethod("stop", null);
-			stopMethod.insertBefore("{" + Agent.FQCN + ".stopAgent();" + "}");
+            InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
+            StandardServiceStartInterceptor start = new StandardServiceStartInterceptor();
+            standardService.addInterceptor("start", null, start);
 
-			printClassConvertComplete(javassistClassName);
-			return cc.toBytecode();
-		} catch (Exception e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		return null;
-	}
+            StandardServiceStopInterceptor stop = new StandardServiceStopInterceptor();
+            standardService.addInterceptor("stop", null, stop);
+
+            return standardService.toBytecode();
+        } catch (InstrumentException e) {
+            logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+            return null;
+        }
+    }
 }

@@ -19,7 +19,7 @@ import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.profiler.modifier.tomcat.CatalinaModifier;
-import com.profiler.modifier.tomcat.StandardHostValveInvokeInterceptor;
+import com.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
@@ -60,8 +60,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addTomcatModifier() {
-        StandardHostValveInvokeInterceptor standardHostValveInvokeInterceptor = new StandardHostValveInvokeInterceptor(byteCodeInstrumentor);
-        addModifier(standardHostValveInvokeInterceptor);
+        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor);
+        addModifier(standardHostValveInvokeModifier);
 
         Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor);
         addModifier(tomcatStandardServiceModifier);

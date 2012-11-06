@@ -9,6 +9,7 @@ import com.profiler.common.dto.thrift.AgentInfo;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
+import com.profiler.sender.UdpDataSender;
 import com.profiler.util.NetworkUtils;
 
 public class Agent {
@@ -21,6 +22,7 @@ public class Agent {
 
     private final ServerInfo serverInfo;
     private final SystemMonitor systemMonitor;
+    private DataSender dataSender;
 
     private final String agentId;
     private final String nodeName;
@@ -111,13 +113,15 @@ public class Agent {
         agentInfo.setIsAlive(true);
         agentInfo.setTimestamp(System.currentTimeMillis());
 
-        DataSender.getInstance().addDataToSend(agentInfo);
+        this.dataSender.send(agentInfo);
     }
 
     public void start() {
         logger.info("Starting HIPPO Agent.");
         // trace context 새롭게 생성.
         TraceContext.initialize();
+        this.dataSender = UdpDataSender.getInstance();
+        systemMonitor.setDataSender(dataSender);
         systemMonitor.start();
     }
 
@@ -139,14 +143,16 @@ public class Agent {
         agentInfo.setTimestamp(System.currentTimeMillis());
         agentInfo.setAgentId(getAgentId());
 
-        DataSender.getInstance().addDataToSend(agentInfo);
+        this.dataSender.send(agentInfo);
+        // 종료 처리 필요.
+        this.dataSender.stop();
     }
 
     public static void startAgent() {
         Agent.getInstance().start();
     }
 
-    public static void stopAgent() throws Exception {
+    public static void stopAgent() {
         Agent.getInstance().stop();
     }
 }

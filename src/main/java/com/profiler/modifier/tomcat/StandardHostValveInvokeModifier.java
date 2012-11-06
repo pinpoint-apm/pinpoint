@@ -1,13 +1,10 @@
 package com.profiler.modifier.tomcat;
 
-import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.modifier.AbstractModifier;
-import com.profiler.trace.RequestTracer;
-import javassist.ByteArrayClassPath;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -18,11 +15,11 @@ import java.util.logging.Logger;
  *
  * @author cowboy93, netspider
  */
-public class StandardHostValveInvokeInterceptor extends AbstractModifier {
+public class StandardHostValveInvokeModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(StandardHostValveInvokeInterceptor.class.getName());
+    private final Logger logger = Logger.getLogger(StandardHostValveInvokeModifier.class.getName());
 
-    public StandardHostValveInvokeInterceptor(ByteCodeInstrumentor byteCodeInstrumentor) {
+    public StandardHostValveInvokeModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
         super(byteCodeInstrumentor);
     }
 

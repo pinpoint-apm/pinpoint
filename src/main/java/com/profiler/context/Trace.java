@@ -3,6 +3,7 @@ package com.profiler.context;
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.util.AnnotationTranscoder.Encoded;
 import com.profiler.sender.DataSender;
+import com.profiler.sender.UdpDataSender;
 import com.profiler.util.NamedThreadLocal;
 
 import java.util.logging.Level;
@@ -33,7 +34,7 @@ public final class Trace {
 
         try {
             TraceID nextId = getNextTraceId();
-            traceIDStack.incr();
+            traceIDStack.push();
 
             if (traceIDStack.getTraceId() == null) {
                 if (logger.isLoggable(Level.FINE)) {
@@ -46,7 +47,7 @@ public final class Trace {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            traceIDStack.decr();
+            traceIDStack.pop();
         }
     }
 
@@ -59,7 +60,7 @@ public final class Trace {
 
         try {
             TraceID nextId = getNextTraceId();
-            traceIDStack.incr();
+            traceIDStack.push();
 
             if (traceIDStack.getTraceId() == null) {
                 traceIDStack.setTraceId(nextId);
@@ -71,7 +72,7 @@ public final class Trace {
 
     public static void traceBlockEnd() {
         TraceIDStack traceIDStack = traceIdLocal.get();
-        traceIDStack.decr();
+        traceIDStack.pop();
     }
 
     /**
@@ -88,10 +89,10 @@ public final class Trace {
         }
 
         if (id == null) {
-            System.out.println("create new traceid");
-
             id = TraceID.newTraceId();
-            // traceIdLocal.set(id);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("create new traceid:" + id);
+            }
 
             if (stack == null) {
                 traceIdLocal.set(new TraceIDStack());
@@ -111,7 +112,6 @@ public final class Trace {
         if (stack != null) {
             traceId = stack.getTraceId();
         } else {
-            // TODO : remove this log.
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,
                         "#############################################################" +
@@ -161,7 +161,6 @@ public final class Trace {
     }
 
     public static void setTraceId(TraceID traceId) {
-        // TODO: remove this, just for debugging.
         if (getCurrentTraceId() != null) {
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,
@@ -195,8 +194,9 @@ public final class Trace {
 
     static void logSpan(Span span) {
         try {
-            // TODO: send span to the server.
-            System.out.println("\n\n[WRITE SPAN] hashCode=" + span.hashCode() + ",\n\t " + span + ",\n\t SpanMap.size=" + spanMap.size() + ",\n\t CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
+            if (logger.isLoggable(Level.FINE)) {
+                logger.info("[WRITE SPAN]" + span + " size=" + spanMap.size() + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
+            }
 
             // TODO: remove this, just for debugging
             // if (spanMap.size() > 0) {
@@ -206,7 +206,7 @@ public final class Trace {
             // System.out.println("current spamMap=" + spanMap);
             // }
 
-            DataSender.getInstance().addDataToSend(span.toThrift());
+            UdpDataSender.getInstance().send(span.toThrift());
 
             span.cancelTimer();
         } catch (Exception e) {
@@ -240,6 +240,7 @@ public final class Trace {
             mutate(getTraceIdOrCreateNew(), new SpanUpdater() {
                 @Override
                 public Span updateSpan(Span span) {
+                    // TODO 사용자 thread에서 encoding을 하지 않도록 변경.
                     Encoded enc = transcoder.encode(value);
                     span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
                     return span;
