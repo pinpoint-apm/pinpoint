@@ -9,6 +9,10 @@ public class SpanUtils {
 	public static byte[] getTraceIndexRowKey(Span span) {
 		return getTraceIndexRowKey(span.getAgentId(), span.getTimestamp());
 	}
+	
+	public static byte[] getApplicationTraceIndexRowKey(String applicationName, Span span) {
+		return getTraceIndexRowKey(applicationName, span.getTimestamp());
+	}
 
 	public static byte[] getTraceIndexRowKey(byte[] agentId, long time) {
 		return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_LIMIT, time);
