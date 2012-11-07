@@ -1,9 +1,11 @@
-package com.profiler.server.dao;
+package com.profiler.server.dao.hbase;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.TBaseLocator;
+import com.profiler.server.dao.hbase.HbaseJvmInfoDao;
+
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TSerializer;

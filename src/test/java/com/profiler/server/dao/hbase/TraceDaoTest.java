@@ -1,10 +1,12 @@
-package com.profiler.server.dao;
+package com.profiler.server.dao.hbase;
 
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.SpanUtils;
+import com.profiler.server.dao.hbase.HbaseTraceIndex;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;

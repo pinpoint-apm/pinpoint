@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.dto.thrift.AgentInfo;
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.server.dao.AgentIdApplicationIndex;
 import com.profiler.server.dao.ApplicationIndex;
 
 public class AgentInfoHandler implements Handler {
@@ -17,6 +18,9 @@ public class AgentInfoHandler implements Handler {
 
 	@Autowired
 	private ApplicationIndex applicationIndexDao;
+	
+	@Autowired
+	private AgentIdApplicationIndex agentIdApplicationIndexDao;
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 		assert (tbase instanceof Span);
@@ -27,6 +31,7 @@ public class AgentInfoHandler implements Handler {
 			logger.debug("Received AgentInfo=%s", agentInfo);
 
 			applicationIndexDao.insert(agentInfo);
+			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
 		} catch (Exception e) {
 			logger.warn("Span handle error " + e.getMessage(), e);
 		}

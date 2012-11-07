@@ -35,10 +35,13 @@
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
-    <bean class="com.profiler.server.dao.HbaseRootTraceIndexDao"></bean>
-    <bean class="com.profiler.server.dao.HbaseTraceIndex"></bean>
-    <bean class="com.profiler.server.dao.HbaseTraceDao"></bean>
-    <bean class="com.profiler.server.dao.HbaseJvmInfoDao"></bean>
-    <bean class="com.profiler.server.dao.HbaseApplicationIndexDao"></bean>
-
+    <bean class="com.profiler.server.dao.hbase.HbaseRootTraceIndexDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseTraceIndex"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseJvmInfoDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseApplicationIndexDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseApplicationTraceIndex"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseAgentIdApplicationIndexDao"></bean>
+    
+	<bean id="applicationNameMapper" class="com.profiler.server.dao.mapper.ApplicationNameMapper"></bean>
 </beans>
