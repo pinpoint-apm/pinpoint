@@ -11,6 +11,10 @@ public class ApplicationNameMapper implements RowMapper<String> {
 	public String mapRow(Result result, int rowNum) throws Exception {
 		KeyValue[] raw = result.raw();
 
+		if (raw.length == 0) {
+			return null;
+		}
+
 		String[] ret = new String[raw.length];
 		int index = 0;
 

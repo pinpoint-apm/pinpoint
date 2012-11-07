@@ -45,6 +45,11 @@ public class SpanHandler implements Handler {
 
 			String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
 			
+			if (applicationName == null) {
+				logger.info("Applicationname '{}' not found. Drop the log.", applicationName);
+				return;
+			}
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Found Applicationname={}", applicationName);
 			}
