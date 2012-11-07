@@ -7,16 +7,18 @@ public class Server implements Comparable<Server> {
     private int sequence;
     private final String id;
     private final String agentId;
+    private final String applicationName;
     private final String endPoint;
     private final boolean terminal;
 
-    public Server(String agentId, String endPoint, boolean terminal) {
-//        this.id = agentId + ":" + endPoint;
-        this.id = endPoint;
-        this.agentId = agentId;
-        this.endPoint = endPoint;
-        this.terminal = terminal;
-    }
+	public Server(String agentId, String applicationName, String endPoint, boolean terminal) {
+		// this.id = agentId + ":" + endPoint;
+		this.id = endPoint;
+		this.agentId = agentId;
+		this.applicationName = applicationName;
+		this.endPoint = endPoint;
+		this.terminal = terminal;
+	}
 
     public String getId() {
         return this.id;
@@ -42,7 +44,11 @@ public class Server implements Comparable<Server> {
         return terminal;
     }
 
-    @Override
+    public String getApplicationName() {
+		return applicationName;
+	}
+
+	@Override
     public int compareTo(Server server) {
         return id.compareTo(server.id);
     }

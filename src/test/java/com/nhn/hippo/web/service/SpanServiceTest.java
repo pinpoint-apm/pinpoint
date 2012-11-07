@@ -6,7 +6,7 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseTemplate2;
 import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.TraceDao;
+import com.profiler.server.dao.Traces;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class SpanServiceTest {
 
 
     @Autowired
-    private TraceDao traceDao;
+    private Traces traceDao;
 
     @Autowired
     private SpanService spanService;
@@ -107,7 +107,7 @@ public class SpanServiceTest {
 
 
     private void insert(Span span) throws TException {
-        traceDao.insert(span);
+        traceDao.insert("JUNITApplicationName", span);
     }
 
     AtomicInteger id = new AtomicInteger(0);

@@ -31,6 +31,16 @@ public interface FlowChartService {
 	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to);
 
 	/**
+	 * select traceIds from ApplicationTraceIndex table
+	 * 
+	 * @param agentIds
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to);
+
+	/**
 	 * select call tree
 	 * 
 	 * @param traceIds
@@ -52,4 +62,8 @@ public interface FlowChartService {
 	 * @return all of application names
 	 */
 	public List<String> selectAllApplicationNames();
+	
+	
+    public String[] selectAgentIds(String[] hosts);
+
 }

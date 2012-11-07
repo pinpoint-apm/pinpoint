@@ -1,7 +1,10 @@
 package com.nhn.hippo.web.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,12 +16,16 @@ import org.springframework.stereotype.Service;
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
+import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
 import com.nhn.hippo.web.dao.RootTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.hbase.HBaseClient;
+import com.profiler.common.hbase.HBaseQuery;
+import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
+import com.profiler.common.hbase.HBaseTables;
 
 /**
  * @author netspider
@@ -43,6 +50,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Autowired
 	private ApplicationIndexDao applicationIndexDao;
+
+	@Autowired
+	private ApplicationTraceIndexDao applicationTraceIndexDao;
 
 	@Override
 	public List<String> selectAllApplicationNames() {
@@ -111,4 +121,44 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 		return tree.build();
 	}
+
+	@Override
+	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
+		if (applicationName == null) {
+			throw new NullPointerException("applicationName");
+		}
+
+		if (logger.isTraceEnabled()) {
+			logger.trace("scan {}, {}, {}", new Object[] { applicationName, from, to });
+		}
+		
+		List<byte[]> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+		Set<TraceId> result = new HashSet<TraceId>();
+		for (byte[] traceId : bytes) {
+			TraceId tid = new TraceId(traceId);
+			result.add(tid);
+			logger.trace("traceid:{}", tid);
+		}
+		return result;
+	}
+	
+    @Override
+    public String[] selectAgentIds(String[] hosts) {
+        List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+        column.add(new HbaseColumn("Agents", "AgentID"));
+
+        HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
+        Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+
+        if (logger.isDebugEnabled()) {
+            while (iterator.hasNext()) {
+                logger.debug("selectedAgentId={}", iterator.next());
+            }
+            logger.debug("!!!==============WARNING==============!!!");
+            logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+            logger.debug("!!!===================================!!!");
+        }
+
+        return hosts;
+    }
 }

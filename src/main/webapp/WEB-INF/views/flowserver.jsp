@@ -5,10 +5,10 @@
 			"nodes" : [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
 			    <c:if test="${node.terminal}">
-			        { "name" : "${node.endPoint}" }
+			        { "name" : "${node.endPoint}", "applicationName" : "${node.endPoint}" }
 			    </c:if>
 			    <c:if test="${not node.terminal}">
-			        { "name" : "${node}" }
+			        { "name" : "${node}", "applicationName" : "${node.applicationName}" }
 			    </c:if>
 			    <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
