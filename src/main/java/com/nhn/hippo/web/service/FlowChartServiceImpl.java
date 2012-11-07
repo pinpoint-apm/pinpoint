@@ -119,7 +119,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				tree.addSpan(eachTransaction);
 			}
 		}
-		return tree;
+		return tree.build();
 	}
 
 	@Override
