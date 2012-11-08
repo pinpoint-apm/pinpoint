@@ -4,37 +4,40 @@ import org.junit.Test;
 
 public class TraceTest {
 
-	@Test
-	public void trace() {
-		Trace.traceBlockBegin();
-		Trace.setTraceId(TraceID.newTraceId());
+    @Test
+    public void trace() {
+        TraceID traceID = TraceID.newTraceId();
+        Trace trace = new Trace(traceID);
+        trace.traceBlockBegin();
 
-		// http server receive
-		Trace.recordRpcName("service_name", "http://");
-		Trace.recordEndPoint("http:localhost:8080");
-		Trace.recordAttibute("KEY", "VALUE");
-		Trace.record(Annotation.ServerRecv);
+        // http server receive
+        trace.recordRpcName("service_name", "http://");
+        trace.recordEndPoint("http:localhost:8080");
+        trace.recordAttibute("KEY", "VALUE");
+        trace.record(Annotation.ServerRecv);
 
-		// get data form db
-		getDataFromDB();
+        // get data form db
+        getDataFromDB(trace);
 
-		// response to client
-		Trace.record(Annotation.ServerSend);
+        // response to client
+        trace.record(Annotation.ServerSend);
 
-		Trace.traceBlockEnd();
-	}
+        trace.traceBlockEnd();
+    }
 
-	private void getDataFromDB() {
-		Trace.traceBlockBegin();
+    private void getDataFromDB(Trace trace) {
+        trace.traceBlockBegin();
+        trace.record(Annotation.ClientSend);
 
-		// db server request
-		Trace.recordRpcName("mysql", "rpc");
-		Trace.recordAttibute("mysql.query", "SELECT * FROM TABLE");
-		Trace.record(Annotation.ClientSend);
+        // db server request
+        trace.recordRpcName("mysql", "rpc");
+        trace.recordAttibute("mysql.query", "SELECT * FROM TABLE");
 
-		// get a db response
-		Trace.record(Annotation.ClientRecv);
+        // get a db response
 
-		Trace.traceBlockEnd();
-	}
+        trace.record(Annotation.ClientRecv);
+        trace.traceBlockEnd();
+
+
+    }
 }

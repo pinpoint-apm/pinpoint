@@ -2,6 +2,8 @@ package com.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
+import com.profiler.context.TraceID;
 import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -18,9 +20,13 @@ public class MySQLConnectionImplModifierTest {
     private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifierTest.class.getName());
 
     private TestClassLoader loader;
+
     @Before
     public void setUp() throws Exception {
         loader = new TestClassLoader();
+
+        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor());
+        loader.addModifier(driverModifier);
 
         MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor());
         loader.addModifier(connectionModifier);
@@ -38,6 +44,7 @@ public class MySQLConnectionImplModifierTest {
     }
 
     private MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+
     @Test
     public void testModify() throws Exception {
 
@@ -49,9 +56,13 @@ public class MySQLConnectionImplModifierTest {
         Properties properties = new Properties();
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
+
+        TraceContext traceContext = new TraceContext();
+        TraceID traceID = TraceID.newTraceId();
+        traceContext.attachTraceObject(traceID);
+
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
-        Trace.getTraceIdOrCreateNew();
         logger.info("Connection class name:" + connection.getClass().getName());
         logger.info("Connection class cl:" + connection.getClass().getClassLoader());
 
@@ -70,7 +81,7 @@ public class MySQLConnectionImplModifierTest {
         String clearUrl = getUrl.invoke(connection);
         Assert.assertNull(clearUrl);
 
-        Trace.removeCurrentTraceIdFromStack();
+        traceContext.detachTraceObject();
     }
 
     private void statement(Connection connection) throws SQLException {
@@ -107,8 +118,6 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement.close();
 
         connection.commit();
-
-
 
 
         connection.setAutoCommit(true);

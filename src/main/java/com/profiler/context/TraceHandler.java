@@ -1,5 +1,5 @@
 package com.profiler.context;
 
 public interface TraceHandler {
-	public void handle();
+    public void handle(TraceID traceID);
 }

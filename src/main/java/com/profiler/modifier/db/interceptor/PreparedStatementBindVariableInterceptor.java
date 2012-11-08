@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.util.MetaObject;
 import com.profiler.util.NumberUtils;
@@ -27,9 +28,13 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
+
         Map bindList = getBindValue.invoke(target);
         if (bindList == null) {
             if (logger.isLoggable(Level.WARNING)) {

@@ -2,6 +2,7 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -33,30 +34,30 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
-        Trace.traceBlockBegin();
+        trace.traceBlockBegin();
         try {
             String url = getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", url);
-            Trace.recordTerminalEndPoint(url);
+            trace.recordRpcName("MYSQL", url);
+            trace.recordTerminalEndPoint(url);
             String sql = getSql.invoke(target);
-            Trace.recordAttibute("PreparedStatement", sql);
+            trace.recordAttibute("PreparedStatement", sql);
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            Trace.recordAttibute("BindValue", bindString);
+            trace.recordAttibute("BindValue", bindString);
 
             clean(target);
 
-            Trace.record(Annotation.ClientSend);
+            trace.record(Annotation.ClientSend);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
-        } finally {
-            Trace.traceBlockEnd();
         }
 
     }
@@ -86,26 +87,27 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         if (JDBCScope.isInternal()) {
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
 
-        Trace.traceBlockBegin();
         try {
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
             boolean success = InterceptorUtils.isSuccess(result);
-            Trace.recordAttibute("Success", success);
+            trace.recordAttibute("Success", success);
             if (!success) {
                 Throwable th = (Throwable) result;
-                Trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttibute("Exception", th.getMessage());
             }
-            Trace.record(Annotation.ClientRecv);
+            trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
-            Trace.traceBlockEnd();
+            trace.traceBlockEnd();
         }
     }
 

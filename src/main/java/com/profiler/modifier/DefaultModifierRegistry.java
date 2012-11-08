@@ -54,9 +54,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addConnectorModifier() {
         HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
         addModifier(httpClientModifier);
-
-        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
-        addModifier(arcusClientModifier);
+//      잠시 arcus안되게 주석처리.
+//        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+//        addModifier(arcusClientModifier);
     }
 
     public void addTomcatModifier() {

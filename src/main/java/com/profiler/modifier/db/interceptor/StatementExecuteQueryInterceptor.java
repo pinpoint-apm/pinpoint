@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -30,33 +31,29 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
 
-        Trace.traceBlockBegin();
-
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
         try {
             /**
              * If method was not called by request handler, we skip tagging.
              */
             String url = (String) this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", url);
-            Trace.recordTerminalEndPoint(url);
-
+            trace.recordRpcName("MYSQL", url);
+            trace.recordTerminalEndPoint(url);
             if (args.length > 0) {
-                Trace.recordAttibute("Statement", args[0]);
+                trace.recordAttibute("Statement", args[0]);
             }
-
-            Trace.record(Annotation.ClientSend);
-
-            StopWatch.start("StatementExecuteQueryInterceptor");
+            trace.record(Annotation.ClientSend);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
-        } finally {
-            Trace.traceBlockEnd();
         }
     }
 
@@ -69,13 +66,14 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         if (JDBCScope.isInternal()) {
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
 
-        Trace.traceBlockBegin();
-        Trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
-        Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("StatementExecuteQueryInterceptor"));
-        Trace.traceBlockEnd();
+        trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
+        trace.record(Annotation.ClientRecv, trace.afterTime());
+        trace.traceBlockEnd();
     }
 }

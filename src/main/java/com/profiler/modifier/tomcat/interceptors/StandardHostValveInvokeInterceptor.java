@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Header;
 import com.profiler.context.SpanID;
@@ -38,30 +37,31 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             String parameters = getRequestParameter(request);
 
             TraceID traceId = populateTraceIdFromRequest(request);
+            Trace trace;
             if (traceId != null) {
-                Trace.setTraceId(traceId);
+                TraceID nextTraceId = traceId.getNextTraceId();
+                trace = traceContext.attachTraceObject(nextTraceId);
             } else {
                 TraceID newTraceID = TraceID.newTraceId();
                 if (logger.isLoggable(Level.INFO)) {
                     logger.info("TraceID not exist. start new trace. " + newTraceID);
-                    // 좀더 자세한 정보는 debug레벨로
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
-                Trace.setTraceId(newTraceID);
+                trace = traceContext.attachTraceObject(newTraceID);
             }
 
-            Trace.recordRpcName("TOMCAT", requestURL);
-            Trace.recordEndPoint(request.getProtocol() + ":" + request.getLocalName() + ":" + request.getLocalPort());
-            Trace.recordAttibute("http.url", request.getRequestURI());
+            trace.markBeforeTime();
+            trace.recordRpcName("TOMCAT", requestURL);
+            trace.recordEndPoint(request.getProtocol() + ":" + request.getLocalName() + ":" + request.getLocalPort());
+            trace.recordAttibute("http.url", request.getRequestURI());
             if (parameters != null && parameters.length() > 0) {
-                Trace.recordAttibute("http.params", parameters);
+                trace.recordAttibute("http.params", parameters);
             }
-            Trace.record(Annotation.ServerRecv);
+            trace.record(Annotation.ServerRecv);
 
-            StopWatch.start("StandardHostValveInvokeModifier-starttime");
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail", e);
+                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
         }
     }
@@ -74,13 +74,18 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
         TraceContext traceContext = TraceContext.getTraceContext();
         traceContext.getActiveThreadCounter().end();
-
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+        traceContext.detachTraceObject();
+        if (trace.getCurrentStackContext().getStackFrameId() != 0) {
+            logger.warning("Corrupted CallStack found. StackId not Root(0)");
+            // 문제 있는 callstack을 dump하면 도움이 될듯.
+        }
         // TODO result 가 Exception 타입일경우 호출 실패임.
-        Trace.record(Annotation.ServerSend, StopWatch.stopAndGetElapsed("StandardHostValveInvokeModifier-starttime"));
-//		RequestTracer.endTransaction();
+        trace.record(Annotation.ServerSend, trace.afterTime());
 
-        // TODO: I'v changed point of removing. Trace.mutate()
-        // Trace.removeTraceId();
     }
 
     /**

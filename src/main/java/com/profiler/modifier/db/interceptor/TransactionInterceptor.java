@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -27,17 +28,19 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
             if ("setAutoCommit".equals(methodName)) {
-                beforeStartTransaction(con);
+                beforeStartTransaction(trace, con);
             } else if ("commit".equals(methodName)) {
-                beforeCommit(con);
+                beforeCommit(trace, con);
             } else if ("rollback".equals(methodName)) {
-                beforeRollback(con);
+                beforeRollback(trace, con);
             }
         }
     }
@@ -50,148 +53,129 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         if (JDBCScope.isInternal()) {
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
             if ("setAutoCommit".equals(methodName)) {
-                afterStartTransaction(con, args[0], result);
+                afterStartTransaction(trace, con, args[0], result);
             } else if ("commit".equals(methodName)) {
-                afterCommit(con, result);
+                afterCommit(trace, con, result);
             } else if ("rollback".equals(methodName)) {
-                afterRollback(con, result);
+                afterRollback(trace, con, result);
             }
         }
     }
 
-    private void beforeStartTransaction(Connection target) {
+    private void beforeStartTransaction(Trace trace, Connection target) {
 
-        Trace.traceBlockBegin();
-        try {
-            String connectionUrl = this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordTerminalEndPoint(connectionUrl);
-            Trace.record(Annotation.ClientSend);
-        } finally {
-            Trace.traceBlockEnd();
-        }
+        trace.traceBlockBegin();
+        String connectionUrl = this.getUrl.invoke(target);
+        trace.recordRpcName("MYSQL", connectionUrl);
+        trace.recordTerminalEndPoint(connectionUrl);
+        trace.record(Annotation.ClientSend);
     }
 
-    private void afterStartTransaction(Connection target, Object arg, Object result) {
-        Trace.traceBlockBegin();
+    private void afterStartTransaction(Trace trace, Connection target, Object arg, Object result) {
         try {
             Boolean autocommit = (Boolean) arg;
             boolean success = InterceptorUtils.isSuccess(result);
             if (!autocommit) {
                 // transaction start;
                 if (success) {
-                    Trace.recordAttibute("Transaction", "begin");
+                    trace.recordAttibute("Transaction", "begin");
                 } else {
-                    Trace.recordAttibute("Transaction", "begin fail");
+                    trace.recordAttibute("Transaction", "begin fail");
                     Throwable th = (Throwable) result;
-                    Trace.recordAttibute("Exception", th.getMessage());
+                    trace.recordAttibute("Exception", th.getMessage());
                 }
-                Trace.record(Annotation.ClientRecv);
+                trace.record(Annotation.ClientRecv);
             } else {
                 if (success) {
-                    Trace.recordAttibute("Transaction", "autoCommit:false");
+                    trace.recordAttibute("Transaction", "autoCommit:false");
                 } else {
-                    Trace.recordAttibute("Transaction", "autoCommit:false fail");
+                    trace.recordAttibute("Transaction", "autoCommit:false fail");
                     Throwable th = (Throwable) result;
-                    Trace.recordAttibute("Exception", th.getMessage());
+                    trace.recordAttibute("Exception", th.getMessage());
                 }
-                Trace.record(Annotation.ClientRecv);
+                trace.record(Annotation.ClientRecv);
             }
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
-            Trace.traceBlockEnd();
+            trace.traceBlockEnd();
         }
     }
 
-    private void beforeCommit(Connection target) {
-        Trace.traceBlockBegin();
-        try {
-            String connectionUrl = this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordTerminalEndPoint(connectionUrl);
-            Trace.record(Annotation.ClientSend);
-        } finally {
-            Trace.traceBlockEnd();
-        }
+    private void beforeCommit(Trace trace, Connection target) {
+        trace.traceBlockBegin();
+        String connectionUrl = this.getUrl.invoke(target);
+        trace.recordRpcName("MYSQL", connectionUrl);
+        trace.recordTerminalEndPoint(connectionUrl);
+        trace.record(Annotation.ClientSend);
+
     }
 
-    private void afterCommit(Connection target, Object result) {
-        Trace.traceBlockBegin();
+    private void afterCommit(Trace trace, Connection target, Object result) {
         try {
             String connectionUrl = this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordTerminalEndPoint(connectionUrl);
+            trace.recordRpcName("MYSQL", connectionUrl);
+            trace.recordTerminalEndPoint(connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
-                Trace.recordAttibute("Transaction", "commit");
+                trace.recordAttibute("Transaction", "commit");
             } else {
-                Trace.recordAttibute("Transaction", "commit fail");
+                trace.recordAttibute("Transaction", "commit fail");
                 Throwable th = (Throwable) result;
-                Trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttibute("Exception", th.getMessage());
             }
-            Trace.record(Annotation.ClientRecv);
+            trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
-            Trace.traceBlockEnd();
+            trace.traceBlockEnd();
         }
     }
 
 
-    private void beforeRollback(Connection target) {
-        Trace.traceBlockBegin();
-        try {
-            String connectionUrl = this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordTerminalEndPoint(connectionUrl);
-            Trace.record(Annotation.ClientSend);
-        } finally {
-            Trace.traceBlockEnd();
-        }
+    private void beforeRollback(Trace trace, Connection target) {
+        trace.traceBlockBegin();
+        String connectionUrl = this.getUrl.invoke(target);
+        trace.recordRpcName("MYSQL", connectionUrl);
+        trace.recordTerminalEndPoint(connectionUrl);
+        trace.record(Annotation.ClientSend);
     }
 
-    private void afterRollback(Connection target, Object result) {
-        Trace.traceBlockBegin();
+    private void afterRollback(Trace trace, Connection target, Object result) {
         try {
-            // TODO 너무 인터널 레벨로 byte code를 수정하다보니, 드라이버내의 close() 메소드가 rollback을 호출하는 것 까지 보임.
-            // ex : mysql
-            //java.lang.Exception
-            //  at com.profiler.modifier.db.mysql.interceptor.TransactionInterceptor.after(TransactionInterceptor.java:24)
-            //	at com.mysql.jdbc.ConnectionImpl.rollback(ConnectionImpl.java:4761) 여기에서 다시 부름.
-            //  at com.mysql.jdbc.ConnectionImpl.realClose(ConnectionImpl.java:4345)
-            //  at com.mysql.jdbc.ConnectionImpl.close(ConnectionImpl.java:1564)
 
             String connectionUrl = this.getUrl.invoke(target);
-            Trace.recordRpcName("MYSQL", connectionUrl);
-            Trace.recordTerminalEndPoint(connectionUrl);
+            trace.recordRpcName("MYSQL", connectionUrl);
+            trace.recordTerminalEndPoint(connectionUrl);
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
-                Trace.recordAttibute("Transaction", "rollback");
+                trace.recordAttibute("Transaction", "rollback");
             } else {
-                Trace.recordAttibute("Transaction", "rollback fail");
+                trace.recordAttibute("Transaction", "rollback fail");
                 Throwable th = (Throwable) result;
-                Trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttibute("Exception", th.getMessage());
             }
-            Trace.record(Annotation.ClientRecv);
+            trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
-            Trace.traceBlockEnd();
+            trace.traceBlockEnd();
         }
     }
 

@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -32,7 +33,9 @@ public class PreparedStatementCreateInterceptor implements StaticAfterIntercepto
         if (!InterceptorUtils.isSuccess(result)) {
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
         if (target instanceof Connection) {

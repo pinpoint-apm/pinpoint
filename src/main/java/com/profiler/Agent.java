@@ -119,8 +119,10 @@ public class Agent {
     public void start() {
         logger.info("Starting HIPPO Agent.");
         // trace context 새롭게 생성.
-        TraceContext.initialize();
         this.dataSender = UdpDataSender.getInstance();
+        // TraceContext의 생명주기 관리 방안이 없는지 강구.
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.setDataSender(this.dataSender);
         systemMonitor.setDataSender(dataSender);
         systemMonitor.start();
     }

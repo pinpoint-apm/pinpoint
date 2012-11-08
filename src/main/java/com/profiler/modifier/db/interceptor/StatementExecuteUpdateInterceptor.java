@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -31,31 +32,31 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
 
-        Trace.traceBlockBegin();
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
         try {
             if (args.length > 0) {
                 String url = (String) this.getUrl.invoke(target);
-                Trace.recordRpcName("MYSQL", url);
-                Trace.recordAttibute("Query", url);
-                Trace.recordTerminalEndPoint(url);
+                trace.recordRpcName("MYSQL", url);
+                trace.recordAttibute("Query", url);
+                trace.recordTerminalEndPoint(url);
             } else {
-                Trace.recordRpcName("MYSQL", "UNKNOWN");
-                Trace.recordTerminalEndPoint("UNKNOWN");
+                trace.recordRpcName("MYSQL", "UNKNOWN");
+                trace.recordTerminalEndPoint("UNKNOWN");
             }
 
-            Trace.record(Annotation.ClientSend);
+            trace.record(Annotation.ClientSend);
 
-            StopWatch.start("StatementExecuteUpdateInterceptor");
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
-        } finally {
-            Trace.traceBlockEnd();
         }
     }
 
@@ -67,13 +68,14 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         if (JDBCScope.isInternal()) {
             return;
         }
-        if (Trace.getCurrentTraceId() == null) {
+        TraceContext traceContext = TraceContext.getTraceContext();
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
 
-        Trace.traceBlockBegin();
         // TODO 결과, 수행시간을.알수 있어야 될듯.
-        Trace.record(Annotation.ClientRecv, StopWatch.stopAndGetElapsed("StatementExecuteUpdateInterceptor"));
-        Trace.traceBlockEnd();
+        trace.record(Annotation.ClientRecv, trace.afterTime());
+        trace.traceBlockEnd();
     }
 }
