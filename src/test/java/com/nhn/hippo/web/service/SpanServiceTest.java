@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.service;
 
 import com.nhn.hippo.web.calltree.span.SpanAlign;
+import com.profiler.common.ServiceNames;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;

@@ -4,12 +4,7 @@
 	"graphdata" : {
 			"nodes" : [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
-			    <c:if test="${node.terminal}">
-			        { "name" : "${node.endPoint}", "applicationName" : "${node.endPoint}" }
-			    </c:if>
-			    <c:if test="${not node.terminal}">
-			        { "name" : "${node}", "applicationName" : "${node.applicationName}" }
-			    </c:if>
+				{ "name" : "${node}" }
 			    <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 			],

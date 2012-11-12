@@ -1,9 +1,9 @@
-package com.nhn.hippo.web.calltree.server;
+package com.nhn.hippo.web.calltree.application;
 
 /**
  * @author netspider
  */
-public class Server implements Comparable<Server> {
+public class Application implements Comparable<Application> {
     private int sequence;
     private final String id;
     private final String agentId;
@@ -11,9 +11,7 @@ public class Server implements Comparable<Server> {
     private final String endPoint;
     private final boolean terminal;
 
-	public Server(String agentId, String applicationName, String endPoint, boolean terminal) {
-		// this.id = agentId + ":" + endPoint;
-		// this.id = endPoint;
+	public Application(String agentId, String applicationName, String endPoint, boolean terminal) {
 		this.id = applicationName;
 		this.agentId = agentId;
 		this.applicationName = applicationName;
@@ -50,7 +48,7 @@ public class Server implements Comparable<Server> {
 	}
 
 	@Override
-    public int compareTo(Server server) {
+    public int compareTo(Application server) {
         return id.compareTo(server.id);
     }
 
