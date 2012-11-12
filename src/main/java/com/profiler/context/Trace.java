@@ -91,14 +91,10 @@ public final class Trace {
     }
 
     public void traceBlockBegin(int stackId) {
-        try {
-            TraceID nextId = getNextTraceId();
-            callStack.push();
-            StackFrame stackFrame = createCallInfo(nextId, stackId);
-            callStack.setStackFrame(stackFrame);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        TraceID nextId = getNextTraceId();
+        callStack.push();
+        StackFrame stackFrame = createCallInfo(nextId, stackId);
+        callStack.setStackFrame(stackFrame);
     }
 
     public void traceBlockEnd() {
