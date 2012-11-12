@@ -41,7 +41,4 @@
     <bean class="com.profiler.server.dao.hbase.HbaseJvmInfoDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseApplicationIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseApplicationTraceIndex"></bean>
-    <bean class="com.profiler.server.dao.hbase.HbaseAgentIdApplicationIndexDao"></bean>
-    
-	<bean id="applicationNameMapper" class="com.profiler.server.dao.mapper.ApplicationNameMapper"></bean>
 </beans>

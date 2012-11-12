@@ -27,7 +27,7 @@ public class HbaseTraceDao implements Traces {
 
 	@Override
 	public void insert(final String applicationName, final Span span) {
-		SpanBo spanBo = new SpanBo(applicationName, span);
+		SpanBo spanBo = new SpanBo(span);
 		byte[] value = spanBo.writeValue();
 
 		Put put = new Put(SpanUtils.getTraceId(span), spanBo.getTimestamp());

@@ -1,11 +1,12 @@
 package com.profiler.server;
 
-import com.profiler.server.receiver.tcp.TCPReceiver;
-import com.profiler.server.receiver.udp.DataReceiver;
-import com.profiler.server.receiver.udp.MultiplexedUDPReceiver;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+
+import com.profiler.server.receiver.tcp.TCPReceiver;
+import com.profiler.server.receiver.udp.DataReceiver;
+import com.profiler.server.receiver.udp.MultiplexedUDPReceiver;
 
 public class Server {
     public static void main(String[] args) {

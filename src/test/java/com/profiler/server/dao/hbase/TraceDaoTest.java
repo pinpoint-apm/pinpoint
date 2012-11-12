@@ -1,5 +1,6 @@
 package com.profiler.server.dao.hbase;
 
+import com.profiler.common.ServiceNames;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
