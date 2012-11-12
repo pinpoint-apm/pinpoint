@@ -12,7 +12,7 @@ import java.net.URI;
  */
 public class ConnectionStringParserTest {
 
-    private Logger logger = LoggerFactory.getLogger(ConnectionStringParser.class);
+    private Logger logger = LoggerFactory.getLogger(ConnectionStringParserTest.class);
 
     @Test
     public void testURIParse() throws Exception {
