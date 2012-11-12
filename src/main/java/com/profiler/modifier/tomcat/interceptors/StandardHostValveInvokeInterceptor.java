@@ -80,7 +80,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             return;
         }
         traceContext.detachTraceObject();
-        if (trace.getCurrentStackContext().getStackFrameId() != 0) {
+        if (trace.getCurrentStackFrame().getStackFrameId() != 0) {
             logger.warning("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }

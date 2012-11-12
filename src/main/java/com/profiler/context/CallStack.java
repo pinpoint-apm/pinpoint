@@ -1,5 +1,7 @@
 package com.profiler.context;
 
+import java.util.Arrays;
+
 /**
  * @author netspider
  */
@@ -7,15 +9,18 @@ public class CallStack {
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
     private StackFrame[] stack = new StackFrame[4];
 
-    // TODO 개별변수에 volatile을해도 동시성이 해결되지 않으므로 일단 제거.
+    // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
+    private final int TRACE_STACK_MAX_SIZE = 64;
+
     private int index = 0;
 
-
-    public StackFrame getCurrentStackFrame() {
+    // copy시의 락 생각할 경우 좀더 정교하게 잡을수 있을듯.
+    // push, pop, copy만 락을 잡아도 될거 같은 생각이 듬.
+    public synchronized StackFrame getCurrentStackFrame() {
         return stack[index];
     }
 
-    public StackFrame getParentStackFrame() {
+    public synchronized StackFrame getParentStackFrame() {
         if (index > 0) {
             return stack[index - 1];
         }
@@ -23,11 +28,11 @@ public class CallStack {
     }
 
 
-    public void setStackFrame(StackFrame stackFrame) {
+    public synchronized void setStackFrame(StackFrame stackFrame) {
         stack[index] = stackFrame;
     }
 
-    public void push() {
+    public synchronized void push() {
         index++;
         if (index > stack.length - 1) {
             StackFrame[] old = stack;
@@ -36,18 +41,24 @@ public class CallStack {
         }
     }
 
-    public int getStackFrameIndex() {
+    public synchronized int getStackFrameIndex() {
         return index;
     }
 
-    public void pop() {
+    public synchronized void pop() {
         if (index > 0) {
-//            TODO 이전 reference를 제거해야 되나?
+            stack[index] = null;
             index--;
         }
     }
 
-    public void currentStackFrameClear() {
+    public synchronized void currentStackFrameClear() {
         stack[index] = null;
+    }
+
+    public synchronized StackFrame[] copyStackFrame() {
+        StackFrame[] copy = new StackFrame[index];
+        System.arraycopy(stack, 0, copy, 0, index);
+        return copy;
     }
 }

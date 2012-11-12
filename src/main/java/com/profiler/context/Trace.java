@@ -15,31 +15,33 @@ public final class Trace {
 
     private final Logger logger = Logger.getLogger(Trace.class.getName());
 
+    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+    private static final DataSender DEFULT_DATA_SENDER = new LoggingDataSender();
+
     public static final int HANDLER_STACKID = -2;
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
 
     //    private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
-    //    private static final ThreadLocal<CallStack> traceIdLocal = new NamedThreadLocal<CallStack>("TraceId");
     private boolean tracingEnabled = true;
 
     private TraceID root;
     private CallStack callStack;
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-    private static final DataSender DEFULT_DATA_SENDER = new LoggingDataSender();
+
     private DataSender dataSender = DEFULT_DATA_SENDER;
 
     public Trace() {
+        // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
         this.root = TraceID.newTraceId();
         this.callStack = new CallStack();
-        StackFrame stackFrame = createCallInfo(root, ROOT_STACKID);
+        StackFrame stackFrame = createStackFrame(root, ROOT_STACKID);
         this.callStack.setStackFrame(stackFrame);
     }
 
     public Trace(TraceID continueRoot) {
         this.root = continueRoot;
         this.callStack = new CallStack();
-        StackFrame stackFrame = createCallInfo(continueRoot, ROOT_STACKID);
+        StackFrame stackFrame = createStackFrame(continueRoot, ROOT_STACKID);
         this.callStack.setStackFrame(stackFrame);
     }
 
@@ -55,7 +57,7 @@ public final class Trace {
         try {
             TraceID nextId = getNextTraceId();
             callStack.push();
-            StackFrame stackFrame = createCallInfo(nextId, HANDLER_STACKID);
+            StackFrame stackFrame = createStackFrame(nextId, HANDLER_STACKID);
             callStack.setStackFrame(stackFrame);
             handler.handle(nextId);
         } catch (Exception e) {
@@ -66,7 +68,7 @@ public final class Trace {
         }
     }
 
-    private StackFrame createCallInfo(TraceID nextId, int stackId) {
+    private StackFrame createStackFrame(TraceID nextId, int stackId) {
         StackFrame stackFrame = new StackFrame();
         stackFrame.setStackFrameId(stackId);
         stackFrame.setTraceID(nextId);
@@ -81,19 +83,19 @@ public final class Trace {
     }
 
     public void markBeforeTime() {
-        StackFrame context = getCurrentStackContext();
+        StackFrame context = getCurrentStackFrame();
         context.markBeforeTime();
     }
 
     public long afterTime() {
-        StackFrame context = getCurrentStackContext();
+        StackFrame context = getCurrentStackFrame();
         return context.afterTime();
     }
 
     public void traceBlockBegin(int stackId) {
         TraceID nextId = getNextTraceId();
         callStack.push();
-        StackFrame stackFrame = createCallInfo(nextId, stackId);
+        StackFrame stackFrame = createStackFrame(nextId, stackId);
         callStack.setStackFrame(stackFrame);
     }
 
@@ -110,7 +112,7 @@ public final class Trace {
         callStack.pop();
     }
 
-    public StackFrame getCurrentStackContext() {
+    public StackFrame getCurrentStackFrame() {
         return callStack.getCurrentStackFrame();
     }
 
@@ -149,12 +151,13 @@ public final class Trace {
 
 
     private void spanUpdate(SpanUpdater spanUpdater) {
-        StackFrame currentStackFrame = getCurrentStackContext();
+        StackFrame currentStackFrame = getCurrentStackFrame();
         Span span = spanUpdater.updateSpan(currentStackFrame.getSpan());
         if (span.isExistsAnnotationKey(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationKey(Annotation.ServerSend.getCode())) {
             // remove current context threadId from callStack
 //            removeCurrentTraceIdFromStack();
             logSpan(span);
+
         }
     }
 

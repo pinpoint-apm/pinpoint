@@ -23,7 +23,10 @@ public class TraceContext {
     private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
 
     private static final DataSender DEFAULT_DATA_SENDER = new LoggingDataSender();
+
     private DataSender dataSender = DEFAULT_DATA_SENDER;
+
+    private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
     public TraceContext() {
     }
@@ -48,11 +51,16 @@ public class TraceContext {
         this.threadLocal.set(null);
     }
 
+    public GlobalCallTrace<AsyncTrace> getGlobalCallTrace() {
+        return globalCallTrace;
+    }
+
     public ActiveThreadCounter getActiveThreadCounter() {
         return activeThreadCounter;
     }
 
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;
+        this.globalCallTrace.setDataSender(dataSender);
     }
 }

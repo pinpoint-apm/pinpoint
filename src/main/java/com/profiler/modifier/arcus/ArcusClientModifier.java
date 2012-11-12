@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.modifier.arcus.interceptors.ConstructInterceptor;
 
 /**
  * @author netspider
@@ -31,29 +32,32 @@ public class ArcusClientModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            /**
-             * inject both current and next traceId.
-             */
-            aClass.addTraceVariable("__traceId", "__setTraceId", "__getTraceId", "com.profiler.context.TraceID");
-            aClass.addTraceVariable("__nextTraceId", "__setNextTraceId", "__getNextTraceId", "com.profiler.context.TraceID");
-            aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextTraceId()); }");
+            aClass.addTraceVariable("__asyncTraceId", "__setAsyncTraceId", "__getAsyncTraceId", "int");
+            aClass.addConstructorInterceptor(null, new ConstructInterceptor());
 
-            /**
-             * inject nano time for checking send time.
-             */
-            aClass.addTraceVariable("__commandCreatedTime", "__setCommandCreatedTime", "__getCommandCreatedTime", "long");
-            aClass.insertCodeAfterConstructor(null, "{ __setCommandCreatedTime(System.nanoTime()); }");
-
-            /**
-             * inject cancelled time
-             */
-            aClass.addTraceVariable("__cancelledTime", "__setCancelledTime", "__getCancelledTime", "long");
-
-            /**
-             * insert trace code.
-             */
-            aClass.insertCodeBeforeMethod("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, getTransitionStateAfterCode());
-            aClass.insertCodeBeforeMethod("cancel", null, getCancelBeforeCode());
+//            /**
+//             * inject both current and next traceId.
+//             */
+//            aClass.addTraceVariable("__traceId", "__setTraceId", "__getTraceId", "com.profiler.context.TraceID");
+//            aClass.addTraceVariable("__nextTraceId", "__setNextTraceId", "__getNextTraceId", "com.profiler.context.TraceID");
+//            aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextTraceId()); }");
+//
+//            /**
+//             * inject nano time for checking send time.
+//             */
+//            aClass.addTraceVariable("__commandCreatedTime", "__setCommandCreatedTime", "__getCommandCreatedTime", "long");
+//            aClass.insertCodeAfterConstructor(null, "{ __setCommandCreatedTime(System.nanoTime()); }");
+//
+//            /**
+//             * inject cancelled time
+//             */
+//            aClass.addTraceVariable("__cancelledTime", "__setCancelledTime", "__getCancelledTime", "long");
+//
+//            /**
+//             * insert trace code.
+//             */
+//            aClass.insertCodeBeforeMethod("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, getTransitionStateAfterCode());
+//            aClass.insertCodeBeforeMethod("cancel", null, getCancelBeforeCode());
 
             return aClass.toBytecode();
         } catch (Exception e) {
