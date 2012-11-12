@@ -13,24 +13,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.nhn.hippo.web.service.FlowChartService;
 
 /**
- * 
  * @author netspider
  */
 @Controller
 public class MainController {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private FlowChartService flow;
+    @Autowired
+    private FlowChartService flow;
 
-	@RequestMapping(value = "/applications", method = RequestMethod.GET)
-	public String flow(Model model) {
-		List<String> applications = flow.selectAllApplicationNames();
-		model.addAttribute("applications", applications);
+    @RequestMapping(value = "/applications", method = RequestMethod.GET)
+    public String flow(Model model) {
+        List<String> applications = flow.selectAllApplicationNames();
+        model.addAttribute("applications", applications);
 
-		logger.debug("Applications, %s", applications);
+        logger.debug("Applications, {}", applications);
 
-		return "applications";
-	}
+        return "applications";
+    }
 }
