@@ -14,26 +14,26 @@ import com.profiler.server.dao.ApplicationIndex;
 
 public class AgentInfoHandler implements Handler {
 
-	private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
 
-	@Autowired
-	private ApplicationIndex applicationIndexDao;
-	
-	@Autowired
-	private AgentIdApplicationIndex agentIdApplicationIndexDao;
+    @Autowired
+    private ApplicationIndex applicationIndexDao;
 
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		assert (tbase instanceof Span);
+    @Autowired
+    private AgentIdApplicationIndex agentIdApplicationIndexDao;
 
-		try {
-			AgentInfo agentInfo = (AgentInfo) tbase;
+    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        assert (tbase instanceof Span);
 
-			logger.debug("Received AgentInfo=%s", agentInfo);
+        try {
+            AgentInfo agentInfo = (AgentInfo) tbase;
 
-			applicationIndexDao.insert(agentInfo);
-			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
-		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
-		}
-	}
+            logger.debug("Received AgentInfo={}", agentInfo);
+
+            applicationIndexDao.insert(agentInfo);
+            agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
+        } catch (Exception e) {
+            logger.warn("AgentInfo handle error " + e.getMessage(), e);
+        }
+    }
 }
