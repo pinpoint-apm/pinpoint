@@ -21,7 +21,6 @@ public class SpanBo {
     private byte version = 0;
 
     private String agentId; // required
-    private String applicationName; // required
 
     //    private static final int TIMESTAMP = 8;
     private long timestamp; // required
@@ -53,9 +52,8 @@ public class SpanBo {
     
     private List<AnnotationBo> annotationBoList;
 
-    public SpanBo(String applicationName, Span span) {
+    public SpanBo(Span span) {
         this.agentId = span.getAgentId();
-        this.applicationName = applicationName;
         this.timestamp = span.getTimestamp();
         this.mostTraceId = span.getMostTraceId();
         this.leastTraceId = span.getLeastTraceId();
@@ -93,10 +91,6 @@ public class SpanBo {
 
     public String getAgentId() {
         return agentId;
-    }
-    
-    public String getApplicationName() {
-    	return applicationName;
     }
 
     public void setAgentId(String agentId) {
@@ -212,9 +206,9 @@ public class SpanBo {
         }
     }
 
-    private int getBufferLength(int a, int b, int c, int d, int e) {
-        int size = a + b + c + d + e;
-        size = size + (4 * 5) + VERSION_SIZE; // chunk
+    private int getBufferLength(int a, int b, int c, int d) {
+        int size = a + b + c + d;
+        size = size + (4 * 4) + VERSION_SIZE; // chunk
 //        size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID + PARENTSPANID + FLAG + TERMINAL;
         size = size + PARENTSPANID + FLAG + TERMINAL;
         return size;
@@ -222,16 +216,14 @@ public class SpanBo {
 
     public byte[] writeValue() {
         byte[] agentIDBytes = BytesUtils.getBytes(agentId);
-        byte[] applicationNameBytes = BytesUtils.getBytes(applicationName);
         byte[] nameBytes = BytesUtils.getBytes(name);
         byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
         byte[] endPointBytes = BytesUtils.getBytes(endPoint);
-        int bufferLength = getBufferLength(applicationNameBytes.length, agentIDBytes.length, nameBytes.length, serviceNameBytes.length, endPointBytes.length);
+        int bufferLength = getBufferLength(agentIDBytes.length, nameBytes.length, serviceNameBytes.length, endPointBytes.length);
 
         Buffer buffer = new Buffer(bufferLength);
         buffer.put(version);
         buffer.putPrefixedBytes(agentIDBytes);
-        buffer.putPrefixedBytes(applicationNameBytes);
 //        buffer.put(timestamp);
 //        buffer.put(mostTraceID);
 //        buffer.put(leastTraceID);
@@ -250,7 +242,6 @@ public class SpanBo {
         Buffer buffer = new Buffer(bytes, offset);
         this.version = buffer.readByte();
         this.agentId = buffer.readPrefixedString();
-        this.applicationName = buffer.readPrefixedString();
 //        this.timestamp = buffer.readLong();
 //        this.mostTraceID = buffer.readLong();
 //        this.leastTraceID = buffer.readLong();
