@@ -5,6 +5,7 @@ import com.profiler.context.AsyncTrace;
 import com.profiler.context.GlobalCallTrace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -22,15 +23,15 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class BaseOperationTransitionStateInterceptor implements StaticAfterInterceptor {
+public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor {
 
     private final Logger logger = Logger.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
     private MetaObject asyncTraceId = new MetaObject<Integer>("__getAsyncTraceId");
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
         TraceContext traceContext = TraceContext.getTraceContext();
         GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
@@ -91,4 +92,6 @@ public class BaseOperationTransitionStateInterceptor implements StaticAfterInter
         // TODO 기본 인코딩은 뭔가? 동시성은 괜찮은건가? buffer 사이즈의 compact는 되어있는것인가.
         return new String(buffer.array());
     }
+
+
 }

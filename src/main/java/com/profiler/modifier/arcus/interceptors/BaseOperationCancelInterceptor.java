@@ -4,6 +4,7 @@ import com.profiler.context.AsyncTrace;
 import com.profiler.context.GlobalCallTrace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 import net.spy.memcached.protocol.BaseOperationImpl;
@@ -15,14 +16,14 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class BaseOperationCancelInterceptor implements StaticAfterInterceptor {
+public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
     private final Logger logger = Logger.getLogger(BaseOperationCancelInterceptor.class.getName());
     private MetaObject asyncTraceId = new MetaObject<Integer>("__getAsyncTraceId", null);
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         TraceContext traceContext = TraceContext.getTraceContext();
@@ -39,5 +40,7 @@ public class BaseOperationCancelInterceptor implements StaticAfterInterceptor {
             timeObject.markCancelTime();
         }
     }
+
+
 }
 
