@@ -51,7 +51,7 @@ public class TraceContext {
         this.threadLocal.set(null);
     }
 
-    public GlobalCallTrace<AsyncTrace> getGlobalCallTrace() {
+    public GlobalCallTrace getGlobalCallTrace() {
         return globalCallTrace;
     }
 
