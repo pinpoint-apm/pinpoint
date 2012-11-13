@@ -38,17 +38,21 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
         Object asyncId = asyncTraceId.invoke(target);
         if (asyncId == null) {
-            logger.info("asyncId not found");
+            logger.fine("asyncId not found");
             return;
         }
         // saynctrace를 제거한다.
         AsyncTrace asyncTrace = globalCallTrace.removeTraceObject((Integer) asyncId);
+        if (asyncTrace == null) {
+            logger.fine("AsyncTrace already timeout");
+            return;
+        }
         OperationState newState = (OperationState) args[0];
 
         BaseOperationImpl baseOperation = (BaseOperationImpl) target;
         if (newState == OperationState.READING) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "event:" + newState);
+                logger.fine("event:" + newState + " asyncId:" + asyncId);
             }
             MemcachedNode handlingNode = baseOperation.getHandlingNode();
             SocketAddress socketAddress = handlingNode.getSocketAddress();
@@ -67,7 +71,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
             asyncTrace.record(Annotation.ClientSend, System.currentTimeMillis() - createTime);
         } else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "event:" + newState);
+                logger.fine("event:" + newState + " asyncId:" + asyncId);
             }
             Exception exception = baseOperation.getException();
             if (exception != null) {

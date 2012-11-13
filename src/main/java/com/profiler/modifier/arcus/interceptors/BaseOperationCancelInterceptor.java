@@ -30,10 +30,14 @@ public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
         GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
         Object asyncId = asyncTraceId.invoke(target);
         if (asyncId == null) {
-            logger.info("asyncId not found");
+            logger.fine("asyncId not found");
             return;
         }
-        AsyncTrace asyncTrace = globalCallTrace.removeTraceObject((Integer) asyncId);
+        AsyncTrace asyncTrace = globalCallTrace.getTraceObject((Integer) asyncId);
+        if (asyncTrace == null) {
+            logger.fine("asyncTrace expired");
+            return;
+        }
         BaseOperationImpl baseOperation = (BaseOperationImpl) target;
         if (!baseOperation.isCancelled()) {
             TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();

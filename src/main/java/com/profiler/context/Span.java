@@ -24,7 +24,6 @@ public class Span {
     private boolean isTerminal = false;
 
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
-    private final Set<String> annotationKeys = new HashSet<String>(5);
 
     private long rpcStartTime;
     private long rpcEndTime;
@@ -37,7 +36,6 @@ public class Span {
     }
 
     public boolean addAnnotation(HippoAnnotation annotation) {
-        annotationKeys.add(annotation.getKey());
         if (annotation.getKey().equals(Annotation.ClientSend.getCode()) || annotation.getKey().equals(Annotation.ServerRecv.getCode())) {
             rpcStartTime = annotation.getTimestamp();
         }
@@ -51,15 +49,6 @@ public class Span {
         return annotations.size();
     }
 
-    /**
-     * this method only works for Trace.mutate()
-     *
-     * @param value
-     * @return
-     */
-    public boolean isExistsAnnotationKey(String key) {
-        return annotationKeys.contains(key);
-    }
 
     public String getEndPoint() {
         return this.endPoint;

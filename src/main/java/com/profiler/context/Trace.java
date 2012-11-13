@@ -60,8 +60,6 @@ public final class Trace {
             StackFrame stackFrame = createStackFrame(nextId, HANDLER_STACKID);
             callStack.setStackFrame(stackFrame);
             handler.handle(nextId);
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             // stackID check하면 좋을듯.
             callStack.pop();

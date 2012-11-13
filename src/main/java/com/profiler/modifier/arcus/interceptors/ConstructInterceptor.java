@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class ConstructInterceptor implements StaticAfterInterceptor {
 
     private final Logger logger = Logger.getLogger(ConstructInterceptor.class.getName());
-    private MetaObject asyncTraceId = new MetaObject<Integer>("__setAsyncTraceId", int.class);
+    private MetaObject<Integer> asyncTraceId = new MetaObject<Integer>("__setAsyncTraceId", int.class);
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {

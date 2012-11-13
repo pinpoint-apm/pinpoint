@@ -3,6 +3,7 @@ package com.profiler.context;
 import com.profiler.sender.DataSender;
 
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,6 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class GlobalCallTrace {
+
+    private static final long FLUSH_TIMEOUT = 120000L; // 2 minutes
+
     private static AtomicInteger timerId = new AtomicInteger(0);
 
     private ConcurrentMap<Integer, AsyncTrace> trace = new ConcurrentHashMap<Integer, AsyncTrace>(32);
@@ -19,19 +23,61 @@ public class GlobalCallTrace {
 
     private Timer timer = new Timer("GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
 
-    public int registerTraceObject(AsyncTrace target) {
-        // datasender쪽 전달부분이 영 별로임.
-        target.setDataSender(this.dataSender);
-        int id = idGenerator.getAndIncrement();
-        trace.put(id, target);
+    public int registerTraceObject(AsyncTrace asyncTrace) {
+        // TODO 연관관계가 전달부분이 영 별로임.
+        asyncTrace.setDataSender(this.dataSender);
+
+        TimeoutTask timeoutTask = new TimeoutTask(trace, asyncTrace.getAsyncId());
+        asyncTrace.setTimeoutTask(timeoutTask);
+
+        int id = put(asyncTrace);
+        asyncTrace.setAsyncId(id);
+        timer.schedule(timeoutTask, FLUSH_TIMEOUT);
         return id;
     }
 
-    public AsyncTrace removeTraceObject(int id) {
-        return trace.get(id);
+    private int put(AsyncTrace asyncTrace) {
+        int id = idGenerator.getAndIncrement();
+        trace.put(id, asyncTrace);
+        return id;
+    }
+
+    public AsyncTrace getTraceObject(int asyncId) {
+        return trace.get(asyncId);
+    }
+
+    public AsyncTrace removeTraceObject(int asyncId) {
+        AsyncTrace asyncTrace = trace.remove(asyncId);
+        if (asyncTrace != null) {
+            boolean result = asyncTrace.cancelTimeout();
+            if (!result) {
+                // 이미 timeout된 asyncTrace임.
+                return null;
+            }
+        }
+        return asyncTrace;
     }
 
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;
+    }
+
+    private final class TimeoutTask extends TimerTask {
+        private ConcurrentMap<Integer, AsyncTrace> trace;
+        private int id;
+//        private final AsyncTrace asyncTrace;
+
+        public TimeoutTask(ConcurrentMap<Integer, AsyncTrace> trace, int id) {
+            this.trace = trace;
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            AsyncTrace asyncTrace = trace.remove(id);
+            if (asyncTrace != null) {
+                asyncTrace.timeout();
+            }
+        }
     }
 }

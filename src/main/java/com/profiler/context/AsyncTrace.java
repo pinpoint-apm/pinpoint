@@ -3,6 +3,9 @@ package com.profiler.context;
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.sender.DataSender;
 
+
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,8 +19,17 @@ public class AsyncTrace {
     //    private int id;
     // 비동기일 경우 traceenable의 경우 애매함. span을 보내는것으로 데이터를 생성하므로 약간 이상.
 //    private boolean tracingEnabled;
+
+    private static int COMPLATE_STATE_NONE = 0;
+    private static int COMPLATE_STATE_FIRE = 1;
+    private static int COMPLATE_STATE_TIMEOUT = 2;
+
+    private final AtomicInteger complate = new AtomicInteger(COMPLATE_STATE_NONE);
+
+    private int asyncId;
     private Span span;
     private DataSender dataSender;
+    private TimerTask timeoutTask;
 
     public AsyncTrace(Span span) {
         this.span = span;
@@ -25,6 +37,18 @@ public class AsyncTrace {
 
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;
+    }
+
+    public void setTimeoutTask(TimerTask timeoutTask) {
+        this.timeoutTask = timeoutTask;
+    }
+
+    public void setAsyncId(int asyncId) {
+        this.asyncId = asyncId;
+    }
+
+    public int getAsyncId() {
+        return asyncId;
     }
 
     public Span getSpan() {
@@ -43,6 +67,9 @@ public class AsyncTrace {
 
 
     public void record(Annotation annotation) {
+        if (complate.get() == COMPLATE_STATE_FIRE) {
+
+        }
         annotate(annotation.getCode(), null);
     }
 
@@ -129,4 +156,21 @@ public class AsyncTrace {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    public void timeout() {
+        if (complate.compareAndSet(0, COMPLATE_STATE_TIMEOUT)) {
+            // TODO timeout log 던지기.
+            // 뭘 어떤 내용을 던져야 되는지 아직 모르겠음????
+        }
+    }
+
+    public boolean cancelTimeout() {
+        if (complate.compareAndSet(0, COMPLATE_STATE_FIRE)) {
+            this.timeoutTask.cancel();
+            return true;
+        }
+        return false;
+    }
+
+
 }
