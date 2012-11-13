@@ -13,7 +13,7 @@ public class TraceTest {
         // http server receive
         trace.recordRpcName("service_name", "http://");
         trace.recordEndPoint("http:localhost:8080");
-        trace.recordAttibute("KEY", "VALUE");
+        trace.recordAttribute("KEY", "VALUE");
         trace.record(Annotation.ServerRecv);
 
         // get data form db
@@ -31,7 +31,7 @@ public class TraceTest {
 
         // db server request
         trace.recordRpcName("mysql", "rpc");
-        trace.recordAttibute("mysql.query", "SELECT * FROM TABLE");
+        trace.recordAttribute("mysql.query", "SELECT * FROM TABLE");
 
         // get a db response
 

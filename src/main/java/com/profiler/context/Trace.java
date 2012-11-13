@@ -150,14 +150,12 @@ public final class Trace {
     }
 
 
-    private void spanUpdate(SpanUpdater spanUpdater) {
-        StackFrame currentStackFrame = getCurrentStackFrame();
-        Span span = spanUpdater.updateSpan(currentStackFrame.getSpan());
-        if (span.isExistsAnnotationKey(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationKey(Annotation.ServerSend.getCode())) {
-            // remove current context threadId from callStack
-//            removeCurrentTraceIdFromStack();
+    private void logSpan(String key, Span span) {
+        if (key == null) {
+            return;
+        }
+        if (key.equals(Annotation.ClientRecv.getCode()) || key.equals(Annotation.ServerSend.getCode())) {
             logSpan(span);
-
         }
     }
 
@@ -197,24 +195,17 @@ public final class Trace {
     }
 
     public void recordAttribute(final String key, final String value) {
-        recordAttibute(key, (Object) value);
+        recordAttribute(key, (Object) value);
     }
 
-    public void recordAttibute(final String key, final Object value) {
+    public void recordAttribute(final String key, final Object value) {
         if (!tracingEnabled)
             return;
 
         try {
-
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    // TODO 사용자 thread에서 encoding을 하지 않도록 변경.
-                    Encoded enc = transcoder.encode(value);
-                    span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
-                    return span;
-                }
-            });
+            Span span = getCurrentStackFrame().getSpan();
+            Encoded enc = transcoder.encode(value);
+            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -232,14 +223,9 @@ public final class Trace {
             return;
 
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    span.setServiceName(service);
-                    span.setName(rpc);
-                    return span;
-                }
-            });
+            Span span = getCurrentStackFrame().getSpan();
+            span.setServiceName(service);
+            span.setName(rpc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -259,15 +245,9 @@ public final class Trace {
             return;
 
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    // set endpoint to both span and annotations
-                    span.setEndPoint(endPoint);
-                    span.setTerminal(isTerminal);
-                    return span;
-                }
-            });
+            Span span = getCurrentStackFrame().getSpan();
+            span.setEndPoint(endPoint);
+            span.setTerminal(isTerminal);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -278,13 +258,9 @@ public final class Trace {
             return;
 
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
-                    return span;
-                }
-            });
+            Span span = getCurrentStackFrame().getSpan();
+            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
+            logSpan(key, span);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

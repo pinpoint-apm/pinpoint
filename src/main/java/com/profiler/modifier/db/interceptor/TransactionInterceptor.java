@@ -86,20 +86,20 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
             if (!autocommit) {
                 // transaction start;
                 if (success) {
-                    trace.recordAttibute("Transaction", "begin");
+                    trace.recordAttribute("Transaction", "begin");
                 } else {
-                    trace.recordAttibute("Transaction", "begin fail");
+                    trace.recordAttribute("Transaction", "begin fail");
                     Throwable th = (Throwable) result;
-                    trace.recordAttibute("Exception", th.getMessage());
+                    trace.recordAttribute("Exception", th.getMessage());
                 }
                 trace.record(Annotation.ClientRecv);
             } else {
                 if (success) {
-                    trace.recordAttibute("Transaction", "autoCommit:false");
+                    trace.recordAttribute("Transaction", "autoCommit:false");
                 } else {
-                    trace.recordAttibute("Transaction", "autoCommit:false fail");
+                    trace.recordAttribute("Transaction", "autoCommit:false fail");
                     Throwable th = (Throwable) result;
-                    trace.recordAttibute("Exception", th.getMessage());
+                    trace.recordAttribute("Exception", th.getMessage());
                 }
                 trace.record(Annotation.ClientRecv);
             }
@@ -129,11 +129,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
-                trace.recordAttibute("Transaction", "commit");
+                trace.recordAttribute("Transaction", "commit");
             } else {
-                trace.recordAttibute("Transaction", "commit fail");
+                trace.recordAttribute("Transaction", "commit fail");
                 Throwable th = (Throwable) result;
-                trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttribute("Exception", th.getMessage());
             }
             trace.record(Annotation.ClientRecv);
         } catch (Exception e) {
@@ -163,11 +163,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
-                trace.recordAttibute("Transaction", "rollback");
+                trace.recordAttribute("Transaction", "rollback");
             } else {
-                trace.recordAttibute("Transaction", "rollback fail");
+                trace.recordAttribute("Transaction", "rollback fail");
                 Throwable th = (Throwable) result;
-                trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttribute("Exception", th.getMessage());
             }
             trace.record(Annotation.ClientRecv);
         } catch (Exception e) {

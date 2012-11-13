@@ -1,6 +1,5 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
@@ -47,7 +46,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             trace.recordRpcName("MYSQL", url);
             trace.recordTerminalEndPoint(url);
             if (args.length > 0) {
-                trace.recordAttibute("Statement", args[0]);
+                trace.recordAttribute("Statement", args[0]);
             }
             trace.record(Annotation.ClientSend);
         } catch (Exception e) {
@@ -72,7 +71,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             return;
         }
 
-        trace.recordAttibute("Success", InterceptorUtils.isSuccess(result));
+        trace.recordAttribute("Success", InterceptorUtils.isSuccess(result));
         trace.record(Annotation.ClientRecv, trace.afterTime());
         trace.traceBlockEnd();
     }

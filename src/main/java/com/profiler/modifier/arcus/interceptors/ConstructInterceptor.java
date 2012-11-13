@@ -27,11 +27,12 @@ public class ConstructInterceptor implements StaticAfterInterceptor {
         if (trace == null) {
             return;
         }
-        GlobalCallTrace<AsyncTrace> globalCallTrace = traceContext.getGlobalCallTrace();
+        GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
 
         TraceID nextTraceId = trace.getNextTraceId();
         Span span = new Span(nextTraceId, null, null);
         AsyncTrace asyncTrace = new AsyncTrace(span);
+        asyncTrace.setAttachObject(new TimeObject());
 
         int asyncId = globalCallTrace.registerTraceObject(asyncTrace);
 

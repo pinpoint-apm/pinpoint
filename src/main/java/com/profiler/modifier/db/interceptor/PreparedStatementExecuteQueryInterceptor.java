@@ -45,11 +45,11 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             trace.recordRpcName("MYSQL", url);
             trace.recordTerminalEndPoint(url);
             String sql = getSql.invoke(target);
-            trace.recordAttibute("PreparedStatement", sql);
+            trace.recordAttribute("PreparedStatement", sql);
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            trace.recordAttibute("BindValue", bindString);
+            trace.recordAttribute("BindValue", bindString);
 
             clean(target);
 
@@ -96,10 +96,10 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         try {
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
             boolean success = InterceptorUtils.isSuccess(result);
-            trace.recordAttibute("Success", success);
+            trace.recordAttribute("Success", success);
             if (!success) {
                 Throwable th = (Throwable) result;
-                trace.recordAttibute("Exception", th.getMessage());
+                trace.recordAttribute("Exception", th.getMessage());
             }
             trace.record(Annotation.ClientRecv);
         } catch (Exception e) {

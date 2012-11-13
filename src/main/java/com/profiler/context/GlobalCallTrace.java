@@ -10,22 +10,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class GlobalCallTrace<T> {
+public class GlobalCallTrace {
     private static AtomicInteger timerId = new AtomicInteger(0);
 
-    private ConcurrentMap<Integer, T> trace = new ConcurrentHashMap<Integer, T>(32);
+    private ConcurrentMap<Integer, AsyncTrace> trace = new ConcurrentHashMap<Integer, AsyncTrace>(32);
     private AtomicInteger idGenerator = new AtomicInteger(0);
     private DataSender dataSender;
 
     private Timer timer = new Timer("GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
 
-    public int registerTraceObject(T target) {
+    public int registerTraceObject(AsyncTrace target) {
+        // datasender쪽 전달부분이 영 별로임.
+        target.setDataSender(this.dataSender);
         int id = idGenerator.getAndIncrement();
         trace.put(id, target);
         return id;
     }
 
-    public T removeTraceObject(int id) {
+    public AsyncTrace removeTraceObject(int id) {
         return trace.get(id);
     }
 

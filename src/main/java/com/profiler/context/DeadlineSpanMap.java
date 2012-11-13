@@ -22,7 +22,7 @@ public class DeadlineSpanMap {
             map.put(traceIdKey, span);
 
             TimerTask task = new FlushTimedoutSpanTask(span);
-            span.setTimerTask(task);
+//            span.setTimerTask(task);
 
             timer.schedule(task, FLUSH_TIMEOUT);
         }

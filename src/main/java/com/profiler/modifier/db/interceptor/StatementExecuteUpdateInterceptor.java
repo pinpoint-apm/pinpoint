@@ -1,6 +1,5 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
@@ -44,7 +43,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             if (args.length > 0) {
                 String url = (String) this.getUrl.invoke(target);
                 trace.recordRpcName("MYSQL", url);
-                trace.recordAttibute("Query", url);
+                trace.recordAttribute("Query", url);
                 trace.recordTerminalEndPoint(url);
             } else {
                 trace.recordRpcName("MYSQL", "UNKNOWN");

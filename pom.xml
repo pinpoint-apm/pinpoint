@@ -158,6 +158,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>arcus</groupId>
+            <artifactId>arcus-client</artifactId>
+            <version>1.6.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <!-- unit test -->
         <dependency>

@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
@@ -35,29 +36,10 @@ public class ArcusClientModifier extends AbstractModifier {
             aClass.addTraceVariable("__asyncTraceId", "__setAsyncTraceId", "__getAsyncTraceId", "int");
             aClass.addConstructorInterceptor(null, new ConstructInterceptor());
 
-//            /**
-//             * inject both current and next traceId.
-//             */
-//            aClass.addTraceVariable("__traceId", "__setTraceId", "__getTraceId", "com.profiler.context.TraceID");
-//            aClass.addTraceVariable("__nextTraceId", "__setNextTraceId", "__getNextTraceId", "com.profiler.context.TraceID");
-//            aClass.insertCodeAfterConstructor(null, "{ __setTraceId(com.profiler.context.Trace.getCurrentTraceId()); __setNextTraceId(com.profiler.context.Trace.getNextTraceId()); }");
-//
-//            /**
-//             * inject nano time for checking send time.
-//             */
-//            aClass.addTraceVariable("__commandCreatedTime", "__setCommandCreatedTime", "__getCommandCreatedTime", "long");
-//            aClass.insertCodeAfterConstructor(null, "{ __setCommandCreatedTime(System.nanoTime()); }");
-//
-//            /**
-//             * inject cancelled time
-//             */
-//            aClass.addTraceVariable("__cancelledTime", "__setCancelledTime", "__getCancelledTime", "long");
-//
-//            /**
-//             * insert trace code.
-//             */
-//            aClass.insertCodeBeforeMethod("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, getTransitionStateAfterCode());
-//            aClass.insertCodeBeforeMethod("cancel", null, getCancelBeforeCode());
+            Interceptor transitionStateInterceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
+            aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor);
+            Interceptor cancelInterceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationCancelInterceptor");
+            aClass.addInterceptor("cancel", null, cancelInterceptor);
 
             return aClass.toBytecode();
         } catch (Exception e) {

@@ -54,9 +54,9 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             trace.markBeforeTime();
             trace.recordRpcName(Agent.getInstance().getApplicationName(), requestURL);
             trace.recordEndPoint(request.getProtocol() + ":" + request.getLocalName() + ":" + request.getLocalPort());
-            trace.recordAttibute("http.url", request.getRequestURI());
+            trace.recordAttribute("http.url", request.getRequestURI());
             if (parameters != null && parameters.length() > 0) {
-                trace.recordAttibute("http.params", parameters);
+                trace.recordAttribute("http.params", parameters);
             }
             trace.record(Annotation.ServerRecv);
 

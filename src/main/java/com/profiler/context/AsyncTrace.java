@@ -23,6 +23,25 @@ public class AsyncTrace {
         this.span = span;
     }
 
+    public void setDataSender(DataSender dataSender) {
+        this.dataSender = dataSender;
+    }
+
+    public Span getSpan() {
+        return span;
+    }
+
+    private Object attachObject;
+
+    public Object getAttachObject() {
+        return attachObject;
+    }
+
+    public void setAttachObject(Object attachObject) {
+        this.attachObject = attachObject;
+    }
+
+
     public void record(Annotation annotation) {
         annotate(annotation.getCode(), null);
     }
@@ -52,14 +71,8 @@ public class AsyncTrace {
     public void recordRpcName(final String service, final String rpc) {
 
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    span.setServiceName(service);
-                    span.setName(rpc);
-                    return span;
-                }
-            });
+            this.span.setServiceName(service);
+            this.span.setName(rpc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -76,15 +89,8 @@ public class AsyncTrace {
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
     private void recordEndPoint(final String endPoint, final boolean isTerminal) {
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    // set endpoint to both span and annotations
-                    span.setEndPoint(endPoint);
-                    span.setTerminal(isTerminal);
-                    return span;
-                }
-            });
+            this.span.setEndPoint(endPoint);
+            this.span.setTerminal(isTerminal);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -93,21 +99,19 @@ public class AsyncTrace {
     private void annotate(final String key, final Long duration) {
 
         try {
-            spanUpdate(new SpanUpdater() {
-                @Override
-                public Span updateSpan(Span span) {
-                    span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
-                    return span;
-                }
-            });
+            this.span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
+            logSpan(key, span);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
 
-    private void spanUpdate(SpanUpdater spanUpdater) {
-        if (span.isExistsAnnotationKey(Annotation.ClientRecv.getCode()) || span.isExistsAnnotationKey(Annotation.ServerSend.getCode())) {
+    private void logSpan(String key, Span span) {
+        if (key == null) {
+            return;
+        }
+        if (key.equals(Annotation.ClientRecv.getCode()) || key.equals(Annotation.ServerSend.getCode())) {
             logSpan(span);
         }
     }
