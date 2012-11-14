@@ -100,6 +100,11 @@ public class HelloWorldController {
 		int i = 1 / 0;
 		return "error";
 	}
+	
+	@RequestMapping(value = "/throwexception")
+	public String exception(Model model) {
+		throw new RuntimeException("Exception test");
+	}
 
 	@RequestMapping(value = "/arcustimeout")
 	public String arcustimeout(Model model) {
