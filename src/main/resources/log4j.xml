@@ -27,6 +27,11 @@
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
+    
+    <logger name="com.nhn.hippo.web.service" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
 
     <logger name="com.ibatis" additivity="false">
         <level value="DEBUG"/>

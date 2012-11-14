@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -115,11 +116,50 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<List<SpanBo>> traces = this.traceDao.selectSpansAndAnnotation(traceIds);
 
 		for (List<SpanBo> transaction : traces) {
-			for (SpanBo eachTransaction : transaction) {
+			List<SpanBo> processed = refine(transaction);
+			for (SpanBo eachTransaction : processed) {
 				tree.addSpan(eachTransaction);
 			}
 		}
 		return tree.build();
+	}
+
+	private List<SpanBo> refine(List<SpanBo> list) {
+		SpanBo removeSpan = null;
+		boolean rescan = true;
+
+		for (int i = 0; i < list.size(); i++) {
+			SpanBo span = list.get(i);
+			String svcName = span.getServiceName();
+
+			if (removeSpan != null) {
+				if (span.getParentSpanId() == removeSpan.getSpanId()) {
+					logger.debug("modify span for removed span. before {}", span);
+
+					span.setParentSpanId(removeSpan.getParentSpanId());
+					span.getAnnotationBoList().addAll(removeSpan.getAnnotationBoList());
+
+					logger.debug("modify span for removed span. after {}", span);
+
+					removeSpan = null;
+				}
+			}
+
+			if ("HTTP/1.1".equals(svcName)) {
+				removeSpan = list.get(i);
+				logger.debug("Remove span. {}", removeSpan);
+				list.remove(i);
+			}
+
+			if (removeSpan != null && i == list.size() - 1 && rescan) {
+				logger.debug("modify span not found. scan again. {}", removeSpan);
+				i = 0;
+				rescan = false;
+				continue;
+			}
+		}
+
+		return list;
 	}
 
 	@Override
