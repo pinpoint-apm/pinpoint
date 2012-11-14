@@ -20,11 +20,11 @@ public class AsyncTrace {
     // 비동기일 경우 traceenable의 경우 애매함. span을 보내는것으로 데이터를 생성하므로 약간 이상.
 //    private boolean tracingEnabled;
 
-    private static int COMPLATE_STATE_NONE = 0;
-    private static int COMPLATE_STATE_FIRE = 1;
-    private static int COMPLATE_STATE_TIMEOUT = 2;
+    public static final int STATE_INIT = 0;
+    public static final int STATE_FIRE = 1;
+    public static final int STATE_TIMEOUT = 2;
 
-    private final AtomicInteger complate = new AtomicInteger(COMPLATE_STATE_NONE);
+    private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
     private int asyncId;
     private Span span;
@@ -67,9 +67,6 @@ public class AsyncTrace {
 
 
     public void record(Annotation annotation) {
-        if (complate.get() == COMPLATE_STATE_FIRE) {
-
-        }
         annotate(annotation.getCode(), null);
     }
 
@@ -96,7 +93,6 @@ public class AsyncTrace {
     }
 
     public void recordRpcName(final String service, final String rpc) {
-
         try {
             this.span.setServiceName(service);
             this.span.setName(rpc);
@@ -151,22 +147,28 @@ public class AsyncTrace {
             }
 
             this.dataSender.send(span.toThrift());
-//            span.cancelTimer();
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
+    public int getState() {
+        return state.get();
+    }
+
     public void timeout() {
-        if (complate.compareAndSet(0, COMPLATE_STATE_TIMEOUT)) {
-            // TODO timeout log 던지기.
+        if (state.compareAndSet(0, STATE_TIMEOUT)) {
+            // TODO timeout span log 던지기.
             // 뭘 어떤 내용을 던져야 되는지 아직 모르겠음????
         }
     }
 
-    public boolean cancelTimeout() {
-        if (complate.compareAndSet(0, COMPLATE_STATE_FIRE)) {
-            this.timeoutTask.cancel();
+    public boolean fire() {
+        if (state.compareAndSet(0, STATE_FIRE)) {
+            if (timeoutTask != null) {
+                // timeout이 걸려 있는 asynctrace일 경우 호출해 준다.
+                this.timeoutTask.cancel();
+            }
             return true;
         }
         return false;

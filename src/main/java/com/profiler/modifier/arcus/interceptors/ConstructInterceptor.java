@@ -15,7 +15,9 @@ import java.util.logging.Logger;
 public class ConstructInterceptor implements StaticAfterInterceptor {
 
     private final Logger logger = Logger.getLogger(ConstructInterceptor.class.getName());
-    private MetaObject<Integer> asyncTraceId = new MetaObject<Integer>("__setAsyncTraceId", int.class);
+    //    private MetaObject<Integer> asyncTraceId = new MetaObject<Integer>("__setAsyncTraceId", int.class);
+    private MetaObject<Object> asyncTraceId = new MetaObject<Object>("__setAsyncTraceId", Object.class);
+
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
@@ -27,15 +29,13 @@ public class ConstructInterceptor implements StaticAfterInterceptor {
         if (trace == null) {
             return;
         }
-        GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
-
-        TraceID nextTraceId = trace.getNextTraceId();
-        Span span = new Span(nextTraceId, null, null);
-        AsyncTrace asyncTrace = new AsyncTrace(span);
+        AsyncTrace asyncTrace = trace.createAsyncTrace();
         asyncTrace.setAttachObject(new TimeObject());
 
-        int asyncId = globalCallTrace.registerTraceObject(asyncTrace);
-
-        asyncTraceId.invoke(target, asyncId);
+//        GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
+//        int asyncId = globalCallTrace.registerTraceObject(asyncTrace);
+//
+//        asyncTraceId.invoke(target, asyncId);
+        asyncTraceId.invoke(target, asyncTrace);
     }
 }

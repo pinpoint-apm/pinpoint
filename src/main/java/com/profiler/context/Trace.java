@@ -66,6 +66,14 @@ public final class Trace {
         }
     }
 
+    public AsyncTrace createAsyncTrace() {
+        TraceID nextTraceId = getNextTraceId();
+        Span span = new Span(nextTraceId, null, null);
+        AsyncTrace asyncTrace = new AsyncTrace(span);
+        asyncTrace.setDataSender(this.getDataSender());
+        return asyncTrace;
+    }
+
     private StackFrame createStackFrame(TraceID nextId, int stackId) {
         StackFrame stackFrame = new StackFrame();
         stackFrame.setStackFrameId(stackId);

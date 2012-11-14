@@ -49,7 +49,7 @@ public class GlobalCallTrace {
     public AsyncTrace removeTraceObject(int asyncId) {
         AsyncTrace asyncTrace = trace.remove(asyncId);
         if (asyncTrace != null) {
-            boolean result = asyncTrace.cancelTimeout();
+            boolean result = asyncTrace.fire();
             if (!result) {
                 // 이미 timeout된 asyncTrace임.
                 return null;
