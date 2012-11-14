@@ -9,7 +9,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * 뭔가 복잡한 비동기 call trace시 객체 등록용으로 쓰자.
+ * 근데 손좀봐야 될듯.뭔가 좀 구림.
  */
 public class GlobalCallTrace {
 

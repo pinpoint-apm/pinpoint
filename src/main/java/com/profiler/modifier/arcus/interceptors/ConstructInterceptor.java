@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 public class ConstructInterceptor implements StaticAfterInterceptor {
 
     private final Logger logger = Logger.getLogger(ConstructInterceptor.class.getName());
-    //    private MetaObject<Integer> asyncTraceId = new MetaObject<Integer>("__setAsyncTraceId", int.class);
     private MetaObject<Object> asyncTraceId = new MetaObject<Object>("__setAsyncTraceId", Object.class);
 
 
@@ -29,13 +28,10 @@ public class ConstructInterceptor implements StaticAfterInterceptor {
         if (trace == null) {
             return;
         }
+        // 일단 이벤트가 세지 않는다는 가정하에 별도 timeout처리가 없음.
         AsyncTrace asyncTrace = trace.createAsyncTrace();
         asyncTrace.setAttachObject(new TimeObject());
 
-//        GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
-//        int asyncId = globalCallTrace.registerTraceObject(asyncTrace);
-//
-//        asyncTraceId.invoke(target, asyncId);
         asyncTraceId.invoke(target, asyncTrace);
     }
 }

@@ -67,6 +67,7 @@ public final class Trace {
     }
 
     public AsyncTrace createAsyncTrace() {
+        // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
         TraceID nextTraceId = getNextTraceId();
         Span span = new Span(nextTraceId, null, null);
         AsyncTrace asyncTrace = new AsyncTrace(span);

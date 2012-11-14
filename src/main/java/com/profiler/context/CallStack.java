@@ -56,9 +56,16 @@ public class CallStack {
         stack[index] = null;
     }
 
-    public synchronized StackFrame[] copyStackFrame() {
-        StackFrame[] copy = new StackFrame[index];
-        System.arraycopy(stack, 0, copy, 0, index);
+    public StackFrame[] copyStackFrame() {
+        int currentIndex;
+        StackFrame[] currentStack;
+        synchronized (this) {
+            // copy reference
+            currentIndex = this.index;
+            currentStack = this.stack;
+        }
+        StackFrame[] copy = new StackFrame[currentIndex];
+        System.arraycopy(currentStack, 0, copy, 0, currentIndex);
         return copy;
     }
 }

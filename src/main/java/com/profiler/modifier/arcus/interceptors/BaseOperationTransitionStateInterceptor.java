@@ -35,29 +35,19 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
-//        GlobalCallTrace globalCallTrace = traceContext.getGlobalCallTrace();
 
-        Object asyncId = asyncTraceId.invoke(target);
-        if (asyncId == null) {
-            logger.fine("asyncId not found");
+        AsyncTrace asyncTrace = (AsyncTrace) asyncTraceId.invoke(target);
+        if (asyncTrace == null) {
+            logger.fine("asyncTrace not found");
             return;
         }
-
-//        AsyncTrace asyncTrace = globalCallTrace.getTraceObject((Integer) asyncId);
-//        if (asyncTrace == null) {
-//            logger.fine("AsyncTrace already timeout");
-//            return;
-//        }
-        System.out.println(asyncId);
-        AsyncTrace asyncTrace = (AsyncTrace) asyncId;
 
         OperationState newState = (OperationState) args[0];
 
         BaseOperationImpl baseOperation = (BaseOperationImpl) target;
         if (newState == OperationState.READING) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.fine("event:" + newState + " asyncId:" + asyncId);
+                logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
             }
             if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
                 return;
@@ -79,13 +69,12 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
             asyncTrace.record(Annotation.ClientSend, System.currentTimeMillis() - createTime);
         } else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.fine("event:" + newState + " asyncId:" + asyncId);
+                logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
             }
             boolean fire = asyncTrace.fire();
             if (!fire) {
                 return;
             }
-//            globalCallTrace.removeTraceObject((Integer) asyncId);
             Exception exception = baseOperation.getException();
             if (exception != null) {
                 asyncTrace.recordAttibute("exception", InterceptorUtils.exceptionToString(exception));
