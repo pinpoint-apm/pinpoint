@@ -167,13 +167,8 @@
 var data = {
 		"nodes" : [
 		<c:forEach items="${nodes}" var="node" varStatus="status">
-		    <c:if test="${node.terminal}">
-		        { "name" : "${node.endPoint}" }
-		    </c:if>
-		    <c:if test="${not node.terminal}">
-		        { "name" : "${node}" }
-		    </c:if>
-		    <c:if test="${!status.last}">,</c:if>
+		{ "name" : "${node}" }
+	    <c:if test="${!status.last}">,</c:if>
 		</c:forEach>
 		],
 		"links" : [
