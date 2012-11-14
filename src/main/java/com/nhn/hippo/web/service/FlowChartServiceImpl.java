@@ -1,7 +1,6 @@
 package com.nhn.hippo.web.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -145,6 +144,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				}
 			}
 
+			// TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
 			if ("HTTP/1.1".equals(svcName)) {
 				removeSpan = list.get(i);
 				logger.debug("Remove span. {}", removeSpan);
