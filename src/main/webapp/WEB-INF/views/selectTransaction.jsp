@@ -167,7 +167,16 @@
 var data = {
 		"nodes" : [
 		<c:forEach items="${nodes}" var="node" varStatus="status">
-		{ "name" : "${node}" }
+		{
+			"name" : "${node}",
+			"recursiveCallCount" : "${node.recursiveCallCount}",
+			"agentIds" : [
+				<c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
+				"${agentId}"
+				<c:if test="${!status2.last}">,</c:if>
+				</c:forEach>
+			]
+		}
 	    <c:if test="${!status.last}">,</c:if>
 		</c:forEach>
 		],
@@ -180,7 +189,7 @@ var data = {
 	};
 
 $(document).ready(function () {
-	drawSankeyChart(data, "#graph");
+	drawSankeyChart(data, "#graph", 960, 400);
 });
 </script>
 

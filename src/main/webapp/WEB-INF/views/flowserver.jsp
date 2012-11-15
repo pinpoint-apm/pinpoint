@@ -4,8 +4,17 @@
 	"graphdata" : {
 			"nodes" : [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
-				{ "name" : "${node}" }
-			    <c:if test="${!status.last}">,</c:if>
+			{
+				"name" : "${node}",
+				"recursiveCallCount" : "${node.recursiveCallCount}",
+				"agentIds" : [
+					<c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
+					"${agentId}"
+					<c:if test="${!status2.last}">,</c:if>
+					</c:forEach>
+				]
+			}
+		    <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 			],
 		"links" : [

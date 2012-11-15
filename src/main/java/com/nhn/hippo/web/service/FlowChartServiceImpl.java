@@ -116,6 +116,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		for (List<SpanBo> transaction : traces) {
 			List<SpanBo> processed = refine(transaction);
+			markRecursiveCall(processed);
 			for (SpanBo eachTransaction : processed) {
 				tree.addSpan(eachTransaction);
 			}
@@ -153,13 +154,27 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 			if (removeSpan != null && i == list.size() - 1 && rescan) {
 				logger.debug("modify span not found. scan again. {}", removeSpan);
-				i = 0;
+				i = -1;
 				rescan = false;
 				continue;
 			}
 		}
 
 		return list;
+	}
+	
+	private void markRecursiveCall(final List<SpanBo> list) {
+		for (int i = 0; i < list.size(); i++) {
+			SpanBo a = list.get(i);
+			for (int j = 0; j < list.size(); j++) {
+				if (i == j)
+					continue;
+				SpanBo b = list.get(j);
+				if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
+					a.increaseRecursiveCallCount();
+				}
+			}
+		}
 	}
 
 	@Override

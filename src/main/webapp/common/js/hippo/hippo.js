@@ -1,10 +1,10 @@
-function drawSankeyChart(graphdata, targetId) {
+function drawSankeyChart(graphdata, targetId, w, h) {
 	var margin = {
 		    top:1,
 		    right:1,
 		    bottom:6,
 		    left:1
-		}, width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+		}, width = w - margin.left - margin.right, height = h - margin.top - margin.bottom;
 
 	var formatNumber = d3.format(",.0f"), format = function (d) {
 	    	return formatNumber(d) + " Requests";
@@ -70,7 +70,9 @@ function drawSankeyChart(graphdata, targetId) {
 	    return d.dy / 2;
 	}).attr("dy", ".35em").attr("text-anchor", "end").attr("transform",
 	        null).text(function (d) {
-	            return d.name;
+	            return d.name + ((d.recursiveCallCount > 0) ? " (recursive=" + d.recursiveCallCount + ")" : "");
+	        }).html(function (d) {
+	        	return null;
 	        }).filter(function (d) {
 	            return d.x < width / 2;
 	        }).attr("x", 6 + sankey.nodeWidth()).attr("text-anchor", "start");
