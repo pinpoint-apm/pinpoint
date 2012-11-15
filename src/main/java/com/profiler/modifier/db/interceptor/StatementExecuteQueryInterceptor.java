@@ -4,6 +4,7 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -19,7 +20,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
 
     private final Logger logger = Logger.getLogger(StatementExecuteQueryInterceptor.class.getName());
 
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -42,9 +43,9 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             /**
              * If method was not called by request handler, we skip tagging.
              */
-            String url = (String) this.getUrl.invoke(target);
-            trace.recordRpcName("MYSQL", url);
-            trace.recordTerminalEndPoint(url);
+            DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+            trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+            trace.recordTerminalEndPoint(databaseInfo.getUrl());
             if (args.length > 0) {
                 trace.recordAttribute("Statement", args[0]);
             }

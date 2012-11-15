@@ -49,7 +49,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             int id = preparedStatement.addInterceptor("executeQuery", null, interceptor);
             preparedStatement.reuseInterceptor("executeUpdate", null, id);
 
-            preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.String");
 
             preparedStatement.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");

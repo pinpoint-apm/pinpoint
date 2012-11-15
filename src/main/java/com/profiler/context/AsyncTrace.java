@@ -14,6 +14,8 @@ import java.util.logging.Logger;
  */
 public class AsyncTrace {
     private Logger logger = Logger.getLogger(this.getClass().getName());
+
+    public static final int NON_REGIST = -1;
     // 일단 c&p
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     //    private int id;
@@ -24,9 +26,10 @@ public class AsyncTrace {
     public static final int STATE_FIRE = 1;
     public static final int STATE_TIMEOUT = 2;
 
+
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
-    private int asyncId;
+    private int asyncId = NON_REGIST;
     private Span span;
     private DataSender dataSender;
     private TimerTask timeoutTask;
@@ -157,14 +160,14 @@ public class AsyncTrace {
     }
 
     public void timeout() {
-        if (state.compareAndSet(0, STATE_TIMEOUT)) {
+        if (state.compareAndSet(STATE_INIT, STATE_TIMEOUT)) {
             // TODO timeout span log 던지기.
             // 뭘 어떤 내용을 던져야 되는지 아직 모르겠음????
         }
     }
 
     public boolean fire() {
-        if (state.compareAndSet(0, STATE_FIRE)) {
+        if (state.compareAndSet(STATE_INIT, STATE_FIRE)) {
             if (timeoutTask != null) {
                 // timeout이 걸려 있는 asynctrace일 경우 호출해 준다.
                 this.timeoutTask.cancel();

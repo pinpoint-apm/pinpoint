@@ -40,7 +40,7 @@ public class MySQLStatementModifier extends AbstractModifier {
             Interceptor executeUpdate = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, executeUpdate);
 
-            statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             return statementClass.toBytecode();
         } catch (InstrumentException e) {
             return null;

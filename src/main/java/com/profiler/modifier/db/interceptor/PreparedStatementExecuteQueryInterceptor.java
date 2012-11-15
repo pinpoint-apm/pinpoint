@@ -4,6 +4,7 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -20,7 +21,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
     private final MetaObject<String> getSql = new MetaObject<String>("__getSql");
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
@@ -41,9 +42,10 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         }
         trace.traceBlockBegin();
         try {
-            String url = getUrl.invoke(target);
-            trace.recordRpcName("MYSQL", url);
-            trace.recordTerminalEndPoint(url);
+            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+//            trace.recordRpcName("MYSQL", url);
+            trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+            trace.recordTerminalEndPoint(databaseInfo.getUrl());
             String sql = getSql.invoke(target);
             trace.recordAttribute("PreparedStatement", sql);
 

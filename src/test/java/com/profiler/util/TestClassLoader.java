@@ -1,6 +1,5 @@
 package com.profiler.util;
 
-import com.profiler.StopWatch;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.interceptor.*;
@@ -36,7 +35,7 @@ public class TestClassLoader extends Loader {
         return instrumentor;
     }
 
-    public Modifier addModifier(Modifier modifier){
+    public Modifier addModifier(Modifier modifier) {
         return this.instrumentTranslator.addModifier(modifier);
     }
 
@@ -49,7 +48,6 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(InterceptorRegistry.class.getName());
         this.delegateLoadingOf(Trace.class.getName());
         this.delegateLoadingOf(Annotation.class.getName());
-        this.delegateLoadingOf(StopWatch.class.getName());
         this.delegateLoadingOf(MetaObject.class.getName());
         this.delegateLoadingOf(StringUtils.class.getName());
 
@@ -76,8 +74,7 @@ public class TestClassLoader extends Loader {
         Object o = c.newInstance();
         try {
             c.getDeclaredMethod(methodName, null).invoke(o, null);
-        }
-        catch (java.lang.reflect.InvocationTargetException e) {
+        } catch (java.lang.reflect.InvocationTargetException e) {
             throw e.getTargetException();
         }
     }

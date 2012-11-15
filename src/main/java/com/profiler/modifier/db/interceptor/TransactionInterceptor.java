@@ -9,6 +9,7 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -17,7 +18,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
 
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -73,10 +74,14 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
     private void beforeStartTransaction(Trace trace, Connection target) {
 
         trace.traceBlockBegin();
-        String connectionUrl = this.getUrl.invoke(target);
-        trace.recordRpcName("MYSQL", connectionUrl);
-        trace.recordTerminalEndPoint(connectionUrl);
+        DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+        trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
+        trace.recordTerminalEndPoint(databaseInfo.getUrl());
         trace.record(Annotation.ClientSend);
+    }
+
+    private String getRpcName(DatabaseInfo databaseInfo) {
+        return databaseInfo.getType() + "/" + databaseInfo.getDatabaseId();
     }
 
     private void afterStartTransaction(Trace trace, Connection target, Object arg, Object result) {
@@ -114,18 +119,18 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
     private void beforeCommit(Trace trace, Connection target) {
         trace.traceBlockBegin();
-        String connectionUrl = this.getUrl.invoke(target);
-        trace.recordRpcName("MYSQL", connectionUrl);
-        trace.recordTerminalEndPoint(connectionUrl);
+        DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+        trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
+        trace.recordTerminalEndPoint(databaseInfo.getUrl());
         trace.record(Annotation.ClientSend);
 
     }
 
     private void afterCommit(Trace trace, Connection target, Object result) {
         try {
-            String connectionUrl = this.getUrl.invoke(target);
-            trace.recordRpcName("MYSQL", connectionUrl);
-            trace.recordTerminalEndPoint(connectionUrl);
+            DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+            trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
+            trace.recordTerminalEndPoint(databaseInfo.getUrl());
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {
@@ -148,18 +153,18 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
     private void beforeRollback(Trace trace, Connection target) {
         trace.traceBlockBegin();
-        String connectionUrl = this.getUrl.invoke(target);
-        trace.recordRpcName("MYSQL", connectionUrl);
-        trace.recordTerminalEndPoint(connectionUrl);
+        DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+        trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
+        trace.recordTerminalEndPoint(databaseInfo.getUrl());
         trace.record(Annotation.ClientSend);
     }
 
     private void afterRollback(Trace trace, Connection target, Object result) {
         try {
 
-            String connectionUrl = this.getUrl.invoke(target);
-            trace.recordRpcName("MYSQL", connectionUrl);
-            trace.recordTerminalEndPoint(connectionUrl);
+            DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+            trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
+            trace.recordTerminalEndPoint(databaseInfo.getUrl());
 
             boolean success = InterceptorUtils.isSuccess(result);
             if (success) {

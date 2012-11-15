@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
@@ -16,9 +17,9 @@ public class PreparedStatementCreateInterceptor implements StaticAfterIntercepto
     private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
 
     // connection 용.
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+    private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
-    private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
     private final MetaObject setSql = new MetaObject("__setSql", String.class);
 
     @Override
@@ -39,8 +40,8 @@ public class PreparedStatementCreateInterceptor implements StaticAfterIntercepto
             return;
         }
         if (target instanceof Connection) {
-            String connectionUrl = getUrl.invoke(target);
-            this.setUrl.invoke(result, connectionUrl);
+            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+            this.setUrl.invoke(result, databaseInfo);
             String sql = (String) args[0];
             this.setSql.invoke(result, sql);
         }

@@ -33,7 +33,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
 
-            mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.String");
+            mysqlConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
 
             // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
 //            Interceptor createConnection  = new ConnectionCreateInterceptor();

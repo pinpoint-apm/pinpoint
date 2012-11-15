@@ -4,6 +4,7 @@ import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
@@ -20,7 +21,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
 
     private final Logger logger = Logger.getLogger(StatementExecuteUpdateInterceptor.class.getName());
 
-    private final MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -41,13 +42,15 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         trace.markBeforeTime();
         try {
             if (args.length > 0) {
-                String url = (String) this.getUrl.invoke(target);
-                trace.recordRpcName("MYSQL", url);
-                trace.recordAttribute("Query", url);
-                trace.recordTerminalEndPoint(url);
+                DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+                trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+                trace.recordTerminalEndPoint(databaseInfo.getUrl());
+                trace.recordAttribute("Query", args[0]);
             } else {
-                trace.recordRpcName("MYSQL", "UNKNOWN");
-                trace.recordTerminalEndPoint("UNKNOWN");
+                DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+                trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+                trace.recordTerminalEndPoint(databaseInfo.getUrl());
+                trace.recordAttribute("Query", "args size is 0");
             }
 
             trace.record(Annotation.ClientSend);
