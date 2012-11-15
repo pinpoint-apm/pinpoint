@@ -6,12 +6,7 @@ import com.profiler.util.NamedThreadLocal;
  *
  */
 public class JDBCScope {
-    private static NamedThreadLocal<Boolean> scope = new NamedThreadLocal<Boolean>("JDBCScope") {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    private static NamedThreadLocal<Boolean> scope = new NamedThreadLocal<Boolean>("JDBCScope");
 
     public static void pushScope() {
         scope.set(Boolean.TRUE);

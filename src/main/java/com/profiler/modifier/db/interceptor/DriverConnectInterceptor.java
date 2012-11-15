@@ -29,6 +29,9 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("JDBCScope push:" + Thread.currentThread().getName());
+        }
         JDBCScope.pushScope();
 
         TraceContext traceContext = TraceContext.getTraceContext();
@@ -46,6 +49,9 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("JDBCScope pop:" + Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         JDBCScope.popScope();
