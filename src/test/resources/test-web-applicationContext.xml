@@ -28,9 +28,9 @@
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
-    <bean id="trace" class="com.profiler.server.dao.HbaseTraceDao"></bean>
+    <bean id="trace" class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
 
-    <bean class="com.nhn.hippo.web.dao.HbaseTraceDao"></bean>
+    <bean class="com.nhn.hippo.web.dao.hbase.HbaseTraceDao"></bean>
     <bean class="com.nhn.hippo.web.service.SpanServiceImpl"></bean>
 
     <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
