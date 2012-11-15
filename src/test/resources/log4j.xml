@@ -9,7 +9,7 @@
     </appender>
 
     <logger name="com.profiler" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="general"/>
     </logger>
 
