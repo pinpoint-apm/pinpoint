@@ -7,12 +7,15 @@ import java.util.regex.Matcher;
  */
 public class JDBCUrlParser {
     public DatabaseInfo parse(String url) {
-        String lowCaseURL = url.toLowerCase();
-        if (lowCaseURL.contains("jdbc:mysql")) {
+        String lowCaseURL = url.toLowerCase().trim();
+        if (lowCaseURL.startsWith("jdbc:mysql")) {
             return parseMysql(url);
         }
+        if (lowCaseURL.startsWith("jdbc:oracle")) {
+            return parseOracle(url);
+        }
 
-        return new DatabaseInfo(DatabaseInfo.DBType.UNKOWN, url, "error", "error", "error");
+        return new DatabaseInfo(DatabaseInfo.DBType.UNKOWN, url, url, "error", "error", "error");
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -60,6 +63,11 @@ public class JDBCUrlParser {
 //        return null;
     }
 
+    private DatabaseInfo parseOracle(String url) {
+        return null;
+    }
+
+
     private DatabaseInfo parseMysql(String url) {
         //            jdbc:mysql://10.98.133.22:3306/test_lucy_db
         StringMaker maker = new StringMaker(url);
@@ -67,6 +75,7 @@ public class JDBCUrlParser {
         String host = maker.after("//").before('/').before(':').value();
         String port = maker.next().after(':').before('/').value();
         String databaseId = maker.next().afterLast('/').before('?').value();
-        return new DatabaseInfo(DatabaseInfo.DBType.MYSQL, url, host, port, databaseId);
+        String normalizedUrl = maker.clear().before('?').value();
+        return new DatabaseInfo(DatabaseInfo.DBType.MYSQL, url, normalizedUrl, host, port, databaseId);
     }
 }

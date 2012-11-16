@@ -45,9 +45,12 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor interceptor = new PreparedStatementExecuteQueryInterceptor();
-            int id = preparedStatement.addInterceptor("executeQuery", null, interceptor);
-            preparedStatement.reuseInterceptor("executeUpdate", null, id);
+            Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addInterceptor("execute", null, execute);
+            Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addInterceptor("executeQuery", null, executeQuery);
+            Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addInterceptor("executeUpdate", null, executeUpdate);
 
             preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.String");

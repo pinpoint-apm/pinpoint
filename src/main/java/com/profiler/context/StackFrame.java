@@ -49,4 +49,15 @@ public class StackFrame {
     public Span getSpan() {
         return span;
     }
+
+    public void attachObject(Object object) {
+    }
+
+    public Object getAttachObject(Object object) {
+        return null;
+    }
+
+    public Object detachObject() {
+        return null;
+    }
 }

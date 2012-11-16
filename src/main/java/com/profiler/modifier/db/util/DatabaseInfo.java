@@ -10,14 +10,17 @@ public class DatabaseInfo {
 
     DBType type = DBType.UNKOWN;
     String databaseId;
-    String url;
+    // 입력된 url을 보정하지 않은 값
+    String realUrl;
+    String normalizedUrl;
     String host;
     String port;
 
 
-    public DatabaseInfo(DBType type, String url, String host, String port, String databaseId) {
+    public DatabaseInfo(DBType type, String realUrl, String normalizedUrl, String host, String port, String databaseId) {
         this.type = type;
-        this.url = url;
+        this.realUrl = realUrl;
+        this.normalizedUrl = normalizedUrl;
         this.host = host;
         this.port = port;
         this.databaseId = databaseId;
@@ -39,8 +42,12 @@ public class DatabaseInfo {
         return databaseId;
     }
 
+    public String getRealUrl() {
+        return realUrl;
+    }
+
     public String getUrl() {
-        return url;
+        return normalizedUrl;
     }
 
     public DBType getType() {
@@ -52,7 +59,8 @@ public class DatabaseInfo {
         return "DatabaseInfo{" +
                 "type=" + type +
                 ", databaseId='" + databaseId + '\'' +
-                ", url='" + url + '\'' +
+                ", realUrl='" + realUrl + '\'' +
+                ", normalizedUrl='" + normalizedUrl + '\'' +
                 ", host='" + host + '\'' +
                 ", port='" + port + '\'' +
                 '}';

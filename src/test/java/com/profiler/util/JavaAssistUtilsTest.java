@@ -1,13 +1,14 @@
 package com.profiler.util;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
+import javassist.*;
+import javassist.bytecode.LocalVariableAttribute;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class JavaAssistUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
@@ -30,6 +31,40 @@ public class JavaAssistUtilsTest {
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{int.class});
         logger.info(clsDescription);
         Assert.assertEquals(ctDescription, clsDescription);
+
+
+    }
+
+    @Test
+    public void testGetLineNumber() throws Exception {
+//        pool.appendClassPath(new ClassClassPath(AbstractHttpClient.class));
+        CtClass ctClass = pool.get("org.apache.http.impl.client.AbstractHttpClient");
+        CtClass params = pool.get("org.apache.http.params.HttpParams");
+        // non-javadoc, see interface HttpClient
+//        public synchronized final HttpParams getParams() {
+//            if (defaultParams == null) {
+//                defaultParams = createHttpParams();
+//            }
+//            return defaultParams;
+//        }
+
+        CtMethod setParams = ctClass.getDeclaredMethod("setParams", new CtClass[]{params});
+        int lineNumber = JavaAssistUtils.getLineNumber(setParams);
+        logger.info("line:" + lineNumber);
+
+        logger.info(setParams.getName());
+        logger.info(setParams.getLongName());
+
+        String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
+        logger.info(Arrays.toString(paramName));
+        Assert.assertEquals(paramName.length, 1);
+        Assert.assertEquals(paramName[0], "params");
+
+        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        logger.info(Arrays.toString(parameterType));
+
+        String s = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, paramName);
+        logger.info(s);
     }
 
     @Test

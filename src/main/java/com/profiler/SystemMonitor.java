@@ -68,9 +68,8 @@ public class SystemMonitor {
         }
 
         public void run() {
-            JVMInfoThriftDTO jvmInfo = new JVMInfoThriftDTO();
             try {
-                jvmInfo = new JVMInfoThriftDTO();
+                JVMInfoThriftDTO jvmInfo = new JVMInfoThriftDTO();
                 jvmInfo.setAgentId(Agent.getInstance().getAgentId());
                 jvmInfo.setDataTime(System.currentTimeMillis());
 

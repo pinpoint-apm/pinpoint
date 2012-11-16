@@ -3,6 +3,8 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
@@ -16,7 +18,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor {
+public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
@@ -25,6 +27,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
+    private MethodDescriptor descriptor;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -37,6 +40,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         }
         TraceContext traceContext = TraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
+
         if (trace == null) {
             return;
         }
@@ -52,6 +56,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
             trace.recordAttribute("BindValue", bindString);
+            trace.recordAttribute("API", descriptor.getClassName() + "." + descriptor.getMethodName() + descriptor.getSimpleParameterDescriptor());
 
             clean(target);
 
@@ -113,4 +118,8 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         }
     }
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 }

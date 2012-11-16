@@ -90,9 +90,14 @@ public final class Trace {
     }
 
     public void markBeforeTime() {
-        StackFrame context = getCurrentStackFrame();
-        context.markBeforeTime();
+        StackFrame stackFrame = getCurrentStackFrame();
+        stackFrame.markBeforeTime();
     }
+
+//    public void attachObject(Object object) {
+//        StackFrame stackFrame = getCurrentStackFrame();
+//        stackFrame.attachObject(object);
+//    }
 
     public long afterTime() {
         StackFrame context = getCurrentStackFrame();
