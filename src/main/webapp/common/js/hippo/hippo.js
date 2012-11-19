@@ -51,9 +51,8 @@ function drawSankeyChart(graphdata, targetId, w, h) {
 	}).on("dragstart",function () {
 	            this.parentNode.appendChild(this);
 	        }).on("drag", dragmove));
-	
 	node.on("click", function (d) {
-	    // console.log(d);
+		alert(d.agentIds);
 	});
 	
 	node.append("rect").attr("height",function (d) {
