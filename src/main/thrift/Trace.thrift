@@ -10,15 +10,16 @@ struct Annotation {
 
 struct Span {
   1: string agentId
-  2: i64 timestamp,
-  3: i64 mostTraceId
-  4: i64 leastTraceId
-  5: string name,
-  6: string serviceName
-  7: i64 spanId,
-  8: optional i64 parentSpanId,
-  9: list<Annotation> annotations,
-  10: optional i32 flag = 0
-  11: string endPoint
-  12: bool terminal
+  2: i64 mostTraceId
+  3: i64 leastTraceId
+  4: i64 startTime,
+  5: i64 endTime,
+  6: string name,
+  7: string serviceName
+  8: i64 spanId,
+  9: optional i64 parentSpanId,
+  10: list<Annotation> annotations,
+  11: optional i32 flag = 0
+  12: string endPoint
+  13: bool terminal
 }
