@@ -40,19 +40,19 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
-                TraceID nextTraceId = traceId.getNextTraceId();
+                trace = new Trace(traceId);
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID exist. continue trace. " + nextTraceId);
+                    logger.info("TraceID exist. continue trace. " + trace.getCurrentTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
-                trace = traceContext.attachTraceObject(nextTraceId);
+                traceContext.attachTraceObject(trace);
             } else {
-                TraceID newTraceID = TraceID.newTraceId();
+                trace = new Trace();
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID not exist. start new trace. " + newTraceID);
+                    logger.info("TraceID not exist. start new trace. " + trace.getCurrentTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
-                trace = traceContext.attachTraceObject(newTraceID);
+                traceContext.attachTraceObject(trace);
             }
 
             trace.markBeforeTime();
@@ -90,7 +90,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         }
         // TODO result 가 Exception 타입일경우 호출 실패임.
         trace.record(Annotation.ServerSend, trace.afterTime());
-
+        trace.traceBlockEnd();
     }
 
     /**

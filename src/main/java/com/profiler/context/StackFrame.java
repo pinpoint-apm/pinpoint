@@ -4,21 +4,17 @@ package com.profiler.context;
  *
  */
 public class StackFrame {
-    private TraceID traceID;
+
     private int stackId;
-    private long time;
     private Span span;
 
-    public StackFrame() {
+    public StackFrame(Span span) {
+        this.span = span;
     }
 
 
     public TraceID getTraceID() {
-        return traceID;
-    }
-
-    public void setTraceID(TraceID traceID) {
-        this.traceID = traceID;
+        return span.getTraceID();
     }
 
     public int getStackFrameId() {
@@ -30,15 +26,17 @@ public class StackFrame {
     }
 
     public void markBeforeTime() {
-        this.time = System.currentTimeMillis();
+        this.span.setStartTime(System.currentTimeMillis());
+    }
+
+    public void markAfterTime() {
+        this.span.setEndTime(System.currentTimeMillis());
     }
 
     public long afterTime() {
-        return System.currentTimeMillis() - this.time;
-    }
-
-    public long getTime() {
-        return this.time;
+        long end = System.currentTimeMillis();
+        this.span.setEndTime(end);
+        return end - this.span.getStartTime();
     }
 
 

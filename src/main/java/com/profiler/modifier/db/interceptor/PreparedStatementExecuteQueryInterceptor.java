@@ -56,7 +56,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
             trace.recordAttribute("BindValue", bindString);
-            trace.recordAttribute("API", descriptor.getClassName() + "." + descriptor.getMethodName() + descriptor.getSimpleParameterDescriptor());
+            trace.recordAttribute("API", descriptor.getClassName() + "." + descriptor.getMethodName() + descriptor.getSimpleParameterDescriptor() + ":" + descriptor.getLineNumber());
 
             clean(target);
 

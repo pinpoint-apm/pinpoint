@@ -34,6 +34,7 @@ public final class Trace {
         // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
         this.root = TraceID.newTraceId();
         this.callStack = new CallStack();
+        this.callStack.push();
         StackFrame stackFrame = createStackFrame(root, ROOT_STACKID);
         this.callStack.setStackFrame(stackFrame);
     }
@@ -41,6 +42,7 @@ public final class Trace {
     public Trace(TraceID continueRoot) {
         this.root = continueRoot;
         this.callStack = new CallStack();
+        this.callStack.push();
         StackFrame stackFrame = createStackFrame(continueRoot, ROOT_STACKID);
         this.callStack.setStackFrame(stackFrame);
     }
@@ -76,12 +78,9 @@ public final class Trace {
     }
 
     private StackFrame createStackFrame(TraceID nextId, int stackId) {
-        StackFrame stackFrame = new StackFrame();
-        stackFrame.setStackFrameId(stackId);
-        stackFrame.setTraceID(nextId);
-
         Span span = new Span(nextId, null, null);
-        stackFrame.setSpan(span);
+        StackFrame stackFrame = new StackFrame(span);
+        stackFrame.setStackFrameId(stackId);
         return stackFrame;
     }
 
@@ -115,12 +114,22 @@ public final class Trace {
         traceBlockEnd(NOCHECK_STACKID);
     }
 
+//    public void traceBlockFinalEnd() {
+//        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
+//        if (currentStackFrame.getStackFrameId() != ROOT_STACKID) {
+//            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨.
+//            logger.warning("Corrupted RootCallStack found. StackId not matched");
+//        }
+//        logSpan(currentStackFrame);
+//    }
+
     public void traceBlockEnd(int stackId) {
         StackFrame currentStackFrame = callStack.getCurrentStackFrame();
         if (currentStackFrame.getStackFrameId() != stackId) {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨.
             logger.warning("Corrupted CallStack found. StackId not matched");
         }
+        logSpan(currentStackFrame);
         callStack.pop();
     }
 
@@ -128,16 +137,16 @@ public final class Trace {
         return callStack.getCurrentStackFrame();
     }
 
-    public boolean removeCurrentTraceIdFromStack() {
-        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
-        if (currentStackFrame != null) {
-            TraceID traceId = currentStackFrame.getTraceID();
-            callStack.currentStackFrameClear();
-//            spanMap.remove(traceId);
-            return true;
-        }
-        return false;
-    }
+//    public boolean removeCurrentTraceIdFromStack() {
+//        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
+//        if (currentStackFrame != null) {
+//            TraceID traceId = currentStackFrame.getTraceID();
+//            callStack.currentStackFrameClear();
+////            spanMap.remove(traceId);
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * Get current TraceID. If it was not set this will return null.
@@ -162,16 +171,8 @@ public final class Trace {
     }
 
 
-    private void logSpan(String key, Span span) {
-        if (key == null) {
-            return;
-        }
-        if (key.equals(Annotation.ClientRecv.getCode()) || key.equals(Annotation.ServerSend.getCode())) {
-            logSpan(span);
-        }
-    }
-
-    void logSpan(Span span) {
+    void logSpan(StackFrame stackFrame) {
+        Span span = stackFrame.getSpan();
         try {
             if (logger.isLoggable(Level.INFO)) {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
@@ -272,7 +273,7 @@ public final class Trace {
         try {
             Span span = getCurrentStackFrame().getSpan();
             span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
-            logSpan(key, span);
+
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

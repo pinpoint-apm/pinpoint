@@ -2,7 +2,6 @@ package com.profiler.modifier.arcus.interceptors;
 
 import com.profiler.context.Annotation;
 import com.profiler.context.AsyncTrace;
-import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -65,7 +64,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
             TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
             timeObject.markSendTime();
 
-            long createTime = asyncTrace.getSpan().getCreateTime();
+            long createTime = asyncTrace.getSpan().getStartTime();
             asyncTrace.record(Annotation.ClientSend, System.currentTimeMillis() - createTime);
         } else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
             if (logger.isLoggable(Level.FINE)) {

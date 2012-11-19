@@ -1,18 +1,20 @@
 package com.profiler.context;
 
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author netspider
  */
 public class CallStack {
+
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
     private StackFrame[] stack = new StackFrame[4];
 
     // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
     private final int TRACE_STACK_MAX_SIZE = 64;
 
-    private int index = 0;
+    private int index = -1;
 
     // copy시의 락 생각할 경우 좀더 정교하게 잡을수 있을듯.
     // push, pop, copy만 락을 잡아도 될거 같은 생각이 듬.
@@ -46,9 +48,16 @@ public class CallStack {
     }
 
     public synchronized void pop() {
-        if (index > 0) {
+        if (index >= 0) {
             stack[index] = null;
             index--;
+        } else {
+            Logger logger = Logger.getLogger(this.getClass().getName());
+            if (logger.isLoggable(Level.WARNING)) {
+                // 자체 stack dump 필요.
+                Exception ex = new Exception("Profiler CallStack check. index:" + index);
+                logger.log(Level.WARNING, "invalid callStack found", ex);
+            }
         }
     }
 

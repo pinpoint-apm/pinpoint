@@ -35,16 +35,15 @@ public class TraceContext {
         return threadLocal.get();
     }
 
-    public Trace attachTraceObject(TraceID traceID) {
-        Trace trace = this.threadLocal.get();
-        if (trace == null) {
-//            TraceID traceID = TraceID.newTraceId();
-            Trace newTrace = new Trace(traceID);
-            newTrace.setDataSender(this.dataSender);
-            threadLocal.set(newTrace);
-            return newTrace;
+    public void attachTraceObject(Trace trace) {
+        Trace old = this.threadLocal.get();
+        if (old != null) {
+            // 잘못된 상황의 old를 덤프할것.
+            throw new IllegalStateException("already Trace Object exist.");
         }
-        throw new IllegalStateException("already Trace Object exist");
+        // datasender연결 부분 수정 필요.
+        trace.setDataSender(this.dataSender);
+        threadLocal.set(trace);
     }
 
     public void detachTraceObject() {

@@ -4,6 +4,7 @@ import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
+import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -43,7 +44,7 @@ public class MySQLConnectionImplModifierTest {
         loader.initialize();
     }
 
-    private MetaObject<String> getUrl = new MetaObject<String>("__getUrl");
+    private MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>("__getUrl");
 
     @Test
     public void testModify() throws Exception {
@@ -58,15 +59,15 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("password", "testlucy");
 
         TraceContext traceContext = new TraceContext();
-        TraceID traceID = TraceID.newTraceId();
-        traceContext.attachTraceObject(traceID);
+        Trace trace = new Trace();
+        traceContext.attachTraceObject(trace);
 
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
         logger.info("Connection class name:" + connection.getClass().getName());
         logger.info("Connection class cl:" + connection.getClass().getClassLoader());
 
-        String url = getUrl.invoke(connection);
+        DatabaseInfo url = getUrl.invoke(connection);
         Assert.assertNotNull(url);
 
         statement(connection);
@@ -78,7 +79,7 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement3(connection);
 
         connection.close();
-        String clearUrl = getUrl.invoke(connection);
+        DatabaseInfo clearUrl = getUrl.invoke(connection);
         Assert.assertNull(clearUrl);
 
         traceContext.detachTraceObject();
