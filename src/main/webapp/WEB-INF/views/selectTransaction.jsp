@@ -123,11 +123,10 @@
 	        <thead>
 	        <tr>
 	            <th>#</th>
-	            <th>TIME</th>
-	            <th>GAP</th>
+	            <th>span time</th>
 	            <th>Application</th>
-	            <th>time</th>
 	            <th>endpoint</th>
+	            <th>@ time</th>
 	            <th>Action</th>
 	            <th>Action</th>
 	        </tr>
@@ -138,22 +137,18 @@
 	            <c:set var="sp" scope="page" value="${span.span}"/>
 	            <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
 	                <tr>
-	                    <td>${status.count}</td>
+	                    <td><c:if test="${annoStatus.first}">${status.count}</c:if></td>
+	                    <td><c:if test="${annoStatus.first}">${sp.timestamp}</c:if></td>
+	                    <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+	                    <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
 	                    <td>${ano.timestamp}</td>
-	                    <td>
-	                        <c:if test="${not annoStatus.first}">${ano.timestamp - bt}<br/>${ano.timestamp}<br/>${bt}</c:if>
-	                    </td>
-	
-	                    <td>${sp.serviceName}</td>
-	                    <td>${sp.timestamp}</td>
-	                    <td>${sp.endPoint}</td>
 	                    <td>${ano.key}</td>
 	                    <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
 	                </tr>
 	                <c:set var="bt" scope="page" value="${ano.timestamp}"/>
 	            </c:forEach>
 	            <tr>
-	                <td colspan="8">&nbsp;</td>
+	                <td colspan="7">&nbsp;</td>
 	            </tr>
 	        </c:forEach>
 	
