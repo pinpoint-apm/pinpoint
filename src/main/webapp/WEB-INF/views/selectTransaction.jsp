@@ -125,6 +125,7 @@
                     <th>@ time</th>
                     <th>Action</th>
                     <th>Action</th>
+                    <th>Agent</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -134,17 +135,18 @@
                     <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
                         <tr>
                             <td><c:if test="${annoStatus.first}">${status.count}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.startTime}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.startTime} <br> ${sp.endTime - sp.startTime}ms</c:if></td>
                             <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
                             <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
                             <td>${ano.timestamp}</td>
                             <td>${ano.key}</td>
                             <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
+                            <td>${sp.agentId}</td>
                         </tr>
                         <c:set var="bt" scope="page" value="${ano.timestamp}"/>
                     </c:forEach>
                     <tr>
-                        <td colspan="7">&nbsp;</td>
+                        <td colspan="8">&nbsp;</td>
                     </tr>
                 </c:forEach>
 
