@@ -54,10 +54,12 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
 
-            Interceptor transaction = new TransactionInterceptor();
-            int interceptorId = mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, transaction);
-            mysqlConnection.reuseInterceptor("commit", null, interceptorId);
-            mysqlConnection.reuseInterceptor("rollback", null, interceptorId);
+            Interceptor setAutocommit = new TransactionInterceptor();
+            mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
+            Interceptor commit = new TransactionInterceptor();
+            mysqlConnection.addInterceptor("commit", null, commit);
+            Interceptor rollback = new TransactionInterceptor();
+            mysqlConnection.addInterceptor("rollback", null, rollback);
 
             printClassConvertComplete(javassistClassName);
 

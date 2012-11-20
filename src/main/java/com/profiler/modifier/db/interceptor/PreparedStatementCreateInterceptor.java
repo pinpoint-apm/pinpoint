@@ -74,7 +74,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             this.setSql.invoke(result, sql);
 
             trace.recordException(result);
-            trace.recordAttribute("PreparedStatement", sql);
+//            trace.recordAttribute("PreparedStatement", sql);
         }
 
         trace.recordApi(descriptor, args);

@@ -5,20 +5,21 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
-import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
-public class TransactionInterceptor implements StaticAroundInterceptor {
+public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+    private MethodDescriptor descriptor;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -62,7 +63,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         if (target instanceof Connection) {
             Connection con = (Connection) target;
             if ("setAutoCommit".equals(methodName)) {
-                afterStartTransaction(trace, con, args[0], result);
+                afterStartTransaction(trace, con, args, result);
             } else if ("commit".equals(methodName)) {
                 afterCommit(trace, con, result);
             } else if ("rollback".equals(methodName)) {
@@ -79,37 +80,39 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
         trace.recordTerminalEndPoint(databaseInfo.getUrl());
-
     }
 
     private String getRpcName(DatabaseInfo databaseInfo) {
         return databaseInfo.getType() + "/" + databaseInfo.getDatabaseId();
     }
 
-    private void afterStartTransaction(Trace trace, Connection target, Object arg, Object result) {
+    private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
         try {
-            Boolean autocommit = (Boolean) arg;
-            boolean success = InterceptorUtils.isSuccess(result);
-            if (!autocommit) {
-                // transaction start;
-                if (success) {
-                    trace.recordAttribute("Transaction", "begin");
-                } else {
-                    trace.recordAttribute("Transaction", "begin fail");
-                    Throwable th = (Throwable) result;
-                    trace.recordAttribute("Exception", th.getMessage());
-                }
-
-            } else {
-                if (success) {
-                    trace.recordAttribute("Transaction", "autoCommit:false");
-                } else {
-                    trace.recordAttribute("Transaction", "autoCommit:false fail");
-                    Throwable th = (Throwable) result;
-                    trace.recordAttribute("Exception", th.getMessage());
-                }
-
-            }
+            trace.recordApi(descriptor, arg);
+            trace.recordException(result);
+//            Boolean autocommit = (Boolean) arg;
+//            boolean success = InterceptorUtils.isSuccess(result);
+//            if (!autocommit) {
+//                // transaction start;
+//                if (success) {
+//                    trace.recordAttribute("Transaction", "begin");
+//                    trace.recordApi(descriptor, null);
+//                } else {
+//                    trace.recordAttribute("Transaction", "begin fail");
+//                    Throwable th = (Throwable) result;
+//                    trace.recordAttribute("Exception", th.getMessage());
+//                }
+//
+//            } else {
+//                if (success) {
+//                    trace.recordAttribute("Transaction", "autoCommit:false");
+//                } else {
+//                    trace.recordAttribute("Transaction", "autoCommit:false fail");
+//                    Throwable th = (Throwable) result;
+//                    trace.recordAttribute("Exception", th.getMessage());
+//                }
+//
+//            }
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -137,14 +140,17 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
             trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
             trace.recordTerminalEndPoint(databaseInfo.getUrl());
 
-            boolean success = InterceptorUtils.isSuccess(result);
-            if (success) {
-                trace.recordAttribute("Transaction", "commit");
-            } else {
-                trace.recordAttribute("Transaction", "commit fail");
-                Throwable th = (Throwable) result;
-                trace.recordAttribute("Exception", th.getMessage());
-            }
+            trace.recordApi(descriptor);
+            trace.recordException(result);
+
+//            boolean success = InterceptorUtils.isSuccess(result);
+//            if (success) {
+//                trace.recordAttribute("Transaction", "commit");
+//            } else {
+//                trace.recordAttribute("Transaction", "commit fail");
+//                Throwable th = (Throwable) result;
+//                trace.recordAttribute("Exception", th.getMessage());
+//            }
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -173,12 +179,14 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
             trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
             trace.recordTerminalEndPoint(databaseInfo.getUrl());
 
-            boolean success = InterceptorUtils.isSuccess(result);
-            if (success) {
-                trace.recordAttribute("Transaction", "rollback");
-            } else {
-                trace.recordAttribute("Transaction", "rollback fail");
-            }
+            trace.recordApi(descriptor);
+            trace.recordException(result);
+//            boolean success = InterceptorUtils.isSuccess(result);
+//            if (success) {
+//                trace.recordAttribute("Transaction", "rollback");
+//            } else {
+//                trace.recordAttribute("Transaction", "rollback fail");
+//            }
             trace.recordException(result);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -190,4 +198,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
         }
     }
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 }

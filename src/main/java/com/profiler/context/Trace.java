@@ -226,10 +226,24 @@ public final class Trace {
         }
     }
 
+    public void recordApi(MethodDescriptor methodDescriptor) {
+        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
+        recordAttribute("API", method);
+    }
+
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         // API 저장 방법의 개선 필요.
         String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
         recordAttribute("API", method);
+        recocordArgs(args);
+    }
+
+    private void recocordArgs(Object[] args) {
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                recordAttribute("args[" + i + "]", args[i]);
+            }
+        }
     }
 
     public void recordAttribute(final String key, final String value) {

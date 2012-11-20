@@ -73,15 +73,9 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
         }
         trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
         trace.recordTerminalEndPoint(databaseInfo.getUrl());
-        trace.recordAttribute("JDBCConnection", "create");
-        if (success) {
-            trace.recordAttribute("Success", "true");
-        } else {
-            Throwable th = (Throwable) result;
-            trace.recordAttribute("Success", "false");
-            trace.recordAttribute("Exception", th.getMessage());
-        }
-        trace.recordApi(descriptor, args);
+
+        trace.recordApi(descriptor, new Object[]{args[0]});
+        trace.recordException(result);
 
         trace.markAfterTime();
         trace.traceBlockEnd();

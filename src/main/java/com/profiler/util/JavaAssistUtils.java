@@ -163,6 +163,9 @@ public class JavaAssistUtils {
 
     public static String[] getParameterVariableName(CtBehavior method) throws NotFoundException {
         LocalVariableAttribute localVariableAttribute = lookupLocalVariableAttribute(method);
+        if (localVariableAttribute == null) {
+            return getParameterDefaultVariableName(method);
+        }
         return getParameterVariableName(method, localVariableAttribute);
     }
 
@@ -185,7 +188,7 @@ public class JavaAssistUtils {
         // 이거 참고함.
         if (localVariableAttribute == null) {
             // null이라는건 debug모드로 컴파일 되지 않았다는 의미이다.
-            // parameter class명을 default로 하자.
+            // parameter class명을 default로 넘기는 건 아래 메소드가 함. getParameterDefaultVariableName.
             return null;
         }
         CtClass[] parameterTypes = method.getParameterTypes();
@@ -208,5 +211,14 @@ public class JavaAssistUtils {
             parameterVariableNames[i] = variablename;
         }
         return parameterVariableNames;
+    }
+
+    public static String[] getParameterDefaultVariableName(CtBehavior method) throws NotFoundException {
+        CtClass[] parameterTypes = method.getParameterTypes();
+        String[] variableName = new String[parameterTypes.length];
+        for (int i = 0; i < variableName.length; i++) {
+            variableName[i] = parameterTypes[i].getSimpleName().toLowerCase();
+        }
+        return variableName;
     }
 }

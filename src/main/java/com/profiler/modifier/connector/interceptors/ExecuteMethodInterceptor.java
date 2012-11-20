@@ -73,7 +73,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         if (trace == null) {
             return;
         }
-        trace.recordApi(descriptor, args);
+        trace.recordApi(descriptor);
         trace.recordException(result);
 
         trace.markAfterTime();
