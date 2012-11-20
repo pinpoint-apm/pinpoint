@@ -14,258 +14,276 @@ import com.profiler.common.util.BytesUtils;
  */
 public class SpanBo {
 
-	private static final int VERSION_SIZE = 1;
-	// version 0 = prefix의 사이즈를 int로
-	// version 1 = prefix의 사이즈를 short로
-	// version 2 = prefix의 사이즈를 byte 하면 byte eocnding이 좀 줄지 않나?
-	private byte version = 0;
+    private static final int VERSION_SIZE = 1;
+    // version 0 = prefix의 사이즈를 int로
+    // version 1 = prefix의 사이즈를 short로
+    // version 2 = prefix의 사이즈를 byte 하면 byte eocnding이 좀 줄지 않나?
+    private byte version = 0;
 
-	private String agentId; // required
+    private String agentId; // required
 
-	// private static final int TIMESTAMP = 8;
-	private long timestamp; // required
+    // private static final int TIMESTAMP = 8;
+    private long startTime; // required
+    private long endTime; // required
 
-	// private static final int MOSTTRACEID = 8;
-	private long mostTraceId; // required
+    // private static final int MOSTTRACEID = 8;
+    private long mostTraceId; // required
 
-	// private static final int LEASTTRACEID = 8;
-	private long leastTraceId; // required
+    // private static final int LEASTTRACEID = 8;
+    private long leastTraceId; // required
 
-	private String name; // required
-	private String serviceName; // required
+    private String name; // required
+    private String serviceName; // required
 
-	// private static final int SPANID = 8;
-	private long spanId; // required
+    // private static final int SPANID = 8;
+    private long spanId; // required
 
-	private static final int PARENTSPANID = 8;
-	private long parentSpanId; // optional
+    private static final int PARENTSPANID = 8;
+    private long parentSpanId; // optional
 
-	private static final int FLAG = 4;
-	private int flag; // optional
-	// private List<Annotation> annotations; // required
+    private static final int FLAG = 4;
+    private int flag; // optional
+    // private List<Annotation> annotations; // required
 
-	private String endPoint; // required
+    private String endPoint; // required
 
-	private static final int TERMINAL = 1;
-	private boolean terminal; // required
+    private static final int TERMINAL = 1;
+    private boolean terminal; // required
 
-	private int recursiveCallCount = 0;
+    private int recursiveCallCount = 0;
 
-	private List<AnnotationBo> annotationBoList;
+    private List<AnnotationBo> annotationBoList;
 
-	public SpanBo(Span span) {
-		this.agentId = span.getAgentId();
-		this.timestamp = span.getTimestamp();
-		this.mostTraceId = span.getMostTraceId();
-		this.leastTraceId = span.getLeastTraceId();
-		this.name = span.getName();
-		this.serviceName = span.getServiceName();
-		this.spanId = span.getSpanId();
-		this.parentSpanId = span.getParentSpanId();
-		this.endPoint = span.getEndPoint();
-		this.flag = span.getFlag();
-		this.terminal = span.isTerminal();
-		setAnnotationList(span.getAnnotations());
-	}
+    public SpanBo(Span span) {
+        this.agentId = span.getAgentId();
+        this.startTime = span.getStartTime();
+        this.endTime = span.getEndTime();
+        this.mostTraceId = span.getMostTraceId();
+        this.leastTraceId = span.getLeastTraceId();
+        this.name = span.getName();
+        this.serviceName = span.getServiceName();
+        this.spanId = span.getSpanId();
+        this.parentSpanId = span.getParentSpanId();
+        this.endPoint = span.getEndPoint();
+        this.flag = span.getFlag();
+        this.terminal = span.isTerminal();
+        setAnnotationList(span.getAnnotations());
+    }
 
-	public SpanBo(long mostTraceId, long timestamp, long leastTraceId, long spanId) {
-		this.mostTraceId = mostTraceId;
-		this.timestamp = timestamp;
-		this.leastTraceId = leastTraceId;
-		this.spanId = spanId;
-	}
+    public SpanBo(long mostTraceId, long leastTraceId, long startTime, long endTime, long spanId) {
+        this.mostTraceId = mostTraceId;
+        this.leastTraceId = leastTraceId;
 
-	public SpanBo() {
-	}
+        this.startTime = startTime;
+        this.endTime = endTime;
 
-	public int getVersion() {
-		return version & 0xFF;
-	}
+        this.spanId = spanId;
+    }
 
-	public void setVersion(int version) {
-		if (version < 0 || version > 255) {
-			throw new IllegalArgumentException("out of range (0~255)");
-		}
-		// range 체크
-		this.version = (byte) (version & 0xFF);
-	}
+    public SpanBo() {
+    }
 
-	public String getAgentId() {
-		return agentId;
-	}
+    public int getVersion() {
+        return version & 0xFF;
+    }
 
-	public void setAgentId(String agentId) {
-		this.agentId = agentId;
-	}
+    public void setVersion(int version) {
+        if (version < 0 || version > 255) {
+            throw new IllegalArgumentException("out of range (0~255)");
+        }
+        // range 체크
+        this.version = (byte) (version & 0xFF);
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public String getAgentId() {
+        return agentId;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
 
-	public long getMostTraceId() {
-		return mostTraceId;
-	}
+    public long getStartTime() {
+        return startTime;
+    }
 
-	public void setMostTraceId(long mostTraceId) {
-		this.mostTraceId = mostTraceId;
-	}
+    public long getEndTime() {
+        return endTime;
+    }
 
-	public long getLeastTraceId() {
-		return leastTraceId;
-	}
 
-	public void setLeastTraceId(long leastTraceId) {
-		this.leastTraceId = leastTraceId;
-	}
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public long getMostTraceId() {
+        return mostTraceId;
+    }
 
-	public String getServiceName() {
-		return serviceName;
-	}
+    public void setMostTraceId(long mostTraceId) {
+        this.mostTraceId = mostTraceId;
+    }
 
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
-	}
+    public long getLeastTraceId() {
+        return leastTraceId;
+    }
 
-	public long getSpanId() {
-		return spanId;
-	}
+    public void setLeastTraceId(long leastTraceId) {
+        this.leastTraceId = leastTraceId;
+    }
 
-	public void setSpanID(long spanId) {
-		this.spanId = spanId;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public long getParentSpanId() {
-		return parentSpanId;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setParentSpanId(long parentSpanId) {
-		this.parentSpanId = parentSpanId;
-	}
+    public String getServiceName() {
+        return serviceName;
+    }
 
-	public int getFlag() {
-		return flag;
-	}
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
 
-	public void setFlag(int flag) {
-		this.flag = flag;
-	}
+    public long getSpanId() {
+        return spanId;
+    }
 
-	public String getEndPoint() {
-		return endPoint;
-	}
+    public void setSpanID(long spanId) {
+        this.spanId = spanId;
+    }
 
-	public void setEndPoint(String endPoint) {
-		this.endPoint = endPoint;
-	}
+    public long getParentSpanId() {
+        return parentSpanId;
+    }
 
-	public boolean isTerminal() {
-		return terminal;
-	}
+    public void setParentSpanId(long parentSpanId) {
+        this.parentSpanId = parentSpanId;
+    }
 
-	public void setTerminal(boolean terminal) {
-		this.terminal = terminal;
-	}
+    public int getFlag() {
+        return flag;
+    }
 
-	public List<AnnotationBo> getAnnotationBoList() {
-		if (annotationBoList == null) {
-			return Collections.emptyList();
-		}
-		return annotationBoList;
-	}
+    public void setFlag(int flag) {
+        this.flag = flag;
+    }
 
-	public void setAnnotationList(List<Annotation> anoList) {
-		List<AnnotationBo> boList = new ArrayList<AnnotationBo>(anoList.size());
-		for (Annotation ano : anoList) {
-			boList.add(new AnnotationBo(ano));
-		}
-		this.annotationBoList = boList;
-	}
+    public String getEndPoint() {
+        return endPoint;
+    }
 
-	public void setAnnotationBoList(List<AnnotationBo> anoList) {
-		// List<AnnotationBo> boList = new
-		// ArrayList<AnnotationBo>(anoList.size());
-		// for(Annotation ano : anoList) {
-		// boList.add(new AnnotationBo(ano));
-		// }
-		// this.annotationBoList = boList;
-		if (anoList == null) {
-			this.annotationBoList = Collections.emptyList();
-		} else {
-			this.annotationBoList = anoList;
-		}
-	}
+    public void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
 
-	private int getBufferLength(int a, int b, int c, int d) {
-		int size = a + b + c + d;
-		size = size + (4 * 4) + VERSION_SIZE; // chunk
-		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
-		// PARENTSPANID + FLAG + TERMINAL;
-		size = size + PARENTSPANID + FLAG + TERMINAL;
-		return size;
-	}
+    public boolean isTerminal() {
+        return terminal;
+    }
 
-	public byte[] writeValue() {
-		byte[] agentIDBytes = BytesUtils.getBytes(agentId);
-		byte[] nameBytes = BytesUtils.getBytes(name);
-		byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
-		byte[] endPointBytes = BytesUtils.getBytes(endPoint);
-		int bufferLength = getBufferLength(agentIDBytes.length, nameBytes.length, serviceNameBytes.length, endPointBytes.length);
+    public void setTerminal(boolean terminal) {
+        this.terminal = terminal;
+    }
 
-		Buffer buffer = new Buffer(bufferLength);
-		buffer.put(version);
-		buffer.putPrefixedBytes(agentIDBytes);
-		// buffer.put(timestamp);
-		// buffer.put(mostTraceID);
-		// buffer.put(leastTraceID);
-		buffer.putPrefixedBytes(nameBytes);
-		buffer.putPrefixedBytes(serviceNameBytes);
-		// buffer.put(spanID);
-		buffer.put(parentSpanId);
-		buffer.put(flag);
-		buffer.putPrefixedBytes(endPointBytes);
-		buffer.put(terminal);
-		return buffer.getBuffer();
-	}
+    public List<AnnotationBo> getAnnotationBoList() {
+        if (annotationBoList == null) {
+            return Collections.emptyList();
+        }
+        return annotationBoList;
+    }
 
-	public int readValue(byte[] bytes, int offset) {
-		Buffer buffer = new Buffer(bytes, offset);
-		this.version = buffer.readByte();
-		this.agentId = buffer.readPrefixedString();
-		// this.timestamp = buffer.readLong();
-		// this.mostTraceID = buffer.readLong();
-		// this.leastTraceID = buffer.readLong();
-		this.name = buffer.readPrefixedString();
-		this.serviceName = buffer.readPrefixedString();
-		// this.spanID = buffer.readLong();
-		this.parentSpanId = buffer.readLong();
-		this.flag = buffer.readInt();
-		this.endPoint = buffer.readPrefixedString();
-		this.terminal = buffer.readBoolean();
-		return buffer.getOffset();
-	}
+    public void setAnnotationList(List<Annotation> anoList) {
+        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(anoList.size());
+        for (Annotation ano : anoList) {
+            boList.add(new AnnotationBo(ano));
+        }
+        this.annotationBoList = boList;
+    }
 
-	public int increaseRecursiveCallCount() {
-		return recursiveCallCount++;
-	}
+    public void setAnnotationBoList(List<AnnotationBo> anoList) {
+        // List<AnnotationBo> boList = new
+        // ArrayList<AnnotationBo>(anoList.size());
+        // for(Annotation ano : anoList) {
+        // boList.add(new AnnotationBo(ano));
+        // }
+        // this.annotationBoList = boList;
+        if (anoList == null) {
+            this.annotationBoList = Collections.emptyList();
+        } else {
+            this.annotationBoList = anoList;
+        }
+    }
 
-	public int getRecursiveCallCount() {
-		return recursiveCallCount;
-	}
+    private int getBufferLength(int a, int b, int c, int d) {
+        int size = a + b + c + d;
+        size = size + (4 * 4) + VERSION_SIZE; // chunk
+        // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
+        // PARENTSPANID + FLAG + TERMINAL;
+        size = size + PARENTSPANID + FLAG + TERMINAL;
+        // startTime, endTime;
+        size += 16;
+        return size;
+    }
 
-	@Override
-	public String toString() {
-		return "SpanBo{" + "agentId='" + agentId + '\'' + ", timestamp=" + timestamp + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", name='" + name + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + '\'' + ", terminal=" + terminal + '}';
-	}
+    public byte[] writeValue() {
+        byte[] agentIDBytes = BytesUtils.getBytes(agentId);
+        byte[] nameBytes = BytesUtils.getBytes(name);
+        byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
+        byte[] endPointBytes = BytesUtils.getBytes(endPoint);
+        int bufferLength = getBufferLength(agentIDBytes.length, nameBytes.length, serviceNameBytes.length, endPointBytes.length);
+
+        Buffer buffer = new Buffer(bufferLength);
+        buffer.put(version);
+        buffer.putPrefixedBytes(agentIDBytes);
+        buffer.put(startTime);
+        buffer.put(endTime);
+        // buffer.put(leastTraceID);
+        buffer.putPrefixedBytes(nameBytes);
+        buffer.putPrefixedBytes(serviceNameBytes);
+        // buffer.put(spanID);
+        buffer.put(parentSpanId);
+        buffer.put(flag);
+        buffer.putPrefixedBytes(endPointBytes);
+        buffer.put(terminal);
+        return buffer.getBuffer();
+    }
+
+    public int readValue(byte[] bytes, int offset) {
+        Buffer buffer = new Buffer(bytes, offset);
+        this.version = buffer.readByte();
+        this.agentId = buffer.readPrefixedString();
+        this.startTime = buffer.readLong();
+        this.endTime = buffer.readLong();
+        // this.leastTraceID = buffer.readLong();
+        this.name = buffer.readPrefixedString();
+        this.serviceName = buffer.readPrefixedString();
+        // this.spanID = buffer.readLong();
+        this.parentSpanId = buffer.readLong();
+        this.flag = buffer.readInt();
+        this.endPoint = buffer.readPrefixedString();
+        this.terminal = buffer.readBoolean();
+        return buffer.getOffset();
+    }
+
+    public int increaseRecursiveCallCount() {
+        return recursiveCallCount++;
+    }
+
+    public int getRecursiveCallCount() {
+        return recursiveCallCount;
+    }
+
+    @Override
+    public String toString() {
+        return "SpanBo{" + "agentId='" + agentId + '\''
+                + ", startTime=" + startTime + ", endTime=" + endTime + ", mostTraceId=" + mostTraceId
+                + ", leastTraceId=" + leastTraceId + ", name='" + name + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + '\'' + ", terminal=" + terminal + '}';
+    }
 }

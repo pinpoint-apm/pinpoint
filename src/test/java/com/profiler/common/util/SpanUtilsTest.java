@@ -52,7 +52,7 @@ public class SpanUtilsTest {
     private void check(String agentId0, long l1) {
         Span span = new Span();
         span.setAgentId(agentId0);
-        span.setTimestamp(l1);
+        span.setStartTime(l1);
 
         byte[] traceIndexRowKey = SpanUtils.getTraceIndexRowKey(span);
 
