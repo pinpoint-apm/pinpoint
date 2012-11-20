@@ -2,6 +2,8 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
@@ -14,8 +16,10 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor {
+public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
     private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
+
+    private MethodDescriptor descriptor;
 
     // connection 용.
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
@@ -39,6 +43,11 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
         }
         trace.traceBlockBegin();
         trace.markBeforeTime();
+
+        DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+        trace.recordRpcName(databaseInfo.getType() + "/" + databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+        trace.recordTerminalEndPoint(databaseInfo.getUrl());
+
     }
 
     @Override
@@ -63,10 +72,20 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             this.setUrl.invoke(result, databaseInfo);
             String sql = (String) args[0];
             this.setSql.invoke(result, sql);
+
+            trace.recordException(result);
+            trace.recordAttribute("PreparedStatement", sql);
         }
-        trace.afterTime();
+
+        trace.recordApi(descriptor, args);
+
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 }

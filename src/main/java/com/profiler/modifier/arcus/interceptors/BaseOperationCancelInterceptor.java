@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 
     private final Logger logger = Logger.getLogger(BaseOperationCancelInterceptor.class.getName());
-    private MetaObject asyncTraceId = new MetaObject("__getAsyncTraceId");
+    private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -24,7 +24,7 @@ public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
-        AsyncTrace asyncTrace = (AsyncTrace) asyncTraceId.invoke(target);
+        AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
         if (asyncTrace == null) {
             logger.fine("asyncTrace not found ");
             return;

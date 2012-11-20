@@ -1,6 +1,8 @@
 package com.profiler.modifier.connector.interceptors;
 
 import com.profiler.context.*;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.util.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -24,9 +26,10 @@ import java.util.logging.Logger;
  *            throws IOException, ClientProtocolException {
  * </pre>
  */
-public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
+    private MethodDescriptor descriptor;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -70,8 +73,15 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
         if (trace == null) {
             return;
         }
+        trace.recordApi(descriptor, args);
+        trace.recordException(result);
 
         trace.markAfterTime();
         trace.traceBlockEnd();
+    }
+
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 }

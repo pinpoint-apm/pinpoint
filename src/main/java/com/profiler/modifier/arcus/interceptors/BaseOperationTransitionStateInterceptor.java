@@ -27,7 +27,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private MetaObject asyncTraceId = new MetaObject("__getAsyncTraceId");
+    private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -35,7 +35,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
             logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
-        AsyncTrace asyncTrace = (AsyncTrace) asyncTraceId.invoke(target);
+        AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
         if (asyncTrace == null) {
             logger.fine("asyncTrace not found");
             return;
@@ -57,15 +57,19 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
                 InetSocketAddress address = (InetSocketAddress) socketAddress;
                 asyncTrace.recordTerminalEndPoint("ARCUS:" + address.getHostName() + ":" + address.getPort());
             }
+
             asyncTrace.recordRpcName("ARCUS", baseOperation.getClass().getSimpleName());
+
             String cmd = getCommand(baseOperation);
             asyncTrace.recordAttibute("arcus.command", cmd);
 
-            TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-            timeObject.markSendTime();
+//            TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
+//            timeObject.markSendTime();
 
-            long createTime = asyncTrace.getSpan().getStartTime();
-            asyncTrace.record(Annotation.ClientSend, System.currentTimeMillis() - createTime);
+//            long createTime = asyncTrace.getBeforeTime();
+//            asyncTrace.record(Annotation.ClientSend, System.currentTimeMillis() - createTime);
+            asyncTrace.markAfterTime();
+            asyncTrace.traceBlockEnd();
         } else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
             if (logger.isLoggable(Level.FINE)) {
                 logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
@@ -76,15 +80,19 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
             }
             Exception exception = baseOperation.getException();
             if (exception != null) {
-                asyncTrace.recordAttibute("exception", InterceptorUtils.exceptionToString(exception));
+                asyncTrace.recordAttibute("Exception", InterceptorUtils.exceptionToString(exception));
             }
             if (!baseOperation.isCancelled()) {
                 TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-                asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
+//                asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
+                asyncTrace.markAfterTime();
+                asyncTrace.traceBlockEnd();
             } else {
-                asyncTrace.recordAttribute("exception", "cancelled by user");
+                asyncTrace.recordAttribute("Exception", "cancelled by user");
                 TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-                asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
+//                asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
+                asyncTrace.markAfterTime();
+                asyncTrace.traceBlockEnd();
             }
         }
     }
@@ -94,8 +102,8 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
         if (buffer == null) {
             return "UNKNOWN";
         }
-        System.out.println(buffer.array().length + " po:" + buffer.position() + " limit:" + buffer.limit() + " remaining"
-                + buffer.remaining() + " aoffset:" + buffer.arrayOffset());
+//        System.out.println(buffer.array().length + " po:" + buffer.position() + " limit:" + buffer.limit() + " remaining"
+//                + buffer.remaining() + " aoffset:" + buffer.arrayOffset());
         return new String(buffer.array(), UTF8);
     }
 

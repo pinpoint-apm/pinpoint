@@ -29,14 +29,16 @@ public class StackFrame {
         this.span.setStartTime(System.currentTimeMillis());
     }
 
+    public long getBeforeTime() {
+        return this.span.getStartTime();
+    }
+
     public void markAfterTime() {
         this.span.setEndTime(System.currentTimeMillis());
     }
 
-    public long afterTime() {
-        long end = System.currentTimeMillis();
-        this.span.setEndTime(end);
-        return end - this.span.getStartTime();
+    public long getAfterTime() {
+        return this.span.getEndTime();
     }
 
 

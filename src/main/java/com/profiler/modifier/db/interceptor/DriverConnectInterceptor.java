@@ -3,6 +3,8 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.modifier.db.util.JDBCUrlParser;
@@ -17,12 +19,13 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class DriverConnectInterceptor implements StaticAroundInterceptor {
+public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(DriverConnectInterceptor.class.getName());
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private JDBCUrlParser urlParser = new JDBCUrlParser();
+    private MethodDescriptor descriptor;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -78,6 +81,7 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
             trace.recordAttribute("Success", "false");
             trace.recordAttribute("Exception", th.getMessage());
         }
+        trace.recordApi(descriptor, args);
 
         trace.markAfterTime();
         trace.traceBlockEnd();
@@ -92,4 +96,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
     }
 
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 }

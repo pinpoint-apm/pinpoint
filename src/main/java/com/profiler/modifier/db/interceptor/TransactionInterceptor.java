@@ -178,10 +178,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                 trace.recordAttribute("Transaction", "rollback");
             } else {
                 trace.recordAttribute("Transaction", "rollback fail");
-                Throwable th = (Throwable) result;
-                trace.recordAttribute("Exception", th.getMessage());
             }
-
+            trace.recordException(result);
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);

@@ -68,6 +68,24 @@ public class AsyncTrace {
         this.attachObject = attachObject;
     }
 
+    public void traceBlockBegin() {
+    }
+
+    public void markBeforeTime() {
+        span.setStartTime(System.currentTimeMillis());
+    }
+
+    public long getBeforeTime() {
+        return span.getStartTime();
+    }
+
+    public void traceBlockEnd() {
+        logSpan(this.span);
+    }
+
+    public void markAfterTime() {
+        span.setEndTime(System.currentTimeMillis());
+    }
 
     public void record(Annotation annotation) {
         annotate(annotation.getCode(), null);
@@ -126,21 +144,11 @@ public class AsyncTrace {
 
         try {
             this.span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
-            logSpan(key, span);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-
-    private void logSpan(String key, Span span) {
-        if (key == null) {
-            return;
-        }
-        if (key.equals(Annotation.ClientRecv.getCode()) || key.equals(Annotation.ServerSend.getCode())) {
-            logSpan(span);
-        }
-    }
 
     void logSpan(Span span) {
         try {

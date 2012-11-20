@@ -72,7 +72,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             return;
         }
 
-        trace.recordAttribute("Success", InterceptorUtils.isSuccess(result));
+        trace.recordException(result);
 
         trace.markAfterTime();
         trace.traceBlockEnd();

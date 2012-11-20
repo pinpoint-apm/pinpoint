@@ -2,6 +2,7 @@ package com.profiler.context;
 
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.util.AnnotationTranscoder.Encoded;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
 
@@ -93,14 +94,19 @@ public final class Trace {
         stackFrame.markBeforeTime();
     }
 
+    public long getBeforeTime() {
+        StackFrame stackFrame = getCurrentStackFrame();
+        return stackFrame.getBeforeTime();
+    }
+
     public void markAfterTime() {
         StackFrame stackFrame = getCurrentStackFrame();
         stackFrame.markAfterTime();
     }
 
-    public long afterTime() {
-        StackFrame context = getCurrentStackFrame();
-        return context.afterTime();
+    public long getAfterTime() {
+        StackFrame stackFrame = getCurrentStackFrame();
+        return stackFrame.getAfterTime();
     }
 
 //    public void attachObject(Object object) {
@@ -211,6 +217,19 @@ public final class Trace {
             return;
 
         annotate(annotation.getCode(), duration);
+    }
+
+    public void recordException(Object result) {
+        if (result instanceof Throwable) {
+            Throwable th = (Throwable) result;
+            recordAttribute("Exception", th.getMessage());
+        }
+    }
+
+    public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
+        // API 저장 방법의 개선 필요.
+        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
+        recordAttribute("API", method);
     }
 
     public void recordAttribute(final String key, final String value) {
