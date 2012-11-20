@@ -29,7 +29,6 @@ public class AnnotationBoTest {
         AnnotationBo bo2 = new AnnotationBo();
         bo2.readValue(bytes, 0);
         Assert.assertEquals(bo.getKey(), bo2.getKey());
-        Assert.assertEquals(bo.getDuration(), bo2.getDuration());
         Assert.assertEquals(bo.getTimestamp(), bo2.getTimestamp());
         Assert.assertEquals(bo.getValueType(), bo2.getValueType());
         Assert.assertArrayEquals(bo.getValue(), bo2.getValue());

@@ -22,7 +22,6 @@ public class AnnotationBo {
     private String key;
     private byte[] keyBytes;
 
-    private long duration;
     private int valueType;
     private byte[] value;
 
@@ -33,7 +32,6 @@ public class AnnotationBo {
     public AnnotationBo(Annotation ano) {
         this.timestamp = ano.getTimestamp();
         this.key = ano.getKey();
-        this.duration = ano.getDuration();
         this.valueType = ano.getValueTypeCode();
         this.value = ano.getValue();
     }
@@ -68,7 +66,8 @@ public class AnnotationBo {
 
     public byte[] getKeyBytes() {
         if (keyBytes == null) {
-        	keyBytes = BytesUtils.getBytes(key);;
+            keyBytes = BytesUtils.getBytes(key);
+            ;
         }
         return keyBytes;
     }
@@ -81,13 +80,6 @@ public class AnnotationBo {
         this.timestamp = timestamp;
     }
 
-    public long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
 
     public int getValueType() {
         return valueType;
@@ -115,7 +107,6 @@ public class AnnotationBo {
         Buffer buffer = new Buffer(buf, offset);
         buffer.put(this.version);
         buffer.put(this.timestamp);
-        buffer.put(this.duration);
         buffer.putPrefixedBytes(getKeyBytes());
         buffer.put(this.valueType);
         buffer.putPrefixedBytes(value);
@@ -129,7 +120,7 @@ public class AnnotationBo {
 //        int valueTypeCode; // required 4
 //        ByteBuffer value; // optional 4 + buf.length
         int size = 0;
-        size += 1 + 8 + 8 + 4 + 4 + 4;
+        size += 1 + 8 + 4 + 4 + 4;
         size += this.getKeyBytes().length;
         if (this.getValue() != null) {
             size += this.getValue().length;
@@ -142,7 +133,6 @@ public class AnnotationBo {
         Buffer buffer = new Buffer(buf, offset);
         this.version = buffer.readByte();
         this.timestamp = buffer.readLong();
-        this.duration = buffer.readLong();
         this.key = buffer.readPrefixedString();
         this.valueType = buffer.readInt();
         this.value = buffer.readPrefixedBytes();
@@ -157,7 +147,6 @@ public class AnnotationBo {
                 ", timestamp=" + timestamp +
                 ", key='" + key + '\'' +
                 ", keyBytes=" + keyBytes +
-                ", duration=" + duration +
                 ", valueType=" + valueType +
                 ", value=" + value +
                 '}';
