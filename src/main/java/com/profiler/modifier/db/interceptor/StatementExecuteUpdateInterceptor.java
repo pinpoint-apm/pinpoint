@@ -40,6 +40,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
+
         try {
             if (args.length > 0) {
                 DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
@@ -53,7 +54,6 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
                 trace.recordAttribute("Query", "args size is 0");
             }
 
-            trace.record(Annotation.ClientSend);
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -77,7 +77,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         }
 
         // TODO 결과, 수행시간을.알수 있어야 될듯.
-        trace.record(Annotation.ClientRecv, trace.afterTime());
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 }

@@ -40,7 +40,6 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
             return;
         }
         trace.traceBlockBegin();
-        trace.record(Annotation.ClientSend);
         trace.markBeforeTime();
 
     }
@@ -79,7 +78,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor {
             trace.recordAttribute("Success", "false");
             trace.recordAttribute("Exception", th.getMessage());
         }
-        trace.record(Annotation.ClientRecv, trace.afterTime());
+
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 

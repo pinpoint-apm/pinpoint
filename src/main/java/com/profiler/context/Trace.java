@@ -71,14 +71,14 @@ public final class Trace {
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
         TraceID nextTraceId = getNextTraceId();
-        Span span = new Span(nextTraceId, null, null);
+        Span span = new Span(nextTraceId);
         AsyncTrace asyncTrace = new AsyncTrace(span);
         asyncTrace.setDataSender(this.getDataSender());
         return asyncTrace;
     }
 
     private StackFrame createStackFrame(TraceID nextId, int stackId) {
-        Span span = new Span(nextId, null, null);
+        Span span = new Span(nextId);
         StackFrame stackFrame = new StackFrame(span);
         stackFrame.setStackFrameId(stackId);
         return stackFrame;
@@ -93,15 +93,21 @@ public final class Trace {
         stackFrame.markBeforeTime();
     }
 
-//    public void attachObject(Object object) {
-//        StackFrame stackFrame = getCurrentStackFrame();
-//        stackFrame.attachObject(object);
-//    }
+    public void markAfterTime() {
+        StackFrame stackFrame = getCurrentStackFrame();
+        stackFrame.markAfterTime();
+    }
 
     public long afterTime() {
         StackFrame context = getCurrentStackFrame();
         return context.afterTime();
     }
+
+//    public void attachObject(Object object) {
+//        StackFrame stackFrame = getCurrentStackFrame();
+//        stackFrame.attachObject(object);
+//    }
+
 
     public void traceBlockBegin(int stackId) {
         TraceID nextId = getNextTraceId();

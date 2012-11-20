@@ -39,8 +39,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
             return;
         }
         trace.traceBlockBegin();
-
         trace.markBeforeTime();
+
         TraceID nextId = trace.getCurrentTraceId();
         final HttpHost host = (HttpHost) args[0];
         final HttpRequest request = (HttpRequest) args[1];
@@ -51,7 +51,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
         request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
-        trace.record(Annotation.ClientSend);
+
         trace.recordRpcName(request.getProtocolVersion().toString(), "CLIENT");
         trace.recordEndPoint(request.getProtocolVersion().toString() + ":" + host.getHostName() + ":" + host.getPort());
         trace.recordAttribute("http.url", request.getRequestLine().getUri());
@@ -70,7 +70,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor {
         if (trace == null) {
             return;
         }
-        trace.record(Annotation.ClientRecv, trace.afterTime());
+
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 }

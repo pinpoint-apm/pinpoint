@@ -74,10 +74,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
     private void beforeStartTransaction(Trace trace, Connection target) {
 
         trace.traceBlockBegin();
+        trace.markBeforeTime();
+
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
         trace.recordTerminalEndPoint(databaseInfo.getUrl());
-        trace.record(Annotation.ClientSend);
+
     }
 
     private String getRpcName(DatabaseInfo databaseInfo) {
@@ -97,7 +99,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                     Throwable th = (Throwable) result;
                     trace.recordAttribute("Exception", th.getMessage());
                 }
-                trace.record(Annotation.ClientRecv);
+
             } else {
                 if (success) {
                     trace.recordAttribute("Transaction", "autoCommit:false");
@@ -106,23 +108,26 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                     Throwable th = (Throwable) result;
                     trace.recordAttribute("Exception", th.getMessage());
                 }
-                trace.record(Annotation.ClientRecv);
+
             }
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
+            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }
 
     private void beforeCommit(Trace trace, Connection target) {
         trace.traceBlockBegin();
+        trace.markBeforeTime();
+
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
         trace.recordTerminalEndPoint(databaseInfo.getUrl());
-        trace.record(Annotation.ClientSend);
+//        trace.record(Annotation.ClientSend);
 
     }
 
@@ -140,12 +145,13 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                 Throwable th = (Throwable) result;
                 trace.recordAttribute("Exception", th.getMessage());
             }
-            trace.record(Annotation.ClientRecv);
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
+            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }
@@ -153,10 +159,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
 
     private void beforeRollback(Trace trace, Connection target) {
         trace.traceBlockBegin();
+        trace.markBeforeTime();
+
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(getRpcName(databaseInfo), databaseInfo.getUrl());
         trace.recordTerminalEndPoint(databaseInfo.getUrl());
-        trace.record(Annotation.ClientSend);
     }
 
     private void afterRollback(Trace trace, Connection target, Object result) {
@@ -174,12 +181,13 @@ public class TransactionInterceptor implements StaticAroundInterceptor {
                 Throwable th = (Throwable) result;
                 trace.recordAttribute("Exception", th.getMessage());
             }
-            trace.record(Annotation.ClientRecv);
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
+            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }

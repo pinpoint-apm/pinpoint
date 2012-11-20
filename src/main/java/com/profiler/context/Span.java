@@ -25,10 +25,8 @@ public class Span {
 
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
-    public Span(TraceID traceId, String name, String endPoint) {
+    public Span(TraceID traceId) {
         this.traceID = traceId;
-        this.name = name;
-        this.endPoint = endPoint;
     }
 
     public TraceID getTraceID() {
@@ -119,9 +117,8 @@ public class Span {
         com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
         span.setAgentId(Agent.getInstance().getAgentId());
-        span.setTimestamp(startTime);
-        // TODO api를 생성하고 여기를 고치자.
-        //span.setEndTime(startTime);
+        span.setStartTime(startTime);
+        span.setEndTime(endTime);
         span.setMostTraceId(traceID.getId().getMostSignificantBits());
         span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
         span.setName(name);

@@ -63,7 +63,6 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute("http.params", parameters);
             }
-            trace.record(Annotation.ServerRecv);
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -89,8 +88,8 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             logger.warning("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
-        // TODO result 가 Exception 타입일경우 호출 실패임.
-        trace.record(Annotation.ServerSend, trace.afterTime());
+
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 

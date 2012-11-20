@@ -49,7 +49,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             if (args.length > 0) {
                 trace.recordAttribute("Statement", args[0]);
             }
-            trace.record(Annotation.ClientSend);
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -73,7 +73,8 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         }
 
         trace.recordAttribute("Success", InterceptorUtils.isSuccess(result));
-        trace.record(Annotation.ClientRecv, trace.afterTime());
+
+        trace.markAfterTime();
         trace.traceBlockEnd();
     }
 }

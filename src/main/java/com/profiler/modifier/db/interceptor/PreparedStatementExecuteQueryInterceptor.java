@@ -45,6 +45,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             return;
         }
         trace.traceBlockBegin();
+        trace.markBeforeTime();
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
 //            trace.recordRpcName("MYSQL", url);
@@ -60,7 +61,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
             clean(target);
 
-            trace.record(Annotation.ClientSend);
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -108,12 +109,13 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
                 Throwable th = (Throwable) result;
                 trace.recordAttribute("Exception", th.getMessage());
             }
-            trace.record(Annotation.ClientRecv);
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         } finally {
+            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }
