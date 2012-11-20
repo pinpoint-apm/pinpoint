@@ -6,6 +6,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.interceptor.Interceptor;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -119,6 +120,18 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) throws InstrumentException {
+        Class<?> aClass = this.defineClass(classLoader, interceptorFQCN, protectedDomain);
+        try {
+            return (Interceptor) aClass.newInstance();
+        } catch (InstantiationException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        }
     }
 
     private void loadClassLoaderLibraries(ClassLoader classLoader) {

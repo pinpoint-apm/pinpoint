@@ -41,7 +41,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             logger.info("Modifing. " + javassistClassName);
         }
 
-        checkLibrary(classLoader, javassistClassName);
+        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 

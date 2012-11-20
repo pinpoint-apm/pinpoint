@@ -13,53 +13,53 @@ import java.util.logging.Logger;
 
 public class MSSQLConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(MSSQLConnectionModifier.class.getName());
+    private final Logger logger = Logger.getLogger(MSSQLConnectionModifier.class.getName());
 
-	public MSSQLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-		super(byteCodeInstrumentor);
-	}
-	
-	public String getTargetClass() {
-		return "net/sourceforge/jtds/jdbc/ConnectionJDBC2";
-	}
+    public MSSQLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        super(byteCodeInstrumentor);
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)){
-		    logger.info("Modifing. " + javassistClassName);
+    public String getTargetClass() {
+        return "net/sourceforge/jtds/jdbc/ConnectionJDBC2";
+    }
+
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("Modifing. " + javassistClassName);
         }
-		checkLibrary(classLoader, javassistClassName);
-		return changeMethods(javassistClassName, classFileBuffer);
-	}
+        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+        return changeMethods(javassistClassName, classFileBuffer);
+    }
 
-	private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
-		try {
-			CtClass cc = classPool.get(javassistClassName);
+    private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
+        try {
+            CtClass cc = classPool.get(javassistClassName);
 
-			updateCreateStatementMethod(cc);
-			updateCloseMethod(cc);
+            updateCreateStatementMethod(cc);
+            updateCloseMethod(cc);
 
-			printClassConvertComplete(javassistClassName);
+            printClassConvertComplete(javassistClassName);
 
-			return cc.toBytecode();
-		} catch (Exception e) {
+            return cc.toBytecode();
+        } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
+                logger.log(Level.WARNING, e.getMessage(), e);
             }
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
-	private void updateCreateStatementMethod(CtClass cc) throws Exception {
-		CtClass[] params = new CtClass[2];
-		params[0] = classPool.getCtClass("int");
-		params[1] = classPool.getCtClass("int");
-		CtMethod method = cc.getDeclaredMethod("createStatement", params);
+    private void updateCreateStatementMethod(CtClass cc) throws Exception {
+        CtClass[] params = new CtClass[2];
+        params[0] = classPool.getCtClass("int");
+        params[1] = classPool.getCtClass("int");
+        CtMethod method = cc.getDeclaredMethod("createStatement", params);
 
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
-	}
+        method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");
+    }
 
-	private void updateCloseMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
-	}
+    private void updateCloseMethod(CtClass cc) throws Exception {
+        CtMethod method = cc.getDeclaredMethod("close", null);
+        method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
+    }
 }

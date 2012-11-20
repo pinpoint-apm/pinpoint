@@ -15,25 +15,25 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier  {
+public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
-    private final String[] includes = new String[] { "setRowId", "setNClob", "setSQLXML" };
+    private final Logger logger = Logger.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
+    private final String[] includes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
-	public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-		super(byteCodeInstrumentor);
-	}
+    public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        super(byteCodeInstrumentor);
+    }
 
     public String getTargetClass() {
         return "com/mysql/jdbc/JDBC4PreparedStatement";
-	}
+    }
 
     @Override
     public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isLoggable(Level.INFO)) {
-			logger.info("Modifing. " + className);
-		}
-        checkLibrary(classLoader, className);
+            logger.info("Modifing. " + className);
+        }
+        this.byteCodeInstrumentor.checkLibrary(classLoader, className);
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(className);
 
@@ -42,7 +42,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier  {
             return preparedStatement.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+                logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
             return null;
         }

@@ -49,7 +49,7 @@ public class HTTPClientModifier extends AbstractModifier {
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
             aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, interceptor);
             return aClass.toBytecode();

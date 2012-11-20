@@ -28,7 +28,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("Modifing. " + javassistClassName);
         }
-        checkLibrary(classLoader, javassistClassName);
+        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
 

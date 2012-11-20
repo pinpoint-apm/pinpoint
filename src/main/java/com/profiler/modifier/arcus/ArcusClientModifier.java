@@ -36,9 +36,9 @@ public class ArcusClientModifier extends AbstractModifier {
             aClass.addTraceVariable("__asyncTrace", "__setAsyncTrace", "__getAsyncTrace", "java.lang.Object");
             aClass.addConstructorInterceptor(null, new ConstructInterceptor());
 
-            Interceptor transitionStateInterceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
+            Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
             aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor);
-            Interceptor cancelInterceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationCancelInterceptor");
+            Interceptor cancelInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationCancelInterceptor");
             aClass.addInterceptor("cancel", null, cancelInterceptor);
 
             return aClass.toBytecode();

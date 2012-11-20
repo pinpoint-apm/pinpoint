@@ -37,7 +37,7 @@ public class MySQLStatementModifier extends AbstractModifier {
             statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
 
             // TODO 이거 고쳐야 됨.
-            Interceptor executeUpdate = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdate = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, executeUpdate);
 
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");

@@ -13,49 +13,49 @@ import java.util.logging.Logger;
 
 public class CubridResultSetModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(CubridResultSetModifier.class.getName());
+    private final Logger logger = Logger.getLogger(CubridResultSetModifier.class.getName());
 
-	public CubridResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-		super(byteCodeInstrumentor);
-	}
-	
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDResultSet";
-	}
+    public CubridResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        super(byteCodeInstrumentor);
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
-		    logger.info("Modifing. " + javassistClassName);
+    public String getTargetClass() {
+        return "cubrid/jdbc/driver/CUBRIDResultSet";
+    }
+
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("Modifing. " + javassistClassName);
         }
-		checkLibrary(classLoader, javassistClassName);
-		return changeMethod(javassistClassName, classFileBuffer);
-	}
+        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+        return changeMethod(javassistClassName, classFileBuffer);
+    }
 
-	private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-		try {
-			CtClass cc = classPool.get(javassistClassName);
+    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
+        try {
+            CtClass cc = classPool.get(javassistClassName);
 
-			updateNextMethod(cc);
-			updateCloseMethod(cc);
+            updateNextMethod(cc);
+            updateCloseMethod(cc);
 
-			printClassConvertComplete(javassistClassName);
+            printClassConvertComplete(javassistClassName);
 
-			return cc.toBytecode();
-		} catch (Exception e) {
-            if(logger.isLoggable(Level.WARNING)) {
-			    logger.log(Level.WARNING, e.getMessage(), e);
+            return cc.toBytecode();
+        } catch (Exception e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, e.getMessage(), e);
             }
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
-	private void updateNextMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("next", null);
-		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
-	}
+    private void updateNextMethod(CtClass cc) throws Exception {
+        CtMethod method = cc.getDeclaredMethod("next", null);
+        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
+    }
 
-	private void updateCloseMethod(CtClass cc) throws Exception {
-		CtMethod method = cc.getDeclaredMethod("close", null);
-		method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); } ");
-	}
+    private void updateCloseMethod(CtClass cc) throws Exception {
+        CtMethod method = cc.getDeclaredMethod("close", null);
+        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); } ");
+    }
 }
