@@ -16,8 +16,6 @@ public class AsyncTrace {
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public static final int NON_REGIST = -1;
-    // 일단 c&p
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     //    private int id;
     // 비동기일 경우 traceenable의 경우 애매함. span을 보내는것으로 데이터를 생성하므로 약간 이상.
 //    private boolean tracingEnabled;
@@ -88,29 +86,20 @@ public class AsyncTrace {
     }
 
     public void record(Annotation annotation) {
-        annotate(annotation.getCode(), null);
+        annotate(annotation.getCode());
     }
 
-    public void record(Annotation annotation, long duration) {
-        annotate(annotation.getCode(), duration);
-    }
 
     public void recordAttribute(final String key, final String value) {
         recordAttibute(key, (Object) value);
     }
 
     public void recordAttibute(final String key, final Object value) {
-        try {
-            // TODO 사용자 thread에서 encoding을 하지 않도록 변경.
-            AnnotationTranscoder.Encoded enc = transcoder.encode(value);
-            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+        span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
     }
 
-    public void recordMessage(String message) {
-        annotate(message, null);
+    public void recordMessage(String key) {
+        annotate(key);
     }
 
     public void recordRpcName(final String service, final String rpc) {
@@ -140,10 +129,10 @@ public class AsyncTrace {
         }
     }
 
-    private void annotate(final String key, final Long duration) {
+    private void annotate(final String key) {
 
         try {
-            this.span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
+            this.span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

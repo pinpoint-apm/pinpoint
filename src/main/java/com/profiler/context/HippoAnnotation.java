@@ -1,63 +1,57 @@
 package com.profiler.context;
 
+import com.profiler.common.util.AnnotationTranscoder;
+
 /**
- * 
  * @author netspider
- * 
  */
-public class HippoAnnotation {
+public class HippoAnnotation implements Thriftable {
 
-	private final long timestamp;
-	private final Long duration;
-	private final String key;
-	private final int valueTypeCode;
-	private final byte[] value;
-	private final String threadname;
+    private static final AnnotationTranscoder transCoder = new AnnotationTranscoder();
 
-	public HippoAnnotation(long timestamp, String key, Long duration) {
-		this.timestamp = timestamp;
-		this.duration = duration;
-		this.key = key;
-		this.valueTypeCode = -1;
-		this.value = null;
-		this.threadname = Thread.currentThread().getName();
-	}
+    private final long timestamp;
+    private final String key;
 
-	public HippoAnnotation(long timestamp, String key, int valueTypeCode, byte[] value, Long duration) {
-		this.timestamp = timestamp;
-		this.duration = duration;
-		this.key = key;
-		this.valueTypeCode = valueTypeCode;
-		this.value = value;
-		this.threadname = Thread.currentThread().getName();
-	}
+    private final Object value;
 
-	public String getKey() {
-		return this.key;
-	}
+    private final String threadname;
 
-	public long getTimestamp() {
-		return this.timestamp;
-	}
-	
-	@Override
-	public String toString() {
-		return "HippoAnnotation [timestamp=" + timestamp + ", duration=" + duration + ", key=" + key + ", valueTypeCode=" + valueTypeCode + ", value=" + value + ", threadname=" + threadname + "]";
-	}
+    public HippoAnnotation(long timestamp, String key) {
+        this.timestamp = timestamp;
+        this.key = key;
+        this.value = null;
+        this.threadname = Thread.currentThread().getName();
+    }
 
-	public com.profiler.common.dto.thrift.Annotation toThrift() {
-		com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
+    public HippoAnnotation(long timestamp, String key, Object value) {
+        this.timestamp = timestamp;
+        this.key = key;
+        this.value = value;
+        this.threadname = Thread.currentThread().getName();
+    }
 
-		ann.setTimestamp(timestamp);
+    public String getKey() {
+        return this.key;
+    }
 
-		if (duration != null) {
-			ann.setDuration(duration);
-		}
+    public long getTimestamp() {
+        return this.timestamp;
+    }
 
-		ann.setKey(key);
-		ann.setValueTypeCode(valueTypeCode);
-		ann.setValue(value);
+    @Override
+    public String toString() {
+        return "HippoAnnotation [timestamp=" + timestamp + ", key=" + key + ", value=" + value + ", threadname=" + threadname + "]";
+    }
 
-		return ann;
-	}
+    public com.profiler.common.dto.thrift.Annotation toThrift() {
+        com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
+        ann.setTimestamp(timestamp);
+        ann.setKey(key);
+
+        // TODO Encode 객체를 생성하지 않도록 변경.
+        AnnotationTranscoder.Encoded encode = transCoder.encode(value);
+        ann.setValueTypeCode(encode.getValueType());
+        ann.setValue(encode.getBytes());
+        return ann;
+    }
 }

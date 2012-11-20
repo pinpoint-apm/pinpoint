@@ -5,6 +5,7 @@ import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.common.util.HeaderTBaseSerializer;
 import com.profiler.common.util.TBaseLocator;
 import com.profiler.config.ProfilerConfig;
+import com.profiler.context.Thriftable;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -25,7 +26,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
     private final Logger logger = Logger.getLogger(UdpDataSender.class.getName());
 
-    private final LinkedBlockingQueue<TBase<?, ?>> queue = new LinkedBlockingQueue<TBase<?, ?>>(1024);
+    private final LinkedBlockingQueue queue = new LinkedBlockingQueue(1024);
 
     private final InetSocketAddress serverAddress = new InetSocketAddress(ProfilerConfig.SERVER_IP, ProfilerConfig.SERVER_UDP_PORT);
 
@@ -76,6 +77,14 @@ public class UdpDataSender implements DataSender, Runnable {
         return queue.offer(data);
     }
 
+    public boolean send(Thriftable thriftable) {
+        if (!started) {
+            return false;
+        }
+        // TODO: addedQueue가 full일 때 IllegalStateException처리.
+        return queue.offer(thriftable);
+    }
+
     @Override
     public void stop() {
         if (!started) {
@@ -89,7 +98,7 @@ public class UdpDataSender implements DataSender, Runnable {
     public void run() {
         while (true) {
             try {
-                TBase<?, ?> dto = take();
+                Object dto = take();
                 if (dto == null) {
                     continue;
                 }
@@ -100,8 +109,17 @@ public class UdpDataSender implements DataSender, Runnable {
         }
     }
 
-    private void send0(TBase<?, ?> dto) {
-        byte[] sendData = serialize(dto);
+    private void send0(Object dto) {
+        TBase tBase;
+        if (dto instanceof TBase) {
+            tBase = (TBase) dto;
+        } else if (dto instanceof Thriftable) {
+            tBase = ((Thriftable) dto).toThrift();
+        } else {
+            logger.warning("invalid type:" + dto.getClass());
+            return;
+        }
+        byte[] sendData = serialize(tBase);
         if (sendData == null) {
             return;
         }
@@ -123,7 +141,7 @@ public class UdpDataSender implements DataSender, Runnable {
     }
 
     // TODO: addedqueue에서 bulk로 drain
-    private TBase<?, ?> take() {
+    private Object take() {
         try {
             return queue.poll(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {

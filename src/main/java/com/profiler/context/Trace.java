@@ -16,7 +16,6 @@ public final class Trace {
 
     private final Logger logger = Logger.getLogger(Trace.class.getName());
 
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private static final DataSender DEFULT_DATA_SENDER = new LoggingDataSender();
 
     public static final int HANDLER_STACKID = -2;
@@ -198,7 +197,7 @@ public final class Trace {
             // System.out.println("current spamMap=" + spanMap);
             // }
 
-            dataSender.send(span.toThrift());
+            dataSender.send(span);
 //            span.cancelTimer();
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -209,14 +208,14 @@ public final class Trace {
         if (!tracingEnabled)
             return;
 
-        annotate(annotation.getCode(), null);
+        annotate(annotation.getCode());
     }
 
     public void record(Annotation annotation, long duration) {
         if (!tracingEnabled)
             return;
 
-        annotate(annotation.getCode(), duration);
+        annotate(annotation.getCode());
     }
 
     public void recordException(Object result) {
@@ -256,8 +255,7 @@ public final class Trace {
 
         try {
             Span span = getCurrentStackFrame().getSpan();
-            Encoded enc = transcoder.encode(value);
-            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, enc.getValueType(), enc.getBytes(), null));
+            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -267,7 +265,7 @@ public final class Trace {
         if (!tracingEnabled)
             return;
 
-        annotate(message, null);
+        annotate(message);
     }
 
     public void recordRpcName(final String service, final String rpc) {
@@ -305,13 +303,13 @@ public final class Trace {
         }
     }
 
-    private void annotate(final String key, final Long duration) {
+    private void annotate(final String key) {
         if (!tracingEnabled)
             return;
 
         try {
             Span span = getCurrentStackFrame().getSpan();
-            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, duration));
+            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);

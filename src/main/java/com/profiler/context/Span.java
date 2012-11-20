@@ -10,7 +10,7 @@ import com.profiler.Agent;
  *
  * @author netspider
  */
-public class Span {
+public class Span implements Thriftable {
 
     private final TraceID traceID;
 
@@ -97,10 +97,10 @@ public class Span {
         sb.append("{");
         sb.append("\n\t TraceID = ").append(traceID);
         sb.append(",\n\t StartTime = ").append(startTime);
-        sb.append(",\n\t EndTime = ").append(endTime);
+        sb.append(", EndTime = ").append(endTime);
         sb.append(",\n\t Name = ").append(name);
-        sb.append(",\n\t ServiceName = ").append(serviceName);
-        sb.append(",\n\t EndPoint = ").append(endPoint);
+        sb.append(", ServiceName = ").append(serviceName);
+        sb.append(", EndPoint = ").append(endPoint);
 
         sb.append(",\n\t Annotations = {");
         for (HippoAnnotation a : annotations) {
