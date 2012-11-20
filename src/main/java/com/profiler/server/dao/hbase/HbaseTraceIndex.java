@@ -11,26 +11,27 @@ import com.profiler.server.dao.TraceIndex;
 
 public class HbaseTraceIndex implements TraceIndex {
 
-	String tableName = HBaseTables.TRACE_INDEX;
-	byte[] COLFAM_TRACE = HBaseTables.TRACE_INDEX_CF_TRACE;
-	byte[] COLNAME_ID = HBaseTables.TRACE_INDEX_CN_ID;
+    String tableName = HBaseTables.TRACE_INDEX;
+    byte[] COLFAM_TRACE = HBaseTables.TRACE_INDEX_CF_TRACE;
+    byte[] COLNAME_ID = HBaseTables.TRACE_INDEX_CN_ID;
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
-	
-	public String getTableName() {
-		return tableName;
-	}
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    public String getTableName() {
+        return tableName;
+    }
 
-	@Override
-	public void insert(final Span span) {
-		Put put = new Put(SpanUtils.getTraceIndexRowKey(span), span.getTimestamp());
-		put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(span));
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
 
-		hbaseTemplate.put(tableName, put);
-	}
+    @Override
+    public void insert(final Span span) {
+        // TODO 서버가 받은 시간으로 변경해야 될듯?
+        Put put = new Put(SpanUtils.getTraceIndexRowKey(span), span.getStartTime());
+        put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(span));
+
+        hbaseTemplate.put(tableName, put);
+    }
 }

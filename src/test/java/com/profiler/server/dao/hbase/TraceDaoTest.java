@@ -1,12 +1,10 @@
 package com.profiler.server.dao.hbase;
 
-import com.profiler.common.ServiceNames;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.hbase.HbaseTraceIndex;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -82,8 +80,8 @@ public class TraceDaoTest {
         final Span span = createSpan();
 
         traceIndex.insert(span);
-
-        byte[] s = ArrayUtils.addAll(Bytes.toBytes(span.getAgentId()), Bytes.toBytes(span.getTimestamp()));
+        // TODO 서버가 받은 시간으로 변경해야 될듯.
+        byte[] s = ArrayUtils.addAll(Bytes.toBytes(span.getAgentId()), Bytes.toBytes(span.getStartTime()));
         byte[] result = hbaseOperations.get(traceIndex.getTableName(), s, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
 
         Assert.assertArrayEquals(SpanUtils.getTraceId(span), result);
@@ -92,7 +90,8 @@ public class TraceDaoTest {
     private Span createSpan() {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
-        Span span = new Span("UnitTest", System.currentTimeMillis(), uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc", 1, ano, "protocol:ip:port", false);
+        long l = System.currentTimeMillis();
+        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), l, l + 5, "test", "rpc", 1, ano, "protocol:ip:port", false);
         return span;
     }
 }

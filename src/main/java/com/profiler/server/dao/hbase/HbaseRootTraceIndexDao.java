@@ -12,25 +12,26 @@ import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.RootTraceIndexDao;
 
 public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
-	// 소스가 HbaeTraceIndexDao 동일함. 중복이므로 향후 합치는 방안강구.
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    // 소스가 HbaeTraceIndexDao 동일함. 중복이므로 향후 합치는 방안강구.
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-	String TABLE_NAME = HBaseTables.ROOT_TRACE_INDEX;
-	byte[] COLFAM_TRACE = HBaseTables.ROOT_TRACE_INDEX_CF_TRACE;
-	byte[] COLNAME_ID = HBaseTables.ROOT_TRACE_INDEX_CN_ID;
+    String TABLE_NAME = HBaseTables.ROOT_TRACE_INDEX;
+    byte[] COLFAM_TRACE = HBaseTables.ROOT_TRACE_INDEX_CF_TRACE;
+    byte[] COLNAME_ID = HBaseTables.ROOT_TRACE_INDEX_CN_ID;
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	@Override
-	public void insert(final Span rootSpan) {
-		if (rootSpan.getParentSpanId() != -1) {
-			logger.debug("invalid root span{}", rootSpan);
-			return;
-		}
-		Put put = new Put(SpanUtils.getTraceIndexRowKey(rootSpan), rootSpan.getTimestamp());
-		put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(rootSpan));
+    @Override
+    public void insert(final Span rootSpan) {
+        if (rootSpan.getParentSpanId() != -1) {
+            logger.debug("invalid root span{}", rootSpan);
+            return;
+        }
+        // TODO 서버가 받은 시간을 키로 사용해야 될듯 함???
+        Put put = new Put(SpanUtils.getTraceIndexRowKey(rootSpan), rootSpan.getStartTime());
+        put.add(COLFAM_TRACE, COLNAME_ID, SpanUtils.getTraceId(rootSpan));
 
-		hbaseTemplate.put(TABLE_NAME, put);
-	}
+        hbaseTemplate.put(TABLE_NAME, put);
+    }
 }
