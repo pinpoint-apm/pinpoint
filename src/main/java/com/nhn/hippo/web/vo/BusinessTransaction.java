@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 
 public class BusinessTransaction {
@@ -19,45 +18,28 @@ public class BusinessTransaction {
     public BusinessTransaction(SpanBo span) {
         this.name = span.getName();
 
-        List<AnnotationBo> annotations = span.getAnnotationBoList();
-        long begin = 0;
-        long end = 0;
-        for (AnnotationBo a : annotations) {
-            if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
-                begin = a.getTimestamp();
-            }
-            if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
-                end = a.getTimestamp();
-            }
-        }
+        long begin = span.getStartTime();
+        long end = span.getEndTime();
         long elapsed = end - begin;
         totalTime = maxTime = minTime = elapsed;
-        
-        this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getTimestamp()));
+
+        this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime()));
         calls++;
     }
 
     public void add(SpanBo span) {
-        List<AnnotationBo> annotations = span.getAnnotationBoList();
-        long begin = 0;
-        long end = 0;
-        for (AnnotationBo a : annotations) {
-            if (a.getKey().equals("SR") || a.getKey().equals("CS")) {
-                begin = a.getTimestamp();
-            }
-            if (a.getKey().equals("SS") || a.getKey().equals("CR")) {
-                end = a.getTimestamp();
-            }
-        }
+        long begin = span.getStartTime();
+        long end = span.getEndTime();
+
         long elapsed = end - begin;
         totalTime += elapsed;
         if (maxTime < elapsed)
             maxTime = elapsed;
         if (minTime > elapsed)
             minTime = elapsed;
-        
-        this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getTimestamp()));
-        
+
+        this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime()));
+
         if (span.getParentSpanId() == -1) {
             calls++;
         }

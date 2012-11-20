@@ -53,139 +53,137 @@
         </div>
     </div>
 
-	<div class="row"><div class="span10"></div></div>
+    <div class="row">
+        <div class="span10"></div>
+    </div>
     <div class="row">
         <div class="span10">Application Timeline</div>
     </div>
-	<div class="row">
+    <div class="row">
 
-		<div id="timeline" style="background-color:#E8E8E8;width:1000px;">
-		    <c:set var="startTime" scope="page" value="0"/>
-		    <c:set var="endTime" scope="page" value="0"/>
-		    <c:forEach items="${spanList}" var="span" varStatus="status">
-		        <c:set var="sp" scope="page" value="${span.span}"/>
-		        <c:set var="begin" scope="page" value="0"/>
-		        <c:set var="end" scope="page" value="0"/>
-		
-		        <div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-		            <ul>
-		                <li>AgentId = ${sp.agentId}</li>
-		                <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
-		                <li>spanId = ${sp.spanId}</li>
-		                <li>parentSpanId = ${sp.parentSpanId}</li>
-		                <li>service = ${sp.serviceName}</li>
-		                <li>name = ${sp.name}</li>
-		                <li>timestamp = ${hippo:longToDateStr(sp.timestamp)}</li>
-		                <li>endpoint = ${sp.endPoint}</li>
-		                <li>terminal = ${sp.terminal}</li>
-		
-		                <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-		                    <c:if test="${ano.key eq 'CS' or ano.key eq 'SR'}">
-		                        <c:set var="begin" scope="page" value="${ano.timestamp}"/>
-		                        <li>${ano.key} = ${ano.duration}</li>
-		                        <c:if test="${status.first}">
-		                            <c:set var="startTime" scope="page" value="${ano.timestamp}"/>
-		                        </c:if>
-		                    </c:if>
-		                    <c:if test="${ano.key eq 'CR' or ano.key eq 'SS'}">
-		                        <c:set var="end" scope="page" value="${ano.timestamp}"/>
-		                        <li>${ano.key} = ${ano.duration}</li>
-		                        <c:if test="${status.first}">
-		                            <c:set var="endTime" scope="page" value="${ano.timestamp}"/>
-		                        </c:if>
-		                    </c:if>
-		                    <c:if test="${ano.key != 'CR' and ano.key != 'SS' and ano.key != 'CS' and ano.key != 'SR'}">
-		                        <li>${ano.key} = ${hippo:bytesToString(ano.valueType, ano.value)}</li>
-		                    </c:if>
-		                </c:forEach>
-		            </ul>
-		        </div>
-		
-		        <c:if test="${status.first}">
-		            <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-		        </c:if>
-		
-		        <div style="width:${(end - begin) * barRatio}px; background-color:#69B2E9;margin-left:${(begin - startTime) * barRatio}px;margin-top:3px;"
-		             onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-		            <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
-		        </div>
-		    </c:forEach>
-		</div>
-	</div>
-	
-    <div class="row"><div class="span10"></div></div>
+        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
+            <c:set var="startTime" scope="page" value="0"/>
+            <c:set var="endTime" scope="page" value="0"/>
+            <c:forEach items="${spanList}" var="span" varStatus="status">
+                <c:set var="sp" scope="page" value="${span.span}"/>
+                <c:set var="begin" scope="page" value="${sp.startTime}"/>
+                <c:set var="end" scope="page" value="${sp.endTime}"/>
+
+                <div id="spanDetail${status.count}"
+                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+                    <ul>
+                        <li>AgentId = ${sp.agentId}</li>
+                        <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
+                        <li>spanId = ${sp.spanId}</li>
+                        <li>parentSpanId = ${sp.parentSpanId}</li>
+                        <li>service = ${sp.serviceName}</li>
+                        <li>name = ${sp.name}</li>
+                        <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
+                        <li>endTime = ${hippo:longToDateStr(sp.endTime)}</li>
+                        <li>endpoint = ${sp.endPoint}</li>
+                        <li>terminal = ${sp.terminal}</li>
+                        <c:if test="${status.first}">
+                            <c:set var="startTime" scope="page" value="${sp.startTime}"/>
+                        </c:if>
+                        <c:if test="${status.first}">
+                            <c:set var="endTime" scope="page" value="${sp.endTime}"/>
+                        </c:if>
+
+                        <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                            <li>${ano.key} = ${hippo:bytesToString(ano.valueType, ano.value)}</li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <c:if test="${status.first}">
+                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+                </c:if>
+
+                <div style="width:${(end - begin) * barRatio}px; background-color:#69B2E9;margin-left:${(begin - startTime) * barRatio}px;margin-top:3px;"
+                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+                    <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
+                </div>
+            </c:forEach>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span10"></div>
+    </div>
     <div class="row">
         <div class="span10">Application Details</div>
     </div>
     <div class="row">
         <div class="span10">
-			<table id="businessTransactions" class="table table-bordered">
-	        <thead>
-	        <tr>
-	            <th>#</th>
-	            <th>span time</th>
-	            <th>Application</th>
-	            <th>endpoint</th>
-	            <th>@ time</th>
-	            <th>Action</th>
-	            <th>Action</th>
-	        </tr>
-	        </thead>
-	        <tbody>
-	
-	        <c:forEach items="${spanList}" var="span" varStatus="status">
-	            <c:set var="sp" scope="page" value="${span.span}"/>
-	            <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-	                <tr>
-	                    <td><c:if test="${annoStatus.first}">${status.count}</c:if></td>
-	                    <td><c:if test="${annoStatus.first}">${sp.timestamp}</c:if></td>
-	                    <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
-	                    <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-	                    <td>${ano.timestamp}</td>
-	                    <td>${ano.key}</td>
-	                    <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
-	                </tr>
-	                <c:set var="bt" scope="page" value="${ano.timestamp}"/>
-	            </c:forEach>
-	            <tr>
-	                <td colspan="7">&nbsp;</td>
-	            </tr>
-	        </c:forEach>
-	
-	        </tbody>
-	    </table>
+            <table id="businessTransactions" class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>span time</th>
+                    <th>Application</th>
+                    <th>endpoint</th>
+                    <th>@ time</th>
+                    <th>Action</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <c:forEach items="${spanList}" var="span" varStatus="status">
+                    <c:set var="sp" scope="page" value="${span.span}"/>
+                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                        <tr>
+                            <td><c:if test="${annoStatus.first}">${status.count}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.startTime}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+                            <td>${ano.timestamp}</td>
+                            <td>${ano.key}</td>
+                            <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
+                        </tr>
+                        <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+                    </c:forEach>
+                    <tr>
+                        <td colspan="7">&nbsp;</td>
+                    </tr>
+                </c:forEach>
+
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-var data = {
-		"nodes" : [
-		<c:forEach items="${nodes}" var="node" varStatus="status">
-		{
-			"name" : "${node}",
-			"recursiveCallCount" : "${node.recursiveCallCount}",
-			"agentIds" : [
-				<c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
-				"${agentId}"
-				<c:if test="${!status2.last}">,</c:if>
-				</c:forEach>
-			]
-		}
-	    <c:if test="${!status.last}">,</c:if>
-		</c:forEach>
-		],
-		"links" : [
-		<c:forEach items="${links}" var="link" varStatus="status">
-		    {"source" : ${link.from.sequence}, "target" : ${link.to.sequence}, "value" : ${link.callCount}}
-		    <c:if test="${!status.last}">,</c:if>
-		</c:forEach>
-		]
-	};
+    var data = {
+        "nodes":[
+            <c:forEach items="${nodes}" var="node" varStatus="status">
+            {
+                "name":"${node}",
+                "recursiveCallCount":"${node.recursiveCallCount}",
+                "agentIds":[
+                    <c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
+                    "${agentId}"
+                    <c:if test="${!status2.last}">, </c:if>
+                    </c:forEach>
+                ]
+            }
+            <c:if test="${!status.last}">,
+            </c:if>
+            </c:forEach>
+        ],
+        "links":[
+            <c:forEach items="${links}" var="link" varStatus="status">
+            {"source": ${link.from.sequence}, "target": ${link.to.sequence}, "value": ${link.callCount}}
+            <c:if test="${!status.last}">,
+            </c:if>
+            </c:forEach>
+        ]
+    };
 
-$(document).ready(function () {
-	drawSankeyChart(data, "#graph", 960, 400);
-});
+    $(document).ready(function () {
+        drawSankeyChart(data, "#graph", 960, 400);
+    });
 </script>
 
 </body>

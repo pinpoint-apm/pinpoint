@@ -119,7 +119,7 @@ public class SpanServiceTest {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span span = new Span("UnitTest", time, uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
+        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), time, time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         span.setParentSpanId(-1);
         List<Annotation> annotations = new ArrayList<Annotation>();
         annotations.add(new Annotation(0, "root ann", 0));
@@ -131,7 +131,7 @@ public class SpanServiceTest {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span sub = new Span("UnitTest", time, span.getMostTraceId(), span.getLeastTraceId(), "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
+        Span sub = new Span("UnitTest", span.getMostTraceId(), span.getLeastTraceId(), time, time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         sub.setParentSpanId(span.getSpanId());
         List<Annotation> annotations = new ArrayList<Annotation>();
         annotations.add(new Annotation(0, "sub ann" + andIncrement, 0));

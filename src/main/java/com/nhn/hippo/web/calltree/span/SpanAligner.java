@@ -26,8 +26,8 @@ public class SpanAligner {
     private static final Comparator<SpanBo> timeComparator = new Comparator<SpanBo>() {
         @Override
         public int compare(SpanBo o1, SpanBo o2) {
-            long o1Timestamp = o1.getTimestamp();
-            long o2Timestamp = o2.getTimestamp();
+            long o1Timestamp = o1.getStartTime();
+            long o2Timestamp = o2.getStartTime();
             if (o1Timestamp > o2Timestamp) {
                 return 1;
             }

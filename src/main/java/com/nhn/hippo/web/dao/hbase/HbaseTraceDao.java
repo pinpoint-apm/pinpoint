@@ -26,74 +26,74 @@ import com.profiler.common.util.BytesUtils;
 @Repository
 public class HbaseTraceDao implements TraceDao {
 
-	private final byte[] COLFAM_SPAN = HBaseTables.TRACES_CF_SPAN;
+    private final byte[] COLFAM_SPAN = HBaseTables.TRACES_CF_SPAN;
 
-	private final byte[] COLFAM_ANNOTATION = HBaseTables.TRACES_CF_ANNOTATION;
+    private final byte[] COLFAM_ANNOTATION = HBaseTables.TRACES_CF_ANNOTATION;
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 template2;
+    @Autowired
+    private HbaseOperations2 template2;
 
-	@Autowired
-	@Qualifier("spanMapper")
-	private RowMapper<List<SpanBo>> spanMapper;
+    @Autowired
+    @Qualifier("spanMapper")
+    private RowMapper<List<SpanBo>> spanMapper;
 
-	@Autowired
-	@Qualifier("spanAnnotationMapper")
-	private RowMapper<List<SpanBo>> spanAnnotationMapper;
+    @Autowired
+    @Qualifier("spanAnnotationMapper")
+    private RowMapper<List<SpanBo>> spanAnnotationMapper;
 
-	@Override
-	public List<SpanBo> selectSpan(UUID traceId) {
-		byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
-		return template2.get(HBaseTables.TRACES, uuidBytes, COLFAM_SPAN, spanMapper);
-	}
+    @Override
+    public List<SpanBo> selectSpan(UUID traceId) {
+        byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
+        return template2.get(HBaseTables.TRACES, uuidBytes, COLFAM_SPAN, spanMapper);
+    }
 
-	public List<SpanBo> selectSpanAndAnnotation(UUID traceId) {
-		byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
-		Get get = new Get(uuidBytes);
-		get.addFamily(COLFAM_SPAN);
-		get.addFamily(COLFAM_ANNOTATION);
-		return template2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
-	}
+    public List<SpanBo> selectSpanAndAnnotation(UUID traceId) {
+        byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
+        Get get = new Get(uuidBytes);
+        get.addFamily(COLFAM_SPAN);
+        get.addFamily(COLFAM_ANNOTATION);
+        return template2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
+    }
 
-	@Override
-	public List<SpanBo> selectSpan(long traceIdMost, long traceIdLeast) {
-		byte[] uuidBytes = BytesUtils.longLongToBytes(traceIdMost, traceIdLeast);
-		return template2.get(HBaseTables.TRACES, uuidBytes, COLFAM_SPAN, spanMapper);
-	}
+    @Override
+    public List<SpanBo> selectSpan(long traceIdMost, long traceIdLeast) {
+        byte[] uuidBytes = BytesUtils.longLongToBytes(traceIdMost, traceIdLeast);
+        return template2.get(HBaseTables.TRACES, uuidBytes, COLFAM_SPAN, spanMapper);
+    }
 
-	@Override
-	public List<List<SpanBo>> selectSpans(List<UUID> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (UUID traceId : traceIds) {
-			byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
-			Get get = new Get(uuidBytes);
-			get.addFamily(COLFAM_SPAN);
-			gets.add(get);
-		}
-		return template2.get(HBaseTables.TRACES, gets, spanMapper);
-	}
+    @Override
+    public List<List<SpanBo>> selectSpans(List<UUID> traceIds) {
+        List<Get> gets = new ArrayList<Get>(traceIds.size());
+        for (UUID traceId : traceIds) {
+            byte[] uuidBytes = BytesUtils.longLongToBytes(traceId.getMostSignificantBits(), traceId.getLeastSignificantBits());
+            Get get = new Get(uuidBytes);
+            get.addFamily(COLFAM_SPAN);
+            gets.add(get);
+        }
+        return template2.get(HBaseTables.TRACES, gets, spanMapper);
+    }
 
-	@Override
-	public List<List<SpanBo>> selectSpans(Set<TraceId> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (TraceId traceId : traceIds) {
-			Get get = new Get(traceId.getBytes());
-			get.addFamily(COLFAM_SPAN);
-			gets.add(get);
-		}
-		return template2.get(HBaseTables.TRACES, gets, spanMapper);
-	}
+    @Override
+    public List<List<SpanBo>> selectSpans(Set<TraceId> traceIds) {
+        List<Get> gets = new ArrayList<Get>(traceIds.size());
+        for (TraceId traceId : traceIds) {
+            Get get = new Get(traceId.getBytes());
+            get.addFamily(COLFAM_SPAN);
+            gets.add(get);
+        }
+        return template2.get(HBaseTables.TRACES, gets, spanMapper);
+    }
 
-	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIds) {
-		List<Get> gets = new ArrayList<Get>(traceIds.size());
-		for (TraceId traceId : traceIds) {
-			Get get = new Get(traceId.getBytes());
-			get.addFamily(COLFAM_SPAN);
-			get.addFamily(COLFAM_ANNOTATION);
-			gets.add(get);
-		}
-		return template2.get(HBaseTables.TRACES, gets, spanAnnotationMapper);
-	}
+    public List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIds) {
+        List<Get> gets = new ArrayList<Get>(traceIds.size());
+        for (TraceId traceId : traceIds) {
+            Get get = new Get(traceId.getBytes());
+            get.addFamily(COLFAM_SPAN);
+            get.addFamily(COLFAM_ANNOTATION);
+            gets.add(get);
+        }
+        return template2.get(HBaseTables.TRACES, gets, spanAnnotationMapper);
+    }
 }

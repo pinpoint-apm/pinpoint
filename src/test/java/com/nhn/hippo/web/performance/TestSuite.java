@@ -12,7 +12,7 @@ import java.io.IOException;
  *
  */
 public class TestSuite {
-    //    @Test
+    @Test
     public void insertData() throws IOException, InterruptedException {
 
 
@@ -35,7 +35,6 @@ public class TestSuite {
                 HttpGet get4 = new HttpGet("http://localhost:8080/combination.hippo");
                 HttpResponse execute = client.execute(get4);
             }
-            Thread.sleep(300);
         }
 
     }

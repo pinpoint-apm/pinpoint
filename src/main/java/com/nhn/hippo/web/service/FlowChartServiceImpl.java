@@ -33,170 +33,170 @@ import com.profiler.common.hbase.HBaseTables;
 @Service
 public class FlowChartServiceImpl implements FlowChartService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	@Qualifier("hbaseClient")
-	HBaseClient client;
+    @Autowired
+    @Qualifier("hbaseClient")
+    HBaseClient client;
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
 
-	@Autowired
-	private RootTraceIndexDao rootTraceIndexDao;
+    @Autowired
+    private RootTraceIndexDao rootTraceIndexDao;
 
-	@Autowired
-	private TraceIndexDao traceIndexDao;
+    @Autowired
+    private TraceIndexDao traceIndexDao;
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Override
-	public List<String> selectAllApplicationNames() {
-		return applicationIndexDao.selectAllApplicationNames();
-	}
+    @Override
+    public List<String> selectAllApplicationNames() {
+        return applicationIndexDao.selectAllApplicationNames();
+    }
 
-	@Override
-	public String[] selectAgentIdsFromApplicationName(String applicationName) {
-		return applicationIndexDao.selectAgentIds(applicationName);
-	}
+    @Override
+    public String[] selectAgentIdsFromApplicationName(String applicationName) {
+        return applicationIndexDao.selectAgentIds(applicationName);
+    }
 
-	@Override
-	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
-		if (agentIds == null) {
-			throw new NullPointerException("agentIds");
-		}
+    @Override
+    public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
+        if (agentIds == null) {
+            throw new NullPointerException("agentIds");
+        }
 
-		if (agentIds.length == 1) {
-			// single scan
-			if (logger.isTraceEnabled()) {
-				logger.trace("scan {}, {}, {}", new Object[] { agentIds[0], from, to });
-			}
-			List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
-			Set<TraceId> result = new HashSet<TraceId>();
-			for (byte[] traceId : bytes) {
-				TraceId tid = new TraceId(traceId);
-				result.add(tid);
-				logger.trace("traceid:{}", tid);
-			}
-			return result;
-		} else {
-			// multi scan 가능한 동일 open htable 에서 액세스함.
-			List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
-			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<byte[]> scan : multiScan) {
-				for (byte[] traceId : scan) {
-					result.add(new TraceId(traceId));
-				}
-			}
-			return result;
-		}
-	}
+        if (agentIds.length == 1) {
+            // single scan
+            if (logger.isTraceEnabled()) {
+                logger.trace("scan {}, {}, {}", new Object[]{agentIds[0], from, to});
+            }
+            List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (byte[] traceId : bytes) {
+                TraceId tid = new TraceId(traceId);
+                result.add(tid);
+                logger.trace("traceid:{}", tid);
+            }
+            return result;
+        } else {
+            // multi scan 가능한 동일 open htable 에서 액세스함.
+            List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (List<byte[]> scan : multiScan) {
+                for (byte[] traceId : scan) {
+                    result.add(new TraceId(traceId));
+                }
+            }
+            return result;
+        }
+    }
 
-	@Override
-	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
-		final RPCCallTree tree = new RPCCallTree();
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
-		for (List<SpanBo> transaction : traces) {
-			for (SpanBo eachTransaction : transaction) {
-				tree.addSpan(eachTransaction);
-			}
-		}
-		return tree.build();
-	}
+    @Override
+    public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
+        final RPCCallTree tree = new RPCCallTree();
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+        for (List<SpanBo> transaction : traces) {
+            for (SpanBo eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
-		final ServerCallTree tree = new ServerCallTree();
+    @Override
+    public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
+        final ServerCallTree tree = new ServerCallTree();
 
-		List<List<SpanBo>> traces = this.traceDao.selectSpansAndAnnotation(traceIds);
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
-		for (List<SpanBo> transaction : traces) {
-			List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(processed);
-			for (SpanBo eachTransaction : processed) {
-				tree.addSpan(eachTransaction);
-			}
-		}
-		return tree.build();
-	}
+        for (List<SpanBo> transaction : traces) {
+            List<SpanBo> processed = refine(transaction);
+            markRecursiveCall(processed);
+            for (SpanBo eachTransaction : processed) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-	private List<SpanBo> refine(List<SpanBo> list) {
-		SpanBo removeSpan = null;
-		boolean rescan = true;
+    private List<SpanBo> refine(List<SpanBo> list) {
+        SpanBo removeSpan = null;
+        boolean rescan = true;
 
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo span = list.get(i);
-			String svcName = span.getServiceName();
+        for (int i = 0; i < list.size(); i++) {
+            SpanBo span = list.get(i);
+            String svcName = span.getServiceName();
 
-			if (removeSpan != null) {
-				if (span.getParentSpanId() == removeSpan.getSpanId()) {
-					logger.debug("modify span for removed span. before {}", span);
+            if (removeSpan != null) {
+                if (span.getParentSpanId() == removeSpan.getSpanId()) {
+                    logger.debug("modify span for removed span. before {}", span);
 
-					span.setParentSpanId(removeSpan.getParentSpanId());
-					span.getAnnotationBoList().addAll(removeSpan.getAnnotationBoList());
+                    span.setParentSpanId(removeSpan.getParentSpanId());
+                    span.getAnnotationBoList().addAll(removeSpan.getAnnotationBoList());
 
-					logger.debug("modify span for removed span. after {}", span);
+                    logger.debug("modify span for removed span. after {}", span);
 
-					removeSpan = null;
-				}
-			}
+                    removeSpan = null;
+                }
+            }
 
-			// TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
-			if ("HTTP/1.1".equals(svcName)) {
-				removeSpan = list.get(i);
-				logger.debug("Remove span. {}", removeSpan);
-				list.remove(i);
-			}
+            // TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
+            if ("HTTP/1.1".equals(svcName)) {
+                removeSpan = list.get(i);
+                logger.debug("Remove span. {}", removeSpan);
+                list.remove(i);
+            }
 
-			if (removeSpan != null && i == list.size() - 1 && rescan) {
-				logger.debug("modify span not found. scan again. {}", removeSpan);
-				i = -1;
-				rescan = false;
-				continue;
-			}
-		}
+            if (removeSpan != null && i == list.size() - 1 && rescan) {
+                logger.debug("modify span not found. scan again. {}", removeSpan);
+                i = -1;
+                rescan = false;
+                continue;
+            }
+        }
 
-		return list;
-	}
-	
-	private void markRecursiveCall(final List<SpanBo> list) {
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo a = list.get(i);
-			for (int j = 0; j < list.size(); j++) {
-				if (i == j)
-					continue;
-				SpanBo b = list.get(j);
-				if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
-					a.increaseRecursiveCallCount();
-				}
-			}
-		}
-	}
+        return list;
+    }
 
-	@Override
-	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName");
-		}
+    private void markRecursiveCall(final List<SpanBo> list) {
+        for (int i = 0; i < list.size(); i++) {
+            SpanBo a = list.get(i);
+            for (int j = 0; j < list.size(); j++) {
+                if (i == j)
+                    continue;
+                SpanBo b = list.get(j);
+                if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
+                    a.increaseRecursiveCallCount();
+                }
+            }
+        }
+    }
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("scan {}, {}, {}", new Object[] { applicationName, from, to });
-		}
-		
-		List<byte[]> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
-		Set<TraceId> result = new HashSet<TraceId>();
-		for (byte[] traceId : bytes) {
-			TraceId tid = new TraceId(traceId);
-			result.add(tid);
-			logger.trace("traceid:{}", tid);
-		}
-		return result;
-	}
-	
+    @Override
+    public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName");
+        }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("scan {}, {}, {}", new Object[]{applicationName, from, to});
+        }
+
+        List<byte[]> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+        Set<TraceId> result = new HashSet<TraceId>();
+        for (byte[] traceId : bytes) {
+            TraceId tid = new TraceId(traceId);
+            result.add(tid);
+            logger.trace("traceid:{}", tid);
+        }
+        return result;
+    }
+
     @Override
     public String[] selectAgentIds(String[] hosts) {
         List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();

@@ -23,5 +23,6 @@ public interface TraceDao {
 
     List<List<SpanBo>> selectSpans(Set<TraceId> traceIds);
 
+    @Deprecated
     List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIds);
 }

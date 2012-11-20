@@ -37,7 +37,7 @@ public class PathTest {
 
     public void printSpan(String msg, Span span) {
 //        System.out.println(msg + " id:" + span.getSpanID() + " pid:" + span.getParentSpanId() + " time:" + format.format(new Date(span.getTimestamp())));
-        System.out.println(msg + " id:" + span.getSpanId() + " pid:" + span.getParentSpanId() + " time:" + span.getTimestamp());
+        System.out.println(msg + " id:" + span.getSpanId() + " pid:" + span.getParentSpanId() + " time:" + span.getStartTime());
     }
 //    private Span root() {
 //        TraceID traceID = TraceID.newTraceId();
