@@ -45,19 +45,19 @@
 
 <div class="container">
     <div class="row">
-        <div class="span10">Application Flow Map</div>
+        <div class="span12">Application Flow Map</div>
     </div>
     <div class="row">
-        <div class="span10">
+        <div class="span12">
             <p id="graph"></p>
         </div>
     </div>
 
     <div class="row">
-        <div class="span10"></div>
+        <div class="span12"></div>
     </div>
     <div class="row">
-        <div class="span10">Application Timeline</div>
+        <div class="span12">Application Timeline</div>
     </div>
     <div class="row">
 
@@ -108,13 +108,14 @@
     </div>
 
     <div class="row">
-        <div class="span10"></div>
+        <div class="span12"></div>
+    </div>
+    <!-- 
+    <div class="row">
+        <div class="span12">Application Details</div>
     </div>
     <div class="row">
-        <div class="span10">Application Details</div>
-    </div>
-    <div class="row">
-        <div class="span10">
+        <div class="span">
             <table id="businessTransactions" class="table table-bordered">
                 <thead>
                 <tr>
@@ -147,6 +148,54 @@
                     </c:forEach>
                     <tr>
                         <td colspan="8">&nbsp;</td>
+                    </tr>
+                </c:forEach>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+     -->
+    
+    
+    
+    <div class="row">
+        <div class="span12">Application Details</div>
+    </div>
+    <div class="row">
+        <div class="span">
+            <table id="businessTransactions" class="table table-bordered">
+                <thead>
+                <tr>
+                	<th>#</th>
+                    <th>Action</th>
+                    <th>Arguments</th>
+                    <th>EndPoint</th>
+                    <th>Total[ms]</th>
+                    <th>Exec[ms]</th>
+                    <th>Application</th>
+                    <th>Agent</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <c:forEach items="${spanList}" var="span" varStatus="status">
+                    <c:set var="sp" scope="page" value="${span.span}"/>
+                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                        <tr>
+                        	<td>${span.depth}</td>
+                            <td>${ano.key}</td>
+                            <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
+                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.endTime - sp.startTime}</c:if></td>
+                            <td></td>
+                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                            <td>${sp.agentId} (${ano.timestamp})</td>
+                        </tr>
+                        <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+                    </c:forEach>
+                    <tr>
+                        <td colspan="7">&nbsp;</td>
                     </tr>
                 </c:forEach>
 
