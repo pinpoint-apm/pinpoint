@@ -35,8 +35,8 @@ public class SpanHandler implements Handler {
 		try {
 			Span span = (Span) tbase;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Received SPAN={}", span);
+			if (logger.isInfoEnabled()) {
+				logger.info("Received SPAN=" + span);
 			}
 
 			String applicationName = span.getServiceName();
