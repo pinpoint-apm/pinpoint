@@ -3,6 +3,7 @@ package com.profiler.modifier;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.arcus.ArcusClientModifier;
+import com.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.profiler.modifier.connector.HTTPClientModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
@@ -58,6 +59,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
         addModifier(arcusClientModifier);
     }
+    
+	public void addBLOCModifier() {
+		HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor);
+		addModifier(httpHandlerModifier);
+	}
 
     public void addTomcatModifier() {
         StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor);

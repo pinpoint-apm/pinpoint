@@ -1,12 +1,10 @@
-package com.profiler.modifier.tomcat.interceptors;
+package com.profiler.modifier.bloc.handler.interceptors;
 
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
 
 import com.profiler.Agent;
 import com.profiler.context.Header;
@@ -20,9 +18,14 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
 
-public class StandardHostValveInvokeInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+/**
+ * 
+ * @author netspider
+ * 
+ */
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
-	private final Logger logger = Logger.getLogger(StandardHostValveInvokeInterceptor.class.getName());
+	private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
 	private MethodDescriptor descriptor;
 
 	@Override
@@ -35,9 +38,9 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 			TraceContext traceContext = TraceContext.getTraceContext();
 			traceContext.getActiveThreadCounter().start();
 
-			HttpServletRequest request = (HttpServletRequest) args[0];
-			String requestURL = request.getRequestURI();
-			String clientIP = request.getRemoteAddr();
+			external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+			String requestURL = request.requestURI().toString();
+			String clientIP = request.remoteAddr().toString();
 			String parameters = getRequestParameter(request);
 
 			TraceID traceId = populateTraceIdFromRequest(request);
@@ -61,8 +64,8 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
 			trace.markBeforeTime();
 			trace.recordRpcName(Agent.getInstance().getApplicationName(), requestURL);
-			trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ":" + request.getServerPort());
-			trace.recordAttribute("http.url", request.getRequestURI());
+			trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
+			trace.recordAttribute("http.url", request.requestURI().toString());
 			if (parameters != null && parameters.length() > 0) {
 				trace.recordAttribute("http.params", parameters);
 			}
@@ -105,7 +108,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 	 * @param request
 	 * @return
 	 */
-	private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
+	private TraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
 		String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
 		if (strUUID != null) {
 			UUID uuid = UUID.fromString(strUUID);
@@ -124,14 +127,14 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 		}
 	}
 
-	private String getRequestParameter(HttpServletRequest request) {
-		Enumeration<?> attrs = request.getParameterNames();
+	private String getRequestParameter(external.org.apache.coyote.Request request) {
+		Enumeration<?> attrs = request.getParameters().getParameterNames();
 
 		StringBuilder params = new StringBuilder();
 
 		while (attrs.hasMoreElements()) {
 			String keyString = attrs.nextElement().toString();
-			Object value = request.getParameter(keyString);
+			Object value = request.getParameters().getParameter(keyString);
 
 			if (value != null) {
 				String valueString = value.toString();

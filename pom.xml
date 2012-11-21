@@ -100,6 +100,22 @@
             <version>5.1.14</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>com.nhncorp.lucy</groupId>
+			<artifactId>lucy-bloc-http11</artifactId>
+			<version>5.5.23</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+					<groupId>commons-modeler</groupId>
+					<artifactId>commons-modeler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
+		</dependency>
         <!-- [End] Compile Interceptors -->
 
         <dependency>

@@ -77,8 +77,13 @@ public class TomcatProfiler implements ClassFileTransformer {
 
         // jdbc
 		modifierRepository.addJdbcModifier();
+		
         // rpc
 		modifierRepository.addConnectorModifier();
+		
+		// bloc
+		modifierRepository.addBLOCModifier();
+		
 		return modifierRepository;
 	}
 
