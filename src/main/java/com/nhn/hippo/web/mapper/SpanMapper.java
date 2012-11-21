@@ -13,6 +13,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,11 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
     @Override
     public List<SpanBo> mapRow(Result result, int rowNum) throws Exception {
         byte[] rowKey = result.getRow();
+        
+        if(rowKey == null) {
+        	return Collections.emptyList();
+        }
+        
         long most = BytesUtils.bytesToFirstLong(rowKey);
         long least = BytesUtils.bytesToSecondLong(rowKey);
 
