@@ -3,6 +3,7 @@ package com.profiler.common.bo;
 import java.nio.charset.Charset;
 
 import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.util.Buffer;
 import com.profiler.common.util.BytesUtils;
 
@@ -10,7 +11,8 @@ import com.profiler.common.util.BytesUtils;
  *
  */
 public class AnnotationBo {
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+
+    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로
@@ -23,7 +25,8 @@ public class AnnotationBo {
     private byte[] keyBytes;
 
     private int valueType;
-    private byte[] value;
+    private byte[] byteValue;
+    private Object value;
 
 
     public AnnotationBo() {
@@ -33,7 +36,7 @@ public class AnnotationBo {
         this.timestamp = ano.getTimestamp();
         this.key = ano.getKey();
         this.valueType = ano.getValueTypeCode();
-        this.value = ano.getValue();
+        this.byteValue = ano.getValue();
     }
 
     public long getSpanId() {
@@ -67,7 +70,6 @@ public class AnnotationBo {
     public byte[] getKeyBytes() {
         if (keyBytes == null) {
             keyBytes = BytesUtils.getBytes(key);
-            ;
         }
         return keyBytes;
     }
@@ -89,14 +91,21 @@ public class AnnotationBo {
         this.valueType = valueType;
     }
 
-    public byte[] getValue() {
+    public byte[] getByteValue() {
+        return byteValue;
+    }
+
+    public void setByteValue(byte[] byteValue) {
+        this.byteValue = byteValue;
+    }
+
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(byte[] value) {
+    public void setValue(Object value) {
         this.value = value;
     }
-
 
     public int writeValue(byte[] buf, int offset) {
 //        long timestamp; // required 8
@@ -109,7 +118,7 @@ public class AnnotationBo {
         buffer.put(this.timestamp);
         buffer.putPrefixedBytes(getKeyBytes());
         buffer.put(this.valueType);
-        buffer.putPrefixedBytes(value);
+        buffer.putPrefixedBytes(this.byteValue);
         return buffer.getOffset();
     }
 
@@ -122,8 +131,8 @@ public class AnnotationBo {
         int size = 0;
         size += 1 + 8 + 4 + 4 + 4;
         size += this.getKeyBytes().length;
-        if (this.getValue() != null) {
-            size += this.getValue().length;
+        if (this.getByteValue() != null) {
+            size += this.getByteValue().length;
         }
         return size;
     }
@@ -135,19 +144,28 @@ public class AnnotationBo {
         this.timestamp = buffer.readLong();
         this.key = buffer.readPrefixedString();
         this.valueType = buffer.readInt();
-        this.value = buffer.readPrefixedBytes();
+        this.byteValue = buffer.readPrefixedBytes();
+        this.value = transcoder.decode(valueType, byteValue);
         return buffer.getOffset();
     }
 
     @Override
     public String toString() {
+        if (value == null) {
+            return "AnnotationBo{" +
+                    "version=" + version +
+                    ", spanId=" + spanId +
+                    ", timestamp=" + timestamp +
+                    ", key='" + key + '\'' +
+                    ", valueType=" + valueType +
+                    ", byteValue=" + byteValue +
+                    '}';
+        }
         return "AnnotationBo{" +
                 "version=" + version +
                 ", spanId=" + spanId +
                 ", timestamp=" + timestamp +
                 ", key='" + key + '\'' +
-                ", keyBytes=" + keyBytes +
-                ", valueType=" + valueType +
                 ", value=" + value +
                 '}';
     }
