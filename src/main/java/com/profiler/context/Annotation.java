@@ -1,5 +1,6 @@
 package com.profiler.context;
 
+@Deprecated
 public enum Annotation {
     @Deprecated
     ClientSend("CS"),

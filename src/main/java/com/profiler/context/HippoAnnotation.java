@@ -7,7 +7,7 @@ import com.profiler.common.util.AnnotationTranscoder;
  */
 public class HippoAnnotation implements Thriftable {
 
-    private static final AnnotationTranscoder transCoder = new AnnotationTranscoder();
+    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     private final long timestamp;
     private final String key;
@@ -49,7 +49,7 @@ public class HippoAnnotation implements Thriftable {
         ann.setKey(key);
 
         // TODO Encode 객체를 생성하지 않도록 변경.
-        AnnotationTranscoder.Encoded encode = transCoder.encode(value);
+        AnnotationTranscoder.Encoded encode = transcoder.encode(value);
         ann.setValueTypeCode(encode.getValueType());
         ann.setValue(encode.getBytes());
         return ann;
