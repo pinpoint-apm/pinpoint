@@ -86,7 +86,7 @@
                         </c:if>
 
                         <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-                            <li>${ano.key} = ${hippo:bytesToString(ano.valueType, ano.value)}</li>
+                            <li>${ano.key} = ${ano.value}</li>
                         </c:forEach>
                     </ul>
                 </div>
@@ -111,7 +111,7 @@
             <table id="businessTransactions" class="table table-bordered">
                 <thead>
                 <tr>
-                	<th>#</th>
+                    <th>#</th>
                     <th>Action</th>
                     <th>Arguments</th>
                     <th>EndPoint</th>
@@ -127,9 +127,9 @@
                     <c:set var="sp" scope="page" value="${span.span}"/>
                     <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
                         <tr>
-                        	<td>${span.depth}</td>
+                            <td>${span.depth}</td>
                             <td>${ano.key}</td>
-                            <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
+                            <td>${ano.value}</td>
                             <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
                             <td><c:if test="${annoStatus.first}">${sp.endTime - sp.startTime}</c:if></td>
                             <td></td>
@@ -147,11 +147,11 @@
             </table>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="span12"><br/><br/><br/>RPC flow</div>
     </div>
-	<div class="row">
+    <div class="row">
         <div class="span12">
             <p id="rpcgraph"></p>
         </div>
@@ -184,25 +184,27 @@
             </c:forEach>
         ]
     };
-    
+
     var rpcdata = {
-   		"nodes" : [
-			<c:forEach items="${rpcnodes}" var="node" varStatus="status">
-			    <c:if test="${node.terminal}">
-			        {"name":"${node.serviceName}:${node.rpc}"}
-			    </c:if>
-			    <c:if test="${not node.terminal}">
-			        {"name":"${node}"}
-			    </c:if>
-			    <c:if test="${!status.last}">,</c:if>
-			</c:forEach>
-		],
-		"links" : [
-			<c:forEach items="${rpclinks}" var="link" varStatus="status">
-			    {"source":${link.from.sequence},"target":${link.to.sequence},"value":${link.callCount}}
-			    <c:if test="${!status.last}">,</c:if>
-			</c:forEach>
-		]
+        "nodes":[
+            <c:forEach items="${rpcnodes}" var="node" varStatus="status">
+            <c:if test="${node.terminal}">
+            {"name":"${node.serviceName}:${node.rpc}"}
+            </c:if>
+            <c:if test="${not node.terminal}">
+            {"name":"${node}"}
+            </c:if>
+            <c:if test="${!status.last}">,
+            </c:if>
+            </c:forEach>
+        ],
+        "links":[
+            <c:forEach items="${rpclinks}" var="link" varStatus="status">
+            {"source":${link.from.sequence}, "target":${link.to.sequence}, "value":${link.callCount}}
+            <c:if test="${!status.last}">,
+            </c:if>
+            </c:forEach>
+        ]
     };
 
     $(document).ready(function () {
