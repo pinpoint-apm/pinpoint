@@ -124,45 +124,38 @@ public class FlowChartServiceImpl implements FlowChartService {
         return tree.build();
     }
 
-    private List<SpanBo> refine(List<SpanBo> list) {
-        SpanBo removeSpan = null;
-        boolean rescan = true;
+	private SpanBo findChildSpan(final List<SpanBo> list, final SpanBo parent) {
+		for (int i = 0; i < list.size(); i++) {
+			SpanBo child = list.get(i);
 
-        for (int i = 0; i < list.size(); i++) {
-            SpanBo span = list.get(i);
-            String svcName = span.getServiceName();
+			if (child.getParentSpanId() == parent.getSpanId()) {
+				return child;
+			}
+		}
+		return null;
+	}
 
-            if (removeSpan != null) {
-                if (span.getParentSpanId() == removeSpan.getSpanId()) {
-                    logger.debug("modify span for removed span. before {}", span);
+	private List<SpanBo> refine(final List<SpanBo> list) {
+		for (int i = 0; i < list.size(); i++) {
+			SpanBo span = list.get(i);
+			String svcName = span.getServiceName();
 
-                    span.setParentSpanId(removeSpan.getParentSpanId());
-                    span.getAnnotationBoList().addAll(removeSpan.getAnnotationBoList());
+			// TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
+			if ("HTTP/1.1".equals(svcName)) {
+				SpanBo child = findChildSpan(list, span);
 
-                    logger.debug("modify span for removed span. after {}", span);
+				if (child != null) {
+					child.setParentSpanId(span.getParentSpanId());
+					child.getAnnotationBoList().addAll(span.getAnnotationBoList());
+				}
 
-                    removeSpan = null;
-                }
-            }
-
-            // TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
-            if ("HTTP/1.1".equals(svcName)) {
-                removeSpan = list.get(i);
-                logger.debug("Remove span. {}", removeSpan);
-                list.remove(i);
-            }
-
-            if (removeSpan != null && i == list.size() - 1 && rescan) {
-                logger.debug("modify span not found. scan again. {}", removeSpan);
-                i = -1;
-                rescan = false;
-                continue;
-            }
-        }
-
-        return list;
-    }
-
+				list.remove(i);
+				i--;
+			}
+		}
+		return list;
+	}
+    
     private void markRecursiveCall(final List<SpanBo> list) {
         for (int i = 0; i < list.size(); i++) {
             SpanBo a = list.get(i);

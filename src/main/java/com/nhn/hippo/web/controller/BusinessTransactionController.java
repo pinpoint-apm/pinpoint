@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.service.FlowChartService;
@@ -49,6 +50,10 @@ public class BusinessTransactionController {
 		mv.addObject("nodes", callTree.getNodes());
 		mv.addObject("links", callTree.getLinks());
 
+		RPCCallTree rpcTree = flow.selectRPCCallTree(traceIds);
+		mv.addObject("rpcnodes", rpcTree.getNodes());
+		mv.addObject("rpclinks", rpcTree.getLinks());
+		
 		return mv;
 	}
 }

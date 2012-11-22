@@ -43,16 +43,16 @@ public class ServerCallTree {
         }
         
         // TODO: remove this later.
-        if (server.getId().contains("mysql:jdbc:") || server.getId().contains("favicon")) {
-            return;
-        }
+//        if (server.getId().contains("mysql:jdbc:") || server.getId().contains("favicon")) {
+//            return;
+//        }
 
-        if (!servers.containsKey(server.getId())) {
-            servers.put(server.getId(), server);
-        } else {
-        	servers.get(server.getId()).mergeWith(server);
-        }
-        spanIdToServerId.put(String.valueOf(span.getSpanId()), server.getId());
+		if (!servers.containsKey(server.getId())) {
+			servers.put(server.getId(), server);
+		} else {
+			servers.get(server.getId()).mergeWith(server);
+		}
+		spanIdToServerId.put(String.valueOf(span.getSpanId()), server.getId());
 
         // TODO: remove client node
 //		if (span.getParentSpanId() == -1) {
