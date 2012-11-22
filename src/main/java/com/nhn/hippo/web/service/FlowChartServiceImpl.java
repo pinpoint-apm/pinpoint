@@ -147,10 +147,13 @@ public class FlowChartServiceImpl implements FlowChartService {
 				if (child != null) {
 					child.setParentSpanId(span.getParentSpanId());
 					child.getAnnotationBoList().addAll(span.getAnnotationBoList());
+					list.remove(i);
+					i--;
+					continue;
+				} else {
+					// using as a terminal node.
+					span.setServiceName(span.getEndPoint());
 				}
-
-				list.remove(i);
-				i--;
 			}
 		}
 		return list;
