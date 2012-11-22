@@ -59,13 +59,13 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 				asyncTrace.recordTerminalEndPoint("ARCUS:" + address.getHostName() + ":" + address.getPort());
 			}
 
-			String serviceCode = (String) getServiceCode.invoke(target);
+			String serviceName = (String) getServiceCode.invoke(target);
 
-			if (serviceCode == null) {
-				serviceCode = "UNKNOWN";
+			if (serviceName == null) {
+				serviceName = "ARCUS/UNKNOWN";
 			}
 			
-			asyncTrace.recordRpcName("ARCUS/" + serviceCode, baseOperation.getClass().getSimpleName());
+			asyncTrace.recordRpcName(serviceName, baseOperation.getClass().getSimpleName());
 
 			String cmd = getCommand(baseOperation);
 			asyncTrace.recordAttibute("arcus.command", cmd);

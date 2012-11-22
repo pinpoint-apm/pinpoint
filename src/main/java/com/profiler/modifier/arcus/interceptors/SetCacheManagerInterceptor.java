@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.spy.memcached.CacheManager;
+import net.spy.memcached.MemcachedClient;
 
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.MetaObject;
@@ -27,9 +28,12 @@ public class SetCacheManagerInterceptor implements StaticBeforeInterceptor {
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
-
+		
 		CacheManager cm = (CacheManager) args[0];
 		String serviceCode = getServiceCode.invoke(cm);
-		setServiceCode.invoke(target, serviceCode);
+		
+		System.out.println("[HIPPO-SET_CACHE_MAN_FUNC] GET SERVICE_CODE FROM CM=" + serviceCode);
+		
+		setServiceCode.invoke((MemcachedClient) target, serviceCode);
 	}
 }

@@ -24,6 +24,8 @@ public class CacheManagerConstructInterceptor implements StaticAfterInterceptor 
 			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 
+		System.out.println("[HIPPO-CACHE_MAN_CTOR] SET SERVICE_CODE=" + args[1]);
+		
 		setServiceCode.invoke(target, (String) args[1]);
 	}
 }
