@@ -12,16 +12,16 @@ import com.profiler.modifier.AbstractModifier;
 /**
  * @author netspider
  */
-public class ArcusClientModifier extends AbstractModifier {
+public class MemcachedClientModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(ArcusClientModifier.class.getName());
+	private final Logger logger = Logger.getLogger(MemcachedClientModifier.class.getName());
 
-	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+	public MemcachedClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
 		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {
-		return "net/spy/memcached/ArcusClient";
+		return "net/spy/memcached/MemcachedClient";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -32,9 +32,11 @@ public class ArcusClientModifier extends AbstractModifier {
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-			Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.SetCacheManagerInterceptor");
-			aClass.addInterceptor("setCacheManager", new String[] { "net.spy.memcached.CacheManager" }, setCacheManagerInterceptor);
-			
+			aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
+
+			Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.AddOpInterceptor");
+			aClass.addInterceptor("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" }, addOpInterceptor);
+
 			return aClass.toBytecode();
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {

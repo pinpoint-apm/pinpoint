@@ -4,24 +4,26 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
+import com.profiler.modifier.arcus.interceptors.CacheManagerConstructInterceptor;
 
 /**
+ * 
  * @author netspider
+ * 
  */
-public class ArcusClientModifier extends AbstractModifier {
+public class CacheManagerModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(ArcusClientModifier.class.getName());
+	private final Logger logger = Logger.getLogger(CacheManagerModifier.class.getName());
 
-	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+	public CacheManagerModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
 		super(byteCodeInstrumentor);
 	}
 
 	public String getTargetClass() {
-		return "net/spy/memcached/ArcusClient";
+		return "net/spy/memcached/CacheManager";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -32,9 +34,9 @@ public class ArcusClientModifier extends AbstractModifier {
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-			Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.SetCacheManagerInterceptor");
-			aClass.addInterceptor("setCacheManager", new String[] { "net.spy.memcached.CacheManager" }, setCacheManagerInterceptor);
-			
+			aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
+			aClass.addConstructorInterceptor(new String[] { "java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int" }, new CacheManagerConstructInterceptor());
+
 			return aClass.toBytecode();
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.WARNING)) {

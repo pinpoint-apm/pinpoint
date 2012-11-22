@@ -1,8 +1,14 @@
 package com.profiler.modifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.arcus.ArcusClientModifier;
+import com.profiler.modifier.arcus.BaseOperationModifier;
+import com.profiler.modifier.arcus.CacheManagerModifier;
+import com.profiler.modifier.arcus.MemcachedClientModifier;
 import com.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.profiler.modifier.connector.HTTPClientModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
@@ -15,7 +21,12 @@ import com.profiler.modifier.db.mssql.MSSQLConnectionModifier;
 import com.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
 import com.profiler.modifier.db.mssql.MSSQLResultSetModifier;
 import com.profiler.modifier.db.mssql.MSSQLStatementModifier;
-import com.profiler.modifier.db.mysql.*;
+import com.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
+import com.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
+import com.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
+import com.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
+import com.profiler.modifier.db.mysql.MySQLResultSetModifier;
+import com.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
@@ -23,9 +34,6 @@ import com.profiler.modifier.tomcat.CatalinaModifier;
 import com.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DefaultModifierRegistry implements ModifierRegistry {
     // TODO 혹시 동시성을 고려 해야 되는지 검토.
@@ -52,13 +60,22 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
     }
 
-    public void addConnectorModifier() {
-        HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
-        addModifier(httpClientModifier);
+	public void addConnectorModifier() {
+		HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
+		addModifier(httpClientModifier);
 
-        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
-        addModifier(arcusClientModifier);
-    }
+		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
+		addModifier(memcachedClientModifier);
+		
+		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+		addModifier(arcusClientModifier);
+
+		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
+		addModifier(baseOperationModifier);
+		
+		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
+		addModifier(cacheManagerModifier);
+	}
     
 	public void addBLOCModifier() {
 		HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor);
