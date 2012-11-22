@@ -99,7 +99,7 @@
                     <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
                 </c:if>
 
-                <div style="width:${(end - begin) * barRatio}px; background-color:#69B2E9;margin-left:${(begin - startTime) * barRatio}px;margin-top:3px;"
+                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
                      onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
                     <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
                 </div>
