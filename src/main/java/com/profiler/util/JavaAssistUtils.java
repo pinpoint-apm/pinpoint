@@ -3,6 +3,9 @@ package com.profiler.util;
 import javassist.*;
 import javassist.bytecode.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
     private static String[] EMPTY_STRING_ARRAY = new String[0];
@@ -176,7 +179,7 @@ public class JavaAssistUtils {
      * @return null일 경우 debug모드로 컴파일 되지 않아서 그럼.
      */
     public static LocalVariableAttribute lookupLocalVariableAttribute(CtBehavior method) {
-        MethodInfo methodInfo = method.getMethodInfo();
+        MethodInfo methodInfo = method.getMethodInfo2();
         CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
         AttributeInfo localVariableTable = codeAttribute.getAttribute(LocalVariableAttribute.tag);
         LocalVariableAttribute local = (LocalVariableAttribute) localVariableTable;
@@ -185,33 +188,61 @@ public class JavaAssistUtils {
 
     public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute) throws NotFoundException {
         // http://www.jarvana.com/jarvana/view/org/jboss/weld/servlet/weld-servlet/1.0.1-Final/weld-servlet-1.0.1-Final-sources.jar!/org/slf4j/instrumentation/JavassistHelper.java?format=ok
+        // http://grepcode.com/file/repo1.maven.org/maven2/jp.objectfanatics/assertion-weaver/0.0.30/jp/objectfanatics/commons/javassist/JavassistUtils.java
         // 이거 참고함.
         if (localVariableAttribute == null) {
             // null이라는건 debug모드로 컴파일 되지 않았다는 의미이다.
             // parameter class명을 default로 넘기는 건 아래 메소드가 함. getParameterDefaultVariableName.
             return null;
         }
+
+        dump(localVariableAttribute);
         CtClass[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0) {
             return EMPTY_STRING_ARRAY;
         }
         String[] parameterVariableNames = new String[parameterTypes.length];
-        int firstIndex = 0;
-        int modifiers = method.getModifiers();
-//      동기화 메소드라도 index를 증가시키면 안되는데. 참고 소스와는 뭔가 다름 나중에 문제가 생길수 있으니 일단 주석으로 적음.
-//        if (Modifier.isSynchronized(modifiers)) {
-//            firstIndex++;
-//        }
-        if (Modifier.isStatic(modifiers) == false) {
-            firstIndex++;
-        }
-        for (int i = 0; i < parameterTypes.length; i++) {
-            int accesIndex = firstIndex + i;
-            String variablename = localVariableAttribute.variableName(accesIndex);
-            parameterVariableNames[i] = variablename;
+        boolean thisExist = thisExist(method);
+
+        int paramIndex = 0;
+        for (int i = 0; i < localVariableAttribute.tableLength(); i++) {
+            // start pc가 0이 아닐경우 parameter를 나타내는 localVariableName이 아님.
+            if (localVariableAttribute.startPc(i) != 0) {
+                continue;
+            }
+            int index = localVariableAttribute.index(i);
+            if (index == 0 && thisExist) {
+                // this 변수임. skip
+                continue;
+            }
+            String variablename = localVariableAttribute.variableName(i);
+            parameterVariableNames[paramIndex++] = variablename;
         }
         return parameterVariableNames;
     }
+
+    private static boolean thisExist(CtBehavior method) {
+        int modifiers = method.getModifiers();
+        if (Modifier.isStatic(modifiers)) {
+            return false;
+        } else {
+            // this 포함이므로 1;
+            return true;
+        }
+    }
+
+    private static void dump(LocalVariableAttribute lva) {
+        Logger logger = Logger.getLogger(JavaAssistUtils.class.getName());
+        if (logger.isLoggable(Level.FINE)) {
+            StringBuilder buffer = new StringBuilder(1024);
+            for (int i = 0; i < lva.tableLength(); i++) {
+                buffer.append("\n");
+                buffer.append(i + "  start_pc:" + lva.startPc(i) + "  index:" + lva.index(i) + "  name:" + lva.variableName(i) + "  nameIndex:" + lva.nameIndex(i));
+            }
+            logger.fine(buffer.toString());
+        }
+    }
+
 
     public static String[] getParameterDefaultVariableName(CtBehavior method) throws NotFoundException {
         CtClass[] parameterTypes = method.getParameterTypes();
