@@ -54,13 +54,9 @@
     </div>
 
     <div class="row">
-        <div class="span12"></div>
+        <div class="span12"><br/><br/><br/>Application Timeline</div>
     </div>
     <div class="row">
-        <div class="span12">Application Timeline</div>
-    </div>
-    <div class="row">
-
         <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
             <c:set var="startTime" scope="page" value="0"/>
             <c:set var="endTime" scope="page" value="0"/>
@@ -108,59 +104,7 @@
     </div>
 
     <div class="row">
-        <div class="span12"></div>
-    </div>
-    <!-- 
-    <div class="row">
-        <div class="span12">Application Details</div>
-    </div>
-    <div class="row">
-        <div class="span">
-            <table id="businessTransactions" class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>span time</th>
-                    <th>Application</th>
-                    <th>endpoint</th>
-                    <th>@ time</th>
-                    <th>Action</th>
-                    <th>Action</th>
-                    <th>Agent</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                <c:forEach items="${spanList}" var="span" varStatus="status">
-                    <c:set var="sp" scope="page" value="${span.span}"/>
-                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-                        <tr>
-                            <td><c:if test="${annoStatus.first}">${status.count}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.startTime} <br> ${sp.endTime - sp.startTime}ms</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-                            <td>${ano.timestamp}</td>
-                            <td>${ano.key}</td>
-                            <td>${hippo:bytesToString(ano.valueType, ano.value)}</td>
-                            <td>${sp.agentId}</td>
-                        </tr>
-                        <c:set var="bt" scope="page" value="${ano.timestamp}"/>
-                    </c:forEach>
-                    <tr>
-                        <td colspan="8">&nbsp;</td>
-                    </tr>
-                </c:forEach>
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-     -->
-    
-    
-    
-    <div class="row">
-        <div class="span12">Application Details</div>
+        <div class="span12"><br/><br/><br/>Application Details</div>
     </div>
     <div class="row">
         <div class="span">
@@ -203,6 +147,15 @@
             </table>
         </div>
     </div>
+    
+    <div class="row">
+        <div class="span12"><br/><br/><br/>RPC flow</div>
+    </div>
+	<div class="row">
+        <div class="span12">
+            <p id="rpcgraph"></p>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -231,9 +184,30 @@
             </c:forEach>
         ]
     };
+    
+    var rpcdata = {
+   		"nodes" : [
+			<c:forEach items="${rpcnodes}" var="node" varStatus="status">
+			    <c:if test="${node.terminal}">
+			        {"name":"${node.serviceName}:${node.rpc}"}
+			    </c:if>
+			    <c:if test="${not node.terminal}">
+			        {"name":"${node}"}
+			    </c:if>
+			    <c:if test="${!status.last}">,</c:if>
+			</c:forEach>
+		],
+		"links" : [
+			<c:forEach items="${rpclinks}" var="link" varStatus="status">
+			    {"source":${link.from.sequence},"target":${link.to.sequence},"value":${link.callCount}}
+			    <c:if test="${!status.last}">,</c:if>
+			</c:forEach>
+		]
+    };
 
     $(document).ready(function () {
         drawSankeyChart(data, "#graph", 960, 400);
+        drawSankeyChart(rpcdata, "#rpcgraph", 960, 400);
     });
 </script>
 
