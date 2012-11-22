@@ -208,8 +208,8 @@
     };
 
     $(document).ready(function () {
-        drawSankeyChart(data, "#graph", 960, 400);
-        drawSankeyChart(rpcdata, "#rpcgraph", 960, 400);
+        drawSankeyChart(data, "#graph", 960, 500);
+        drawSankeyChart(rpcdata, "#rpcgraph", 960, 800);
     });
 </script>
 
