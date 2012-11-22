@@ -39,6 +39,13 @@ public class Agent {
         this.agentId = getId("hippo.agentId", machineName);
         this.nodeName = getId("hippo.nodeName", machineName);
         this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
+
+        // 일단 임시로 datasender와 , tracecontext 타이밍 변경. 추후 다시 조정해야 될듯.
+        this.dataSender = UdpDataSender.getInstance();
+        // TraceContext의 생명주기 관리 방안이 없는지 강구.
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.setDataSender(this.dataSender);
+        systemMonitor.setDataSender(dataSender);
     }
 
     private String getId(String key, String defaultValue) {
@@ -118,13 +125,6 @@ public class Agent {
 
     public void start() {
         logger.info("Starting HIPPO Agent.");
-        // trace context 새롭게 생성.
-        this.dataSender = UdpDataSender.getInstance();
-        // TraceContext의 생명주기 관리 방안이 없는지 강구.
-        TraceContext traceContext = TraceContext.getTraceContext();
-        traceContext.setDataSender(this.dataSender);
-        systemMonitor.setDataSender(dataSender);
-        systemMonitor.start();
     }
 
     public void stop() {

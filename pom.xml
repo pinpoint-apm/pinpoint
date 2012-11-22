@@ -100,30 +100,32 @@
             <version>5.1.14</version>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<groupId>com.nhncorp.lucy</groupId>
-			<artifactId>lucy-bloc-http11</artifactId>
-			<version>5.5.23</version>
+        <dependency>
+            <groupId>com.nhncorp.lucy</groupId>
+            <artifactId>lucy-bloc-http11</artifactId>
+            <version>5.5.23</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
-					<groupId>commons-modeler</groupId>
-					<artifactId>commons-modeler</artifactId>
+                    <groupId>commons-modeler</groupId>
+                    <artifactId>commons-modeler</artifactId>
                 </exclusion>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
                 </exclusion>
             </exclusions>
-		</dependency>
+        </dependency>
         <!-- [End] Compile Interceptors -->
 
+        <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 컴파일해 줄듯 하니 기둘리자.-->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.16.1-GA</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
