@@ -92,6 +92,13 @@ public class HelloWorldController {
 		mysql(model);
 		arcus(model);
 
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		
+		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		
 		return "combination";
 	}
 
