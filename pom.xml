@@ -325,8 +325,6 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
 
         <resources>
             <resource>
@@ -374,6 +372,20 @@
                     <optimize>true</optimize>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/TestInterceptor*.java</exclude>
+                        <exclude>**/Mock*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
