@@ -568,6 +568,20 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Mock*</exclude>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/*Helper</exclude>
+                        <exclude>**/*$*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat6-maven-plugin</artifactId>
                 <version>2.0</version>
