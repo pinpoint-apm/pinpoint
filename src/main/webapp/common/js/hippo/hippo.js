@@ -1,4 +1,30 @@
+function drawGraph(graphdata) {
+	var graph = new Graph();
+	var nodes = [];
+
+	for(var i = 0; i < graphdata.nodes.length; i++) {
+		nodes[i] = graph.newNode({label: graphdata.nodes[i].name});
+		console.log(nodes[i]);
+	}
+	
+	for(var i = 0; i < graphdata.links.length; i++) {
+		graph.newEdge(nodes[graphdata.links[i].source], nodes[graphdata.links[i].target], {color: '#7DBE3C'});
+	}
+	
+	jQuery(function(){
+		var springy = jQuery('#springydemo').springy({
+			graph: graph,
+			nodeSelected: function(node){
+				console.log('Node selected: ' + JSON.stringify(node.data));
+			}
+		});
+	});
+}
+
 function drawSankeyChart(graphdata, targetId, w, h) {
+	
+	drawGraph(graphdata);
+	
 	var margin = {
 		    top:1,
 		    right:1,

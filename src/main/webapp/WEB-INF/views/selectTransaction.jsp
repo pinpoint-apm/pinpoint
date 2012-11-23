@@ -28,6 +28,8 @@
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <script type="text/javascript" src="/common/js/springy/springy.js"></script>
+    <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -50,6 +52,15 @@
     <div class="row">
         <div class="span12">
             <p id="graph"></p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span12">Application Flow Map (DEMO)</div>
+    </div>
+    <div class="row">
+        <div class="span12">
+    		<canvas id="springydemo" width="640" height="480" />
         </div>
     </div>
 
