@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
 
+@Deprecated
 public class HBaseClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HBaseClient.class);
