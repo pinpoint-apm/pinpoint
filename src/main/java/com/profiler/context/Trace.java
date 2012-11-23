@@ -226,6 +226,9 @@ public final class Trace {
     }
 
     public void recordApi(MethodDescriptor methodDescriptor) {
+        if (methodDescriptor == null) {
+            return;
+        }
         String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
         recordAttribute("API", method);
     }
