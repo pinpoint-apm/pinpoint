@@ -4,6 +4,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,8 +12,9 @@ import java.io.IOException;
 /**
  *
  */
+@Ignore
 public class TestSuite {
-    @Test
+    //    @Test
     public void insertData() throws IOException, InterruptedException {
 
 
