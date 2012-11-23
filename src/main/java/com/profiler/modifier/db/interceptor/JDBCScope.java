@@ -1,23 +1,24 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.util.NamedThreadLocal;
+import com.profiler.util.Scope;
 
 /**
  *
  */
 public class JDBCScope {
-    private static NamedThreadLocal<Boolean> scope = new NamedThreadLocal<Boolean>("JDBCScope");
+    private static Scope scope = new Scope("JDBCScope");
+
 
     public static void pushScope() {
-        scope.set(Boolean.TRUE);
+        scope.pushScope();
     }
 
     public static boolean isInternal() {
-        return scope.get() != null;
+        return scope.isInternal();
     }
 
     public static void popScope() {
-        scope.set(null);
+        scope.popScope();
     }
 
 }
