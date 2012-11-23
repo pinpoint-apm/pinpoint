@@ -2,6 +2,7 @@ package com.profiler.common;
 
 import com.profiler.common.dto.thrift.Span;
 
+@Deprecated
 public enum ServiceNames {
 
 	UNKNOWN(0) {

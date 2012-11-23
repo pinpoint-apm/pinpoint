@@ -12,7 +12,6 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,1587 +24,1560 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.io.Serializable, Cloneable {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
 
-    private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short) 1);
-    private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short) 2);
-    private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short) 3);
-    private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short) 4);
-    private static final org.apache.thrift.protocol.TField END_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("endTime", org.apache.thrift.protocol.TType.I64, (short) 5);
-    private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short) 6);
-    private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short) 7);
-    private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short) 8);
-    private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I64, (short) 9);
-    private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short) 10);
-    private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I32, (short) 11);
-    private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short) 12);
-    private static final org.apache.thrift.protocol.TField TERMINAL_FIELD_DESC = new org.apache.thrift.protocol.TField("terminal", org.apache.thrift.protocol.TType.BOOL, (short) 13);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField END_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("endTime", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)6);
+  private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)7);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)8);
+  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I64, (short)9);
+  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)10);
+  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I32, (short)11);
+  private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
+  private static final org.apache.thrift.protocol.TField TERMINAL_FIELD_DESC = new org.apache.thrift.protocol.TField("terminal", org.apache.thrift.protocol.TType.BOOL, (short)13);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+  static {
+    schemes.put(StandardScheme.class, new SpanStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new SpanTupleSchemeFactory());
+  }
 
-    static {
-        schemes.put(StandardScheme.class, new SpanStandardSchemeFactory());
-        schemes.put(TupleScheme.class, new SpanTupleSchemeFactory());
-    }
+  private String agentId; // required
+  private long mostTraceId; // required
+  private long leastTraceId; // required
+  private long startTime; // required
+  private long endTime; // required
+  private String name; // required
+  private String serviceName; // required
+  private long spanId; // required
+  private long parentSpanId; // optional
+  private List<Annotation> annotations; // required
+  private int flag; // optional
+  private String endPoint; // required
+  private boolean terminal; // required
 
-    private String agentId; // required
-    private long mostTraceId; // required
-    private long leastTraceId; // required
-    private long startTime; // required
-    private long endTime; // required
-    private String name; // required
-    private String serviceName; // required
-    private long spanId; // required
-    private long parentSpanId; // optional
-    private List<Annotation> annotations; // required
-    private int flag; // optional
-    private String endPoint; // required
-    private boolean terminal; // required
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+    AGENT_ID((short)1, "agentId"),
+    MOST_TRACE_ID((short)2, "mostTraceId"),
+    LEAST_TRACE_ID((short)3, "leastTraceId"),
+    START_TIME((short)4, "startTime"),
+    END_TIME((short)5, "endTime"),
+    NAME((short)6, "name"),
+    SERVICE_NAME((short)7, "serviceName"),
+    SPAN_ID((short)8, "spanId"),
+    PARENT_SPAN_ID((short)9, "parentSpanId"),
+    ANNOTATIONS((short)10, "annotations"),
+    FLAG((short)11, "flag"),
+    END_POINT((short)12, "endPoint"),
+    TERMINAL((short)13, "terminal");
 
-    /**
-     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
-     */
-    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-        AGENT_ID((short) 1, "agentId"),
-        MOST_TRACE_ID((short) 2, "mostTraceId"),
-        LEAST_TRACE_ID((short) 3, "leastTraceId"),
-        START_TIME((short) 4, "startTime"),
-        END_TIME((short) 5, "endTime"),
-        NAME((short) 6, "name"),
-        SERVICE_NAME((short) 7, "serviceName"),
-        SPAN_ID((short) 8, "spanId"),
-        PARENT_SPAN_ID((short) 9, "parentSpanId"),
-        ANNOTATIONS((short) 10, "annotations"),
-        FLAG((short) 11, "flag"),
-        END_POINT((short) 12, "endPoint"),
-        TERMINAL((short) 13, "terminal");
-
-        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-        static {
-            for (_Fields field : EnumSet.allOf(_Fields.class)) {
-                byName.put(field.getFieldName(), field);
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, or null if its not found.
-         */
-        public static _Fields findByThriftId(int fieldId) {
-            switch (fieldId) {
-                case 1: // AGENT_ID
-                    return AGENT_ID;
-                case 2: // MOST_TRACE_ID
-                    return MOST_TRACE_ID;
-                case 3: // LEAST_TRACE_ID
-                    return LEAST_TRACE_ID;
-                case 4: // START_TIME
-                    return START_TIME;
-                case 5: // END_TIME
-                    return END_TIME;
-                case 6: // NAME
-                    return NAME;
-                case 7: // SERVICE_NAME
-                    return SERVICE_NAME;
-                case 8: // SPAN_ID
-                    return SPAN_ID;
-                case 9: // PARENT_SPAN_ID
-                    return PARENT_SPAN_ID;
-                case 10: // ANNOTATIONS
-                    return ANNOTATIONS;
-                case 11: // FLAG
-                    return FLAG;
-                case 12: // END_POINT
-                    return END_POINT;
-                case 13: // TERMINAL
-                    return TERMINAL;
-                default:
-                    return null;
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, throwing an exception
-         * if it is not found.
-         */
-        public static _Fields findByThriftIdOrThrow(int fieldId) {
-            _Fields fields = findByThriftId(fieldId);
-            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-            return fields;
-        }
-
-        /**
-         * Find the _Fields constant that matches name, or null if its not found.
-         */
-        public static _Fields findByName(String name) {
-            return byName.get(name);
-        }
-
-        private final short _thriftId;
-        private final String _fieldName;
-
-        _Fields(short thriftId, String fieldName) {
-            _thriftId = thriftId;
-            _fieldName = fieldName;
-        }
-
-        public short getThriftFieldId() {
-            return _thriftId;
-        }
-
-        public String getFieldName() {
-            return _fieldName;
-        }
-    }
-
-    // isset id assignments
-    private static final int __MOSTTRACEID_ISSET_ID = 0;
-    private static final int __LEASTTRACEID_ISSET_ID = 1;
-    private static final int __STARTTIME_ISSET_ID = 2;
-    private static final int __ENDTIME_ISSET_ID = 3;
-    private static final int __SPANID_ISSET_ID = 4;
-    private static final int __PARENTSPANID_ISSET_ID = 5;
-    private static final int __FLAG_ISSET_ID = 6;
-    private static final int __TERMINAL_ISSET_ID = 7;
-    private BitSet __isset_bit_vector = new BitSet(8);
-    private _Fields optionals[] = {_Fields.PARENT_SPAN_ID, _Fields.FLAG};
-    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
     static {
-        Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-        tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.END_TIME, new org.apache.thrift.meta_data.FieldMetaData("endTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
-                        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
-        tmpMap.put(_Fields.FLAG, new org.apache.thrift.meta_data.FieldMetaData("flag", org.apache.thrift.TFieldRequirementType.OPTIONAL,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-        tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.TERMINAL, new org.apache.thrift.meta_data.FieldMetaData("terminal", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-        metaDataMap = Collections.unmodifiableMap(tmpMap);
-        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
-    }
-
-    public Span() {
-        this.flag = 0;
-
-    }
-
-    public Span(
-            String agentId,
-            long mostTraceId,
-            long leastTraceId,
-            long startTime,
-            long endTime,
-            String name,
-            String serviceName,
-            long spanId,
-            List<Annotation> annotations,
-            String endPoint,
-            boolean terminal) {
-        this();
-        this.agentId = agentId;
-        this.mostTraceId = mostTraceId;
-        setMostTraceIdIsSet(true);
-        this.leastTraceId = leastTraceId;
-        setLeastTraceIdIsSet(true);
-        this.startTime = startTime;
-        setStartTimeIsSet(true);
-        this.endTime = endTime;
-        setEndTimeIsSet(true);
-        this.name = name;
-        this.serviceName = serviceName;
-        this.spanId = spanId;
-        setSpanIdIsSet(true);
-        this.annotations = annotations;
-        this.endPoint = endPoint;
-        this.terminal = terminal;
-        setTerminalIsSet(true);
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
 
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public Span(Span other) {
-        __isset_bit_vector.clear();
-        __isset_bit_vector.or(other.__isset_bit_vector);
-        if (other.isSetAgentId()) {
-            this.agentId = other.agentId;
-        }
-        this.mostTraceId = other.mostTraceId;
-        this.leastTraceId = other.leastTraceId;
-        this.startTime = other.startTime;
-        this.endTime = other.endTime;
-        if (other.isSetName()) {
-            this.name = other.name;
-        }
-        if (other.isSetServiceName()) {
-            this.serviceName = other.serviceName;
-        }
-        this.spanId = other.spanId;
-        this.parentSpanId = other.parentSpanId;
-        if (other.isSetAnnotations()) {
-            List<Annotation> __this__annotations = new ArrayList<Annotation>();
-            for (Annotation other_element : other.annotations) {
-                __this__annotations.add(new Annotation(other_element));
-            }
-            this.annotations = __this__annotations;
-        }
-        this.flag = other.flag;
-        if (other.isSetEndPoint()) {
-            this.endPoint = other.endPoint;
-        }
-        this.terminal = other.terminal;
-    }
-
-    public Span deepCopy() {
-        return new Span(this);
-    }
-
-    @Override
-    public void clear() {
-        this.agentId = null;
-        setMostTraceIdIsSet(false);
-        this.mostTraceId = 0;
-        setLeastTraceIdIsSet(false);
-        this.leastTraceId = 0;
-        setStartTimeIsSet(false);
-        this.startTime = 0;
-        setEndTimeIsSet(false);
-        this.endTime = 0;
-        this.name = null;
-        this.serviceName = null;
-        setSpanIdIsSet(false);
-        this.spanId = 0;
-        setParentSpanIdIsSet(false);
-        this.parentSpanId = 0;
-        this.annotations = null;
-        this.flag = 0;
-
-        this.endPoint = null;
-        setTerminalIsSet(false);
-        this.terminal = false;
-    }
-
-    public String getAgentId() {
-        return this.agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public void unsetAgentId() {
-        this.agentId = null;
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // AGENT_ID
+          return AGENT_ID;
+        case 2: // MOST_TRACE_ID
+          return MOST_TRACE_ID;
+        case 3: // LEAST_TRACE_ID
+          return LEAST_TRACE_ID;
+        case 4: // START_TIME
+          return START_TIME;
+        case 5: // END_TIME
+          return END_TIME;
+        case 6: // NAME
+          return NAME;
+        case 7: // SERVICE_NAME
+          return SERVICE_NAME;
+        case 8: // SPAN_ID
+          return SPAN_ID;
+        case 9: // PARENT_SPAN_ID
+          return PARENT_SPAN_ID;
+        case 10: // ANNOTATIONS
+          return ANNOTATIONS;
+        case 11: // FLAG
+          return FLAG;
+        case 12: // END_POINT
+          return END_POINT;
+        case 13: // TERMINAL
+          return TERMINAL;
+        default:
+          return null;
+      }
     }
 
     /**
-     * Returns true if field agentId is set (has been assigned a value) and false otherwise
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
      */
-    public boolean isSetAgentId() {
-        return this.agentId != null;
-    }
-
-    public void setAgentIdIsSet(boolean value) {
-        if (!value) {
-            this.agentId = null;
-        }
-    }
-
-    public long getMostTraceId() {
-        return this.mostTraceId;
-    }
-
-    public void setMostTraceId(long mostTraceId) {
-        this.mostTraceId = mostTraceId;
-        setMostTraceIdIsSet(true);
-    }
-
-    public void unsetMostTraceId() {
-        __isset_bit_vector.clear(__MOSTTRACEID_ISSET_ID);
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
 
     /**
-     * Returns true if field mostTraceId is set (has been assigned a value) and false otherwise
+     * Find the _Fields constant that matches name, or null if its not found.
      */
-    public boolean isSetMostTraceId() {
-        return __isset_bit_vector.get(__MOSTTRACEID_ISSET_ID);
+    public static _Fields findByName(String name) {
+      return byName.get(name);
     }
 
-    public void setMostTraceIdIsSet(boolean value) {
-        __isset_bit_vector.set(__MOSTTRACEID_ISSET_ID, value);
+    private final short _thriftId;
+    private final String _fieldName;
+
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
     }
 
-    public long getLeastTraceId() {
-        return this.leastTraceId;
+    public short getThriftFieldId() {
+      return _thriftId;
     }
 
-    public void setLeastTraceId(long leastTraceId) {
-        this.leastTraceId = leastTraceId;
-        setLeastTraceIdIsSet(true);
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
+
+  // isset id assignments
+  private static final int __MOSTTRACEID_ISSET_ID = 0;
+  private static final int __LEASTTRACEID_ISSET_ID = 1;
+  private static final int __STARTTIME_ISSET_ID = 2;
+  private static final int __ENDTIME_ISSET_ID = 3;
+  private static final int __SPANID_ISSET_ID = 4;
+  private static final int __PARENTSPANID_ISSET_ID = 5;
+  private static final int __FLAG_ISSET_ID = 6;
+  private static final int __TERMINAL_ISSET_ID = 7;
+  private BitSet __isset_bit_vector = new BitSet(8);
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.FLAG};
+  public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.END_TIME, new org.apache.thrift.meta_data.FieldMetaData("endTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
+    tmpMap.put(_Fields.FLAG, new org.apache.thrift.meta_data.FieldMetaData("flag", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.TERMINAL, new org.apache.thrift.meta_data.FieldMetaData("terminal", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
+  }
+
+  public Span() {
+    this.flag = 0;
+
+  }
+
+  public Span(
+    String agentId,
+    long mostTraceId,
+    long leastTraceId,
+    long startTime,
+    long endTime,
+    String name,
+    String serviceName,
+    long spanId,
+    List<Annotation> annotations,
+    String endPoint,
+    boolean terminal)
+  {
+    this();
+    this.agentId = agentId;
+    this.mostTraceId = mostTraceId;
+    setMostTraceIdIsSet(true);
+    this.leastTraceId = leastTraceId;
+    setLeastTraceIdIsSet(true);
+    this.startTime = startTime;
+    setStartTimeIsSet(true);
+    this.endTime = endTime;
+    setEndTimeIsSet(true);
+    this.name = name;
+    this.serviceName = serviceName;
+    this.spanId = spanId;
+    setSpanIdIsSet(true);
+    this.annotations = annotations;
+    this.endPoint = endPoint;
+    this.terminal = terminal;
+    setTerminalIsSet(true);
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public Span(Span other) {
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
+    if (other.isSetAgentId()) {
+      this.agentId = other.agentId;
+    }
+    this.mostTraceId = other.mostTraceId;
+    this.leastTraceId = other.leastTraceId;
+    this.startTime = other.startTime;
+    this.endTime = other.endTime;
+    if (other.isSetName()) {
+      this.name = other.name;
+    }
+    if (other.isSetServiceName()) {
+      this.serviceName = other.serviceName;
+    }
+    this.spanId = other.spanId;
+    this.parentSpanId = other.parentSpanId;
+    if (other.isSetAnnotations()) {
+      List<Annotation> __this__annotations = new ArrayList<Annotation>();
+      for (Annotation other_element : other.annotations) {
+        __this__annotations.add(new Annotation(other_element));
+      }
+      this.annotations = __this__annotations;
+    }
+    this.flag = other.flag;
+    if (other.isSetEndPoint()) {
+      this.endPoint = other.endPoint;
+    }
+    this.terminal = other.terminal;
+  }
+
+  public Span deepCopy() {
+    return new Span(this);
+  }
+
+  @Override
+  public void clear() {
+    this.agentId = null;
+    setMostTraceIdIsSet(false);
+    this.mostTraceId = 0;
+    setLeastTraceIdIsSet(false);
+    this.leastTraceId = 0;
+    setStartTimeIsSet(false);
+    this.startTime = 0;
+    setEndTimeIsSet(false);
+    this.endTime = 0;
+    this.name = null;
+    this.serviceName = null;
+    setSpanIdIsSet(false);
+    this.spanId = 0;
+    setParentSpanIdIsSet(false);
+    this.parentSpanId = 0;
+    this.annotations = null;
+    this.flag = 0;
+
+    this.endPoint = null;
+    setTerminalIsSet(false);
+    this.terminal = false;
+  }
+
+  public String getAgentId() {
+    return this.agentId;
+  }
+
+  public void setAgentId(String agentId) {
+    this.agentId = agentId;
+  }
+
+  public void unsetAgentId() {
+    this.agentId = null;
+  }
+
+  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentId() {
+    return this.agentId != null;
+  }
+
+  public void setAgentIdIsSet(boolean value) {
+    if (!value) {
+      this.agentId = null;
+    }
+  }
+
+  public long getMostTraceId() {
+    return this.mostTraceId;
+  }
+
+  public void setMostTraceId(long mostTraceId) {
+    this.mostTraceId = mostTraceId;
+    setMostTraceIdIsSet(true);
+  }
+
+  public void unsetMostTraceId() {
+    __isset_bit_vector.clear(__MOSTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field mostTraceId is set (has been assigned a value) and false otherwise */
+  public boolean isSetMostTraceId() {
+    return __isset_bit_vector.get(__MOSTTRACEID_ISSET_ID);
+  }
+
+  public void setMostTraceIdIsSet(boolean value) {
+    __isset_bit_vector.set(__MOSTTRACEID_ISSET_ID, value);
+  }
+
+  public long getLeastTraceId() {
+    return this.leastTraceId;
+  }
+
+  public void setLeastTraceId(long leastTraceId) {
+    this.leastTraceId = leastTraceId;
+    setLeastTraceIdIsSet(true);
+  }
+
+  public void unsetLeastTraceId() {
+    __isset_bit_vector.clear(__LEASTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field leastTraceId is set (has been assigned a value) and false otherwise */
+  public boolean isSetLeastTraceId() {
+    return __isset_bit_vector.get(__LEASTTRACEID_ISSET_ID);
+  }
+
+  public void setLeastTraceIdIsSet(boolean value) {
+    __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
+  }
+
+  public long getStartTime() {
+    return this.startTime;
+  }
+
+  public void setStartTime(long startTime) {
+    this.startTime = startTime;
+    setStartTimeIsSet(true);
+  }
+
+  public void unsetStartTime() {
+    __isset_bit_vector.clear(__STARTTIME_ISSET_ID);
+  }
+
+  /** Returns true if field startTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetStartTime() {
+    return __isset_bit_vector.get(__STARTTIME_ISSET_ID);
+  }
+
+  public void setStartTimeIsSet(boolean value) {
+    __isset_bit_vector.set(__STARTTIME_ISSET_ID, value);
+  }
+
+  public long getEndTime() {
+    return this.endTime;
+  }
+
+  public void setEndTime(long endTime) {
+    this.endTime = endTime;
+    setEndTimeIsSet(true);
+  }
+
+  public void unsetEndTime() {
+    __isset_bit_vector.clear(__ENDTIME_ISSET_ID);
+  }
+
+  /** Returns true if field endTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetEndTime() {
+    return __isset_bit_vector.get(__ENDTIME_ISSET_ID);
+  }
+
+  public void setEndTimeIsSet(boolean value) {
+    __isset_bit_vector.set(__ENDTIME_ISSET_ID, value);
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void unsetName() {
+    this.name = null;
+  }
+
+  /** Returns true if field name is set (has been assigned a value) and false otherwise */
+  public boolean isSetName() {
+    return this.name != null;
+  }
+
+  public void setNameIsSet(boolean value) {
+    if (!value) {
+      this.name = null;
+    }
+  }
+
+  public String getServiceName() {
+    return this.serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public void unsetServiceName() {
+    this.serviceName = null;
+  }
+
+  /** Returns true if field serviceName is set (has been assigned a value) and false otherwise */
+  public boolean isSetServiceName() {
+    return this.serviceName != null;
+  }
+
+  public void setServiceNameIsSet(boolean value) {
+    if (!value) {
+      this.serviceName = null;
+    }
+  }
+
+  public long getSpanId() {
+    return this.spanId;
+  }
+
+  public void setSpanId(long spanId) {
+    this.spanId = spanId;
+    setSpanIdIsSet(true);
+  }
+
+  public void unsetSpanId() {
+    __isset_bit_vector.clear(__SPANID_ISSET_ID);
+  }
+
+  /** Returns true if field spanId is set (has been assigned a value) and false otherwise */
+  public boolean isSetSpanId() {
+    return __isset_bit_vector.get(__SPANID_ISSET_ID);
+  }
+
+  public void setSpanIdIsSet(boolean value) {
+    __isset_bit_vector.set(__SPANID_ISSET_ID, value);
+  }
+
+  public long getParentSpanId() {
+    return this.parentSpanId;
+  }
+
+  public void setParentSpanId(long parentSpanId) {
+    this.parentSpanId = parentSpanId;
+    setParentSpanIdIsSet(true);
+  }
+
+  public void unsetParentSpanId() {
+    __isset_bit_vector.clear(__PARENTSPANID_ISSET_ID);
+  }
+
+  /** Returns true if field parentSpanId is set (has been assigned a value) and false otherwise */
+  public boolean isSetParentSpanId() {
+    return __isset_bit_vector.get(__PARENTSPANID_ISSET_ID);
+  }
+
+  public void setParentSpanIdIsSet(boolean value) {
+    __isset_bit_vector.set(__PARENTSPANID_ISSET_ID, value);
+  }
+
+  public int getAnnotationsSize() {
+    return (this.annotations == null) ? 0 : this.annotations.size();
+  }
+
+  public java.util.Iterator<Annotation> getAnnotationsIterator() {
+    return (this.annotations == null) ? null : this.annotations.iterator();
+  }
+
+  public void addToAnnotations(Annotation elem) {
+    if (this.annotations == null) {
+      this.annotations = new ArrayList<Annotation>();
+    }
+    this.annotations.add(elem);
+  }
+
+  public List<Annotation> getAnnotations() {
+    return this.annotations;
+  }
+
+  public void setAnnotations(List<Annotation> annotations) {
+    this.annotations = annotations;
+  }
+
+  public void unsetAnnotations() {
+    this.annotations = null;
+  }
+
+  /** Returns true if field annotations is set (has been assigned a value) and false otherwise */
+  public boolean isSetAnnotations() {
+    return this.annotations != null;
+  }
+
+  public void setAnnotationsIsSet(boolean value) {
+    if (!value) {
+      this.annotations = null;
+    }
+  }
+
+  public int getFlag() {
+    return this.flag;
+  }
+
+  public void setFlag(int flag) {
+    this.flag = flag;
+    setFlagIsSet(true);
+  }
+
+  public void unsetFlag() {
+    __isset_bit_vector.clear(__FLAG_ISSET_ID);
+  }
+
+  /** Returns true if field flag is set (has been assigned a value) and false otherwise */
+  public boolean isSetFlag() {
+    return __isset_bit_vector.get(__FLAG_ISSET_ID);
+  }
+
+  public void setFlagIsSet(boolean value) {
+    __isset_bit_vector.set(__FLAG_ISSET_ID, value);
+  }
+
+  public String getEndPoint() {
+    return this.endPoint;
+  }
+
+  public void setEndPoint(String endPoint) {
+    this.endPoint = endPoint;
+  }
+
+  public void unsetEndPoint() {
+    this.endPoint = null;
+  }
+
+  /** Returns true if field endPoint is set (has been assigned a value) and false otherwise */
+  public boolean isSetEndPoint() {
+    return this.endPoint != null;
+  }
+
+  public void setEndPointIsSet(boolean value) {
+    if (!value) {
+      this.endPoint = null;
+    }
+  }
+
+  public boolean isTerminal() {
+    return this.terminal;
+  }
+
+  public void setTerminal(boolean terminal) {
+    this.terminal = terminal;
+    setTerminalIsSet(true);
+  }
+
+  public void unsetTerminal() {
+    __isset_bit_vector.clear(__TERMINAL_ISSET_ID);
+  }
+
+  /** Returns true if field terminal is set (has been assigned a value) and false otherwise */
+  public boolean isSetTerminal() {
+    return __isset_bit_vector.get(__TERMINAL_ISSET_ID);
+  }
+
+  public void setTerminalIsSet(boolean value) {
+    __isset_bit_vector.set(__TERMINAL_ISSET_ID, value);
+  }
+
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case AGENT_ID:
+      if (value == null) {
+        unsetAgentId();
+      } else {
+        setAgentId((String)value);
+      }
+      break;
+
+    case MOST_TRACE_ID:
+      if (value == null) {
+        unsetMostTraceId();
+      } else {
+        setMostTraceId((Long)value);
+      }
+      break;
+
+    case LEAST_TRACE_ID:
+      if (value == null) {
+        unsetLeastTraceId();
+      } else {
+        setLeastTraceId((Long)value);
+      }
+      break;
+
+    case START_TIME:
+      if (value == null) {
+        unsetStartTime();
+      } else {
+        setStartTime((Long)value);
+      }
+      break;
+
+    case END_TIME:
+      if (value == null) {
+        unsetEndTime();
+      } else {
+        setEndTime((Long)value);
+      }
+      break;
+
+    case NAME:
+      if (value == null) {
+        unsetName();
+      } else {
+        setName((String)value);
+      }
+      break;
+
+    case SERVICE_NAME:
+      if (value == null) {
+        unsetServiceName();
+      } else {
+        setServiceName((String)value);
+      }
+      break;
+
+    case SPAN_ID:
+      if (value == null) {
+        unsetSpanId();
+      } else {
+        setSpanId((Long)value);
+      }
+      break;
+
+    case PARENT_SPAN_ID:
+      if (value == null) {
+        unsetParentSpanId();
+      } else {
+        setParentSpanId((Long)value);
+      }
+      break;
+
+    case ANNOTATIONS:
+      if (value == null) {
+        unsetAnnotations();
+      } else {
+        setAnnotations((List<Annotation>)value);
+      }
+      break;
+
+    case FLAG:
+      if (value == null) {
+        unsetFlag();
+      } else {
+        setFlag((Integer)value);
+      }
+      break;
+
+    case END_POINT:
+      if (value == null) {
+        unsetEndPoint();
+      } else {
+        setEndPoint((String)value);
+      }
+      break;
+
+    case TERMINAL:
+      if (value == null) {
+        unsetTerminal();
+      } else {
+        setTerminal((Boolean)value);
+      }
+      break;
+
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case AGENT_ID:
+      return getAgentId();
+
+    case MOST_TRACE_ID:
+      return Long.valueOf(getMostTraceId());
+
+    case LEAST_TRACE_ID:
+      return Long.valueOf(getLeastTraceId());
+
+    case START_TIME:
+      return Long.valueOf(getStartTime());
+
+    case END_TIME:
+      return Long.valueOf(getEndTime());
+
+    case NAME:
+      return getName();
+
+    case SERVICE_NAME:
+      return getServiceName();
+
+    case SPAN_ID:
+      return Long.valueOf(getSpanId());
+
+    case PARENT_SPAN_ID:
+      return Long.valueOf(getParentSpanId());
+
+    case ANNOTATIONS:
+      return getAnnotations();
+
+    case FLAG:
+      return Integer.valueOf(getFlag());
+
+    case END_POINT:
+      return getEndPoint();
+
+    case TERMINAL:
+      return Boolean.valueOf(isTerminal());
+
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void unsetLeastTraceId() {
-        __isset_bit_vector.clear(__LEASTTRACEID_ISSET_ID);
+    switch (field) {
+    case AGENT_ID:
+      return isSetAgentId();
+    case MOST_TRACE_ID:
+      return isSetMostTraceId();
+    case LEAST_TRACE_ID:
+      return isSetLeastTraceId();
+    case START_TIME:
+      return isSetStartTime();
+    case END_TIME:
+      return isSetEndTime();
+    case NAME:
+      return isSetName();
+    case SERVICE_NAME:
+      return isSetServiceName();
+    case SPAN_ID:
+      return isSetSpanId();
+    case PARENT_SPAN_ID:
+      return isSetParentSpanId();
+    case ANNOTATIONS:
+      return isSetAnnotations();
+    case FLAG:
+      return isSetFlag();
+    case END_POINT:
+      return isSetEndPoint();
+    case TERMINAL:
+      return isSetTerminal();
     }
-
-    /**
-     * Returns true if field leastTraceId is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetLeastTraceId() {
-        return __isset_bit_vector.get(__LEASTTRACEID_ISSET_ID);
-    }
-
-    public void setLeastTraceIdIsSet(boolean value) {
-        __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
-    }
-
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-        setStartTimeIsSet(true);
-    }
-
-    public void unsetStartTime() {
-        __isset_bit_vector.clear(__STARTTIME_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field startTime is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetStartTime() {
-        return __isset_bit_vector.get(__STARTTIME_ISSET_ID);
-    }
-
-    public void setStartTimeIsSet(boolean value) {
-        __isset_bit_vector.set(__STARTTIME_ISSET_ID, value);
-    }
-
-    public long getEndTime() {
-        return this.endTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-        setEndTimeIsSet(true);
-    }
-
-    public void unsetEndTime() {
-        __isset_bit_vector.clear(__ENDTIME_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field endTime is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetEndTime() {
-        return __isset_bit_vector.get(__ENDTIME_ISSET_ID);
-    }
-
-    public void setEndTimeIsSet(boolean value) {
-        __isset_bit_vector.set(__ENDTIME_ISSET_ID, value);
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void unsetName() {
-        this.name = null;
-    }
-
-    /**
-     * Returns true if field name is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetName() {
-        return this.name != null;
-    }
-
-    public void setNameIsSet(boolean value) {
-        if (!value) {
-            this.name = null;
-        }
-    }
-
-    public String getServiceName() {
-        return this.serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public void unsetServiceName() {
-        this.serviceName = null;
-    }
-
-    /**
-     * Returns true if field serviceName is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetServiceName() {
-        return this.serviceName != null;
-    }
-
-    public void setServiceNameIsSet(boolean value) {
-        if (!value) {
-            this.serviceName = null;
-        }
-    }
-
-    public long getSpanId() {
-        return this.spanId;
-    }
-
-    public void setSpanId(long spanId) {
-        this.spanId = spanId;
-        setSpanIdIsSet(true);
-    }
-
-    public void unsetSpanId() {
-        __isset_bit_vector.clear(__SPANID_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field spanId is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetSpanId() {
-        return __isset_bit_vector.get(__SPANID_ISSET_ID);
-    }
-
-    public void setSpanIdIsSet(boolean value) {
-        __isset_bit_vector.set(__SPANID_ISSET_ID, value);
-    }
-
-    public long getParentSpanId() {
-        return this.parentSpanId;
-    }
-
-    public void setParentSpanId(long parentSpanId) {
-        this.parentSpanId = parentSpanId;
-        setParentSpanIdIsSet(true);
-    }
-
-    public void unsetParentSpanId() {
-        __isset_bit_vector.clear(__PARENTSPANID_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field parentSpanId is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetParentSpanId() {
-        return __isset_bit_vector.get(__PARENTSPANID_ISSET_ID);
-    }
-
-    public void setParentSpanIdIsSet(boolean value) {
-        __isset_bit_vector.set(__PARENTSPANID_ISSET_ID, value);
-    }
-
-    public int getAnnotationsSize() {
-        return (this.annotations == null) ? 0 : this.annotations.size();
-    }
-
-    public java.util.Iterator<Annotation> getAnnotationsIterator() {
-        return (this.annotations == null) ? null : this.annotations.iterator();
-    }
-
-    public void addToAnnotations(Annotation elem) {
-        if (this.annotations == null) {
-            this.annotations = new ArrayList<Annotation>();
-        }
-        this.annotations.add(elem);
-    }
-
-    public List<Annotation> getAnnotations() {
-        return this.annotations;
-    }
-
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
-    }
-
-    public void unsetAnnotations() {
-        this.annotations = null;
-    }
-
-    /**
-     * Returns true if field annotations is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetAnnotations() {
-        return this.annotations != null;
-    }
-
-    public void setAnnotationsIsSet(boolean value) {
-        if (!value) {
-            this.annotations = null;
-        }
-    }
-
-    public int getFlag() {
-        return this.flag;
-    }
-
-    public void setFlag(int flag) {
-        this.flag = flag;
-        setFlagIsSet(true);
-    }
-
-    public void unsetFlag() {
-        __isset_bit_vector.clear(__FLAG_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field flag is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetFlag() {
-        return __isset_bit_vector.get(__FLAG_ISSET_ID);
-    }
-
-    public void setFlagIsSet(boolean value) {
-        __isset_bit_vector.set(__FLAG_ISSET_ID, value);
-    }
-
-    public String getEndPoint() {
-        return this.endPoint;
-    }
-
-    public void setEndPoint(String endPoint) {
-        this.endPoint = endPoint;
-    }
-
-    public void unsetEndPoint() {
-        this.endPoint = null;
-    }
-
-    /**
-     * Returns true if field endPoint is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetEndPoint() {
-        return this.endPoint != null;
-    }
-
-    public void setEndPointIsSet(boolean value) {
-        if (!value) {
-            this.endPoint = null;
-        }
-    }
-
-    public boolean isTerminal() {
-        return this.terminal;
-    }
-
-    public void setTerminal(boolean terminal) {
-        this.terminal = terminal;
-        setTerminalIsSet(true);
-    }
-
-    public void unsetTerminal() {
-        __isset_bit_vector.clear(__TERMINAL_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field terminal is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetTerminal() {
-        return __isset_bit_vector.get(__TERMINAL_ISSET_ID);
-    }
-
-    public void setTerminalIsSet(boolean value) {
-        __isset_bit_vector.set(__TERMINAL_ISSET_ID, value);
-    }
-
-    public void setFieldValue(_Fields field, Object value) {
-        switch (field) {
-            case AGENT_ID:
-                if (value == null) {
-                    unsetAgentId();
-                } else {
-                    setAgentId((String) value);
-                }
-                break;
-
-            case MOST_TRACE_ID:
-                if (value == null) {
-                    unsetMostTraceId();
-                } else {
-                    setMostTraceId((Long) value);
-                }
-                break;
-
-            case LEAST_TRACE_ID:
-                if (value == null) {
-                    unsetLeastTraceId();
-                } else {
-                    setLeastTraceId((Long) value);
-                }
-                break;
-
-            case START_TIME:
-                if (value == null) {
-                    unsetStartTime();
-                } else {
-                    setStartTime((Long) value);
-                }
-                break;
-
-            case END_TIME:
-                if (value == null) {
-                    unsetEndTime();
-                } else {
-                    setEndTime((Long) value);
-                }
-                break;
-
-            case NAME:
-                if (value == null) {
-                    unsetName();
-                } else {
-                    setName((String) value);
-                }
-                break;
-
-            case SERVICE_NAME:
-                if (value == null) {
-                    unsetServiceName();
-                } else {
-                    setServiceName((String) value);
-                }
-                break;
-
-            case SPAN_ID:
-                if (value == null) {
-                    unsetSpanId();
-                } else {
-                    setSpanId((Long) value);
-                }
-                break;
-
-            case PARENT_SPAN_ID:
-                if (value == null) {
-                    unsetParentSpanId();
-                } else {
-                    setParentSpanId((Long) value);
-                }
-                break;
-
-            case ANNOTATIONS:
-                if (value == null) {
-                    unsetAnnotations();
-                } else {
-                    setAnnotations((List<Annotation>) value);
-                }
-                break;
-
-            case FLAG:
-                if (value == null) {
-                    unsetFlag();
-                } else {
-                    setFlag((Integer) value);
-                }
-                break;
-
-            case END_POINT:
-                if (value == null) {
-                    unsetEndPoint();
-                } else {
-                    setEndPoint((String) value);
-                }
-                break;
-
-            case TERMINAL:
-                if (value == null) {
-                    unsetTerminal();
-                } else {
-                    setTerminal((Boolean) value);
-                }
-                break;
-
-        }
-    }
-
-    public Object getFieldValue(_Fields field) {
-        switch (field) {
-            case AGENT_ID:
-                return getAgentId();
-
-            case MOST_TRACE_ID:
-                return Long.valueOf(getMostTraceId());
-
-            case LEAST_TRACE_ID:
-                return Long.valueOf(getLeastTraceId());
-
-            case START_TIME:
-                return Long.valueOf(getStartTime());
-
-            case END_TIME:
-                return Long.valueOf(getEndTime());
-
-            case NAME:
-                return getName();
-
-            case SERVICE_NAME:
-                return getServiceName();
-
-            case SPAN_ID:
-                return Long.valueOf(getSpanId());
-
-            case PARENT_SPAN_ID:
-                return Long.valueOf(getParentSpanId());
-
-            case ANNOTATIONS:
-                return getAnnotations();
-
-            case FLAG:
-                return Integer.valueOf(getFlag());
-
-            case END_POINT:
-                return getEndPoint();
-
-            case TERMINAL:
-                return Boolean.valueOf(isTerminal());
-
-        }
-        throw new IllegalStateException();
-    }
-
-    /**
-     * Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSet(_Fields field) {
-        if (field == null) {
-            throw new IllegalArgumentException();
-        }
-
-        switch (field) {
-            case AGENT_ID:
-                return isSetAgentId();
-            case MOST_TRACE_ID:
-                return isSetMostTraceId();
-            case LEAST_TRACE_ID:
-                return isSetLeastTraceId();
-            case START_TIME:
-                return isSetStartTime();
-            case END_TIME:
-                return isSetEndTime();
-            case NAME:
-                return isSetName();
-            case SERVICE_NAME:
-                return isSetServiceName();
-            case SPAN_ID:
-                return isSetSpanId();
-            case PARENT_SPAN_ID:
-                return isSetParentSpanId();
-            case ANNOTATIONS:
-                return isSetAnnotations();
-            case FLAG:
-                return isSetFlag();
-            case END_POINT:
-                return isSetEndPoint();
-            case TERMINAL:
-                return isSetTerminal();
-        }
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        if (that == null)
-            return false;
-        if (that instanceof Span)
-            return this.equals((Span) that);
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
+      return false;
+    if (that instanceof Span)
+      return this.equals((Span)that);
+    return false;
+  }
+
+  public boolean equals(Span that) {
+    if (that == null)
+      return false;
+
+    boolean this_present_agentId = true && this.isSetAgentId();
+    boolean that_present_agentId = true && that.isSetAgentId();
+    if (this_present_agentId || that_present_agentId) {
+      if (!(this_present_agentId && that_present_agentId))
+        return false;
+      if (!this.agentId.equals(that.agentId))
         return false;
     }
 
-    public boolean equals(Span that) {
-        if (that == null)
-            return false;
+    boolean this_present_mostTraceId = true;
+    boolean that_present_mostTraceId = true;
+    if (this_present_mostTraceId || that_present_mostTraceId) {
+      if (!(this_present_mostTraceId && that_present_mostTraceId))
+        return false;
+      if (this.mostTraceId != that.mostTraceId)
+        return false;
+    }
 
-        boolean this_present_agentId = true && this.isSetAgentId();
-        boolean that_present_agentId = true && that.isSetAgentId();
-        if (this_present_agentId || that_present_agentId) {
-            if (!(this_present_agentId && that_present_agentId))
-                return false;
-            if (!this.agentId.equals(that.agentId))
-                return false;
+    boolean this_present_leastTraceId = true;
+    boolean that_present_leastTraceId = true;
+    if (this_present_leastTraceId || that_present_leastTraceId) {
+      if (!(this_present_leastTraceId && that_present_leastTraceId))
+        return false;
+      if (this.leastTraceId != that.leastTraceId)
+        return false;
+    }
+
+    boolean this_present_startTime = true;
+    boolean that_present_startTime = true;
+    if (this_present_startTime || that_present_startTime) {
+      if (!(this_present_startTime && that_present_startTime))
+        return false;
+      if (this.startTime != that.startTime)
+        return false;
+    }
+
+    boolean this_present_endTime = true;
+    boolean that_present_endTime = true;
+    if (this_present_endTime || that_present_endTime) {
+      if (!(this_present_endTime && that_present_endTime))
+        return false;
+      if (this.endTime != that.endTime)
+        return false;
+    }
+
+    boolean this_present_name = true && this.isSetName();
+    boolean that_present_name = true && that.isSetName();
+    if (this_present_name || that_present_name) {
+      if (!(this_present_name && that_present_name))
+        return false;
+      if (!this.name.equals(that.name))
+        return false;
+    }
+
+    boolean this_present_serviceName = true && this.isSetServiceName();
+    boolean that_present_serviceName = true && that.isSetServiceName();
+    if (this_present_serviceName || that_present_serviceName) {
+      if (!(this_present_serviceName && that_present_serviceName))
+        return false;
+      if (!this.serviceName.equals(that.serviceName))
+        return false;
+    }
+
+    boolean this_present_spanId = true;
+    boolean that_present_spanId = true;
+    if (this_present_spanId || that_present_spanId) {
+      if (!(this_present_spanId && that_present_spanId))
+        return false;
+      if (this.spanId != that.spanId)
+        return false;
+    }
+
+    boolean this_present_parentSpanId = true && this.isSetParentSpanId();
+    boolean that_present_parentSpanId = true && that.isSetParentSpanId();
+    if (this_present_parentSpanId || that_present_parentSpanId) {
+      if (!(this_present_parentSpanId && that_present_parentSpanId))
+        return false;
+      if (this.parentSpanId != that.parentSpanId)
+        return false;
+    }
+
+    boolean this_present_annotations = true && this.isSetAnnotations();
+    boolean that_present_annotations = true && that.isSetAnnotations();
+    if (this_present_annotations || that_present_annotations) {
+      if (!(this_present_annotations && that_present_annotations))
+        return false;
+      if (!this.annotations.equals(that.annotations))
+        return false;
+    }
+
+    boolean this_present_flag = true && this.isSetFlag();
+    boolean that_present_flag = true && that.isSetFlag();
+    if (this_present_flag || that_present_flag) {
+      if (!(this_present_flag && that_present_flag))
+        return false;
+      if (this.flag != that.flag)
+        return false;
+    }
+
+    boolean this_present_endPoint = true && this.isSetEndPoint();
+    boolean that_present_endPoint = true && that.isSetEndPoint();
+    if (this_present_endPoint || that_present_endPoint) {
+      if (!(this_present_endPoint && that_present_endPoint))
+        return false;
+      if (!this.endPoint.equals(that.endPoint))
+        return false;
+    }
+
+    boolean this_present_terminal = true;
+    boolean that_present_terminal = true;
+    if (this_present_terminal || that_present_terminal) {
+      if (!(this_present_terminal && that_present_terminal))
+        return false;
+      if (this.terminal != that.terminal)
+        return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(Span other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    Span typedOther = (Span)other;
+
+    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAgentId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetMostTraceId()).compareTo(typedOther.isSetMostTraceId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetMostTraceId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mostTraceId, typedOther.mostTraceId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetLeastTraceId()).compareTo(typedOther.isSetLeastTraceId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetLeastTraceId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.leastTraceId, typedOther.leastTraceId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetStartTime()).compareTo(typedOther.isSetStartTime());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetStartTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.startTime, typedOther.startTime);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetEndTime()).compareTo(typedOther.isSetEndTime());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEndTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endTime, typedOther.endTime);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetName()).compareTo(typedOther.isSetName());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, typedOther.name);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetServiceName()).compareTo(typedOther.isSetServiceName());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetServiceName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serviceName, typedOther.serviceName);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSpanId()).compareTo(typedOther.isSetSpanId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSpanId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanId, typedOther.spanId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetParentSpanId()).compareTo(typedOther.isSetParentSpanId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetParentSpanId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentSpanId, typedOther.parentSpanId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAnnotations()).compareTo(typedOther.isSetAnnotations());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAnnotations()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.annotations, typedOther.annotations);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetFlag()).compareTo(typedOther.isSetFlag());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetFlag()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.flag, typedOther.flag);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetEndPoint()).compareTo(typedOther.isSetEndPoint());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEndPoint()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endPoint, typedOther.endPoint);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetTerminal()).compareTo(typedOther.isSetTerminal());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetTerminal()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.terminal, typedOther.terminal);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    return 0;
+  }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+  }
+
+  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("Span(");
+    boolean first = true;
+
+    sb.append("agentId:");
+    if (this.agentId == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.agentId);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("mostTraceId:");
+    sb.append(this.mostTraceId);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("leastTraceId:");
+    sb.append(this.leastTraceId);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("startTime:");
+    sb.append(this.startTime);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("endTime:");
+    sb.append(this.endTime);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("name:");
+    if (this.name == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.name);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("serviceName:");
+    if (this.serviceName == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.serviceName);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("spanId:");
+    sb.append(this.spanId);
+    first = false;
+    if (isSetParentSpanId()) {
+      if (!first) sb.append(", ");
+      sb.append("parentSpanId:");
+      sb.append(this.parentSpanId);
+      first = false;
+    }
+    if (!first) sb.append(", ");
+    sb.append("annotations:");
+    if (this.annotations == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.annotations);
+    }
+    first = false;
+    if (isSetFlag()) {
+      if (!first) sb.append(", ");
+      sb.append("flag:");
+      sb.append(this.flag);
+      first = false;
+    }
+    if (!first) sb.append(", ");
+    sb.append("endPoint:");
+    if (this.endPoint == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.endPoint);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("terminal:");
+    sb.append(this.terminal);
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws org.apache.thrift.TException {
+    // check for required fields
+  }
+
+  private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    try {
+      write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
+  }
+
+  private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+    try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bit_vector = new BitSet(1);
+      read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
+  }
+
+  private static class SpanStandardSchemeFactory implements SchemeFactory {
+    public SpanStandardScheme getScheme() {
+      return new SpanStandardScheme();
+    }
+  }
+
+  private static class SpanStandardScheme extends StandardScheme<Span> {
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot, Span struct) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField schemeField;
+      iprot.readStructBegin();
+      while (true)
+      {
+        schemeField = iprot.readFieldBegin();
+        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
         }
-
-        boolean this_present_mostTraceId = true;
-        boolean that_present_mostTraceId = true;
-        if (this_present_mostTraceId || that_present_mostTraceId) {
-            if (!(this_present_mostTraceId && that_present_mostTraceId))
-                return false;
-            if (this.mostTraceId != that.mostTraceId)
-                return false;
+        switch (schemeField.id) {
+          case 1: // AGENT_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.agentId = iprot.readString();
+              struct.setAgentIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // MOST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.mostTraceId = iprot.readI64();
+              struct.setMostTraceIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // LEAST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.leastTraceId = iprot.readI64();
+              struct.setLeastTraceIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // START_TIME
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.startTime = iprot.readI64();
+              struct.setStartTimeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // END_TIME
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.endTime = iprot.readI64();
+              struct.setEndTimeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // NAME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.name = iprot.readString();
+              struct.setNameIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 7: // SERVICE_NAME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.serviceName = iprot.readString();
+              struct.setServiceNameIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 8: // SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanId = iprot.readI64();
+              struct.setSpanIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 9: // PARENT_SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.parentSpanId = iprot.readI64();
+              struct.setParentSpanIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 10: // ANNOTATIONS
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
+                struct.annotations = new ArrayList<Annotation>(_list0.size);
+                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+                {
+                  Annotation _elem2; // required
+                  _elem2 = new Annotation();
+                  _elem2.read(iprot);
+                  struct.annotations.add(_elem2);
+                }
+                iprot.readListEnd();
+              }
+              struct.setAnnotationsIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 11: // FLAG
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.flag = iprot.readI32();
+              struct.setFlagIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 12: // END_POINT
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.endPoint = iprot.readString();
+              struct.setEndPointIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 13: // TERMINAL
+            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+              struct.terminal = iprot.readBool();
+              struct.setTerminalIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      struct.validate();
+    }
 
-        boolean this_present_leastTraceId = true;
-        boolean that_present_leastTraceId = true;
-        if (this_present_leastTraceId || that_present_leastTraceId) {
-            if (!(this_present_leastTraceId && that_present_leastTraceId))
-                return false;
-            if (this.leastTraceId != that.leastTraceId)
-                return false;
+    public void write(org.apache.thrift.protocol.TProtocol oprot, Span struct) throws org.apache.thrift.TException {
+      struct.validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (struct.agentId != null) {
+        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+        oprot.writeString(struct.agentId);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.mostTraceId);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(LEAST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.leastTraceId);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(START_TIME_FIELD_DESC);
+      oprot.writeI64(struct.startTime);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(END_TIME_FIELD_DESC);
+      oprot.writeI64(struct.endTime);
+      oprot.writeFieldEnd();
+      if (struct.name != null) {
+        oprot.writeFieldBegin(NAME_FIELD_DESC);
+        oprot.writeString(struct.name);
+        oprot.writeFieldEnd();
+      }
+      if (struct.serviceName != null) {
+        oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
+        oprot.writeString(struct.serviceName);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
+      oprot.writeI64(struct.spanId);
+      oprot.writeFieldEnd();
+      if (struct.isSetParentSpanId()) {
+        oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
+        oprot.writeI64(struct.parentSpanId);
+        oprot.writeFieldEnd();
+      }
+      if (struct.annotations != null) {
+        oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
+        {
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
+          for (Annotation _iter3 : struct.annotations)
+          {
+            _iter3.write(oprot);
+          }
+          oprot.writeListEnd();
         }
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetFlag()) {
+        oprot.writeFieldBegin(FLAG_FIELD_DESC);
+        oprot.writeI32(struct.flag);
+        oprot.writeFieldEnd();
+      }
+      if (struct.endPoint != null) {
+        oprot.writeFieldBegin(END_POINT_FIELD_DESC);
+        oprot.writeString(struct.endPoint);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldBegin(TERMINAL_FIELD_DESC);
+      oprot.writeBool(struct.terminal);
+      oprot.writeFieldEnd();
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
 
-        boolean this_present_startTime = true;
-        boolean that_present_startTime = true;
-        if (this_present_startTime || that_present_startTime) {
-            if (!(this_present_startTime && that_present_startTime))
-                return false;
-            if (this.startTime != that.startTime)
-                return false;
+  }
+
+  private static class SpanTupleSchemeFactory implements SchemeFactory {
+    public SpanTupleScheme getScheme() {
+      return new SpanTupleScheme();
+    }
+  }
+
+  private static class SpanTupleScheme extends TupleScheme<Span> {
+
+    @Override
+    public void write(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
+      TTupleProtocol oprot = (TTupleProtocol) prot;
+      BitSet optionals = new BitSet();
+      if (struct.isSetAgentId()) {
+        optionals.set(0);
+      }
+      if (struct.isSetMostTraceId()) {
+        optionals.set(1);
+      }
+      if (struct.isSetLeastTraceId()) {
+        optionals.set(2);
+      }
+      if (struct.isSetStartTime()) {
+        optionals.set(3);
+      }
+      if (struct.isSetEndTime()) {
+        optionals.set(4);
+      }
+      if (struct.isSetName()) {
+        optionals.set(5);
+      }
+      if (struct.isSetServiceName()) {
+        optionals.set(6);
+      }
+      if (struct.isSetSpanId()) {
+        optionals.set(7);
+      }
+      if (struct.isSetParentSpanId()) {
+        optionals.set(8);
+      }
+      if (struct.isSetAnnotations()) {
+        optionals.set(9);
+      }
+      if (struct.isSetFlag()) {
+        optionals.set(10);
+      }
+      if (struct.isSetEndPoint()) {
+        optionals.set(11);
+      }
+      if (struct.isSetTerminal()) {
+        optionals.set(12);
+      }
+      oprot.writeBitSet(optionals, 13);
+      if (struct.isSetAgentId()) {
+        oprot.writeString(struct.agentId);
+      }
+      if (struct.isSetMostTraceId()) {
+        oprot.writeI64(struct.mostTraceId);
+      }
+      if (struct.isSetLeastTraceId()) {
+        oprot.writeI64(struct.leastTraceId);
+      }
+      if (struct.isSetStartTime()) {
+        oprot.writeI64(struct.startTime);
+      }
+      if (struct.isSetEndTime()) {
+        oprot.writeI64(struct.endTime);
+      }
+      if (struct.isSetName()) {
+        oprot.writeString(struct.name);
+      }
+      if (struct.isSetServiceName()) {
+        oprot.writeString(struct.serviceName);
+      }
+      if (struct.isSetSpanId()) {
+        oprot.writeI64(struct.spanId);
+      }
+      if (struct.isSetParentSpanId()) {
+        oprot.writeI64(struct.parentSpanId);
+      }
+      if (struct.isSetAnnotations()) {
+        {
+          oprot.writeI32(struct.annotations.size());
+          for (Annotation _iter4 : struct.annotations)
+          {
+            _iter4.write(oprot);
+          }
         }
-
-        boolean this_present_endTime = true;
-        boolean that_present_endTime = true;
-        if (this_present_endTime || that_present_endTime) {
-            if (!(this_present_endTime && that_present_endTime))
-                return false;
-            if (this.endTime != that.endTime)
-                return false;
-        }
-
-        boolean this_present_name = true && this.isSetName();
-        boolean that_present_name = true && that.isSetName();
-        if (this_present_name || that_present_name) {
-            if (!(this_present_name && that_present_name))
-                return false;
-            if (!this.name.equals(that.name))
-                return false;
-        }
-
-        boolean this_present_serviceName = true && this.isSetServiceName();
-        boolean that_present_serviceName = true && that.isSetServiceName();
-        if (this_present_serviceName || that_present_serviceName) {
-            if (!(this_present_serviceName && that_present_serviceName))
-                return false;
-            if (!this.serviceName.equals(that.serviceName))
-                return false;
-        }
-
-        boolean this_present_spanId = true;
-        boolean that_present_spanId = true;
-        if (this_present_spanId || that_present_spanId) {
-            if (!(this_present_spanId && that_present_spanId))
-                return false;
-            if (this.spanId != that.spanId)
-                return false;
-        }
-
-        boolean this_present_parentSpanId = true && this.isSetParentSpanId();
-        boolean that_present_parentSpanId = true && that.isSetParentSpanId();
-        if (this_present_parentSpanId || that_present_parentSpanId) {
-            if (!(this_present_parentSpanId && that_present_parentSpanId))
-                return false;
-            if (this.parentSpanId != that.parentSpanId)
-                return false;
-        }
-
-        boolean this_present_annotations = true && this.isSetAnnotations();
-        boolean that_present_annotations = true && that.isSetAnnotations();
-        if (this_present_annotations || that_present_annotations) {
-            if (!(this_present_annotations && that_present_annotations))
-                return false;
-            if (!this.annotations.equals(that.annotations))
-                return false;
-        }
-
-        boolean this_present_flag = true && this.isSetFlag();
-        boolean that_present_flag = true && that.isSetFlag();
-        if (this_present_flag || that_present_flag) {
-            if (!(this_present_flag && that_present_flag))
-                return false;
-            if (this.flag != that.flag)
-                return false;
-        }
-
-        boolean this_present_endPoint = true && this.isSetEndPoint();
-        boolean that_present_endPoint = true && that.isSetEndPoint();
-        if (this_present_endPoint || that_present_endPoint) {
-            if (!(this_present_endPoint && that_present_endPoint))
-                return false;
-            if (!this.endPoint.equals(that.endPoint))
-                return false;
-        }
-
-        boolean this_present_terminal = true;
-        boolean that_present_terminal = true;
-        if (this_present_terminal || that_present_terminal) {
-            if (!(this_present_terminal && that_present_terminal))
-                return false;
-            if (this.terminal != that.terminal)
-                return false;
-        }
-
-        return true;
+      }
+      if (struct.isSetFlag()) {
+        oprot.writeI32(struct.flag);
+      }
+      if (struct.isSetEndPoint()) {
+        oprot.writeString(struct.endPoint);
+      }
+      if (struct.isSetTerminal()) {
+        oprot.writeBool(struct.terminal);
+      }
     }
 
     @Override
-    public int hashCode() {
-        return 0;
+    public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
+      TTupleProtocol iprot = (TTupleProtocol) prot;
+      BitSet incoming = iprot.readBitSet(13);
+      if (incoming.get(0)) {
+        struct.agentId = iprot.readString();
+        struct.setAgentIdIsSet(true);
+      }
+      if (incoming.get(1)) {
+        struct.mostTraceId = iprot.readI64();
+        struct.setMostTraceIdIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.leastTraceId = iprot.readI64();
+        struct.setLeastTraceIdIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.startTime = iprot.readI64();
+        struct.setStartTimeIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.endTime = iprot.readI64();
+        struct.setEndTimeIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.name = iprot.readString();
+        struct.setNameIsSet(true);
+      }
+      if (incoming.get(6)) {
+        struct.serviceName = iprot.readString();
+        struct.setServiceNameIsSet(true);
+      }
+      if (incoming.get(7)) {
+        struct.spanId = iprot.readI64();
+        struct.setSpanIdIsSet(true);
+      }
+      if (incoming.get(8)) {
+        struct.parentSpanId = iprot.readI64();
+        struct.setParentSpanIdIsSet(true);
+      }
+      if (incoming.get(9)) {
+        {
+          org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.annotations = new ArrayList<Annotation>(_list5.size);
+          for (int _i6 = 0; _i6 < _list5.size; ++_i6)
+          {
+            Annotation _elem7; // required
+            _elem7 = new Annotation();
+            _elem7.read(iprot);
+            struct.annotations.add(_elem7);
+          }
+        }
+        struct.setAnnotationsIsSet(true);
+      }
+      if (incoming.get(10)) {
+        struct.flag = iprot.readI32();
+        struct.setFlagIsSet(true);
+      }
+      if (incoming.get(11)) {
+        struct.endPoint = iprot.readString();
+        struct.setEndPointIsSet(true);
+      }
+      if (incoming.get(12)) {
+        struct.terminal = iprot.readBool();
+        struct.setTerminalIsSet(true);
+      }
     }
-
-    public int compareTo(Span other) {
-        if (!getClass().equals(other.getClass())) {
-            return getClass().getName().compareTo(other.getClass().getName());
-        }
-
-        int lastComparison = 0;
-        Span typedOther = (Span) other;
-
-        lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetAgentId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetMostTraceId()).compareTo(typedOther.isSetMostTraceId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetMostTraceId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mostTraceId, typedOther.mostTraceId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetLeastTraceId()).compareTo(typedOther.isSetLeastTraceId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetLeastTraceId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.leastTraceId, typedOther.leastTraceId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetStartTime()).compareTo(typedOther.isSetStartTime());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetStartTime()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.startTime, typedOther.startTime);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetEndTime()).compareTo(typedOther.isSetEndTime());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetEndTime()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endTime, typedOther.endTime);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetName()).compareTo(typedOther.isSetName());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetName()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, typedOther.name);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetServiceName()).compareTo(typedOther.isSetServiceName());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetServiceName()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serviceName, typedOther.serviceName);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetSpanId()).compareTo(typedOther.isSetSpanId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetSpanId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanId, typedOther.spanId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetParentSpanId()).compareTo(typedOther.isSetParentSpanId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetParentSpanId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentSpanId, typedOther.parentSpanId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetAnnotations()).compareTo(typedOther.isSetAnnotations());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetAnnotations()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.annotations, typedOther.annotations);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetFlag()).compareTo(typedOther.isSetFlag());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetFlag()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.flag, typedOther.flag);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetEndPoint()).compareTo(typedOther.isSetEndPoint());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetEndPoint()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endPoint, typedOther.endPoint);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetTerminal()).compareTo(typedOther.isSetTerminal());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetTerminal()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.terminal, typedOther.terminal);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        return 0;
-    }
-
-    public _Fields fieldForId(int fieldId) {
-        return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
-        schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
-    }
-
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
-        schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("Span(");
-        boolean first = true;
-
-        sb.append("agentId:");
-        if (this.agentId == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.agentId);
-        }
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("mostTraceId:");
-        sb.append(this.mostTraceId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("leastTraceId:");
-        sb.append(this.leastTraceId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("startTime:");
-        sb.append(this.startTime);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("endTime:");
-        sb.append(this.endTime);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("name:");
-        if (this.name == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.name);
-        }
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("serviceName:");
-        if (this.serviceName == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.serviceName);
-        }
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("spanId:");
-        sb.append(this.spanId);
-        first = false;
-        if (isSetParentSpanId()) {
-            if (!first) sb.append(", ");
-            sb.append("parentSpanId:");
-            sb.append(this.parentSpanId);
-            first = false;
-        }
-        if (!first) sb.append(", ");
-        sb.append("annotations:");
-        if (this.annotations == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.annotations);
-        }
-        first = false;
-        if (isSetFlag()) {
-            if (!first) sb.append(", ");
-            sb.append("flag:");
-            sb.append(this.flag);
-            first = false;
-        }
-        if (!first) sb.append(", ");
-        sb.append("endPoint:");
-        if (this.endPoint == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.endPoint);
-        }
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("terminal:");
-        sb.append(this.terminal);
-        first = false;
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public void validate() throws org.apache.thrift.TException {
-        // check for required fields
-    }
-
-    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
-        try {
-            write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
-        }
-    }
-
-    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
-        try {
-            // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-            __isset_bit_vector = new BitSet(1);
-            read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
-        }
-    }
-
-    private static class SpanStandardSchemeFactory implements SchemeFactory {
-        public SpanStandardScheme getScheme() {
-            return new SpanStandardScheme();
-        }
-    }
-
-    private static class SpanStandardScheme extends StandardScheme<Span> {
-
-        public void read(org.apache.thrift.protocol.TProtocol iprot, Span struct) throws org.apache.thrift.TException {
-            org.apache.thrift.protocol.TField schemeField;
-            iprot.readStructBegin();
-            while (true) {
-                schemeField = iprot.readFieldBegin();
-                if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
-                    break;
-                }
-                switch (schemeField.id) {
-                    case 1: // AGENT_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                            struct.agentId = iprot.readString();
-                            struct.setAgentIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 2: // MOST_TRACE_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.mostTraceId = iprot.readI64();
-                            struct.setMostTraceIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 3: // LEAST_TRACE_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.leastTraceId = iprot.readI64();
-                            struct.setLeastTraceIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 4: // START_TIME
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.startTime = iprot.readI64();
-                            struct.setStartTimeIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 5: // END_TIME
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.endTime = iprot.readI64();
-                            struct.setEndTimeIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 6: // NAME
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                            struct.name = iprot.readString();
-                            struct.setNameIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 7: // SERVICE_NAME
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                            struct.serviceName = iprot.readString();
-                            struct.setServiceNameIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 8: // SPAN_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.spanId = iprot.readI64();
-                            struct.setSpanIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 9: // PARENT_SPAN_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.parentSpanId = iprot.readI64();
-                            struct.setParentSpanIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 10: // ANNOTATIONS
-                        if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                            {
-                                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                                struct.annotations = new ArrayList<Annotation>(_list0.size);
-                                for (int _i1 = 0; _i1 < _list0.size; ++_i1) {
-                                    Annotation _elem2; // required
-                                    _elem2 = new Annotation();
-                                    _elem2.read(iprot);
-                                    struct.annotations.add(_elem2);
-                                }
-                                iprot.readListEnd();
-                            }
-                            struct.setAnnotationsIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 11: // FLAG
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                            struct.flag = iprot.readI32();
-                            struct.setFlagIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 12: // END_POINT
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                            struct.endPoint = iprot.readString();
-                            struct.setEndPointIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 13: // TERMINAL
-                        if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-                            struct.terminal = iprot.readBool();
-                            struct.setTerminalIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    default:
-                        org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                }
-                iprot.readFieldEnd();
-            }
-            iprot.readStructEnd();
-            struct.validate();
-        }
-
-        public void write(org.apache.thrift.protocol.TProtocol oprot, Span struct) throws org.apache.thrift.TException {
-            struct.validate();
-
-            oprot.writeStructBegin(STRUCT_DESC);
-            if (struct.agentId != null) {
-                oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
-                oprot.writeString(struct.agentId);
-                oprot.writeFieldEnd();
-            }
-            oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
-            oprot.writeI64(struct.mostTraceId);
-            oprot.writeFieldEnd();
-            oprot.writeFieldBegin(LEAST_TRACE_ID_FIELD_DESC);
-            oprot.writeI64(struct.leastTraceId);
-            oprot.writeFieldEnd();
-            oprot.writeFieldBegin(START_TIME_FIELD_DESC);
-            oprot.writeI64(struct.startTime);
-            oprot.writeFieldEnd();
-            oprot.writeFieldBegin(END_TIME_FIELD_DESC);
-            oprot.writeI64(struct.endTime);
-            oprot.writeFieldEnd();
-            if (struct.name != null) {
-                oprot.writeFieldBegin(NAME_FIELD_DESC);
-                oprot.writeString(struct.name);
-                oprot.writeFieldEnd();
-            }
-            if (struct.serviceName != null) {
-                oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
-                oprot.writeString(struct.serviceName);
-                oprot.writeFieldEnd();
-            }
-            oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-            oprot.writeI64(struct.spanId);
-            oprot.writeFieldEnd();
-            if (struct.isSetParentSpanId()) {
-                oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
-                oprot.writeI64(struct.parentSpanId);
-                oprot.writeFieldEnd();
-            }
-            if (struct.annotations != null) {
-                oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
-                {
-                    oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-                    for (Annotation _iter3 : struct.annotations) {
-                        _iter3.write(oprot);
-                    }
-                    oprot.writeListEnd();
-                }
-                oprot.writeFieldEnd();
-            }
-            if (struct.isSetFlag()) {
-                oprot.writeFieldBegin(FLAG_FIELD_DESC);
-                oprot.writeI32(struct.flag);
-                oprot.writeFieldEnd();
-            }
-            if (struct.endPoint != null) {
-                oprot.writeFieldBegin(END_POINT_FIELD_DESC);
-                oprot.writeString(struct.endPoint);
-                oprot.writeFieldEnd();
-            }
-            oprot.writeFieldBegin(TERMINAL_FIELD_DESC);
-            oprot.writeBool(struct.terminal);
-            oprot.writeFieldEnd();
-            oprot.writeFieldStop();
-            oprot.writeStructEnd();
-        }
-
-    }
-
-    private static class SpanTupleSchemeFactory implements SchemeFactory {
-        public SpanTupleScheme getScheme() {
-            return new SpanTupleScheme();
-        }
-    }
-
-    private static class SpanTupleScheme extends TupleScheme<Span> {
-
-        @Override
-        public void write(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
-            TTupleProtocol oprot = (TTupleProtocol) prot;
-            BitSet optionals = new BitSet();
-            if (struct.isSetAgentId()) {
-                optionals.set(0);
-            }
-            if (struct.isSetMostTraceId()) {
-                optionals.set(1);
-            }
-            if (struct.isSetLeastTraceId()) {
-                optionals.set(2);
-            }
-            if (struct.isSetStartTime()) {
-                optionals.set(3);
-            }
-            if (struct.isSetEndTime()) {
-                optionals.set(4);
-            }
-            if (struct.isSetName()) {
-                optionals.set(5);
-            }
-            if (struct.isSetServiceName()) {
-                optionals.set(6);
-            }
-            if (struct.isSetSpanId()) {
-                optionals.set(7);
-            }
-            if (struct.isSetParentSpanId()) {
-                optionals.set(8);
-            }
-            if (struct.isSetAnnotations()) {
-                optionals.set(9);
-            }
-            if (struct.isSetFlag()) {
-                optionals.set(10);
-            }
-            if (struct.isSetEndPoint()) {
-                optionals.set(11);
-            }
-            if (struct.isSetTerminal()) {
-                optionals.set(12);
-            }
-            oprot.writeBitSet(optionals, 13);
-            if (struct.isSetAgentId()) {
-                oprot.writeString(struct.agentId);
-            }
-            if (struct.isSetMostTraceId()) {
-                oprot.writeI64(struct.mostTraceId);
-            }
-            if (struct.isSetLeastTraceId()) {
-                oprot.writeI64(struct.leastTraceId);
-            }
-            if (struct.isSetStartTime()) {
-                oprot.writeI64(struct.startTime);
-            }
-            if (struct.isSetEndTime()) {
-                oprot.writeI64(struct.endTime);
-            }
-            if (struct.isSetName()) {
-                oprot.writeString(struct.name);
-            }
-            if (struct.isSetServiceName()) {
-                oprot.writeString(struct.serviceName);
-            }
-            if (struct.isSetSpanId()) {
-                oprot.writeI64(struct.spanId);
-            }
-            if (struct.isSetParentSpanId()) {
-                oprot.writeI64(struct.parentSpanId);
-            }
-            if (struct.isSetAnnotations()) {
-                {
-                    oprot.writeI32(struct.annotations.size());
-                    for (Annotation _iter4 : struct.annotations) {
-                        _iter4.write(oprot);
-                    }
-                }
-            }
-            if (struct.isSetFlag()) {
-                oprot.writeI32(struct.flag);
-            }
-            if (struct.isSetEndPoint()) {
-                oprot.writeString(struct.endPoint);
-            }
-            if (struct.isSetTerminal()) {
-                oprot.writeBool(struct.terminal);
-            }
-        }
-
-        @Override
-        public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
-            TTupleProtocol iprot = (TTupleProtocol) prot;
-            BitSet incoming = iprot.readBitSet(13);
-            if (incoming.get(0)) {
-                struct.agentId = iprot.readString();
-                struct.setAgentIdIsSet(true);
-            }
-            if (incoming.get(1)) {
-                struct.mostTraceId = iprot.readI64();
-                struct.setMostTraceIdIsSet(true);
-            }
-            if (incoming.get(2)) {
-                struct.leastTraceId = iprot.readI64();
-                struct.setLeastTraceIdIsSet(true);
-            }
-            if (incoming.get(3)) {
-                struct.startTime = iprot.readI64();
-                struct.setStartTimeIsSet(true);
-            }
-            if (incoming.get(4)) {
-                struct.endTime = iprot.readI64();
-                struct.setEndTimeIsSet(true);
-            }
-            if (incoming.get(5)) {
-                struct.name = iprot.readString();
-                struct.setNameIsSet(true);
-            }
-            if (incoming.get(6)) {
-                struct.serviceName = iprot.readString();
-                struct.setServiceNameIsSet(true);
-            }
-            if (incoming.get(7)) {
-                struct.spanId = iprot.readI64();
-                struct.setSpanIdIsSet(true);
-            }
-            if (incoming.get(8)) {
-                struct.parentSpanId = iprot.readI64();
-                struct.setParentSpanIdIsSet(true);
-            }
-            if (incoming.get(9)) {
-                {
-                    org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-                    struct.annotations = new ArrayList<Annotation>(_list5.size);
-                    for (int _i6 = 0; _i6 < _list5.size; ++_i6) {
-                        Annotation _elem7; // required
-                        _elem7 = new Annotation();
-                        _elem7.read(iprot);
-                        struct.annotations.add(_elem7);
-                    }
-                }
-                struct.setAnnotationsIsSet(true);
-            }
-            if (incoming.get(10)) {
-                struct.flag = iprot.readI32();
-                struct.setFlagIsSet(true);
-            }
-            if (incoming.get(11)) {
-                struct.endPoint = iprot.readString();
-                struct.setEndPointIsSet(true);
-            }
-            if (incoming.get(12)) {
-                struct.terminal = iprot.readBool();
-                struct.setTerminalIsSet(true);
-            }
-        }
-    }
+  }
 
 }
 
