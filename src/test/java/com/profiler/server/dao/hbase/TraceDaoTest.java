@@ -4,6 +4,7 @@ import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
 import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.RowKeyUtils;
 import com.profiler.common.util.SpanUtils;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -81,8 +82,8 @@ public class TraceDaoTest {
 
         traceIndex.insert(span);
         // TODO 서버가 받은 시간으로 변경해야 될듯.
-        byte[] s = ArrayUtils.addAll(Bytes.toBytes(span.getAgentId()), Bytes.toBytes(span.getStartTime()));
-        byte[] result = hbaseOperations.get(traceIndex.getTableName(), s, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
+        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), SpanUtils.AGENT_NAME_LIMIT, span.getStartTime());
+        byte[] result = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
 
         Assert.assertArrayEquals(SpanUtils.getTraceId(span), result);
     }

@@ -3,6 +3,7 @@ package com.profiler.server.dao.hbase;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.SpanUtils;
 import com.profiler.common.util.TBaseLocator;
 import com.profiler.server.dao.hbase.HbaseJvmInfoDao;
 
@@ -60,7 +61,7 @@ public class HbaseJvmInfoDaoTest {
         byte[] tests = Bytes.toBytes("test");
         long dataTime = jvmInfoThriftDTO.getDataTime();
         Assert.assertArrayEquals(Arrays.copyOfRange(rowKey, 0, tests.length), tests);
-        Assert.assertArrayEquals(Arrays.copyOfRange(rowKey, tests.length, tests.length+8), Bytes.toBytes(dataTime));
+        Assert.assertArrayEquals(Arrays.copyOfRange(rowKey, SpanUtils.AGENT_NAME_LIMIT, SpanUtils.AGENT_NAME_LIMIT + 8), Bytes.toBytes(dataTime));
     }
 
 
