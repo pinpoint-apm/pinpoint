@@ -76,6 +76,7 @@ jQuery.fn.springy = function(params) {
 	var nearest = null;
 	var dragged = null;
 
+	/*
 	jQuery(canvas).mousedown(function(e) {
 		jQuery('.actions').hide();
 
@@ -110,7 +111,8 @@ jQuery.fn.springy = function(params) {
 	jQuery(window).bind('mouseup',function(e) {
 		dragged = null;
 	});
-
+	*/
+	
 	Node.prototype.getWidth = function() {
 		var text = typeof(this.data.label) !== 'undefined' ? this.data.label : this.id;
 		if (this._width && this._width[text])
@@ -237,28 +239,42 @@ jQuery.fn.springy = function(params) {
 
 			var boxWidth = node.getWidth();
 			var boxHeight = node.getHeight();
+			var textX = s.x - boxWidth/2;
+			
+			var image = new Image();
+			image.src = "/common/images/hippo/ico_" + node.data.serverType + ".gif";
+			console.log(image.src);
+			
+			ctx.drawImage(image, s.x - image.width/2, s.y - image.height/2, image.width, image.height);
+			var textY = s.y + 2 + image.height/2;
 
-			// clear background
-			ctx.clearRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
+		      // fill background
+	        ctx.clearRect(textX, textY, boxWidth, 20);
 
-			// fill background
-			if (selected !== null && nearest.node !== null && selected.node.id === node.id) {
-				ctx.fillStyle = "#FFFFE0";
-			} else if (nearest !== null && nearest.node !== null && nearest.node.id === node.id) {
-				ctx.fillStyle = "#EEEEEE";
-			} else {
-				ctx.fillStyle = "#FFFFFF";
-			}
-			ctx.fillRect(s.x - boxWidth/2, s.y - 10, boxWidth, 20);
+	        // fill background
+	        if (selected !== null && nearest.node !== null && selected.node.id === node.id)
+	        {
+	            ctx.fillStyle = "#FFFFE0";
+	        }
+	        else if (nearest !== null && nearest.node !== null && nearest.node.id === node.id)
+	        {
+	            ctx.fillStyle = "#EEEEEE";
+	        }
+	        else
+	        {
+	            ctx.fillStyle = "#FFFFFF";
+	        }
 
-			ctx.textAlign = "left";
-			ctx.textBaseline = "top";
-			ctx.font = "16px Verdana, sans-serif";
-			ctx.fillStyle = "#000000";
-			ctx.font = "16px Verdana, sans-serif";
-			var text = typeof(node.data.label) !== 'undefined' ? node.data.label : node.id;
-			ctx.fillText(text, s.x - boxWidth/2 + 5, s.y - 8);
+	        ctx.fillRect(textX, textY, boxWidth, 20);
+	        ctx.textAlign = "left";
+	        ctx.textBaseline = "top";
+	        ctx.fillStyle = "#222222";
+	        ctx.font = "12px Verdana, sans-serif";
+	        //ctx.font = "70% Verdana, Arial, sans-serif";
+	        var text = typeof(node.data.label) !== 'undefined' ? node.data.label : node.id;
+	        ctx.fillText(text, textX + 5, textY);
 
+	        ctx.restore();			
 			ctx.restore();
 		}
 	);

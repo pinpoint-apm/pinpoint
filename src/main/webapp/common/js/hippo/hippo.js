@@ -3,8 +3,7 @@ function drawGraph(graphdata) {
 	var nodes = [];
 
 	for(var i = 0; i < graphdata.nodes.length; i++) {
-		nodes[i] = graph.newNode({label: graphdata.nodes[i].name});
-		console.log(nodes[i]);
+		nodes[i] = graph.newNode({label: graphdata.nodes[i].name, serverType: graphdata.nodes[i].serverType});
 	}
 	
 	for(var i = 0; i < graphdata.links.length; i++) {

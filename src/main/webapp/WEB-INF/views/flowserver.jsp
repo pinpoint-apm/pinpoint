@@ -12,7 +12,8 @@
         "${agentId}"
         <c:if test="${!status2.last}">,</c:if>
     </c:forEach>
-    ]
+    ],
+    "serverType" : "${node.serverType}"
     }
     <c:if test="${!status.last}">,</c:if>
 </c:forEach>
