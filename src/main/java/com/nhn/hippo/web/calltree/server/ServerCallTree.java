@@ -36,7 +36,7 @@ public class ServerCallTree {
          * make Servers
          */
         // TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
-        Server server = new Server(span.getAgentId(), span.getServiceName(), span.getEndPoint(), span.isTerminal(), span.getRecursiveCallCount());
+        Server server = new Server(span);
 
         if (server.getId() == null) {
         	return;

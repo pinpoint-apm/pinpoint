@@ -62,7 +62,7 @@ function drawSankeyChart(graphdata, targetId, w, h) {
 	        }).style("stroke",function (d) {
 	            return d3.rgb(d.color).darker(2);
 	        }).append("title").text(function (d) {
-	            return d.name + "\n" + format(d.value);
+                return "applicationName\n\t" + d.name + "\nTotal Requests\n\t" + format(d.value) + "\nServers\n\t" + d.agentIds.join('\n\t');
 	        });
 	
 	node.append("text").attr("x", -6).attr("y",function (d) {
