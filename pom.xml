@@ -147,22 +147,6 @@
             </exclusions>
         </dependency>
 
-        <!-- thrift depedencies -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- commons-logging-adapter -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
-        </dependency>
-
-
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>servlet-api</artifactId>
@@ -203,6 +187,7 @@
             <version>1.8.4</version>
             <scope>test</scope>
         </dependency>
+
 
         <!-- Logging depedencies -->
         <dependency>
