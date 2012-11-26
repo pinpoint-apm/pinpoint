@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.server.dao.AgentIdApplicationIndex;
 import com.profiler.server.dao.ApplicationTraceIndex;
 import com.profiler.server.dao.RootTraceIndexDao;
 import com.profiler.server.dao.TraceIndex;
@@ -29,6 +30,9 @@ public class SpanHandler implements Handler {
 	@Autowired
 	private ApplicationTraceIndex applicationTraceIndexDao;
 
+	@Autowired
+	private AgentIdApplicationIndex agentIdApplicationIndexDao;
+	
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 		assert (tbase instanceof Span);
 
@@ -39,11 +43,14 @@ public class SpanHandler implements Handler {
 				logger.info("Received SPAN=" + span);
 			}
 
-			String applicationName = span.getServiceName();
+			String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
+//			String applicationName = span.getServiceName();
 			
 			if (applicationName == null) {
 				logger.info("Applicationname '{}' not found. Drop the log.", applicationName);
 				return;
+			} else {
+				logger.info("Applicationname '{}' found. Write the log.", applicationName);
 			}
 			
 			if (logger.isDebugEnabled()) {
