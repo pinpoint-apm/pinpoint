@@ -7,9 +7,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.spy.memcached.ArcusClient;
-import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.MemcachedClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,10 +23,6 @@ import com.nhn.hippo.testweb.util.HttpInvoker;
 public class HelloWorldController {
 
 	private static final ArcusClient arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
-
-	private static final ArcusClientPool arcusPool = ArcusClient.createArcusClientPool("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder(), 2);
-
-	private static final MemcachedClient arcus2 = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev1.6", new ConnectionFactoryBuilder());
 
 	@Autowired
 	private MemberService service;
@@ -61,39 +55,6 @@ public class HelloWorldController {
 			if (future != null)
 				future.cancel(true);
 		}
-
-		Future<Boolean> future2 = null;
-		try {
-			future2 = arcus2.set("hippo:testkey", 10, "Hello, Hippo.");
-			future2.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (future2 != null)
-				future2.cancel(true);
-		}
-
-		Future<Boolean> future3 = null;
-		try {
-			future3 = arcusPool.set("hippo:testkey", 10, "Hello, Hippo.");
-			future3.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (future3 != null)
-				future3.cancel(true);
-		}
-
-		ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder();
-		cfb.setFrontCacheExpireTime(1000);
-		cfb.setMaxFrontCacheElements(1000);
-		ArcusClient c = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", cfb);
-
-		try {
-			c.set("hippo:k", 1000, "V").get(500, TimeUnit.MILLISECONDS);
-			c.get("hippo:k");
-			c.get("hippo:k");
-			c.get("hippo:k");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		return "arcus";
 	}
 
