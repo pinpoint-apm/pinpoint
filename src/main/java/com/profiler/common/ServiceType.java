@@ -1,6 +1,6 @@
 package com.profiler.common;
 
-public enum ServerType {
+public enum ServiceType {
 	
 	TOMCAT("TOMCAT"),
 	BLOC("BLOC"),
@@ -13,13 +13,13 @@ public enum ServerType {
 	
 	private String code;
 
-	ServerType(String code) {
+	ServiceType(String code) {
 		this.code = code;
 	}
 	
-	public static ServerType parseServerType(String applicationName) {
+	public static ServiceType parseServerType(String applicationName) {
 		if (applicationName == null)
-			return ServerType.UNKNOWN;
+			return ServiceType.UNKNOWN;
 
 		if (applicationName.startsWith(TOMCAT.code)) {
 			return TOMCAT;
@@ -33,7 +33,7 @@ public enum ServerType {
 			return MYSQL;
 		}
 		
-		return ServerType.UNKNOWN;
+		return ServiceType.UNKNOWN;
 	}
 	
 	@Override

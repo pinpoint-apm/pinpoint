@@ -34,7 +34,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField END_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("endTime", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("elapsed", org.apache.thrift.protocol.TType.I32, (short)5);
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)6);
   private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)7);
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)8);
@@ -54,7 +54,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private long mostTraceId; // required
   private long leastTraceId; // required
   private long startTime; // required
-  private long endTime; // required
+  private int elapsed; // required
   private String name; // required
   private String serviceName; // required
   private long spanId; // required
@@ -70,7 +70,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     MOST_TRACE_ID((short)2, "mostTraceId"),
     LEAST_TRACE_ID((short)3, "leastTraceId"),
     START_TIME((short)4, "startTime"),
-    END_TIME((short)5, "endTime"),
+    ELAPSED((short)5, "elapsed"),
     NAME((short)6, "name"),
     SERVICE_NAME((short)7, "serviceName"),
     SPAN_ID((short)8, "spanId"),
@@ -101,8 +101,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           return LEAST_TRACE_ID;
         case 4: // START_TIME
           return START_TIME;
-        case 5: // END_TIME
-          return END_TIME;
+        case 5: // ELAPSED
+          return ELAPSED;
         case 6: // NAME
           return NAME;
         case 7: // SERVICE_NAME
@@ -162,7 +162,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __MOSTTRACEID_ISSET_ID = 0;
   private static final int __LEASTTRACEID_ISSET_ID = 1;
   private static final int __STARTTIME_ISSET_ID = 2;
-  private static final int __ENDTIME_ISSET_ID = 3;
+  private static final int __ELAPSED_ISSET_ID = 3;
   private static final int __SPANID_ISSET_ID = 4;
   private static final int __PARENTSPANID_ISSET_ID = 5;
   private static final int __FLAG_ISSET_ID = 6;
@@ -180,8 +180,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.END_TIME, new org.apache.thrift.meta_data.FieldMetaData("endTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -213,7 +213,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     long mostTraceId,
     long leastTraceId,
     long startTime,
-    long endTime,
+    int elapsed,
     String name,
     String serviceName,
     long spanId,
@@ -229,8 +229,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setLeastTraceIdIsSet(true);
     this.startTime = startTime;
     setStartTimeIsSet(true);
-    this.endTime = endTime;
-    setEndTimeIsSet(true);
+    this.elapsed = elapsed;
+    setElapsedIsSet(true);
     this.name = name;
     this.serviceName = serviceName;
     this.spanId = spanId;
@@ -253,7 +253,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.mostTraceId = other.mostTraceId;
     this.leastTraceId = other.leastTraceId;
     this.startTime = other.startTime;
-    this.endTime = other.endTime;
+    this.elapsed = other.elapsed;
     if (other.isSetName()) {
       this.name = other.name;
     }
@@ -289,8 +289,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.leastTraceId = 0;
     setStartTimeIsSet(false);
     this.startTime = 0;
-    setEndTimeIsSet(false);
-    this.endTime = 0;
+    setElapsedIsSet(false);
+    this.elapsed = 0;
     this.name = null;
     this.serviceName = null;
     setSpanIdIsSet(false);
@@ -394,26 +394,26 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     __isset_bit_vector.set(__STARTTIME_ISSET_ID, value);
   }
 
-  public long getEndTime() {
-    return this.endTime;
+  public int getElapsed() {
+    return this.elapsed;
   }
 
-  public void setEndTime(long endTime) {
-    this.endTime = endTime;
-    setEndTimeIsSet(true);
+  public void setElapsed(int elapsed) {
+    this.elapsed = elapsed;
+    setElapsedIsSet(true);
   }
 
-  public void unsetEndTime() {
-    __isset_bit_vector.clear(__ENDTIME_ISSET_ID);
+  public void unsetElapsed() {
+    __isset_bit_vector.clear(__ELAPSED_ISSET_ID);
   }
 
-  /** Returns true if field endTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetEndTime() {
-    return __isset_bit_vector.get(__ENDTIME_ISSET_ID);
+  /** Returns true if field elapsed is set (has been assigned a value) and false otherwise */
+  public boolean isSetElapsed() {
+    return __isset_bit_vector.get(__ELAPSED_ISSET_ID);
   }
 
-  public void setEndTimeIsSet(boolean value) {
-    __isset_bit_vector.set(__ENDTIME_ISSET_ID, value);
+  public void setElapsedIsSet(boolean value) {
+    __isset_bit_vector.set(__ELAPSED_ISSET_ID, value);
   }
 
   public String getName() {
@@ -645,11 +645,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
-    case END_TIME:
+    case ELAPSED:
       if (value == null) {
-        unsetEndTime();
+        unsetElapsed();
       } else {
-        setEndTime((Long)value);
+        setElapsed((Integer)value);
       }
       break;
 
@@ -734,8 +734,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case START_TIME:
       return Long.valueOf(getStartTime());
 
-    case END_TIME:
-      return Long.valueOf(getEndTime());
+    case ELAPSED:
+      return Integer.valueOf(getElapsed());
 
     case NAME:
       return getName();
@@ -780,8 +780,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetLeastTraceId();
     case START_TIME:
       return isSetStartTime();
-    case END_TIME:
-      return isSetEndTime();
+    case ELAPSED:
+      return isSetElapsed();
     case NAME:
       return isSetName();
     case SERVICE_NAME:
@@ -851,12 +851,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_endTime = true;
-    boolean that_present_endTime = true;
-    if (this_present_endTime || that_present_endTime) {
-      if (!(this_present_endTime && that_present_endTime))
+    boolean this_present_elapsed = true;
+    boolean that_present_elapsed = true;
+    if (this_present_elapsed || that_present_elapsed) {
+      if (!(this_present_elapsed && that_present_elapsed))
         return false;
-      if (this.endTime != that.endTime)
+      if (this.elapsed != that.elapsed)
         return false;
     }
 
@@ -988,12 +988,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetEndTime()).compareTo(typedOther.isSetEndTime());
+    lastComparison = Boolean.valueOf(isSetElapsed()).compareTo(typedOther.isSetElapsed());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetEndTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endTime, typedOther.endTime);
+    if (isSetElapsed()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.elapsed, typedOther.elapsed);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1118,8 +1118,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     sb.append(this.startTime);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("endTime:");
-    sb.append(this.endTime);
+    sb.append("elapsed:");
+    sb.append(this.elapsed);
     first = false;
     if (!first) sb.append(", ");
     sb.append("name:");
@@ -1249,10 +1249,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // END_TIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.endTime = iprot.readI64();
-              struct.setEndTimeIsSet(true);
+          case 5: // ELAPSED
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.elapsed = iprot.readI32();
+              struct.setElapsedIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1359,8 +1359,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(END_TIME_FIELD_DESC);
-      oprot.writeI64(struct.endTime);
+      oprot.writeFieldBegin(ELAPSED_FIELD_DESC);
+      oprot.writeI32(struct.elapsed);
       oprot.writeFieldEnd();
       if (struct.name != null) {
         oprot.writeFieldBegin(NAME_FIELD_DESC);
@@ -1435,7 +1435,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetStartTime()) {
         optionals.set(3);
       }
-      if (struct.isSetEndTime()) {
+      if (struct.isSetElapsed()) {
         optionals.set(4);
       }
       if (struct.isSetName()) {
@@ -1475,8 +1475,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetStartTime()) {
         oprot.writeI64(struct.startTime);
       }
-      if (struct.isSetEndTime()) {
-        oprot.writeI64(struct.endTime);
+      if (struct.isSetElapsed()) {
+        oprot.writeI32(struct.elapsed);
       }
       if (struct.isSetName()) {
         oprot.writeString(struct.name);
@@ -1531,8 +1531,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setStartTimeIsSet(true);
       }
       if (incoming.get(4)) {
-        struct.endTime = iprot.readI64();
-        struct.setEndTimeIsSet(true);
+        struct.elapsed = iprot.readI32();
+        struct.setElapsedIsSet(true);
       }
       if (incoming.get(5)) {
         struct.name = iprot.readString();

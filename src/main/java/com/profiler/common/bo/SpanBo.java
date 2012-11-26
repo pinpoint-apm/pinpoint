@@ -24,7 +24,7 @@ public class SpanBo {
 
     // private static final int TIMESTAMP = 8;
     private long startTime; // required
-    private long endTime; // required
+    private int elapsed; // required
 
     // private static final int MOSTTRACEID = 8;
     private long mostTraceId; // required
@@ -57,7 +57,7 @@ public class SpanBo {
     public SpanBo(Span span) {
         this.agentId = span.getAgentId();
         this.startTime = span.getStartTime();
-        this.endTime = span.getEndTime();
+        this.elapsed = span.getElapsed();
         this.mostTraceId = span.getMostTraceId();
         this.leastTraceId = span.getLeastTraceId();
         this.name = span.getName();
@@ -70,12 +70,12 @@ public class SpanBo {
         setAnnotationList(span.getAnnotations());
     }
 
-    public SpanBo(long mostTraceId, long leastTraceId, long startTime, long endTime, long spanId) {
+    public SpanBo(long mostTraceId, long leastTraceId, long startTime, int elapsed, long spanId) {
         this.mostTraceId = mostTraceId;
         this.leastTraceId = leastTraceId;
 
         this.startTime = startTime;
-        this.endTime = endTime;
+        this.elapsed = elapsed;
 
         this.spanId = spanId;
     }
@@ -107,13 +107,13 @@ public class SpanBo {
         return startTime;
     }
 
-    public long getEndTime() {
-        return endTime;
+    public int getElapsed() {
+        return elapsed;
     }
 
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
+    public void setElapsed(int elapsed) {
+    	this.elapsed = elapsed;
     }
 
     public void setStartTime(long startTime) {
@@ -243,7 +243,7 @@ public class SpanBo {
         buffer.put(version);
         buffer.putPrefixedBytes(agentIDBytes);
         buffer.put(startTime);
-        buffer.put(endTime);
+        buffer.put(elapsed);
         // buffer.put(leastTraceID);
         buffer.putPrefixedBytes(nameBytes);
         buffer.putPrefixedBytes(serviceNameBytes);
@@ -260,7 +260,7 @@ public class SpanBo {
         this.version = buffer.readByte();
         this.agentId = buffer.readPrefixedString();
         this.startTime = buffer.readLong();
-        this.endTime = buffer.readLong();
+        this.elapsed = buffer.readInt();
         // this.leastTraceID = buffer.readLong();
         this.name = buffer.readPrefixedString();
         this.serviceName = buffer.readPrefixedString();
@@ -283,7 +283,7 @@ public class SpanBo {
     @Override
     public String toString() {
         return "SpanBo{" + "agentId='" + agentId + '\''
-                + ", startTime=" + startTime + ", endTime=" + endTime + ", mostTraceId=" + mostTraceId
+                + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId
                 + ", leastTraceId=" + leastTraceId + ", name='" + name + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + '\'' + ", terminal=" + terminal + '}';
     }
 }

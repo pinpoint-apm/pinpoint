@@ -12,7 +12,7 @@ struct Span {
   2: i64 mostTraceId
   3: i64 leastTraceId
   4: i64 startTime,
-  5: i64 endTime,
+  5: i32 elapsed, 
   6: string name,
   7: string serviceName
   8: i64 spanId,
