@@ -92,7 +92,7 @@ public class TraceDaoTest {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         long l = System.currentTimeMillis();
-        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), l, l + 5, "test", "rpc", 1, ano, "protocol:ip:port", false);
+        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), l, (int) l + 5, "test", "rpc", 1, ano, "protocol:ip:port", false);
         return span;
     }
 }

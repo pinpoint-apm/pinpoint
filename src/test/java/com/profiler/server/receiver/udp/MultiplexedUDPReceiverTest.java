@@ -1,9 +1,9 @@
 package com.profiler.server.receiver.udp;
 
-import com.profiler.server.spring.ApplicationContextUtils;
-import junit.framework.TestCase;
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
+
+import com.profiler.server.spring.ApplicationContextUtils;
 
 public class MultiplexedUDPReceiverTest {
 
