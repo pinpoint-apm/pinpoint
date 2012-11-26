@@ -3,11 +3,19 @@ function drawGraph(graphdata) {
 	var nodes = [];
 
 	for(var i = 0; i < graphdata.nodes.length; i++) {
-		nodes[i] = graph.newNode({label: graphdata.nodes[i].name, serverType: graphdata.nodes[i].serverType});
+		nodes[i] = graph.newNode({
+			label : graphdata.nodes[i].name,
+			serverType : graphdata.nodes[i].serverType
+		});
 	}
 	
 	for(var i = 0; i < graphdata.links.length; i++) {
-		graph.newEdge(nodes[graphdata.links[i].source], nodes[graphdata.links[i].target], {color: '#7DBE3C'});
+		var src = nodes[graphdata.links[i].source];
+		var target = nodes[graphdata.links[i].target];
+        graph.newEdge(src, target, {
+        	color : '#7DBE3C',
+        	label : graphdata.links[i].value + ' request(s), < 10ms'
+		});
 	}
 	
 	jQuery(function(){
@@ -87,7 +95,7 @@ function drawSankeyChart(graphdata, targetId, w, h) {
 	        }).style("stroke",function (d) {
 	            return d3.rgb(d.color).darker(2);
 	        }).append("title").text(function (d) {
-                return "applicationName\n\t" + d.name + "\nTotal Requests\n\t" + format(d.value) + "\nServers\n\t" + d.agentIds.join('\n\t');
+                return "applicationName\n\t" + d.name + "\nTotal Requests\n\t" + format(d.value) + ((d.agentIds) ? "\nServers\n\t" + d.agentIds.join('\n\t') : "");
 	        });
 	
 	node.append("text").attr("x", -6).attr("y",function (d) {
