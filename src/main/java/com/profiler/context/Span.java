@@ -118,7 +118,7 @@ public class Span implements Thriftable {
 
         span.setAgentId(Agent.getInstance().getAgentId());
         span.setStartTime(startTime);
-        span.setEndTime(endTime);
+		span.setElapsed((int) (endTime - startTime));
         span.setMostTraceId(traceID.getId().getMostSignificantBits());
         span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
         span.setName(name);
