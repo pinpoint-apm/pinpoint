@@ -187,11 +187,15 @@
 
 <script type="text/javascript">
 function getStartTime() {
-    return new Date($("#startdate").val() + " " + $("#starttime").val() + ":00").getTime();
+	var date = $("#startdate").val().split("-");
+	var time = $("#starttime").val().split(":");
+	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0).getTime();
 }
 
 function getEndTime() {
-    return new Date($("#enddate").val() + " " + $("#endtime").val() + ":00").getTime();
+	var date = $("#enddate").val().split("-");
+	var time = $("#endtime").val().split(":");
+	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0).getTime();
 }
 
 function getChartData(chartType, callback) {
