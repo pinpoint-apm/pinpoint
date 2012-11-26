@@ -3,7 +3,7 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.profiler.common.ServerType;
+import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 
 /**
@@ -18,7 +18,7 @@ public class Server implements Comparable<Server> {
 	private final boolean terminal;
 	private int recursiveCallCount;
 
-	private final ServerType serverType;
+	private final ServiceType serverType;
 
 	public Server(SpanBo span) {
 		this.id = span.getServiceName();
@@ -33,7 +33,7 @@ public class Server implements Comparable<Server> {
 		this.endPoint = span.getEndPoint();
 		this.terminal = span.isTerminal();
 		this.recursiveCallCount = span.getRecursiveCallCount();
-		this.serverType = ServerType.parseServerType(this.applicationName);
+		this.serverType = ServiceType.parseServerType(this.applicationName);
 	}
 
 	public String getId() {
@@ -73,7 +73,7 @@ public class Server implements Comparable<Server> {
 		this.agentIds.addAll(server.getAgentIds());
 	}
 	
-	public ServerType getServerType() {
+	public ServiceType getServerType() {
 		return serverType;
 	}
 

@@ -74,7 +74,7 @@
             <c:forEach items="${spanList}" var="span" varStatus="status">
                 <c:set var="sp" scope="page" value="${span.span}"/>
                 <c:set var="begin" scope="page" value="${sp.startTime}"/>
-                <c:set var="end" scope="page" value="${sp.endTime}"/>
+                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
 
                 <div id="spanDetail${status.count}"
                      style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
@@ -86,14 +86,14 @@
                         <li>service = ${sp.serviceName}</li>
                         <li>name = ${sp.name}</li>
                         <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
-                        <li>endTime = ${hippo:longToDateStr(sp.endTime)}</li>
+                        <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
                         <li>endpoint = ${sp.endPoint}</li>
                         <li>terminal = ${sp.terminal}</li>
                         <c:if test="${status.first}">
                             <c:set var="startTime" scope="page" value="${sp.startTime}"/>
                         </c:if>
                         <c:if test="${status.first}">
-                            <c:set var="endTime" scope="page" value="${sp.endTime}"/>
+                            <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
                         </c:if>
 
                         <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
@@ -142,7 +142,7 @@
                             <td>${ano.key}</td>
                             <td>${ano.value}</td>
                             <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.endTime - sp.startTime}</c:if></td>
+                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
                             <td></td>
                             <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
                             <td>${sp.agentId} (${ano.timestamp})</td>

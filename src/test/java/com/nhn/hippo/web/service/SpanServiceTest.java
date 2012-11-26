@@ -1,13 +1,12 @@
 package com.nhn.hippo.web.service;
 
-import com.nhn.hippo.web.calltree.span.SpanAlign;
-import com.profiler.common.ServiceNames;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseTemplate2;
-import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.Traces;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -19,8 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.nhn.hippo.web.calltree.span.SpanAlign;
+import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.hbase.HBaseTables;
+import com.profiler.common.hbase.HbaseTemplate2;
+import com.profiler.common.util.SpanUtils;
+import com.profiler.server.dao.Traces;
 
 /**
  *
@@ -119,7 +123,7 @@ public class SpanServiceTest {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), time, time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
+        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), time, (int) time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         span.setParentSpanId(-1);
         List<Annotation> annotations = new ArrayList<Annotation>();
         annotations.add(new Annotation(0, "root ann", 0));
@@ -131,7 +135,7 @@ public class SpanServiceTest {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
-        Span sub = new Span("UnitTest", span.getMostTraceId(), span.getLeastTraceId(), time, time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
+        Span sub = new Span("UnitTest", span.getMostTraceId(), span.getLeastTraceId(), time, (int) time + 5, "test", "rpc" + andIncrement, andIncrement, ano, "protocol:ip:port", false);
         sub.setParentSpanId(span.getSpanId());
         List<Annotation> annotations = new ArrayList<Annotation>();
         annotations.add(new Annotation(0, "sub ann" + andIncrement, 0));
