@@ -20,7 +20,6 @@ public class Span implements Thriftable {
 	private String rpc;
 	private ServiceType serviceType;
 	private String endPoint;
-	private boolean isTerminal = false;
 
 	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
@@ -62,14 +61,6 @@ public class Span implements Thriftable {
 
 	public void setEndPoint(String endPoint) {
 		this.endPoint = endPoint;
-	}
-
-	public boolean isTerminal() {
-		return isTerminal;
-	}
-
-	public void setTerminal(boolean isTerminal) {
-		this.isTerminal = isTerminal;
 	}
 
 	public void setStartTime(long startTime) {
@@ -133,7 +124,6 @@ public class Span implements Thriftable {
 		span.setSpanId(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 		span.setEndPoint(endPoint);
-		span.setTerminal(isTerminal);
 
 		// 여기서 데이터 인코딩을 하자.
 		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());

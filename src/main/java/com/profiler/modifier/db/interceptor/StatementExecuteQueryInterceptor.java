@@ -48,7 +48,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
              */
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-            trace.recordTerminalEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getUrl());
 //            if (args.length > 0) {
 //                trace.recordAttribute("Statement", args[0]);
 //            }

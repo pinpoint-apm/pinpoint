@@ -283,23 +283,14 @@ public final class Trace {
         }
     }
 
-    public void recordTerminalEndPoint(final String endPoint) {
-        recordEndPoint(endPoint, true);
-    }
-
-    public void recordEndPoint(final String endPoint) {
-        recordEndPoint(endPoint, false);
-    }
-
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
-    private void recordEndPoint(final String endPoint, final boolean isTerminal) {
+    public void recordEndPoint(final String endPoint) {
         if (!tracingEnabled)
             return;
 
         try {
             Span span = getCurrentStackFrame().getSpan();
             span.setEndPoint(endPoint);
-            span.setTerminal(isTerminal);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

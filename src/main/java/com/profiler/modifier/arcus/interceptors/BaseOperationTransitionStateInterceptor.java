@@ -12,6 +12,7 @@ import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
+import com.profiler.common.ServiceType;
 import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.InterceptorUtils;
@@ -56,16 +57,16 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			SocketAddress socketAddress = handlingNode.getSocketAddress();
 			if (socketAddress instanceof InetSocketAddress) {
 				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				asyncTrace.recordTerminalEndPoint("ARCUS:" + address.getHostName() + ":" + address.getPort());
+				asyncTrace.recordEndPoint("ARCUS:" + address.getHostName() + ":" + address.getPort());
 			}
 
 			String serviceName = (String) getServiceCode.invoke(target);
 
 			if (serviceName == null) {
-				serviceName = "ARCUS/UNKNOWN";
+				serviceName = "UNKNOWN";
 			}
 			
-			asyncTrace.recordRpcName(serviceName, baseOperation.getClass().getSimpleName());
+			asyncTrace.recordRpcName(ServiceType.ARCUS, serviceName, baseOperation.getClass().getSimpleName());
 
 			String cmd = getCommand(baseOperation);
 			asyncTrace.recordAttibute("arcus.command", cmd);

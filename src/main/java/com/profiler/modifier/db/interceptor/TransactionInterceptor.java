@@ -78,7 +78,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-        trace.recordTerminalEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getUrl());
     }
 
     private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
@@ -124,7 +124,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-        trace.recordTerminalEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getUrl());
 //        trace.record(Annotation.ClientSend);
 
     }
@@ -133,7 +133,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-            trace.recordTerminalEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getUrl());
 
             trace.recordApi(descriptor);
             trace.recordException(result);
@@ -164,7 +164,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
         trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-        trace.recordTerminalEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getUrl());
     }
 
     private void afterRollback(Trace trace, Connection target, Object result) {
@@ -172,7 +172,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-            trace.recordTerminalEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getUrl());
 
             trace.recordApi(descriptor);
             trace.recordException(result);
