@@ -15,7 +15,6 @@ public class Server implements Comparable<Server> {
 	private final Set<String> agentIds = new HashSet<String>();
 	private final String applicationName;
 	private final String endPoint;
-	private final boolean terminal;
 	private int recursiveCallCount;
 
 	private final ServiceType serviceType;
@@ -23,7 +22,7 @@ public class Server implements Comparable<Server> {
 	public Server(SpanBo span) {
 		this.id = span.getServiceName();
 
-		if (span.isTerminal()) {
+		if (span.getServiceType().isTerminal()) {
 			this.agentIds.add(span.getAgentId());
 		} else {
 			this.agentIds.add(span.getEndPoint());
@@ -31,7 +30,6 @@ public class Server implements Comparable<Server> {
 
 		this.applicationName = span.getServiceName();
 		this.endPoint = span.getEndPoint();
-		this.terminal = span.isTerminal();
 		this.recursiveCallCount = span.getRecursiveCallCount();
 		this.serviceType = span.getServiceType();
 	}
@@ -54,10 +52,6 @@ public class Server implements Comparable<Server> {
 
 	public String getEndPoint() {
 		return endPoint;
-	}
-
-	public boolean isTerminal() {
-		return terminal;
 	}
 
 	public String getApplicationName() {

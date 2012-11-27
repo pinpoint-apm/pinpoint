@@ -133,7 +133,6 @@ public class SpanServiceTest {
 		span.setServiceName("SERVICENAME");
 		span.setServiceType(ServiceType.UNKNOWN.getCode());
 		span.setAnnotations(ano);
-		span.setTerminal(false);
 
 		span.setParentSpanId(-1);
 		List<Annotation> annotations = new ArrayList<Annotation>();
@@ -158,7 +157,6 @@ public class SpanServiceTest {
 		sub.setServiceName("SERVICENAME");
 		sub.setServiceType(ServiceType.UNKNOWN.getCode());
 		sub.setAnnotations(ano);
-		sub.setTerminal(false);
 
 		sub.setParentSpanId(span.getSpanId());
 		List<Annotation> annotations = new ArrayList<Annotation>();
