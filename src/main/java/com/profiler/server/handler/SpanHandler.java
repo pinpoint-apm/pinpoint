@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.server.dao.AgentIdApplicationIndex;
 import com.profiler.server.dao.ApplicationTraceIndex;
@@ -44,7 +45,6 @@ public class SpanHandler implements Handler {
             }
 
             String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
-//			String applicationName = span.getServiceName();
 
             if (applicationName == null) {
                 logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
@@ -61,8 +61,13 @@ public class SpanHandler implements Handler {
             if (span.getParentSpanId() == -1) {
                 rootTraceIndexDao.insert(span);
             }
-            traceIndexDao.insert(span);
-            applicationTraceIndexDao.insert(applicationName, span);
+            
+			if (ServiceType.parse(span.getServiceType()).isIndexable()) {
+				traceIndexDao.insert(span);
+				applicationTraceIndexDao.insert(applicationName, span);
+			} else {
+				logger.debug("Skip writing index. '{}'", span);
+			}
         } catch (Exception e) {
             logger.warn("Span handle error " + e.getMessage(), e);
         }
