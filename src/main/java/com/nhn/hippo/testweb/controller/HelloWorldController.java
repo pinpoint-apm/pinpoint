@@ -1,13 +1,16 @@
 package com.nhn.hippo.testweb.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import net.spy.memcached.AddrUtil;
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.MemcachedClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,29 +25,23 @@ import com.nhn.hippo.testweb.util.HttpInvoker;
 @Controller
 public class HelloWorldController {
 
-	private static final ArcusClient arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
+	private final ArcusClient arcus;
+	private final MemcachedClient memcached;
+
+	public HelloWorldController() throws IOException {
+		arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
+		memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11211"));
+	}
 
 	@Autowired
 	private MemberService service;
 
-	/**
-	 * DO NOTHING
-	 * 
-	 * @param model
-	 * @return
-	 */
 	@RequestMapping(value = "/donothing")
 	public String donothing(Model model) {
 		System.out.println("do nothing.");
 		return "donothing";
 	}
 
-	/**
-	 * CALL ARCUS
-	 * 
-	 * @param model
-	 * @return
-	 */
 	@RequestMapping(value = "/arcus")
 	public String arcus(Model model) {
 		Future<Boolean> future = null;
@@ -56,6 +53,19 @@ public class HelloWorldController {
 				future.cancel(true);
 		}
 		return "arcus";
+	}
+
+	@RequestMapping(value = "/memcached")
+	public String memcached(Model model) {
+		Future<Boolean> future = null;
+		try {
+			future = memcached.set("hippo:testkey", 10, "Hello, Hippo.");
+			future.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (future != null)
+				future.cancel(true);
+		}
+		return "memcached";
 	}
 
 	@RequestMapping(value = "/mysql")
@@ -91,6 +101,7 @@ public class HelloWorldController {
 	public String combination(Model model) {
 		mysql(model);
 		arcus(model);
+		memcached(model);
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
