@@ -84,11 +84,10 @@
                         <li>spanId = ${sp.spanId}</li>
                         <li>parentSpanId = ${sp.parentSpanId}</li>
                         <li>service = ${sp.serviceName}</li>
-                        <li>name = ${sp.name}</li>
+                        <li>name = ${sp.rpc}</li>
                         <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
                         <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
                         <li>endpoint = ${sp.endPoint}</li>
-                        <li>terminal = ${sp.terminal}</li>
                         <c:if test="${status.first}">
                             <c:set var="startTime" scope="page" value="${sp.startTime}"/>
                         </c:if>
@@ -181,7 +180,9 @@
                     "${agentId}"
                     <c:if test="${!status2.last}">, </c:if>
                     </c:forEach>
-                ]
+	            ],
+	            "serverType" : "${node.serviceType}",
+	            "terminal" : "${node.serviceType.terminal}"
             }
             <c:if test="${!status.last}">,
             </c:if>
@@ -220,9 +221,7 @@
 
     $(document).ready(function () {
         drawSankeyChart(data, "#graph", 960, 500);
-        drawSankeyChart(rpcdata, "#rpcgraph", 960, 800);
     });
 </script>
-
 </body>
 </html>
