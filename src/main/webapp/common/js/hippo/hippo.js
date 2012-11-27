@@ -71,8 +71,13 @@ function drawSankeyChart(graphdata, targetId, w, h) {
 	
 	link.append("title").text(
 	        function (d) {
-	            return d.source.name + " → " + d.target.name + "\n"
-	                    + format(d.value);
+	        	var histogram = "";
+	        	$(d.histogram).each(function(i, e) {
+	        		histogram += e.from + "~" + e.to + "ms = " + e.value + "\n";
+	        	});
+	        	
+	            return	d.source.name + " → " + d.target.name + "\n" +
+	            		format(d.value) + "\n" + histogram;
 	        });
 	
 	var node = svg.append("g").selectAll(".node").data(graphdata.nodes)

@@ -4,51 +4,51 @@ package com.nhn.hippo.web.calltree.server;
  * @author netspider
  */
 public class ServerRequest {
-    private final String id;
-    private final Server from;
-    private final Server to;
-    private int callCount = 1;
+	private final String id;
+	private final Server from;
+	private final Server to;
+	private final Histogram histogram = new Histogram(100);
 
-    public ServerRequest(Server from, Server to) {
-        if (from == null) {
-            throw new NullPointerException("from must not be null");
-        }
-        if (to == null) {
-            throw new NullPointerException("to must not be null");
-        }
-        this.from = from;
-        this.to = to;
-        this.id = from.getId() + to.getId();
-    }
+	public ServerRequest(Server from, Server to) {
+		if (from == null) {
+			throw new NullPointerException("from must not be null");
+		}
+		if (to == null) {
+			throw new NullPointerException("to must not be null");
+		}
+		this.from = from;
+		this.to = to;
+		this.id = from.getId() + to.getId();
+	}
 
-    public boolean isSelfCalled() {
-        return from.getSequence() == to.getSequence();
-    }
+	public void addRequest(int elapsed) {
+		histogram.addSample(elapsed);
+	}
 
-    public void increaseCallCount() {
-        callCount++;
-    }
+	public boolean isSelfCalled() {
+		return from.getSequence() == to.getSequence();
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public Server getFrom() {
-        return from;
-    }
+	public Server getFrom() {
+		return from;
+	}
 
-    public Server getTo() {
-        return to;
-    }
+	public Server getTo() {
+		return to;
+	}
 
-    public int getCallCount() {
-        return callCount;
-    }
+	public Histogram getHistogram() {
+		return histogram;
+	}
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{from=").append(from).append(", to=").append(to).append(", cc=").append(callCount).append("}");
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{from=").append(from).append(", to=").append(to).append(", histogram=").append(histogram).append("}");
+		return sb.toString();
+	}
 }

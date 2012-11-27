@@ -104,7 +104,7 @@ public class ServerCallTree {
             }
 
             if (ServerRequests.containsKey(serverRequest.getId())) {
-                ServerRequests.get(serverRequest.getId()).increaseCallCount();
+                ServerRequests.get(serverRequest.getId()).addRequest(span.getElapsed());
             } else {
                 ServerRequests.put(serverRequest.getId(), serverRequest);
             }

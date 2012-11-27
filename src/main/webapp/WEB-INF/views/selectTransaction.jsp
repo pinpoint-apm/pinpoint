@@ -190,7 +190,12 @@
         ],
         "links":[
             <c:forEach items="${links}" var="link" varStatus="status">
-            {"source": ${link.from.sequence}, "target": ${link.to.sequence}, "value": ${link.callCount}}
+            {
+				"source": ${link.from.sequence},
+				"target": ${link.to.sequence},
+				"value" : ${link.histogram.sampleCount},
+			    "histogram" : ${link.histogram}
+            }
             <c:if test="${!status.last}">,
             </c:if>
             </c:forEach>
