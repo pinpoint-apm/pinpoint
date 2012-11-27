@@ -1,6 +1,6 @@
 package com.profiler.modifier.db.util;
 
-import java.util.regex.Matcher;
+import com.profiler.common.ServiceType;
 
 /**
  *
@@ -15,7 +15,7 @@ public class JDBCUrlParser {
             return parseOracle(url);
         }
 
-        return new DatabaseInfo(DatabaseInfo.DBType.UNKOWN, url, url, "error", "error", "error");
+        return new DatabaseInfo(ServiceType.UNKNOWN, url, url, "error", "error", "error");
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -76,6 +76,6 @@ public class JDBCUrlParser {
         String port = maker.next().after(':').before('/').value();
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DatabaseInfo(DatabaseInfo.DBType.MYSQL, url, normalizedUrl, host, port, databaseId);
+        return new DatabaseInfo(ServiceType.MYSQL, url, normalizedUrl, host, port, databaseId);
     }
 }

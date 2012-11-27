@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.profiler.Agent;
+import com.profiler.common.ServiceType;
 
 /**
  * Span represent RPC
@@ -17,6 +18,7 @@ public class Span implements Thriftable {
 	private long endTime;
 	private String serviceName;
 	private String rpc;
+	private ServiceType serviceType;
 	private String endPoint;
 	private boolean isTerminal = false;
 
@@ -86,6 +88,14 @@ public class Span implements Thriftable {
 		return endTime;
 	}
 
+	public ServiceType getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(ServiceType serviceType) {
+		this.serviceType = serviceType;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
@@ -95,6 +105,7 @@ public class Span implements Thriftable {
 		sb.append(", EndTime = ").append(endTime);
 		sb.append(",\n\t Name = ").append(rpc);
 		sb.append(", ServiceName = ").append(serviceName);
+		sb.append(", ServiceType = ").append(serviceType);
 		sb.append(", EndPoint = ").append(endPoint);
 
 		sb.append(",\n\t Annotations = {");
@@ -118,6 +129,7 @@ public class Span implements Thriftable {
 		span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
 		span.setRpc(rpc);
 		span.setServiceName(serviceName);
+		span.setServiceType(serviceType.getCode());
 		span.setSpanId(traceID.getSpanId());
 		span.setParentSpanId(traceID.getParentSpanId());
 		span.setEndPoint(endPoint);

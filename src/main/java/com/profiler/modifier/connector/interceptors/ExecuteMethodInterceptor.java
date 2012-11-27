@@ -1,5 +1,6 @@
 package com.profiler.modifier.connector.interceptors;
 
+import com.profiler.common.ServiceType;
 import com.profiler.context.*;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
@@ -54,12 +55,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
-
-        trace.recordRpcName(request.getProtocolVersion().toString(), "CLIENT");
+        trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
         trace.recordEndPoint(request.getProtocolVersion().toString() + ":" + host.getHostName() + ":" + host.getPort());
         trace.recordAttribute("http.url", request.getRequestLine().getUri());
-
-
     }
 
     @Override

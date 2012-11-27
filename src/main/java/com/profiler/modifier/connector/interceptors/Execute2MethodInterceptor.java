@@ -8,6 +8,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIUtils;
 
+import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
@@ -57,7 +58,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 
 		HttpHost host = URIUtils.extractHost(request.getURI());
 
-		trace.recordRpcName(request.getProtocolVersion().toString(), "CLIENT");
+		trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
 		trace.recordEndPoint(request.getProtocolVersion().toString() + ":" + host.getHostName() + ":" + host.getPort());
 		trace.recordAttribute("http.url", request.getRequestLine().getUri());
 	}

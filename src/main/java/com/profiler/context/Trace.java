@@ -3,6 +3,7 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.ServiceType;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
@@ -268,13 +269,14 @@ public final class Trace {
         annotate(message);
     }
 
-    public void recordRpcName(final String service, final String rpc) {
+    public void recordRpcName(final ServiceType serviceType, final String serviceName, final String rpc) {
         if (!tracingEnabled)
             return;
 
         try {
             Span span = getCurrentStackFrame().getSpan();
-            span.setServiceName(service);
+            span.setServiceType(serviceType);
+            span.setServiceName(serviceName);
             span.setRpc(rpc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);

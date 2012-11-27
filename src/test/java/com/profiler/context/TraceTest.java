@@ -2,6 +2,8 @@ package com.profiler.context;
 
 import org.junit.Test;
 
+import com.profiler.common.ServiceType;
+
 public class TraceTest {
 
     @Test
@@ -11,7 +13,7 @@ public class TraceTest {
         trace.traceBlockBegin();
 
         // http server receive
-        trace.recordRpcName("service_name", "http://");
+        trace.recordRpcName(ServiceType.UNKNOWN, "service_name", "http://");
         trace.recordEndPoint("http:localhost:8080");
         trace.recordAttribute("KEY", "VALUE");
         trace.record(Annotation.ServerRecv);
@@ -30,7 +32,7 @@ public class TraceTest {
         trace.record(Annotation.ClientSend);
 
         // db server request
-        trace.recordRpcName("mysql", "rpc");
+        trace.recordRpcName(ServiceType.MYSQL, "mysql", "rpc");
         trace.recordAttribute("mysql.query", "SELECT * FROM TABLE");
 
         // get a db response
