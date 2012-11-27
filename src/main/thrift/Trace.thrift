@@ -7,6 +7,14 @@ struct Annotation {
   4: i64 timestamp,
 }
 
+struct ApiAnnotation {
+  1: string className,
+  2: string methodName,
+  3: list<string> parameterType,
+  4: optional list<string> parameterName,
+  5: optional list<string> parameterValue
+  6: optional i32 line,
+}
 struct Span {
   1: string agentId
   
