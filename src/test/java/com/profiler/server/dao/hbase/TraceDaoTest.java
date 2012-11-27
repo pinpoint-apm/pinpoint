@@ -105,7 +105,6 @@ public class TraceDaoTest {
         span.setServiceName("SERVICENAME");
         span.setServiceType(ServiceType.UNKNOWN.getCode());
         span.setAnnotations(ano);
-        span.setTerminal(false);
         
         return span;
     }
