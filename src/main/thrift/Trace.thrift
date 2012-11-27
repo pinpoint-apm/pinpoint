@@ -16,6 +16,13 @@ struct ApiAnnotation {
   6: optional i32 line,
 }
 
+# columnname = parentSpanId + DELIMETER + flushSeq
+struct ExtraSpan {
+  5: i64 parentSpanId
+  14: list<TerminalSpan> spans
+}
+
+# columnname = spanid
 struct Span {
   1: string agentId
   
