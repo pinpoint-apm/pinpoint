@@ -6,7 +6,7 @@ public enum ServiceType {
 	UNKNOWN_CLOUD(	(short) 1,		"UNKNOWN_EXT",	false),
 	
 	TOMCAT(			(short) 1001,	"TOMCAT",		false), 
-	BLOC(			(short) 1002,	"BLOC",			true),
+	BLOC(			(short) 1002,	"BLOC",			false),
 	
 	MEMCACHED(		(short) 2001,	"MEMCACHED",	true), 
 	ARCUS(			(short) 2002,	"ARCUS",		true),
@@ -50,6 +50,10 @@ public enum ServiceType {
 
 	public boolean isRpcClient() {
 		return code >= 9000 && code < 10000;
+	}
+	
+	public boolean isIndexable() {
+		return !terminal && !isRpcClient() && code > 1000;
 	}
 	
 	public short getCode() {
