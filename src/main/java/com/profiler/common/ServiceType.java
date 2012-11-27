@@ -1,43 +1,46 @@
 package com.profiler.common;
 
 public enum ServiceType {
-	
-	TOMCAT("TOMCAT"),
-	BLOC("BLOC"),
-	MEMCACHED("MEMCACHED"),
-	ARCUS("ARCUS"),
-	MYSQL("MYSQL"),
-	UNKNOWN("UNKNOWN");
 
-	public static final String DELIMETER = "/";
-	
-	private String code;
+	TOMCAT((short) 0, "TOMCAT", false), 
+	BLOC((short) 1, "BLOC", true), 
+	MEMCACHED((short) 2, "MEMCACHED", true), 
+	ARCUS((short) 3, "ARCUS", true),
+	MYSQL((short) 4, "MYSQL", true), 
+	UNKNOWN((short) -1, "UNKNOWN", false);
 
-	ServiceType(String code) {
+	private short code;
+	private String desc;
+	private boolean terminal;
+
+	ServiceType(short code, String desc, boolean terminal) {
 		this.code = code;
+		this.desc = desc;
+		this.terminal = terminal;
 	}
-	
-	public static ServiceType parseServerType(String applicationName) {
-		if (applicationName == null)
-			return ServiceType.UNKNOWN;
 
-		if (applicationName.startsWith(TOMCAT.code)) {
+	public static ServiceType parse(short code) {
+		if (TOMCAT.code == code) {
 			return TOMCAT;
-		} else if (applicationName.startsWith(BLOC.code)) {
+		} else if (BLOC.code == code) {
 			return BLOC;
-		} else if (applicationName.startsWith(MEMCACHED.code)) {
+		} else if (MEMCACHED.code == code) {
 			return MEMCACHED;
-		} else if (applicationName.startsWith(ARCUS.code)) {
+		} else if (ARCUS.code == code) {
 			return ARCUS;
-		} else if (applicationName.startsWith(MYSQL.code)) {
+		} else if (MYSQL.code == code) {
 			return MYSQL;
+		} else {
+			return UNKNOWN;
 		}
-		
-		return ServiceType.UNKNOWN;
+	}
+
+	public short getCode() {
+		return code;
 	}
 	
 	@Override
 	public String toString() {
-		return code;
+		return desc;
 	}
 }

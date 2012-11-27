@@ -40,7 +40,7 @@ public class SpanBoTest {
         SpanBo spanBo = new SpanBo();
         spanBo.setAgentId("agent");
         spanBo.setEndPoint("end");
-        spanBo.setName("name");
+        spanBo.setRpc("rpc");
         spanBo.setServiceName("serviceName");
 
         byte[] bytes = spanBo.writeValue();

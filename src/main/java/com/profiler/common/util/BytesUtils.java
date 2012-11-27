@@ -66,6 +66,19 @@ public class BytesUtils {
 
         return v;
     }
+    
+    public static short bytesToShort(byte[] buf, int offset) {
+    	if (buf == null) {
+    		throw new NullPointerException("buf must not be null");
+    	}
+    	if (buf.length < offset + 2) {
+    		throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 2);
+    	}
+    	
+		short v = (short) (((buf[offset] & 0xff) << 8) | ((buf[offset + 1] & 0xff)));
+
+    	return v;
+    }
 
     public static long bytesToFirstLong(byte[] buf) {
         if (buf == null) {
@@ -126,8 +139,8 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 4) {
-            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 4);
+        if (buf.length < offset + 2) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 2);
         }
         buf[offset++] = (byte) (value >> 8);
         buf[offset] = (byte) (value);

@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 public class Annotation implements org.apache.thrift.TBase<Annotation, Annotation._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Annotation");
 
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField VALUE_TYPE_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("valueTypeCode", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField VALUE_TYPE_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("valueTypeCode", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -41,17 +41,17 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     schemes.put(TupleScheme.class, new AnnotationTupleSchemeFactory());
   }
 
-  private long timestamp; // required
   private String key; // required
   private int valueTypeCode; // required
   private ByteBuffer value; // optional
+  private long timestamp; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TIMESTAMP((short)1, "timestamp"),
-    KEY((short)2, "key"),
-    VALUE_TYPE_CODE((short)3, "valueTypeCode"),
-    VALUE((short)4, "value");
+    KEY((short)1, "key"),
+    VALUE_TYPE_CODE((short)2, "valueTypeCode"),
+    VALUE((short)3, "value"),
+    TIMESTAMP((short)4, "timestamp");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -66,14 +66,14 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TIMESTAMP
-          return TIMESTAMP;
-        case 2: // KEY
+        case 1: // KEY
           return KEY;
-        case 3: // VALUE_TYPE_CODE
+        case 2: // VALUE_TYPE_CODE
           return VALUE_TYPE_CODE;
-        case 4: // VALUE
+        case 3: // VALUE
           return VALUE;
+        case 4: // TIMESTAMP
+          return TIMESTAMP;
         default:
           return null;
       }
@@ -114,21 +114,21 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   }
 
   // isset id assignments
-  private static final int __TIMESTAMP_ISSET_ID = 0;
-  private static final int __VALUETYPECODE_ISSET_ID = 1;
+  private static final int __VALUETYPECODE_ISSET_ID = 0;
+  private static final int __TIMESTAMP_ISSET_ID = 1;
   private BitSet __isset_bit_vector = new BitSet(2);
   private _Fields optionals[] = {_Fields.VALUE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.VALUE_TYPE_CODE, new org.apache.thrift.meta_data.FieldMetaData("valueTypeCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Annotation.class, metaDataMap);
   }
@@ -137,16 +137,16 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   }
 
   public Annotation(
-    long timestamp,
     String key,
-    int valueTypeCode)
+    int valueTypeCode,
+    long timestamp)
   {
     this();
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
     this.key = key;
     this.valueTypeCode = valueTypeCode;
     setValueTypeCodeIsSet(true);
+    this.timestamp = timestamp;
+    setTimestampIsSet(true);
   }
 
   /**
@@ -155,7 +155,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   public Annotation(Annotation other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    this.timestamp = other.timestamp;
     if (other.isSetKey()) {
       this.key = other.key;
     }
@@ -164,6 +163,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       this.value = org.apache.thrift.TBaseHelper.copyBinary(other.value);
 ;
     }
+    this.timestamp = other.timestamp;
   }
 
   public Annotation deepCopy() {
@@ -172,34 +172,12 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   @Override
   public void clear() {
-    setTimestampIsSet(false);
-    this.timestamp = 0;
     this.key = null;
     setValueTypeCodeIsSet(false);
     this.valueTypeCode = 0;
     this.value = null;
-  }
-
-  public long getTimestamp() {
-    return this.timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
-  }
-
-  public void unsetTimestamp() {
-    __isset_bit_vector.clear(__TIMESTAMP_ISSET_ID);
-  }
-
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return __isset_bit_vector.get(__TIMESTAMP_ISSET_ID);
-  }
-
-  public void setTimestampIsSet(boolean value) {
-    __isset_bit_vector.set(__TIMESTAMP_ISSET_ID, value);
+    setTimestampIsSet(false);
+    this.timestamp = 0;
   }
 
   public String getKey() {
@@ -279,16 +257,30 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     }
   }
 
+  public long getTimestamp() {
+    return this.timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+    setTimestampIsSet(true);
+  }
+
+  public void unsetTimestamp() {
+    __isset_bit_vector.clear(__TIMESTAMP_ISSET_ID);
+  }
+
+  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetTimestamp() {
+    return __isset_bit_vector.get(__TIMESTAMP_ISSET_ID);
+  }
+
+  public void setTimestampIsSet(boolean value) {
+    __isset_bit_vector.set(__TIMESTAMP_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TIMESTAMP:
-      if (value == null) {
-        unsetTimestamp();
-      } else {
-        setTimestamp((Long)value);
-      }
-      break;
-
     case KEY:
       if (value == null) {
         unsetKey();
@@ -313,14 +305,19 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       }
       break;
 
+    case TIMESTAMP:
+      if (value == null) {
+        unsetTimestamp();
+      } else {
+        setTimestamp((Long)value);
+      }
+      break;
+
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
-
     case KEY:
       return getKey();
 
@@ -329,6 +326,9 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
     case VALUE:
       return getValue();
+
+    case TIMESTAMP:
+      return Long.valueOf(getTimestamp());
 
     }
     throw new IllegalStateException();
@@ -341,14 +341,14 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     }
 
     switch (field) {
-    case TIMESTAMP:
-      return isSetTimestamp();
     case KEY:
       return isSetKey();
     case VALUE_TYPE_CODE:
       return isSetValueTypeCode();
     case VALUE:
       return isSetValue();
+    case TIMESTAMP:
+      return isSetTimestamp();
     }
     throw new IllegalStateException();
   }
@@ -365,15 +365,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   public boolean equals(Annotation that) {
     if (that == null)
       return false;
-
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
-        return false;
-      if (this.timestamp != that.timestamp)
-        return false;
-    }
 
     boolean this_present_key = true && this.isSetKey();
     boolean that_present_key = true && that.isSetKey();
@@ -402,6 +393,15 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         return false;
     }
 
+    boolean this_present_timestamp = true;
+    boolean that_present_timestamp = true;
+    if (this_present_timestamp || that_present_timestamp) {
+      if (!(this_present_timestamp && that_present_timestamp))
+        return false;
+      if (this.timestamp != that.timestamp)
+        return false;
+    }
+
     return true;
   }
 
@@ -418,16 +418,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     int lastComparison = 0;
     Annotation typedOther = (Annotation)other;
 
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetKey()).compareTo(typedOther.isSetKey());
     if (lastComparison != 0) {
       return lastComparison;
@@ -458,6 +448,16 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetTimestamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -478,10 +478,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     StringBuilder sb = new StringBuilder("Annotation(");
     boolean first = true;
 
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("key:");
     if (this.key == null) {
       sb.append("null");
@@ -503,6 +499,10 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       }
       first = false;
     }
+    if (!first) sb.append(", ");
+    sb.append("timestamp:");
+    sb.append(this.timestamp);
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -547,15 +547,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
           break;
         }
         switch (schemeField.id) {
-          case 1: // TIMESTAMP
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // KEY
+          case 1: // KEY
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.key = iprot.readString();
               struct.setKeyIsSet(true);
@@ -563,7 +555,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // VALUE_TYPE_CODE
+          case 2: // VALUE_TYPE_CODE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.valueTypeCode = iprot.readI32();
               struct.setValueTypeCodeIsSet(true);
@@ -571,10 +563,18 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // VALUE
+          case 3: // VALUE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.value = iprot.readBinary();
               struct.setValueIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // TIMESTAMP
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.timestamp = iprot.readI64();
+              struct.setTimestampIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -592,9 +592,6 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
-      oprot.writeFieldEnd();
       if (struct.key != null) {
         oprot.writeFieldBegin(KEY_FIELD_DESC);
         oprot.writeString(struct.key);
@@ -610,6 +607,9 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
           oprot.writeFieldEnd();
         }
       }
+      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
+      oprot.writeI64(struct.timestamp);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -628,22 +628,19 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     public void write(org.apache.thrift.protocol.TProtocol prot, Annotation struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTimestamp()) {
+      if (struct.isSetKey()) {
         optionals.set(0);
       }
-      if (struct.isSetKey()) {
+      if (struct.isSetValueTypeCode()) {
         optionals.set(1);
       }
-      if (struct.isSetValueTypeCode()) {
+      if (struct.isSetValue()) {
         optionals.set(2);
       }
-      if (struct.isSetValue()) {
+      if (struct.isSetTimestamp()) {
         optionals.set(3);
       }
       oprot.writeBitSet(optionals, 4);
-      if (struct.isSetTimestamp()) {
-        oprot.writeI64(struct.timestamp);
-      }
       if (struct.isSetKey()) {
         oprot.writeString(struct.key);
       }
@@ -653,6 +650,9 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       if (struct.isSetValue()) {
         oprot.writeBinary(struct.value);
       }
+      if (struct.isSetTimestamp()) {
+        oprot.writeI64(struct.timestamp);
+      }
     }
 
     @Override
@@ -660,20 +660,20 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
-        struct.timestamp = iprot.readI64();
-        struct.setTimestampIsSet(true);
-      }
-      if (incoming.get(1)) {
         struct.key = iprot.readString();
         struct.setKeyIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(1)) {
         struct.valueTypeCode = iprot.readI32();
         struct.setValueTypeCodeIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(2)) {
         struct.value = iprot.readBinary();
         struct.setValueIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.timestamp = iprot.readI64();
+        struct.setTimestampIsSet(true);
       }
     }
   }
