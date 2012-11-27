@@ -5,12 +5,10 @@ package com.profiler.interceptor;
  */
 public class DefaultMethodDescriptor implements MethodDescriptor {
     private String className;
-    private String simpleClassName;
 
     private String methodName;
 
     private String[] parameterTypes;
-    private String[] simpleParameterTypes;
 
     private String[] parameterVariableName;
 
@@ -18,12 +16,17 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     private String parameterDescriptor;
 
 
-    private String simpleParameterDescriptor;
-
     private int lineNumber;
 
 
     public DefaultMethodDescriptor() {
+    }
+
+    public DefaultMethodDescriptor(String className, String methodName, String[] parameterTypes, String[] parameterVariableName) {
+        this.className = className;
+        this.methodName = methodName;
+        this.parameterTypes = parameterTypes;
+        this.parameterVariableName = parameterVariableName;
     }
 
     public String getParameterDescriptor() {
@@ -32,14 +35,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
 
     public void setParameterDescriptor(String parameterDescriptor) {
         this.parameterDescriptor = parameterDescriptor;
-    }
-
-    public String getSimpleParameterDescriptor() {
-        return simpleParameterDescriptor;
-    }
-
-    public void setSimpleParameterDescriptor(String simpleParameterDescriptor) {
-        this.simpleParameterDescriptor = simpleParameterDescriptor;
     }
 
 
@@ -69,14 +64,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return className;
     }
 
-    @Override
-    public String getSimpleClassName() {
-        return simpleClassName;
-    }
-
-    public void setSimpleClassName(String simpleClassName) {
-        this.simpleClassName = simpleClassName;
-    }
 
     public void setClassName(String className) {
         this.className = className;
@@ -92,13 +79,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return parameterVariableName;
     }
 
-    public String[] getSimpleParameterTypes() {
-        return simpleParameterTypes;
-    }
-
-    public void setSimpleParameterTypes(String[] simpleParameterTypes) {
-        this.simpleParameterTypes = simpleParameterTypes;
-    }
 
     public int getLineNumber() {
         return lineNumber;

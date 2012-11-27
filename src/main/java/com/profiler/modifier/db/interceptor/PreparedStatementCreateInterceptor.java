@@ -2,10 +2,7 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.*;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -16,7 +13,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
     private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
 
     private MethodDescriptor descriptor;
@@ -26,6 +23,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private final MetaObject setSql = new MetaObject("__setSql", String.class);
+    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -77,7 +75,8 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
 //            trace.recordAttribute("PreparedStatement", sql);
         }
 
-        trace.recordApi(descriptor, args);
+//        trace.recordApi(descriptor, args);
+        trace.recordApi(apiId, args);
 
         trace.markAfterTime();
         trace.traceBlockEnd();
@@ -87,5 +86,10 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 }

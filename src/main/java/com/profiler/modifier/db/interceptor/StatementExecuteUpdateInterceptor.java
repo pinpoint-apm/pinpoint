@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
@@ -17,11 +18,12 @@ import java.util.logging.Logger;
  *
  * @author netspider
  */
-public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor {
+public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ApiIdSupport {
 
     private final Logger logger = Logger.getLogger(StatementExecuteUpdateInterceptor.class.getName());
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -42,17 +44,10 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         trace.markBeforeTime();
 
         try {
-            if (args.length > 0) {
-                DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-                trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-                trace.recordEndPoint(databaseInfo.getUrl());
-                trace.recordAttribute("Query", args[0]);
-            } else {
-                DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-                trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
-                trace.recordEndPoint(databaseInfo.getUrl());
-                trace.recordAttribute("Query", "args size is 0");
-            }
+            DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
+            trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordApi(apiId, args);
 
 
         } catch (Exception e) {
@@ -76,8 +71,15 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             return;
         }
 
+        trace.recordException(result);
+
         // TODO 결과, 수행시간을.알수 있어야 될듯.
         trace.markAfterTime();
         trace.traceBlockEnd();
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.mapping.ApiMappingTable;
+import com.profiler.common.mapping.ApiUtils;
 import com.profiler.interceptor.*;
 import com.profiler.util.JavaAssistUtils;
 import javassist.*;
@@ -166,6 +168,9 @@ public class JavaAssistClass implements InstrumentClass {
                 if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
                     setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
                 }
+                if (interceptor instanceof ApiIdSupport) {
+                    setApiId(behavior, (ApiIdSupport) interceptor);
+                }
             } else {
                 interceptor = InterceptorRegistry.getInterceptor(interceptorId);
             }
@@ -197,6 +202,13 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
+    private void setApiId(CtBehavior behavior, ApiIdSupport interceptor) throws NotFoundException {
+        CtClass[] parameterTypes = behavior.getParameterTypes();
+        String[] parameterType = JavaAssistUtils.getParameterType(parameterTypes);
+        int apiId = ApiMappingTable.findApiId(ctClass.getName(), behavior.getName(), parameterType);
+        interceptor.setApiId(apiId);
+    }
+
     private void setMethodDescriptor(CtBehavior behavior, ByteCodeMethodDescriptorSupport interceptor) throws NotFoundException {
         DefaultMethodDescriptor methodDescriptor = new DefaultMethodDescriptor();
 
@@ -204,14 +216,10 @@ public class JavaAssistClass implements InstrumentClass {
         methodDescriptor.setMethodName(methodName);
 
         methodDescriptor.setClassName(ctClass.getName());
-        methodDescriptor.setSimpleClassName(ctClass.getSimpleName());
 
         CtClass[] parameterTypes = behavior.getParameterTypes();
         String[] parameterType = JavaAssistUtils.getParameterType(parameterTypes);
         methodDescriptor.setParameterTypes(parameterType);
-
-        String[] parameterSimpleType = JavaAssistUtils.getParameterSimpleType(parameterTypes);
-        methodDescriptor.setSimpleParameterTypes(parameterSimpleType);
 
         String[] parameterVariableName = JavaAssistUtils.getParameterVariableName(behavior);
         methodDescriptor.setParameterVariableName(parameterVariableName);
@@ -219,11 +227,9 @@ public class JavaAssistClass implements InstrumentClass {
         int lineNumber = JavaAssistUtils.getLineNumber(behavior);
         methodDescriptor.setLineNumber(lineNumber);
 
-        String parameterDescription = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, parameterVariableName);
+        String parameterDescription = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterVariableName);
         methodDescriptor.setParameterDescriptor(parameterDescription);
 
-        String simpleParameterDescription = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, parameterVariableName);
-        methodDescriptor.setSimpleParameterDescriptor(simpleParameterDescription);
 
         interceptor.setMethodDescriptor(methodDescriptor);
     }

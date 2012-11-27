@@ -37,8 +37,15 @@ public class MySQLStatementModifier extends AbstractModifier {
             statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
 
             // TODO 이거 고쳐야 됨.
-            Interceptor executeUpdate = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
-            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean", "boolean"}, executeUpdate);
+            Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdate1);
+            Interceptor executeUpdate2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean"}, executeUpdate2);
+
+            Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            statementClass.addInterceptor("execute", new String[]{"java.lang.String"}, executeUpdate3);
+            Interceptor executeUpdate4 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            statementClass.addInterceptor("execute", new String[]{"java.lang.String", "boolean"}, executeUpdate4);
 
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             return statementClass.toBytecode();

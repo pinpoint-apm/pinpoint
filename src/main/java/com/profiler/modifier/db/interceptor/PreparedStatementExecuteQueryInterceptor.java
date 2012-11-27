@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
 
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
@@ -28,6 +29,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
     private MethodDescriptor descriptor;
+    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -57,7 +59,8 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             String bindString = toBindVariable(bindValue);
             trace.recordAttribute("BindValue", bindString);
 
-            trace.recordApi(descriptor, args);
+//            trace.recordApi(descriptor, args);
+            trace.recordApi(apiId);
 
             clean(target);
 
@@ -117,5 +120,10 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 }

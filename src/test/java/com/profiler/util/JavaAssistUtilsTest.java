@@ -1,5 +1,6 @@
 package com.profiler.util;
 
+import com.profiler.common.mapping.ApiUtils;
 import javassist.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,7 +63,7 @@ public class JavaAssistUtilsTest {
         String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
 
-        String s = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, paramName);
+        String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
     }
 
@@ -85,7 +86,7 @@ public class JavaAssistUtilsTest {
         String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
 
-        String s = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, paramName);
+        String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
     }
 
@@ -107,7 +108,7 @@ public class JavaAssistUtilsTest {
         String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
 
-        String s = JavaAssistUtils.mergeParameterVariableNameDescription(parameterType, paramName);
+        String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
     }
 

@@ -10,18 +10,14 @@ public interface MethodDescriptor {
 
     String getClassName();
 
-    String getSimpleClassName();
 
     String[] getParameterTypes();
-
-    String[] getSimpleParameterTypes();
 
     String[] getParameterVariableName();
 
 
     String getParameterDescriptor();
 
-    String getSimpleParameterDescriptor();
 
     int getLineNumber();
 }

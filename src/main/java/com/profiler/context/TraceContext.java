@@ -5,6 +5,8 @@ import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
 import com.profiler.util.NamedThreadLocal;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class TraceContext {
 
     private static TraceContext CONTEXT = new TraceContext();
@@ -19,8 +21,12 @@ public class TraceContext {
         return CONTEXT;
     }
 
-    private ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("TraceContext");
+    private ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
+
     private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
+
+    // internal stacktrace 추적때 필요한 unique 아이디, activethreadcount의  slow 타임 계산의 위해서도 필요할듯 함.
+    private final AtomicInteger transactionId = new AtomicInteger(0);
 
     private static final DataSender DEFAULT_DATA_SENDER = new LoggingDataSender();
 
@@ -43,6 +49,8 @@ public class TraceContext {
         }
         // datasender연결 부분 수정 필요.
         trace.setDataSender(this.dataSender);
+        //
+//        trace.setTransactionId(transactionId.getAndIncrement());
         threadLocal.set(trace);
     }
 

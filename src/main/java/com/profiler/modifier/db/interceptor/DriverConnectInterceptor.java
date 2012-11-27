@@ -3,6 +3,7 @@ package com.profiler.modifier.db.interceptor;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -19,13 +20,15 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
 
     private final Logger logger = Logger.getLogger(DriverConnectInterceptor.class.getName());
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private JDBCUrlParser urlParser = new JDBCUrlParser();
+
     private MethodDescriptor descriptor;
+    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -74,7 +77,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
         trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
         trace.recordEndPoint(databaseInfo.getUrl());
 
-        trace.recordApi(descriptor, new Object[]{args[0]});
+//        trace.recordApi(descriptor, new Object[]{args[0]});
+        trace.recordApi(apiId, new Object[]{args[0]});
         trace.recordException(result);
 
         trace.markAfterTime();
@@ -93,5 +97,10 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 }

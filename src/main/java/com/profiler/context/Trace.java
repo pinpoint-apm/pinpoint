@@ -227,16 +227,26 @@ public final class Trace {
         if (methodDescriptor == null) {
             return;
         }
-        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
+        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
         recordAttribute("API", method);
     }
 
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         // API 저장 방법의 개선 필요.
-        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getSimpleParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
+        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
         recordAttribute("API", method);
         recocordArgs(args);
     }
+
+    public void recordApi(int apiId) {
+        recordAttribute("API-ID", apiId);
+    }
+
+    public void recordApi(int apiId, Object[] args) {
+        recordAttribute("API-ID", apiId);
+        recocordArgs(args);
+    }
+
 
     private void recocordArgs(Object[] args) {
         if (args != null) {
@@ -310,4 +320,7 @@ public final class Trace {
     }
 
 
+    public void setTransactionId(int transactionId) {
+
+    }
 }

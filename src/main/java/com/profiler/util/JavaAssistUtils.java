@@ -85,29 +85,6 @@ public class JavaAssistUtils {
         return sb.toString();
     }
 
-    public static String mergeParameterVariableNameDescription(String[] paramterType, String[] variableName) {
-        if (paramterType.length != variableName.length) {
-            throw new IllegalArgumentException("args size not equal");
-        }
-        if (paramterType.length == 0) {
-            return EMTPY_ARRAY;
-        }
-
-        StringBuilder sb = new StringBuilder(64);
-        sb.append('(');
-        int end = paramterType.length - 1;
-        for (int i = 0; i < paramterType.length; i++) {
-            sb.append(paramterType[i]);
-            sb.append(' ');
-            sb.append(variableName[i]);
-            if (i < end) {
-                sb.append(", ");
-            }
-        }
-        sb.append(')');
-        return sb.toString();
-    }
-
 
     public static String getParameterDescription(String[] params) {
         if (params == null) {

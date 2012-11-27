@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.common.mapping.ApiMappingTable;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
@@ -46,6 +47,11 @@ public class Agent {
         TraceContext traceContext = TraceContext.getTraceContext();
         traceContext.setDataSender(this.dataSender);
         systemMonitor.setDataSender(dataSender);
+
+        // 매핑 테이블 초기화를 위해 엑세스
+
+        ApiMappingTable.findApiId("test", null, null);
+
     }
 
     private String getId(String key, String defaultValue) {
