@@ -33,7 +33,7 @@ public class Server implements Comparable<Server> {
 		this.endPoint = span.getEndPoint();
 		this.terminal = span.isTerminal();
 		this.recursiveCallCount = span.getRecursiveCallCount();
-		this.serverType = ServiceType.parseServerType(this.applicationName);
+		this.serverType = span.getServiceType();
 	}
 
 	public String getId() {

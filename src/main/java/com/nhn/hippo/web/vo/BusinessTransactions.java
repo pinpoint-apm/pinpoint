@@ -14,11 +14,11 @@ public final class BusinessTransactions {
 	private Iterator<Entry<String, BusinessTransaction>> traceIterator;
 
 	public void add(SpanBo span) {
-		String name = span.getName();
-		if (transactions.containsKey(name)) {
-			transactions.get(name).add(span);
+		String rpc = span.getRpc();
+		if (transactions.containsKey(rpc)) {
+			transactions.get(rpc).add(span);
 		} else {
-			transactions.put(name, new BusinessTransaction(span));
+			transactions.put(rpc, new BusinessTransaction(span));
 		}
 	}
 

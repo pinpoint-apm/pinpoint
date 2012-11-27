@@ -34,7 +34,7 @@ public class RPCCallTree {
          * make RPCs
          */
         // TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
-        RPC rpc = new RPC(span.getAgentId(), span.getServiceName(), span.getName(), span.isTerminal());
+        RPC rpc = new RPC(span.getAgentId(), span.getServiceName(), span.getRpc(), span.isTerminal());
 
         // TODO: remove this later.
         if (rpc.getId().contains("mysql:jdbc:") || rpc.getId().contains("favicon")) {
@@ -48,7 +48,7 @@ public class RPCCallTree {
 
         // TODO remove client node
         if (span.getParentSpanId() == -1) {
-            RPC client = new RPC(PREFIX_CLIENT + span.getAgentId(), span.getServiceName(), span.getName(), false);
+            RPC client = new RPC(PREFIX_CLIENT + span.getAgentId(), span.getServiceName(), span.getRpc(), false);
             rpcs.put(client.getId(), client);
             spanIdToRPCId.put(PREFIX_CLIENT + span.getSpanId(), client.getId());
         }

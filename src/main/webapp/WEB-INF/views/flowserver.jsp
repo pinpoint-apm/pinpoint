@@ -29,7 +29,7 @@
 "businessTransactions" : [
 <c:forEach items="${businessTransactions}" var="t" varStatus="status">
     {
-    "name" : "${t.name}",
+    "name" : "${t.rpc}",
     "calls" : ${t.calls},
     "avgTime" : ${t.totalTime / t.calls},
     "minTime" : ${t.minTime},
@@ -53,7 +53,7 @@
         "traceId" : "${trace.traceId}",
         "timestamp" : ${trace.startTime},
         "executionTime" : ${trace.executionTime},
-        "name" : "${t.name}"
+        "name" : "${t.rpc}"
         }
         <c:if test="${!status4.last}">,</c:if>
     </c:forEach>
