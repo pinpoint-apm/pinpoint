@@ -11,7 +11,7 @@ public class Histogram {
 
 	private int min = 0;
 	private int max = 0;
-	private int sampleCount = 0;
+	private int sampleCount = 1;
 
 	public Histogram(int resolution) {
 		this.resolution = resolution;
