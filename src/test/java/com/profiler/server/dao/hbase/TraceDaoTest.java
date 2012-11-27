@@ -1,5 +1,6 @@
 package com.profiler.server.dao.hbase;
 
+import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
@@ -92,7 +93,20 @@ public class TraceDaoTest {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         long l = System.currentTimeMillis();
-        Span span = new Span("UnitTest", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(), l, (int) l + 5, "test", "rpc", 1, ano, "protocol:ip:port", false);
+        
+        Span span = new Span();
+        
+        span.setAgentId("UnitTest");
+        span.setMostTraceId(uuid.getMostSignificantBits());
+        span.setLeastTraceId(uuid.getLeastSignificantBits());
+        span.setStartTime(l);
+        span.setElapsed(5);
+        span.setRpc("RPC");
+        span.setServiceName("SERVICENAME");
+        span.setServiceType(ServiceType.UNKNOWN.getCode());
+        span.setAnnotations(ano);
+        span.setTerminal(false);
+        
         return span;
     }
 }
