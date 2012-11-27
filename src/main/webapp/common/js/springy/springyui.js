@@ -242,7 +242,7 @@ jQuery.fn.springy = function(params) {
                         var textX = s.x - boxWidth/2;
                         
                         var image = new Image();
-                        image.src = "/common/images/hippo/ico_" + node.data.serverType + ".gif";
+                        image.src = "/common/images/hippo/ico_" + node.data.serviceType + ".gif";
                         
                         ctx.drawImage(image, s.x - image.width/2, s.y - image.height/2, image.width, image.height);
                         var textY = s.y + 2 + image.height/2;
