@@ -13,10 +13,10 @@ import com.profiler.modifier.AbstractModifier;
 /**
  * Apache httpclient modifier
  * <p/>
- * 
+ * <p/>
  * <pre>
  * http://grepcode.com/file/repo1.maven.org/maven2/org.apache.httpcomponents/httpclient/4.0.3/org/apache/http/impl/client/AbstractHttpClient.java#AbstractHttpClient.execute%28org.apache.http.HttpHost%2Corg.apache.http.HttpRequest%2Corg.apache.http.client.ResponseHandler%2Corg.apache.http.protocol.HttpContext%29
- * 
+ *
  * Hooking
  * org.apache.http.impl.client.AbstractHttpClient.
  * public <T> T execute(
@@ -26,40 +26,39 @@ import com.profiler.modifier.AbstractModifier;
  *            final HttpContext context)
  *            throws IOException, ClientProtocolException {
  * </pre>
- * 
+ *
  * @author netspider
  */
 public class HTTPClientModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(HTTPClientModifier.class.getName());
+    private final Logger logger = Logger.getLogger(HTTPClientModifier.class.getName());
 
-	public HTTPClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-		super(byteCodeInstrumentor);
-	}
+    public HTTPClientModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        super(byteCodeInstrumentor);
+    }
 
-	public String getTargetClass() {
-		return "org/apache/http/impl/client/AbstractHttpClient";
-	}
+    public String getTargetClass() {
+        return "org/apache/http/impl/client/AbstractHttpClient";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("Modifing. " + javassistClassName);
-		}
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("Modifing. " + javassistClassName);
+        }
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-		try {
-			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
-			Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.Execute2MethodInterceptor");
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+        try {
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.ExecuteMethodInterceptor");
+            aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, interceptor);
 
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.interceptors.Execute2MethodInterceptor");
+            aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, interceptor2);
 
-			aClass.addInterceptor("execute", new String[] { "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext" }, interceptor);
-			aClass.addInterceptor("execute", new String[] { "org.apache.http.client.methods.HttpUriRequest" }, interceptor2);
-
-			return aClass.toBytecode();
-		} catch (InstrumentException e) {
-			// TODO log
-			return null;
-		}
-	}
+            return aClass.toBytecode();
+        } catch (InstrumentException e) {
+            // TODO log
+            return null;
+        }
+    }
 }

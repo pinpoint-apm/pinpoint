@@ -2,6 +2,7 @@ package com.profiler.modifier.connector.interceptors;
 
 import com.profiler.common.ServiceType;
 import com.profiler.context.*;
+import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.util.StringUtils;
@@ -27,10 +28,11 @@ import java.util.logging.Logger;
  *            throws IOException, ClientProtocolException {
  * </pre>
  */
-public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
 
     private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
     private MethodDescriptor descriptor;
+    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -71,7 +73,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         if (trace == null) {
             return;
         }
-        trace.recordApi(descriptor);
+//        trace.recordApi(descriptor);
+        trace.recordApi(this.apiId);
         trace.recordException(result);
 
         trace.markAfterTime();
@@ -81,5 +84,10 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 }
