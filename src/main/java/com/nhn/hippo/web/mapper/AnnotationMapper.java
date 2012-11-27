@@ -48,8 +48,8 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
                     annotationBo.setSpanId(spanId);
                     offset = annotationBo.readValue(buffer, offset);
                     bos.add(annotationBo);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("read annotation:{}", annotationBo);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("read annotation:{}", annotationBo);
                     }
                 }
                 annotationList.put(spanId, bos);

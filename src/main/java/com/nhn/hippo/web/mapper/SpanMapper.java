@@ -39,11 +39,11 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
     @Override
     public List<SpanBo> mapRow(Result result, int rowNum) throws Exception {
         byte[] rowKey = result.getRow();
-        
-        if(rowKey == null) {
-        	return Collections.emptyList();
+
+        if (rowKey == null) {
+            return Collections.emptyList();
         }
-        
+
         long most = BytesUtils.bytesToFirstLong(rowKey);
         long least = BytesUtils.bytesToSecondLong(rowKey);
 
@@ -58,8 +58,8 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
                 spanBo.setSpanID(Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset()));
                 spanBo.readValue(kv.getBuffer(), kv.getValueOffset());
-                if (logger.isTraceEnabled()) {
-                    logger.trace("read span :{}", spanBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("read span :{}", spanBo);
                 }
                 spanList.add(spanBo);
             }
