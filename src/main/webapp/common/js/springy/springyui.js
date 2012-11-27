@@ -183,9 +183,9 @@ jQuery.fn.springy = function(params) {
 
                         var weight = typeof(edge.data.weight) !== 'undefined' ? edge.data.weight : 1.0;
 
-                        ctx.lineWidth = Math.max(weight *  2, 0.1);
-                        arrowWidth = 1 + ctx.lineWidth;
-                        arrowLength = 8;
+                        ctx.lineWidth = Math.max(weight *  1, 0.1);
+                        arrowWidth = 5 + ctx.lineWidth;
+                        arrowLength = 17;
 
                         var directional = typeof(edge.data.directional) !== 'undefined' ? edge.data.directional : true;
 
@@ -207,7 +207,8 @@ jQuery.fn.springy = function(params) {
                         if (directional) {
                                 ctx.save();
                                 ctx.fillStyle = stroke;
-                                ctx.translate(intersection.x, intersection.y);
+                                // ctx.translate(intersection.x, intersection.y);
+                                ctx.translate((x1 + x2) / 2, (y1 + y2)/2);
                                 ctx.rotate(Math.atan2(y2 - y1, x2 - x1));
                                 ctx.beginPath();
                                 ctx.moveTo(-arrowLength, arrowWidth);
@@ -226,7 +227,7 @@ jQuery.fn.springy = function(params) {
                                 ctx.textAlign = "center";
                                 ctx.textBaseline = "top";
                                 ctx.font = "12px Helvetica, sans-serif";
-                                ctx.fillStyle = "#5BA6EC";
+                                ctx.fillStyle = "#1F77B4";
                                 ctx.fillText(text, (x1+x2)/2, (y1+y2)/2);
                                 ctx.restore();
                         }
