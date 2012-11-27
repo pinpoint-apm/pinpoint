@@ -30,13 +30,21 @@ public enum ServiceType {
 
 	public static ServiceType parse(short code) {
 		ServiceType[] values = ServiceType.values();
-
 		for (ServiceType type : values) {
 			if (type.code == code) {
 				return type;
 			}
 		}
-
+		return UNKNOWN;
+	}
+	
+	public static ServiceType parse(String desc) {
+		ServiceType[] values = ServiceType.values();
+		for (ServiceType type : values) {
+			if (type.desc.equals(desc)) {
+				return type;
+			}
+		}
 		return UNKNOWN;
 	}
 
