@@ -21,6 +21,7 @@ import com.nhn.hippo.web.dao.RootTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.vo.TraceId;
+import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
@@ -141,7 +142,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 			String svcName = span.getServiceName();
 
 			// TODO 임시로 HTTP/1.1을 확인하게 해두었음. merge해야하는 span 확인 방법을 바꿔야함.
-			if ("HTTP/1.1".equals(svcName)) {
+			// if ("HTTP/1.1".equals(svcName)) {
+			if (span.getServiceType().isRpcClient()) {
 				SpanBo child = findChildSpan(list, span);
 
 				if (child != null) {
@@ -153,6 +155,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				} else {
 					// using as a terminal node.
 					span.setServiceName(span.getEndPoint());
+					span.setServiceType(ServiceType.UNKNOWN_CLOUD);
 				}
 			}
 		}

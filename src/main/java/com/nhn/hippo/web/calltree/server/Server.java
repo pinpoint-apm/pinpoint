@@ -18,7 +18,7 @@ public class Server implements Comparable<Server> {
 	private final boolean terminal;
 	private int recursiveCallCount;
 
-	private final ServiceType serverType;
+	private final ServiceType serviceType;
 
 	public Server(SpanBo span) {
 		this.id = span.getServiceName();
@@ -33,7 +33,7 @@ public class Server implements Comparable<Server> {
 		this.endPoint = span.getEndPoint();
 		this.terminal = span.isTerminal();
 		this.recursiveCallCount = span.getRecursiveCallCount();
-		this.serverType = span.getServiceType();
+		this.serviceType = span.getServiceType();
 	}
 
 	public String getId() {
@@ -73,8 +73,8 @@ public class Server implements Comparable<Server> {
 		this.agentIds.addAll(server.getAgentIds());
 	}
 	
-	public ServiceType getServerType() {
-		return serverType;
+	public ServiceType getServiceType() {
+		return serviceType;
 	}
 
 	@Override
