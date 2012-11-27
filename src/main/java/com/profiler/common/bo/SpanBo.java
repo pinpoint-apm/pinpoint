@@ -28,7 +28,6 @@ public class SpanBo {
 	// private static final int TIMESTAMP = 8;
 	private static final int SERVICETYPE = 2;
 	private static final int FLAG = 2;
-	private static final int TERMINAL = 1;
 
 	private String agentId;
 	private long mostTraceId;
@@ -41,7 +40,6 @@ public class SpanBo {
 	private String serviceName;
 	private ServiceType serviceType;
 	private String endPoint;
-	private boolean terminal;
 	private List<AnnotationBo> annotationBoList;
 	private short flag; // optional
 
@@ -63,7 +61,6 @@ public class SpanBo {
 		this.serviceName = span.getServiceName();
 		this.serviceType = ServiceType.parse(span.getServiceType());
 		this.endPoint = span.getEndPoint();
-		this.terminal = span.isTerminal();
 		this.flag = span.getFlag();
 
 		setAnnotationList(span.getAnnotations());
@@ -182,14 +179,6 @@ public class SpanBo {
 		this.endPoint = endPoint;
 	}
 
-	public boolean isTerminal() {
-		return terminal;
-	}
-
-	public void setTerminal(boolean terminal) {
-		this.terminal = terminal;
-	}
-
 	public List<AnnotationBo> getAnnotationBoList() {
 		if (annotationBoList == null) {
 			return Collections.emptyList();
@@ -240,7 +229,7 @@ public class SpanBo {
 		size += (4 * 5) + VERSION_SIZE; // chunk
 		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
 		// PARENTSPANID + FLAG + TERMINAL;
-		size += PARENTSPANID + FLAG + TERMINAL + SERVICETYPE;
+		size += PARENTSPANID + FLAG + SERVICETYPE;
 		// startTime, elapsed;
 		size += 12;
 		return size;
@@ -273,7 +262,6 @@ public class SpanBo {
 		buffer.putPrefixedBytes(serviceNameBytes);
 		buffer.put(serviceType.getCode());
 		buffer.putPrefixedBytes(endPointBytes);
-		buffer.put(terminal);
 
 		buffer.put(flag);
 		return buffer.getBuffer();
@@ -299,7 +287,6 @@ public class SpanBo {
 		this.serviceName = buffer.readPrefixedString();
 		this.serviceType = ServiceType.parse(buffer.readShort());
 		this.endPoint = buffer.readPrefixedString();
-		this.terminal = buffer.readBoolean();
 
 		this.flag = buffer.readShort();
 		return buffer.getOffset();
@@ -307,6 +294,6 @@ public class SpanBo {
 
 	@Override
 	public String toString() {
-		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + '\'' + ", terminal=" + terminal + '}';
+		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + "}";
 	}
 }

@@ -23,8 +23,7 @@ struct Span {
   9: string serviceName
   10: i16 serviceType
   11: string endPoint
-  12: bool terminal
   
-  13: list<Annotation> annotations
-  14: optional i16 flag = 0
+  12: list<Annotation> annotations
+  13: optional i16 flag = 0
 }

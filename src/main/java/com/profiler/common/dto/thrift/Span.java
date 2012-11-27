@@ -41,9 +41,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)9);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)10);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)11);
-  private static final org.apache.thrift.protocol.TField TERMINAL_FIELD_DESC = new org.apache.thrift.protocol.TField("terminal", org.apache.thrift.protocol.TType.BOOL, (short)12);
-  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)13);
-  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)14);
+  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)12);
+  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)13);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -62,7 +61,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private String serviceName; // required
   private short serviceType; // required
   private String endPoint; // required
-  private boolean terminal; // required
   private List<Annotation> annotations; // required
   private short flag; // optional
 
@@ -79,9 +77,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     SERVICE_NAME((short)9, "serviceName"),
     SERVICE_TYPE((short)10, "serviceType"),
     END_POINT((short)11, "endPoint"),
-    TERMINAL((short)12, "terminal"),
-    ANNOTATIONS((short)13, "annotations"),
-    FLAG((short)14, "flag");
+    ANNOTATIONS((short)12, "annotations"),
+    FLAG((short)13, "flag");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -118,11 +115,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           return SERVICE_TYPE;
         case 11: // END_POINT
           return END_POINT;
-        case 12: // TERMINAL
-          return TERMINAL;
-        case 13: // ANNOTATIONS
+        case 12: // ANNOTATIONS
           return ANNOTATIONS;
-        case 14: // FLAG
+        case 13: // FLAG
           return FLAG;
         default:
           return null;
@@ -171,9 +166,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __STARTTIME_ISSET_ID = 4;
   private static final int __ELAPSED_ISSET_ID = 5;
   private static final int __SERVICETYPE_ISSET_ID = 6;
-  private static final int __TERMINAL_ISSET_ID = 7;
-  private static final int __FLAG_ISSET_ID = 8;
-  private BitSet __isset_bit_vector = new BitSet(9);
+  private static final int __FLAG_ISSET_ID = 7;
+  private BitSet __isset_bit_vector = new BitSet(8);
   private _Fields optionals[] = {_Fields.FLAG};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -200,8 +194,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TERMINAL, new org.apache.thrift.meta_data.FieldMetaData("terminal", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
@@ -228,7 +220,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     String serviceName,
     short serviceType,
     String endPoint,
-    boolean terminal,
     List<Annotation> annotations)
   {
     this();
@@ -250,8 +241,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.serviceType = serviceType;
     setServiceTypeIsSet(true);
     this.endPoint = endPoint;
-    this.terminal = terminal;
-    setTerminalIsSet(true);
     this.annotations = annotations;
   }
 
@@ -280,7 +269,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (other.isSetEndPoint()) {
       this.endPoint = other.endPoint;
     }
-    this.terminal = other.terminal;
     if (other.isSetAnnotations()) {
       List<Annotation> __this__annotations = new ArrayList<Annotation>();
       for (Annotation other_element : other.annotations) {
@@ -315,8 +303,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setServiceTypeIsSet(false);
     this.serviceType = 0;
     this.endPoint = null;
-    setTerminalIsSet(false);
-    this.terminal = false;
     this.annotations = null;
     this.flag = (short)0;
 
@@ -568,28 +554,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
-  public boolean isTerminal() {
-    return this.terminal;
-  }
-
-  public void setTerminal(boolean terminal) {
-    this.terminal = terminal;
-    setTerminalIsSet(true);
-  }
-
-  public void unsetTerminal() {
-    __isset_bit_vector.clear(__TERMINAL_ISSET_ID);
-  }
-
-  /** Returns true if field terminal is set (has been assigned a value) and false otherwise */
-  public boolean isSetTerminal() {
-    return __isset_bit_vector.get(__TERMINAL_ISSET_ID);
-  }
-
-  public void setTerminalIsSet(boolean value) {
-    __isset_bit_vector.set(__TERMINAL_ISSET_ID, value);
-  }
-
   public int getAnnotationsSize() {
     return (this.annotations == null) ? 0 : this.annotations.size();
   }
@@ -740,14 +704,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
-    case TERMINAL:
-      if (value == null) {
-        unsetTerminal();
-      } else {
-        setTerminal((Boolean)value);
-      }
-      break;
-
     case ANNOTATIONS:
       if (value == null) {
         unsetAnnotations();
@@ -802,9 +758,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case END_POINT:
       return getEndPoint();
 
-    case TERMINAL:
-      return Boolean.valueOf(isTerminal());
-
     case ANNOTATIONS:
       return getAnnotations();
 
@@ -844,8 +797,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetServiceType();
     case END_POINT:
       return isSetEndPoint();
-    case TERMINAL:
-      return isSetTerminal();
     case ANNOTATIONS:
       return isSetAnnotations();
     case FLAG:
@@ -963,15 +914,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (!(this_present_endPoint && that_present_endPoint))
         return false;
       if (!this.endPoint.equals(that.endPoint))
-        return false;
-    }
-
-    boolean this_present_terminal = true;
-    boolean that_present_terminal = true;
-    if (this_present_terminal || that_present_terminal) {
-      if (!(this_present_terminal && that_present_terminal))
-        return false;
-      if (this.terminal != that.terminal)
         return false;
     }
 
@@ -1119,16 +1061,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTerminal()).compareTo(typedOther.isSetTerminal());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTerminal()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.terminal, typedOther.terminal);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetAnnotations()).compareTo(typedOther.isSetAnnotations());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1227,10 +1159,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     } else {
       sb.append(this.endPoint);
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("terminal:");
-    sb.append(this.terminal);
     first = false;
     if (!first) sb.append(", ");
     sb.append("annotations:");
@@ -1378,15 +1306,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 12: // TERMINAL
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.terminal = iprot.readBool();
-              struct.setTerminalIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 13: // ANNOTATIONS
+          case 12: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
@@ -1405,7 +1325,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 14: // FLAG
+          case 13: // FLAG
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.flag = iprot.readI16();
               struct.setFlagIsSet(true);
@@ -1467,9 +1387,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeString(struct.endPoint);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(TERMINAL_FIELD_DESC);
-      oprot.writeBool(struct.terminal);
-      oprot.writeFieldEnd();
       if (struct.annotations != null) {
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
@@ -1538,16 +1455,13 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetEndPoint()) {
         optionals.set(10);
       }
-      if (struct.isSetTerminal()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(11);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetFlag()) {
         optionals.set(12);
       }
-      if (struct.isSetFlag()) {
-        optionals.set(13);
-      }
-      oprot.writeBitSet(optionals, 14);
+      oprot.writeBitSet(optionals, 13);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1581,9 +1495,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetEndPoint()) {
         oprot.writeString(struct.endPoint);
       }
-      if (struct.isSetTerminal()) {
-        oprot.writeBool(struct.terminal);
-      }
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
@@ -1601,7 +1512,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(14);
+      BitSet incoming = iprot.readBitSet(13);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -1647,10 +1558,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setEndPointIsSet(true);
       }
       if (incoming.get(11)) {
-        struct.terminal = iprot.readBool();
-        struct.setTerminalIsSet(true);
-      }
-      if (incoming.get(12)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<Annotation>(_list5.size);
@@ -1664,7 +1571,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(13)) {
+      if (incoming.get(12)) {
         struct.flag = iprot.readI16();
         struct.setFlagIsSet(true);
       }
