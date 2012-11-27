@@ -16,55 +16,55 @@ import com.profiler.server.dao.Traces;
 
 public class SpanHandler implements Handler {
 
-	private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
 
-	@Autowired
-	private TraceIndex traceIndexDao;
+    @Autowired
+    private TraceIndex traceIndexDao;
 
-	@Autowired
-	private Traces traceDao;
+    @Autowired
+    private Traces traceDao;
 
-	@Autowired
-	private RootTraceIndexDao rootTraceIndexDao;
+    @Autowired
+    private RootTraceIndexDao rootTraceIndexDao;
 
-	@Autowired
-	private ApplicationTraceIndex applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndex applicationTraceIndexDao;
 
-	@Autowired
-	private AgentIdApplicationIndex agentIdApplicationIndexDao;
-	
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		assert (tbase instanceof Span);
+    @Autowired
+    private AgentIdApplicationIndex agentIdApplicationIndexDao;
 
-		try {
-			Span span = (Span) tbase;
+    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        assert (tbase instanceof Span);
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SPAN=" + span);
-			}
+        try {
+            Span span = (Span) tbase;
 
-			String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
+            if (logger.isInfoEnabled()) {
+                logger.info("Received SPAN=" + span);
+            }
+
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
 //			String applicationName = span.getServiceName();
-			
-			if (applicationName == null) {
-				logger.info("Applicationname '{}' not found. Drop the log.", applicationName);
-				return;
-			} else {
-				logger.info("Applicationname '{}' found. Write the log.", applicationName);
-			}
-			
-			if (logger.isDebugEnabled()) {
-				logger.debug("Found Applicationname={}", applicationName);
-			}
-			
-			traceDao.insert(applicationName, span);
-			if (span.getParentSpanId() == -1) {
-				rootTraceIndexDao.insert(span);
-			}
-			traceIndexDao.insert(span);
-			applicationTraceIndexDao.insert(applicationName, span);
-		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
-		}
-	}
+
+            if (applicationName == null) {
+                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
+                return;
+            } else {
+                logger.info("Applicationname '{}' found. Write the log.", applicationName);
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found Applicationname={}", applicationName);
+            }
+
+            traceDao.insert(applicationName, span);
+            if (span.getParentSpanId() == -1) {
+                rootTraceIndexDao.insert(span);
+            }
+            traceIndexDao.insert(span);
+            applicationTraceIndexDao.insert(applicationName, span);
+        } catch (Exception e) {
+            logger.warn("Span handle error " + e.getMessage(), e);
+        }
+    }
 }
