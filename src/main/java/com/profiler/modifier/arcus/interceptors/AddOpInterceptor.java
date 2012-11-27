@@ -40,7 +40,5 @@ public class AddOpInterceptor implements StaticBeforeInterceptor {
 		}
 
 		setServiceCode.invoke(op, serviceCode);
-
-		System.out.println("[HIPPO-ADD_OP_FUNC] INJECT SERVICE_CODE INTO OP=" + serviceCode);
 	}
 }

@@ -32,8 +32,6 @@ public class SetCacheManagerInterceptor implements StaticBeforeInterceptor {
 		CacheManager cm = (CacheManager) args[0];
 		String serviceCode = getServiceCode.invoke(cm);
 		
-		System.out.println("[HIPPO-SET_CACHE_MAN_FUNC] GET SERVICE_CODE FROM CM=" + serviceCode);
-		
 		setServiceCode.invoke((MemcachedClient) target, serviceCode);
 	}
 }
