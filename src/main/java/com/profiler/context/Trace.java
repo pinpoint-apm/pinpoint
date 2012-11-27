@@ -1,13 +1,11 @@
 package com.profiler.context;
 
-import com.profiler.common.util.AnnotationTranscoder;
-import com.profiler.common.util.AnnotationTranscoder.Encoded;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author netspider
@@ -22,7 +20,6 @@ public final class Trace {
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
 
-    //    private static final DeadlineSpanMap spanMap = new DeadlineSpanMap();
     private boolean tracingEnabled = true;
 
     private TraceID root;
@@ -278,7 +275,7 @@ public final class Trace {
         try {
             Span span = getCurrentStackFrame().getSpan();
             span.setServiceName(service);
-            span.setName(rpc);
+            span.setRpc(rpc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

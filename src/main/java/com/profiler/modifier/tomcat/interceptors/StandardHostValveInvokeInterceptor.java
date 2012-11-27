@@ -112,7 +112,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 			long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
 			long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
 			boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
-			int flags = NumberUtils.parseInteger(request.getHeader(Header.HTTP_FLAGS.toString()), 0);
+			short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
 			TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
 			if (logger.isLoggable(Level.INFO)) {

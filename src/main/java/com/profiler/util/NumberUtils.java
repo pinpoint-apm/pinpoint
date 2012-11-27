@@ -21,9 +21,20 @@ public class NumberUtils {
         } catch (NumberFormatException e) {
             return defaultInt;
         }
-    }
+	}
 
-    public static Integer toInteger(Object integer) {
+	public static short parseShort(String str, short defaultInt) {
+		if (str == null) {
+			return defaultInt;
+		}
+		try {
+			return Short.parseShort(str);
+		} catch (NumberFormatException e) {
+			return defaultInt;
+		}
+	}
+
+	public static Integer toInteger(Object integer) {
         if(integer == null) {
             return null;
         }

@@ -105,7 +105,7 @@ public class AsyncTrace {
     public void recordRpcName(final String service, final String rpc) {
         try {
             this.span.setServiceName(service);
-            this.span.setName(rpc);
+            this.span.setRpc(rpc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

@@ -7,18 +7,18 @@ public class TraceID {
 	private long parentSpanId;
 	private long spanId;
 	private boolean sampled;
-	private int flags;
+	private short flags;
 
 	public static TraceID newTraceId() {
 		UUID uuid = UUID.randomUUID();
-		return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, 0);
+		return new TraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, (short) 0);
 	}
 
 	public TraceID getNextTraceId() {
 		return new TraceID(id, spanId, SpanID.nextSpanID(spanId), sampled, flags);
 	}
 
-	public TraceID(UUID id, long parentSpanId, long spanId, boolean sampled, int flags) {
+	public TraceID(UUID id, long parentSpanId, long spanId, boolean sampled, short flags) {
 		this.id = id;
 		this.parentSpanId = parentSpanId;
 		this.spanId = spanId;
@@ -82,7 +82,7 @@ public class TraceID {
 		return sampled;
 	}
 
-	public int getFlags() {
+	public short getFlags() {
 		return flags;
 	}
 
@@ -102,7 +102,7 @@ public class TraceID {
 		this.sampled = sampled;
 	}
 
-	public void setFlags(int flags) {
+	public void setFlags(short flags) {
 		this.flags = flags;
 	}
 

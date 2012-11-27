@@ -7,136 +7,131 @@ import com.profiler.Agent;
 
 /**
  * Span represent RPC
- *
+ * 
  * @author netspider
  */
 public class Span implements Thriftable {
 
-    private final TraceID traceID;
+	private final TraceID traceID;
+	private long startTime;
+	private long endTime;
+	private String serviceName;
+	private String rpc;
+	private String endPoint;
+	private boolean isTerminal = false;
 
-    private long startTime;
+	private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
-    private long endTime;
+	public Span(TraceID traceId) {
+		this.traceID = traceId;
+	}
 
-    private String serviceName;
-    private String name;
-    private String endPoint;
-    private boolean isTerminal = false;
+	public TraceID getTraceID() {
+		return traceID;
+	}
 
-    private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
+	public boolean addAnnotation(HippoAnnotation annotation) {
+		return annotations.add(annotation);
+	}
 
-    public Span(TraceID traceId) {
-        this.traceID = traceId;
-    }
+	public int getAnnotationSize() {
+		return annotations.size();
+	}
 
-    public TraceID getTraceID() {
-        return traceID;
-    }
+	public String getEndPoint() {
+		return this.endPoint;
+	}
 
+	public String getServiceName() {
+		return serviceName;
+	}
 
-    public boolean addAnnotation(HippoAnnotation annotation) {
-        return annotations.add(annotation);
-    }
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
 
-    public int getAnnotationSize() {
-        return annotations.size();
-    }
+	public String getRpc() {
+		return rpc;
+	}
 
+	public void setRpc(String rpc) {
+		this.rpc = rpc;
+	}
 
-    public String getEndPoint() {
-        return this.endPoint;
-    }
+	public void setEndPoint(String endPoint) {
+		this.endPoint = endPoint;
+	}
 
-    public String getServiceName() {
-        return serviceName;
-    }
+	public boolean isTerminal() {
+		return isTerminal;
+	}
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
+	public void setTerminal(boolean isTerminal) {
+		this.isTerminal = isTerminal;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public long getStartTime() {
+		return startTime;
+	}
 
-    public void setEndPoint(String endPoint) {
-        this.endPoint = endPoint;
-    }
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
 
-    public boolean isTerminal() {
-        return isTerminal;
-    }
+	public long getEndTime() {
+		return endTime;
+	}
 
-    public void setTerminal(boolean isTerminal) {
-        this.isTerminal = isTerminal;
-    }
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
+		sb.append("{");
+		sb.append("\n\t TraceID = ").append(traceID);
+		sb.append(",\n\t StartTime = ").append(startTime);
+		sb.append(", EndTime = ").append(endTime);
+		sb.append(",\n\t Name = ").append(rpc);
+		sb.append(", ServiceName = ").append(serviceName);
+		sb.append(", EndPoint = ").append(endPoint);
 
-    public long getStartTime() {
-        return startTime;
-    }
+		sb.append(",\n\t Annotations = {");
+		for (HippoAnnotation a : annotations) {
+			sb.append("\n\t\t").append(a);
+		}
+		sb.append("\n\t}");
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
+		sb.append("}");
 
-    public long getEndTime() {
-        return endTime;
-    }
+		return sb.toString();
+	}
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+	public com.profiler.common.dto.thrift.Span toThrift() {
+		com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
-        sb.append("{");
-        sb.append("\n\t TraceID = ").append(traceID);
-        sb.append(",\n\t StartTime = ").append(startTime);
-        sb.append(", EndTime = ").append(endTime);
-        sb.append(",\n\t Name = ").append(name);
-        sb.append(", ServiceName = ").append(serviceName);
-        sb.append(", EndPoint = ").append(endPoint);
-
-        sb.append(",\n\t Annotations = {");
-        for (HippoAnnotation a : annotations) {
-            sb.append("\n\t\t").append(a);
-        }
-        sb.append("\n\t}");
-
-        sb.append("}");
-
-        return sb.toString();
-    }
-
-    public com.profiler.common.dto.thrift.Span toThrift() {
-        com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
-
-        span.setAgentId(Agent.getInstance().getAgentId());
-        span.setStartTime(startTime);
+		span.setAgentId(Agent.getInstance().getAgentId());
+		span.setStartTime(startTime);
 		span.setElapsed((int) (endTime - startTime));
-        span.setMostTraceId(traceID.getId().getMostSignificantBits());
-        span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
-        span.setName(name);
-        span.setServiceName(serviceName);
-        span.setSpanId(traceID.getSpanId());
-        span.setParentSpanId(traceID.getParentSpanId());
-        span.setEndPoint(endPoint);
-        span.setTerminal(isTerminal);
+		span.setMostTraceId(traceID.getId().getMostSignificantBits());
+		span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
+		span.setRpc(rpc);
+		span.setServiceName(serviceName);
+		span.setSpanId(traceID.getSpanId());
+		span.setParentSpanId(traceID.getParentSpanId());
+		span.setEndPoint(endPoint);
+		span.setTerminal(isTerminal);
 
-        // 여기서 데이터 인코딩을 하자.
-        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
-        for (HippoAnnotation a : annotations) {
-            annotationList.add(a.toThrift());
-        }
-        span.setAnnotations(annotationList);
+		// 여기서 데이터 인코딩을 하자.
+		List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
+		for (HippoAnnotation a : annotations) {
+			annotationList.add(a.toThrift());
+		}
+		span.setAnnotations(annotationList);
 
-        span.setFlag(traceID.getFlags());
+		span.setFlag(traceID.getFlags());
 
-        return span;
-    }
+		return span;
+	}
 }
