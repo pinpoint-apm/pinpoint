@@ -5,10 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
@@ -18,17 +15,17 @@ import org.springframework.context.support.GenericApplicationContext;
 
 public class MultiplexedUDPReceiver implements DataReceiver {
 
-	private static final int AcceptedSize = 65507;
+    private static final int AcceptedSize = 65507;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-	private final ExecutorService worker = Executors.newFixedThreadPool(1024);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final ThreadPoolExecutor worker = (ThreadPoolExecutor) Executors.newFixedThreadPool(512);
 
-	private DatagramSocket socket = null;
+    private DatagramSocket socket = null;
 
     private GenericApplicationContext context;
     private MultiplexedPacketHandler multiplexedPacketHandler;
 
-	long rejectedExecutionCount = 0;
+    long rejectedExecutionCount = 0;
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
@@ -39,13 +36,13 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     }
 
     private Thread ioThread = new Thread(MultiplexedUDPReceiver.class.getSimpleName()) {
-		@Override
-		public void run() {
-			receive();
-		}
-	};
+        @Override
+        public void run() {
+            receive();
+        }
+    };
 
-	public void receive() {
+    public void receive() {
         if (logger.isInfoEnabled()) {
             logger.info("Waiting for " + MultiplexedUDPReceiver.class.getSimpleName());
         }
@@ -74,7 +71,9 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                 }
                 continue;
             }
-
+            if (logger.isDebugEnabled()) {
+                logger.debug("pool getActiveCount:{}", worker.getActiveCount());
+            }
             try {
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
@@ -85,7 +84,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                 }
             }
         }
-	}
+    }
 
     private DatagramSocket createSocket() {
         try {
@@ -98,18 +97,18 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     }
 
     @Override
-	public void start() {
+    public void start() {
         if (socket != null) {
             this.ioThread.start();
             logger.info("UDP Packet reader started.");
         } else {
             throw new RuntimeException("socket create fail");
         }
-	}
+    }
 
-	@Override
-	public void shutdown() {
-		logger.info("Shutting down UDP Packet reader.");
+    @Override
+    public void shutdown() {
+        logger.info("Shutting down UDP Packet reader.");
         state.set(false);
         // 그냥 닫으면 되는건지?
         socket.close();
@@ -120,7 +119,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
             Thread.currentThread().interrupt();
         }
 
-	}
+    }
 
     private class DispatchPacket implements Runnable {
 
