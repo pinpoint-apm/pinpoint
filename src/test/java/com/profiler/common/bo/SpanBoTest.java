@@ -1,6 +1,7 @@
 package com.profiler.common.bo;
 
 
+import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -42,13 +43,14 @@ public class SpanBoTest {
         spanBo.setEndPoint("end");
         spanBo.setRpc("rpc");
         spanBo.setServiceName("serviceName");
+        spanBo.setServiceType(ServiceType.BLOC);
 
         byte[] bytes = spanBo.writeValue();
-        logger.debug("length:{}", bytes.length);
+        logger.info("length:{}", bytes.length);
 
         SpanBo newSpanBo = new SpanBo();
         int i = newSpanBo.readValue(bytes, 0);
-        logger.debug("length:{}", i);
+        logger.info("length:{}", i);
         Assert.assertEquals(bytes.length, i);
 
     }

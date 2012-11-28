@@ -1,12 +1,22 @@
 package com.profiler.common.util;
 
 import junit.framework.Assert;
+import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DirectBinaryEncoder;
+import org.apache.avro.io.EncoderFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 /**
  *
  */
 public class BufferTest {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testPutPrefixedBytes() throws Exception {
         String test = "test";
@@ -50,7 +60,14 @@ public class BufferTest {
 
     @Test
     public void testReadPrefixedBytes() throws Exception {
+        Buffer buffer = new Buffer(1024);
+        buffer.put1PrefixedBytes("string".getBytes("UTF-8"));
+        byte[] buffer1 = buffer.getBuffer();
 
+        Buffer read = new Buffer(buffer1);
+        byte[] bytes = read.read1PrefixedBytes();
+        String s = new String(bytes, "UTF-8");
+        logger.info(s);
     }
 
     @Test
