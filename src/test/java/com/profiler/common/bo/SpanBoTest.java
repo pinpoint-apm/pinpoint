@@ -52,6 +52,35 @@ public class SpanBoTest {
         int i = newSpanBo.readValue(bytes, 0);
         logger.info("length:{}", i);
         Assert.assertEquals(bytes.length, i);
-
     }
+
+    @Test
+    public void serialize2() {
+        SpanBo spanBo = new SpanBo();
+        spanBo.setAgentId("agent");
+        String endPoint = createString(127);
+        spanBo.setEndPoint(endPoint);
+        String rpc = createString(255);
+        spanBo.setRpc(rpc);
+        String service = createString(5);
+        spanBo.setServiceName(service);
+        spanBo.setServiceType(ServiceType.BLOC);
+
+        byte[] bytes = spanBo.writeValue();
+        logger.info("length:{}", bytes.length);
+
+        SpanBo newSpanBo = new SpanBo();
+        int i = newSpanBo.readValue(bytes, 0);
+        logger.info("length:{}", i);
+        Assert.assertEquals(bytes.length, i);
+    }
+
+    private String createString(int size) {
+        StringBuilder sb = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+            sb.append('a');
+        }
+        return sb.toString();
+    }
+
 }

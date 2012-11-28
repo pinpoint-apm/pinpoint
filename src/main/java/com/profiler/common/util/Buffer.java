@@ -77,6 +77,10 @@ public class Buffer {
         return this.buffer[offset++];
     }
 
+    public int readUnsignedByte() {
+        return readByte() & 0xff;
+    }
+
     public boolean readBoolean() {
         byte b = readByte();
         if (b == BOOLEAN_FALSE) {
@@ -145,6 +149,14 @@ public class Buffer {
 
     public String read1PrefixedString() {
         int size = readByte();
+        if (size == 0) {
+            return "";
+        }
+        return readString(size);
+    }
+
+    public String read1UnsignedPrefixedString() {
+        int size = readUnsignedByte();
         if (size == 0) {
             return "";
         }

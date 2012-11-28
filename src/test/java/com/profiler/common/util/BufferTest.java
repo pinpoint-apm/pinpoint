@@ -1,15 +1,9 @@
 package com.profiler.common.util;
 
 import junit.framework.Assert;
-import org.apache.avro.io.BinaryEncoder;
-import org.apache.avro.io.DirectBinaryEncoder;
-import org.apache.avro.io.EncoderFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 
 /**
  *
@@ -77,7 +71,19 @@ public class BufferTest {
 
     @Test
     public void testPut() throws Exception {
+        checkUnsignedByte(255);
 
+        checkUnsignedByte(0);
+    }
+
+    private void checkUnsignedByte(int value) {
+        Buffer buffer = new Buffer(1024);
+        buffer.put((byte) value);
+        byte[] buffer1 = buffer.getBuffer();
+
+        Buffer reader = new Buffer(buffer1);
+        int i = reader.readUnsignedByte();
+        Assert.assertEquals(value, i);
     }
 
 

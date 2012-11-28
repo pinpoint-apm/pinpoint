@@ -226,7 +226,7 @@ public class SpanBo {
 
     private int getBufferLength(int a, int b, int c, int d) {
         int size = a + b + c + d;
-        size += 1 + 2 + 2 + 2 + VERSION_SIZE; // chunk size chunk
+        size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
         // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
         size += PARENTSPANID + FLAG + SERVICETYPE;
@@ -259,10 +259,10 @@ public class SpanBo {
         buffer.put(startTime);
         buffer.put(elapsed);
 
-        buffer.put2PrefixedBytes(rpcBytes);
-        buffer.put2PrefixedBytes(serviceNameBytes);
+        buffer.put1PrefixedBytes(rpcBytes);
+        buffer.put1PrefixedBytes(serviceNameBytes);
         buffer.put(serviceType.getCode());
-        buffer.put2PrefixedBytes(endPointBytes);
+        buffer.put1PrefixedBytes(endPointBytes);
 
         buffer.put(flag);
         return buffer.getBuffer();
@@ -284,10 +284,10 @@ public class SpanBo {
         this.startTime = buffer.readLong();
         this.elapsed = buffer.readInt();
 
-        this.rpc = buffer.read2PrefixedString();
-        this.serviceName = buffer.read2PrefixedString();
+        this.rpc = buffer.read1UnsignedPrefixedString();
+        this.serviceName = buffer.read1UnsignedPrefixedString();
         this.serviceType = ServiceType.parse(buffer.readShort());
-        this.endPoint = buffer.read2PrefixedString();
+        this.endPoint = buffer.read1UnsignedPrefixedString();
 
         this.flag = buffer.readShort();
         return buffer.getOffset();
