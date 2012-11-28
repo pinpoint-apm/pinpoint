@@ -1,18 +1,215 @@
 package com.profiler.common.hbase;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.*;
-import org.springframework.data.hadoop.hbase.HbaseTemplate;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
-import org.springframework.data.hadoop.hbase.TableCallback;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.hadoop.hbase.*;
+import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
+public class HbaseTemplate2 implements HbaseOperations2, InitializingBean, DisposableBean {
+
+    private boolean autoFlush = true;
+    private Charset charset = Charset.forName("UTF-8");
+
+    private Configuration configuration;
+    private HTablePool hTablePool;
+    private int hTablePoolSize = 256;
+
+
+    public HbaseTemplate2() {
+    }
+
+    public HbaseTemplate2(Configuration configuration) {
+        Assert.notNull(configuration);
+        this.configuration = configuration;
+    }
+
+    public HbaseTemplate2(Configuration configuration, int hTablePoolSize) {
+        Assert.notNull(configuration);
+        this.configuration = configuration;
+        this.hTablePoolSize = hTablePoolSize;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.hTablePool = new HTablePool(getConfiguration(), this.hTablePoolSize);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        this.hTablePool.close();
+    }
+
+    @Override
+    public <T> T execute(String tableName, TableCallback<T> action) {
+        Assert.notNull(action, "Callback object must not be null");
+        Assert.notNull(tableName, "No table specified");
+
+        HTable table = getTable(tableName);
+
+        try {
+            boolean previousFlushSetting = applyFlushSetting(table);
+            T result = action.doInTable(table);
+            flushIfNecessary(table, previousFlushSetting);
+            return result;
+        } catch (Throwable th) {
+            if (th instanceof Error) {
+                throw ((Error) th);
+            }
+            if (th instanceof RuntimeException) {
+                throw ((RuntimeException) th);
+            }
+            throw convertHbaseAccessException((Exception) th);
+        } finally {
+            releaseTable(tableName, table);
+        }
+    }
+
+
+    private HTable getTable(String tableName) {
+        try {
+            return (HTable) this.hTablePool.getTable(tableName);
+        } catch (Exception e) {
+            throw convertHbaseAccessException(e);
+        }
+    }
+
+    private void releaseTable(String tableName, HTable table) {
+        try {
+            table.close();
+        } catch (IOException e) {
+            throw convertHbaseAccessException(e);
+        }
+    }
+
+
+    private boolean applyFlushSetting(HTable table) {
+        boolean autoFlush = table.isAutoFlush();
+        table.setAutoFlush(this.autoFlush);
+        return autoFlush;
+    }
+
+    private void flushIfNecessary(HTable table, boolean oldFlush) throws IOException {
+        // TODO: check whether we can consider or not a table scope
+        table.flushCommits();
+        if (table.isAutoFlush() != oldFlush) {
+            table.setAutoFlush(oldFlush);
+        }
+    }
+
+    public DataAccessException convertHbaseAccessException(Exception ex) {
+        return HbaseUtils.convertHbaseException(ex);
+    }
+
+    @Override
+    public <T> T find(String tableName, String family, final ResultsExtractor<T> action) {
+        Scan scan = new Scan();
+        scan.addFamily(family.getBytes(getCharset()));
+        return find(tableName, scan, action);
+    }
+
+    @Override
+    public <T> T find(String tableName, String family, String qualifier, final ResultsExtractor<T> action) {
+        Scan scan = new Scan();
+        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
+        return find(tableName, scan, action);
+    }
+
+    @Override
+    public <T> T find(String tableName, final Scan scan, final ResultsExtractor<T> action) {
+        return execute(tableName, new TableCallback<T>() {
+            @Override
+            public T doInTable(HTable htable) throws Throwable {
+                ResultScanner scanner = htable.getScanner(scan);
+                try {
+                    return action.extractData(scanner);
+                } finally {
+                    scanner.close();
+                }
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> find(String tableName, String family, final RowMapper<T> action) {
+        Scan scan = new Scan();
+        scan.addFamily(family.getBytes(getCharset()));
+        return find(tableName, scan, action);
+    }
+
+    @Override
+    public <T> List<T> find(String tableName, String family, String qualifier, final RowMapper<T> action) {
+        Scan scan = new Scan();
+        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
+        return find(tableName, scan, action);
+    }
+
+    @Override
+    public <T> List<T> find(String tableName, final Scan scan, final RowMapper<T> action) {
+        return find(tableName, scan, new RowMapperResultsExtractor<T>(action));
+    }
+
+    @Override
+    public <T> T get(String tableName, String rowName, final RowMapper<T> mapper) {
+        return get(tableName, rowName, null, null, mapper);
+    }
+
+    @Override
+    public <T> T get(String tableName, String rowName, String familyName, final RowMapper<T> mapper) {
+        return get(tableName, rowName, familyName, null, mapper);
+    }
+
+    @Override
+    public <T> T get(String tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
+        return execute(tableName, new TableCallback<T>() {
+            @Override
+            public T doInTable(HTable htable) throws Throwable {
+                Get get = new Get(rowName.getBytes(getCharset()));
+                if (familyName != null) {
+                    byte[] family = familyName.getBytes(getCharset());
+
+                    if (qualifier != null) {
+                        get.addColumn(family, qualifier.getBytes(getCharset()));
+                    } else {
+                        get.addFamily(family);
+                    }
+                }
+                Result result = htable.get(get);
+                return mapper.mapRow(result, 0);
+            }
+        });
+    }
+
+    /**
+     * Sets the auto flush.
+     *
+     * @param autoFlush The autoFlush to set.
+     */
+    public void setAutoFlush(boolean autoFlush) {
+        this.autoFlush = autoFlush;
+    }
 
     @Override
     public <T> T get(String tableName, byte[] rowName, RowMapper<T> mapper) {
@@ -180,4 +377,6 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2 {
     public <T> List<List<T>> find(String tableName, List<Scan> scans, RowMapper<T> action) {
         return find(tableName, scans, new RowMapperResultsExtractor<T>(action));
     }
+
+
 }

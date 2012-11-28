@@ -48,16 +48,20 @@ public class HbaseTemplate2Test {
 
         HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(hbaseConfigurationFactoryBean.getObject());
+        hbaseTemplate2.afterPropertiesSet();
 
         try {
             hbaseTemplate2.put("NOT_EXIST", new byte[0], "familyName".getBytes(), "columnName".getBytes(), new byte[0]);
             Assert.fail("exceptions");
         } catch (HbaseSystemException e) {
-            if (!(e.getCause() instanceof TableNotFoundException)) {
+            if (!(e.getCause().getCause() instanceof TableNotFoundException)) {
+
+                System.out.println(e.getCause());
                 Assert.fail("unexpected exception :" + e.getCause());
             }
         }
 
+        hbaseTemplate2.destroy();
 
     }
 }
