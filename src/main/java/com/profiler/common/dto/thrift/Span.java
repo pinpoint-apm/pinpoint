@@ -1309,14 +1309,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           case 12: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list0.size);
-                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                struct.annotations = new ArrayList<Annotation>(_list24.size);
+                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
                 {
-                  Annotation _elem2; // required
-                  _elem2 = new Annotation();
-                  _elem2.read(iprot);
-                  struct.annotations.add(_elem2);
+                  Annotation _elem26; // required
+                  _elem26 = new Annotation();
+                  _elem26.read(iprot);
+                  struct.annotations.add(_elem26);
                 }
                 iprot.readListEnd();
               }
@@ -1391,9 +1391,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-          for (Annotation _iter3 : struct.annotations)
+          for (Annotation _iter27 : struct.annotations)
           {
-            _iter3.write(oprot);
+            _iter27.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -1498,9 +1498,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter4 : struct.annotations)
+          for (Annotation _iter28 : struct.annotations)
           {
-            _iter4.write(oprot);
+            _iter28.write(oprot);
           }
         }
       }
@@ -1559,14 +1559,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       if (incoming.get(11)) {
         {
-          org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list5.size);
-          for (int _i6 = 0; _i6 < _list5.size; ++_i6)
+          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.annotations = new ArrayList<Annotation>(_list29.size);
+          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
           {
-            Annotation _elem7; // required
-            _elem7 = new Annotation();
-            _elem7.read(iprot);
-            struct.annotations.add(_elem7);
+            Annotation _elem31; // required
+            _elem31 = new Annotation();
+            _elem31.read(iprot);
+            struct.annotations.add(_elem31);
           }
         }
         struct.setAnnotationsIsSet(true);

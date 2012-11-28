@@ -16,13 +16,6 @@ struct ApiAnnotation {
   6: optional i32 line,
 }
 
-# columnname = parentSpanId + DELIMETER + flushSeq
-struct ExtraSpan {
-  5: i64 parentSpanId
-  14: list<TerminalSpan> spans
-}
-
-# columnname = spanid
 struct Span {
   1: string agentId
   
@@ -42,18 +35,4 @@ struct Span {
   
   12: list<Annotation> annotations
   13: optional i16 flag = 0
-  
-  14: list<TerminalSpan> spans
-}
-
-struct TerminalSpan {
-  1: i64 startTime
-  2: i32 elapsed
-  
-  3: string rpc
-  4: string serviceName
-  5: i16 serviceType
-  6: string endPoint
-  
-  7: list<Annotation> annotations
 }
