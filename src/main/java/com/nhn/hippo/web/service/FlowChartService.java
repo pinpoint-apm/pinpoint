@@ -57,13 +57,23 @@ public interface FlowChartService {
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds);
 
 	/**
+	 * 
+	 * @param traceIds
+	 * @param applicationName
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to);
+
+	/**
 	 * select all application names
 	 * 
 	 * @return all of application names
 	 */
 	public List<String> selectAllApplicationNames();
-	
-	
-    public String[] selectAgentIds(String[] hosts);
 
+	public String[] selectAgentIds(String[] hosts);
+	
+	public ServerCallTree selectServerCallTree(TraceId traceId);
 }

@@ -18,11 +18,13 @@ public interface TraceDao {
     List<SpanBo> selectSpanAndAnnotation(UUID traceId);
 
     List<SpanBo> selectSpan(long traceIdMost, long traceIdLeast);
-
+    
     List<List<SpanBo>> selectSpans(List<UUID> traceIds);
 
     List<List<SpanBo>> selectSpans(Set<TraceId> traceIds);
 
+    List<SpanBo> selectSpans(TraceId traceId);
+    
     @Deprecated
     List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIds);
 }

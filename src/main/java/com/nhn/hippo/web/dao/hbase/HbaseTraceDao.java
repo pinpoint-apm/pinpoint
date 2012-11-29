@@ -27,6 +27,8 @@ import com.profiler.common.util.BytesUtils;
 public class HbaseTraceDao implements TraceDao {
 
     private final byte[] COLFAM_SPAN = HBaseTables.TRACES_CF_SPAN;
+    
+    private final byte[] COLFAM_TERMINALSPAN = HBaseTables.TRACES_CF_TERMINALSPAN;
 
     private final byte[] COLFAM_ANNOTATION = HBaseTables.TRACES_CF_ANNOTATION;
 
@@ -54,6 +56,7 @@ public class HbaseTraceDao implements TraceDao {
         Get get = new Get(uuidBytes);
         get.addFamily(COLFAM_SPAN);
         get.addFamily(COLFAM_ANNOTATION);
+        get.addFamily(COLFAM_TERMINALSPAN);
         return template2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
     }
 
@@ -84,6 +87,14 @@ public class HbaseTraceDao implements TraceDao {
             gets.add(get);
         }
         return template2.get(HBaseTables.TRACES, gets, spanMapper);
+    }
+    
+    @Override
+    public List<SpanBo> selectSpans(TraceId traceId) {
+		Get get = new Get(traceId.getBytes());
+		get.addFamily(COLFAM_SPAN);
+        get.addFamily(COLFAM_TERMINALSPAN);
+    	return template2.get(HBaseTables.TRACES, get, spanMapper);
     }
 
     public List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIds) {

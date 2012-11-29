@@ -51,7 +51,8 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         List<SpanBo> spanList = new ArrayList<SpanBo>();
         for (KeyValue kv : keyList) {
             // family name "span"일때로만 한정.
-            if (kv.getFamilyLength() == HBaseTables.TRACES_CF_SPAN.length) {
+            if (kv.getFamilyLength() == HBaseTables.TRACES_CF_SPAN.length || 
+            	kv.getFamilyLength() == HBaseTables.TRACES_CF_TERMINALSPAN.length) {
                 SpanBo spanBo = new SpanBo();
                 spanBo.setMostTraceId(most);
                 spanBo.setLeastTraceId(least);

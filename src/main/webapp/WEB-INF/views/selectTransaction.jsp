@@ -202,28 +202,6 @@
         ]
     };
 
-    var rpcdata = {
-        "nodes":[
-            <c:forEach items="${rpcnodes}" var="node" varStatus="status">
-            <c:if test="${node.terminal}">
-            {"name":"${node.serviceName}:${node.rpc}"}
-            </c:if>
-            <c:if test="${not node.terminal}">
-            {"name":"${node}"}
-            </c:if>
-            <c:if test="${!status.last}">,
-            </c:if>
-            </c:forEach>
-        ],
-        "links":[
-            <c:forEach items="${rpclinks}" var="link" varStatus="status">
-            {"source":${link.from.sequence}, "target":${link.to.sequence}, "value":${link.callCount}}
-            <c:if test="${!status.last}">,
-            </c:if>
-            </c:forEach>
-        ]
-    };
-
     $(document).ready(function () {
         drawSankeyChart(data, "#graph", 960, 500);
     });

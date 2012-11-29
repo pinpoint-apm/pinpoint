@@ -15,19 +15,17 @@
 	    ],
 	    "serviceType" : "${node.serviceType}",
 	    "terminal" : "${node.serviceType.terminal}"
-    }
-    <c:if test="${!status.last}">,</c:if>
+    } <c:if test="${!status.last}">,</c:if>
 </c:forEach>
 ],
 "links" : [
 <c:forEach items="${links}" var="link" varStatus="status">
     {
-	    "source" : ${link.from.sequence},
+		"source" : ${link.from.sequence},
 		"target" : ${link.to.sequence},
 		"value" : ${link.histogram.sampleCount},
-	    "histogram" : ${link.histogram}
-	}
-    <c:if test="${!status.last}">,</c:if>
+		"histogram" : ${link.histogram}
+	} <c:if test="${!status.last}">,</c:if>
 </c:forEach>
 ]
 },
@@ -47,8 +45,7 @@
 	        <c:if test="${!status2.last}">,</c:if>
 	    </c:forEach>
 	    ]
-    }
-    <c:if test="${!status.last}">,</c:if>
+    } <c:if test="${!status.last}">,</c:if>
 </c:forEach>
 ],
 
@@ -60,8 +57,7 @@
 	        "timestamp" : ${trace.startTime},
 	        "executionTime" : ${trace.executionTime},
 	        "name" : "${t.rpc}"
-        }
-        <c:if test="${!status4.last}">,</c:if>
+        } <c:if test="${!status4.last}">,</c:if>
     </c:forEach>
     <c:if test="${!status3.last}">,</c:if>
 </c:forEach>
