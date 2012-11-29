@@ -3,7 +3,7 @@ package com.profiler.common;
 public enum ServiceType {
 	
 	UNKNOWN(		(short) 0,		"UNKNOWN",		false),
-	UNKNOWN_CLOUD(	(short) 1,		"UNKNOWN_EXT",	false),
+	UNKNOWN_CLOUD(	(short) 1,		"UNKNOWN_CLOUD",false),
 	
 	TOMCAT(			(short) 1001,	"TOMCAT",		false), 
 	BLOC(			(short) 1002,	"BLOC",			false),
@@ -54,6 +54,10 @@ public enum ServiceType {
 	
 	public boolean isIndexable() {
 		return !terminal && !isRpcClient() && code > 1000;
+	}
+	
+	public boolean isUnknown() {
+		return this == ServiceType.UNKNOWN || this == ServiceType.UNKNOWN_CLOUD;
 	}
 	
 	public short getCode() {

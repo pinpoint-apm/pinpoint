@@ -18,6 +18,7 @@ public class HBaseTables {
 	public static final String TRACES = "Traces";
 	public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("Span");
 	public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("Annotation");
+	public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("TerminalSpan");
 
 	public static final String SERVERS_INDEX = "ServersIndex";
 	public static final byte[] SERVERS_INDEX_CF_AGENTS = Bytes.toBytes("Agents");
@@ -27,4 +28,7 @@ public class HBaseTables {
 
 	public static final String AGENTID_APPLICATION_INDEX = "AgentIdApplicationIndex";
 	public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
+	
+	public static final String TERMINAL_STATISTICS = "TerminalStatistics";
+	public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
 }
