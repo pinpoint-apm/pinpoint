@@ -36,11 +36,11 @@
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
 
     <bean class="com.profiler.server.dao.hbase.HbaseRootTraceIndexDao"></bean>
-    <bean class="com.profiler.server.dao.hbase.HbaseTraceIndex"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseJvmInfoDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseApplicationIndexDao"></bean>
-    <bean class="com.profiler.server.dao.hbase.HbaseApplicationTraceIndex"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseApplicationTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseAgentIdApplicationIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTerminalStatisticsDao"></bean>
     

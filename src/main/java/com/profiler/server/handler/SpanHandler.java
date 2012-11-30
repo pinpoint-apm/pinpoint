@@ -9,34 +9,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.server.dao.AgentIdApplicationIndex;
-import com.profiler.server.dao.ApplicationTraceIndex;
-import com.profiler.server.dao.RootTraceIndexDao;
-import com.profiler.server.dao.TerminalStatistics;
-import com.profiler.server.dao.TraceIndex;
-import com.profiler.server.dao.Traces;
+import com.profiler.server.dao.AgentIdApplicationIndexDao;
+import com.profiler.server.dao.ApplicationTraceIndexDao;
+import com.profiler.server.dao.RootTraceIndexDaoDao;
+import com.profiler.server.dao.TerminalStatisticsDao;
+import com.profiler.server.dao.TraceIndexDao;
+import com.profiler.server.dao.TracesDao;
 
 public class SpanHandler implements Handler {
 
 	private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
 
 	@Autowired
-	private TraceIndex traceIndexDao;
+	private TraceIndexDao traceIndexDao;
 
 	@Autowired
-	private Traces traceDao;
+	private TracesDao traceDao;
 
 	@Autowired
-	private RootTraceIndexDao rootTraceIndexDao;
+	private RootTraceIndexDaoDao rootTraceIndexDao;
 
 	@Autowired
-	private ApplicationTraceIndex applicationTraceIndexDao;
+	private ApplicationTraceIndexDao applicationTraceIndexDao;
 
 	@Autowired
-	private AgentIdApplicationIndex agentIdApplicationIndexDao;
+	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 	
 	@Autowired
-	private TerminalStatistics terminalStatistics;
+	private TerminalStatisticsDao terminalStatistics;
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 		assert (tbase instanceof Span);

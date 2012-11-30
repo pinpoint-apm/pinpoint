@@ -44,7 +44,7 @@ public class TraceDaoTest {
 
     @Autowired
     @Qualifier("testTraceIndex")
-    private HbaseTraceIndex traceIndex;
+    private HbaseTraceIndexDao traceIndex;
 
 
     //	@BeforeClass

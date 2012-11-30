@@ -9,18 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.dto.thrift.AgentInfo;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.server.dao.AgentIdApplicationIndex;
-import com.profiler.server.dao.ApplicationIndex;
+import com.profiler.server.dao.AgentIdApplicationIndexDao;
+import com.profiler.server.dao.ApplicationIndexDao;
 
 public class AgentInfoHandler implements Handler {
 
     private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
 
     @Autowired
-    private ApplicationIndex applicationIndexDao;
+    private ApplicationIndexDao applicationIndexDao;
 
     @Autowired
-    private AgentIdApplicationIndex agentIdApplicationIndexDao;
+    private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         assert (tbase instanceof Span);

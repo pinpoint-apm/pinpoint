@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.profiler.common.dto.Header;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.util.PacketUtils;
-import com.profiler.server.dao.JvmInfo;
+import com.profiler.server.dao.JvmInfoDao;
 
 public class JVMDataHandler implements Handler {
 
 	private final Logger logger = LoggerFactory.getLogger(JVMDataHandler.class.getName());
 
 	@Autowired
-	private JvmInfo jvmInfoDao;
+	private JvmInfoDao jvmInfoDao;
 
 	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 		assert (tbase instanceof JVMInfoThriftDTO);
