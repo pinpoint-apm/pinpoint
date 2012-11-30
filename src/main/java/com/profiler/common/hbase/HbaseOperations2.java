@@ -1,12 +1,10 @@
 package com.profiler.common.hbase;
 
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
+import org.springframework.data.hadoop.hbase.TableCallback;
 
 import java.util.List;
 
@@ -71,4 +69,11 @@ public interface HbaseOperations2 extends HbaseOperations {
     <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
 
     <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
+
+    void increment(String tableName, final Increment increment);
+
+    void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
+
+    void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
+
 }

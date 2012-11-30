@@ -378,5 +378,34 @@ public class HbaseTemplate2 implements HbaseOperations2, InitializingBean, Dispo
         return find(tableName, scans, new RowMapperResultsExtractor<T>(action));
     }
 
+    public void increment(String tableName, final Increment increment) {
+        execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(HTable htable) throws Throwable {
+                htable.increment(increment);
+                return null;
+            }
+        });
+    }
+
+    public void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
+        execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(HTable htable) throws Throwable {
+                htable.incrementColumnValue(rowName, familyName, qualifier, amount);
+                return null;
+            }
+        });
+    }
+
+    public void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
+        execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(HTable htable) throws Throwable {
+                htable.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL);
+                return null;
+            }
+        });
+    }
 
 }
