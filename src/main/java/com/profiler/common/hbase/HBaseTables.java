@@ -3,6 +3,11 @@ package com.profiler.common.hbase;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseTables {
+	
+	public static final String SYSTEMINFO = "Systeminfo";
+	public static final byte[] SYSTEMINFO_CF_JVM = Bytes.toBytes("JVM");
+	public static final byte[] SYSTEMINFO_CN_INFO = Bytes.toBytes("info");
+	
 	public static final String TRACE_INDEX = "TraceIndex";
 	public static final byte[] TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
 	public static final byte[] TRACE_INDEX_CN_ID = Bytes.toBytes("ID");
