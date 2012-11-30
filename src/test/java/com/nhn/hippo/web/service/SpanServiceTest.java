@@ -25,7 +25,7 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseTemplate2;
 import com.profiler.common.util.SpanUtils;
-import com.profiler.server.dao.Traces;
+import com.profiler.server.dao.TracesDao;
 
 /**
  *
@@ -35,7 +35,7 @@ import com.profiler.server.dao.Traces;
 public class SpanServiceTest {
 
 	@Autowired
-	private Traces traceDao;
+	private TracesDao traceDao;
 
 	@Autowired
 	private SpanService spanService;
