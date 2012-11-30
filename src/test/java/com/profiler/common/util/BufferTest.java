@@ -65,6 +65,18 @@ public class BufferTest {
     }
 
     @Test
+    public void testNullTerminatedBytes() throws Exception {
+        Buffer buffer = new Buffer(1024);
+        buffer.putNullTerminatedBytes("string".getBytes("UTF-8"));
+        byte[] buffer1 = buffer.getBuffer();
+
+        Buffer read = new Buffer(buffer1);
+        String readString = read.readNullTerminatedString();
+
+        logger.info(readString);
+    }
+
+    @Test
     public void testReadPrefixedString() throws Exception {
 
     }

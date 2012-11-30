@@ -229,8 +229,10 @@ public class SpanBo {
         size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
         // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
-        size += PARENTSPANID + FLAG + SERVICETYPE;
-
+        size += PARENTSPANID + SERVICETYPE;
+        if (flag != 0) {
+            size += FLAG;
+        }
         // startTime 8, elapsed 4;
         size += 12;
         return size;
@@ -264,7 +266,11 @@ public class SpanBo {
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
 
-        buffer.put(flag);
+        // 공간 절약을 위해서 flag는 무조껀 마지막에 넣어야 한다.
+        if (flag != 0) {
+            buffer.put(flag);
+        }
+
         return buffer.getBuffer();
     }
 
@@ -288,8 +294,10 @@ public class SpanBo {
         this.serviceName = buffer.read1UnsignedPrefixedString();
         this.serviceType = ServiceType.parse(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
-
-        this.flag = buffer.readShort();
+        // flag는 무조껀 마지막에 넣어야 한다.
+        if (buffer.limit() == 2) {
+            this.flag = buffer.readShort();
+        }
         return buffer.getOffset();
     }
 

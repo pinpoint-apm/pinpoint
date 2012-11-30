@@ -73,6 +73,15 @@ public class Buffer {
         }
     }
 
+    public void putNullTerminatedBytes(byte[] bytes) {
+        if (bytes == null) {
+            put(0);
+        } else {
+            put(bytes);
+            put((byte) 0);
+        }
+    }
+
     public byte readByte() {
         return this.buffer[offset++];
     }
@@ -171,6 +180,26 @@ public class Buffer {
         return readString(size);
     }
 
+    public String readNullTerminatedString() {
+        int size = findNull();
+        if (size == 0) {
+            return "";
+        } else if (size == -1) {
+            throw new IllegalArgumentException("null not found");
+        }
+        return readString(size);
+    }
+
+    private int findNull() {
+        for (int i = offset; i < buffer.length; i++) {
+            byte b = this.buffer[i];
+            if (b == 0) {
+                return i - offset;
+            }
+        }
+        return -1;
+    }
+
 
     private String readString(int size) {
         String s = new String(buffer, offset, size, UTF8);
@@ -219,5 +248,9 @@ public class Buffer {
 
     public int getOffset() {
         return offset;
+    }
+
+    public int limit() {
+        return buffer.length - offset;
     }
 }
