@@ -54,13 +54,13 @@
             <p id="graph"></p>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="span12">Application Flow Map (DEMO)</div>
     </div>
     <div class="row">
         <div class="span12">
-    		<canvas id="springydemo" width="640" height="480" />
+            <canvas id="springydemo" width="640" height="480"/>
         </div>
     </div>
 
@@ -88,6 +88,7 @@
                         <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
                         <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
                         <li>endpoint = ${sp.endPoint}</li>
+                        <li>subSpan = ${sp.subSpanMap}</li>
                         <c:if test="${status.first}">
                             <c:set var="startTime" scope="page" value="${sp.startTime}"/>
                         </c:if>
@@ -180,9 +181,9 @@
                     "${agentId}"
                     <c:if test="${!status2.last}">, </c:if>
                     </c:forEach>
-	            ],
-	            "serviceType" : "${node.serviceType}",
-	            "terminal" : "${node.serviceType.terminal}"
+                ],
+                "serviceType":"${node.serviceType}",
+                "terminal":"${node.serviceType.terminal}"
             }
             <c:if test="${!status.last}">,
             </c:if>
@@ -191,10 +192,10 @@
         "links":[
             <c:forEach items="${links}" var="link" varStatus="status">
             {
-				"source": ${link.from.sequence},
-				"target": ${link.to.sequence},
-				"value" : ${link.histogram.sampleCount},
-			    "histogram" : ${link.histogram}
+                "source": ${link.from.sequence},
+                "target": ${link.to.sequence},
+                "value": ${link.histogram.sampleCount},
+                "histogram": ${link.histogram}
             }
             <c:if test="${!status.last}">,
             </c:if>

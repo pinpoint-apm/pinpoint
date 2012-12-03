@@ -19,17 +19,17 @@
 
 
     <logger name="com.nhn.hippo" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 
     <logger name="com.nhn.hippo.web.mapper" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="com.nhn.hippo.web.service" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 

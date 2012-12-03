@@ -2,6 +2,7 @@ package com.nhn.hippo.web.mapper;
 
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SubSpanBo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
@@ -12,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -49,10 +47,11 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
+        Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
+        List<SubSpanBo> subSpanBoList = new ArrayList<SubSpanBo>();
         for (KeyValue kv : keyList) {
             // family name "span"일때로만 한정.
-            if (kv.getFamilyLength() == HBaseTables.TRACES_CF_SPAN.length || 
-            	kv.getFamilyLength() == HBaseTables.TRACES_CF_TERMINALSPAN.length) {
+            if (kv.getFamilyLength() == HBaseTables.TRACES_CF_SPAN.length) {
                 SpanBo spanBo = new SpanBo();
                 spanBo.setMostTraceId(most);
                 spanBo.setLeastTraceId(least);
@@ -63,6 +62,28 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                     logger.debug("read span :{}", spanBo);
                 }
                 spanList.add(spanBo);
+                spanMap.put(spanBo.getSpanId(), spanBo);
+            } else if (kv.getFamilyLength() == HBaseTables.TRACES_CF_TERMINALSPAN.length) {
+                SubSpanBo subSpanBo = new SubSpanBo();
+                subSpanBo.setMostTraceId(most);
+                subSpanBo.setLeastTraceId(least);
+
+                long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
+                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + 8);
+                subSpanBo.setSpanId(spanId);
+                subSpanBo.setSequence(sequence);
+
+                subSpanBo.readValue(kv.getBuffer(), kv.getValueOffset());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("read subSpan :{}", subSpanBo);
+                }
+                subSpanBoList.add(subSpanBo);
+            }
+        }
+        for (SubSpanBo subSpanBo : subSpanBoList) {
+            SpanBo spanBo = spanMap.get(subSpanBo.getSpanId());
+            if (spanBo != null) {
+                spanBo.addSubSpan(subSpanBo);
             }
         }
         if (annotationMapper != null) {
