@@ -76,4 +76,5 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
 
+    void doUserBatchJob(String tableName, final HBaseBatchJob job);
 }
