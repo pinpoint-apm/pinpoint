@@ -18,75 +18,75 @@ import com.profiler.server.dao.TracesDao;
 
 public class SpanHandler implements Handler {
 
-	private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
 
-	@Autowired
-	private TraceIndexDao traceIndexDao;
+    @Autowired
+    private TraceIndexDao traceIndexDao;
 
-	@Autowired
-	private TracesDao traceDao;
+    @Autowired
+    private TracesDao traceDao;
 
-	@Autowired
-	private RootTraceIndexDaoDao rootTraceIndexDao;
+    @Autowired
+    private RootTraceIndexDaoDao rootTraceIndexDao;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Autowired
-	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
-	
-	@Autowired
-	private TerminalStatisticsDao terminalStatistics;
+    @Autowired
+    private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		assert (tbase instanceof Span);
+    @Autowired
+    private TerminalStatisticsDao terminalStatistics;
 
-		try {
-			Span span = (Span) tbase;
+    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        assert (tbase instanceof Span);
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SPAN=" + span);
-			}
+        try {
+            Span span = (Span) tbase;
 
-			String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
+            if (logger.isInfoEnabled()) {
+                logger.info("Received SPAN=" + span);
+            }
 
-			if (applicationName == null) {
-				logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
-				return;
-			} else {
-				logger.info("Applicationname '{}' found. Write the log.", applicationName);
-			}
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Found Applicationname={}", applicationName);
-			}
+            if (applicationName == null) {
+                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
+                return;
+            } else {
+                logger.info("Applicationname '{}' found. Write the log.", applicationName);
+            }
 
-			ServiceType serviceType = ServiceType.parse(span.getServiceType());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found Applicationname={}", applicationName);
+            }
 
-			// insert span
-			if (serviceType.isTerminal()) {
-				traceDao.insertTerminalSpan(applicationName, span);
-				
-				// if terminal update statistics
-				terminalStatistics.update(applicationName, span.getServiceName(), serviceType.getCode());
-			} else {
-				traceDao.insert(applicationName, span);
-			}
-			
-			// indexing root span
-			if (span.getParentSpanId() == -1) {
-				rootTraceIndexDao.insert(span);
-			}
+            ServiceType serviceType = ServiceType.parse(span.getServiceType());
 
-			// indexing non-terminal span
-			if (serviceType.isIndexable()) {
-				traceIndexDao.insert(span);
-				applicationTraceIndexDao.insert(applicationName, span);
-			} else {
-				logger.debug("Skip writing index. '{}'", span);
-			}
-		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
-		}
-	}
+            // insert span
+//			if (serviceType.isTerminal()) {
+//				traceDao.insertTerminalSpan(applicationName, span);
+//
+//				// if terminal update statistics
+//				terminalStatistics.update(applicationName, span.getServiceName(), serviceType.getCode(), span.getAgentId(), span.getElapsed());
+//			} else {
+            traceDao.insert(applicationName, span);
+//			}
+
+            // indexing root span
+            if (span.getParentSpanId() == -1) {
+                rootTraceIndexDao.insert(span);
+            }
+
+            // indexing non-terminal span
+            if (serviceType.isIndexable()) {
+                traceIndexDao.insert(span);
+                applicationTraceIndexDao.insert(applicationName, span);
+            } else {
+                logger.debug("Skip writing index. '{}'", span);
+            }
+        } catch (Exception e) {
+            logger.warn("Span handle error " + e.getMessage(), e);
+        }
+    }
 }
