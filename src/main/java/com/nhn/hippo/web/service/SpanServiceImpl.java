@@ -85,6 +85,9 @@ public class SpanServiceImpl implements SpanService {
 
     private List<SubSpanBo> sortSubSpan(SpanBo span) {
         List<SubSpanBo> subSpanList = span.getSubSpanList();
+        if (subSpanList == null) {
+            return Collections.emptyList();
+        }
         Collections.sort(subSpanList, new Comparator<SubSpanBo>() {
             @Override
             public int compare(SubSpanBo o1, SubSpanBo o2) {
