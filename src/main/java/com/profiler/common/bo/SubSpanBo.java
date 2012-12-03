@@ -192,8 +192,9 @@ public class SubSpanBo {
         byte[] endPointBytes = BytesUtils.getBytes(endPoint);
 
         int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length);
+        int annotationSize = getAnnotationBufferSize(annotationBoList);
 
-        Buffer buffer = new Buffer(bufferLength);
+        Buffer buffer = new Buffer(bufferLength + annotationSize);
 
         buffer.put(version);
 
@@ -210,9 +211,29 @@ public class SubSpanBo {
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
 
+        writeAnnotation(buffer);
 
         return buffer.getBuffer();
     }
+
+    private void writeAnnotation(Buffer buffer) {
+        buffer.put(annotationBoList.size());
+        for (AnnotationBo annotation : annotationBoList) {
+            annotation.writeValue(buffer);
+        }
+    }
+
+
+    private int getAnnotationBufferSize(List<AnnotationBo> boList) {
+        int size = 0;
+        for (AnnotationBo ano : boList) {
+            size += ano.getBufferSize();
+        }
+        // size
+        size += 4;
+        return size;
+    }
+
 
     public int readValue(byte[] bytes, int offset) {
         Buffer buffer = new Buffer(bytes, offset);
@@ -233,7 +254,19 @@ public class SubSpanBo {
         this.serviceType = ServiceType.parse(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
 
+        this.annotationBoList = readAnnotation(buffer);
         return buffer.getOffset();
+    }
+
+    private List<AnnotationBo> readAnnotation(Buffer buffer) {
+        int count = buffer.readInt();
+        List<AnnotationBo> list = new ArrayList<AnnotationBo>();
+        for (int i = 0; i < count; i++) {
+            AnnotationBo bo = new AnnotationBo();
+            bo.readValue(buffer);
+            list.add(bo);
+        }
+        return list;
     }
 
     @Override

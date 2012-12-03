@@ -114,12 +114,21 @@ public class AnnotationBo {
 //        int valueTypeCode; // required 4
 //        ByteBuffer value; // optional 4 + buf.length
         Buffer buffer = new Buffer(buf, offset);
+        writeValue(buffer);
+        return buffer.getOffset();
+    }
+
+    public void writeValue(Buffer buffer) {
+//        long timestamp; // required 8
+//        long duration; // optional 8
+//        String key; // required 4+string.length
+//        int valueTypeCode; // required 4
+//        ByteBuffer value; // optional 4 + buf.length
         buffer.put(this.version);
         buffer.put(this.timestamp);
         buffer.putPrefixedBytes(getKeyBytes());
         buffer.put(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
-        return buffer.getOffset();
     }
 
     public int getBufferSize() {
@@ -140,13 +149,17 @@ public class AnnotationBo {
 
     public int readValue(byte[] buf, int offset) {
         Buffer buffer = new Buffer(buf, offset);
+        readValue(buffer);
+        return buffer.getOffset();
+    }
+
+    public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
         this.timestamp = buffer.readLong();
         this.key = buffer.readPrefixedString();
         this.valueType = buffer.readInt();
         this.byteValue = buffer.readPrefixedBytes();
         this.value = transcoder.decode(valueType, byteValue);
-        return buffer.getOffset();
     }
 
     @Override

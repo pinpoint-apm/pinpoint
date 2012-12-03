@@ -212,6 +212,13 @@ public class BytesUtils {
         return buf;
     }
 
+    public static byte[] add(long preFix, short postFix) {
+        byte[] buf = new byte[8 + 2];
+        writeLong(preFix, buf, 0);
+        writeShort(postFix, buf, 8);
+        return buf;
+    }
+
     public static byte[] getBytes(String value) {
         if (value == null)
             return EMPTY_BYTES;
