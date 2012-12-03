@@ -95,7 +95,7 @@ public class ServerCallTree {
 		// add terminal servers
 		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
 			TerminalRequest terminal = entry.getValue();
-			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
+			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()), terminal.getStatistics().getAgentIds());
 			servers.put(server.getId(), server);
 		}
 
