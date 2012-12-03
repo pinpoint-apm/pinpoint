@@ -85,7 +85,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			// asyncTrace.record(Annotation.ClientSend,
 			// System.currentTimeMillis() - createTime);
 			asyncTrace.markAfterTime();
-			asyncTrace.traceBlockEnd();
+//			asyncTrace.traceBlockEnd();
 		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
 			if (logger.isLoggable(Level.FINE)) {
 				logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
