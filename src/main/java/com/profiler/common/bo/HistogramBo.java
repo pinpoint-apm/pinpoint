@@ -14,7 +14,7 @@ public class HistogramBo implements Serializable {
 
 	private static final long serialVersionUID = 4613517226343565010L;
 
-	public static final int DEFAULT_RESOLUTION = 100;
+	public static final int DEFAULT_RESOLUTION_MS = 100;
 
 	private final TreeMap<Integer, Integer> counts = new TreeMap<Integer, Integer>();
 	private final int resolution;

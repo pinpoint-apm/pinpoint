@@ -24,7 +24,7 @@ public class TerminalStatisticsBo implements Serializable {
 	private final HistogramBo histogram;
 
 	public TerminalStatisticsBo() {
-		histogramResolution = HistogramBo.DEFAULT_RESOLUTION;
+		histogramResolution = HistogramBo.DEFAULT_RESOLUTION_MS;
 		histogram = new HistogramBo(histogramResolution);
 	}
 
