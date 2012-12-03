@@ -238,7 +238,7 @@ public class SubSpanBo {
 
     @Override
     public String toString() {
-        return "SpanBo{" + "agentId='" + agentId + '\'' + ", startElapsed=" + startElapsed + ", endElapsed=" + endElapsed
+        return "SubSpanBo{" + "agentId='" + agentId + '\'' + ", startElapsed=" + startElapsed + ", endElapsed=" + endElapsed
                 + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\''
                 + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", sequence=" + sequence
                 + ", endPoint='" + endPoint + ", serviceType=" + serviceType + "}";

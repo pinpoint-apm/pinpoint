@@ -41,7 +41,7 @@ public class SpanBo {
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
 
-    private Map<Short, SubSpanBo> subSpanMap;
+    private List<SubSpanBo> subSpanList;
 
     private int recursiveCallCount = 0;
 
@@ -209,14 +209,14 @@ public class SpanBo {
     }
 
     public void addSubSpan(SubSpanBo subSpan) {
-        if (subSpanMap == null) {
-            subSpanMap = new HashMap<Short, SubSpanBo>();
+        if (subSpanList == null) {
+            subSpanList = new ArrayList<SubSpanBo>();
         }
-        subSpanMap.put(subSpan.getSequence(), subSpan);
+        subSpanList.add(subSpan);
     }
 
-    public Map<Short, SubSpanBo> getSubSpanMap() {
-        return subSpanMap;
+    public List<SubSpanBo> getSubSpanList() {
+        return subSpanList;
     }
 
     public int increaseRecursiveCallCount() {
