@@ -12,6 +12,7 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -24,1997 +25,2038 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestThriftDTO implements org.apache.thrift.TBase<RequestThriftDTO, RequestThriftDTO._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestThriftDTO");
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestThriftDTO");
 
-  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField REQUEST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("requestHashCode", org.apache.thrift.protocol.TType.I32, (short)2);
-  private static final org.apache.thrift.protocol.TField DATA_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("dataType", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField THREAD_CPUTIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadCPUTime", org.apache.thrift.protocol.TType.I64, (short)5);
-  private static final org.apache.thrift.protocol.TField THREAD_USER_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadUserTime", org.apache.thrift.protocol.TType.I64, (short)6);
-  private static final org.apache.thrift.protocol.TField REQUEST_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("requestID", org.apache.thrift.protocol.TType.STRING, (short)7);
-  private static final org.apache.thrift.protocol.TField REQUEST_URL_FIELD_DESC = new org.apache.thrift.protocol.TField("requestURL", org.apache.thrift.protocol.TType.STRING, (short)8);
-  private static final org.apache.thrift.protocol.TField CLIENT_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("clientIP", org.apache.thrift.protocol.TType.STRING, (short)9);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData1", org.apache.thrift.protocol.TType.STRING, (short)10);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData2", org.apache.thrift.protocol.TType.STRING, (short)11);
-  private static final org.apache.thrift.protocol.TField EXTRA_DATA3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData3", org.apache.thrift.protocol.TType.STRING, (short)12);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt1", org.apache.thrift.protocol.TType.I32, (short)13);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt2", org.apache.thrift.protocol.TType.I32, (short)14);
-  private static final org.apache.thrift.protocol.TField EXTRA_INT3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt3", org.apache.thrift.protocol.TType.I32, (short)15);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong1", org.apache.thrift.protocol.TType.I64, (short)16);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong2", org.apache.thrift.protocol.TType.I64, (short)17);
-  private static final org.apache.thrift.protocol.TField EXTRA_LONG3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong3", org.apache.thrift.protocol.TType.I64, (short)18);
+    private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short) 1);
+    private static final org.apache.thrift.protocol.TField REQUEST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("requestHashCode", org.apache.thrift.protocol.TType.I32, (short) 2);
+    private static final org.apache.thrift.protocol.TField DATA_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("dataType", org.apache.thrift.protocol.TType.I32, (short) 3);
+    private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short) 4);
+    private static final org.apache.thrift.protocol.TField THREAD_CPUTIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadCPUTime", org.apache.thrift.protocol.TType.I64, (short) 5);
+    private static final org.apache.thrift.protocol.TField THREAD_USER_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("threadUserTime", org.apache.thrift.protocol.TType.I64, (short) 6);
+    private static final org.apache.thrift.protocol.TField REQUEST_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("requestID", org.apache.thrift.protocol.TType.STRING, (short) 7);
+    private static final org.apache.thrift.protocol.TField REQUEST_URL_FIELD_DESC = new org.apache.thrift.protocol.TField("requestURL", org.apache.thrift.protocol.TType.STRING, (short) 8);
+    private static final org.apache.thrift.protocol.TField CLIENT_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("clientIP", org.apache.thrift.protocol.TType.STRING, (short) 9);
+    private static final org.apache.thrift.protocol.TField EXTRA_DATA1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData1", org.apache.thrift.protocol.TType.STRING, (short) 10);
+    private static final org.apache.thrift.protocol.TField EXTRA_DATA2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData2", org.apache.thrift.protocol.TType.STRING, (short) 11);
+    private static final org.apache.thrift.protocol.TField EXTRA_DATA3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraData3", org.apache.thrift.protocol.TType.STRING, (short) 12);
+    private static final org.apache.thrift.protocol.TField EXTRA_INT1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt1", org.apache.thrift.protocol.TType.I32, (short) 13);
+    private static final org.apache.thrift.protocol.TField EXTRA_INT2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt2", org.apache.thrift.protocol.TType.I32, (short) 14);
+    private static final org.apache.thrift.protocol.TField EXTRA_INT3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraInt3", org.apache.thrift.protocol.TType.I32, (short) 15);
+    private static final org.apache.thrift.protocol.TField EXTRA_LONG1_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong1", org.apache.thrift.protocol.TType.I64, (short) 16);
+    private static final org.apache.thrift.protocol.TField EXTRA_LONG2_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong2", org.apache.thrift.protocol.TType.I64, (short) 17);
+    private static final org.apache.thrift.protocol.TField EXTRA_LONG3_FIELD_DESC = new org.apache.thrift.protocol.TField("extraLong3", org.apache.thrift.protocol.TType.I64, (short) 18);
 
-  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
-  static {
-    schemes.put(StandardScheme.class, new RequestThriftDTOStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new RequestThriftDTOTupleSchemeFactory());
-  }
-
-  private String agentId; // required
-  private int requestHashCode; // required
-  private int dataType; // required
-  private long dataTime; // required
-  private long threadCPUTime; // required
-  private long threadUserTime; // required
-  private String requestID; // optional
-  private String requestURL; // optional
-  private String clientIP; // optional
-  private String extraData1; // optional
-  private String extraData2; // optional
-  private String extraData3; // optional
-  private int extraInt1; // optional
-  private int extraInt2; // optional
-  private int extraInt3; // optional
-  private long extraLong1; // optional
-  private long extraLong2; // optional
-  private long extraLong3; // optional
-
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-  public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    AGENT_ID((short)1, "agentId"),
-    REQUEST_HASH_CODE((short)2, "requestHashCode"),
-    DATA_TYPE((short)3, "dataType"),
-    DATA_TIME((short)4, "dataTime"),
-    THREAD_CPUTIME((short)5, "threadCPUTime"),
-    THREAD_USER_TIME((short)6, "threadUserTime"),
-    REQUEST_ID((short)7, "requestID"),
-    REQUEST_URL((short)8, "requestURL"),
-    CLIENT_IP((short)9, "clientIP"),
-    EXTRA_DATA1((short)10, "extraData1"),
-    EXTRA_DATA2((short)11, "extraData2"),
-    EXTRA_DATA3((short)12, "extraData3"),
-    EXTRA_INT1((short)13, "extraInt1"),
-    EXTRA_INT2((short)14, "extraInt2"),
-    EXTRA_INT3((short)15, "extraInt3"),
-    EXTRA_LONG1((short)16, "extraLong1"),
-    EXTRA_LONG2((short)17, "extraLong2"),
-    EXTRA_LONG3((short)18, "extraLong3");
-
-    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
 
     static {
-      for (_Fields field : EnumSet.allOf(_Fields.class)) {
-        byName.put(field.getFieldName(), field);
-      }
+        schemes.put(StandardScheme.class, new RequestThriftDTOStandardSchemeFactory());
+        schemes.put(TupleScheme.class, new RequestThriftDTOTupleSchemeFactory());
+    }
+
+    private String agentId; // required
+    private int requestHashCode; // required
+    private int dataType; // required
+    private long dataTime; // required
+    private long threadCPUTime; // required
+    private long threadUserTime; // required
+    private String requestID; // optional
+    private String requestURL; // optional
+    private String clientIP; // optional
+    private String extraData1; // optional
+    private String extraData2; // optional
+    private String extraData3; // optional
+    private int extraInt1; // optional
+    private int extraInt2; // optional
+    private int extraInt3; // optional
+    private long extraLong1; // optional
+    private long extraLong2; // optional
+    private long extraLong3; // optional
+
+    /**
+     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
+     */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        AGENT_ID((short) 1, "agentId"),
+        REQUEST_HASH_CODE((short) 2, "requestHashCode"),
+        DATA_TYPE((short) 3, "dataType"),
+        DATA_TIME((short) 4, "dataTime"),
+        THREAD_CPUTIME((short) 5, "threadCPUTime"),
+        THREAD_USER_TIME((short) 6, "threadUserTime"),
+        REQUEST_ID((short) 7, "requestID"),
+        REQUEST_URL((short) 8, "requestURL"),
+        CLIENT_IP((short) 9, "clientIP"),
+        EXTRA_DATA1((short) 10, "extraData1"),
+        EXTRA_DATA2((short) 11, "extraData2"),
+        EXTRA_DATA3((short) 12, "extraData3"),
+        EXTRA_INT1((short) 13, "extraInt1"),
+        EXTRA_INT2((short) 14, "extraInt2"),
+        EXTRA_INT3((short) 15, "extraInt3"),
+        EXTRA_LONG1((short) 16, "extraLong1"),
+        EXTRA_LONG2((short) 17, "extraLong2"),
+        EXTRA_LONG3((short) 18, "extraLong3");
+
+        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+        static {
+            for (_Fields field : EnumSet.allOf(_Fields.class)) {
+                byName.put(field.getFieldName(), field);
+            }
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, or null if its not found.
+         */
+        public static _Fields findByThriftId(int fieldId) {
+            switch (fieldId) {
+                case 1: // AGENT_ID
+                    return AGENT_ID;
+                case 2: // REQUEST_HASH_CODE
+                    return REQUEST_HASH_CODE;
+                case 3: // DATA_TYPE
+                    return DATA_TYPE;
+                case 4: // DATA_TIME
+                    return DATA_TIME;
+                case 5: // THREAD_CPUTIME
+                    return THREAD_CPUTIME;
+                case 6: // THREAD_USER_TIME
+                    return THREAD_USER_TIME;
+                case 7: // REQUEST_ID
+                    return REQUEST_ID;
+                case 8: // REQUEST_URL
+                    return REQUEST_URL;
+                case 9: // CLIENT_IP
+                    return CLIENT_IP;
+                case 10: // EXTRA_DATA1
+                    return EXTRA_DATA1;
+                case 11: // EXTRA_DATA2
+                    return EXTRA_DATA2;
+                case 12: // EXTRA_DATA3
+                    return EXTRA_DATA3;
+                case 13: // EXTRA_INT1
+                    return EXTRA_INT1;
+                case 14: // EXTRA_INT2
+                    return EXTRA_INT2;
+                case 15: // EXTRA_INT3
+                    return EXTRA_INT3;
+                case 16: // EXTRA_LONG1
+                    return EXTRA_LONG1;
+                case 17: // EXTRA_LONG2
+                    return EXTRA_LONG2;
+                case 18: // EXTRA_LONG3
+                    return EXTRA_LONG3;
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, throwing an exception
+         * if it is not found.
+         */
+        public static _Fields findByThriftIdOrThrow(int fieldId) {
+            _Fields fields = findByThriftId(fieldId);
+            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+            return fields;
+        }
+
+        /**
+         * Find the _Fields constant that matches name, or null if its not found.
+         */
+        public static _Fields findByName(String name) {
+            return byName.get(name);
+        }
+
+        private final short _thriftId;
+        private final String _fieldName;
+
+        _Fields(short thriftId, String fieldName) {
+            _thriftId = thriftId;
+            _fieldName = fieldName;
+        }
+
+        public short getThriftFieldId() {
+            return _thriftId;
+        }
+
+        public String getFieldName() {
+            return _fieldName;
+        }
+    }
+
+    // isset id assignments
+    private static final int __REQUESTHASHCODE_ISSET_ID = 0;
+    private static final int __DATATYPE_ISSET_ID = 1;
+    private static final int __DATATIME_ISSET_ID = 2;
+    private static final int __THREADCPUTIME_ISSET_ID = 3;
+    private static final int __THREADUSERTIME_ISSET_ID = 4;
+    private static final int __EXTRAINT1_ISSET_ID = 5;
+    private static final int __EXTRAINT2_ISSET_ID = 6;
+    private static final int __EXTRAINT3_ISSET_ID = 7;
+    private static final int __EXTRALONG1_ISSET_ID = 8;
+    private static final int __EXTRALONG2_ISSET_ID = 9;
+    private static final int __EXTRALONG3_ISSET_ID = 10;
+    private BitSet __isset_bit_vector = new BitSet(11);
+    private _Fields optionals[] = {_Fields.REQUEST_ID, _Fields.REQUEST_URL, _Fields.CLIENT_IP, _Fields.EXTRA_DATA1, _Fields.EXTRA_DATA2, _Fields.EXTRA_DATA3, _Fields.EXTRA_INT1, _Fields.EXTRA_INT2, _Fields.EXTRA_INT3, _Fields.EXTRA_LONG1, _Fields.EXTRA_LONG2, _Fields.EXTRA_LONG3};
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+
+    static {
+        Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+        tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.REQUEST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("requestHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        tmpMap.put(_Fields.DATA_TYPE, new org.apache.thrift.meta_data.FieldMetaData("dataType", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        tmpMap.put(_Fields.DATA_TIME, new org.apache.thrift.meta_data.FieldMetaData("dataTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.THREAD_CPUTIME, new org.apache.thrift.meta_data.FieldMetaData("threadCPUTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.THREAD_USER_TIME, new org.apache.thrift.meta_data.FieldMetaData("threadUserTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.REQUEST_ID, new org.apache.thrift.meta_data.FieldMetaData("requestID", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.REQUEST_URL, new org.apache.thrift.meta_data.FieldMetaData("requestURL", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.CLIENT_IP, new org.apache.thrift.meta_data.FieldMetaData("clientIP", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.EXTRA_DATA1, new org.apache.thrift.meta_data.FieldMetaData("extraData1", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.EXTRA_DATA2, new org.apache.thrift.meta_data.FieldMetaData("extraData2", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.EXTRA_DATA3, new org.apache.thrift.meta_data.FieldMetaData("extraData3", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+        tmpMap.put(_Fields.EXTRA_INT1, new org.apache.thrift.meta_data.FieldMetaData("extraInt1", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        tmpMap.put(_Fields.EXTRA_INT2, new org.apache.thrift.meta_data.FieldMetaData("extraInt2", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        tmpMap.put(_Fields.EXTRA_INT3, new org.apache.thrift.meta_data.FieldMetaData("extraInt3", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        tmpMap.put(_Fields.EXTRA_LONG1, new org.apache.thrift.meta_data.FieldMetaData("extraLong1", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.EXTRA_LONG2, new org.apache.thrift.meta_data.FieldMetaData("extraLong2", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.EXTRA_LONG3, new org.apache.thrift.meta_data.FieldMetaData("extraLong3", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        metaDataMap = Collections.unmodifiableMap(tmpMap);
+        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(RequestThriftDTO.class, metaDataMap);
+    }
+
+    public RequestThriftDTO() {
+    }
+
+    public RequestThriftDTO(
+            String agentId,
+            int requestHashCode,
+            int dataType,
+            long dataTime,
+            long threadCPUTime,
+            long threadUserTime) {
+        this();
+        this.agentId = agentId;
+        this.requestHashCode = requestHashCode;
+        setRequestHashCodeIsSet(true);
+        this.dataType = dataType;
+        setDataTypeIsSet(true);
+        this.dataTime = dataTime;
+        setDataTimeIsSet(true);
+        this.threadCPUTime = threadCPUTime;
+        setThreadCPUTimeIsSet(true);
+        this.threadUserTime = threadUserTime;
+        setThreadUserTimeIsSet(true);
     }
 
     /**
-     * Find the _Fields constant that matches fieldId, or null if its not found.
+     * Performs a deep copy on <i>other</i>.
      */
-    public static _Fields findByThriftId(int fieldId) {
-      switch(fieldId) {
-        case 1: // AGENT_ID
-          return AGENT_ID;
-        case 2: // REQUEST_HASH_CODE
-          return REQUEST_HASH_CODE;
-        case 3: // DATA_TYPE
-          return DATA_TYPE;
-        case 4: // DATA_TIME
-          return DATA_TIME;
-        case 5: // THREAD_CPUTIME
-          return THREAD_CPUTIME;
-        case 6: // THREAD_USER_TIME
-          return THREAD_USER_TIME;
-        case 7: // REQUEST_ID
-          return REQUEST_ID;
-        case 8: // REQUEST_URL
-          return REQUEST_URL;
-        case 9: // CLIENT_IP
-          return CLIENT_IP;
-        case 10: // EXTRA_DATA1
-          return EXTRA_DATA1;
-        case 11: // EXTRA_DATA2
-          return EXTRA_DATA2;
-        case 12: // EXTRA_DATA3
-          return EXTRA_DATA3;
-        case 13: // EXTRA_INT1
-          return EXTRA_INT1;
-        case 14: // EXTRA_INT2
-          return EXTRA_INT2;
-        case 15: // EXTRA_INT3
-          return EXTRA_INT3;
-        case 16: // EXTRA_LONG1
-          return EXTRA_LONG1;
-        case 17: // EXTRA_LONG2
-          return EXTRA_LONG2;
-        case 18: // EXTRA_LONG3
-          return EXTRA_LONG3;
-        default:
-          return null;
-      }
-    }
-
-    /**
-     * Find the _Fields constant that matches fieldId, throwing an exception
-     * if it is not found.
-     */
-    public static _Fields findByThriftIdOrThrow(int fieldId) {
-      _Fields fields = findByThriftId(fieldId);
-      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-      return fields;
-    }
-
-    /**
-     * Find the _Fields constant that matches name, or null if its not found.
-     */
-    public static _Fields findByName(String name) {
-      return byName.get(name);
-    }
-
-    private final short _thriftId;
-    private final String _fieldName;
-
-    _Fields(short thriftId, String fieldName) {
-      _thriftId = thriftId;
-      _fieldName = fieldName;
-    }
-
-    public short getThriftFieldId() {
-      return _thriftId;
-    }
-
-    public String getFieldName() {
-      return _fieldName;
-    }
-  }
-
-  // isset id assignments
-  private static final int __REQUESTHASHCODE_ISSET_ID = 0;
-  private static final int __DATATYPE_ISSET_ID = 1;
-  private static final int __DATATIME_ISSET_ID = 2;
-  private static final int __THREADCPUTIME_ISSET_ID = 3;
-  private static final int __THREADUSERTIME_ISSET_ID = 4;
-  private static final int __EXTRAINT1_ISSET_ID = 5;
-  private static final int __EXTRAINT2_ISSET_ID = 6;
-  private static final int __EXTRAINT3_ISSET_ID = 7;
-  private static final int __EXTRALONG1_ISSET_ID = 8;
-  private static final int __EXTRALONG2_ISSET_ID = 9;
-  private static final int __EXTRALONG3_ISSET_ID = 10;
-  private BitSet __isset_bit_vector = new BitSet(11);
-  private _Fields optionals[] = {_Fields.REQUEST_ID,_Fields.REQUEST_URL,_Fields.CLIENT_IP,_Fields.EXTRA_DATA1,_Fields.EXTRA_DATA2,_Fields.EXTRA_DATA3,_Fields.EXTRA_INT1,_Fields.EXTRA_INT2,_Fields.EXTRA_INT3,_Fields.EXTRA_LONG1,_Fields.EXTRA_LONG2,_Fields.EXTRA_LONG3};
-  public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-  static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.REQUEST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("requestHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.DATA_TYPE, new org.apache.thrift.meta_data.FieldMetaData("dataType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.DATA_TIME, new org.apache.thrift.meta_data.FieldMetaData("dataTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.THREAD_CPUTIME, new org.apache.thrift.meta_data.FieldMetaData("threadCPUTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.THREAD_USER_TIME, new org.apache.thrift.meta_data.FieldMetaData("threadUserTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.REQUEST_ID, new org.apache.thrift.meta_data.FieldMetaData("requestID", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.REQUEST_URL, new org.apache.thrift.meta_data.FieldMetaData("requestURL", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.CLIENT_IP, new org.apache.thrift.meta_data.FieldMetaData("clientIP", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.EXTRA_DATA1, new org.apache.thrift.meta_data.FieldMetaData("extraData1", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.EXTRA_DATA2, new org.apache.thrift.meta_data.FieldMetaData("extraData2", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.EXTRA_DATA3, new org.apache.thrift.meta_data.FieldMetaData("extraData3", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.EXTRA_INT1, new org.apache.thrift.meta_data.FieldMetaData("extraInt1", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.EXTRA_INT2, new org.apache.thrift.meta_data.FieldMetaData("extraInt2", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.EXTRA_INT3, new org.apache.thrift.meta_data.FieldMetaData("extraInt3", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.EXTRA_LONG1, new org.apache.thrift.meta_data.FieldMetaData("extraLong1", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.EXTRA_LONG2, new org.apache.thrift.meta_data.FieldMetaData("extraLong2", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.EXTRA_LONG3, new org.apache.thrift.meta_data.FieldMetaData("extraLong3", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(RequestThriftDTO.class, metaDataMap);
-  }
-
-  public RequestThriftDTO() {
-  }
-
-  public RequestThriftDTO(
-    String agentId,
-    int requestHashCode,
-    int dataType,
-    long dataTime,
-    long threadCPUTime,
-    long threadUserTime)
-  {
-    this();
-    this.agentId = agentId;
-    this.requestHashCode = requestHashCode;
-    setRequestHashCodeIsSet(true);
-    this.dataType = dataType;
-    setDataTypeIsSet(true);
-    this.dataTime = dataTime;
-    setDataTimeIsSet(true);
-    this.threadCPUTime = threadCPUTime;
-    setThreadCPUTimeIsSet(true);
-    this.threadUserTime = threadUserTime;
-    setThreadUserTimeIsSet(true);
-  }
-
-  /**
-   * Performs a deep copy on <i>other</i>.
-   */
-  public RequestThriftDTO(RequestThriftDTO other) {
-    __isset_bit_vector.clear();
-    __isset_bit_vector.or(other.__isset_bit_vector);
-    if (other.isSetAgentId()) {
-      this.agentId = other.agentId;
-    }
-    this.requestHashCode = other.requestHashCode;
-    this.dataType = other.dataType;
-    this.dataTime = other.dataTime;
-    this.threadCPUTime = other.threadCPUTime;
-    this.threadUserTime = other.threadUserTime;
-    if (other.isSetRequestID()) {
-      this.requestID = other.requestID;
-    }
-    if (other.isSetRequestURL()) {
-      this.requestURL = other.requestURL;
-    }
-    if (other.isSetClientIP()) {
-      this.clientIP = other.clientIP;
-    }
-    if (other.isSetExtraData1()) {
-      this.extraData1 = other.extraData1;
-    }
-    if (other.isSetExtraData2()) {
-      this.extraData2 = other.extraData2;
-    }
-    if (other.isSetExtraData3()) {
-      this.extraData3 = other.extraData3;
-    }
-    this.extraInt1 = other.extraInt1;
-    this.extraInt2 = other.extraInt2;
-    this.extraInt3 = other.extraInt3;
-    this.extraLong1 = other.extraLong1;
-    this.extraLong2 = other.extraLong2;
-    this.extraLong3 = other.extraLong3;
-  }
-
-  public RequestThriftDTO deepCopy() {
-    return new RequestThriftDTO(this);
-  }
-
-  @Override
-  public void clear() {
-    this.agentId = null;
-    setRequestHashCodeIsSet(false);
-    this.requestHashCode = 0;
-    setDataTypeIsSet(false);
-    this.dataType = 0;
-    setDataTimeIsSet(false);
-    this.dataTime = 0;
-    setThreadCPUTimeIsSet(false);
-    this.threadCPUTime = 0;
-    setThreadUserTimeIsSet(false);
-    this.threadUserTime = 0;
-    this.requestID = null;
-    this.requestURL = null;
-    this.clientIP = null;
-    this.extraData1 = null;
-    this.extraData2 = null;
-    this.extraData3 = null;
-    setExtraInt1IsSet(false);
-    this.extraInt1 = 0;
-    setExtraInt2IsSet(false);
-    this.extraInt2 = 0;
-    setExtraInt3IsSet(false);
-    this.extraInt3 = 0;
-    setExtraLong1IsSet(false);
-    this.extraLong1 = 0;
-    setExtraLong2IsSet(false);
-    this.extraLong2 = 0;
-    setExtraLong3IsSet(false);
-    this.extraLong3 = 0;
-  }
-
-  public String getAgentId() {
-    return this.agentId;
-  }
-
-  public void setAgentId(String agentId) {
-    this.agentId = agentId;
-  }
-
-  public void unsetAgentId() {
-    this.agentId = null;
-  }
-
-  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
-  public boolean isSetAgentId() {
-    return this.agentId != null;
-  }
-
-  public void setAgentIdIsSet(boolean value) {
-    if (!value) {
-      this.agentId = null;
-    }
-  }
-
-  public int getRequestHashCode() {
-    return this.requestHashCode;
-  }
-
-  public void setRequestHashCode(int requestHashCode) {
-    this.requestHashCode = requestHashCode;
-    setRequestHashCodeIsSet(true);
-  }
-
-  public void unsetRequestHashCode() {
-    __isset_bit_vector.clear(__REQUESTHASHCODE_ISSET_ID);
-  }
-
-  /** Returns true if field requestHashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetRequestHashCode() {
-    return __isset_bit_vector.get(__REQUESTHASHCODE_ISSET_ID);
-  }
-
-  public void setRequestHashCodeIsSet(boolean value) {
-    __isset_bit_vector.set(__REQUESTHASHCODE_ISSET_ID, value);
-  }
-
-  public int getDataType() {
-    return this.dataType;
-  }
-
-  public void setDataType(int dataType) {
-    this.dataType = dataType;
-    setDataTypeIsSet(true);
-  }
-
-  public void unsetDataType() {
-    __isset_bit_vector.clear(__DATATYPE_ISSET_ID);
-  }
-
-  /** Returns true if field dataType is set (has been assigned a value) and false otherwise */
-  public boolean isSetDataType() {
-    return __isset_bit_vector.get(__DATATYPE_ISSET_ID);
-  }
-
-  public void setDataTypeIsSet(boolean value) {
-    __isset_bit_vector.set(__DATATYPE_ISSET_ID, value);
-  }
-
-  public long getDataTime() {
-    return this.dataTime;
-  }
-
-  public void setDataTime(long dataTime) {
-    this.dataTime = dataTime;
-    setDataTimeIsSet(true);
-  }
-
-  public void unsetDataTime() {
-    __isset_bit_vector.clear(__DATATIME_ISSET_ID);
-  }
-
-  /** Returns true if field dataTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetDataTime() {
-    return __isset_bit_vector.get(__DATATIME_ISSET_ID);
-  }
-
-  public void setDataTimeIsSet(boolean value) {
-    __isset_bit_vector.set(__DATATIME_ISSET_ID, value);
-  }
-
-  public long getThreadCPUTime() {
-    return this.threadCPUTime;
-  }
-
-  public void setThreadCPUTime(long threadCPUTime) {
-    this.threadCPUTime = threadCPUTime;
-    setThreadCPUTimeIsSet(true);
-  }
-
-  public void unsetThreadCPUTime() {
-    __isset_bit_vector.clear(__THREADCPUTIME_ISSET_ID);
-  }
-
-  /** Returns true if field threadCPUTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetThreadCPUTime() {
-    return __isset_bit_vector.get(__THREADCPUTIME_ISSET_ID);
-  }
-
-  public void setThreadCPUTimeIsSet(boolean value) {
-    __isset_bit_vector.set(__THREADCPUTIME_ISSET_ID, value);
-  }
-
-  public long getThreadUserTime() {
-    return this.threadUserTime;
-  }
-
-  public void setThreadUserTime(long threadUserTime) {
-    this.threadUserTime = threadUserTime;
-    setThreadUserTimeIsSet(true);
-  }
-
-  public void unsetThreadUserTime() {
-    __isset_bit_vector.clear(__THREADUSERTIME_ISSET_ID);
-  }
-
-  /** Returns true if field threadUserTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetThreadUserTime() {
-    return __isset_bit_vector.get(__THREADUSERTIME_ISSET_ID);
-  }
-
-  public void setThreadUserTimeIsSet(boolean value) {
-    __isset_bit_vector.set(__THREADUSERTIME_ISSET_ID, value);
-  }
-
-  public String getRequestID() {
-    return this.requestID;
-  }
-
-  public void setRequestID(String requestID) {
-    this.requestID = requestID;
-  }
-
-  public void unsetRequestID() {
-    this.requestID = null;
-  }
-
-  /** Returns true if field requestID is set (has been assigned a value) and false otherwise */
-  public boolean isSetRequestID() {
-    return this.requestID != null;
-  }
-
-  public void setRequestIDIsSet(boolean value) {
-    if (!value) {
-      this.requestID = null;
-    }
-  }
-
-  public String getRequestURL() {
-    return this.requestURL;
-  }
-
-  public void setRequestURL(String requestURL) {
-    this.requestURL = requestURL;
-  }
-
-  public void unsetRequestURL() {
-    this.requestURL = null;
-  }
-
-  /** Returns true if field requestURL is set (has been assigned a value) and false otherwise */
-  public boolean isSetRequestURL() {
-    return this.requestURL != null;
-  }
-
-  public void setRequestURLIsSet(boolean value) {
-    if (!value) {
-      this.requestURL = null;
-    }
-  }
-
-  public String getClientIP() {
-    return this.clientIP;
-  }
-
-  public void setClientIP(String clientIP) {
-    this.clientIP = clientIP;
-  }
-
-  public void unsetClientIP() {
-    this.clientIP = null;
-  }
-
-  /** Returns true if field clientIP is set (has been assigned a value) and false otherwise */
-  public boolean isSetClientIP() {
-    return this.clientIP != null;
-  }
-
-  public void setClientIPIsSet(boolean value) {
-    if (!value) {
-      this.clientIP = null;
-    }
-  }
-
-  public String getExtraData1() {
-    return this.extraData1;
-  }
-
-  public void setExtraData1(String extraData1) {
-    this.extraData1 = extraData1;
-  }
-
-  public void unsetExtraData1() {
-    this.extraData1 = null;
-  }
-
-  /** Returns true if field extraData1 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraData1() {
-    return this.extraData1 != null;
-  }
-
-  public void setExtraData1IsSet(boolean value) {
-    if (!value) {
-      this.extraData1 = null;
-    }
-  }
-
-  public String getExtraData2() {
-    return this.extraData2;
-  }
-
-  public void setExtraData2(String extraData2) {
-    this.extraData2 = extraData2;
-  }
-
-  public void unsetExtraData2() {
-    this.extraData2 = null;
-  }
-
-  /** Returns true if field extraData2 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraData2() {
-    return this.extraData2 != null;
-  }
-
-  public void setExtraData2IsSet(boolean value) {
-    if (!value) {
-      this.extraData2 = null;
-    }
-  }
-
-  public String getExtraData3() {
-    return this.extraData3;
-  }
-
-  public void setExtraData3(String extraData3) {
-    this.extraData3 = extraData3;
-  }
-
-  public void unsetExtraData3() {
-    this.extraData3 = null;
-  }
-
-  /** Returns true if field extraData3 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraData3() {
-    return this.extraData3 != null;
-  }
-
-  public void setExtraData3IsSet(boolean value) {
-    if (!value) {
-      this.extraData3 = null;
-    }
-  }
-
-  public int getExtraInt1() {
-    return this.extraInt1;
-  }
-
-  public void setExtraInt1(int extraInt1) {
-    this.extraInt1 = extraInt1;
-    setExtraInt1IsSet(true);
-  }
-
-  public void unsetExtraInt1() {
-    __isset_bit_vector.clear(__EXTRAINT1_ISSET_ID);
-  }
-
-  /** Returns true if field extraInt1 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraInt1() {
-    return __isset_bit_vector.get(__EXTRAINT1_ISSET_ID);
-  }
-
-  public void setExtraInt1IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRAINT1_ISSET_ID, value);
-  }
-
-  public int getExtraInt2() {
-    return this.extraInt2;
-  }
-
-  public void setExtraInt2(int extraInt2) {
-    this.extraInt2 = extraInt2;
-    setExtraInt2IsSet(true);
-  }
-
-  public void unsetExtraInt2() {
-    __isset_bit_vector.clear(__EXTRAINT2_ISSET_ID);
-  }
-
-  /** Returns true if field extraInt2 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraInt2() {
-    return __isset_bit_vector.get(__EXTRAINT2_ISSET_ID);
-  }
-
-  public void setExtraInt2IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRAINT2_ISSET_ID, value);
-  }
-
-  public int getExtraInt3() {
-    return this.extraInt3;
-  }
-
-  public void setExtraInt3(int extraInt3) {
-    this.extraInt3 = extraInt3;
-    setExtraInt3IsSet(true);
-  }
-
-  public void unsetExtraInt3() {
-    __isset_bit_vector.clear(__EXTRAINT3_ISSET_ID);
-  }
-
-  /** Returns true if field extraInt3 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraInt3() {
-    return __isset_bit_vector.get(__EXTRAINT3_ISSET_ID);
-  }
-
-  public void setExtraInt3IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRAINT3_ISSET_ID, value);
-  }
-
-  public long getExtraLong1() {
-    return this.extraLong1;
-  }
-
-  public void setExtraLong1(long extraLong1) {
-    this.extraLong1 = extraLong1;
-    setExtraLong1IsSet(true);
-  }
-
-  public void unsetExtraLong1() {
-    __isset_bit_vector.clear(__EXTRALONG1_ISSET_ID);
-  }
-
-  /** Returns true if field extraLong1 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraLong1() {
-    return __isset_bit_vector.get(__EXTRALONG1_ISSET_ID);
-  }
-
-  public void setExtraLong1IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRALONG1_ISSET_ID, value);
-  }
-
-  public long getExtraLong2() {
-    return this.extraLong2;
-  }
-
-  public void setExtraLong2(long extraLong2) {
-    this.extraLong2 = extraLong2;
-    setExtraLong2IsSet(true);
-  }
-
-  public void unsetExtraLong2() {
-    __isset_bit_vector.clear(__EXTRALONG2_ISSET_ID);
-  }
-
-  /** Returns true if field extraLong2 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraLong2() {
-    return __isset_bit_vector.get(__EXTRALONG2_ISSET_ID);
-  }
-
-  public void setExtraLong2IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRALONG2_ISSET_ID, value);
-  }
-
-  public long getExtraLong3() {
-    return this.extraLong3;
-  }
-
-  public void setExtraLong3(long extraLong3) {
-    this.extraLong3 = extraLong3;
-    setExtraLong3IsSet(true);
-  }
-
-  public void unsetExtraLong3() {
-    __isset_bit_vector.clear(__EXTRALONG3_ISSET_ID);
-  }
-
-  /** Returns true if field extraLong3 is set (has been assigned a value) and false otherwise */
-  public boolean isSetExtraLong3() {
-    return __isset_bit_vector.get(__EXTRALONG3_ISSET_ID);
-  }
-
-  public void setExtraLong3IsSet(boolean value) {
-    __isset_bit_vector.set(__EXTRALONG3_ISSET_ID, value);
-  }
-
-  public void setFieldValue(_Fields field, Object value) {
-    switch (field) {
-    case AGENT_ID:
-      if (value == null) {
-        unsetAgentId();
-      } else {
-        setAgentId((String)value);
-      }
-      break;
-
-    case REQUEST_HASH_CODE:
-      if (value == null) {
-        unsetRequestHashCode();
-      } else {
-        setRequestHashCode((Integer)value);
-      }
-      break;
-
-    case DATA_TYPE:
-      if (value == null) {
-        unsetDataType();
-      } else {
-        setDataType((Integer)value);
-      }
-      break;
-
-    case DATA_TIME:
-      if (value == null) {
-        unsetDataTime();
-      } else {
-        setDataTime((Long)value);
-      }
-      break;
-
-    case THREAD_CPUTIME:
-      if (value == null) {
-        unsetThreadCPUTime();
-      } else {
-        setThreadCPUTime((Long)value);
-      }
-      break;
-
-    case THREAD_USER_TIME:
-      if (value == null) {
-        unsetThreadUserTime();
-      } else {
-        setThreadUserTime((Long)value);
-      }
-      break;
-
-    case REQUEST_ID:
-      if (value == null) {
-        unsetRequestID();
-      } else {
-        setRequestID((String)value);
-      }
-      break;
-
-    case REQUEST_URL:
-      if (value == null) {
-        unsetRequestURL();
-      } else {
-        setRequestURL((String)value);
-      }
-      break;
-
-    case CLIENT_IP:
-      if (value == null) {
-        unsetClientIP();
-      } else {
-        setClientIP((String)value);
-      }
-      break;
-
-    case EXTRA_DATA1:
-      if (value == null) {
-        unsetExtraData1();
-      } else {
-        setExtraData1((String)value);
-      }
-      break;
-
-    case EXTRA_DATA2:
-      if (value == null) {
-        unsetExtraData2();
-      } else {
-        setExtraData2((String)value);
-      }
-      break;
-
-    case EXTRA_DATA3:
-      if (value == null) {
-        unsetExtraData3();
-      } else {
-        setExtraData3((String)value);
-      }
-      break;
-
-    case EXTRA_INT1:
-      if (value == null) {
-        unsetExtraInt1();
-      } else {
-        setExtraInt1((Integer)value);
-      }
-      break;
-
-    case EXTRA_INT2:
-      if (value == null) {
-        unsetExtraInt2();
-      } else {
-        setExtraInt2((Integer)value);
-      }
-      break;
-
-    case EXTRA_INT3:
-      if (value == null) {
-        unsetExtraInt3();
-      } else {
-        setExtraInt3((Integer)value);
-      }
-      break;
-
-    case EXTRA_LONG1:
-      if (value == null) {
-        unsetExtraLong1();
-      } else {
-        setExtraLong1((Long)value);
-      }
-      break;
-
-    case EXTRA_LONG2:
-      if (value == null) {
-        unsetExtraLong2();
-      } else {
-        setExtraLong2((Long)value);
-      }
-      break;
-
-    case EXTRA_LONG3:
-      if (value == null) {
-        unsetExtraLong3();
-      } else {
-        setExtraLong3((Long)value);
-      }
-      break;
-
-    }
-  }
-
-  public Object getFieldValue(_Fields field) {
-    switch (field) {
-    case AGENT_ID:
-      return getAgentId();
-
-    case REQUEST_HASH_CODE:
-      return Integer.valueOf(getRequestHashCode());
-
-    case DATA_TYPE:
-      return Integer.valueOf(getDataType());
-
-    case DATA_TIME:
-      return Long.valueOf(getDataTime());
-
-    case THREAD_CPUTIME:
-      return Long.valueOf(getThreadCPUTime());
-
-    case THREAD_USER_TIME:
-      return Long.valueOf(getThreadUserTime());
-
-    case REQUEST_ID:
-      return getRequestID();
-
-    case REQUEST_URL:
-      return getRequestURL();
-
-    case CLIENT_IP:
-      return getClientIP();
-
-    case EXTRA_DATA1:
-      return getExtraData1();
-
-    case EXTRA_DATA2:
-      return getExtraData2();
-
-    case EXTRA_DATA3:
-      return getExtraData3();
-
-    case EXTRA_INT1:
-      return Integer.valueOf(getExtraInt1());
-
-    case EXTRA_INT2:
-      return Integer.valueOf(getExtraInt2());
-
-    case EXTRA_INT3:
-      return Integer.valueOf(getExtraInt3());
-
-    case EXTRA_LONG1:
-      return Long.valueOf(getExtraLong1());
-
-    case EXTRA_LONG2:
-      return Long.valueOf(getExtraLong2());
-
-    case EXTRA_LONG3:
-      return Long.valueOf(getExtraLong3());
-
-    }
-    throw new IllegalStateException();
-  }
-
-  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-  public boolean isSet(_Fields field) {
-    if (field == null) {
-      throw new IllegalArgumentException();
-    }
-
-    switch (field) {
-    case AGENT_ID:
-      return isSetAgentId();
-    case REQUEST_HASH_CODE:
-      return isSetRequestHashCode();
-    case DATA_TYPE:
-      return isSetDataType();
-    case DATA_TIME:
-      return isSetDataTime();
-    case THREAD_CPUTIME:
-      return isSetThreadCPUTime();
-    case THREAD_USER_TIME:
-      return isSetThreadUserTime();
-    case REQUEST_ID:
-      return isSetRequestID();
-    case REQUEST_URL:
-      return isSetRequestURL();
-    case CLIENT_IP:
-      return isSetClientIP();
-    case EXTRA_DATA1:
-      return isSetExtraData1();
-    case EXTRA_DATA2:
-      return isSetExtraData2();
-    case EXTRA_DATA3:
-      return isSetExtraData3();
-    case EXTRA_INT1:
-      return isSetExtraInt1();
-    case EXTRA_INT2:
-      return isSetExtraInt2();
-    case EXTRA_INT3:
-      return isSetExtraInt3();
-    case EXTRA_LONG1:
-      return isSetExtraLong1();
-    case EXTRA_LONG2:
-      return isSetExtraLong2();
-    case EXTRA_LONG3:
-      return isSetExtraLong3();
-    }
-    throw new IllegalStateException();
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (that == null)
-      return false;
-    if (that instanceof RequestThriftDTO)
-      return this.equals((RequestThriftDTO)that);
-    return false;
-  }
-
-  public boolean equals(RequestThriftDTO that) {
-    if (that == null)
-      return false;
-
-    boolean this_present_agentId = true && this.isSetAgentId();
-    boolean that_present_agentId = true && that.isSetAgentId();
-    if (this_present_agentId || that_present_agentId) {
-      if (!(this_present_agentId && that_present_agentId))
-        return false;
-      if (!this.agentId.equals(that.agentId))
-        return false;
-    }
-
-    boolean this_present_requestHashCode = true;
-    boolean that_present_requestHashCode = true;
-    if (this_present_requestHashCode || that_present_requestHashCode) {
-      if (!(this_present_requestHashCode && that_present_requestHashCode))
-        return false;
-      if (this.requestHashCode != that.requestHashCode)
-        return false;
-    }
-
-    boolean this_present_dataType = true;
-    boolean that_present_dataType = true;
-    if (this_present_dataType || that_present_dataType) {
-      if (!(this_present_dataType && that_present_dataType))
-        return false;
-      if (this.dataType != that.dataType)
-        return false;
-    }
-
-    boolean this_present_dataTime = true;
-    boolean that_present_dataTime = true;
-    if (this_present_dataTime || that_present_dataTime) {
-      if (!(this_present_dataTime && that_present_dataTime))
-        return false;
-      if (this.dataTime != that.dataTime)
-        return false;
-    }
-
-    boolean this_present_threadCPUTime = true;
-    boolean that_present_threadCPUTime = true;
-    if (this_present_threadCPUTime || that_present_threadCPUTime) {
-      if (!(this_present_threadCPUTime && that_present_threadCPUTime))
-        return false;
-      if (this.threadCPUTime != that.threadCPUTime)
-        return false;
-    }
-
-    boolean this_present_threadUserTime = true;
-    boolean that_present_threadUserTime = true;
-    if (this_present_threadUserTime || that_present_threadUserTime) {
-      if (!(this_present_threadUserTime && that_present_threadUserTime))
-        return false;
-      if (this.threadUserTime != that.threadUserTime)
-        return false;
-    }
-
-    boolean this_present_requestID = true && this.isSetRequestID();
-    boolean that_present_requestID = true && that.isSetRequestID();
-    if (this_present_requestID || that_present_requestID) {
-      if (!(this_present_requestID && that_present_requestID))
-        return false;
-      if (!this.requestID.equals(that.requestID))
-        return false;
-    }
-
-    boolean this_present_requestURL = true && this.isSetRequestURL();
-    boolean that_present_requestURL = true && that.isSetRequestURL();
-    if (this_present_requestURL || that_present_requestURL) {
-      if (!(this_present_requestURL && that_present_requestURL))
-        return false;
-      if (!this.requestURL.equals(that.requestURL))
-        return false;
-    }
-
-    boolean this_present_clientIP = true && this.isSetClientIP();
-    boolean that_present_clientIP = true && that.isSetClientIP();
-    if (this_present_clientIP || that_present_clientIP) {
-      if (!(this_present_clientIP && that_present_clientIP))
-        return false;
-      if (!this.clientIP.equals(that.clientIP))
-        return false;
-    }
-
-    boolean this_present_extraData1 = true && this.isSetExtraData1();
-    boolean that_present_extraData1 = true && that.isSetExtraData1();
-    if (this_present_extraData1 || that_present_extraData1) {
-      if (!(this_present_extraData1 && that_present_extraData1))
-        return false;
-      if (!this.extraData1.equals(that.extraData1))
-        return false;
-    }
-
-    boolean this_present_extraData2 = true && this.isSetExtraData2();
-    boolean that_present_extraData2 = true && that.isSetExtraData2();
-    if (this_present_extraData2 || that_present_extraData2) {
-      if (!(this_present_extraData2 && that_present_extraData2))
-        return false;
-      if (!this.extraData2.equals(that.extraData2))
-        return false;
-    }
-
-    boolean this_present_extraData3 = true && this.isSetExtraData3();
-    boolean that_present_extraData3 = true && that.isSetExtraData3();
-    if (this_present_extraData3 || that_present_extraData3) {
-      if (!(this_present_extraData3 && that_present_extraData3))
-        return false;
-      if (!this.extraData3.equals(that.extraData3))
-        return false;
-    }
-
-    boolean this_present_extraInt1 = true && this.isSetExtraInt1();
-    boolean that_present_extraInt1 = true && that.isSetExtraInt1();
-    if (this_present_extraInt1 || that_present_extraInt1) {
-      if (!(this_present_extraInt1 && that_present_extraInt1))
-        return false;
-      if (this.extraInt1 != that.extraInt1)
-        return false;
-    }
-
-    boolean this_present_extraInt2 = true && this.isSetExtraInt2();
-    boolean that_present_extraInt2 = true && that.isSetExtraInt2();
-    if (this_present_extraInt2 || that_present_extraInt2) {
-      if (!(this_present_extraInt2 && that_present_extraInt2))
-        return false;
-      if (this.extraInt2 != that.extraInt2)
-        return false;
-    }
-
-    boolean this_present_extraInt3 = true && this.isSetExtraInt3();
-    boolean that_present_extraInt3 = true && that.isSetExtraInt3();
-    if (this_present_extraInt3 || that_present_extraInt3) {
-      if (!(this_present_extraInt3 && that_present_extraInt3))
-        return false;
-      if (this.extraInt3 != that.extraInt3)
-        return false;
-    }
-
-    boolean this_present_extraLong1 = true && this.isSetExtraLong1();
-    boolean that_present_extraLong1 = true && that.isSetExtraLong1();
-    if (this_present_extraLong1 || that_present_extraLong1) {
-      if (!(this_present_extraLong1 && that_present_extraLong1))
-        return false;
-      if (this.extraLong1 != that.extraLong1)
-        return false;
-    }
-
-    boolean this_present_extraLong2 = true && this.isSetExtraLong2();
-    boolean that_present_extraLong2 = true && that.isSetExtraLong2();
-    if (this_present_extraLong2 || that_present_extraLong2) {
-      if (!(this_present_extraLong2 && that_present_extraLong2))
-        return false;
-      if (this.extraLong2 != that.extraLong2)
-        return false;
-    }
-
-    boolean this_present_extraLong3 = true && this.isSetExtraLong3();
-    boolean that_present_extraLong3 = true && that.isSetExtraLong3();
-    if (this_present_extraLong3 || that_present_extraLong3) {
-      if (!(this_present_extraLong3 && that_present_extraLong3))
-        return false;
-      if (this.extraLong3 != that.extraLong3)
-        return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return 0;
-  }
-
-  public int compareTo(RequestThriftDTO other) {
-    if (!getClass().equals(other.getClass())) {
-      return getClass().getName().compareTo(other.getClass().getName());
-    }
-
-    int lastComparison = 0;
-    RequestThriftDTO typedOther = (RequestThriftDTO)other;
-
-    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetAgentId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetRequestHashCode()).compareTo(typedOther.isSetRequestHashCode());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetRequestHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestHashCode, typedOther.requestHashCode);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDataType()).compareTo(typedOther.isSetDataType());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDataType()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataType, typedOther.dataType);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDataTime()).compareTo(typedOther.isSetDataTime());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDataTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataTime, typedOther.dataTime);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetThreadCPUTime()).compareTo(typedOther.isSetThreadCPUTime());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetThreadCPUTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadCPUTime, typedOther.threadCPUTime);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetThreadUserTime()).compareTo(typedOther.isSetThreadUserTime());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetThreadUserTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadUserTime, typedOther.threadUserTime);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetRequestID()).compareTo(typedOther.isSetRequestID());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetRequestID()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestID, typedOther.requestID);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetRequestURL()).compareTo(typedOther.isSetRequestURL());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetRequestURL()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestURL, typedOther.requestURL);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetClientIP()).compareTo(typedOther.isSetClientIP());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetClientIP()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.clientIP, typedOther.clientIP);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraData1()).compareTo(typedOther.isSetExtraData1());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraData1()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData1, typedOther.extraData1);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraData2()).compareTo(typedOther.isSetExtraData2());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraData2()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData2, typedOther.extraData2);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraData3()).compareTo(typedOther.isSetExtraData3());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraData3()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData3, typedOther.extraData3);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraInt1()).compareTo(typedOther.isSetExtraInt1());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraInt1()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt1, typedOther.extraInt1);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraInt2()).compareTo(typedOther.isSetExtraInt2());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraInt2()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt2, typedOther.extraInt2);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraInt3()).compareTo(typedOther.isSetExtraInt3());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraInt3()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt3, typedOther.extraInt3);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraLong1()).compareTo(typedOther.isSetExtraLong1());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraLong1()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong1, typedOther.extraLong1);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraLong2()).compareTo(typedOther.isSetExtraLong2());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraLong2()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong2, typedOther.extraLong2);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetExtraLong3()).compareTo(typedOther.isSetExtraLong3());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetExtraLong3()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong3, typedOther.extraLong3);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    return 0;
-  }
-
-  public _Fields fieldForId(int fieldId) {
-    return _Fields.findByThriftId(fieldId);
-  }
-
-  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
-    schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
-  }
-
-  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
-    schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("RequestThriftDTO(");
-    boolean first = true;
-
-    sb.append("agentId:");
-    if (this.agentId == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.agentId);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("requestHashCode:");
-    sb.append(this.requestHashCode);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("dataType:");
-    sb.append(this.dataType);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("dataTime:");
-    sb.append(this.dataTime);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("threadCPUTime:");
-    sb.append(this.threadCPUTime);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("threadUserTime:");
-    sb.append(this.threadUserTime);
-    first = false;
-    if (isSetRequestID()) {
-      if (!first) sb.append(", ");
-      sb.append("requestID:");
-      if (this.requestID == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.requestID);
-      }
-      first = false;
-    }
-    if (isSetRequestURL()) {
-      if (!first) sb.append(", ");
-      sb.append("requestURL:");
-      if (this.requestURL == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.requestURL);
-      }
-      first = false;
-    }
-    if (isSetClientIP()) {
-      if (!first) sb.append(", ");
-      sb.append("clientIP:");
-      if (this.clientIP == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.clientIP);
-      }
-      first = false;
-    }
-    if (isSetExtraData1()) {
-      if (!first) sb.append(", ");
-      sb.append("extraData1:");
-      if (this.extraData1 == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.extraData1);
-      }
-      first = false;
-    }
-    if (isSetExtraData2()) {
-      if (!first) sb.append(", ");
-      sb.append("extraData2:");
-      if (this.extraData2 == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.extraData2);
-      }
-      first = false;
-    }
-    if (isSetExtraData3()) {
-      if (!first) sb.append(", ");
-      sb.append("extraData3:");
-      if (this.extraData3 == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.extraData3);
-      }
-      first = false;
-    }
-    if (isSetExtraInt1()) {
-      if (!first) sb.append(", ");
-      sb.append("extraInt1:");
-      sb.append(this.extraInt1);
-      first = false;
-    }
-    if (isSetExtraInt2()) {
-      if (!first) sb.append(", ");
-      sb.append("extraInt2:");
-      sb.append(this.extraInt2);
-      first = false;
-    }
-    if (isSetExtraInt3()) {
-      if (!first) sb.append(", ");
-      sb.append("extraInt3:");
-      sb.append(this.extraInt3);
-      first = false;
-    }
-    if (isSetExtraLong1()) {
-      if (!first) sb.append(", ");
-      sb.append("extraLong1:");
-      sb.append(this.extraLong1);
-      first = false;
-    }
-    if (isSetExtraLong2()) {
-      if (!first) sb.append(", ");
-      sb.append("extraLong2:");
-      sb.append(this.extraLong2);
-      first = false;
-    }
-    if (isSetExtraLong3()) {
-      if (!first) sb.append(", ");
-      sb.append("extraLong3:");
-      sb.append(this.extraLong3);
-      first = false;
-    }
-    sb.append(")");
-    return sb.toString();
-  }
-
-  public void validate() throws org.apache.thrift.TException {
-    // check for required fields
-  }
-
-  private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
-    try {
-      write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-    } catch (org.apache.thrift.TException te) {
-      throw new java.io.IOException(te);
-    }
-  }
-
-  private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
-    try {
-      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-      __isset_bit_vector = new BitSet(1);
-      read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-    } catch (org.apache.thrift.TException te) {
-      throw new java.io.IOException(te);
-    }
-  }
-
-  private static class RequestThriftDTOStandardSchemeFactory implements SchemeFactory {
-    public RequestThriftDTOStandardScheme getScheme() {
-      return new RequestThriftDTOStandardScheme();
-    }
-  }
-
-  private static class RequestThriftDTOStandardScheme extends StandardScheme<RequestThriftDTO> {
-
-    public void read(org.apache.thrift.protocol.TProtocol iprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
-      org.apache.thrift.protocol.TField schemeField;
-      iprot.readStructBegin();
-      while (true)
-      {
-        schemeField = iprot.readFieldBegin();
-        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
-          break;
+    public RequestThriftDTO(RequestThriftDTO other) {
+        __isset_bit_vector.clear();
+        __isset_bit_vector.or(other.__isset_bit_vector);
+        if (other.isSetAgentId()) {
+            this.agentId = other.agentId;
         }
-        switch (schemeField.id) {
-          case 1: // AGENT_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.agentId = iprot.readString();
-              struct.setAgentIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // REQUEST_HASH_CODE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.requestHashCode = iprot.readI32();
-              struct.setRequestHashCodeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // DATA_TYPE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.dataType = iprot.readI32();
-              struct.setDataTypeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // DATA_TIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.dataTime = iprot.readI64();
-              struct.setDataTimeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // THREAD_CPUTIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.threadCPUTime = iprot.readI64();
-              struct.setThreadCPUTimeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 6: // THREAD_USER_TIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.threadUserTime = iprot.readI64();
-              struct.setThreadUserTimeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 7: // REQUEST_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.requestID = iprot.readString();
-              struct.setRequestIDIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 8: // REQUEST_URL
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.requestURL = iprot.readString();
-              struct.setRequestURLIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 9: // CLIENT_IP
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.clientIP = iprot.readString();
-              struct.setClientIPIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 10: // EXTRA_DATA1
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.extraData1 = iprot.readString();
-              struct.setExtraData1IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 11: // EXTRA_DATA2
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.extraData2 = iprot.readString();
-              struct.setExtraData2IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 12: // EXTRA_DATA3
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.extraData3 = iprot.readString();
-              struct.setExtraData3IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 13: // EXTRA_INT1
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.extraInt1 = iprot.readI32();
-              struct.setExtraInt1IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 14: // EXTRA_INT2
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.extraInt2 = iprot.readI32();
-              struct.setExtraInt2IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 15: // EXTRA_INT3
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.extraInt3 = iprot.readI32();
-              struct.setExtraInt3IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 16: // EXTRA_LONG1
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.extraLong1 = iprot.readI64();
-              struct.setExtraLong1IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 17: // EXTRA_LONG2
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.extraLong2 = iprot.readI64();
-              struct.setExtraLong2IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 18: // EXTRA_LONG3
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.extraLong3 = iprot.readI64();
-              struct.setExtraLong3IsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          default:
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+        this.requestHashCode = other.requestHashCode;
+        this.dataType = other.dataType;
+        this.dataTime = other.dataTime;
+        this.threadCPUTime = other.threadCPUTime;
+        this.threadUserTime = other.threadUserTime;
+        if (other.isSetRequestID()) {
+            this.requestID = other.requestID;
         }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-      struct.validate();
+        if (other.isSetRequestURL()) {
+            this.requestURL = other.requestURL;
+        }
+        if (other.isSetClientIP()) {
+            this.clientIP = other.clientIP;
+        }
+        if (other.isSetExtraData1()) {
+            this.extraData1 = other.extraData1;
+        }
+        if (other.isSetExtraData2()) {
+            this.extraData2 = other.extraData2;
+        }
+        if (other.isSetExtraData3()) {
+            this.extraData3 = other.extraData3;
+        }
+        this.extraInt1 = other.extraInt1;
+        this.extraInt2 = other.extraInt2;
+        this.extraInt3 = other.extraInt3;
+        this.extraLong1 = other.extraLong1;
+        this.extraLong2 = other.extraLong2;
+        this.extraLong3 = other.extraLong3;
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
-      struct.validate();
-
-      oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.agentId != null) {
-        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
-        oprot.writeString(struct.agentId);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldBegin(REQUEST_HASH_CODE_FIELD_DESC);
-      oprot.writeI32(struct.requestHashCode);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(DATA_TYPE_FIELD_DESC);
-      oprot.writeI32(struct.dataType);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(DATA_TIME_FIELD_DESC);
-      oprot.writeI64(struct.dataTime);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(THREAD_CPUTIME_FIELD_DESC);
-      oprot.writeI64(struct.threadCPUTime);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(THREAD_USER_TIME_FIELD_DESC);
-      oprot.writeI64(struct.threadUserTime);
-      oprot.writeFieldEnd();
-      if (struct.requestID != null) {
-        if (struct.isSetRequestID()) {
-          oprot.writeFieldBegin(REQUEST_ID_FIELD_DESC);
-          oprot.writeString(struct.requestID);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.requestURL != null) {
-        if (struct.isSetRequestURL()) {
-          oprot.writeFieldBegin(REQUEST_URL_FIELD_DESC);
-          oprot.writeString(struct.requestURL);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.clientIP != null) {
-        if (struct.isSetClientIP()) {
-          oprot.writeFieldBegin(CLIENT_IP_FIELD_DESC);
-          oprot.writeString(struct.clientIP);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.extraData1 != null) {
-        if (struct.isSetExtraData1()) {
-          oprot.writeFieldBegin(EXTRA_DATA1_FIELD_DESC);
-          oprot.writeString(struct.extraData1);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.extraData2 != null) {
-        if (struct.isSetExtraData2()) {
-          oprot.writeFieldBegin(EXTRA_DATA2_FIELD_DESC);
-          oprot.writeString(struct.extraData2);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.extraData3 != null) {
-        if (struct.isSetExtraData3()) {
-          oprot.writeFieldBegin(EXTRA_DATA3_FIELD_DESC);
-          oprot.writeString(struct.extraData3);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.isSetExtraInt1()) {
-        oprot.writeFieldBegin(EXTRA_INT1_FIELD_DESC);
-        oprot.writeI32(struct.extraInt1);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetExtraInt2()) {
-        oprot.writeFieldBegin(EXTRA_INT2_FIELD_DESC);
-        oprot.writeI32(struct.extraInt2);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetExtraInt3()) {
-        oprot.writeFieldBegin(EXTRA_INT3_FIELD_DESC);
-        oprot.writeI32(struct.extraInt3);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetExtraLong1()) {
-        oprot.writeFieldBegin(EXTRA_LONG1_FIELD_DESC);
-        oprot.writeI64(struct.extraLong1);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetExtraLong2()) {
-        oprot.writeFieldBegin(EXTRA_LONG2_FIELD_DESC);
-        oprot.writeI64(struct.extraLong2);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetExtraLong3()) {
-        oprot.writeFieldBegin(EXTRA_LONG3_FIELD_DESC);
-        oprot.writeI64(struct.extraLong3);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-  }
-
-  private static class RequestThriftDTOTupleSchemeFactory implements SchemeFactory {
-    public RequestThriftDTOTupleScheme getScheme() {
-      return new RequestThriftDTOTupleScheme();
-    }
-  }
-
-  private static class RequestThriftDTOTupleScheme extends TupleScheme<RequestThriftDTO> {
-
-    @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
-      TTupleProtocol oprot = (TTupleProtocol) prot;
-      BitSet optionals = new BitSet();
-      if (struct.isSetAgentId()) {
-        optionals.set(0);
-      }
-      if (struct.isSetRequestHashCode()) {
-        optionals.set(1);
-      }
-      if (struct.isSetDataType()) {
-        optionals.set(2);
-      }
-      if (struct.isSetDataTime()) {
-        optionals.set(3);
-      }
-      if (struct.isSetThreadCPUTime()) {
-        optionals.set(4);
-      }
-      if (struct.isSetThreadUserTime()) {
-        optionals.set(5);
-      }
-      if (struct.isSetRequestID()) {
-        optionals.set(6);
-      }
-      if (struct.isSetRequestURL()) {
-        optionals.set(7);
-      }
-      if (struct.isSetClientIP()) {
-        optionals.set(8);
-      }
-      if (struct.isSetExtraData1()) {
-        optionals.set(9);
-      }
-      if (struct.isSetExtraData2()) {
-        optionals.set(10);
-      }
-      if (struct.isSetExtraData3()) {
-        optionals.set(11);
-      }
-      if (struct.isSetExtraInt1()) {
-        optionals.set(12);
-      }
-      if (struct.isSetExtraInt2()) {
-        optionals.set(13);
-      }
-      if (struct.isSetExtraInt3()) {
-        optionals.set(14);
-      }
-      if (struct.isSetExtraLong1()) {
-        optionals.set(15);
-      }
-      if (struct.isSetExtraLong2()) {
-        optionals.set(16);
-      }
-      if (struct.isSetExtraLong3()) {
-        optionals.set(17);
-      }
-      oprot.writeBitSet(optionals, 18);
-      if (struct.isSetAgentId()) {
-        oprot.writeString(struct.agentId);
-      }
-      if (struct.isSetRequestHashCode()) {
-        oprot.writeI32(struct.requestHashCode);
-      }
-      if (struct.isSetDataType()) {
-        oprot.writeI32(struct.dataType);
-      }
-      if (struct.isSetDataTime()) {
-        oprot.writeI64(struct.dataTime);
-      }
-      if (struct.isSetThreadCPUTime()) {
-        oprot.writeI64(struct.threadCPUTime);
-      }
-      if (struct.isSetThreadUserTime()) {
-        oprot.writeI64(struct.threadUserTime);
-      }
-      if (struct.isSetRequestID()) {
-        oprot.writeString(struct.requestID);
-      }
-      if (struct.isSetRequestURL()) {
-        oprot.writeString(struct.requestURL);
-      }
-      if (struct.isSetClientIP()) {
-        oprot.writeString(struct.clientIP);
-      }
-      if (struct.isSetExtraData1()) {
-        oprot.writeString(struct.extraData1);
-      }
-      if (struct.isSetExtraData2()) {
-        oprot.writeString(struct.extraData2);
-      }
-      if (struct.isSetExtraData3()) {
-        oprot.writeString(struct.extraData3);
-      }
-      if (struct.isSetExtraInt1()) {
-        oprot.writeI32(struct.extraInt1);
-      }
-      if (struct.isSetExtraInt2()) {
-        oprot.writeI32(struct.extraInt2);
-      }
-      if (struct.isSetExtraInt3()) {
-        oprot.writeI32(struct.extraInt3);
-      }
-      if (struct.isSetExtraLong1()) {
-        oprot.writeI64(struct.extraLong1);
-      }
-      if (struct.isSetExtraLong2()) {
-        oprot.writeI64(struct.extraLong2);
-      }
-      if (struct.isSetExtraLong3()) {
-        oprot.writeI64(struct.extraLong3);
-      }
+    public RequestThriftDTO deepCopy() {
+        return new RequestThriftDTO(this);
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
-      TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(18);
-      if (incoming.get(0)) {
-        struct.agentId = iprot.readString();
-        struct.setAgentIdIsSet(true);
-      }
-      if (incoming.get(1)) {
-        struct.requestHashCode = iprot.readI32();
-        struct.setRequestHashCodeIsSet(true);
-      }
-      if (incoming.get(2)) {
-        struct.dataType = iprot.readI32();
-        struct.setDataTypeIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.dataTime = iprot.readI64();
-        struct.setDataTimeIsSet(true);
-      }
-      if (incoming.get(4)) {
-        struct.threadCPUTime = iprot.readI64();
-        struct.setThreadCPUTimeIsSet(true);
-      }
-      if (incoming.get(5)) {
-        struct.threadUserTime = iprot.readI64();
-        struct.setThreadUserTimeIsSet(true);
-      }
-      if (incoming.get(6)) {
-        struct.requestID = iprot.readString();
-        struct.setRequestIDIsSet(true);
-      }
-      if (incoming.get(7)) {
-        struct.requestURL = iprot.readString();
-        struct.setRequestURLIsSet(true);
-      }
-      if (incoming.get(8)) {
-        struct.clientIP = iprot.readString();
-        struct.setClientIPIsSet(true);
-      }
-      if (incoming.get(9)) {
-        struct.extraData1 = iprot.readString();
-        struct.setExtraData1IsSet(true);
-      }
-      if (incoming.get(10)) {
-        struct.extraData2 = iprot.readString();
-        struct.setExtraData2IsSet(true);
-      }
-      if (incoming.get(11)) {
-        struct.extraData3 = iprot.readString();
-        struct.setExtraData3IsSet(true);
-      }
-      if (incoming.get(12)) {
-        struct.extraInt1 = iprot.readI32();
-        struct.setExtraInt1IsSet(true);
-      }
-      if (incoming.get(13)) {
-        struct.extraInt2 = iprot.readI32();
-        struct.setExtraInt2IsSet(true);
-      }
-      if (incoming.get(14)) {
-        struct.extraInt3 = iprot.readI32();
-        struct.setExtraInt3IsSet(true);
-      }
-      if (incoming.get(15)) {
-        struct.extraLong1 = iprot.readI64();
-        struct.setExtraLong1IsSet(true);
-      }
-      if (incoming.get(16)) {
-        struct.extraLong2 = iprot.readI64();
-        struct.setExtraLong2IsSet(true);
-      }
-      if (incoming.get(17)) {
-        struct.extraLong3 = iprot.readI64();
-        struct.setExtraLong3IsSet(true);
-      }
+    public void clear() {
+        this.agentId = null;
+        setRequestHashCodeIsSet(false);
+        this.requestHashCode = 0;
+        setDataTypeIsSet(false);
+        this.dataType = 0;
+        setDataTimeIsSet(false);
+        this.dataTime = 0;
+        setThreadCPUTimeIsSet(false);
+        this.threadCPUTime = 0;
+        setThreadUserTimeIsSet(false);
+        this.threadUserTime = 0;
+        this.requestID = null;
+        this.requestURL = null;
+        this.clientIP = null;
+        this.extraData1 = null;
+        this.extraData2 = null;
+        this.extraData3 = null;
+        setExtraInt1IsSet(false);
+        this.extraInt1 = 0;
+        setExtraInt2IsSet(false);
+        this.extraInt2 = 0;
+        setExtraInt3IsSet(false);
+        this.extraInt3 = 0;
+        setExtraLong1IsSet(false);
+        this.extraLong1 = 0;
+        setExtraLong2IsSet(false);
+        this.extraLong2 = 0;
+        setExtraLong3IsSet(false);
+        this.extraLong3 = 0;
     }
-  }
+
+    public String getAgentId() {
+        return this.agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public void unsetAgentId() {
+        this.agentId = null;
+    }
+
+    /**
+     * Returns true if field agentId is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetAgentId() {
+        return this.agentId != null;
+    }
+
+    public void setAgentIdIsSet(boolean value) {
+        if (!value) {
+            this.agentId = null;
+        }
+    }
+
+    public int getRequestHashCode() {
+        return this.requestHashCode;
+    }
+
+    public void setRequestHashCode(int requestHashCode) {
+        this.requestHashCode = requestHashCode;
+        setRequestHashCodeIsSet(true);
+    }
+
+    public void unsetRequestHashCode() {
+        __isset_bit_vector.clear(__REQUESTHASHCODE_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field requestHashCode is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetRequestHashCode() {
+        return __isset_bit_vector.get(__REQUESTHASHCODE_ISSET_ID);
+    }
+
+    public void setRequestHashCodeIsSet(boolean value) {
+        __isset_bit_vector.set(__REQUESTHASHCODE_ISSET_ID, value);
+    }
+
+    public int getDataType() {
+        return this.dataType;
+    }
+
+    public void setDataType(int dataType) {
+        this.dataType = dataType;
+        setDataTypeIsSet(true);
+    }
+
+    public void unsetDataType() {
+        __isset_bit_vector.clear(__DATATYPE_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field dataType is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetDataType() {
+        return __isset_bit_vector.get(__DATATYPE_ISSET_ID);
+    }
+
+    public void setDataTypeIsSet(boolean value) {
+        __isset_bit_vector.set(__DATATYPE_ISSET_ID, value);
+    }
+
+    public long getDataTime() {
+        return this.dataTime;
+    }
+
+    public void setDataTime(long dataTime) {
+        this.dataTime = dataTime;
+        setDataTimeIsSet(true);
+    }
+
+    public void unsetDataTime() {
+        __isset_bit_vector.clear(__DATATIME_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field dataTime is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetDataTime() {
+        return __isset_bit_vector.get(__DATATIME_ISSET_ID);
+    }
+
+    public void setDataTimeIsSet(boolean value) {
+        __isset_bit_vector.set(__DATATIME_ISSET_ID, value);
+    }
+
+    public long getThreadCPUTime() {
+        return this.threadCPUTime;
+    }
+
+    public void setThreadCPUTime(long threadCPUTime) {
+        this.threadCPUTime = threadCPUTime;
+        setThreadCPUTimeIsSet(true);
+    }
+
+    public void unsetThreadCPUTime() {
+        __isset_bit_vector.clear(__THREADCPUTIME_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field threadCPUTime is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetThreadCPUTime() {
+        return __isset_bit_vector.get(__THREADCPUTIME_ISSET_ID);
+    }
+
+    public void setThreadCPUTimeIsSet(boolean value) {
+        __isset_bit_vector.set(__THREADCPUTIME_ISSET_ID, value);
+    }
+
+    public long getThreadUserTime() {
+        return this.threadUserTime;
+    }
+
+    public void setThreadUserTime(long threadUserTime) {
+        this.threadUserTime = threadUserTime;
+        setThreadUserTimeIsSet(true);
+    }
+
+    public void unsetThreadUserTime() {
+        __isset_bit_vector.clear(__THREADUSERTIME_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field threadUserTime is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetThreadUserTime() {
+        return __isset_bit_vector.get(__THREADUSERTIME_ISSET_ID);
+    }
+
+    public void setThreadUserTimeIsSet(boolean value) {
+        __isset_bit_vector.set(__THREADUSERTIME_ISSET_ID, value);
+    }
+
+    public String getRequestID() {
+        return this.requestID;
+    }
+
+    public void setRequestID(String requestID) {
+        this.requestID = requestID;
+    }
+
+    public void unsetRequestID() {
+        this.requestID = null;
+    }
+
+    /**
+     * Returns true if field requestID is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetRequestID() {
+        return this.requestID != null;
+    }
+
+    public void setRequestIDIsSet(boolean value) {
+        if (!value) {
+            this.requestID = null;
+        }
+    }
+
+    public String getRequestURL() {
+        return this.requestURL;
+    }
+
+    public void setRequestURL(String requestURL) {
+        this.requestURL = requestURL;
+    }
+
+    public void unsetRequestURL() {
+        this.requestURL = null;
+    }
+
+    /**
+     * Returns true if field requestURL is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetRequestURL() {
+        return this.requestURL != null;
+    }
+
+    public void setRequestURLIsSet(boolean value) {
+        if (!value) {
+            this.requestURL = null;
+        }
+    }
+
+    public String getClientIP() {
+        return this.clientIP;
+    }
+
+    public void setClientIP(String clientIP) {
+        this.clientIP = clientIP;
+    }
+
+    public void unsetClientIP() {
+        this.clientIP = null;
+    }
+
+    /**
+     * Returns true if field clientIP is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetClientIP() {
+        return this.clientIP != null;
+    }
+
+    public void setClientIPIsSet(boolean value) {
+        if (!value) {
+            this.clientIP = null;
+        }
+    }
+
+    public String getExtraData1() {
+        return this.extraData1;
+    }
+
+    public void setExtraData1(String extraData1) {
+        this.extraData1 = extraData1;
+    }
+
+    public void unsetExtraData1() {
+        this.extraData1 = null;
+    }
+
+    /**
+     * Returns true if field extraData1 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraData1() {
+        return this.extraData1 != null;
+    }
+
+    public void setExtraData1IsSet(boolean value) {
+        if (!value) {
+            this.extraData1 = null;
+        }
+    }
+
+    public String getExtraData2() {
+        return this.extraData2;
+    }
+
+    public void setExtraData2(String extraData2) {
+        this.extraData2 = extraData2;
+    }
+
+    public void unsetExtraData2() {
+        this.extraData2 = null;
+    }
+
+    /**
+     * Returns true if field extraData2 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraData2() {
+        return this.extraData2 != null;
+    }
+
+    public void setExtraData2IsSet(boolean value) {
+        if (!value) {
+            this.extraData2 = null;
+        }
+    }
+
+    public String getExtraData3() {
+        return this.extraData3;
+    }
+
+    public void setExtraData3(String extraData3) {
+        this.extraData3 = extraData3;
+    }
+
+    public void unsetExtraData3() {
+        this.extraData3 = null;
+    }
+
+    /**
+     * Returns true if field extraData3 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraData3() {
+        return this.extraData3 != null;
+    }
+
+    public void setExtraData3IsSet(boolean value) {
+        if (!value) {
+            this.extraData3 = null;
+        }
+    }
+
+    public int getExtraInt1() {
+        return this.extraInt1;
+    }
+
+    public void setExtraInt1(int extraInt1) {
+        this.extraInt1 = extraInt1;
+        setExtraInt1IsSet(true);
+    }
+
+    public void unsetExtraInt1() {
+        __isset_bit_vector.clear(__EXTRAINT1_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraInt1 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraInt1() {
+        return __isset_bit_vector.get(__EXTRAINT1_ISSET_ID);
+    }
+
+    public void setExtraInt1IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRAINT1_ISSET_ID, value);
+    }
+
+    public int getExtraInt2() {
+        return this.extraInt2;
+    }
+
+    public void setExtraInt2(int extraInt2) {
+        this.extraInt2 = extraInt2;
+        setExtraInt2IsSet(true);
+    }
+
+    public void unsetExtraInt2() {
+        __isset_bit_vector.clear(__EXTRAINT2_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraInt2 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraInt2() {
+        return __isset_bit_vector.get(__EXTRAINT2_ISSET_ID);
+    }
+
+    public void setExtraInt2IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRAINT2_ISSET_ID, value);
+    }
+
+    public int getExtraInt3() {
+        return this.extraInt3;
+    }
+
+    public void setExtraInt3(int extraInt3) {
+        this.extraInt3 = extraInt3;
+        setExtraInt3IsSet(true);
+    }
+
+    public void unsetExtraInt3() {
+        __isset_bit_vector.clear(__EXTRAINT3_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraInt3 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraInt3() {
+        return __isset_bit_vector.get(__EXTRAINT3_ISSET_ID);
+    }
+
+    public void setExtraInt3IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRAINT3_ISSET_ID, value);
+    }
+
+    public long getExtraLong1() {
+        return this.extraLong1;
+    }
+
+    public void setExtraLong1(long extraLong1) {
+        this.extraLong1 = extraLong1;
+        setExtraLong1IsSet(true);
+    }
+
+    public void unsetExtraLong1() {
+        __isset_bit_vector.clear(__EXTRALONG1_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraLong1 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraLong1() {
+        return __isset_bit_vector.get(__EXTRALONG1_ISSET_ID);
+    }
+
+    public void setExtraLong1IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRALONG1_ISSET_ID, value);
+    }
+
+    public long getExtraLong2() {
+        return this.extraLong2;
+    }
+
+    public void setExtraLong2(long extraLong2) {
+        this.extraLong2 = extraLong2;
+        setExtraLong2IsSet(true);
+    }
+
+    public void unsetExtraLong2() {
+        __isset_bit_vector.clear(__EXTRALONG2_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraLong2 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraLong2() {
+        return __isset_bit_vector.get(__EXTRALONG2_ISSET_ID);
+    }
+
+    public void setExtraLong2IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRALONG2_ISSET_ID, value);
+    }
+
+    public long getExtraLong3() {
+        return this.extraLong3;
+    }
+
+    public void setExtraLong3(long extraLong3) {
+        this.extraLong3 = extraLong3;
+        setExtraLong3IsSet(true);
+    }
+
+    public void unsetExtraLong3() {
+        __isset_bit_vector.clear(__EXTRALONG3_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field extraLong3 is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetExtraLong3() {
+        return __isset_bit_vector.get(__EXTRALONG3_ISSET_ID);
+    }
+
+    public void setExtraLong3IsSet(boolean value) {
+        __isset_bit_vector.set(__EXTRALONG3_ISSET_ID, value);
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+        switch (field) {
+            case AGENT_ID:
+                if (value == null) {
+                    unsetAgentId();
+                } else {
+                    setAgentId((String) value);
+                }
+                break;
+
+            case REQUEST_HASH_CODE:
+                if (value == null) {
+                    unsetRequestHashCode();
+                } else {
+                    setRequestHashCode((Integer) value);
+                }
+                break;
+
+            case DATA_TYPE:
+                if (value == null) {
+                    unsetDataType();
+                } else {
+                    setDataType((Integer) value);
+                }
+                break;
+
+            case DATA_TIME:
+                if (value == null) {
+                    unsetDataTime();
+                } else {
+                    setDataTime((Long) value);
+                }
+                break;
+
+            case THREAD_CPUTIME:
+                if (value == null) {
+                    unsetThreadCPUTime();
+                } else {
+                    setThreadCPUTime((Long) value);
+                }
+                break;
+
+            case THREAD_USER_TIME:
+                if (value == null) {
+                    unsetThreadUserTime();
+                } else {
+                    setThreadUserTime((Long) value);
+                }
+                break;
+
+            case REQUEST_ID:
+                if (value == null) {
+                    unsetRequestID();
+                } else {
+                    setRequestID((String) value);
+                }
+                break;
+
+            case REQUEST_URL:
+                if (value == null) {
+                    unsetRequestURL();
+                } else {
+                    setRequestURL((String) value);
+                }
+                break;
+
+            case CLIENT_IP:
+                if (value == null) {
+                    unsetClientIP();
+                } else {
+                    setClientIP((String) value);
+                }
+                break;
+
+            case EXTRA_DATA1:
+                if (value == null) {
+                    unsetExtraData1();
+                } else {
+                    setExtraData1((String) value);
+                }
+                break;
+
+            case EXTRA_DATA2:
+                if (value == null) {
+                    unsetExtraData2();
+                } else {
+                    setExtraData2((String) value);
+                }
+                break;
+
+            case EXTRA_DATA3:
+                if (value == null) {
+                    unsetExtraData3();
+                } else {
+                    setExtraData3((String) value);
+                }
+                break;
+
+            case EXTRA_INT1:
+                if (value == null) {
+                    unsetExtraInt1();
+                } else {
+                    setExtraInt1((Integer) value);
+                }
+                break;
+
+            case EXTRA_INT2:
+                if (value == null) {
+                    unsetExtraInt2();
+                } else {
+                    setExtraInt2((Integer) value);
+                }
+                break;
+
+            case EXTRA_INT3:
+                if (value == null) {
+                    unsetExtraInt3();
+                } else {
+                    setExtraInt3((Integer) value);
+                }
+                break;
+
+            case EXTRA_LONG1:
+                if (value == null) {
+                    unsetExtraLong1();
+                } else {
+                    setExtraLong1((Long) value);
+                }
+                break;
+
+            case EXTRA_LONG2:
+                if (value == null) {
+                    unsetExtraLong2();
+                } else {
+                    setExtraLong2((Long) value);
+                }
+                break;
+
+            case EXTRA_LONG3:
+                if (value == null) {
+                    unsetExtraLong3();
+                } else {
+                    setExtraLong3((Long) value);
+                }
+                break;
+
+        }
+    }
+
+    public Object getFieldValue(_Fields field) {
+        switch (field) {
+            case AGENT_ID:
+                return getAgentId();
+
+            case REQUEST_HASH_CODE:
+                return Integer.valueOf(getRequestHashCode());
+
+            case DATA_TYPE:
+                return Integer.valueOf(getDataType());
+
+            case DATA_TIME:
+                return Long.valueOf(getDataTime());
+
+            case THREAD_CPUTIME:
+                return Long.valueOf(getThreadCPUTime());
+
+            case THREAD_USER_TIME:
+                return Long.valueOf(getThreadUserTime());
+
+            case REQUEST_ID:
+                return getRequestID();
+
+            case REQUEST_URL:
+                return getRequestURL();
+
+            case CLIENT_IP:
+                return getClientIP();
+
+            case EXTRA_DATA1:
+                return getExtraData1();
+
+            case EXTRA_DATA2:
+                return getExtraData2();
+
+            case EXTRA_DATA3:
+                return getExtraData3();
+
+            case EXTRA_INT1:
+                return Integer.valueOf(getExtraInt1());
+
+            case EXTRA_INT2:
+                return Integer.valueOf(getExtraInt2());
+
+            case EXTRA_INT3:
+                return Integer.valueOf(getExtraInt3());
+
+            case EXTRA_LONG1:
+                return Long.valueOf(getExtraLong1());
+
+            case EXTRA_LONG2:
+                return Long.valueOf(getExtraLong2());
+
+            case EXTRA_LONG3:
+                return Long.valueOf(getExtraLong3());
+
+        }
+        throw new IllegalStateException();
+    }
+
+    /**
+     * Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSet(_Fields field) {
+        if (field == null) {
+            throw new IllegalArgumentException();
+        }
+
+        switch (field) {
+            case AGENT_ID:
+                return isSetAgentId();
+            case REQUEST_HASH_CODE:
+                return isSetRequestHashCode();
+            case DATA_TYPE:
+                return isSetDataType();
+            case DATA_TIME:
+                return isSetDataTime();
+            case THREAD_CPUTIME:
+                return isSetThreadCPUTime();
+            case THREAD_USER_TIME:
+                return isSetThreadUserTime();
+            case REQUEST_ID:
+                return isSetRequestID();
+            case REQUEST_URL:
+                return isSetRequestURL();
+            case CLIENT_IP:
+                return isSetClientIP();
+            case EXTRA_DATA1:
+                return isSetExtraData1();
+            case EXTRA_DATA2:
+                return isSetExtraData2();
+            case EXTRA_DATA3:
+                return isSetExtraData3();
+            case EXTRA_INT1:
+                return isSetExtraInt1();
+            case EXTRA_INT2:
+                return isSetExtraInt2();
+            case EXTRA_INT3:
+                return isSetExtraInt3();
+            case EXTRA_LONG1:
+                return isSetExtraLong1();
+            case EXTRA_LONG2:
+                return isSetExtraLong2();
+            case EXTRA_LONG3:
+                return isSetExtraLong3();
+        }
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that == null)
+            return false;
+        if (that instanceof RequestThriftDTO)
+            return this.equals((RequestThriftDTO) that);
+        return false;
+    }
+
+    public boolean equals(RequestThriftDTO that) {
+        if (that == null)
+            return false;
+
+        boolean this_present_agentId = true && this.isSetAgentId();
+        boolean that_present_agentId = true && that.isSetAgentId();
+        if (this_present_agentId || that_present_agentId) {
+            if (!(this_present_agentId && that_present_agentId))
+                return false;
+            if (!this.agentId.equals(that.agentId))
+                return false;
+        }
+
+        boolean this_present_requestHashCode = true;
+        boolean that_present_requestHashCode = true;
+        if (this_present_requestHashCode || that_present_requestHashCode) {
+            if (!(this_present_requestHashCode && that_present_requestHashCode))
+                return false;
+            if (this.requestHashCode != that.requestHashCode)
+                return false;
+        }
+
+        boolean this_present_dataType = true;
+        boolean that_present_dataType = true;
+        if (this_present_dataType || that_present_dataType) {
+            if (!(this_present_dataType && that_present_dataType))
+                return false;
+            if (this.dataType != that.dataType)
+                return false;
+        }
+
+        boolean this_present_dataTime = true;
+        boolean that_present_dataTime = true;
+        if (this_present_dataTime || that_present_dataTime) {
+            if (!(this_present_dataTime && that_present_dataTime))
+                return false;
+            if (this.dataTime != that.dataTime)
+                return false;
+        }
+
+        boolean this_present_threadCPUTime = true;
+        boolean that_present_threadCPUTime = true;
+        if (this_present_threadCPUTime || that_present_threadCPUTime) {
+            if (!(this_present_threadCPUTime && that_present_threadCPUTime))
+                return false;
+            if (this.threadCPUTime != that.threadCPUTime)
+                return false;
+        }
+
+        boolean this_present_threadUserTime = true;
+        boolean that_present_threadUserTime = true;
+        if (this_present_threadUserTime || that_present_threadUserTime) {
+            if (!(this_present_threadUserTime && that_present_threadUserTime))
+                return false;
+            if (this.threadUserTime != that.threadUserTime)
+                return false;
+        }
+
+        boolean this_present_requestID = true && this.isSetRequestID();
+        boolean that_present_requestID = true && that.isSetRequestID();
+        if (this_present_requestID || that_present_requestID) {
+            if (!(this_present_requestID && that_present_requestID))
+                return false;
+            if (!this.requestID.equals(that.requestID))
+                return false;
+        }
+
+        boolean this_present_requestURL = true && this.isSetRequestURL();
+        boolean that_present_requestURL = true && that.isSetRequestURL();
+        if (this_present_requestURL || that_present_requestURL) {
+            if (!(this_present_requestURL && that_present_requestURL))
+                return false;
+            if (!this.requestURL.equals(that.requestURL))
+                return false;
+        }
+
+        boolean this_present_clientIP = true && this.isSetClientIP();
+        boolean that_present_clientIP = true && that.isSetClientIP();
+        if (this_present_clientIP || that_present_clientIP) {
+            if (!(this_present_clientIP && that_present_clientIP))
+                return false;
+            if (!this.clientIP.equals(that.clientIP))
+                return false;
+        }
+
+        boolean this_present_extraData1 = true && this.isSetExtraData1();
+        boolean that_present_extraData1 = true && that.isSetExtraData1();
+        if (this_present_extraData1 || that_present_extraData1) {
+            if (!(this_present_extraData1 && that_present_extraData1))
+                return false;
+            if (!this.extraData1.equals(that.extraData1))
+                return false;
+        }
+
+        boolean this_present_extraData2 = true && this.isSetExtraData2();
+        boolean that_present_extraData2 = true && that.isSetExtraData2();
+        if (this_present_extraData2 || that_present_extraData2) {
+            if (!(this_present_extraData2 && that_present_extraData2))
+                return false;
+            if (!this.extraData2.equals(that.extraData2))
+                return false;
+        }
+
+        boolean this_present_extraData3 = true && this.isSetExtraData3();
+        boolean that_present_extraData3 = true && that.isSetExtraData3();
+        if (this_present_extraData3 || that_present_extraData3) {
+            if (!(this_present_extraData3 && that_present_extraData3))
+                return false;
+            if (!this.extraData3.equals(that.extraData3))
+                return false;
+        }
+
+        boolean this_present_extraInt1 = true && this.isSetExtraInt1();
+        boolean that_present_extraInt1 = true && that.isSetExtraInt1();
+        if (this_present_extraInt1 || that_present_extraInt1) {
+            if (!(this_present_extraInt1 && that_present_extraInt1))
+                return false;
+            if (this.extraInt1 != that.extraInt1)
+                return false;
+        }
+
+        boolean this_present_extraInt2 = true && this.isSetExtraInt2();
+        boolean that_present_extraInt2 = true && that.isSetExtraInt2();
+        if (this_present_extraInt2 || that_present_extraInt2) {
+            if (!(this_present_extraInt2 && that_present_extraInt2))
+                return false;
+            if (this.extraInt2 != that.extraInt2)
+                return false;
+        }
+
+        boolean this_present_extraInt3 = true && this.isSetExtraInt3();
+        boolean that_present_extraInt3 = true && that.isSetExtraInt3();
+        if (this_present_extraInt3 || that_present_extraInt3) {
+            if (!(this_present_extraInt3 && that_present_extraInt3))
+                return false;
+            if (this.extraInt3 != that.extraInt3)
+                return false;
+        }
+
+        boolean this_present_extraLong1 = true && this.isSetExtraLong1();
+        boolean that_present_extraLong1 = true && that.isSetExtraLong1();
+        if (this_present_extraLong1 || that_present_extraLong1) {
+            if (!(this_present_extraLong1 && that_present_extraLong1))
+                return false;
+            if (this.extraLong1 != that.extraLong1)
+                return false;
+        }
+
+        boolean this_present_extraLong2 = true && this.isSetExtraLong2();
+        boolean that_present_extraLong2 = true && that.isSetExtraLong2();
+        if (this_present_extraLong2 || that_present_extraLong2) {
+            if (!(this_present_extraLong2 && that_present_extraLong2))
+                return false;
+            if (this.extraLong2 != that.extraLong2)
+                return false;
+        }
+
+        boolean this_present_extraLong3 = true && this.isSetExtraLong3();
+        boolean that_present_extraLong3 = true && that.isSetExtraLong3();
+        if (this_present_extraLong3 || that_present_extraLong3) {
+            if (!(this_present_extraLong3 && that_present_extraLong3))
+                return false;
+            if (this.extraLong3 != that.extraLong3)
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
+    public int compareTo(RequestThriftDTO other) {
+        if (!getClass().equals(other.getClass())) {
+            return getClass().getName().compareTo(other.getClass().getName());
+        }
+
+        int lastComparison = 0;
+        RequestThriftDTO typedOther = (RequestThriftDTO) other;
+
+        lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetAgentId()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetRequestHashCode()).compareTo(typedOther.isSetRequestHashCode());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetRequestHashCode()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestHashCode, typedOther.requestHashCode);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetDataType()).compareTo(typedOther.isSetDataType());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetDataType()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataType, typedOther.dataType);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetDataTime()).compareTo(typedOther.isSetDataTime());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetDataTime()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.dataTime, typedOther.dataTime);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetThreadCPUTime()).compareTo(typedOther.isSetThreadCPUTime());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetThreadCPUTime()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadCPUTime, typedOther.threadCPUTime);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetThreadUserTime()).compareTo(typedOther.isSetThreadUserTime());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetThreadUserTime()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.threadUserTime, typedOther.threadUserTime);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetRequestID()).compareTo(typedOther.isSetRequestID());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetRequestID()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestID, typedOther.requestID);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetRequestURL()).compareTo(typedOther.isSetRequestURL());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetRequestURL()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestURL, typedOther.requestURL);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetClientIP()).compareTo(typedOther.isSetClientIP());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetClientIP()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.clientIP, typedOther.clientIP);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraData1()).compareTo(typedOther.isSetExtraData1());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraData1()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData1, typedOther.extraData1);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraData2()).compareTo(typedOther.isSetExtraData2());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraData2()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData2, typedOther.extraData2);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraData3()).compareTo(typedOther.isSetExtraData3());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraData3()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraData3, typedOther.extraData3);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraInt1()).compareTo(typedOther.isSetExtraInt1());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraInt1()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt1, typedOther.extraInt1);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraInt2()).compareTo(typedOther.isSetExtraInt2());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraInt2()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt2, typedOther.extraInt2);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraInt3()).compareTo(typedOther.isSetExtraInt3());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraInt3()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraInt3, typedOther.extraInt3);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraLong1()).compareTo(typedOther.isSetExtraLong1());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraLong1()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong1, typedOther.extraLong1);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraLong2()).compareTo(typedOther.isSetExtraLong2());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraLong2()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong2, typedOther.extraLong2);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetExtraLong3()).compareTo(typedOther.isSetExtraLong3());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetExtraLong3()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.extraLong3, typedOther.extraLong3);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+        return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+        schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+        schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("RequestThriftDTO(");
+        boolean first = true;
+
+        sb.append("agentId:");
+        if (this.agentId == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.agentId);
+        }
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("requestHashCode:");
+        sb.append(this.requestHashCode);
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("dataType:");
+        sb.append(this.dataType);
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("dataTime:");
+        sb.append(this.dataTime);
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("threadCPUTime:");
+        sb.append(this.threadCPUTime);
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("threadUserTime:");
+        sb.append(this.threadUserTime);
+        first = false;
+        if (isSetRequestID()) {
+            if (!first) sb.append(", ");
+            sb.append("requestID:");
+            if (this.requestID == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.requestID);
+            }
+            first = false;
+        }
+        if (isSetRequestURL()) {
+            if (!first) sb.append(", ");
+            sb.append("requestURL:");
+            if (this.requestURL == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.requestURL);
+            }
+            first = false;
+        }
+        if (isSetClientIP()) {
+            if (!first) sb.append(", ");
+            sb.append("clientIP:");
+            if (this.clientIP == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.clientIP);
+            }
+            first = false;
+        }
+        if (isSetExtraData1()) {
+            if (!first) sb.append(", ");
+            sb.append("extraData1:");
+            if (this.extraData1 == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.extraData1);
+            }
+            first = false;
+        }
+        if (isSetExtraData2()) {
+            if (!first) sb.append(", ");
+            sb.append("extraData2:");
+            if (this.extraData2 == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.extraData2);
+            }
+            first = false;
+        }
+        if (isSetExtraData3()) {
+            if (!first) sb.append(", ");
+            sb.append("extraData3:");
+            if (this.extraData3 == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.extraData3);
+            }
+            first = false;
+        }
+        if (isSetExtraInt1()) {
+            if (!first) sb.append(", ");
+            sb.append("extraInt1:");
+            sb.append(this.extraInt1);
+            first = false;
+        }
+        if (isSetExtraInt2()) {
+            if (!first) sb.append(", ");
+            sb.append("extraInt2:");
+            sb.append(this.extraInt2);
+            first = false;
+        }
+        if (isSetExtraInt3()) {
+            if (!first) sb.append(", ");
+            sb.append("extraInt3:");
+            sb.append(this.extraInt3);
+            first = false;
+        }
+        if (isSetExtraLong1()) {
+            if (!first) sb.append(", ");
+            sb.append("extraLong1:");
+            sb.append(this.extraLong1);
+            first = false;
+        }
+        if (isSetExtraLong2()) {
+            if (!first) sb.append(", ");
+            sb.append("extraLong2:");
+            sb.append(this.extraLong2);
+            first = false;
+        }
+        if (isSetExtraLong3()) {
+            if (!first) sb.append(", ");
+            sb.append("extraLong3:");
+            sb.append(this.extraLong3);
+            first = false;
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+        // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        try {
+            write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+        } catch (org.apache.thrift.TException te) {
+            throw new java.io.IOException(te);
+        }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        try {
+            // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+            __isset_bit_vector = new BitSet(1);
+            read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+        } catch (org.apache.thrift.TException te) {
+            throw new java.io.IOException(te);
+        }
+    }
+
+    private static class RequestThriftDTOStandardSchemeFactory implements SchemeFactory {
+        public RequestThriftDTOStandardScheme getScheme() {
+            return new RequestThriftDTOStandardScheme();
+        }
+    }
+
+    private static class RequestThriftDTOStandardScheme extends StandardScheme<RequestThriftDTO> {
+
+        public void read(org.apache.thrift.protocol.TProtocol iprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
+            org.apache.thrift.protocol.TField schemeField;
+            iprot.readStructBegin();
+            while (true) {
+                schemeField = iprot.readFieldBegin();
+                if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                    break;
+                }
+                switch (schemeField.id) {
+                    case 1: // AGENT_ID
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.agentId = iprot.readString();
+                            struct.setAgentIdIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 2: // REQUEST_HASH_CODE
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.requestHashCode = iprot.readI32();
+                            struct.setRequestHashCodeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 3: // DATA_TYPE
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.dataType = iprot.readI32();
+                            struct.setDataTypeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 4: // DATA_TIME
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.dataTime = iprot.readI64();
+                            struct.setDataTimeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 5: // THREAD_CPUTIME
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.threadCPUTime = iprot.readI64();
+                            struct.setThreadCPUTimeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 6: // THREAD_USER_TIME
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.threadUserTime = iprot.readI64();
+                            struct.setThreadUserTimeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 7: // REQUEST_ID
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.requestID = iprot.readString();
+                            struct.setRequestIDIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 8: // REQUEST_URL
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.requestURL = iprot.readString();
+                            struct.setRequestURLIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 9: // CLIENT_IP
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.clientIP = iprot.readString();
+                            struct.setClientIPIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 10: // EXTRA_DATA1
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.extraData1 = iprot.readString();
+                            struct.setExtraData1IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 11: // EXTRA_DATA2
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.extraData2 = iprot.readString();
+                            struct.setExtraData2IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 12: // EXTRA_DATA3
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.extraData3 = iprot.readString();
+                            struct.setExtraData3IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 13: // EXTRA_INT1
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.extraInt1 = iprot.readI32();
+                            struct.setExtraInt1IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 14: // EXTRA_INT2
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.extraInt2 = iprot.readI32();
+                            struct.setExtraInt2IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 15: // EXTRA_INT3
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.extraInt3 = iprot.readI32();
+                            struct.setExtraInt3IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 16: // EXTRA_LONG1
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.extraLong1 = iprot.readI64();
+                            struct.setExtraLong1IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 17: // EXTRA_LONG2
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.extraLong2 = iprot.readI64();
+                            struct.setExtraLong2IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 18: // EXTRA_LONG3
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.extraLong3 = iprot.readI64();
+                            struct.setExtraLong3IsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    default:
+                        org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                }
+                iprot.readFieldEnd();
+            }
+            iprot.readStructEnd();
+            struct.validate();
+        }
+
+        public void write(org.apache.thrift.protocol.TProtocol oprot, RequestThriftDTO struct) throws org.apache.thrift.TException {
+            struct.validate();
+
+            oprot.writeStructBegin(STRUCT_DESC);
+            if (struct.agentId != null) {
+                oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+                oprot.writeString(struct.agentId);
+                oprot.writeFieldEnd();
+            }
+            oprot.writeFieldBegin(REQUEST_HASH_CODE_FIELD_DESC);
+            oprot.writeI32(struct.requestHashCode);
+            oprot.writeFieldEnd();
+            oprot.writeFieldBegin(DATA_TYPE_FIELD_DESC);
+            oprot.writeI32(struct.dataType);
+            oprot.writeFieldEnd();
+            oprot.writeFieldBegin(DATA_TIME_FIELD_DESC);
+            oprot.writeI64(struct.dataTime);
+            oprot.writeFieldEnd();
+            oprot.writeFieldBegin(THREAD_CPUTIME_FIELD_DESC);
+            oprot.writeI64(struct.threadCPUTime);
+            oprot.writeFieldEnd();
+            oprot.writeFieldBegin(THREAD_USER_TIME_FIELD_DESC);
+            oprot.writeI64(struct.threadUserTime);
+            oprot.writeFieldEnd();
+            if (struct.requestID != null) {
+                if (struct.isSetRequestID()) {
+                    oprot.writeFieldBegin(REQUEST_ID_FIELD_DESC);
+                    oprot.writeString(struct.requestID);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.requestURL != null) {
+                if (struct.isSetRequestURL()) {
+                    oprot.writeFieldBegin(REQUEST_URL_FIELD_DESC);
+                    oprot.writeString(struct.requestURL);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.clientIP != null) {
+                if (struct.isSetClientIP()) {
+                    oprot.writeFieldBegin(CLIENT_IP_FIELD_DESC);
+                    oprot.writeString(struct.clientIP);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.extraData1 != null) {
+                if (struct.isSetExtraData1()) {
+                    oprot.writeFieldBegin(EXTRA_DATA1_FIELD_DESC);
+                    oprot.writeString(struct.extraData1);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.extraData2 != null) {
+                if (struct.isSetExtraData2()) {
+                    oprot.writeFieldBegin(EXTRA_DATA2_FIELD_DESC);
+                    oprot.writeString(struct.extraData2);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.extraData3 != null) {
+                if (struct.isSetExtraData3()) {
+                    oprot.writeFieldBegin(EXTRA_DATA3_FIELD_DESC);
+                    oprot.writeString(struct.extraData3);
+                    oprot.writeFieldEnd();
+                }
+            }
+            if (struct.isSetExtraInt1()) {
+                oprot.writeFieldBegin(EXTRA_INT1_FIELD_DESC);
+                oprot.writeI32(struct.extraInt1);
+                oprot.writeFieldEnd();
+            }
+            if (struct.isSetExtraInt2()) {
+                oprot.writeFieldBegin(EXTRA_INT2_FIELD_DESC);
+                oprot.writeI32(struct.extraInt2);
+                oprot.writeFieldEnd();
+            }
+            if (struct.isSetExtraInt3()) {
+                oprot.writeFieldBegin(EXTRA_INT3_FIELD_DESC);
+                oprot.writeI32(struct.extraInt3);
+                oprot.writeFieldEnd();
+            }
+            if (struct.isSetExtraLong1()) {
+                oprot.writeFieldBegin(EXTRA_LONG1_FIELD_DESC);
+                oprot.writeI64(struct.extraLong1);
+                oprot.writeFieldEnd();
+            }
+            if (struct.isSetExtraLong2()) {
+                oprot.writeFieldBegin(EXTRA_LONG2_FIELD_DESC);
+                oprot.writeI64(struct.extraLong2);
+                oprot.writeFieldEnd();
+            }
+            if (struct.isSetExtraLong3()) {
+                oprot.writeFieldBegin(EXTRA_LONG3_FIELD_DESC);
+                oprot.writeI64(struct.extraLong3);
+                oprot.writeFieldEnd();
+            }
+            oprot.writeFieldStop();
+            oprot.writeStructEnd();
+        }
+
+    }
+
+    private static class RequestThriftDTOTupleSchemeFactory implements SchemeFactory {
+        public RequestThriftDTOTupleScheme getScheme() {
+            return new RequestThriftDTOTupleScheme();
+        }
+    }
+
+    private static class RequestThriftDTOTupleScheme extends TupleScheme<RequestThriftDTO> {
+
+        @Override
+        public void write(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
+            TTupleProtocol oprot = (TTupleProtocol) prot;
+            BitSet optionals = new BitSet();
+            if (struct.isSetAgentId()) {
+                optionals.set(0);
+            }
+            if (struct.isSetRequestHashCode()) {
+                optionals.set(1);
+            }
+            if (struct.isSetDataType()) {
+                optionals.set(2);
+            }
+            if (struct.isSetDataTime()) {
+                optionals.set(3);
+            }
+            if (struct.isSetThreadCPUTime()) {
+                optionals.set(4);
+            }
+            if (struct.isSetThreadUserTime()) {
+                optionals.set(5);
+            }
+            if (struct.isSetRequestID()) {
+                optionals.set(6);
+            }
+            if (struct.isSetRequestURL()) {
+                optionals.set(7);
+            }
+            if (struct.isSetClientIP()) {
+                optionals.set(8);
+            }
+            if (struct.isSetExtraData1()) {
+                optionals.set(9);
+            }
+            if (struct.isSetExtraData2()) {
+                optionals.set(10);
+            }
+            if (struct.isSetExtraData3()) {
+                optionals.set(11);
+            }
+            if (struct.isSetExtraInt1()) {
+                optionals.set(12);
+            }
+            if (struct.isSetExtraInt2()) {
+                optionals.set(13);
+            }
+            if (struct.isSetExtraInt3()) {
+                optionals.set(14);
+            }
+            if (struct.isSetExtraLong1()) {
+                optionals.set(15);
+            }
+            if (struct.isSetExtraLong2()) {
+                optionals.set(16);
+            }
+            if (struct.isSetExtraLong3()) {
+                optionals.set(17);
+            }
+            oprot.writeBitSet(optionals, 18);
+            if (struct.isSetAgentId()) {
+                oprot.writeString(struct.agentId);
+            }
+            if (struct.isSetRequestHashCode()) {
+                oprot.writeI32(struct.requestHashCode);
+            }
+            if (struct.isSetDataType()) {
+                oprot.writeI32(struct.dataType);
+            }
+            if (struct.isSetDataTime()) {
+                oprot.writeI64(struct.dataTime);
+            }
+            if (struct.isSetThreadCPUTime()) {
+                oprot.writeI64(struct.threadCPUTime);
+            }
+            if (struct.isSetThreadUserTime()) {
+                oprot.writeI64(struct.threadUserTime);
+            }
+            if (struct.isSetRequestID()) {
+                oprot.writeString(struct.requestID);
+            }
+            if (struct.isSetRequestURL()) {
+                oprot.writeString(struct.requestURL);
+            }
+            if (struct.isSetClientIP()) {
+                oprot.writeString(struct.clientIP);
+            }
+            if (struct.isSetExtraData1()) {
+                oprot.writeString(struct.extraData1);
+            }
+            if (struct.isSetExtraData2()) {
+                oprot.writeString(struct.extraData2);
+            }
+            if (struct.isSetExtraData3()) {
+                oprot.writeString(struct.extraData3);
+            }
+            if (struct.isSetExtraInt1()) {
+                oprot.writeI32(struct.extraInt1);
+            }
+            if (struct.isSetExtraInt2()) {
+                oprot.writeI32(struct.extraInt2);
+            }
+            if (struct.isSetExtraInt3()) {
+                oprot.writeI32(struct.extraInt3);
+            }
+            if (struct.isSetExtraLong1()) {
+                oprot.writeI64(struct.extraLong1);
+            }
+            if (struct.isSetExtraLong2()) {
+                oprot.writeI64(struct.extraLong2);
+            }
+            if (struct.isSetExtraLong3()) {
+                oprot.writeI64(struct.extraLong3);
+            }
+        }
+
+        @Override
+        public void read(org.apache.thrift.protocol.TProtocol prot, RequestThriftDTO struct) throws org.apache.thrift.TException {
+            TTupleProtocol iprot = (TTupleProtocol) prot;
+            BitSet incoming = iprot.readBitSet(18);
+            if (incoming.get(0)) {
+                struct.agentId = iprot.readString();
+                struct.setAgentIdIsSet(true);
+            }
+            if (incoming.get(1)) {
+                struct.requestHashCode = iprot.readI32();
+                struct.setRequestHashCodeIsSet(true);
+            }
+            if (incoming.get(2)) {
+                struct.dataType = iprot.readI32();
+                struct.setDataTypeIsSet(true);
+            }
+            if (incoming.get(3)) {
+                struct.dataTime = iprot.readI64();
+                struct.setDataTimeIsSet(true);
+            }
+            if (incoming.get(4)) {
+                struct.threadCPUTime = iprot.readI64();
+                struct.setThreadCPUTimeIsSet(true);
+            }
+            if (incoming.get(5)) {
+                struct.threadUserTime = iprot.readI64();
+                struct.setThreadUserTimeIsSet(true);
+            }
+            if (incoming.get(6)) {
+                struct.requestID = iprot.readString();
+                struct.setRequestIDIsSet(true);
+            }
+            if (incoming.get(7)) {
+                struct.requestURL = iprot.readString();
+                struct.setRequestURLIsSet(true);
+            }
+            if (incoming.get(8)) {
+                struct.clientIP = iprot.readString();
+                struct.setClientIPIsSet(true);
+            }
+            if (incoming.get(9)) {
+                struct.extraData1 = iprot.readString();
+                struct.setExtraData1IsSet(true);
+            }
+            if (incoming.get(10)) {
+                struct.extraData2 = iprot.readString();
+                struct.setExtraData2IsSet(true);
+            }
+            if (incoming.get(11)) {
+                struct.extraData3 = iprot.readString();
+                struct.setExtraData3IsSet(true);
+            }
+            if (incoming.get(12)) {
+                struct.extraInt1 = iprot.readI32();
+                struct.setExtraInt1IsSet(true);
+            }
+            if (incoming.get(13)) {
+                struct.extraInt2 = iprot.readI32();
+                struct.setExtraInt2IsSet(true);
+            }
+            if (incoming.get(14)) {
+                struct.extraInt3 = iprot.readI32();
+                struct.setExtraInt3IsSet(true);
+            }
+            if (incoming.get(15)) {
+                struct.extraLong1 = iprot.readI64();
+                struct.setExtraLong1IsSet(true);
+            }
+            if (incoming.get(16)) {
+                struct.extraLong2 = iprot.readI64();
+                struct.setExtraLong2IsSet(true);
+            }
+            if (incoming.get(17)) {
+                struct.extraLong3 = iprot.readI64();
+                struct.setExtraLong3IsSet(true);
+            }
+        }
+    }
 
 }
 

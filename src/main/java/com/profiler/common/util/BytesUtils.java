@@ -7,9 +7,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class BytesUtils {
 
-	private static final byte[] EMPTY_BYTES = new byte[0];
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-	
+    private static final byte[] EMPTY_BYTES = new byte[0];
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
     public static byte[] longLongToBytes(long value1, long value2) {
         byte[] buffer = new byte[16];
         writeFirstLong(value1, buffer);
@@ -66,18 +66,18 @@ public class BytesUtils {
 
         return v;
     }
-    
-    public static short bytesToShort(byte[] buf, int offset) {
-    	if (buf == null) {
-    		throw new NullPointerException("buf must not be null");
-    	}
-    	if (buf.length < offset + 2) {
-    		throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 2);
-    	}
-    	
-		short v = (short) (((buf[offset] & 0xff) << 8) | ((buf[offset + 1] & 0xff)));
 
-    	return v;
+    public static short bytesToShort(byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        if (buf.length < offset + 2) {
+            throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + offset + 2);
+        }
+
+        short v = (short) (((buf[offset] & 0xff) << 8) | ((buf[offset + 1] & 0xff)));
+
+        return v;
     }
 
     public static long bytesToFirstLong(byte[] buf) {
@@ -198,16 +198,23 @@ public class BytesUtils {
         return add(agentByte, postfix);
     }
 
-    public static byte[] add(byte[] preFix, long fostfix) {
+    public static byte[] add(byte[] preFix, long postfix) {
         byte[] buf = new byte[preFix.length + 8];
         System.arraycopy(preFix, 0, buf, 0, preFix.length);
-        writeLong(fostfix, buf, preFix.length);
+        writeLong(postfix, buf, preFix.length);
+        return buf;
+    }
+
+    public static byte[] add(byte[] preFix, short postfix) {
+        byte[] buf = new byte[preFix.length + 2];
+        System.arraycopy(preFix, 0, buf, 0, preFix.length);
+        writeShort(postfix, buf, preFix.length);
         return buf;
     }
 
     public static byte[] getBytes(String value) {
-    	if (value == null)
-    		return EMPTY_BYTES;
-    	return value.getBytes(UTF8);
+        if (value == null)
+            return EMPTY_BYTES;
+        return value.getBytes(UTF8);
     }
 }

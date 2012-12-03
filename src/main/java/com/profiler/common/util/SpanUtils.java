@@ -1,6 +1,7 @@
 package com.profiler.common.util;
 
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto.thrift.SubSpan;
 
 public class SpanUtils {
 
@@ -29,6 +30,10 @@ public class SpanUtils {
     }
 
     public static byte[] getTraceId(Span span) {
+        return BytesUtils.longLongToBytes(span.getMostTraceId(), span.getLeastTraceId());
+    }
+
+    public static byte[] getTraceId(SubSpan span) {
         return BytesUtils.longLongToBytes(span.getMostTraceId(), span.getLeastTraceId());
     }
 }

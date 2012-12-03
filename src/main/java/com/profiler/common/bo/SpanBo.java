@@ -1,12 +1,11 @@
 package com.profiler.common.bo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.util.Buffer;
 import com.profiler.common.util.BytesUtils;
 
@@ -17,8 +16,7 @@ public class SpanBo {
 
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로
-    // version 1 = prefix의 사이즈를 short로
-    // version 2 = prefix의 사이즈를 byte 하면 byte eocnding이 좀 줄지 않나?
+
     private byte version = 0;
 
     // private static final int MOSTTRACEID = 8;
@@ -42,6 +40,8 @@ public class SpanBo {
     private String endPoint;
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
+
+    private Map<Short, SubSpanBo> subSpanMap;
 
     private int recursiveCallCount = 0;
 
@@ -206,6 +206,17 @@ public class SpanBo {
         } else {
             this.annotationBoList = anoList;
         }
+    }
+
+    public void addSubSpan(SubSpanBo subSpan) {
+        if (subSpanMap == null) {
+            subSpanMap = new HashMap<Short, SubSpanBo>();
+        }
+        subSpanMap.put(subSpan.getSequence(), subSpan);
+    }
+
+    public Map<Short, SubSpanBo> getSubSpanMap() {
+        return subSpanMap;
     }
 
     public int increaseRecursiveCallCount() {

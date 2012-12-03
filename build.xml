@@ -11,6 +11,7 @@
 
     <target name="mvn.build">
         <exec executable="${maven.dir}/bin/mvn.bat">
+            <!--<arg value="install"/>-->
             <arg value="compile"/>
             <arg value="jar:jar"/>
         </exec>
