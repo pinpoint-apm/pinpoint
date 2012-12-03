@@ -3,6 +3,7 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.nhn.hippo.web.vo.TerminalRequest;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 
@@ -12,7 +13,7 @@ import com.profiler.common.bo.SpanBo;
 public class Server implements Comparable<Server> {
 	private int sequence;
 	private final String id;
-	private final Set<String> agentIds;
+	private final Set<String> agentIds = new HashSet<String>();
 	private final String applicationName;
 	private final String endPoint;
 	private final ServiceType serviceType;
@@ -20,7 +21,6 @@ public class Server implements Comparable<Server> {
 	private int recursiveCallCount;
 
 	public Server(SpanBo span) {
-		this.agentIds = new HashSet<String>();
 		this.id = span.getServiceName();
 
 		if (span.getServiceType().isTerminal()) {
@@ -35,12 +35,11 @@ public class Server implements Comparable<Server> {
 		this.serviceType = span.getServiceType();
 	}
 
-	public Server(String id, String applicationName, String endPoint, ServiceType serviceType, Set<String> agentIds) {
+	public Server(String id, String applicationName, String endPoint, ServiceType serviceType) {
 		this.id = id;
 		this.applicationName = applicationName;
 		this.endPoint = endPoint;
 		this.serviceType = serviceType;
-		this.agentIds = agentIds;
 	}
 
 	public String getId() {

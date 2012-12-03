@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.nhn.hippo.web.vo.TerminalRequest;
-import com.profiler.common.bo.TerminalStatisticsBo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.TerminalSpanUtils;
 
@@ -28,12 +28,11 @@ public class TerminalRequestCountMapper implements RowMapper<List<TerminalReques
 			if (kv.getFamilyLength() == HBaseTables.TERMINAL_STATISTICS_CF_COUNTER.length) {
 				String from = TerminalSpanUtils.getApplicationNameFromRowKey(kv.getRow());
 				String to = TerminalSpanUtils.getApplicationNameFromColumnName(kv.getQualifier());
-				TerminalStatisticsBo statistics = TerminalStatisticsBo.parse(kv.getValue());
+				int requestCount = Bytes.toInt(kv.getValue());
 				short serviceType = TerminalSpanUtils.getServiceTypeFromColumnName(kv.getQualifier());
 
-				TerminalRequest request = new TerminalRequest(from, to, serviceType, statistics);
+				TerminalRequest request = new TerminalRequest(from, to, serviceType, requestCount);
 				requestList.add(request);
-				System.out.println("REQUEST=" + request);
 			}
 		}
 		return requestList;

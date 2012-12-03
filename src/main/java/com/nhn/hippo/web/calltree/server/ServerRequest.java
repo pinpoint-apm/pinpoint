@@ -1,7 +1,5 @@
 package com.nhn.hippo.web.calltree.server;
 
-import com.profiler.common.bo.HistogramBo;
-
 /**
  * @author netspider
  */
@@ -9,7 +7,7 @@ public class ServerRequest {
 	private final String id;
 	private final Server from;
 	private final Server to;
-	private final HistogramBo histogram;
+	private final Histogram histogram = new Histogram(100);
 
 	public ServerRequest(Server from, Server to) {
 		if (from == null) {
@@ -21,23 +19,6 @@ public class ServerRequest {
 		this.from = from;
 		this.to = to;
 		this.id = from.getId() + to.getId();
-		this.histogram = new HistogramBo(100);
-	}
-
-	public ServerRequest(Server from, Server to, HistogramBo histogram) {
-		if (from == null) {
-			throw new NullPointerException("from must not be null");
-		}
-		if (to == null) {
-			throw new NullPointerException("to must not be null");
-		}
-		if (histogram == null) {
-			throw new NullPointerException("histogram must not be null");
-		}
-		this.from = from;
-		this.to = to;
-		this.id = from.getId() + to.getId();
-		this.histogram = histogram;
 	}
 
 	public void addRequest(int elapsed) {
@@ -60,7 +41,7 @@ public class ServerRequest {
 		return to;
 	}
 
-	public HistogramBo getHistogram() {
+	public Histogram getHistogram() {
 		return histogram;
 	}
 
