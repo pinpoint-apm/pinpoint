@@ -68,7 +68,7 @@ public class SpanHandler implements Handler {
 				traceDao.insertTerminalSpan(applicationName, span);
 				
 				// if terminal update statistics
-				terminalStatistics.update(applicationName, span.getServiceName(), serviceType.getCode(), span.getAgentId(), span.getElapsed());
+				terminalStatistics.update(applicationName, span.getServiceName(), serviceType.getCode(), span.getEndPoint(), span.getElapsed());
 			} else {
 				traceDao.insert(applicationName, span);
 			}
