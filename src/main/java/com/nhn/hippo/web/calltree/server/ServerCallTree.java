@@ -3,11 +3,9 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,19 +33,16 @@ public class ServerCallTree {
 	private final BusinessTransactions businessTransactions = new BusinessTransactions();
 
 	private boolean isBuilt = false;
-	
-	private final Set<TerminalRequest> terminalRequests = new HashSet<TerminalRequest>();
-	
+
+	private final Map<String, TerminalRequest> terminalRequests = new HashMap<String, TerminalRequest>();
+
 	public void addTerminal(TerminalRequest terminal) {
-		terminalRequests.add(terminal);
-		
-//		Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
-//		servers.put(server.getId(), server);
-//		
-//		Server from = new Server(terminal.getFrom(), terminal.getFrom(), "UNKNOWN", ServiceType.UNKNOWN);
-//		
-//		ServerRequest request = new ServerRequest(from, server);
-//		serverRequests.put(request.getId(), request);
+		if (terminalRequests.containsKey(terminal.getId())) {
+			TerminalRequest req = terminalRequests.get(terminal.getId());
+			req.getStatistics().getHistogram().mergeWith(terminal.getStatistics().getHistogram());
+		} else {
+			terminalRequests.put(terminal.getId(), terminal);
+		}
 	}
 
 	public void addSpan(SpanBo span) {
@@ -98,11 +93,12 @@ public class ServerCallTree {
 			return this;
 
 		// add terminal servers
-		for (TerminalRequest terminal : terminalRequests) {
+		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
+			TerminalRequest terminal = entry.getValue();
 			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
 			servers.put(server.getId(), server);
 		}
-		
+
 		// mark server index
 		int i = 0;
 		for (Entry<String, Server> entry : servers.entrySet()) {
@@ -110,11 +106,12 @@ public class ServerCallTree {
 		}
 
 		// add terminal requests
-		for (TerminalRequest terminal : terminalRequests) {
-			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()));
+		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
+			TerminalRequest terminal = entry.getValue();
+			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()), terminal.getStatistics().getHistogram());
 			serverRequests.put(request.getId(), request);
 		}
-		
+
 		// add non-terminal requests
 		for (SpanBo span : spans) {
 			String from = String.valueOf(span.getParentSpanId());
