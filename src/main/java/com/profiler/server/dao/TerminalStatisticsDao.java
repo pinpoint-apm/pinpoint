@@ -6,5 +6,5 @@ package com.profiler.server.dao;
  * 
  */
 public interface TerminalStatisticsDao {
-	void update(String sourceApplicationName, String destApplicationName, short destServiceType);
+	void update(String sourceApplicationName, String destApplicationName, short destServiceType, String agentId, int elapsed);
 }
