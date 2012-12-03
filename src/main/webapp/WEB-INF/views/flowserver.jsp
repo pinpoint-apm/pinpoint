@@ -23,7 +23,7 @@
     {
 		"source" : ${link.from.sequence},
 		"target" : ${link.to.sequence},
-		"value" : ${link.histogram.sampleCount},
+		"value" : ${link.requestCount},
 		"histogram" : ${link.histogram}
 	} <c:if test="${!status.last}">,</c:if>
 </c:forEach>

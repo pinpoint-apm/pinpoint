@@ -28,7 +28,7 @@ public class TerminalRequestCountMapper implements RowMapper<List<TerminalReques
 			if (kv.getFamilyLength() == HBaseTables.TERMINAL_STATISTICS_CF_COUNTER.length) {
 				String from = TerminalSpanUtils.getApplicationNameFromRowKey(kv.getRow());
 				String to = TerminalSpanUtils.getApplicationNameFromColumnName(kv.getQualifier());
-				int requestCount = Bytes.toInt(kv.getValue());
+				long requestCount = Bytes.toLong(kv.getValue());
 				short serviceType = TerminalSpanUtils.getServiceTypeFromColumnName(kv.getQualifier());
 
 				TerminalRequest request = new TerminalRequest(from, to, serviceType, requestCount);

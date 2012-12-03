@@ -4,10 +4,10 @@ package com.nhn.hippo.web.calltree.server;
  * @author netspider
  */
 public class ServerRequest {
-	private final String id;
-	private final Server from;
-	private final Server to;
-	private final Histogram histogram = new Histogram(100);
+	protected final String id;
+	protected final Server from;
+	protected final Server to;
+	protected final Histogram histogram = new Histogram(100);
 
 	public ServerRequest(Server from, Server to) {
 		if (from == null) {
@@ -43,6 +43,10 @@ public class ServerRequest {
 
 	public Histogram getHistogram() {
 		return histogram;
+	}
+
+	public int getRequestCount() {
+		return histogram.getSampleCount();
 	}
 
 	@Override

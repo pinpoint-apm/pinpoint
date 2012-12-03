@@ -36,10 +36,15 @@ public class ServerCallTree {
 
 	private boolean isBuilt = false;
 	
-	private final Set<TerminalRequest> terminalRequests = new HashSet<TerminalRequest>();
-	
+	private final Map<String, TerminalRequest> terminalRequests = new HashMap<String, TerminalRequest>();
+
 	public void addTerminal(TerminalRequest terminal) {
-		terminalRequests.add(terminal);
+		if (terminalRequests.containsKey(terminal.getId())) {
+			TerminalRequest req = terminalRequests.get(terminal.getId());
+			req.mergeWith(terminal);
+		} else {
+			terminalRequests.put(terminal.getId(), terminal);
+		}
 		
 //		Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
 //		servers.put(server.getId(), server);
@@ -98,7 +103,8 @@ public class ServerCallTree {
 			return this;
 
 		// add terminal servers
-		for (TerminalRequest terminal : terminalRequests) {
+		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
+			TerminalRequest terminal = entry.getValue();
 			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
 			servers.put(server.getId(), server);
 		}
@@ -110,8 +116,10 @@ public class ServerCallTree {
 		}
 
 		// add terminal requests
-		for (TerminalRequest terminal : terminalRequests) {
-			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()));
+		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
+			TerminalRequest terminal = entry.getValue();
+//			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()));
+			TerminalServerRequest request = new TerminalServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()), (int) terminal.getRequestCount());
 			serverRequests.put(request.getId(), request);
 		}
 		

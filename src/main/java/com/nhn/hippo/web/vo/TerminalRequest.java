@@ -2,16 +2,22 @@ package com.nhn.hippo.web.vo;
 
 public class TerminalRequest {
 
+	private final String id;
 	private final String from;
 	private final String to;
 	private final short toServiceType;
-	private final int requestCount;
+	private long requestCount;
 
-	public TerminalRequest(String from, String to, short toServiceType, int requestCount) {
+	public TerminalRequest(String from, String to, short toServiceType, long requestCount) {
+		this.id = from + to + toServiceType;
 		this.from = from;
 		this.to = to;
 		this.toServiceType = toServiceType;
 		this.requestCount = requestCount;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public String getFrom() {
@@ -22,12 +28,21 @@ public class TerminalRequest {
 		return to;
 	}
 
-	public int getRequestCount() {
+	public long getRequestCount() {
 		return requestCount;
 	}
 
 	public short getToServiceType() {
 		return toServiceType;
+	}
+
+	public TerminalRequest mergeWith(TerminalRequest terminalRequest) {
+		if (this.equals(terminalRequest)) {
+			this.requestCount += terminalRequest.requestCount;
+			return this;
+		} else {
+			throw new IllegalArgumentException("Can't merge with different link.");
+		}
 	}
 
 	@Override
@@ -40,7 +55,6 @@ public class TerminalRequest {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((from == null) ? 0 : from.hashCode());
-		result = prime * result + requestCount;
 		result = prime * result + ((to == null) ? 0 : to.hashCode());
 		result = prime * result + toServiceType;
 		return result;
@@ -59,8 +73,6 @@ public class TerminalRequest {
 			if (other.from != null)
 				return false;
 		} else if (!from.equals(other.from))
-			return false;
-		if (requestCount != other.requestCount)
 			return false;
 		if (to == null) {
 			if (other.to != null)
