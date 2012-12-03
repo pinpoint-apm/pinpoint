@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory;
 public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, ApiAnnotation._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ApiAnnotation");
 
-  private static final org.apache.thrift.protocol.TField CLASS_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("className", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField METHOD_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("methodName", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField PARAMETER_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterType", org.apache.thrift.protocol.TType.LIST, (short)3);
-  private static final org.apache.thrift.protocol.TField PARAMETER_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterName", org.apache.thrift.protocol.TType.LIST, (short)4);
-  private static final org.apache.thrift.protocol.TField PARAMETER_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterValue", org.apache.thrift.protocol.TType.LIST, (short)5);
-  private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField CLASS_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("className", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField METHOD_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("methodName", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField PARAMETER_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterType", org.apache.thrift.protocol.TType.LIST, (short)4);
+  private static final org.apache.thrift.protocol.TField PARAMETER_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterName", org.apache.thrift.protocol.TType.LIST, (short)5);
+  private static final org.apache.thrift.protocol.TField PARAMETER_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("parameterValue", org.apache.thrift.protocol.TType.LIST, (short)6);
+  private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)7);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,21 +44,23 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     schemes.put(TupleScheme.class, new ApiAnnotationTupleSchemeFactory());
   }
 
-  private String className; // required
-  private String methodName; // required
-  private List<String> parameterType; // required
+  private int apiId; // optional
+  private String className; // optional
+  private String methodName; // optional
+  private List<String> parameterType; // optional
   private List<String> parameterName; // optional
   private List<String> parameterValue; // optional
   private int line; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    CLASS_NAME((short)1, "className"),
-    METHOD_NAME((short)2, "methodName"),
-    PARAMETER_TYPE((short)3, "parameterType"),
-    PARAMETER_NAME((short)4, "parameterName"),
-    PARAMETER_VALUE((short)5, "parameterValue"),
-    LINE((short)6, "line");
+    API_ID((short)1, "apiId"),
+    CLASS_NAME((short)2, "className"),
+    METHOD_NAME((short)3, "methodName"),
+    PARAMETER_TYPE((short)4, "parameterType"),
+    PARAMETER_NAME((short)5, "parameterName"),
+    PARAMETER_VALUE((short)6, "parameterValue"),
+    LINE((short)7, "line");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -72,17 +75,19 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // CLASS_NAME
+        case 1: // API_ID
+          return API_ID;
+        case 2: // CLASS_NAME
           return CLASS_NAME;
-        case 2: // METHOD_NAME
+        case 3: // METHOD_NAME
           return METHOD_NAME;
-        case 3: // PARAMETER_TYPE
+        case 4: // PARAMETER_TYPE
           return PARAMETER_TYPE;
-        case 4: // PARAMETER_NAME
+        case 5: // PARAMETER_NAME
           return PARAMETER_NAME;
-        case 5: // PARAMETER_VALUE
+        case 6: // PARAMETER_VALUE
           return PARAMETER_VALUE;
-        case 6: // LINE
+        case 7: // LINE
           return LINE;
         default:
           return null;
@@ -124,17 +129,20 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
   }
 
   // isset id assignments
-  private static final int __LINE_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
-  private _Fields optionals[] = {_Fields.PARAMETER_NAME,_Fields.PARAMETER_VALUE,_Fields.LINE};
+  private static final int __APIID_ISSET_ID = 0;
+  private static final int __LINE_ISSET_ID = 1;
+  private BitSet __isset_bit_vector = new BitSet(2);
+  private _Fields optionals[] = {_Fields.API_ID,_Fields.CLASS_NAME,_Fields.METHOD_NAME,_Fields.PARAMETER_TYPE,_Fields.PARAMETER_NAME,_Fields.PARAMETER_VALUE,_Fields.LINE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.CLASS_NAME, new org.apache.thrift.meta_data.FieldMetaData("className", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.API_ID, new org.apache.thrift.meta_data.FieldMetaData("apiId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.CLASS_NAME, new org.apache.thrift.meta_data.FieldMetaData("className", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.METHOD_NAME, new org.apache.thrift.meta_data.FieldMetaData("methodName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.METHOD_NAME, new org.apache.thrift.meta_data.FieldMetaData("methodName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.PARAMETER_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parameterType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.PARAMETER_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parameterType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.PARAMETER_NAME, new org.apache.thrift.meta_data.FieldMetaData("parameterName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -152,23 +160,13 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
   public ApiAnnotation() {
   }
 
-  public ApiAnnotation(
-    String className,
-    String methodName,
-    List<String> parameterType)
-  {
-    this();
-    this.className = className;
-    this.methodName = methodName;
-    this.parameterType = parameterType;
-  }
-
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public ApiAnnotation(ApiAnnotation other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
+    this.apiId = other.apiId;
     if (other.isSetClassName()) {
       this.className = other.className;
     }
@@ -205,6 +203,8 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
 
   @Override
   public void clear() {
+    setApiIdIsSet(false);
+    this.apiId = 0;
     this.className = null;
     this.methodName = null;
     this.parameterType = null;
@@ -212,6 +212,28 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     this.parameterValue = null;
     setLineIsSet(false);
     this.line = 0;
+  }
+
+  public int getApiId() {
+    return this.apiId;
+  }
+
+  public void setApiId(int apiId) {
+    this.apiId = apiId;
+    setApiIdIsSet(true);
+  }
+
+  public void unsetApiId() {
+    __isset_bit_vector.clear(__APIID_ISSET_ID);
+  }
+
+  /** Returns true if field apiId is set (has been assigned a value) and false otherwise */
+  public boolean isSetApiId() {
+    return __isset_bit_vector.get(__APIID_ISSET_ID);
+  }
+
+  public void setApiIdIsSet(boolean value) {
+    __isset_bit_vector.set(__APIID_ISSET_ID, value);
   }
 
   public String getClassName() {
@@ -398,6 +420,14 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
+    case API_ID:
+      if (value == null) {
+        unsetApiId();
+      } else {
+        setApiId((Integer)value);
+      }
+      break;
+
     case CLASS_NAME:
       if (value == null) {
         unsetClassName();
@@ -451,6 +481,9 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
+    case API_ID:
+      return Integer.valueOf(getApiId());
+
     case CLASS_NAME:
       return getClassName();
 
@@ -480,6 +513,8 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     }
 
     switch (field) {
+    case API_ID:
+      return isSetApiId();
     case CLASS_NAME:
       return isSetClassName();
     case METHOD_NAME:
@@ -508,6 +543,15 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
   public boolean equals(ApiAnnotation that) {
     if (that == null)
       return false;
+
+    boolean this_present_apiId = true && this.isSetApiId();
+    boolean that_present_apiId = true && that.isSetApiId();
+    if (this_present_apiId || that_present_apiId) {
+      if (!(this_present_apiId && that_present_apiId))
+        return false;
+      if (this.apiId != that.apiId)
+        return false;
+    }
 
     boolean this_present_className = true && this.isSetClassName();
     boolean that_present_className = true && that.isSetClassName();
@@ -579,6 +623,16 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     int lastComparison = 0;
     ApiAnnotation typedOther = (ApiAnnotation)other;
 
+    lastComparison = Boolean.valueOf(isSetApiId()).compareTo(typedOther.isSetApiId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApiId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.apiId, typedOther.apiId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetClassName()).compareTo(typedOther.isSetClassName());
     if (lastComparison != 0) {
       return lastComparison;
@@ -659,29 +713,41 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     StringBuilder sb = new StringBuilder("ApiAnnotation(");
     boolean first = true;
 
-    sb.append("className:");
-    if (this.className == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.className);
+    if (isSetApiId()) {
+      sb.append("apiId:");
+      sb.append(this.apiId);
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("methodName:");
-    if (this.methodName == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.methodName);
+    if (isSetClassName()) {
+      if (!first) sb.append(", ");
+      sb.append("className:");
+      if (this.className == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.className);
+      }
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("parameterType:");
-    if (this.parameterType == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.parameterType);
+    if (isSetMethodName()) {
+      if (!first) sb.append(", ");
+      sb.append("methodName:");
+      if (this.methodName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.methodName);
+      }
+      first = false;
     }
-    first = false;
+    if (isSetParameterType()) {
+      if (!first) sb.append(", ");
+      sb.append("parameterType:");
+      if (this.parameterType == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.parameterType);
+      }
+      first = false;
+    }
     if (isSetParameterName()) {
       if (!first) sb.append(", ");
       sb.append("parameterName:");
@@ -752,7 +818,15 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
           break;
         }
         switch (schemeField.id) {
-          case 1: // CLASS_NAME
+          case 1: // API_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.apiId = iprot.readI32();
+              struct.setApiIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // CLASS_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.className = iprot.readString();
               struct.setClassNameIsSet(true);
@@ -760,7 +834,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // METHOD_NAME
+          case 3: // METHOD_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.methodName = iprot.readString();
               struct.setMethodNameIsSet(true);
@@ -768,7 +842,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // PARAMETER_TYPE
+          case 4: // PARAMETER_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
@@ -786,7 +860,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // PARAMETER_NAME
+          case 5: // PARAMETER_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list3 = iprot.readListBegin();
@@ -804,7 +878,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // PARAMETER_VALUE
+          case 6: // PARAMETER_VALUE
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list6 = iprot.readListBegin();
@@ -822,7 +896,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // LINE
+          case 7: // LINE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.line = iprot.readI32();
               struct.setLineIsSet(true);
@@ -843,27 +917,38 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.className != null) {
-        oprot.writeFieldBegin(CLASS_NAME_FIELD_DESC);
-        oprot.writeString(struct.className);
+      if (struct.isSetApiId()) {
+        oprot.writeFieldBegin(API_ID_FIELD_DESC);
+        oprot.writeI32(struct.apiId);
         oprot.writeFieldEnd();
+      }
+      if (struct.className != null) {
+        if (struct.isSetClassName()) {
+          oprot.writeFieldBegin(CLASS_NAME_FIELD_DESC);
+          oprot.writeString(struct.className);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.methodName != null) {
-        oprot.writeFieldBegin(METHOD_NAME_FIELD_DESC);
-        oprot.writeString(struct.methodName);
-        oprot.writeFieldEnd();
+        if (struct.isSetMethodName()) {
+          oprot.writeFieldBegin(METHOD_NAME_FIELD_DESC);
+          oprot.writeString(struct.methodName);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.parameterType != null) {
-        oprot.writeFieldBegin(PARAMETER_TYPE_FIELD_DESC);
-        {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.parameterType.size()));
-          for (String _iter9 : struct.parameterType)
+        if (struct.isSetParameterType()) {
+          oprot.writeFieldBegin(PARAMETER_TYPE_FIELD_DESC);
           {
-            oprot.writeString(_iter9);
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.parameterType.size()));
+            for (String _iter9 : struct.parameterType)
+            {
+              oprot.writeString(_iter9);
+            }
+            oprot.writeListEnd();
           }
-          oprot.writeListEnd();
+          oprot.writeFieldEnd();
         }
-        oprot.writeFieldEnd();
       }
       if (struct.parameterName != null) {
         if (struct.isSetParameterName()) {
@@ -916,25 +1001,31 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     public void write(org.apache.thrift.protocol.TProtocol prot, ApiAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetClassName()) {
+      if (struct.isSetApiId()) {
         optionals.set(0);
       }
-      if (struct.isSetMethodName()) {
+      if (struct.isSetClassName()) {
         optionals.set(1);
       }
-      if (struct.isSetParameterType()) {
+      if (struct.isSetMethodName()) {
         optionals.set(2);
       }
-      if (struct.isSetParameterName()) {
+      if (struct.isSetParameterType()) {
         optionals.set(3);
       }
-      if (struct.isSetParameterValue()) {
+      if (struct.isSetParameterName()) {
         optionals.set(4);
       }
-      if (struct.isSetLine()) {
+      if (struct.isSetParameterValue()) {
         optionals.set(5);
       }
-      oprot.writeBitSet(optionals, 6);
+      if (struct.isSetLine()) {
+        optionals.set(6);
+      }
+      oprot.writeBitSet(optionals, 7);
+      if (struct.isSetApiId()) {
+        oprot.writeI32(struct.apiId);
+      }
       if (struct.isSetClassName()) {
         oprot.writeString(struct.className);
       }
@@ -976,16 +1067,20 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ApiAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(6);
+      BitSet incoming = iprot.readBitSet(7);
       if (incoming.get(0)) {
+        struct.apiId = iprot.readI32();
+        struct.setApiIdIsSet(true);
+      }
+      if (incoming.get(1)) {
         struct.className = iprot.readString();
         struct.setClassNameIsSet(true);
       }
-      if (incoming.get(1)) {
+      if (incoming.get(2)) {
         struct.methodName = iprot.readString();
         struct.setMethodNameIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         {
           org.apache.thrift.protocol.TList _list15 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
           struct.parameterType = new ArrayList<String>(_list15.size);
@@ -998,7 +1093,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
         }
         struct.setParameterTypeIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         {
           org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
           struct.parameterName = new ArrayList<String>(_list18.size);
@@ -1011,7 +1106,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
         }
         struct.setParameterNameIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         {
           org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
           struct.parameterValue = new ArrayList<String>(_list21.size);
@@ -1024,7 +1119,7 @@ public class ApiAnnotation implements org.apache.thrift.TBase<ApiAnnotation, Api
         }
         struct.setParameterValueIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(6)) {
         struct.line = iprot.readI32();
         struct.setLineIsSet(true);
       }
