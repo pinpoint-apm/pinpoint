@@ -142,7 +142,7 @@
 
                     <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
                          onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-                        <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
+                        <div style="width:200px;">${subSp.serviceName} (${end - begin}ms)</div>
                     </div>
                 </c:if>
             </c:forEach>
@@ -170,23 +170,44 @@
                 <tbody>
 
                 <c:forEach items="${spanList}" var="span" varStatus="status">
-                    <c:set var="sp" scope="page" value="${span.span}"/>
-                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                    <c:if test="${span.root}">
+                        <c:set var="sp" scope="page" value="${span.span}"/>
+                        <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                            <tr>
+                                <td>${span.depth}</td>
+                                <td>${ano.key}</td>
+                                <td>${ano.value}</td>
+                                <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+                                <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
+                                <td></td>
+                                <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                                <td>${sp.agentId} (${ano.timestamp})</td>
+                            </tr>
+                            <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+                        </c:forEach>
                         <tr>
-                            <td>${span.depth}</td>
-                            <td>${ano.key}</td>
-                            <td>${ano.value}</td>
-                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
-                            <td></td>
-                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
-                            <td>${sp.agentId} (${ano.timestamp})</td>
+                            <td colspan="7">&nbsp;</td>
                         </tr>
-                        <c:set var="bt" scope="page" value="${ano.timestamp}"/>
-                    </c:forEach>
-                    <tr>
-                        <td colspan="7">&nbsp;</td>
-                    </tr>
+                    </c:if>
+                    <c:if test="${!span.root}">
+                        <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+                        <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
+                            <tr>
+                                <td>${span.depth}</td>
+                                <td>${ano.key}</td>
+                                <td>${ano.value}</td>
+                                <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+                                <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
+                                <td></td>
+                                <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                                <td>${sp.agentId} (${ano.timestamp})</td>
+                            </tr>
+                            <c:set var="bt" scope="page" value="${ano.timestamp}"/>
+                        </c:forEach>
+                        <tr>
+                            <td colspan="7">&nbsp;</td>
+                        </tr>
+                    </c:if>
                 </c:forEach>
 
                 </tbody>

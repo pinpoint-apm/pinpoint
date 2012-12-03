@@ -35,15 +35,16 @@ public class SpanServiceImpl implements SpanService {
         if (spans == null) {
             return Collections.emptyList();
         }
-        transitionApiId(spans);
+
         List<SpanAlign> order = order(spans);
-        List<SpanAlign> list = populateSubSpan(order);
+        List<SpanAlign> populatedList = populateSubSpan(order);
+        transitionApiId(populatedList);
         // TODO root span not found시 row data라도 보여줘야 됨.
         if (order.size() != spans.size()) {
             // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성?
             logger.info("span node not complete! ");
         }
-        return list;
+        return populatedList;
 
     }
 
@@ -101,9 +102,14 @@ public class SpanServiceImpl implements SpanService {
         return subSpanList;
     }
 
-    private void transitionApiId(List<SpanBo> spans) {
-        for (SpanBo spanBo : spans) {
-            List<AnnotationBo> annotationBoList = spanBo.getAnnotationBoList();
+    private void transitionApiId(List<SpanAlign> spans) {
+        for (SpanAlign spanBo : spans) {
+            List<AnnotationBo> annotationBoList;
+            if (spanBo.isRoot()) {
+                annotationBoList = spanBo.getSpan().getAnnotationBoList();
+            } else {
+                annotationBoList = spanBo.getSubSpanBo().getAnnotationBoList();
+            }
             for (AnnotationBo annotationBo : annotationBoList) {
                 // TODO API-ID 일단 날코딩 나중에 뭔가 key를 따자
                 if ("API-ID".equals(annotationBo.getKey())) {
