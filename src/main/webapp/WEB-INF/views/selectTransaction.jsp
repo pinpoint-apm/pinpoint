@@ -196,10 +196,10 @@
                                 <td>${span.depth}</td>
                                 <td>${ano.key}</td>
                                 <td>${ano.value}</td>
-                                <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-                                <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
+                                <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
+                                <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
                                 <td></td>
-                                <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                                <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
                                 <td>${sp.agentId} (${ano.timestamp})</td>
                             </tr>
                             <c:set var="bt" scope="page" value="${ano.timestamp}"/>
