@@ -408,13 +408,4 @@ public class HbaseTemplate2 implements HbaseOperations2, InitializingBean, Dispo
         });
     }
 
-	public void doUserBatchJob(String tableName, final HBaseBatchJob job) {
-		execute(tableName, new TableCallback<Object>() {
-			@Override
-			public Object doInTable(HTable htable) throws Throwable {
-				job.doBatch(htable);
-				return null;
-			}
-		});
-	}
 }
