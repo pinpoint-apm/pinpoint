@@ -40,7 +40,7 @@ public class HbaseTraceDao implements TracesDao {
 
         List<Annotation> annotations = span.getAnnotations();
         if (annotations.size() != 0) {
-            byte[] bytes = wrietBuffer(annotations);
+            byte[] bytes = writeBuffer(annotations);
             put.add(TRACES_CF_ANNOTATION, spanId, bytes);
         }
 
@@ -54,21 +54,19 @@ public class HbaseTraceDao implements TracesDao {
         // TODO 서버 시간으로 변경해댜 될듯 함. time이 생략...
         Put put = new Put(SpanUtils.getTraceId(span));
 
-        // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
-        byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
-        byte[] rowId = BytesUtils.add(spanId, spanBo.getSequence());
+        byte[] rowId = BytesUtils.add(spanBo.getSpanId(), spanBo.getSequence());
         put.add(TRACES_CF_TERMINALSPAN, rowId, value);
 
         List<Annotation> annotations = span.getAnnotations();
         if (annotations.size() != 0) {
-            byte[] bytes = wrietBuffer(annotations);
-//			put.add(TRACES_CF_ANNOTATION, spanId, bytes);
+            byte[] bytes = writeBuffer(annotations);
+            put.add(TRACES_CF_ANNOTATION, rowId, bytes);
         }
 
         hbaseTemplate.put(TRACES, put);
     }
 
-    private byte[] wrietBuffer(List<Annotation> annotations) {
+    private byte[] writeBuffer(List<Annotation> annotations) {
         int size = 0;
         List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
         for (Annotation ano : annotations) {
