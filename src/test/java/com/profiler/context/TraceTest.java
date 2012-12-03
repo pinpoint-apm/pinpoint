@@ -1,10 +1,15 @@
 package com.profiler.context;
 
-import org.junit.Test;
-
 import com.profiler.common.ServiceType;
+import com.profiler.sender.DataSender;
+
+import org.apache.thrift.TBase;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TraceTest {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void trace() {
@@ -16,20 +21,54 @@ public class TraceTest {
         trace.recordRpcName(ServiceType.UNKNOWN, "service_name", "http://");
         trace.recordEndPoint("http:localhost:8080");
         trace.recordAttribute("KEY", "VALUE");
-        trace.record(Annotation.ServerRecv);
 
         // get data form db
         getDataFromDB(trace);
 
         // response to client
-        trace.record(Annotation.ServerSend);
 
         trace.traceBlockEnd();
     }
 
+
+    @Test
+    public void popEventTest() {
+        TraceID traceID = TraceID.newTraceId();
+        Trace trace = new Trace(traceID);
+        TestDataSender dataSender = new TestDataSender();
+        trace.setDataSender(dataSender);
+//        trace.traceBlockBegin();
+
+        // response to client
+
+        trace.traceBlockEnd(0);
+
+        logger.info(String.valueOf(dataSender.event));
+    }
+
+    public class TestDataSender implements DataSender {
+        public boolean event;
+
+        @Override
+        public boolean send(TBase<?, ?> data) {
+            event = true;
+            return false;
+        }
+
+        @Override
+        public boolean send(Thriftable thriftable) {
+            this.event = true;
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void stop() {
+        }
+    }
+
+
     private void getDataFromDB(Trace trace) {
         trace.traceBlockBegin();
-        trace.record(Annotation.ClientSend);
 
         // db server request
         trace.recordRpcName(ServiceType.MYSQL, "mysql", "rpc");
@@ -37,7 +76,6 @@ public class TraceTest {
 
         // get a db response
 
-        trace.record(Annotation.ClientRecv);
         trace.traceBlockEnd();
 
 

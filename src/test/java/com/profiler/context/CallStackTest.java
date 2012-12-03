@@ -13,10 +13,13 @@ public class CallStackTest {
 
     @Test
     public void testPush() throws Exception {
-        CallStack callStack = new CallStack();
+        TraceID traceID = TraceID.newTraceId();
+        CallStack callStack = new CallStack(traceID);
         int stackIndex = callStack.getStackFrameIndex();
         logger.info(String.valueOf(stackIndex));
+        callStack.push();
 
+        callStack.pop();
     }
 
     @Test

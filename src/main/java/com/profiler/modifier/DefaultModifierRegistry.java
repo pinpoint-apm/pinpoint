@@ -60,27 +60,27 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
     }
 
-	public void addConnectorModifier() {
-		HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
-		addModifier(httpClientModifier);
+    public void addConnectorModifier() {
+        HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
+        addModifier(httpClientModifier);
 
-		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
-		addModifier(memcachedClientModifier);
-		
-		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
-		addModifier(arcusClientModifier);
+//		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
+//		addModifier(memcachedClientModifier);
+//
+//		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+//		addModifier(arcusClientModifier);
+//
+//		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
+//		addModifier(baseOperationModifier);
+//
+//		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
+//		addModifier(cacheManagerModifier);
+    }
 
-		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
-		addModifier(baseOperationModifier);
-		
-		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
-		addModifier(cacheManagerModifier);
-	}
-    
-	public void addBLOCModifier() {
-		HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor);
-		addModifier(httpHandlerModifier);
-	}
+    public void addBLOCModifier() {
+        HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor);
+        addModifier(httpHandlerModifier);
+    }
 
     public void addTomcatModifier() {
         StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor);

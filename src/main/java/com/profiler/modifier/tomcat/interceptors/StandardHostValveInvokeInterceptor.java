@@ -57,7 +57,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             } else {
                 trace = new Trace();
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID not exist. start new trace. " + trace.getCurrentTraceId());
+                    logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
                 traceContext.attachTraceObject(trace);

@@ -47,7 +47,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        TraceID nextId = trace.getCurrentTraceId();
+        TraceID nextId = trace.getTraceId();
+        nextId.getNextTraceId();
         final HttpHost host = (HttpHost) args[0];
         final HttpRequest request = (HttpRequest) args[1];
         // UUID format을 그대로.
@@ -65,7 +66,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         TraceContext traceContext = TraceContext.getTraceContext();

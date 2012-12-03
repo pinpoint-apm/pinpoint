@@ -57,7 +57,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             } else {
                 trace = new Trace();
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID not exist. start new trace. " + trace.getCurrentTraceId());
+                    logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
                 traceContext.attachTraceObject(trace);
@@ -81,7 +81,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+//            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         TraceContext traceContext = TraceContext.getTraceContext();

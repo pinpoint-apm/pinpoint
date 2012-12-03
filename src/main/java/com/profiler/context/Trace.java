@@ -21,28 +21,35 @@ public final class Trace {
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
 
+    private short sequence;
+
     private boolean tracingEnabled = true;
 
-    private TraceID root;
+    //    private TraceID root;
     private CallStack callStack;
 
     private DataSender dataSender = DEFULT_DATA_SENDER;
 
     public Trace() {
         // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
-        this.root = TraceID.newTraceId();
-        this.callStack = new CallStack();
+        TraceID traceId = TraceID.newTraceId();
+        this.callStack = new CallStack(traceId);
         this.callStack.push();
-        StackFrame stackFrame = createStackFrame(root, ROOT_STACKID);
+        StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
     }
 
     public Trace(TraceID continueRoot) {
-        this.root = continueRoot;
-        this.callStack = new CallStack();
+//        this.root = continueRoot;
+        this.callStack = new CallStack(continueRoot);
         this.callStack.push();
-        StackFrame stackFrame = createStackFrame(continueRoot, ROOT_STACKID);
+//        StackFrame stackFrame = createStackFrame(ROOT_STACKID);
+        StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
+    }
+
+    public CallStack getCallStack() {
+        return callStack;
     }
 
     public DataSender getDataSender() {
@@ -53,18 +60,18 @@ public final class Trace {
         this.dataSender = dataSender;
     }
 
-    public void handle(TraceHandler handler) {
-        try {
-            TraceID nextId = getNextTraceId();
-            callStack.push();
-            StackFrame stackFrame = createStackFrame(nextId, HANDLER_STACKID);
-            callStack.setStackFrame(stackFrame);
-            handler.handle(nextId);
-        } finally {
-            // stackID check하면 좋을듯.
-            callStack.pop();
-        }
-    }
+//    public void handle(TraceHandler handler) {
+//        try {
+////            TraceID nextId = getNextTraceId();
+//            callStack.push();
+//            StackFrame stackFrame = createStackFrame(nextId, HANDLER_STACKID);
+//            callStack.setStackFrame(stackFrame);
+//            handler.handle(nextId);
+//        } finally {
+//            // stackID check하면 좋을듯.
+//            callStack.pop();
+//        }
+//    }
 
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
@@ -75,16 +82,25 @@ public final class Trace {
         return asyncTrace;
     }
 
-    private StackFrame createStackFrame(TraceID nextId, int stackId) {
-        Span span = new Span(nextId);
-        StackFrame stackFrame = new StackFrame(span);
+    private StackFrame createSubStackFrame(int stackId) {
+        SubSpan subSpan = new SubSpan(callStack.getSpan());
+        SubStackFrame stackFrame = new SubStackFrame(subSpan);
         stackFrame.setStackFrameId(stackId);
+        stackFrame.setSequence(sequence++);
+        return stackFrame;
+    }
+
+    private StackFrame createRootStackFrame(int stackId, Span span) {
+        RootStackFrame stackFrame = new RootStackFrame(span);
+        stackFrame.setStackFrameId(stackId);
+        stackFrame.setSpan(span);
         return stackFrame;
     }
 
     public void traceBlockBegin() {
         traceBlockBegin(NOCHECK_STACKID);
     }
+
 
     public void markBeforeTime() {
         StackFrame stackFrame = getCurrentStackFrame();
@@ -113,9 +129,9 @@ public final class Trace {
 
 
     public void traceBlockBegin(int stackId) {
-        TraceID nextId = getNextTraceId();
+//        TraceID nextId = getNextTraceId();
         callStack.push();
-        StackFrame stackFrame = createStackFrame(nextId, stackId);
+        StackFrame stackFrame = createSubStackFrame(stackId);
         callStack.setStackFrame(stackFrame);
     }
 
@@ -138,8 +154,16 @@ public final class Trace {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨.
             logger.warning("Corrupted CallStack found. StackId not matched");
         }
-        logSpan(currentStackFrame);
+        if (currentStackFrame instanceof RootStackFrame) {
+            logSpan(((RootStackFrame) currentStackFrame).getSpan());
+        } else {
+            logSpan(((SubStackFrame) currentStackFrame).getSubSpan());
+        }
         callStack.pop();
+    }
+
+    private void logEvent() {
+
     }
 
     public StackFrame getCurrentStackFrame() {
@@ -162,8 +186,8 @@ public final class Trace {
      *
      * @return
      */
-    public TraceID getCurrentTraceId() {
-        return callStack.getCurrentStackFrame().getTraceID();
+    public TraceID getTraceId() {
+        return callStack.getSpan().getTraceID();
     }
 
     public void enable() {
@@ -174,14 +198,34 @@ public final class Trace {
         tracingEnabled = false;
     }
 
+    @Deprecated
     public TraceID getNextTraceId() {
-        TraceID current = getCurrentTraceId();
+        TraceID current = getTraceId();
         return current.getNextTraceId();
     }
 
+    void logSpan(SubSpan span) {
+        try {
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("[WRITE SubSPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
+            }
 
-    void logSpan(StackFrame stackFrame) {
-        Span span = stackFrame.getSpan();
+            // TODO: remove this, just for debugging
+            // if (spanMap.size() > 0) {
+            // System.out.println("##################################################################");
+            // System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
+            // System.out.println("##################################################################");
+            // System.out.println("current spamMap=" + spanMap);
+            // }
+
+            dataSender.send(span);
+//            span.cancelTimer();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    void logSpan(Span span) {
         try {
             if (logger.isLoggable(Level.INFO)) {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
@@ -265,8 +309,15 @@ public final class Trace {
             return;
 
         try {
-            Span span = getCurrentStackFrame().getSpan();
-            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+            // TODO API 단일화 필요.
+            StackFrame currentStackFrame = getCurrentStackFrame();
+            if (currentStackFrame instanceof RootStackFrame) {
+                Span span = ((RootStackFrame) currentStackFrame).getSpan();
+                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+            } else {
+                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -284,10 +335,19 @@ public final class Trace {
             return;
 
         try {
-            Span span = getCurrentStackFrame().getSpan();
-            span.setServiceType(serviceType);
-            span.setServiceName(serviceName);
-            span.setRpc(rpc);
+            // TODO API 단일화 필요.
+            StackFrame currentStackFrame = getCurrentStackFrame();
+            if (currentStackFrame instanceof RootStackFrame) {
+                Span span = ((RootStackFrame) currentStackFrame).getSpan();
+                span.setServiceType(serviceType);
+                span.setServiceName(serviceName);
+                span.setRpc(rpc);
+            } else {
+                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+                span.setServiceType(serviceType);
+                span.setServiceName(serviceName);
+                span.setRpc(rpc);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -297,10 +357,16 @@ public final class Trace {
     public void recordEndPoint(final String endPoint) {
         if (!tracingEnabled)
             return;
-
+        // TODO API 단일화 필요.
         try {
-            Span span = getCurrentStackFrame().getSpan();
-            span.setEndPoint(endPoint);
+            StackFrame currentStackFrame = getCurrentStackFrame();
+            if (currentStackFrame instanceof RootStackFrame) {
+                Span span = ((RootStackFrame) currentStackFrame).getSpan();
+                span.setEndPoint(endPoint);
+            } else {
+                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+                span.setEndPoint(endPoint);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -311,8 +377,14 @@ public final class Trace {
             return;
 
         try {
-            Span span = getCurrentStackFrame().getSpan();
-            span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+            StackFrame currentStackFrame = getCurrentStackFrame();
+            if (currentStackFrame instanceof RootStackFrame) {
+                Span span = ((RootStackFrame) currentStackFrame).getSpan();
+                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+            } else {
+                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+            }
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);

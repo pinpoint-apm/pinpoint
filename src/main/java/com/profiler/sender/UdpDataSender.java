@@ -103,7 +103,7 @@ public class UdpDataSender implements DataSender, Runnable {
                     continue;
                 }
                 send0(dto);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.log(Level.WARNING, "Unexpected Error", e);
             }
         }
@@ -121,6 +121,7 @@ public class UdpDataSender implements DataSender, Runnable {
         }
         byte[] sendData = serialize(tBase);
         if (sendData == null) {
+            logger.warning("sendData is null");
             return;
         }
         DatagramPacket packet = new DatagramPacket(sendData, sendData.length);
