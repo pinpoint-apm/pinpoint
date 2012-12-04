@@ -2,6 +2,7 @@ package com.nhn.hippo.web.service;
 
 import java.util.*;
 
+import com.nhn.hippo.web.calltree.span.SpanPopulator;
 import com.profiler.common.bo.SubSpanBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +38,13 @@ public class SpanServiceImpl implements SpanService {
         }
 
         List<SpanAlign> order = order(spans);
-        List<SpanAlign> populatedList = populateSubSpan(order);
-        transitionApiId(populatedList);
+        transitionApiId(order);
         // TODO root span not found시 row data라도 보여줘야 됨.
         if (order.size() != spans.size()) {
             // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성?
             logger.info("span node not complete! ");
         }
-        return populatedList;
+        return order;
 
     }
 
@@ -116,13 +116,9 @@ public class SpanServiceImpl implements SpanService {
             for (AnnotationBo annotationBo : annotationBoList) {
                 // TODO API-ID 일단 날코딩 나중에 뭔가 key를 따자
                 if ("API-ID".equals(annotationBo.getKey())) {
-                    MethodMapping methodMapping = null;
-                    try {
-                        methodMapping = ApiMappingTable.findMethodMapping((Integer) annotationBo.getValue());
-                    } catch (Exception e) {
-                        e.printStackTrace(); // To change body of catch
-                        // statement use File | Settings
-                        // | File Templates.
+                    MethodMapping methodMapping = ApiMappingTable.findMethodMapping((Integer) annotationBo.getValue());
+                    if (methodMapping == null) {
+                        continue;
                     }
                     String className = methodMapping.getClassMapping().getClassName();
                     String methodName = methodMapping.getMethodName();
@@ -140,8 +136,10 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private List<SpanAlign> order(List<SpanBo> spans) {
-
         SpanAligner spanAligner = new SpanAligner(spans);
-        return spanAligner.sort();
+        List<SpanAlign> sort = spanAligner.sort();
+        SpanPopulator spanPopulator = new SpanPopulator(sort);
+        List<SpanAlign> populatedList = spanPopulator.populateSubSpan();
+        return populatedList;
     }
 }
