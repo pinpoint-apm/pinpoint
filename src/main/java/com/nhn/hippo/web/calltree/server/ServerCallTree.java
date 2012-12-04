@@ -3,11 +3,9 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,7 @@ import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TerminalRequest;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SubSpanBo;
 
 /**
  * Call Tree
@@ -26,16 +25,18 @@ public class ServerCallTree {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final String PREFIX_CLIENT = "CLIENT:";
+	private final String PREFIX_CLIENT = "UNKNOWN-CLIENT:";
 
 	private final Map<String, Server> servers = new HashMap<String, Server>();
-	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, ServerRequest> serverRequests = new HashMap<String, ServerRequest>();
-	private final List<SpanBo> spans = new ArrayList<SpanBo>();
 	private final BusinessTransactions businessTransactions = new BusinessTransactions();
 
 	private boolean isBuilt = false;
-	
+
+	// temporary variables
+	private final List<SpanBo> spans = new ArrayList<SpanBo>();
+	private final List<SubSpanBo> subspans = new ArrayList<SubSpanBo>();
+	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, TerminalRequest> terminalRequests = new HashMap<String, TerminalRequest>();
 
 	public void addTerminal(TerminalRequest terminal) {
@@ -45,52 +46,42 @@ public class ServerCallTree {
 		} else {
 			terminalRequests.put(terminal.getId(), terminal);
 		}
-		
-//		Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
-//		servers.put(server.getId(), server);
-//		
-//		Server from = new Server(terminal.getFrom(), terminal.getFrom(), "UNKNOWN", ServiceType.UNKNOWN);
-//		
-//		ServerRequest request = new ServerRequest(from, server);
-//		serverRequests.put(request.getId(), request);
 	}
 
-	public void addSpan(SpanBo span) {
-		/**
-		 * make Servers
-		 */
-		// TODO: 여기에서 이러지말고 수집할 때 처음부터 table에 저장해둘 수 있나??
+	private void addServer(String spanId, Server server) {
+		if (!servers.containsKey(server.getId())) {
+			servers.put(server.getId(), server);
+		} else {
+			servers.get(server.getId()).mergeWith(server);
+		}
+		spanIdToServerId.put(spanId, server.getId());
+	}
+
+	public void addSubSpan(SubSpanBo span) {
 		Server server = new Server(span);
 
 		if (server.getId() == null) {
 			return;
 		}
 
-		// TODO: remove this later.
-		// if (server.getId().contains("mysql:jdbc:") ||
-		// server.getId().contains("favicon")) {
-		// return;
-		// }
-
-		if (!servers.containsKey(server.getId())) {
-			servers.put(server.getId(), server);
+		if (span.getServiceType().isRpcClient()) {
+			addServer(span.getEndPoint(), server);
 		} else {
-			servers.get(server.getId()).mergeWith(server);
+			addServer(span.getServiceName(), server);
 		}
-		spanIdToServerId.put(String.valueOf(span.getSpanId()), server.getId());
 
-		// TODO: remove client node
-		// if (span.getParentSpanId() == -1) {
-		// Server client = new Server(PREFIX_CLIENT + span.getAgentID(),
-		// span.getEndPoint(), false);
-		// servers.put(client.getId(), client);
-		// spanIdToServerId.put(PREFIX_CLIENT + span.getSpanID(),
-		// client.getId());
-		// }
+		subspans.add(span);
+	}
 
-		/**
-		 * Preparing makes link (ServerRequests)
-		 */
+	public void addSpan(SpanBo span) {
+		Server server = new Server(span);
+
+		if (server.getId() == null) {
+			return;
+		}
+
+		addServer(String.valueOf(span.getSpanId()), server);
+
 		if (span.getParentSpanId() == -1) {
 			businessTransactions.add(span);
 		} else {
@@ -102,14 +93,14 @@ public class ServerCallTree {
 		if (isBuilt)
 			return this;
 
-		// add terminal servers
+		// add terminal to the servers
 		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
 			TerminalRequest terminal = entry.getValue();
 			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
 			servers.put(server.getId(), server);
 		}
-		
-		// mark server index
+
+		// indexing server
 		int i = 0;
 		for (Entry<String, Server> entry : servers.entrySet()) {
 			entry.getValue().setSequence(i++);
@@ -118,12 +109,11 @@ public class ServerCallTree {
 		// add terminal requests
 		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
 			TerminalRequest terminal = entry.getValue();
-//			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()));
 			TerminalServerRequest request = new TerminalServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()), (int) terminal.getRequestCount());
 			serverRequests.put(request.getId(), request);
 		}
-		
-		// add non-terminal requests
+
+		// add non-terminal requests (Span)
 		for (SpanBo span : spans) {
 			String from = String.valueOf(span.getParentSpanId());
 			String to = String.valueOf(span.getSpanId());
@@ -154,6 +144,30 @@ public class ServerCallTree {
 			}
 		}
 
+		// add terminal nodes
+		for (SubSpanBo span : subspans) {
+			String from = String.valueOf(span.getSpanId());
+			String to;
+
+			if (span.getServiceType().isRpcClient()) {
+				// this is unknown cloud
+				to = String.valueOf(span.getEndPoint());
+			} else {
+				to = String.valueOf(span.getServiceName());
+			}
+
+			Server fromServer = servers.get(spanIdToServerId.get(from));
+			Server toServer = servers.get(spanIdToServerId.get(to));
+
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
+
+			if (serverRequests.containsKey(serverRequest.getId())) {
+				serverRequests.get(serverRequest.getId()).addRequest(span.getEndElapsed());
+			} else {
+				serverRequests.put(serverRequest.getId(), serverRequest);
+			}
+		}
+
 		isBuilt = true;
 		return this;
 	}
@@ -173,11 +187,7 @@ public class ServerCallTree {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-
-		sb.append("Server=").append(servers);
-		sb.append("\n");
-		sb.append("ServerRequest=").append(serverRequests.values());
-
+		sb.append("{ Servers=").append(servers).append(", ServerRequests=").append(serverRequests.values()).append(" }");
 		return sb.toString();
 	}
 }

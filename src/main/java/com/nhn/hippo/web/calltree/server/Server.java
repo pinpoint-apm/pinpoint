@@ -3,9 +3,9 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.nhn.hippo.web.vo.TerminalRequest;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SubSpanBo;
 
 /**
  * @author netspider
@@ -19,6 +19,28 @@ public class Server implements Comparable<Server> {
 	private final ServiceType serviceType;
 
 	private int recursiveCallCount;
+
+	public Server(SubSpanBo span) {
+		if (span.getServiceType().isTerminal()) {
+			this.agentIds.add(span.getAgentId());
+		} else {
+			this.agentIds.add(span.getEndPoint());
+		}
+
+		if (span.getServiceType().isRpcClient()) {
+			// this is unknown cloud, there is not exists the child span.
+			this.id = span.getEndPoint();
+			this.applicationName = span.getEndPoint();
+			this.serviceType = ServiceType.UNKNOWN_CLOUD;
+		} else {
+			this.id = span.getServiceName();
+			this.applicationName = span.getServiceName();
+			this.serviceType = span.getServiceType();
+		}
+
+		this.endPoint = span.getEndPoint();
+		this.recursiveCallCount = 0;
+	}
 
 	public Server(SpanBo span) {
 		this.id = span.getServiceName();
@@ -35,6 +57,14 @@ public class Server implements Comparable<Server> {
 		this.serviceType = span.getServiceType();
 	}
 
+	/**
+	 * makes server from terminal statistics
+	 * 
+	 * @param id
+	 * @param applicationName
+	 * @param endPoint
+	 * @param serviceType
+	 */
 	public Server(String id, String applicationName, String endPoint, ServiceType serviceType) {
 		this.id = id;
 		this.applicationName = applicationName;

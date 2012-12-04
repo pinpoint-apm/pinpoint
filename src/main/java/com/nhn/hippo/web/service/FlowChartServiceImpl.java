@@ -28,6 +28,7 @@ import com.nhn.hippo.web.vo.TerminalRequest;
 import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SubSpanBo;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseQuery;
 import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
@@ -132,21 +133,46 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 		return tree.build();
 	}
-	
+
+	/**
+	 * makes call tree of transaction detail view
+	 */
 	@Override
 	public ServerCallTree selectServerCallTree(TraceId traceId) {
 		final ServerCallTree tree = new ServerCallTree();
 
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
+		Set<String> endPoints = new HashSet<String>();
+
 		// List<SpanBo> processed = refine(transaction);
 		markRecursiveCall(transaction);
 		for (SpanBo eachTransaction : transaction) {
 			tree.addSpan(eachTransaction);
+			endPoints.add(eachTransaction.getEndPoint());
 		}
+
+		for (SpanBo eachTransaction : transaction) {
+			List<SubSpanBo> subSpanList = eachTransaction.getSubSpanList();
+			
+			if (subSpanList == null)
+				continue;
+			
+			for (SubSpanBo subTransaction : subSpanList) {
+				// remove subspan of the rpc client
+				if (!endPoints.contains(subTransaction.getEndPoint())) {
+					// this is unknown cloud
+					tree.addSubSpan(subTransaction);
+				}
+			}
+		}
+
 		return tree.build();
 	}
 
+	/**
+	 * makes call tree of  main view
+	 */
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
@@ -154,19 +180,19 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		StopWatch watch = new StopWatch();
 		watch.start("scanNonTerminalSpans");
-		
+
 		// fetch non-terminal spans
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
 		watch.stop();
 		int totalNonTerminalSpansCount = 0;
-		
+
 		Set<String> endPoints = new HashSet<String>();
-		
+
 		// processing spans
 		for (List<SpanBo> transaction : traces) {
 			totalNonTerminalSpansCount += transaction.size();
-			
+
 			// List<SpanBo> processed = refine(transaction);
 			markRecursiveCall(transaction);
 			for (SpanBo eachTransaction : transaction) {
@@ -174,28 +200,28 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 				// make query param
 				terminalQueryParams.put(eachTransaction.getServiceName(), eachTransaction.getServiceType());
-				
+
 				endPoints.add(eachTransaction.getEndPoint());
 			}
 		}
-		
+
 		if (logger.isInfoEnabled()) {
 			logger.info("Fetch non-terminal spans elapsed : {}ms, {} traces, {} spans", new Object[] { watch.getLastTaskTimeMillis(), traces.size(), totalNonTerminalSpansCount });
 		}
-		
+
 		watch.start("scanTerminalStatistics");
-		
+
 		// fetch terminal info
 		for (Entry<String, ServiceType> param : terminalQueryParams.entrySet()) {
 			ServiceType svcType = param.getValue();
 			if (!svcType.isRpcClient() && !svcType.isUnknown() && !svcType.isTerminal()) {
 				long start = System.currentTimeMillis();
 				List<List<TerminalRequest>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
-				logger.info("	Fetch terminals of {} : {}ms",  param.getKey(), System.currentTimeMillis() - start);
-				
+				logger.info("	Fetch terminals of {} : {}ms", param.getKey(), System.currentTimeMillis() - start);
+
 				for (List<TerminalRequest> terminal : terminals) {
 					for (TerminalRequest t : terminal) {
-						// TODO 임시방편 
+						// TODO 임시방편
 						if (!endPoints.contains(t.getTo())) {
 							t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
 							tree.addTerminal(t);
@@ -205,10 +231,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 				}
 			}
 		}
-		
+
 		watch.stop();
 		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
-		
+
 		return tree.build();
 	}
 
