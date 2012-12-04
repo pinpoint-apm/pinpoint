@@ -5,7 +5,7 @@ public class TerminalRequest {
 	private final String id;
 	private final String from;
 	private final String to;
-	private final short toServiceType;
+	private short toServiceType;
 	private long requestCount;
 
 	public TerminalRequest(String from, String to, short toServiceType, long requestCount) {
@@ -34,6 +34,10 @@ public class TerminalRequest {
 
 	public short getToServiceType() {
 		return toServiceType;
+	}
+
+	public void setToServiceType(short toServiceType) {
+		this.toServiceType = toServiceType;
 	}
 
 	public TerminalRequest mergeWith(TerminalRequest terminalRequest) {

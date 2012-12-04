@@ -124,9 +124,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
 		for (List<SpanBo> transaction : traces) {
-			List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(processed);
-			for (SpanBo eachTransaction : processed) {
+			// List<SpanBo> processed = refine(transaction);
+			markRecursiveCall(transaction);
+			for (SpanBo eachTransaction : transaction) {
 				tree.addSpan(eachTransaction);
 			}
 		}
@@ -139,9 +139,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
-		List<SpanBo> processed = refine(transaction);
-		markRecursiveCall(processed);
-		for (SpanBo eachTransaction : processed) {
+		// List<SpanBo> processed = refine(transaction);
+		markRecursiveCall(transaction);
+		for (SpanBo eachTransaction : transaction) {
 			tree.addSpan(eachTransaction);
 		}
 		return tree.build();
@@ -161,17 +161,21 @@ public class FlowChartServiceImpl implements FlowChartService {
 		watch.stop();
 		int totalNonTerminalSpansCount = 0;
 		
+		Set<String> endPoints = new HashSet<String>();
+		
 		// processing spans
 		for (List<SpanBo> transaction : traces) {
 			totalNonTerminalSpansCount += transaction.size();
 			
-			List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(processed);
-			for (SpanBo eachTransaction : processed) {
+			// List<SpanBo> processed = refine(transaction);
+			markRecursiveCall(transaction);
+			for (SpanBo eachTransaction : transaction) {
 				tree.addSpan(eachTransaction);
 
 				// make query param
 				terminalQueryParams.put(eachTransaction.getServiceName(), eachTransaction.getServiceType());
+				
+				endPoints.add(eachTransaction.getEndPoint());
 			}
 		}
 		
@@ -191,7 +195,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 				
 				for (List<TerminalRequest> terminal : terminals) {
 					for (TerminalRequest t : terminal) {
-						tree.addTerminal(t);
+						// TODO 임시방편 
+						if (!endPoints.contains(t.getTo())) {
+							t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
+							tree.addTerminal(t);
+						} else {
+						}
 					}
 				}
 			}
@@ -203,6 +212,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return tree.build();
 	}
 
+	@Deprecated
 	private SpanBo findChildSpan(final List<SpanBo> list, final SpanBo parent) {
 		for (int i = 0; i < list.size(); i++) {
 			SpanBo child = list.get(i);
@@ -214,6 +224,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return null;
 	}
 
+	@Deprecated
 	private List<SpanBo> refine(final List<SpanBo> list) {
 		for (int i = 0; i < list.size(); i++) {
 			SpanBo span = list.get(i);
