@@ -65,12 +65,13 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
             trace.markBeforeTime();
             trace.recordRpcName(ServiceType.TOMCAT, Agent.getInstance().getApplicationName(), requestURL);
-            trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ":" + request.getServerPort());
+            
+    		int port = request.getServerPort();
+            trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordAttribute("http.url", request.getRequestURI());
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute("http.params", parameters);
             }
-
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);

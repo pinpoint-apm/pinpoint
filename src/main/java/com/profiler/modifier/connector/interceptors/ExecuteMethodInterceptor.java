@@ -1,19 +1,22 @@
 package com.profiler.modifier.connector.interceptors;
 
-import com.profiler.common.ServiceType;
-import com.profiler.context.*;
-import com.profiler.interceptor.ApiIdSupport;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.util.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-
-import com.profiler.interceptor.StaticAroundInterceptor;
-
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+
+import com.profiler.common.ServiceType;
+import com.profiler.context.Header;
+import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
+import com.profiler.context.TraceID;
+import com.profiler.interceptor.ApiIdSupport;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.util.StringUtils;
 
 /**
  * Method interceptor
@@ -57,10 +60,12 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
         request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-
-        trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
-        trace.recordEndPoint(host.getHostName());
-        trace.recordAttribute("http.url", request.getRequestLine().getUri());
+        
+		trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
+		
+		int port = host.getPort();
+		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() +  ((port > 0) ? ":" + port : ""));
+		trace.recordAttribute("http.url", request.getRequestLine().getUri());
     }
 
     @Override
@@ -74,7 +79,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         if (trace == null) {
             return;
         }
-//        trace.recordApi(descriptor);
+		// trace.recordApi(descriptor);
         trace.recordApi(this.apiId);
         trace.recordException(result);
 
