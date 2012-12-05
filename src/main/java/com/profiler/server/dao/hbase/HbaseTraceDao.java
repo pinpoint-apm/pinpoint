@@ -57,12 +57,6 @@ public class HbaseTraceDao implements TracesDao {
         byte[] rowId = BytesUtils.add(spanBo.getSpanId(), spanBo.getSequence());
         put.add(TRACES_CF_TERMINALSPAN, rowId, value);
 
-        List<Annotation> annotations = span.getAnnotations();
-        if (annotations.size() != 0) {
-            byte[] bytes = writeBuffer(annotations);
-            put.add(TRACES_CF_ANNOTATION, rowId, bytes);
-        }
-
         hbaseTemplate.put(TRACES, put);
     }
 
