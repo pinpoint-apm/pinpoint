@@ -80,6 +80,7 @@
                     <div id="spanDetail${status.count}"
                          style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
                         <ul>
+                            <li>root = ${span.root}</li>
                             <li>AgentId = ${sp.agentId}</li>
                             <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
                             <li>spanId = ${sp.spanId}</li>
@@ -120,6 +121,7 @@
                     <div id="spanDetail${status.count}"
                          style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
                         <ul>
+                            <li>root = ${span.root}</li>
                             <li>AgentId = ${subSp.agentId}</li>
                             <li>UUID = ${hippo:longLongToUUID(subSp.mostTraceId, subSp.leastTraceId)}</li>
                             <li>spanId = ${subSp.spanId}</li>
@@ -130,7 +132,7 @@
                             <li>endTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed + subSp.endElapsed)}</li>
                             <li>endpoint = ${subSp.endPoint}</li>
 
-                            <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                            <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
                                 <li>${ano.key} = ${ano.value}</li>
                             </c:forEach>
                         </ul>
