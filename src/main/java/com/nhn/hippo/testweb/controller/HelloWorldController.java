@@ -95,6 +95,8 @@ public class HelloWorldController implements DisposableBean {
         HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
         client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
 
+        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
         return "remotecombination";
     }
 
