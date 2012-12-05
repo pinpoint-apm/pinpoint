@@ -51,6 +51,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
         }
         // 종료 처리필요.
         while (state.get()) {
+            boolean success = false;
             DatagramPacket packet = null;
             try {
                 // TODO 최대 사이즈로 수정필요. 최대사이즈로 할경우 캐쉬필요.
@@ -65,6 +66,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                 if (logger.isDebugEnabled()) {
                     logger.debug("DatagramPacket read size:" + packet.getLength());
                 }
+                success = true;
             } catch (IOException e) {
                 if (state.get() == false) {
                     // shutdown
@@ -72,6 +74,10 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                     logger.error(e.getMessage(), e);
                 }
                 continue;
+            } finally {
+                if (!success) {
+                    pool.returnPacket(packet.getData());
+                }
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("pool getActiveCount:{}", worker.getActiveCount());
