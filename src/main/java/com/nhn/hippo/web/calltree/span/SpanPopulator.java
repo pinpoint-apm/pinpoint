@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class SpanPopulator {
     private List<SpanAlign> list;
+    private int index = 0;
 
     public SpanPopulator(List<SpanAlign> list) {
         this.list = list;
@@ -23,20 +24,23 @@ public class SpanPopulator {
             return Collections.emptyList();
         }
         List<SpanAlign> populatedList = new ArrayList<SpanAlign>();
-        populatedSpan(populatedList, 0);
+
+        while (index < list.size()) {
+            populatedSpan(populatedList);
+        }
 
         return populatedList;
     }
 
-    private void populatedSpan(List<SpanAlign> populatedList, int i) {
-        SpanAlign spanAlign = list.get(i);
+    private void populatedSpan(List<SpanAlign> populatedList) {
+        SpanAlign spanAlign = list.get(index);
         SpanBo span = spanAlign.getSpan();
         populatedList.add(spanAlign);
         long startTime = span.getStartTime();
         List<SubSpanBo> subSpanBos = sortSubSpan(span);
         for (SubSpanBo subSpanBo : subSpanBos) {
             long subStartTime = startTime + subSpanBo.getStartElapsed();
-            long nextSpanStartTime = getNextSpanStartTime(i);
+            long nextSpanStartTime = getNextSpanStartTime();
             if (subStartTime <= nextSpanStartTime) {
                 SpanAlign subSpanAlign = new SpanAlign(spanAlign.getDepth(), span, subSpanBo);
                 subSpanAlign.setRoot(false);
@@ -45,13 +49,15 @@ public class SpanPopulator {
                 if (nextSpanStartTime == Long.MAX_VALUE) {
                     return;
                 }
-                populatedSpan(populatedList, ++i);
+                index++;
+                populatedSpan(populatedList);
             }
         }
+        index++;
     }
 
-    public long getNextSpanStartTime(int i) {
-        int nextIndex = i + 1;
+    public long getNextSpanStartTime() {
+        int nextIndex = index + 1;
         if (nextIndex >= list.size()) {
             return Long.MAX_VALUE;
         }
