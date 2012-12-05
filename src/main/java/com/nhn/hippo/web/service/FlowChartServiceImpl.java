@@ -223,9 +223,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 					for (TerminalRequest t : terminal) {
 						// TODO 임시방편
 						if (!endPoints.contains(t.getTo())) {
-							t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
+							if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
+								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
+							}
 							tree.addTerminal(t);
-						} else {
 						}
 					}
 				}
