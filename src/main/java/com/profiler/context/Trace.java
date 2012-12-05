@@ -94,6 +94,7 @@ public final class Trace {
         RootStackFrame stackFrame = new RootStackFrame(span);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSpan(span);
+        stackFrame.setStackFrameId(ROOT_STACKID);
         return stackFrame;
     }
 
@@ -162,24 +163,10 @@ public final class Trace {
         callStack.pop();
     }
 
-    private void logEvent() {
-
-    }
 
     public StackFrame getCurrentStackFrame() {
         return callStack.getCurrentStackFrame();
     }
-
-//    public boolean removeCurrentTraceIdFromStack() {
-//        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
-//        if (currentStackFrame != null) {
-//            TraceID traceId = currentStackFrame.getTraceID();
-//            callStack.currentStackFrameClear();
-////            spanMap.remove(traceId);
-//            return true;
-//        }
-//        return false;
-//    }
 
     /**
      * Get current TraceID. If it was not set this will return null.
@@ -198,25 +185,11 @@ public final class Trace {
         tracingEnabled = false;
     }
 
-    @Deprecated
-    public TraceID getNextTraceId() {
-        TraceID current = getTraceId();
-        return current.getNextTraceId();
-    }
-
     void logSpan(SubSpan span) {
         try {
             if (logger.isLoggable(Level.INFO)) {
                 logger.info("[WRITE SubSPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
-
-            // TODO: remove this, just for debugging
-            // if (spanMap.size() > 0) {
-            // System.out.println("##################################################################");
-            // System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
-            // System.out.println("##################################################################");
-            // System.out.println("current spamMap=" + spanMap);
-            // }
 
             dataSender.send(span);
 //            span.cancelTimer();
@@ -231,14 +204,6 @@ public final class Trace {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
 
-            // TODO: remove this, just for debugging
-            // if (spanMap.size() > 0) {
-            // System.out.println("##################################################################");
-            // System.out.println("# [DEBUG MSG] WARNING SpanMap size > 0 check spanMap.            #");
-            // System.out.println("##################################################################");
-            // System.out.println("current spamMap=" + spanMap);
-            // }
-
             dataSender.send(span);
 //            span.cancelTimer();
         } catch (Exception e) {
@@ -247,13 +212,6 @@ public final class Trace {
     }
 
     public void record(Annotation annotation) {
-        if (!tracingEnabled)
-            return;
-
-        annotate(annotation.getCode());
-    }
-
-    public void record(Annotation annotation, long duration) {
         if (!tracingEnabled)
             return;
 
