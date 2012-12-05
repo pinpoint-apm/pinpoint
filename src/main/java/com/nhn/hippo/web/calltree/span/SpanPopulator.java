@@ -19,11 +19,12 @@ public class SpanPopulator {
     }
 
     public List populateSubSpan() {
-        List<SpanAlign> populatedList = new ArrayList<SpanAlign>();
-
-        for (int i = 0; i < list.size(); i++) {
-            populatedSpan(populatedList, i);
+        if (list.size() == 0) {
+            return Collections.emptyList();
         }
+        List<SpanAlign> populatedList = new ArrayList<SpanAlign>();
+        populatedSpan(populatedList, 0);
+
         return populatedList;
     }
 
@@ -36,21 +37,25 @@ public class SpanPopulator {
         for (SubSpanBo subSpanBo : subSpanBos) {
             long subStartTime = startTime + subSpanBo.getStartElapsed();
             long nextSpanStartTime = getNextSpanStartTime(i);
-            if (subStartTime >= nextSpanStartTime) {
+            if (subStartTime <= nextSpanStartTime) {
                 SpanAlign subSpanAlign = new SpanAlign(spanAlign.getDepth(), span, subSpanBo);
                 subSpanAlign.setRoot(false);
                 populatedList.add(subSpanAlign);
             } else {
-                populatedSpan(populatedList, i);
+                if (nextSpanStartTime == Long.MAX_VALUE) {
+                    return;
+                }
+                populatedSpan(populatedList, ++i);
             }
         }
     }
 
     public long getNextSpanStartTime(int i) {
-        if (i < list.size()) {
-            return 0;
+        int nextIndex = i + 1;
+        if (nextIndex >= list.size()) {
+            return Long.MAX_VALUE;
         }
-        return list.get(i + 1).getSpan().getStartTime();
+        return list.get(nextIndex).getSpan().getStartTime();
     }
 
     private List<SubSpanBo> sortSubSpan(SpanBo span) {

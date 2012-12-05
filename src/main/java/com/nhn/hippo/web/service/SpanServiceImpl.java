@@ -48,63 +48,6 @@ public class SpanServiceImpl implements SpanService {
 
     }
 
-    private List populateSubSpan(List<SpanAlign> order) {
-        List<SpanAlign> populatedList = new ArrayList<SpanAlign>();
-
-        for (int i = 0; i < order.size(); i++) {
-            populatedSpan(populatedList, order, i);
-        }
-        return populatedList;
-    }
-
-    private void populatedSpan(List<SpanAlign> populatedList, List<SpanAlign> order, int i) {
-        SpanAlign spanAlign = order.get(i);
-        SpanBo span = spanAlign.getSpan();
-        populatedList.add(spanAlign);
-        long startTime = span.getStartTime();
-        List<SubSpanBo> subSpanBos = sortSubSpan(span);
-        for (SubSpanBo subSpanBo : subSpanBos) {
-            long subStartTime = startTime + subSpanBo.getStartElapsed();
-            long nextSpanStartTime = getNextSpanStartTime(order, i);
-            if (subStartTime >= nextSpanStartTime) {
-                SpanAlign subSpanAlign = new SpanAlign(spanAlign.getDepth(), span, subSpanBo);
-                subSpanAlign.setRoot(false);
-                populatedList.add(subSpanAlign);
-            } else {
-                populatedSpan(populatedList, order, i);
-            }
-        }
-    }
-
-    public long getNextSpanStartTime(List<SpanAlign> order, int i) {
-        if (i < order.size()) {
-            return 0;
-        }
-        return order.get(i + 1).getSpan().getStartTime();
-    }
-
-    private List<SubSpanBo> sortSubSpan(SpanBo span) {
-        List<SubSpanBo> subSpanList = span.getSubSpanList();
-        if (subSpanList == null) {
-            return Collections.emptyList();
-        }
-        Collections.sort(subSpanList, new Comparator<SubSpanBo>() {
-            @Override
-            public int compare(SubSpanBo o1, SubSpanBo o2) {
-                long o1Timestamp = o1.getSequence();
-                long o2Timestamp = o2.getSequence();
-                if (o1Timestamp > o2Timestamp) {
-                    return 1;
-                }
-                if (o1Timestamp == o2Timestamp) {
-                    return 0;
-                }
-                return -1;
-            }
-        });
-        return subSpanList;
-    }
-
     private void transitionApiId(List<SpanAlign> spans) {
         for (SpanAlign spanBo : spans) {
             List<AnnotationBo> annotationBoList;
