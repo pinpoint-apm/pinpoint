@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
+import com.profiler.server.util.BufferPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -19,8 +20,10 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final ThreadPoolExecutor worker = (ThreadPoolExecutor) Executors.newFixedThreadPool(512);
+    private final BufferPool pool = new BufferPool(1024);
 
     private DatagramSocket socket = null;
+
 
     private GenericApplicationContext context;
     private MultiplexedPacketHandler multiplexedPacketHandler;
@@ -51,8 +54,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
             DatagramPacket packet = null;
             try {
                 // TODO 최대 사이즈로 수정필요. 최대사이즈로 할경우 캐쉬필요.
-                byte[] buffer = new byte[AcceptedSize];
-
+                byte[] buffer = pool.getBuffer();
                 packet = new DatagramPacket(buffer, AcceptedSize);
                 try {
                     socket.receive(packet);
@@ -131,9 +133,14 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
         @Override
         public void run() {
-            multiplexedPacketHandler.handlePacket(packet);
-            // packet에 대한 캐쉬를 해야 될듯.
-            // packet.return(); 등등
+
+            try {
+                multiplexedPacketHandler.handlePacket(packet);
+                // packet에 대한 캐쉬를 해야 될듯.
+                // packet.return(); 등등
+            } finally {
+                pool.returnPacket(packet.getData());
+            }
         }
     }
 }
