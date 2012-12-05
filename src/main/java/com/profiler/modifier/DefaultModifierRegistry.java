@@ -64,17 +64,17 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
         addModifier(httpClientModifier);
 
-//		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
-//		addModifier(memcachedClientModifier);
-//
-//		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
-//		addModifier(arcusClientModifier);
-//
-//		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
-//		addModifier(baseOperationModifier);
-//
-//		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
-//		addModifier(cacheManagerModifier);
+        MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
+        addModifier(memcachedClientModifier);
+
+        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+        addModifier(arcusClientModifier);
+
+        BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
+        addModifier(baseOperationModifier);
+
+        CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
+        addModifier(cacheManagerModifier);
     }
 
     public void addBLOCModifier() {

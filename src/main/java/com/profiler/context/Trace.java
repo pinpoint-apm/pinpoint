@@ -75,9 +75,9 @@ public final class Trace {
 
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
-        TraceID nextTraceId = getNextTraceId();
-        Span span = new Span(nextTraceId);
-        AsyncTrace asyncTrace = new AsyncTrace(span);
+        SubSpan subSpan = new SubSpan(callStack.getSpan());
+        subSpan.setSequence(sequence++);
+        AsyncTrace asyncTrace = new AsyncTrace(subSpan);
         asyncTrace.setDataSender(this.getDataSender());
         return asyncTrace;
     }
