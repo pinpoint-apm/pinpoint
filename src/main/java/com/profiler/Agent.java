@@ -64,10 +64,10 @@ public class Agent {
         try {
             byte[] bytes = id.getBytes("UTF-8");
             if (bytes.length > SpanUtils.AGENT_NAME_LIMIT) {
-                logger.warning(idName + " is too long(1~24) " + agentId);
+                logger.warning(idName + " is too long(1~24). value=" + id);
             }
-//            validate = false;
-            // TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..
+			// validate = false;
+			// TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..
         } catch (UnsupportedEncodingException e) {
             logger.log(Level.WARNING, "invalid agentId. Cause:" + e.getMessage(), e);
         }
