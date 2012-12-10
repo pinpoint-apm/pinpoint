@@ -286,6 +286,12 @@ function openTransactionDetails(index, row) {
 }
 
 $(document).ready(function () {
+    var date = new Date();
+    $("#startdate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+
+    var min = date.getMinutes();
+    $("#starttime").val(date.getHours() + ":" + ((min < 10) ? (60 - (10 - min)) : (min - 10)));
+	
     $("#application").select2({
 		placeholder: "Select a application.",
 	});
