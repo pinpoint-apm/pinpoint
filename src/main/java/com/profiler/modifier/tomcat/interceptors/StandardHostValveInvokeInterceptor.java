@@ -136,18 +136,23 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
         StringBuilder params = new StringBuilder();
 
-        while (attrs.hasMoreElements()) {
-            String keyString = attrs.nextElement().toString();
-            Object value = request.getParameter(keyString);
+		while (attrs.hasMoreElements()) {
+			String keyString = attrs.nextElement().toString();
+			Object value = request.getParameter(keyString);
 
-            if (value != null) {
-                String valueString = value.toString();
-                int valueStringLength = valueString.length();
+			if (value != null) {
+				String valueString = value.toString();
+				int valueStringLength = valueString.length();
 
-                if (valueStringLength > 0 && valueStringLength < 100)
-                    params.append(keyString).append("=").append(valueString);
-            }
-        }
+				if (valueStringLength > 0 && valueStringLength < 100) {
+					params.append(keyString).append("=").append(valueString);
+				}
+
+				if (attrs.hasMoreElements()) {
+					params.append(", ");
+				}
+			}
+		}
 
         return params.toString();
     }
