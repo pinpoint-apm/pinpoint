@@ -27,6 +27,7 @@ rect.frame {
 .node text {
     pointer-events: none;
     text-shadow: 0 1px 0 #fff;
+	font-size: 11px;
 }
 
 .link {
@@ -52,4 +53,17 @@ rect.frame {
 
 .dot {
   stroke: #000;
+}
+
+.node circle {
+  cursor: pointer;
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+path.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
 }

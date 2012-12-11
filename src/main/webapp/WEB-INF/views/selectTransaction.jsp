@@ -47,22 +47,55 @@
 
 <div class="container">
     <div class="row">
-        <div class="span12">Application Flow Map</div>
+        <div class="span12">Server map (tree)</div>
     </div>
     <div class="row">
         <div class="span12">
-            <p id="graph"></p>
+            <p id="tree"></p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span12">Server map (sankey)</div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <p id="sankeygraph"></p>
         </div>
     </div>
 
     <div class="row">
-        <div class="span12">Application Flow Map (DEMO)</div>
+        <div class="span12">Server map (springy)</div>
     </div>
     <div class="row">
         <div class="span12">
-            <canvas id="springydemo" width="640" height="480"/>
+            <canvas id="springygraph" width="640" height="480"/>
         </div>
     </div>
+
+<hr/>
+
+    <div class="row">
+        <div class="span12"><br/><br/><br/>Call Stacks</div>
+    </div>
+	<div class="row">
+	    <table id="callStacks" class="table table-bordered">
+	        <thead>
+	        <tr>
+	            <th>Method</th>
+	            <th>Arguments</th>
+	            <th>Total[ms]</th>
+	            <th>Exec[ms]</th>
+	            <th>Agent</th>
+	        </tr>
+	        </thead>
+	        <tbody>
+	        
+			</tbody>
+		</table>
+	</div>
+
+<hr/>
 
     <div class="row">
         <div class="span12"><br/><br/><br/>Application Timeline</div>
@@ -216,15 +249,6 @@
             </table>
         </div>
     </div>
-
-    <div class="row">
-        <div class="span12"><br/><br/><br/>RPC flow</div>
-    </div>
-    <div class="row">
-        <div class="span12">
-            <p id="rpcgraph"></p>
-        </div>
-    </div>
 </div>
 
 <script type="text/javascript">
@@ -262,7 +286,9 @@
     };
 
     $(document).ready(function () {
-        drawSankeyChart(data, "#graph", 960, 500);
+        drawSpringy(data, "#springygraph", 960, 500);
+        drawTree(data, "#tree", 960, 500);
+        drawSankeyChart(data, "#sankeygraph", 960, 500);
     });
 </script>
 </body>

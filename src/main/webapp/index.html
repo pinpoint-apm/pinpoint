@@ -113,20 +113,29 @@
     </form>
 
     <div class="row">
-        <div class="span10">Flow Map</div>
+        <div class="span10">Server map (tree)</div>
     </div>
     <div class="row">
         <div class="span10">
-			<canvas id="springydemo" width="960" height="500" />
+			<p id="tree"></p>
         </div>
     </div>
     
     <div class="row">
-        <div class="span10">Application Flow Map</div>
+        <div class="span10">Server map (springy)</div>
     </div>
     <div class="row">
         <div class="span10">
-            <p id="graph"></p>
+			<canvas id="springygraph" width="960" height="500" />
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span10">Server map (sankey)</div>
+    </div>
+    <div class="row">
+        <div class="span10">
+            <p id="sankeygraph"></p>
         </div>
     </div>
     
@@ -298,15 +307,22 @@ $(document).ready(function () {
     
     $("#btnTraceRPC").click(function() { 
     	// cleanup chart
-        $("#graph").empty();
-        $("#scatter").empty();
+        $("#springygraph").empty();
+        $("#sankeygraph").empty();
+        $("#tree").empty();
         
         // cleanup transaction tables
         $("#businessTransactions TBODY").empty();
         $("#businessTransactionsDetail TBODY").empty();
         
         getChartData("flow", function(data) {
-	        drawSankeyChart(data.graphdata, "#graph", 960, 500);
+        	if (data.graphdata.nodes.length == 0) {
+        	    alert("no data");
+        	    return;
+        	}
+	        drawSpringy(data.graphdata, "#springygraph", 960, 500);
+	        drawTree(data.graphdata, "#tree", 960, 500);
+	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
 	        drawScatter(data.scatter, "#scatter");
         });
@@ -314,7 +330,9 @@ $(document).ready(function () {
     
     $("#btnTraceServer").click(function() {
     	// cleanup chart
-        $("#graph").empty();
+        $("#springygraph").empty();
+        $("#sankeygraph").empty();
+        $("#tree").empty();
         $("#scatter").empty();
         
         // cleanup transaction tables
@@ -322,7 +340,14 @@ $(document).ready(function () {
         $("#businessTransactionsDetail TBODY").empty();
         
         getChartData("flowserver", function(data) {
-	        drawSankeyChart(data.graphdata, "#graph", 960, 500);
+        	if (data.graphdata.nodes.length == 0) {
+        	    alert("no data");
+        	    return;
+        	}
+        	
+	        drawSpringy(data.graphdata, "#springygraph", 960, 500);
+	        drawTree(data.graphdata, "#tree", 960, 500);
+	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
 	        drawScatter(data.scatter, "#scatter");
         });
