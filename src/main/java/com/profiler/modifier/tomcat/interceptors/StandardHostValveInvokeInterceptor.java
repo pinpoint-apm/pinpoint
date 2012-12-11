@@ -24,117 +24,118 @@ import com.profiler.util.StringUtils;
 
 public class StandardHostValveInvokeInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
 
-    private final Logger logger = Logger.getLogger(StandardHostValveInvokeInterceptor.class.getName());
-    private MethodDescriptor descriptor;
+	private final Logger logger = Logger.getLogger(StandardHostValveInvokeInterceptor.class.getName());
+	private MethodDescriptor descriptor;
+	private int apiId;
 
-    private int apiId;
+	@Override
+	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		}
 
-    @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
-        }
+		try {
+			TraceContext traceContext = TraceContext.getTraceContext();
+			traceContext.getActiveThreadCounter().start();
 
-        try {
-            TraceContext traceContext = TraceContext.getTraceContext();
-            traceContext.getActiveThreadCounter().start();
+			HttpServletRequest request = (HttpServletRequest) args[0];
+			String requestURL = request.getRequestURI();
+			String clientIP = request.getRemoteAddr();
 
-            HttpServletRequest request = (HttpServletRequest) args[0];
-            String requestURL = request.getRequestURI();
-            String clientIP = request.getRemoteAddr();
-            String parameters = getRequestParameter(request);
+			TraceID traceId = populateTraceIdFromRequest(request);
+			Trace trace;
+			if (traceId != null) {
+				TraceID nextTraceId = traceId.getNextTraceId();
+				if (logger.isLoggable(Level.INFO)) {
+					logger.info("TraceID exist. continue trace. " + nextTraceId);
+					logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+				}
+				trace = new Trace(nextTraceId);
+				traceContext.attachTraceObject(trace);
+			} else {
+				trace = new Trace();
+				if (logger.isLoggable(Level.INFO)) {
+					logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
+					logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+				}
+				traceContext.attachTraceObject(trace);
+			}
 
-            TraceID traceId = populateTraceIdFromRequest(request);
-            Trace trace;
-            if (traceId != null) {
-                TraceID nextTraceId = traceId.getNextTraceId();
-                if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID exist. continue trace. " + nextTraceId);
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
-                }
-                trace = new Trace(nextTraceId);
-                traceContext.attachTraceObject(trace);
-            } else {
-                trace = new Trace();
-                if (logger.isLoggable(Level.INFO)) {
-                    logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
-                }
-                traceContext.attachTraceObject(trace);
-            }
+			trace.markBeforeTime();
+			trace.recordRpcName(ServiceType.TOMCAT, Agent.getInstance().getApplicationName(), requestURL);
 
-            trace.markBeforeTime();
-            trace.recordRpcName(ServiceType.TOMCAT, Agent.getInstance().getApplicationName(), requestURL);
-            
-    		int port = request.getServerPort();
-            trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
-            trace.recordAttribute("http.url", request.getRequestURI());
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute("http.params", parameters);
-            }
-        } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
-            }
-        }
-    }
+			int port = request.getServerPort();
+			trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
+			trace.recordAttribute("http.url", request.getRequestURI());
+		} catch (Exception e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+			}
+		}
+	}
 
-    @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-        }
+	@Override
+	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+		}
 
-        TraceContext traceContext = TraceContext.getTraceContext();
-        traceContext.getActiveThreadCounter().end();
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        traceContext.detachTraceObject();
-        if (trace.getCurrentStackFrame().getStackFrameId() != 0) {
-            logger.warning("Corrupted CallStack found. StackId not Root(0)");
-            // 문제 있는 callstack을 dump하면 도움이 될듯.
-        }
+		TraceContext traceContext = TraceContext.getTraceContext();
+		traceContext.getActiveThreadCounter().end();
+		Trace trace = traceContext.currentTraceObject();
+		if (trace == null) {
+			return;
+		}
 
-//		trace.recordApi(descriptor);
-        trace.recordApi(this.apiId);
+		HttpServletRequest request = (HttpServletRequest) args[0];
+		String parameters = getRequestParameter(request);
+		if (parameters != null && parameters.length() > 0) {
+			trace.recordAttribute("http.params", parameters);
+		}
 
-        trace.recordException(result);
+		traceContext.detachTraceObject();
+		if (trace.getCurrentStackFrame().getStackFrameId() != 0) {
+			logger.warning("Corrupted CallStack found. StackId not Root(0)");
+			// 문제 있는 callstack을 dump하면 도움이 될듯.
+		}
 
-        trace.markAfterTime();
-        trace.traceBlockEnd();
-    }
+		// trace.recordApi(descriptor);
+		trace.recordApi(this.apiId);
 
-    /**
-     * Pupulate source trace from HTTP Header.
-     *
-     * @param request
-     * @return
-     */
-    private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
-        String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (strUUID != null) {
-            UUID uuid = UUID.fromString(strUUID);
-            long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
-            long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
-            boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
-            short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
+		trace.recordException(result);
 
-            TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("TraceID exist. continue trace. " + id);
-            }
-            return id;
-        } else {
-            return null;
-        }
-    }
+		trace.markAfterTime();
+		trace.traceBlockEnd();
+	}
 
-    private String getRequestParameter(HttpServletRequest request) {
-        Enumeration<?> attrs = request.getParameterNames();
+	/**
+	 * Pupulate source trace from HTTP Header.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
+		String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
+		if (strUUID != null) {
+			UUID uuid = UUID.fromString(strUUID);
+			long parentSpanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
+			long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
+			boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
+			short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-        StringBuilder params = new StringBuilder();
+			TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
+			if (logger.isLoggable(Level.INFO)) {
+				logger.info("TraceID exist. continue trace. " + id);
+			}
+			return id;
+		} else {
+			return null;
+		}
+	}
+
+	private String getRequestParameter(HttpServletRequest request) {
+		Enumeration<?> attrs = request.getParameterNames();
+		StringBuilder params = new StringBuilder();
 
 		while (attrs.hasMoreElements()) {
 			String keyString = attrs.nextElement().toString();
@@ -153,17 +154,16 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 				}
 			}
 		}
+		return params.toString();
+	}
 
-        return params.toString();
-    }
+	@Override
+	public void setMethodDescriptor(MethodDescriptor descriptor) {
+		this.descriptor = descriptor;
+	}
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-    }
-
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
+	@Override
+	public void setApiId(int apiId) {
+		this.apiId = apiId;
+	}
 }
