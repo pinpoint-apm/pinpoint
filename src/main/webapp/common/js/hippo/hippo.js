@@ -95,7 +95,7 @@ function drawTree(graphdata, targetId, width, height) {
 			links.forEach(function(link, i) {
 				if (link.source == parent) {
 					var child = {};
-					child.name = nodes[link.target].name;
+                    child.name = nodes[link.target].name + ", (" + link.value + "calls)";
 					
 					var children = makeNodes(link.target, nodes, links).children;
 					if (children.length > 0) {
