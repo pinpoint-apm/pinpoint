@@ -12,7 +12,7 @@ import com.profiler.common.util.BytesUtils;
 /**
  *
  */
-public class SpanBo {
+public class SpanBo implements com.profiler.common.bo.Span {
 
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  *
  */
-public class SubSpanBo {
+public class SubSpanBo implements Span {
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로
 
