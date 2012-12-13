@@ -11,13 +11,6 @@
 
 	<function>
 		<description></description>
-		<name>bytesToString</name>
-		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
-		<function-signature>java.lang.String bytesToString(int, byte[])</function-signature>
-	</function>
-	
-	<function>
-		<description></description>
 		<name>longToDateStr</name>
 		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
 		<function-signature>java.lang.String longToDateStr(long)</function-signature>
@@ -28,5 +21,26 @@
 		<name>longLongToUUID</name>
 		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
 		<function-signature>java.lang.String longLongToUUID(long, long)</function-signature>
+	</function>
+
+	<function>
+		<description></description>
+		<name>sortAnnotationListByKey</name>
+		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
+		<function-signature>void sortAnnotationListByKey(com.profiler.common.bo.Span)</function-signature>
+	</function>
+
+	<function>
+		<description></description>
+		<name>getDisplayMethod</name>
+		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
+		<function-signature>java.lang.Object getDisplayMethod(com.profiler.common.bo.Span)</function-signature>
+	</function>
+	
+	<function>
+		<description></description>
+		<name>getDisplayArgument</name>
+		<function-class>com.nhn.hippo.web.utils.AnnotationUtils</function-class>
+		<function-signature>java.lang.Object getDisplayArgument(com.profiler.common.bo.Span)</function-signature>
 	</function>
 </taglib>
