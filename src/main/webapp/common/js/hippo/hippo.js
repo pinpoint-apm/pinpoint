@@ -14,7 +14,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 		var target = nodes[graphdata.links[i].target];
         graph.newEdge(src, target, {
         	color : '#7DBE3C',
-        	label : graphdata.links[i].value + ', < 10ms'
+        	label : graphdata.links[i].value
 		});
 	}
 	
