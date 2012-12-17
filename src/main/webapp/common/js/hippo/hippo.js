@@ -1,4 +1,7 @@
 function drawSpringy(graphdata, targetId, width, height) {
+	$(targetId).attr("width", width);
+	$(targetId).attr("height", height);
+	
 	var graph = new Graph();
 	var nodes = [];
 	
@@ -71,18 +74,18 @@ function drawTree(graphdata, targetId, width, height) {
 		var nodes = graphdata.nodes;
 		var links = graphdata.links;
 		
-		// find root node
-		var rootIndex = -1;
-		var rootName = $("#application").val();
-		nodes.forEach(function(e, i) {
-			if (e.name == rootName) {
-				rootIndex = i;
-			}
-		});
-		
-		if (rootIndex < 0) {
-			return { name : "Can't find the root", children : [ { name : "Can't find children" }, { name : "Can't find children" } ] };
+		// find root
+		function findRoot(index, links) {
+			var root = index;
+			links.forEach(function(link, i) {
+				if (link.target == index) {
+					root = findRoot(link.source, links);
+				}
+			});
+			return root;
 		}
+		
+		rootIndex = findRoot(0, links);
 		
 		// build tree
 		var tree = makeNodes(rootIndex, nodes, links);
@@ -95,7 +98,7 @@ function drawTree(graphdata, targetId, width, height) {
 			links.forEach(function(link, i) {
 				if (link.source == parent) {
 					var child = {};
-                    child.name = nodes[link.target].name + ", (" + link.value + "calls)";
+                    child.name = nodes[link.target].name + " (" + link.value + " calls)";
 					
 					var children = makeNodes(link.target, nodes, links).children;
 					if (children.length > 0) {
@@ -150,7 +153,7 @@ function drawTree(graphdata, targetId, width, height) {
 	  var nodes = tree.nodes(root).reverse();
 
 	  // Normalize for fixed-depth.
-	  nodes.forEach(function(d) { d.y = d.depth * 180; });
+	  nodes.forEach(function(d) { d.y = d.depth * 250; });
 
 	  // Update the nodes…
 	  var node = vis.selectAll("g.node")
@@ -427,7 +430,8 @@ function drawScatter(data, targetId) {
 	      .attr("cy", function(d) { return y(d.executionTime); })
 	      .style("fill", function(d) { return color(d.name); })
 	      .on("click", function(d) { openTrace(d.traceId); });
-
+	  
+/*
 	  var legend = svg.selectAll(".legend")
 	      .data(color.domain())
 	    .enter().append("g")
@@ -446,6 +450,7 @@ function drawScatter(data, targetId) {
 	      .attr("dy", ".35em")
 	      .style("text-anchor", "end")
 	      .text(function(d) { return d; });
+*/
 }
 
 function openTrace(uuid) {
