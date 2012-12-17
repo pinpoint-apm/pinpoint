@@ -1,0 +1,12 @@
+#tomcat
+export HIPPO_AGENT_HOME="/home1/irteam/apps/hippo/agent"
+JAVA_OPTS="$JAVA_OPTS -javaagent:$HIPPO_AGENT_HOME/HippoAgent.jar -Dhippo.config=$HIPPO_AGENT_HOME/hippo.config"
+JAVA_OPTS="$JAVA_OPTS -Dhippo.agentId=apigw-t -Dhippo.applicationName=apigw-t"
+CLASSPATH="$HIPPO_AGENT_HOME/javassist-3.16.1-GA.jar:$HIPPO_AGENT_HOME/libthrift-0.8.0.wolog.jar:$HIPPO_AGENT_HOME/hippo-commons-0.0.1.jar"
+
+
+#BLOC
+export HIPPO_AGENT_HOME="/home1/irteam/apps/hippo/agent"
+JAVA_OPTS="$JAVA_OPTS -javaagent:$HIPPO_AGENT_HOME/HippoAgent.jar -Dhippo.config=$HIPPO_AGENT_HOME/hippo.config"
+JAVA_OPTS="$JAVA_OPTS -Dhippo.agentId=apigw-bloc -Dhippo.applicationName=apigw-bloc -Dhippo.servertype=bloc -Dhippo.nodeName=apigw-bloc"
+CLASSPATH="$HIPPO_AGENT_HOME/javassist-3.16.1-GA.jar:$HIPPO_AGENT_HOME/libthrift-0.8.0.wolog.jar:$HIPPO_AGENT_HOME/hippo-commons-0.0.1.jar"
