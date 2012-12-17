@@ -66,3 +66,15 @@ path.link {
   fill: none;
   stroke-width: 1.5px;
 }
+
+
+/*
+ * business transaction table
+ */
+#businessTransactions .calls {
+	text-align:right;	
+}
+
+#businessTransactions .time {
+	text-align:right;	
+}

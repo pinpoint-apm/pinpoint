@@ -162,10 +162,10 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Calls</th>
-                    <th>Response Time(ms)</th>
-                    <th>min res. time(ms)</th>
-                    <th>max res. time(ms)</th>
-                    <th>health</th>
+                    <th>Time(ms)</th>
+                    <th>Min Time(ms)</th>
+                    <th>Max Time(ms)</th>
+                    <th>Health</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -234,23 +234,23 @@ function showTransactionList(transactions) {
 	    html.push(transactions[i].name);
 	    html.push("</a></td>");
 	
-	    html.push("<td>");
+	    html.push("<td class='calls'>");
 	    html.push(transactions[i].calls);
 	    html.push("</td>");
 	
-	    html.push("<td>");
-	    html.push(transactions[i].avgTime);
+	    html.push("<td class='time'>");
+	    html.push(transactions[i].avgTime.toFixed(0));
 	    html.push("</td>");
 	
-	    html.push("<td>");
+	    html.push("<td class='time'>");
 	    html.push(transactions[i].minTime);
 	    html.push("</td>");
 	
-	    html.push("<td>");
+	    html.push("<td class='time'>");
 	    html.push(transactions[i].maxTime);
 	    html.push("</td>");
 	
-	    html.push("<td>");
+	    html.push("<td class='health'>");
 	    html.push(transactions[i].health);
 	    html.push("</td>");
 	
