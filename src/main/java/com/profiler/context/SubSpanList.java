@@ -27,7 +27,7 @@ public class SubSpanList implements Thriftable {
         tSubSpanList.setAgentId(Agent.getInstance().getAgentId());
         UUID id = parentSpan.getTraceID().getId();
         tSubSpanList.setMostTraceId(id.getMostSignificantBits());
-        tSubSpanList.setMostTraceId(id.getLeastSignificantBits());
+        tSubSpanList.setLeastTraceId(id.getLeastSignificantBits());
         tSubSpanList.setSpanId(parentSpan.getTraceID().getSpanId());
         tSubSpanList.setStartSequence(first.getSequence());
 
