@@ -21,60 +21,47 @@ import com.profiler.server.dao.TracesDao;
  */
 public class SubSpanHandler implements Handler {
 
-	private final Logger logger = LoggerFactory.getLogger(SubSpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SubSpanHandler.class.getName());
 
-	@Autowired
-	private TraceIndexDao traceIndexDao;
+    @Autowired
+    private TracesDao traceDao;
 
-	@Autowired
-	private TracesDao traceDao;
+    @Autowired
+    private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
-	@Autowired
-	private RootTraceIndexDaoDao rootTraceIndexDao;
+    @Autowired
+    private TerminalStatisticsDao terminalStatistics;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Override
+    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+        try {
+            SubSpan subSpan = (SubSpan) tbase;
 
-	@Autowired
-	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
+            if (logger.isInfoEnabled()) {
+                logger.info("Received SubSPAN=" + subSpan);
+            }
 
-	@Autowired
-	private TerminalStatisticsDao terminalStatistics;
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(subSpan.getAgentId());
 
-	@Override
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-		try {
-			SubSpan subSpan = (SubSpan) tbase;
+            if (applicationName == null) {
+                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
+                return;
+            } else {
+                logger.info("Applicationname '{}' found. Write the log.", applicationName);
+            }
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SubSPAN=" + subSpan);
-			}
 
-			String applicationName = agentIdApplicationIndexDao.selectApplicationName(subSpan.getAgentId());
+            traceDao.insertSubSpan(applicationName, subSpan);
 
-			if (applicationName == null) {
-				logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
-				return;
-			} else {
-				logger.info("Applicationname '{}' found. Write the log.", applicationName);
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Found Applicationname={}", applicationName);
-			}
-
-			ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
-
-			traceDao.insertTerminalSpan(applicationName, subSpan);
-
-			// if terminal update statistics
-			if (serviceType.isRpcClient()) {
-				terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
-			} else {
-				terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
-			}
-		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
-		}
-	}
+            ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
+            // if terminal update statistics
+            if (serviceType.isRpcClient()) {
+                terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
+            } else {
+                terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
+            }
+        } catch (Exception e) {
+            logger.warn("Span handle error " + e.getMessage(), e);
+        }
+    }
 }

@@ -33,6 +33,7 @@
     <bean id="SpanHandler" class="com.profiler.server.handler.SpanHandler"/>
     <bean id="AgentInfoHandler" class="com.profiler.server.handler.AgentInfoHandler"/>
     <bean id="SubSpanHandler" class="com.profiler.server.handler.SubSpanHandler"/>
+    <bean id="SubSpanListHandler" class="com.profiler.server.handler.SubSpanListHandler"/>
 
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>

@@ -2,13 +2,10 @@ package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
-import com.profiler.common.dto.thrift.SubSpan;
+import com.profiler.common.dto.thrift.*;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.profiler.common.dto.thrift.AgentInfo;
-import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.util.HeaderTBaseDeserializer;
 import com.profiler.common.util.TBaseLocator;
 import com.profiler.server.handler.Handler;
@@ -40,6 +37,10 @@ public class MultiplexedPacketHandler {
     @Autowired()
     @Qualifier("SubSpanHandler")
     private Handler subSpanHandler;
+
+    @Autowired()
+    @Qualifier("SubSpanListHandler")
+    private Handler subSpanListHandler;
 
     public MultiplexedPacketHandler() {
     }
@@ -75,6 +76,9 @@ public class MultiplexedPacketHandler {
         }
         if (tBase instanceof SubSpan) {
             return subSpanHandler;
+        }
+        if (tBase instanceof SubSpanList) {
+            return subSpanListHandler;
         }
         logger.warn("Unknown type of data received. data=" + tBase);
         throw new UnsupportedOperationException();

@@ -1,7 +1,9 @@
 package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
+import java.util.List;
 
+import com.profiler.common.dto.thrift.SubSpan;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,7 @@ public class SpanHandler implements Handler {
             Span span = (Span) tbase;
 
             if (logger.isInfoEnabled()) {
-                logger.info("Received SPAN=" + span);
+                logger.info("Received SPAN={}", span);
             }
 
             String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
@@ -57,21 +59,8 @@ public class SpanHandler implements Handler {
                 logger.info("Applicationname '{}' found. Write the log.", applicationName);
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Found Applicationname={}", applicationName);
-            }
 
-            ServiceType serviceType = ServiceType.parse(span.getServiceType());
-
-            // insert span
-//			if (serviceType.isTerminal()) {
-//				traceDao.insertTerminalSpan(applicationName, span);
-//
-//				// if terminal update statistics
-//				terminalStatistics.update(applicationName, span.getServiceName(), serviceType.getCode(), span.getAgentId(), span.getElapsed());
-//			} else {
             traceDao.insert(applicationName, span);
-//			}
 
             // indexing root span
             if (span.getParentSpanId() == -1) {
@@ -79,11 +68,27 @@ public class SpanHandler implements Handler {
             }
 
             // indexing non-terminal span
+            ServiceType serviceType = ServiceType.parse(span.getServiceType());
             if (serviceType.isIndexable()) {
                 traceIndexDao.insert(span);
                 applicationTraceIndexDao.insert(applicationName, span);
             } else {
                 logger.debug("Skip writing index. '{}'", span);
+            }
+
+            List<SubSpan> subSpanList = span.getSubSpanList();
+            if (subSpanList != null) {
+                logger.info("handle subSpan size:{}", subSpanList.size());
+                // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
+                for (SubSpan subSpan : subSpanList) {
+                    ServiceType subSpanServiceType = ServiceType.parse(subSpan.getServiceType());
+                    // if terminal update statistics
+                    if (subSpanServiceType.isRpcClient()) {
+                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
+                    } else {
+                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
+                    }
+                }
             }
         } catch (Exception e) {
             logger.warn("Span handle error " + e.getMessage(), e);
