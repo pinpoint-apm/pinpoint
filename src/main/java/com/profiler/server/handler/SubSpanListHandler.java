@@ -53,7 +53,7 @@ public class SubSpanListHandler implements Handler {
 
             List<SubSpan> ssList = subSpanList.getSubSpanList();
             if (ssList != null) {
-                logger.debug("SubSpanList Size:{}" + ssList.size());
+                logger.debug("SubSpanList Size:{}", ssList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : ssList) {
                     ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
@@ -66,7 +66,7 @@ public class SubSpanListHandler implements Handler {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Span handle error " + e.getMessage(), e);
+            logger.warn("SubSpanList handle error " + e.getMessage(), e);
         }
     }
 }

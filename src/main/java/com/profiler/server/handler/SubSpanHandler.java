@@ -61,7 +61,7 @@ public class SubSpanHandler implements Handler {
                 terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
             }
         } catch (Exception e) {
-            logger.warn("Span handle error " + e.getMessage(), e);
+            logger.warn("SubSpan handle error " + e.getMessage(), e);
         }
     }
 }
