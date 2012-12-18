@@ -45,6 +45,46 @@ public class SubSpanBo implements Span {
     public SubSpanBo() {
     }
 
+    public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, SubSpan tSubSpan, short sequence) {
+        this.agentId = tSpan.getAgentId();
+
+        this.mostTraceId = tSpan.getMostTraceId();
+        this.leastTraceId = tSpan.getLeastTraceId();
+
+        this.spanId = tSpan.getSpanId();
+        this.sequence = sequence;
+
+        this.startElapsed = tSubSpan.getStartElapsed();
+        this.endElapsed = tSubSpan.getEndElapsed();
+
+        this.rpc = tSubSpan.getRpc();
+        this.serviceName = tSubSpan.getServiceName();
+        this.serviceType = ServiceType.parse(tSubSpan.getServiceType());
+
+        this.endPoint = tSubSpan.getEndPoint();
+        setAnnotationBoList(tSubSpan.getAnnotations());
+    }
+
+    public SubSpanBo(com.profiler.common.dto.thrift.SubSpanList subSpanList, SubSpan subSpan, short sequence) {
+        this.agentId = subSpanList.getAgentId();
+
+        this.mostTraceId = subSpanList.getMostTraceId();
+        this.leastTraceId = subSpanList.getLeastTraceId();
+
+        this.spanId = subSpanList.getSpanId();
+        this.sequence = sequence;
+
+        this.startElapsed = subSpan.getStartElapsed();
+        this.endElapsed = subSpan.getEndElapsed();
+
+        this.rpc = subSpan.getRpc();
+        this.serviceName = subSpan.getServiceName();
+        this.serviceType = ServiceType.parse(subSpan.getServiceType());
+
+        this.endPoint = subSpan.getEndPoint();
+        setAnnotationBoList(subSpan.getAnnotations());
+    }
+
     public SubSpanBo(SubSpan subSpan) {
         this.agentId = subSpan.getAgentId();
 

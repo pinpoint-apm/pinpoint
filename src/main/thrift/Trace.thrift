@@ -17,6 +17,26 @@ struct ApiAnnotation {
   7: optional i32 line,
 }
 
+struct SubSpan {
+  1: optional string agentId
+
+  2: optional i64 mostTraceId
+  3: optional i64 leastTraceId
+
+  4: optional i64 spanId
+  5: optional i16 sequence
+
+  6: i32 startElapsed
+  7: i32 endElapsed
+
+  8: string rpc
+  9: string serviceName
+  10: i16 serviceType
+  11: string endPoint
+
+  12: list<Annotation> annotations
+}
+
 struct Span {
   1: string agentId
   
@@ -36,24 +56,21 @@ struct Span {
   
   12: list<Annotation> annotations
   13: optional i16 flag = 0
+
+  14: optional list<SubSpan> subSpanList
 }
 
-struct SubSpan {
+
+
+struct SubSpanList {
   1: string agentId
 
   2: i64 mostTraceId
   3: i64 leastTraceId
 
   4: i64 spanId
-  5: i16 sequence
+  5: i16 startSequence
 
-  6: i32 startElapsed
-  7: i32 endElapsed
-
-  8: string rpc
-  9: string serviceName
-  10: i16 serviceType
-  11: string endPoint
-
-  12: list<Annotation> annotations
+  6: list<SubSpan> subSpanList
 }
+

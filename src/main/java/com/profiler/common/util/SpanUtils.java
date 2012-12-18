@@ -2,6 +2,7 @@ package com.profiler.common.util;
 
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SubSpan;
+import com.profiler.common.dto.thrift.SubSpanList;
 
 public class SpanUtils {
 
@@ -33,7 +34,11 @@ public class SpanUtils {
         return BytesUtils.longLongToBytes(span.getMostTraceId(), span.getLeastTraceId());
     }
 
-    public static byte[] getTraceId(SubSpan span) {
-        return BytesUtils.longLongToBytes(span.getMostTraceId(), span.getLeastTraceId());
+    public static byte[] getTraceId(SubSpan subSpan) {
+        return BytesUtils.longLongToBytes(subSpan.getMostTraceId(), subSpan.getLeastTraceId());
+    }
+
+    public static byte[] getTraceId(SubSpanList subSpanList) {
+        return BytesUtils.longLongToBytes(subSpanList.getMostTraceId(), subSpanList.getLeastTraceId());
     }
 }

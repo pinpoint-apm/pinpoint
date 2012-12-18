@@ -12,6 +12,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short AGENT_INFO = 50;
 
     private static final short SUBSPAN = 60;
+    private static final short SUBSPANLIST = 70;
 
     @Override
     public TBase<?, ?> tBaseLookup(short type) {
@@ -28,6 +29,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return new AgentInfo();
             case SUBSPAN:
                 return new SubSpan();
+            case SUBSPANLIST:
+                return new SubSpanList();
         }
         throw new IllegalArgumentException("Unsupported type:" + type);
     }
@@ -51,6 +54,9 @@ public class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof SubSpan) {
             return SUBSPAN;
+        }
+        if (tbase instanceof SubSpanList) {
+            return SUBSPANLIST;
         }
         throw new UnsupportedOperationException("Unsupported Type");
     }
