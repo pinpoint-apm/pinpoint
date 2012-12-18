@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
+import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -18,8 +19,8 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(MySQLConnectionImplModifier.class.getName());
 
-    public MySQLNonRegisteringDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public MySQLNonRegisteringDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

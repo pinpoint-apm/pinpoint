@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.oracle;
 
+import com.profiler.Agent;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.AbstractModifier;
@@ -14,8 +15,8 @@ import java.util.logging.Logger;
 public class OracleStatementModifier extends AbstractModifier {
     private final Logger logger = Logger.getLogger(OracleStatementModifier.class.getName());
 
-    public OracleStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public OracleStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

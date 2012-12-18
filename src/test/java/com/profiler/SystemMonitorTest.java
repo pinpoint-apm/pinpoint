@@ -1,5 +1,6 @@
 package com.profiler;
 
+import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
 import org.junit.Test;
@@ -15,8 +16,8 @@ public class SystemMonitorTest {
     @Test
     public void testStart() throws Exception {
         DataSender loggingDataSender = new LoggingDataSender();
-
-        SystemMonitor systemMonitor = new SystemMonitor();
+        TraceContext traceContext = new TraceContext();
+        SystemMonitor systemMonitor = new SystemMonitor(traceContext);
         systemMonitor.setDataSender(loggingDataSender);
         systemMonitor.start();
 

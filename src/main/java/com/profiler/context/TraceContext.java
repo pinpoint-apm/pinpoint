@@ -3,6 +3,7 @@ package com.profiler.context;
 
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
+import com.profiler.util.Assert;
 import com.profiler.util.NamedThreadLocal;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,6 +35,12 @@ public class TraceContext {
 
     private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
+    private String agentId;
+
+    private String applicationId;
+
+    private StorageFactory storageFactory;
+
     public TraceContext() {
     }
 
@@ -49,8 +56,7 @@ public class TraceContext {
         }
         // datasender연결 부분 수정 필요.
 //        trace.setDataSender(this.dataSender);
-        TimeLimitStorage storage = new TimeLimitStorage();
-        storage.setDataSender(this.dataSender);
+        Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         //
 //        trace.setTransactionId(transactionId.getAndIncrement());
@@ -72,5 +78,26 @@ public class TraceContext {
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;
         this.globalCallTrace.setDataSender(dataSender);
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setStorageFactory(StorageFactory storageFactory) {
+        Assert.notNull(storageFactory, "storageFactory myst not be null");
+        this.storageFactory = storageFactory;
     }
 }

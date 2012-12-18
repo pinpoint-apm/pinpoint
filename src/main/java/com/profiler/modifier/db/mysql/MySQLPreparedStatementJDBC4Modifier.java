@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
+import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -20,8 +21,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
     private final Logger logger = Logger.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
     private final String[] includes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
-    public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

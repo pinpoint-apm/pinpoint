@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.dbcp;
 
+import com.profiler.Agent;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.AbstractModifier;
@@ -15,8 +16,8 @@ public class DBCPPoolModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(DBCPPoolModifier.class.getName());
 
-    public DBCPPoolModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public DBCPPoolModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

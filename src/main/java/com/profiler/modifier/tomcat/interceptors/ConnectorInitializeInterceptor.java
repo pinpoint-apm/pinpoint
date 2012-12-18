@@ -1,9 +1,10 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import com.profiler.LifeCycleEventListener;
+import com.profiler.Agent;
 import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.util.InterceptorUtils;
+import com.profiler.util.Assert;
 import com.profiler.util.StringUtils;
+import org.apache.catalina.connector.Connector;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -12,13 +13,15 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class StandardServiceStartInterceptor implements StaticAfterInterceptor {
-    private final Logger logger = Logger.getLogger(StandardServiceStartInterceptor.class.getName());
+public class ConnectorInitializeInterceptor implements StaticAfterInterceptor {
 
-    private LifeCycleEventListener lifeCycleEventListener;
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    public StandardServiceStartInterceptor(LifeCycleEventListener lifeCycleEventListener) {
-        this.lifeCycleEventListener = lifeCycleEventListener;
+    private Agent agent;
+
+    public ConnectorInitializeInterceptor(Agent agent) {
+        Assert.notNull(agent, "agent must not be null");
+        this.agent = agent;
     }
 
     @Override
@@ -26,9 +29,8 @@ public class StandardServiceStartInterceptor implements StaticAfterInterceptor {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
-//        if (!InterceptorUtils.isSuccess(result)) {
-//            return;
-//        }
-        lifeCycleEventListener.start();
+        Connector connector = (Connector) target;
+        agent.getServerInfo().addConnector(connector.getProtocol(), connector.getPort());
+
     }
 }

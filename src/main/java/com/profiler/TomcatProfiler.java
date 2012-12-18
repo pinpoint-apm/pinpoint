@@ -19,13 +19,17 @@ public class TomcatProfiler implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(TomcatProfiler.class.getName());
 
     private String agentArgString = "";
+
     private Instrumentation instrumentation;
-    private ByteCodeInstrumentor byteCodeInstrumentor;
+    private final ByteCodeInstrumentor byteCodeInstrumentor;
 
     private final ModifierRegistry modifierRepository;
-    private ProfilerConfig profilerConfig;
 
-    public static void premain(String agentArgs, Instrumentation inst) {
+    private final ProfilerConfig profilerConfig;
+    private final Agent agent;
+
+
+    public static void premain(String agentArgs, Instrumentation instrumentation) {
         try {
             ProfilerConfig profilerConfig = new ProfilerConfig();
             profilerConfig.readConfigFile();
@@ -33,26 +37,32 @@ public class TomcatProfiler implements ClassFileTransformer {
                 logger.warning("Profiler Agent not started. PROFILE_ENABLE=" + profilerConfig.isProfileEnable());
                 return;
             }
-            new TomcatProfiler(agentArgs, inst, profilerConfig);
+            Agent agent = new Agent(profilerConfig);
+            new TomcatProfiler(agentArgs, instrumentation, agent, profilerConfig);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Profiler Agent start fail. Cause:" + e.getMessage(), e);
         }
     }
 
-    public TomcatProfiler(String agentArgs, Instrumentation inst, ProfilerConfig profilerConfig) {
+    public TomcatProfiler(String agentArgs, Instrumentation instrumentation, Agent agent, ProfilerConfig profilerConfig) {
         this.agentArgString = agentArgs;
         this.profilerConfig = profilerConfig;
-        this.instrumentation = inst;
+        this.agent = agent;
+
+        this.instrumentation = instrumentation;
         this.instrumentation.addTransformer(this);
+
         String[] paths = getTomcatlibPath();
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths);
-        this.modifierRepository = createModifierRegistry(byteCodeInstrumentor);
+
+        this.modifierRepository = createModifierRegistry();
     }
 
     private String[] getTomcatlibPath() {
         String catalinaHome = System.getProperty("catalina.home");
 
         if (catalinaHome == null) {
+            logger.info("CATALINA_HOME is null");
             return null;
         }
 
@@ -70,8 +80,8 @@ public class TomcatProfiler implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor) {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor, profilerConfig);
+    private ModifierRegistry createModifierRegistry() {
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor, agent, profilerConfig);
 
         modifierRepository.addTomcatModifier();
 
@@ -89,19 +99,19 @@ public class TomcatProfiler implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        // fast java class skip
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
                 return classFileBuffer;
             }
         }
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine("[transform] cl" + classLoader + " className:" + className);
-        }
         Modifier findModifier = this.modifierRepository.findModifier(className);
         if (findModifier == null) {
             return null;
         }
-
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("[transform] cl" + classLoader + " className:" + className + " Modifier:" + findModifier.getClass().getName());
+        }
         String javassistClassName = className.replace('/', '.');
 
         return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);

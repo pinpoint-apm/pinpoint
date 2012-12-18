@@ -4,6 +4,8 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
+import com.profiler.LifeCycleEventListener;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
@@ -23,8 +25,8 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
     private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
 
 
-    public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {
@@ -40,10 +42,12 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
         try {
 
             InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
-            StandardServiceStartInterceptor start = new StandardServiceStartInterceptor();
+
+            LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);
+            StandardServiceStartInterceptor start = new StandardServiceStartInterceptor(lifeCycleEventListener);
             standardService.addInterceptor("start", null, start);
 
-            StandardServiceStopInterceptor stop = new StandardServiceStopInterceptor();
+            StandardServiceStopInterceptor stop = new StandardServiceStopInterceptor(lifeCycleEventListener);
             standardService.addInterceptor("stop", null, stop);
 
             return standardService.toBytecode();

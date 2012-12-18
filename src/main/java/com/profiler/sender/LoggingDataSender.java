@@ -25,6 +25,6 @@ public class LoggingDataSender implements DataSender {
 
     @Override
     public void stop() {
-
+        logger.info("LoggingDataSender stop");
     }
 }

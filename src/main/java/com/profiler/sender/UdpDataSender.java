@@ -6,6 +6,7 @@ import com.profiler.common.util.HeaderTBaseSerializer;
 import com.profiler.common.util.TBaseLocator;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.Thriftable;
+import com.profiler.util.Assert;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -28,44 +29,46 @@ public class UdpDataSender implements DataSender, Runnable {
 
     private final LinkedBlockingQueue queue = new LinkedBlockingQueue(1024);
 
-    private final InetSocketAddress serverAddress = new InetSocketAddress(ProfilerConfig.SERVER_IP, ProfilerConfig.SERVER_UDP_PORT);
-
     private DatagramSocket udpSocket = null;
+    private Thread ioThread;
+
     private TBaseLocator locator = new DefaultTBaseLocator();
     // 주의 single thread용임
     private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
     private boolean started = false;
+
     private Object stopLock = new Object();
 
-    private Thread ioThread;
+    public UdpDataSender(String host, int port) {
+        Assert.notNull(host, "host must not be null");
 
-    private static class SingletonHolder {
-        public static final UdpDataSender INSTANCE = new UdpDataSender();
+        // Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
+        this.udpSocket = createSocket(host, port);
+
+        this.ioThread = createIoThread();
+
+        this.started = true;
     }
 
-
-    public static UdpDataSender getInstance() {
-        return SingletonHolder.INSTANCE;
+    private Thread createIoThread() {
+        Thread thread = new Thread(this);
+        thread.setName("HIPPO-UdpDataSender:IoThread");
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
     }
 
-    private UdpDataSender() {
-        udpSocket = createSocket();
-        ioThread = new Thread(this);
-        ioThread.setName("HIPPO-DataSender");
-        ioThread.setDaemon(true);
-        ioThread.start();
-        started = true;
-    }
-
-    private DatagramSocket createSocket() {
+    private DatagramSocket createSocket(String host, int port) {
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
             datagramSocket.setSoTimeout(1000 * 5);
+
+            InetSocketAddress serverAddress = new InetSocketAddress(host, port);
             datagramSocket.connect(serverAddress);
             return datagramSocket;
         } catch (SocketException e) {
-            return null;
+            throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
         }
     }
 
@@ -104,7 +107,7 @@ public class UdpDataSender implements DataSender, Runnable {
                 }
                 send0(dto);
             } catch (Throwable e) {
-                logger.log(Level.WARNING, "Unexpected Error", e);
+                logger.log(Level.WARNING, "Unexpected Error Cause:" + e.getMessage(), e);
             }
         }
     }
@@ -125,19 +128,13 @@ public class UdpDataSender implements DataSender, Runnable {
             return;
         }
         DatagramPacket packet = new DatagramPacket(sendData, sendData.length);
-        if (udpSocket == null) {
-            // socket생성에 문제가 있으면 재생성?
-            udpSocket = createSocket();
-        }
-        if (udpSocket != null) {
-            try {
-                udpSocket.send(packet);
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("Data sent. " + dto);
-                }
-            } catch (IOException e) {
-                logger.log(Level.WARNING, "packet send error " + dto, e);
+        try {
+            udpSocket.send(packet);
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine("Data sent. " + dto);
             }
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "packet send error " + dto, e);
         }
     }
 
@@ -155,14 +152,15 @@ public class UdpDataSender implements DataSender, Runnable {
         try {
             return serializer.serialize(header, dto);
         } catch (TException e) {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.log(Level.INFO, "Serialize fail:" + dto, e);
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, "Serialize fail:" + dto, e);
             }
             return null;
         }
     }
 
     private Header createHeader(TBase<?, ?> dto) {
+        // TODO 구지 객체 생성을 안하고 정적 lookup이 가능할것 같음.
         short type = locator.typeLookup(dto);
         Header header = new Header();
         header.setType(type);

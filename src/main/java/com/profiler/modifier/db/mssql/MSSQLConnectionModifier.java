@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.mssql;
 
+import com.profiler.Agent;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.AbstractModifier;
@@ -15,8 +16,8 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(MSSQLConnectionModifier.class.getName());
 
-    public MSSQLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public MSSQLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

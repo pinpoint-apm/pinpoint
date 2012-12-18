@@ -25,10 +25,7 @@ public final class Trace {
 
     private boolean tracingEnabled = true;
 
-    //    private TraceID root;
     private CallStack callStack;
-
-//    private DataSender dataSender = DEFULT_DATA_SENDER;
 
     private Storage storage;
 
@@ -66,10 +63,6 @@ public final class Trace {
     public DataSender getDataSender() {
         return storage.getDataSender();
     }
-
-//    public void setDataSender(DataSender dataSender) {
-//        this.dataSender = dataSender;
-//    }
 
 
     public AsyncTrace createAsyncTrace() {

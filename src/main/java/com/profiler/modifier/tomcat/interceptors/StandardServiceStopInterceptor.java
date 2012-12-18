@@ -13,7 +13,14 @@ import java.util.logging.Logger;
  *
  */
 public class StandardServiceStopInterceptor implements StaticAfterInterceptor {
+
     private final Logger logger = Logger.getLogger(StandardServiceStopInterceptor.class.getName());
+
+    private LifeCycleEventListener lifeCycleEventListener;
+
+    public StandardServiceStopInterceptor(LifeCycleEventListener lifeCycleEventListener) {
+        this.lifeCycleEventListener = lifeCycleEventListener;
+    }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
@@ -24,6 +31,6 @@ public class StandardServiceStopInterceptor implements StaticAfterInterceptor {
 //        if (!InterceptorUtils.isSuccess(result)) {
 //            return;
 //        }
-        LifeCycleEventListener.stop();
+        lifeCycleEventListener.stop();
     }
 }

@@ -1,5 +1,7 @@
 package com.profiler.interceptor.bci;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
@@ -132,6 +134,38 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         } catch (IllegalAccessException e) {
             throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException {
+        Class<?> aClass = this.defineClass(classLoader, interceptorFQCN, protectedDomain);
+        try {
+            Class<?>[] paramClass = getParamClass(params);
+            Constructor<?> constructor = aClass.getConstructor(paramClass);
+            return (Interceptor) constructor.newInstance(params);
+        } catch (InstantiationException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
+        }
+
+    }
+
+    private Class<?>[] getParamClass(Object[] params) throws InstrumentException {
+        Class<?>[] paramClass = new Class<?>[params.length];
+        for (int i = 0; i < params.length; i++) {
+            Object o = params[i];
+            if (o == null) {
+                throw new InstrumentException("params is null ");
+            }
+            paramClass[i] = o.getClass();
+
+        }
+        return paramClass;
     }
 
     private void loadClassLoaderLibraries(ClassLoader classLoader) {

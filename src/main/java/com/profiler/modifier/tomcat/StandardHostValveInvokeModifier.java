@@ -1,5 +1,7 @@
 package com.profiler.modifier.tomcat;
 
+import com.profiler.Agent;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -19,8 +21,8 @@ public class StandardHostValveInvokeModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(StandardHostValveInvokeModifier.class.getName());
 
-    public StandardHostValveInvokeModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public StandardHostValveInvokeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {
@@ -36,6 +38,8 @@ public class StandardHostValveInvokeModifier extends AbstractModifier {
 
         try {
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor");
+            setTraceContext(interceptor);
+
             InstrumentClass standardHostValve = byteCodeInstrumentor.getClass(javassistClassName);
             standardHostValve.addInterceptor("invoke", new String[]{"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, interceptor);
             return standardHostValve.toBytecode();

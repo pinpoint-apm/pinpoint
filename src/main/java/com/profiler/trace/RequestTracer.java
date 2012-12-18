@@ -40,7 +40,7 @@ public class RequestTracer {
 //			dto.setExtraData1(params.toString());
 //		}
 
-        UdpDataSender.getInstance().send(dto);
+//        UdpDataSender.getInstance().send(dto);
     }
 
     /**
@@ -80,10 +80,10 @@ public class RequestTracer {
         RequestDataListThriftDTO dataListDto = DatabaseRequestTracer.getRequestDataList();
 
         if (dataListDto != null) {
-            UdpDataSender.getInstance().send(dataListDto);
+//            UdpDataSender.getInstance().send(dataListDto);
         }
 
-        UdpDataSender.getInstance().send(dto);
+//        UdpDataSender.getInstance().send(dto);
 
         requestSet.remove(currentRequestID.get());
         DatabaseRequestTracer.removeRequestDataList();

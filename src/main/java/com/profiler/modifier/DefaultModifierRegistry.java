@@ -3,6 +3,7 @@ package com.profiler.modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.profiler.Agent;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.arcus.ArcusClientModifier;
@@ -38,13 +39,15 @@ import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 public class DefaultModifierRegistry implements ModifierRegistry {
     // TODO 혹시 동시성을 고려 해야 되는지 검토.
     // 왠간해서는 동시성 상황이 안나올것으로 보임.
-    private Map<String, Modifier> registry = new HashMap<String, Modifier>();
+    private Map<String, Modifier> registry = new HashMap<String, Modifier>(512);
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ProfilerConfig profilerConfig;
+    private final Agent agent;
 
-    public DefaultModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig) {
+    public DefaultModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ProfilerConfig profilerConfig) {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.agent = agent;
         this.profilerConfig = profilerConfig;
     }
 
@@ -61,38 +64,38 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addConnectorModifier() {
-        HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor);
+        HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor, agent);
         addModifier(httpClientModifier);
 
-        MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor);
+        MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
         addModifier(memcachedClientModifier);
 
-        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor);
+        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
         addModifier(arcusClientModifier);
 
-        BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor);
+        BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
         addModifier(baseOperationModifier);
 
-        CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor);
+        CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
         addModifier(cacheManagerModifier);
     }
 
     public void addBLOCModifier() {
-        HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor);
+        HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor, agent);
         addModifier(httpHandlerModifier);
     }
 
     public void addTomcatModifier() {
-        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor);
+        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
         addModifier(standardHostValveInvokeModifier);
 
-        Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor);
+        Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatStandardServiceModifier);
 
-        Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor);
+        Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatConnectorModifier);
 
-        Modifier tomcatCatalinaModifier = new CatalinaModifier(byteCodeInstrumentor);
+        Modifier tomcatCatalinaModifier = new CatalinaModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatCatalinaModifier);
     }
 
@@ -126,37 +129,37 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         // TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
         // 확인필요.
 
-        Modifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor);
+        Modifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlNonRegisteringDriverModifier);
 
-        Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor);
+        Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlConnectionImplModifier);
 
-        Modifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor);
+        Modifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlStatementModifier);
 
-        Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor);
+        Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlPreparedStatementModifier);
 
-        MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor);
+        MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
         addModifier(myqlPreparedStatementJDBC4Modifier);
 
-        Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor);
+        Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlResultSetModifier);
     }
 
     private void addMsSqlDriver() {
 
-        Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(byteCodeInstrumentor);
+        Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlConnectionModifier);
 
-        Modifier mssqlStatementModifier = new MSSQLStatementModifier(byteCodeInstrumentor);
+        Modifier mssqlStatementModifier = new MSSQLStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlStatementModifier);
 
-        Modifier mssqlPreparedStatementModifier = new MSSQLPreparedStatementModifier(byteCodeInstrumentor);
+        Modifier mssqlPreparedStatementModifier = new MSSQLPreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlPreparedStatementModifier);
 
-        Modifier mssqlResultSetModifier = new MSSQLResultSetModifier(byteCodeInstrumentor);
+        Modifier mssqlResultSetModifier = new MSSQLResultSetModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlResultSetModifier);
 
     }
@@ -164,39 +167,39 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private void addOracleDriver() {
 
         // TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
-        Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor);
+        Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor);
+        Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oracleStatement);
 
-        Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor);
+        Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
         addModifier(oracleResultSetModifier);
     }
 
     private void addCubridDriver() {
 
         // TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
-        Modifier cubridStatementModifier = new CubridStatementModifier(byteCodeInstrumentor);
+        Modifier cubridStatementModifier = new CubridStatementModifier(byteCodeInstrumentor, agent);
         addModifier(cubridStatementModifier);
 
-        Modifier cubridPreparedStatementModifier = new CubridPreparedStatementModifier(byteCodeInstrumentor);
+        Modifier cubridPreparedStatementModifier = new CubridPreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(cubridPreparedStatementModifier);
 
-        Modifier cubridResultSetModifier = new CubridResultSetModifier(byteCodeInstrumentor);
+        Modifier cubridResultSetModifier = new CubridResultSetModifier(byteCodeInstrumentor, agent);
         addModifier(cubridResultSetModifier);
 
-        Modifier cubridUStatementModifier = new CubridUStatementModifier(byteCodeInstrumentor);
+        Modifier cubridUStatementModifier = new CubridUStatementModifier(byteCodeInstrumentor, agent);
         addModifier(cubridUStatementModifier);
     }
 
     private void addDbcpDriver() {
 
         // TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
-        Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor);
+        Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
         addModifier(dbcpBasicDataSourceModifier);
 
-        Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor);
+        Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor, agent);
         addModifier(dbcpPoolModifier);
     }
 }

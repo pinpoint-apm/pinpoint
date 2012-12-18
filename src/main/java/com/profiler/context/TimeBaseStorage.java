@@ -9,19 +9,34 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class TimeLimitStorage implements Storage {
-    private int flushCount = 10;
-
-    private List<SubSpan> storage = new ArrayList<SubSpan>(flushCount);
+public class TimeBaseStorage implements Storage {
+    private boolean discard = true;
 
     private boolean limit;
-    private boolean dropSubSpan = true;
-    private int limitTime = 1000;
+    private long limitTime = 1000;
+    private int bufferSize = 20;
+
+    private List<SubSpan> storage = new ArrayList<SubSpan>(bufferSize);
     private DataSender dataSender;
+
+    public TimeBaseStorage() {
+    }
+
+    public void setDiscard(boolean discard) {
+        this.discard = discard;
+    }
 
     @Override
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public void setLimitTime(long limitTime) {
+        this.limitTime = limitTime;
     }
 
     @Override
@@ -39,9 +54,9 @@ public class TimeLimitStorage implements Storage {
         } else {
             // 1초가 지났다면.
             // 데이터가 flushCount이상일 경우 먼저 flush한다.
-            if (storage.size() >= flushCount) {
+            if (storage.size() >= bufferSize) {
                 SubSpanList subSpanList = new SubSpanList(storage);
-                storage = new ArrayList<SubSpan>(flushCount);
+                storage = new ArrayList<SubSpan>(bufferSize);
                 dataSender.send(subSpanList);
             }
         }
@@ -70,8 +85,7 @@ public class TimeLimitStorage implements Storage {
     public void store(Span span) {
         // Span이 들어오는것은 마지막 flush타이밍이다.
         // 비동기일 경우는 애매함. 비동기는 개별 flush해야 되나?
-        if (dropSubSpan) {
-
+        if (discard) {
             limit = checkLimit(span);
             if (!limit) {
                 // 제한시간내 빨리 끝난 경우는 subspan을 버린다.

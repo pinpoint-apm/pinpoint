@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
@@ -16,8 +17,8 @@ public class MySQLStatementModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(MySQLStatementModifier.class.getName());
 
-    public MySQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public MySQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {

@@ -3,6 +3,7 @@ package com.profiler;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
+import com.profiler.util.Assert;
 import com.sun.management.OperatingSystemMXBean;
 
 import java.io.IOException;
@@ -41,8 +42,11 @@ public class SystemMonitor {
     });
 
     private DataSender dataSender;
+    private TraceContext traceContext;
 
-    public SystemMonitor() {
+    public SystemMonitor(TraceContext traceContext) {
+        Assert.notNull(traceContext, "traceContext must not be null");
+        this.traceContext = traceContext;
     }
 
     public void setDataSender(DataSender dataSender) {
@@ -51,7 +55,7 @@ public class SystemMonitor {
 
     public void start() {
         logger.info("Starting system monitor.");
-        executor.scheduleAtFixedRate(new Worker(dataSender), 5, 5, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(new Worker(dataSender, traceContext), 5, 5, TimeUnit.SECONDS);
     }
 
     public void stop() {
@@ -62,18 +66,19 @@ public class SystemMonitor {
     private static class Worker implements Runnable {
 
         private DataSender dataSender;
+        private TraceContext traceContext;
 
-        public Worker(DataSender dataSender) {
+        public Worker(DataSender dataSender, TraceContext traceContext) {
             this.dataSender = dataSender;
+            this.traceContext = traceContext;
         }
 
         public void run() {
             try {
                 JVMInfoThriftDTO jvmInfo = new JVMInfoThriftDTO();
-                jvmInfo.setAgentId(Agent.getInstance().getAgentId());
+                jvmInfo.setAgentId(traceContext.getAgentId());
                 jvmInfo.setDataTime(System.currentTimeMillis());
 
-                TraceContext traceContext = TraceContext.getTraceContext();
                 activeThread(traceContext, jvmInfo);
 
                 setGCState(jvmInfo);

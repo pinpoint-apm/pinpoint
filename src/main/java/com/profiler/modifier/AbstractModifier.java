@@ -4,6 +4,9 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
+import com.profiler.context.TraceContext;
+import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.bci.InstrumentException;
 import javassist.ClassPool;
 
@@ -15,16 +18,29 @@ public abstract class AbstractModifier implements Modifier {
     private final Logger logger = Logger.getLogger(AbstractModifier.class.getName());
 
     protected final ClassPool classPool;
-    protected ByteCodeInstrumentor byteCodeInstrumentor;
+    protected final ByteCodeInstrumentor byteCodeInstrumentor;
+    protected final Agent agent;
 
-    public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+    public Agent getAgent() {
+        return agent;
+    }
+
+    public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.agent = agent;
         this.classPool = byteCodeInstrumentor.getClassPool();
     }
 
     public void printClassConvertComplete(String javassistClassName) {
         if (logger.isLoggable(Level.INFO)) {
             logger.info(javassistClassName + " class is converted.");
+        }
+    }
+
+    public void setTraceContext(Interceptor interceptor) {
+        // TODO TraceContext를 인터셉터에 바인하는 방안의 추가 개선 필요.
+        if (interceptor instanceof TraceContextSupport) {
+            ((TraceContextSupport) interceptor).setTraceContext(agent.getTraceContext());
         }
     }
 

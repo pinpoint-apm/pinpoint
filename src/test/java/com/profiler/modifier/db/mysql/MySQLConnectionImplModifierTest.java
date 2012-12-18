@@ -1,6 +1,8 @@
 package com.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
+import com.profiler.Agent;
+import com.profiler.config.ProfilerConfig;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
@@ -26,19 +28,21 @@ public class MySQLConnectionImplModifierTest {
     public void setUp() throws Exception {
         loader = new TestClassLoader();
 
-        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor());
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        Agent agent = new Agent(profilerConfig);
+        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
         loader.addModifier(driverModifier);
 
-        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor());
+        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor(), agent);
         loader.addModifier(connectionModifier);
 
-        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor());
+        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor(), agent);
         loader.addModifier(statementModifier);
 
-        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor());
+        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor(), agent);
         loader.addModifier(preparedStatementModifier);
 
-        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor());
+        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor(), agent);
         loader.addModifier(preparedStatementJDBC4Modifier);
 
         loader.initialize();

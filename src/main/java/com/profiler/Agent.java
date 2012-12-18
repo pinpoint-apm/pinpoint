@@ -8,31 +8,37 @@ import java.util.logging.Logger;
 import com.profiler.common.dto.thrift.AgentInfo;
 import com.profiler.common.mapping.ApiMappingTable;
 import com.profiler.common.util.SpanUtils;
+import com.profiler.config.ProfilerConfig;
+import com.profiler.context.BypassStorageFactory;
+import com.profiler.context.TimeBaseStorageFactory;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.UdpDataSender;
+import com.profiler.util.Assert;
 import com.profiler.util.NetworkUtils;
 
 public class Agent {
-
-    public static final String FQCN = Agent.class.getName();
 
     private static final Logger logger = Logger.getLogger(Agent.class.getName());
 
     private volatile boolean alive = false;
 
+    private final ProfilerConfig profilerConfig;
     private final ServerInfo serverInfo;
     private final SystemMonitor systemMonitor;
+
+    private TraceContext traceContext;
     private DataSender dataSender;
 
     private final String agentId;
     private final String nodeName;
     private final String applicationName;
-//    private boolean validate = true;
 
-    private Agent() {
+    public Agent(ProfilerConfig profilerConfig) {
+        Assert.notNull(profilerConfig, "profilerConfig must not be null");
+
+        this.profilerConfig = profilerConfig;
         this.serverInfo = new ServerInfo();
-        this.systemMonitor = new SystemMonitor();
 
 //        this.agentId = getId("hippo.agentId", "UnkonwnAgentId");
 //        일단 임시로 호환성을 위해 agentid에 머신name을넣도록 하자
@@ -41,17 +47,37 @@ public class Agent {
         this.nodeName = getId("hippo.nodeName", machineName);
         this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
 
-        // 일단 임시로 datasender와 , tracecontext 타이밍 변경. 추후 다시 조정해야 될듯.
-        this.dataSender = UdpDataSender.getInstance();
-        // TraceContext의 생명주기 관리 방안이 없는지 강구.
-        TraceContext traceContext = TraceContext.getTraceContext();
-        traceContext.setDataSender(this.dataSender);
-        systemMonitor.setDataSender(dataSender);
+        this.dataSender = createDataSender();
+
+        initializeTraceContext();
+
+        this.systemMonitor = new SystemMonitor(this.traceContext);
+        this.systemMonitor.setDataSender(dataSender);
 
         // 매핑 테이블 초기화를 위해 엑세스
-
         ApiMappingTable.findApiId("test", null, null);
 
+        SingletonHolder.INSTANCE = this;
+    }
+
+    private void initializeTraceContext() {
+
+        this.traceContext = TraceContext.getTraceContext();
+        this.traceContext.setDataSender(this.dataSender);
+
+        this.traceContext.setAgentId(this.agentId);
+        this.traceContext.setApplicationId(this.applicationName);
+
+        if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
+            TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.dataSender, this.profilerConfig);
+            this.traceContext.setStorageFactory(timeBaseStorageFactory);
+        } else {
+            this.traceContext.setStorageFactory(new BypassStorageFactory(dataSender));
+        }
+    }
+
+    private UdpDataSender createDataSender() {
+        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorServerPort());
     }
 
     private String getId(String key, String defaultValue) {
@@ -66,8 +92,8 @@ public class Agent {
             if (bytes.length > SpanUtils.AGENT_NAME_LIMIT) {
                 logger.warning(idName + " is too long(1~24). value=" + id);
             }
-			// validate = false;
-			// TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..
+            // validate = false;
+            // TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..
         } catch (UnsupportedEncodingException e) {
             logger.log(Level.WARNING, "invalid agentId. Cause:" + e.getMessage(), e);
         }
@@ -75,9 +101,10 @@ public class Agent {
     }
 
     private static class SingletonHolder {
-        public static final Agent INSTANCE = new Agent();
+        public static Agent INSTANCE;
     }
 
+    @Deprecated
     public static Agent getInstance() {
         return SingletonHolder.INSTANCE;
     }
@@ -102,6 +129,9 @@ public class Agent {
         return applicationName;
     }
 
+    public TraceContext getTraceContext() {
+        return traceContext;
+    }
 
     /**
      * HIPPO 서버로 WAS정보를 전송한다.
@@ -157,11 +187,4 @@ public class Agent {
         this.dataSender.stop();
     }
 
-    public static void startAgent() {
-        Agent.getInstance().start();
-    }
-
-    public static void stopAgent() {
-        Agent.getInstance().stop();
-    }
 }

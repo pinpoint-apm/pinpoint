@@ -1,6 +1,9 @@
 package com.profiler.modifier.tomcat;
 
+import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.modifier.tomcat.interceptors.ConnectorInitializeInterceptor;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -20,8 +23,8 @@ public class TomcatConnectorModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(TomcatConnectorModifier.class.getName());
 
-    public TomcatConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public TomcatConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {
@@ -32,26 +35,22 @@ public class TomcatConnectorModifier extends AbstractModifier {
         if (logger.isLoggable(Level.INFO)) {
             logger.info("Modifing. " + javassistClassName);
         }
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
-
-    public byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
-
-            // initialize()할 때 protocol과 port번호를 저장해둔다.
-            CtMethod initializeMethod = cc.getDeclaredMethod("initialize", null);
-            initializeMethod.insertAfter("{" + Agent.FQCN + ".getInstance().getServerInfo().addConnector(getProtocol(), getPort()); }");
+//            // initialize()할 때 protocol과 port번호를 저장해둔다.
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.ConnectorInitializeInterceptor", new Object[]{agent});
+            InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
+            aClass.addInterceptor("initialize", null, interceptor);
 
             printClassConvertComplete(javassistClassName);
 
-            return cc.toBytecode();
+            return aClass.toBytecode();
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
+            return null;
         }
-
-        return null;
     }
+
+
 }

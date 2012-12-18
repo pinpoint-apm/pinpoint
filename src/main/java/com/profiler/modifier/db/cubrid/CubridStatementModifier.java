@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.cubrid;
 
+import com.profiler.Agent;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -17,8 +18,8 @@ public class CubridStatementModifier extends AbstractModifier {
 
     private final Logger logger = Logger.getLogger(CubridStatementModifier.class.getName());
 
-    public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
-        super(byteCodeInstrumentor);
+    public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {
