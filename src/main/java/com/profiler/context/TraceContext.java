@@ -48,7 +48,10 @@ public class TraceContext {
             throw new IllegalStateException("already Trace Object exist.");
         }
         // datasender연결 부분 수정 필요.
-        trace.setDataSender(this.dataSender);
+//        trace.setDataSender(this.dataSender);
+        TimeLimitStorage storage = new TimeLimitStorage();
+        storage.setDataSender(this.dataSender);
+        trace.setStorage(storage);
         //
 //        trace.setTransactionId(transactionId.getAndIncrement());
         threadLocal.set(trace);

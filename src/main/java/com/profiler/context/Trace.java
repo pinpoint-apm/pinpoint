@@ -28,7 +28,9 @@ public final class Trace {
     //    private TraceID root;
     private CallStack callStack;
 
-    private DataSender dataSender = DEFULT_DATA_SENDER;
+//    private DataSender dataSender = DEFULT_DATA_SENDER;
+
+    private Storage storage;
 
     public Trace() {
         // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
@@ -52,26 +54,23 @@ public final class Trace {
         return callStack;
     }
 
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public void setStorage(Storage storage) {
+        this.storage = storage;
+    }
+
     public DataSender getDataSender() {
-        return dataSender;
+        return storage.getDataSender();
     }
 
-    public void setDataSender(DataSender dataSender) {
-        this.dataSender = dataSender;
-    }
-
-//    public void handle(TraceHandler handler) {
-//        try {
-////            TraceID nextId = getNextTraceId();
-//            callStack.push();
-//            StackFrame stackFrame = createStackFrame(nextId, HANDLER_STACKID);
-//            callStack.setStackFrame(stackFrame);
-//            handler.handle(nextId);
-//        } finally {
-//            // stackID check하면 좋을듯.
-//            callStack.pop();
-//        }
+//    public void setDataSender(DataSender dataSender) {
+//        this.dataSender = dataSender;
 //    }
+
 
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
@@ -185,14 +184,17 @@ public final class Trace {
         tracingEnabled = false;
     }
 
-    void logSpan(SubSpan span) {
+    void logSpan(SubSpan subSpan) {
         try {
             if (logger.isLoggable(Level.INFO)) {
-                logger.info("[WRITE SubSPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
+                logger.info("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
-
-            dataSender.send(span);
-//            span.cancelTimer();
+//            if (flushType == 0) {
+//                storage.store(subSpan);
+//            } else if(flushType == 1) {
+//                dataSender.send(subSpan);
+            this.storage.store(subSpan);
+//            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -204,8 +206,9 @@ public final class Trace {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
 
-            dataSender.send(span);
-//            span.cancelTimer();
+//            dataSender.send(span);
+            this.storage.store(span);
+//            subSpan.cancelTimer();
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -350,7 +353,4 @@ public final class Trace {
     }
 
 
-    public void setTransactionId(int transactionId) {
-
-    }
 }

@@ -3,6 +3,7 @@ package com.profiler.context;
 import com.profiler.common.ServiceType;
 import com.profiler.sender.DataSender;
 
+import com.profiler.sender.LoggingDataSender;
 import org.apache.thrift.TBase;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,7 +37,9 @@ public class TraceTest {
         TraceID traceID = TraceID.newTraceId();
         Trace trace = new Trace(traceID);
         TestDataSender dataSender = new TestDataSender();
-        trace.setDataSender(dataSender);
+        BypassStorage bypassStorage = new BypassStorage();
+        bypassStorage.setDataSender(new LoggingDataSender());
+        trace.setStorage(bypassStorage);
 //        trace.traceBlockBegin();
 
         // response to client

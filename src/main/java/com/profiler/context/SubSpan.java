@@ -34,7 +34,7 @@ public class SubSpan implements Thriftable {
         return parentSpan;
     }
 
-    public int getSequence() {
+    public short getSequence() {
         return sequence;
     }
 
@@ -44,6 +44,10 @@ public class SubSpan implements Thriftable {
 
     public boolean addAnnotation(HippoAnnotation annotation) {
         return annotations.add(annotation);
+    }
+
+    public List<HippoAnnotation> getAnnotations() {
+        return annotations;
     }
 
     public int getAnnotationSize() {
@@ -123,21 +127,31 @@ public class SubSpan implements Thriftable {
     }
 
     public com.profiler.common.dto.thrift.SubSpan toThrift() {
+        return toThrift(false);
+    }
+
+    public com.profiler.common.dto.thrift.SubSpan toThrift(boolean child) {
         com.profiler.common.dto.thrift.SubSpan span = new com.profiler.common.dto.thrift.SubSpan();
 
-        span.setAgentId(Agent.getInstance().getAgentId());
+
         long parentSpanStartTime = parentSpan.getStartTime();
         span.setStartElapsed((int) (startTime - parentSpanStartTime));
         span.setEndElapsed((int) (endTime - startTime));
-        TraceID parentSpanTraceID = parentSpan.getTraceID();
-        span.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
-        span.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
+
+        // 다른 span의 sub로 들어가지 않을 경우
+        if (!child) {
+            span.setAgentId(Agent.getInstance().getAgentId());
+            TraceID parentSpanTraceID = parentSpan.getTraceID();
+            span.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
+            span.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
+            span.setSpanId(parentSpanTraceID.getSpanId());
+            span.setSequence(sequence);
+        }
+
         span.setRpc(rpc);
         span.setServiceName(serviceName);
         span.setServiceType(serviceType.getCode());
 
-        span.setSpanId(parentSpanTraceID.getSpanId());
-        span.setSequence(sequence);
 
         span.setEndPoint(endPoint);
 
