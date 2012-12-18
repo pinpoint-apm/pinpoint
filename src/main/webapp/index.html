@@ -109,22 +109,22 @@
         <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="12:00" />
         
 	    <div id="btnTrace" class="btn-group">
-			<button id="btnTraceServer" class="btn btn-primary">Trace</button>
+			<button id="btnTraceServer" class="btn btn-primary" onclick="return false;">Trace</button>
 			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 		  		<span class="caret"></span>
 			</button>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="#" data-value="30">Last 30 Minutes</a>
+					<a href="#" onclick="return false;" data-value="30">Last 30 Minutes</a>
 				</li>
 				<li>
-					<a href="#" data-value="60">Last 1 Hour</a>
+					<a href="#" onclick="return false;" data-value="60">Last 1 Hour</a>
 				</li>
 				<li>
-					<a href="#" data-value="360">Last 6 Hours</a>
+					<a href="#" onclick="return false;" data-value="360">Last 6 Hours</a>
 				</li>
 				<li>
-					<a href="#" data-value="1440">Last 1 Day</a>
+					<a href="#" onclick="return false;" data-value="1440">Last 1 Day</a>
 				</li>
 			</ul>
 		</div>
