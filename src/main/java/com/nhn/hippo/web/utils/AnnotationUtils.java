@@ -13,7 +13,7 @@ import com.profiler.common.bo.Span;
 
 public class AnnotationUtils {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+    private static final String FORMAT = "yyyy-MM-dd HH:mm:ss SSS";
 
     private static final String API = "API";
     private static final String ARCUS_COMMAND = "arcus.command";
@@ -21,8 +21,8 @@ public class AnnotationUtils {
 
     @Deprecated
     public static String longToDateStr(long date) {
-        // thread safe하지 않음
-        return dateFormat.format(new Date(date));
+        SimpleDateFormat format = new SimpleDateFormat(FORMAT);
+        return format.format(new Date(date));
     }
 
     public static String longLongToUUID(long mostTraceId, long leastTraceId) {
@@ -59,7 +59,6 @@ public class AnnotationUtils {
     public static Object getDisplayArgument(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
         int index = -1;
-        // TODO BinarySearch는 collection이 정렬되어 있어야 올바른 값을 찾을수 있음. 오동작할것으로 보임.
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
             index = Collections.binarySearch(list, ARCUS_COMMAND);
         }
