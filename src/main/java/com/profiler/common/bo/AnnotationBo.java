@@ -18,7 +18,7 @@ public class AnnotationBo implements Comparable<String> {
     // version 2 = prefix의 사이즈를 byte 하면 byte eocnding이 좀 줄지 않나?
     private byte version = 0;
     private long spanId;
-    private long timestamp;
+
     private String key;
     private byte[] keyBytes;
 
@@ -30,7 +30,6 @@ public class AnnotationBo implements Comparable<String> {
     }
 
     public AnnotationBo(Annotation ano) {
-        this.timestamp = ano.getTimestamp();
         this.key = ano.getKey();
         this.valueType = ano.getValueTypeCode();
         this.byteValue = ano.getValue();
@@ -71,13 +70,6 @@ public class AnnotationBo implements Comparable<String> {
         return keyBytes;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     public int getValueType() {
         return valueType;
@@ -110,7 +102,6 @@ public class AnnotationBo implements Comparable<String> {
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
         buffer.put(this.version);
-        buffer.put(this.timestamp);
         buffer.putPrefixedBytes(getKeyBytes());
         buffer.put(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
@@ -118,12 +109,11 @@ public class AnnotationBo implements Comparable<String> {
 
     public int getBufferSize() {
         // long timestamp; // required 8
-        // long duration; // optional 8
         // String key; // required 4+string.length
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
         int size = 0;
-        size += 1 + 8 + 4 + 4 + 4;
+        size += 1 + 4 + 4 + 4;
         size += this.getKeyBytes().length;
         if (this.getByteValue() != null) {
             size += this.getByteValue().length;
@@ -139,7 +129,6 @@ public class AnnotationBo implements Comparable<String> {
 
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
-        this.timestamp = buffer.readLong();
         this.key = buffer.readPrefixedString();
         this.valueType = buffer.readInt();
         this.byteValue = buffer.readPrefixedBytes();
@@ -149,9 +138,9 @@ public class AnnotationBo implements Comparable<String> {
     @Override
     public String toString() {
         if (value == null) {
-            return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", timestamp=" + timestamp + ", key='" + key + '\'' + ", valueType=" + valueType + ", byteValue=" + byteValue + '}';
+            return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", valueType=" + valueType + ", byteValue=" + byteValue + '}';
         }
-        return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", timestamp=" + timestamp + ", key='" + key + '\'' + ", value=" + value + '}';
+        return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", value=" + value + '}';
     }
 
     @Override

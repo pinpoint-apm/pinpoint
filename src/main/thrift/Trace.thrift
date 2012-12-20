@@ -4,7 +4,7 @@ struct Annotation {
   1: string key,
   2: i32 valueTypeCode,
   3: optional binary value,
-  4: i64 timestamp,
+  4: optional i64 timestamp,
 }
 
 struct ApiAnnotation {
