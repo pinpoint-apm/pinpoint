@@ -42,10 +42,10 @@ public class HippoAnnotation implements Thriftable {
         com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
         ann.setKey(key);
 
-        // TODO Encode 객체를 생성하지 않도록 변경.
-        AnnotationTranscoder.Encoded encode = transcoder.encode(value);
-        ann.setValueTypeCode(encode.getValueType());
-        ann.setValue(encode.getBytes());
+        int typeCode = transcoder.getTypeCode(value);
+        byte[] encodeBytes = transcoder.encode(value, typeCode);
+        ann.setValueTypeCode(typeCode);
+        ann.setValue(encodeBytes);
         return ann;
     }
 }
