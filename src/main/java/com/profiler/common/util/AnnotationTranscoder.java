@@ -88,7 +88,57 @@ public class AnnotationTranscoder {
         return rv;
     }
 
-    public Encoded encode(Object o) {
+    public int getTypeCode(Object o) {
+        if (o instanceof String) {
+            return 0;
+        } else if (o instanceof Long) {
+            return SPECIAL_LONG;
+        } else if (o instanceof Integer) {
+            return SPECIAL_INT;
+        } else if (o instanceof Boolean) {
+            return SPECIAL_BOOLEAN;
+        } else if (o instanceof Date) {
+            return SPECIAL_DATE;
+        } else if (o instanceof Byte) {
+            return SPECIAL_BYTE;
+        } else if (o instanceof Float) {
+            return SPECIAL_FLOAT;
+        } else if (o instanceof Double) {
+            return SPECIAL_DOUBLE;
+        } else if (o instanceof byte[]) {
+            return SPECIAL_BYTEARRAY;
+        } else {
+            return SERIALIZED;
+        }
+    }
+
+
+    public byte[] encode(Object o, int typeCode) {
+        switch (typeCode) {
+            case 0:
+                return encodeString((String) o);
+            case SPECIAL_INT:
+                return tu.encodeInt((Integer) o);
+            case SPECIAL_BOOLEAN:
+                return tu.encodeBoolean((Boolean) o);
+            case SPECIAL_LONG:
+                return tu.encodeLong((Long) o);
+            case SPECIAL_DATE:
+                return tu.encodeLong(((Date) o).getTime());
+            case SPECIAL_BYTE:
+                return tu.encodeByte((Byte) o);
+            case SPECIAL_FLOAT:
+                return tu.encodeInt(Float.floatToRawIntBits((Float) o));
+            case SPECIAL_DOUBLE:
+                return tu.encodeLong(Double.doubleToRawLongBits((Double) o));
+            case SPECIAL_BYTEARRAY:
+                return (byte[]) o;
+            default:
+                return serialize(o);
+        }
+    }
+
+    Encoded encode(Object o) {
         byte[] b = null;
         int flags = 0;
         if (o instanceof String) {
