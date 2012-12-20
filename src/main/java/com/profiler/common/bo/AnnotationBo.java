@@ -108,7 +108,6 @@ public class AnnotationBo implements Comparable<String> {
     }
 
     public int getBufferSize() {
-        // long timestamp; // required 8
         // String key; // required 4+string.length
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
