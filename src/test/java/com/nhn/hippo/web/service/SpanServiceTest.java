@@ -34,135 +34,135 @@ import com.profiler.server.dao.TracesDao;
 @ContextConfiguration("classpath:test-web-applicationContext.xml")
 public class SpanServiceTest {
 
-	@Autowired
-	private TracesDao traceDao;
+    @Autowired
+    private TracesDao traceDao;
 
-	@Autowired
-	private SpanService spanService;
+    @Autowired
+    private SpanService spanService;
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseTemplate2 template2;
+    @Autowired
+    private HbaseTemplate2 template2;
 
-	private Span root;
-	private List<Span> deleteSpans = new LinkedList<Span>();
+    private Span root;
+    private List<Span> deleteSpans = new LinkedList<Span>();
 
-	@Before
-	public void before() throws TException {
-		Span span = createRootSpan();
-		logger.debug("uuid:{}", new UUID(span.getMostTraceId(), span.getLeastTraceId()));
-		insert(span);
-		deleteSpans.add(span);
+    @Before
+    public void before() throws TException {
+        Span span = createRootSpan();
+        logger.debug("uuid:{}", new UUID(span.getMostTraceId(), span.getLeastTraceId()));
+        insert(span);
+        deleteSpans.add(span);
 
-		Span subSpan1 = createSubSpan(span);
-		insert(subSpan1);
-		deleteSpans.add(subSpan1);
+        Span subSpan1 = createSubSpan(span);
+        insert(subSpan1);
+        deleteSpans.add(subSpan1);
 
-		Span subSpan1_2 = createSubSpan(span);
-		insert(subSpan1_2);
-		deleteSpans.add(subSpan1_2);
+        Span subSpan1_2 = createSubSpan(span);
+        insert(subSpan1_2);
+        deleteSpans.add(subSpan1_2);
 
-		Span subSpan2 = createSubSpan(subSpan1);
-		insert(subSpan2);
-		deleteSpans.add(subSpan2);
+        Span subSpan2 = createSubSpan(subSpan1);
+        insert(subSpan2);
+        deleteSpans.add(subSpan2);
 
-		Span subSpan3 = createSubSpan(subSpan1);
-		insert(subSpan3);
-		deleteSpans.add(subSpan3);
+        Span subSpan3 = createSubSpan(subSpan1);
+        insert(subSpan3);
+        deleteSpans.add(subSpan3);
 
-		root = span;
-		logger.info(subSpan1.toString());
-		logger.info(subSpan1_2.toString());
-		logger.info(subSpan2.toString());
-		logger.info(subSpan3.toString());
+        root = span;
+        logger.info(subSpan1.toString());
+        logger.info(subSpan1_2.toString());
+        logger.info(subSpan2.toString());
+        logger.info(subSpan3.toString());
 
-	}
+    }
 
-	public void after() {
-		List list = new LinkedList();
-		for (Span span : deleteSpans) {
-			Delete delete = new Delete(SpanUtils.getTraceId(span));
-			list.add(delete);
-		}
-		template2.delete(HBaseTables.TRACES, list);
-		deleteSpans.clear();
-	}
+    public void after() {
+        List list = new LinkedList();
+        for (Span span : deleteSpans) {
+            Delete delete = new Delete(SpanUtils.getTraceId(span));
+            list.add(delete);
+        }
+        template2.delete(HBaseTables.TRACES, list);
+        deleteSpans.clear();
+    }
 
-	@Test
-	public void testReadSpan() throws TException {
-		doRead(root);
-	}
+    @Test
+    public void testReadSpan() throws TException {
+        doRead(root);
+    }
 
-	@Test
-	public void testReadSpanAndAnnotation() throws TException {
-		doRead(root);
-	}
+    @Test
+    public void testReadSpanAndAnnotation() throws TException {
+        doRead(root);
+    }
 
-	private void doRead(Span span) {
-		UUID uuid = new UUID(span.getMostTraceId(), span.getLeastTraceId());
+    private void doRead(Span span) {
+        UUID uuid = new UUID(span.getMostTraceId(), span.getLeastTraceId());
 
-		List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
-		for (SpanAlign spanAlign : sort) {
-			logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpan());
-		}
-		// reorder(spans);
-	}
+        List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
+        for (SpanAlign spanAlign : sort) {
+            logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpan());
+        }
+        // reorder(spans);
+    }
 
-	private void insert(Span span) throws TException {
-		traceDao.insert("JUNITApplicationName", span);
-	}
+    private void insert(Span span) throws TException {
+        traceDao.insert("JUNITApplicationName", span);
+    }
 
-	AtomicInteger id = new AtomicInteger(0);
+    AtomicInteger id = new AtomicInteger(0);
 
-	private Span createRootSpan() {
-		// 별도 생성기로 뽑을것.
-		UUID uuid = UUID.randomUUID();
-		List<Annotation> ano = Collections.emptyList();
-		long time = System.currentTimeMillis();
-		int andIncrement = id.getAndIncrement();
+    private Span createRootSpan() {
+        // 별도 생성기로 뽑을것.
+        UUID uuid = UUID.randomUUID();
+        List<Annotation> ano = Collections.emptyList();
+        long time = System.currentTimeMillis();
+        int andIncrement = id.getAndIncrement();
 
-		Span span = new Span();
+        Span span = new Span();
 
-		span.setAgentId("UnitTest");
-		span.setMostTraceId(uuid.getMostSignificantBits());
-		span.setLeastTraceId(uuid.getLeastSignificantBits());
-		span.setStartTime(time);
-		span.setElapsed(5);
-		span.setRpc("RPC");
-		span.setServiceName("SERVICENAME");
-		span.setServiceType(ServiceType.UNKNOWN.getCode());
-		span.setAnnotations(ano);
+        span.setAgentId("UnitTest");
+        span.setMostTraceId(uuid.getMostSignificantBits());
+        span.setLeastTraceId(uuid.getLeastSignificantBits());
+        span.setStartTime(time);
+        span.setElapsed(5);
+        span.setRpc("RPC");
+        span.setServiceName("SERVICENAME");
+        span.setServiceType(ServiceType.UNKNOWN.getCode());
+        span.setAnnotations(ano);
 
-		span.setParentSpanId(-1);
-		List<Annotation> annotations = new ArrayList<Annotation>();
-		annotations.add(new Annotation("root ann", 0, 0));
-		span.setAnnotations(annotations);
-		return span;
-	}
+        span.setParentSpanId(-1);
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        annotations.add(new Annotation("root ann", 0));
+        span.setAnnotations(annotations);
+        return span;
+    }
 
-	private Span createSubSpan(Span span) {
-		List<Annotation> ano = Collections.emptyList();
-		long time = System.currentTimeMillis();
-		int andIncrement = id.getAndIncrement();
+    private Span createSubSpan(Span span) {
+        List<Annotation> ano = Collections.emptyList();
+        long time = System.currentTimeMillis();
+        int andIncrement = id.getAndIncrement();
 
-		Span sub = new Span();
+        Span sub = new Span();
 
-		sub.setAgentId("UnitTest");
-		sub.setMostTraceId(span.getMostTraceId());
-		sub.setLeastTraceId(span.getLeastTraceId());
-		sub.setStartTime(time);
-		sub.setElapsed(5);
-		sub.setRpc("RPC");
-		sub.setServiceName("SERVICENAME");
-		sub.setServiceType(ServiceType.UNKNOWN.getCode());
-		sub.setAnnotations(ano);
+        sub.setAgentId("UnitTest");
+        sub.setMostTraceId(span.getMostTraceId());
+        sub.setLeastTraceId(span.getLeastTraceId());
+        sub.setStartTime(time);
+        sub.setElapsed(5);
+        sub.setRpc("RPC");
+        sub.setServiceName("SERVICENAME");
+        sub.setServiceType(ServiceType.UNKNOWN.getCode());
+        sub.setAnnotations(ano);
 
-		sub.setParentSpanId(span.getSpanId());
-		List<Annotation> annotations = new ArrayList<Annotation>();
-		annotations.add(new Annotation("sub ann" + andIncrement, 0, 0));
-		sub.setAnnotations(annotations);
-		return sub;
-	}
+        sub.setParentSpanId(span.getSpanId());
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        annotations.add(new Annotation("sub ann" + andIncrement, 0));
+        sub.setAnnotations(annotations);
+        return sub;
+    }
 
 }
