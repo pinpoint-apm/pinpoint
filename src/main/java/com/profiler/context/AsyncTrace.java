@@ -92,7 +92,7 @@ public class AsyncTrace {
     }
 
     public void recordAttibute(final String key, final Object value) {
-        subSpan.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+        subSpan.addAnnotation(new HippoAnnotation(key, value));
     }
 
     public void recordMessage(String key) {
@@ -121,7 +121,7 @@ public class AsyncTrace {
     private void annotate(final String key) {
 
         try {
-            this.subSpan.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+            this.subSpan.addAnnotation(new HippoAnnotation(key));
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

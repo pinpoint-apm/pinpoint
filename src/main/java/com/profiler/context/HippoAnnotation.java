@@ -9,22 +9,20 @@ public class HippoAnnotation implements Thriftable {
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
-    private final long timestamp;
+    //    private final long timestamp;
     private final String key;
 
     private final Object value;
 
     private final String threadname;
 
-    public HippoAnnotation(long timestamp, String key) {
-        this.timestamp = timestamp;
+    public HippoAnnotation(String key) {
         this.key = key;
         this.value = null;
         this.threadname = Thread.currentThread().getName();
     }
 
-    public HippoAnnotation(long timestamp, String key, Object value) {
-        this.timestamp = timestamp;
+    public HippoAnnotation(String key, Object value) {
         this.key = key;
         this.value = value;
         this.threadname = Thread.currentThread().getName();
@@ -34,18 +32,14 @@ public class HippoAnnotation implements Thriftable {
         return this.key;
     }
 
-    public long getTimestamp() {
-        return this.timestamp;
-    }
 
     @Override
     public String toString() {
-        return "HippoAnnotation [timestamp=" + timestamp + ", key=" + key + ", value=" + value + ", threadname=" + threadname + "]";
+        return "HippoAnnotation [key=" + key + ", value=" + value + ", threadname=" + threadname + "]";
     }
 
     public com.profiler.common.dto.thrift.Annotation toThrift() {
         com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
-        ann.setTimestamp(timestamp);
         ann.setKey(key);
 
         // TODO Encode 객체를 생성하지 않도록 변경.

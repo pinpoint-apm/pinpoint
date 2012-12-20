@@ -267,10 +267,10 @@ public final class Trace {
             StackFrame currentStackFrame = getCurrentStackFrame();
             if (currentStackFrame instanceof RootStackFrame) {
                 Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+                span.addAnnotation(new HippoAnnotation(key, value));
             } else {
                 SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key, value));
+                span.addAnnotation(new HippoAnnotation(key, value));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -334,10 +334,10 @@ public final class Trace {
             StackFrame currentStackFrame = getCurrentStackFrame();
             if (currentStackFrame instanceof RootStackFrame) {
                 Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+                span.addAnnotation(new HippoAnnotation(key));
             } else {
                 SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new HippoAnnotation(System.currentTimeMillis(), key));
+                span.addAnnotation(new HippoAnnotation(key));
             }
 
         } catch (Exception e) {
