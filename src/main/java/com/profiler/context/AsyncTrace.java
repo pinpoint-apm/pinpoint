@@ -27,15 +27,16 @@ public class AsyncTrace {
 
     private int asyncId = NON_REGIST;
     private SubSpan subSpan;
-    private DataSender dataSender;
+
+    private Storage storage;
     private TimerTask timeoutTask;
 
     public AsyncTrace(SubSpan subspan) {
         this.subSpan = subspan;
     }
 
-    public void setDataSender(DataSender dataSender) {
-        this.dataSender = dataSender;
+    public void setStorage(Storage storage) {
+        this.storage = storage;
     }
 
     public void setTimeoutTask(TimerTask timeoutTask) {
@@ -77,6 +78,11 @@ public class AsyncTrace {
 
     public void traceBlockEnd() {
         logSpan(this.subSpan);
+//        clearReference();
+    }
+
+    private void clearReference() {
+        // 관련 reference를 null로 하는게 좋지 않을까 함?
     }
 
     public void markAfterTime() {
@@ -100,41 +106,28 @@ public class AsyncTrace {
     }
 
     public void recordRpcName(final ServiceType serviceType, final String service, final String rpc) {
-        try {
-            this.subSpan.setServiceType(serviceType);
-            this.subSpan.setServiceName(service);
-            this.subSpan.setRpc(rpc);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+        this.subSpan.setServiceType(serviceType);
+        this.subSpan.setServiceName(service);
+        this.subSpan.setRpc(rpc);
     }
 
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
     public void recordEndPoint(final String endPoint) {
-        try {
-            this.subSpan.setEndPoint(endPoint);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+        this.subSpan.setEndPoint(endPoint);
     }
 
     private void annotate(final String key) {
+        this.subSpan.addAnnotation(new HippoAnnotation(key));
 
-        try {
-            this.subSpan.addAnnotation(new HippoAnnotation(key));
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
     }
 
-    void logSpan(SubSpan span) {
+    void logSpan(SubSpan subSpan) {
         try {
             if (logger.isLoggable(Level.INFO)) {
                 Thread thread = Thread.currentThread();
-                logger.info("[WRITE SubSPAN]" + span + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
+                logger.info("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
             }
-
-            this.dataSender.send(span.toThrift());
+            this.storage.store(subSpan);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

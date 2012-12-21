@@ -64,13 +64,17 @@ public final class Trace {
         return storage.getDataSender();
     }
 
+    public short getSequence() {
+        return sequence++;
+    }
 
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
         SubSpan subSpan = new SubSpan(callStack.getSpan());
-        subSpan.setSequence(sequence++);
+        subSpan.setSequence(getSequence());
         AsyncTrace asyncTrace = new AsyncTrace(subSpan);
-        asyncTrace.setDataSender(this.getDataSender());
+//        asyncTrace.setDataSender(this.getDataSender());
+        asyncTrace.setStorage(this.storage);
         return asyncTrace;
     }
 
@@ -78,7 +82,7 @@ public final class Trace {
         SubSpan subSpan = new SubSpan(callStack.getSpan());
         SubStackFrame stackFrame = new SubStackFrame(subSpan);
         stackFrame.setStackFrameId(stackId);
-        stackFrame.setSequence(sequence++);
+        stackFrame.setSequence(getSequence());
         return stackFrame;
     }
 

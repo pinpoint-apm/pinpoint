@@ -20,13 +20,11 @@ public class GlobalCallTrace {
 
     private ConcurrentMap<Integer, AsyncTrace> trace = new ConcurrentHashMap<Integer, AsyncTrace>(32);
     private AtomicInteger idGenerator = new AtomicInteger(0);
-    private DataSender dataSender;
 
     private Timer timer = new Timer("GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
 
     public int registerTraceObject(AsyncTrace asyncTrace) {
         // TODO 연관관계가 전달부분이 영 별로임.
-        asyncTrace.setDataSender(this.dataSender);
 
         TimeoutTask timeoutTask = new TimeoutTask(trace, asyncTrace.getAsyncId());
         asyncTrace.setTimeoutTask(timeoutTask);
@@ -59,9 +57,6 @@ public class GlobalCallTrace {
         return asyncTrace;
     }
 
-    public void setDataSender(DataSender dataSender) {
-        this.dataSender = dataSender;
-    }
 
     private final class TimeoutTask extends TimerTask {
         private ConcurrentMap<Integer, AsyncTrace> trace;

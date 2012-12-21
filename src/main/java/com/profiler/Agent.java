@@ -63,7 +63,7 @@ public class Agent {
     private void initializeTraceContext() {
 
         this.traceContext = TraceContext.getTraceContext();
-        this.traceContext.setDataSender(this.dataSender);
+//        this.traceContext.setDataSender(this.dataSender);
 
         this.traceContext.setAgentId(this.agentId);
         this.traceContext.setApplicationId(this.applicationName);

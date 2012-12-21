@@ -131,37 +131,38 @@ public class SubSpan implements Thriftable {
     }
 
     public com.profiler.common.dto.thrift.SubSpan toThrift(boolean child) {
-        com.profiler.common.dto.thrift.SubSpan span = new com.profiler.common.dto.thrift.SubSpan();
+        com.profiler.common.dto.thrift.SubSpan subSpan = new com.profiler.common.dto.thrift.SubSpan();
 
 
         long parentSpanStartTime = parentSpan.getStartTime();
-        span.setStartElapsed((int) (startTime - parentSpanStartTime));
-        span.setEndElapsed((int) (endTime - startTime));
+        subSpan.setStartElapsed((int) (startTime - parentSpanStartTime));
+        subSpan.setEndElapsed((int) (endTime - startTime));
 
+        subSpan.setSequence(sequence);
         // 다른 span의 sub로 들어가지 않을 경우
         if (!child) {
-            span.setAgentId(Agent.getInstance().getAgentId());
+            subSpan.setAgentId(Agent.getInstance().getAgentId());
             TraceID parentSpanTraceID = parentSpan.getTraceID();
-            span.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
-            span.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
-            span.setSpanId(parentSpanTraceID.getSpanId());
-            span.setSequence(sequence);
+            subSpan.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
+            subSpan.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
+            subSpan.setSpanId(parentSpanTraceID.getSpanId());
         }
 
-        span.setRpc(rpc);
-        span.setServiceName(serviceName);
-        span.setServiceType(serviceType.getCode());
+
+        subSpan.setRpc(rpc);
+        subSpan.setServiceName(serviceName);
+        subSpan.setServiceType(serviceType.getCode());
 
 
-        span.setEndPoint(endPoint);
+        subSpan.setEndPoint(endPoint);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
         for (HippoAnnotation a : annotations) {
             annotationList.add(a.toThrift());
         }
-        span.setAnnotations(annotationList);
+        subSpan.setAnnotations(annotationList);
 
-        return span;
+        return subSpan;
     }
 }

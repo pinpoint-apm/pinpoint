@@ -29,10 +29,6 @@ public class TraceContext {
     // internal stacktrace 추적때 필요한 unique 아이디, activethreadcount의  slow 타임 계산의 위해서도 필요할듯 함.
     private final AtomicInteger transactionId = new AtomicInteger(0);
 
-    private static final DataSender DEFAULT_DATA_SENDER = new LoggingDataSender();
-
-    private DataSender dataSender = DEFAULT_DATA_SENDER;
-
     private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
     private String agentId;
@@ -73,11 +69,6 @@ public class TraceContext {
 
     public ActiveThreadCounter getActiveThreadCounter() {
         return activeThreadCounter;
-    }
-
-    public void setDataSender(DataSender dataSender) {
-        this.dataSender = dataSender;
-        this.globalCallTrace.setDataSender(dataSender);
     }
 
     public void setAgentId(String agentId) {

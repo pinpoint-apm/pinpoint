@@ -146,15 +146,10 @@ public class Span implements Thriftable {
 
         List<SubSpan> subSpanList = this.getSubSpanList();
         if (subSpanList != null && subSpanList.size() != 0) {
-            SubSpan first = null;
+
             List<com.profiler.common.dto.thrift.SubSpan> tSubSpanList = new ArrayList<com.profiler.common.dto.thrift.SubSpan>(subSpanList.size());
             for (SubSpan subSpan : subSpanList) {
                 com.profiler.common.dto.thrift.SubSpan tSubSpan = subSpan.toThrift(true);
-                if (first == null) {
-                    // 첫번째 subSpan에는 sequence를 마크한다.
-                    tSubSpan.setSequence(subSpan.getSequence());
-                    first = subSpan;
-                }
                 tSubSpanList.add(tSubSpan);
             }
             span.setSubSpanList(tSubSpanList);
