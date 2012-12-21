@@ -24,7 +24,7 @@ struct SubSpan {
   3: optional i64 leastTraceId
 
   4: optional i64 spanId
-  5: optional i16 sequence
+  5: i16 sequence
 
   6: i32 startElapsed
   7: i32 endElapsed
@@ -69,7 +69,6 @@ struct SubSpanList {
   3: i64 leastTraceId
 
   4: i64 spanId
-  5: i16 startSequence
 
   6: list<SubSpan> subSpanList
 }

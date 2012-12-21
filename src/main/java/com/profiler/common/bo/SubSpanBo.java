@@ -45,14 +45,14 @@ public class SubSpanBo implements Span {
     public SubSpanBo() {
     }
 
-    public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, SubSpan tSubSpan, short sequence) {
+    public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, SubSpan tSubSpan) {
         this.agentId = tSpan.getAgentId();
 
         this.mostTraceId = tSpan.getMostTraceId();
         this.leastTraceId = tSpan.getLeastTraceId();
 
         this.spanId = tSpan.getSpanId();
-        this.sequence = sequence;
+        this.sequence = tSubSpan.getSequence();
 
         this.startElapsed = tSubSpan.getStartElapsed();
         this.endElapsed = tSubSpan.getEndElapsed();
@@ -65,14 +65,14 @@ public class SubSpanBo implements Span {
         setAnnotationBoList(tSubSpan.getAnnotations());
     }
 
-    public SubSpanBo(com.profiler.common.dto.thrift.SubSpanList subSpanList, SubSpan subSpan, short sequence) {
+    public SubSpanBo(com.profiler.common.dto.thrift.SubSpanList subSpanList, SubSpan subSpan) {
         this.agentId = subSpanList.getAgentId();
 
         this.mostTraceId = subSpanList.getMostTraceId();
         this.leastTraceId = subSpanList.getLeastTraceId();
 
         this.spanId = subSpanList.getSpanId();
-        this.sequence = sequence;
+        this.sequence = subSpan.getSequence();
 
         this.startElapsed = subSpan.getStartElapsed();
         this.endElapsed = subSpan.getEndElapsed();
@@ -220,7 +220,7 @@ public class SubSpanBo implements Span {
         // PARENTSPANID + FLAG + TERMINAL;
         size += SERVICETYPE;
 
-        // startTime 8, elapsed 4;
+        // startTime 4, elapsed 4
         size += 8;
         return size;
     }
@@ -245,6 +245,8 @@ public class SubSpanBo implements Span {
 
         buffer.put(startElapsed);
         buffer.put(endElapsed);
+//       Qualifier에서 읽어서 set하므로 필요 없음.
+//        buffer.put(sequence);
 
         buffer.put1PrefixedBytes(rpcBytes);
         buffer.put1PrefixedBytes(serviceNameBytes);
@@ -288,6 +290,8 @@ public class SubSpanBo implements Span {
 
         this.startElapsed = buffer.readInt();
         this.endElapsed = buffer.readInt();
+//        Qualifier에서 읽어서 가져오므로 하지 않아도 됨.
+//        this.sequence = buffer.readShort();
 
         this.rpc = buffer.read1UnsignedPrefixedString();
         this.serviceName = buffer.read1UnsignedPrefixedString();

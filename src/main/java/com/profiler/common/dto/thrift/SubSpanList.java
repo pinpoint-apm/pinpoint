@@ -36,7 +36,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short) 2);
     private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short) 3);
     private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short) 4);
-    private static final org.apache.thrift.protocol.TField START_SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("startSequence", org.apache.thrift.protocol.TType.I16, (short) 5);
     private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short) 6);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -50,7 +49,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     private long mostTraceId; // required
     private long leastTraceId; // required
     private long spanId; // required
-    private short startSequence; // required
     private List<SubSpan> subSpanList; // required
 
     /**
@@ -61,7 +59,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         MOST_TRACE_ID((short) 2, "mostTraceId"),
         LEAST_TRACE_ID((short) 3, "leastTraceId"),
         SPAN_ID((short) 4, "spanId"),
-        START_SEQUENCE((short) 5, "startSequence"),
         SUB_SPAN_LIST((short) 6, "subSpanList");
 
         private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -85,8 +82,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                     return LEAST_TRACE_ID;
                 case 4: // SPAN_ID
                     return SPAN_ID;
-                case 5: // START_SEQUENCE
-                    return START_SEQUENCE;
                 case 6: // SUB_SPAN_LIST
                     return SUB_SPAN_LIST;
                 default:
@@ -132,8 +127,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     private static final int __MOSTTRACEID_ISSET_ID = 0;
     private static final int __LEASTTRACEID_ISSET_ID = 1;
     private static final int __SPANID_ISSET_ID = 2;
-    private static final int __STARTSEQUENCE_ISSET_ID = 3;
-    private BitSet __isset_bit_vector = new BitSet(4);
+    private BitSet __isset_bit_vector = new BitSet(3);
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
 
     static {
@@ -146,8 +140,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
         tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.START_SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("startSequence", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
         tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
                         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
@@ -163,7 +155,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             long mostTraceId,
             long leastTraceId,
             long spanId,
-            short startSequence,
             List<SubSpan> subSpanList) {
         this();
         this.agentId = agentId;
@@ -173,8 +164,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         setLeastTraceIdIsSet(true);
         this.spanId = spanId;
         setSpanIdIsSet(true);
-        this.startSequence = startSequence;
-        setStartSequenceIsSet(true);
         this.subSpanList = subSpanList;
     }
 
@@ -190,7 +179,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         this.mostTraceId = other.mostTraceId;
         this.leastTraceId = other.leastTraceId;
         this.spanId = other.spanId;
-        this.startSequence = other.startSequence;
         if (other.isSetSubSpanList()) {
             List<SubSpan> __this__subSpanList = new ArrayList<SubSpan>();
             for (SubSpan other_element : other.subSpanList) {
@@ -213,8 +201,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         this.leastTraceId = 0;
         setSpanIdIsSet(false);
         this.spanId = 0;
-        setStartSequenceIsSet(false);
-        this.startSequence = 0;
         this.subSpanList = null;
     }
 
@@ -315,30 +301,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         __isset_bit_vector.set(__SPANID_ISSET_ID, value);
     }
 
-    public short getStartSequence() {
-        return this.startSequence;
-    }
-
-    public void setStartSequence(short startSequence) {
-        this.startSequence = startSequence;
-        setStartSequenceIsSet(true);
-    }
-
-    public void unsetStartSequence() {
-        __isset_bit_vector.clear(__STARTSEQUENCE_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field startSequence is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetStartSequence() {
-        return __isset_bit_vector.get(__STARTSEQUENCE_ISSET_ID);
-    }
-
-    public void setStartSequenceIsSet(boolean value) {
-        __isset_bit_vector.set(__STARTSEQUENCE_ISSET_ID, value);
-    }
-
     public int getSubSpanListSize() {
         return (this.subSpanList == null) ? 0 : this.subSpanList.size();
     }
@@ -413,14 +375,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                 }
                 break;
 
-            case START_SEQUENCE:
-                if (value == null) {
-                    unsetStartSequence();
-                } else {
-                    setStartSequence((Short) value);
-                }
-                break;
-
             case SUB_SPAN_LIST:
                 if (value == null) {
                     unsetSubSpanList();
@@ -446,9 +400,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             case SPAN_ID:
                 return Long.valueOf(getSpanId());
 
-            case START_SEQUENCE:
-                return Short.valueOf(getStartSequence());
-
             case SUB_SPAN_LIST:
                 return getSubSpanList();
 
@@ -473,8 +424,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                 return isSetLeastTraceId();
             case SPAN_ID:
                 return isSetSpanId();
-            case START_SEQUENCE:
-                return isSetStartSequence();
             case SUB_SPAN_LIST:
                 return isSetSubSpanList();
         }
@@ -527,15 +476,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             if (!(this_present_spanId && that_present_spanId))
                 return false;
             if (this.spanId != that.spanId)
-                return false;
-        }
-
-        boolean this_present_startSequence = true;
-        boolean that_present_startSequence = true;
-        if (this_present_startSequence || that_present_startSequence) {
-            if (!(this_present_startSequence && that_present_startSequence))
-                return false;
-            if (this.startSequence != that.startSequence)
                 return false;
         }
 
@@ -604,16 +544,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                 return lastComparison;
             }
         }
-        lastComparison = Boolean.valueOf(isSetStartSequence()).compareTo(typedOther.isSetStartSequence());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetStartSequence()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.startSequence, typedOther.startSequence);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
         lastComparison = Boolean.valueOf(isSetSubSpanList()).compareTo(typedOther.isSetSubSpanList());
         if (lastComparison != 0) {
             return lastComparison;
@@ -662,10 +592,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         if (!first) sb.append(", ");
         sb.append("spanId:");
         sb.append(this.spanId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("startSequence:");
-        sb.append(this.startSequence);
         first = false;
         if (!first) sb.append(", ");
         sb.append("subSpanList:");
@@ -750,14 +676,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         break;
-                    case 5: // START_SEQUENCE
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
-                            struct.startSequence = iprot.readI16();
-                            struct.setStartSequenceIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
                     case 6: // SUB_SPAN_LIST
                         if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                             {
@@ -803,9 +721,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
             oprot.writeI64(struct.spanId);
             oprot.writeFieldEnd();
-            oprot.writeFieldBegin(START_SEQUENCE_FIELD_DESC);
-            oprot.writeI16(struct.startSequence);
-            oprot.writeFieldEnd();
             if (struct.subSpanList != null) {
                 oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
                 {
@@ -847,13 +762,10 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             if (struct.isSetSpanId()) {
                 optionals.set(3);
             }
-            if (struct.isSetStartSequence()) {
+            if (struct.isSetSubSpanList()) {
                 optionals.set(4);
             }
-            if (struct.isSetSubSpanList()) {
-                optionals.set(5);
-            }
-            oprot.writeBitSet(optionals, 6);
+            oprot.writeBitSet(optionals, 5);
             if (struct.isSetAgentId()) {
                 oprot.writeString(struct.agentId);
             }
@@ -865,9 +777,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
             }
             if (struct.isSetSpanId()) {
                 oprot.writeI64(struct.spanId);
-            }
-            if (struct.isSetStartSequence()) {
-                oprot.writeI16(struct.startSequence);
             }
             if (struct.isSetSubSpanList()) {
                 {
@@ -882,7 +791,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         @Override
         public void read(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
             TTupleProtocol iprot = (TTupleProtocol) prot;
-            BitSet incoming = iprot.readBitSet(6);
+            BitSet incoming = iprot.readBitSet(5);
             if (incoming.get(0)) {
                 struct.agentId = iprot.readString();
                 struct.setAgentIdIsSet(true);
@@ -900,10 +809,6 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
                 struct.setSpanIdIsSet(true);
             }
             if (incoming.get(4)) {
-                struct.startSequence = iprot.readI16();
-                struct.setStartSequenceIsSet(true);
-            }
-            if (incoming.get(5)) {
                 {
                     org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
                     struct.subSpanList = new ArrayList<SubSpan>(_list53.size);

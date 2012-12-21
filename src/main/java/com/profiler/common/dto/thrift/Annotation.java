@@ -47,7 +47,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     private String key; // required
     private int valueTypeCode; // required
     private ByteBuffer value; // optional
-    private long timestamp; // required
+    private long timestamp; // optional
 
     /**
      * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
@@ -122,7 +122,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     private static final int __VALUETYPECODE_ISSET_ID = 0;
     private static final int __TIMESTAMP_ISSET_ID = 1;
     private BitSet __isset_bit_vector = new BitSet(2);
-    private _Fields optionals[] = {_Fields.VALUE};
+    private _Fields optionals[] = {_Fields.VALUE, _Fields.TIMESTAMP};
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
 
     static {
@@ -133,7 +133,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
         tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.OPTIONAL,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING, true)));
-        tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT,
+        tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
         metaDataMap = Collections.unmodifiableMap(tmpMap);
         org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Annotation.class, metaDataMap);
@@ -144,14 +144,11 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
     public Annotation(
             String key,
-            int valueTypeCode,
-            long timestamp) {
+            int valueTypeCode) {
         this();
         this.key = key;
         this.valueTypeCode = valueTypeCode;
         setValueTypeCodeIsSet(true);
-        this.timestamp = timestamp;
-        setTimestampIsSet(true);
     }
 
     /**
@@ -408,8 +405,8 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
                 return false;
         }
 
-        boolean this_present_timestamp = true;
-        boolean that_present_timestamp = true;
+        boolean this_present_timestamp = true && this.isSetTimestamp();
+        boolean that_present_timestamp = true && that.isSetTimestamp();
         if (this_present_timestamp || that_present_timestamp) {
             if (!(this_present_timestamp && that_present_timestamp))
                 return false;
@@ -514,10 +511,12 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
             }
             first = false;
         }
-        if (!first) sb.append(", ");
-        sb.append("timestamp:");
-        sb.append(this.timestamp);
-        first = false;
+        if (isSetTimestamp()) {
+            if (!first) sb.append(", ");
+            sb.append("timestamp:");
+            sb.append(this.timestamp);
+            first = false;
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -621,9 +620,11 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
                     oprot.writeFieldEnd();
                 }
             }
-            oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-            oprot.writeI64(struct.timestamp);
-            oprot.writeFieldEnd();
+            if (struct.isSetTimestamp()) {
+                oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
+                oprot.writeI64(struct.timestamp);
+                oprot.writeFieldEnd();
+            }
             oprot.writeFieldStop();
             oprot.writeStructEnd();
         }

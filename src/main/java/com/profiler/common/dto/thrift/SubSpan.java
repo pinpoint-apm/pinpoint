@@ -56,7 +56,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     private long mostTraceId; // optional
     private long leastTraceId; // optional
     private long spanId; // optional
-    private short sequence; // optional
+    private short sequence; // required
     private int startElapsed; // required
     private int endElapsed; // required
     private String rpc; // required
@@ -167,7 +167,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     private static final int __ENDELAPSED_ISSET_ID = 5;
     private static final int __SERVICETYPE_ISSET_ID = 6;
     private BitSet __isset_bit_vector = new BitSet(7);
-    private _Fields optionals[] = {_Fields.AGENT_ID, _Fields.MOST_TRACE_ID, _Fields.LEAST_TRACE_ID, _Fields.SPAN_ID, _Fields.SEQUENCE};
+    private _Fields optionals[] = {_Fields.AGENT_ID, _Fields.MOST_TRACE_ID, _Fields.LEAST_TRACE_ID, _Fields.SPAN_ID};
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
 
     static {
@@ -180,7 +180,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
         tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.OPTIONAL,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("sequence", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+        tmpMap.put(_Fields.SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("sequence", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
         tmpMap.put(_Fields.START_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("startElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
@@ -205,6 +205,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
 
     public SubSpan(
+            short sequence,
             int startElapsed,
             int endElapsed,
             String rpc,
@@ -213,6 +214,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
             String endPoint,
             List<Annotation> annotations) {
         this();
+        this.sequence = sequence;
+        setSequenceIsSet(true);
         this.startElapsed = startElapsed;
         setStartElapsedIsSet(true);
         this.endElapsed = endElapsed;
@@ -823,8 +826,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
                 return false;
         }
 
-        boolean this_present_sequence = true && this.isSetSequence();
-        boolean that_present_sequence = true && that.isSetSequence();
+        boolean this_present_sequence = true;
+        boolean that_present_sequence = true;
         if (this_present_sequence || that_present_sequence) {
             if (!(this_present_sequence && that_present_sequence))
                 return false;
@@ -1078,12 +1081,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
             sb.append(this.spanId);
             first = false;
         }
-        if (isSetSequence()) {
-            if (!first) sb.append(", ");
-            sb.append("sequence:");
-            sb.append(this.sequence);
-            first = false;
-        }
+        if (!first) sb.append(", ");
+        sb.append("sequence:");
+        sb.append(this.sequence);
+        first = false;
         if (!first) sb.append(", ");
         sb.append("startElapsed:");
         sb.append(this.startElapsed);
@@ -1312,11 +1313,9 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
                 oprot.writeI64(struct.spanId);
                 oprot.writeFieldEnd();
             }
-            if (struct.isSetSequence()) {
-                oprot.writeFieldBegin(SEQUENCE_FIELD_DESC);
-                oprot.writeI16(struct.sequence);
-                oprot.writeFieldEnd();
-            }
+            oprot.writeFieldBegin(SEQUENCE_FIELD_DESC);
+            oprot.writeI16(struct.sequence);
+            oprot.writeFieldEnd();
             oprot.writeFieldBegin(START_ELAPSED_FIELD_DESC);
             oprot.writeI32(struct.startElapsed);
             oprot.writeFieldEnd();
