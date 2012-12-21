@@ -15,25 +15,24 @@ import com.profiler.server.dao.ApplicationIndexDao;
 
 /**
  * application names list.
- * 
+ *
  * @author netspider
- * 
  */
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-	@Override
-	public void insert(final AgentInfo agentInfo) {
-		Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()), agentInfo.getTimestamp());
-		byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-		put.add(APPLICATION_INDEX_CF_AGENTS, agentId, agentId);
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-		hbaseTemplate.put(APPLICATION_INDEX, put);
+    @Override
+    public void insert(final AgentInfo agentInfo) {
+        Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()), agentInfo.getTimestamp());
+        byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
+        put.add(APPLICATION_INDEX_CF_AGENTS, agentId, agentId);
 
-		logger.debug("Insert agentInfo. %s", agentInfo);
-	}
+        hbaseTemplate.put(APPLICATION_INDEX, put);
+
+        logger.debug("Insert agentInfo. {}", agentInfo);
+    }
 }

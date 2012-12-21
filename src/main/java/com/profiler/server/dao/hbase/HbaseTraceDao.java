@@ -59,10 +59,8 @@ public class HbaseTraceDao implements TracesDao {
             return;
         }
 
-        short seqence = -1;
         for (SubSpan subSpan : subSpanList) {
-            seqence = getSequence(span, subSpan, seqence);
-            SubSpanBo subSpanBo = new SubSpanBo(span, subSpan, seqence);
+            SubSpanBo subSpanBo = new SubSpanBo(span, subSpan);
             byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
             byte[] value = subSpanBo.writeValue();
             put.add(TRACES_CF_TERMINALSPAN, rowId, value);
@@ -99,14 +97,12 @@ public class HbaseTraceDao implements TracesDao {
         Put put = new Put(SpanUtils.getTraceId(subSpanList));
 
         List<SubSpan> subSpanList0 = subSpanList.getSubSpanList();
-        short startSequence = subSpanList.getStartSequence();
         for (SubSpan subSpan : subSpanList0) {
-            SubSpanBo subSpanBo = new SubSpanBo(subSpanList, subSpan, startSequence);
+            SubSpanBo subSpanBo = new SubSpanBo(subSpanList, subSpan);
 
             byte[] value = subSpanBo.writeValue();
-            byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), startSequence);
+            byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
             put.add(TRACES_CF_TERMINALSPAN, rowId, value);
-            startSequence++;
         }
         hbaseTemplate.put(TRACES, put);
 
