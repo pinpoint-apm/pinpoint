@@ -47,8 +47,20 @@ public class SqlUtilsTest {
                 "select * from table a = -# and b=-# and c=? and d='$'");
         assertEqual("select * from table a = 1/*test*/ and b=50/*test*/ and c=? and d='11'",
                 "select * from table a = #/*test*/ and b=#/*test*/ and c=? and d='$'");
+
+        assertEqual("select ZIPCODE,CITY from ZIPCODE");
+        assertEqual("select a.ZIPCODE,a.CITY from ZIPCODE as a");
+        assertEqual("select ZIPCODE,123 from ZIPCODE", "select ZIPCODE,# from ZIPCODE");
+
     }
 
+    @Test
+    public void etcState() {
+        assertEqual("test.abc", "test.abc");
+        assertEqual("test.abc123", "test.abc123");
+        assertEqual("test.123", "test.123");
+
+    }
 
     @Test
     public void numberState() {
@@ -62,6 +74,10 @@ public class SqlUtilsTest {
         assertEqual("1.23 4.56", "# #");
         assertEqual("1.23-4.56", "#-#");
 
+        assertEqual("1<2", "#<#");
+        assertEqual("1< 2", "#< #");
+        assertEqual("(1< 2)", "(#< #)");
+
         assertEqual("-- 1.23", "-- 1.23");
         assertEqual("--1.23", "--1.23");
         assertEqual("/* 1.23 */", "/* 1.23 */");
@@ -69,6 +85,8 @@ public class SqlUtilsTest {
         assertEqual("/* 1.23 \n*/", "/* 1.23 \n*/");
 
         assertEqual("test123", "test123");
+        assertEqual("test_123", "test_123");
+        assertEqual("test_ 123", "test_ #");
 
         // 사실 이건 불가능한 토큰임.
         assertEqual("123tst", "#tst");
@@ -89,8 +107,11 @@ public class SqlUtilsTest {
     public void multiLineCommentState() {
         assertEqual("/**/", "/**/");
         assertEqual("/* */", "/* */");
+        assertEqual("/* */abc", "/* */abc");
         assertEqual("/* * */", "/* * */");
         assertEqual("/* * */", "/* * */");
+
+        assertEqual("/* abc", "/* abc");
 
         assertEqual("select * from table", "select * from table");
     }
@@ -107,13 +128,26 @@ public class SqlUtilsTest {
     }
 
     @Test
+    public void charout() {
+        for (int i = 11; i < 67; i++) {
+            System.out.println((char) i);
+        }
+    }
+
+    @Test
     public void commentAndSymbolCombine() {
         assertEqual("/* 'test' */", "/* 'test' */");
         assertEqual("/* 'test'' */", "/* 'test'' */");
         assertEqual("/* '' */", "/* '' */");
 
+        assertEqual("/*  */ 123 */", "/*  */ # */");
+
         assertEqual("' /* */'", "'$'");
 
+    }
+
+    private void assertEqual(String expected) {
+        assertEqual(expected, expected);
     }
 
     private void assertEqual(String expected, String actual) {
