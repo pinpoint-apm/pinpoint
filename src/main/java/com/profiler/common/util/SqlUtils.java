@@ -14,14 +14,16 @@ public class SqlUtils {
         final int length = sql.length();
         final StringBuilder normalized = new StringBuilder(length);
 
-        boolean newTokenState = true;
+        boolean numberTokenStartEnable = true;
         for (int i = 0; i < length; i++) {
             final char ch = sql.charAt(i);
             switch (ch) {
                 // COMMENT start check
                 case '/':
                     // comment state
-                    if (lookAhead1(sql, i) == '*') {
+                    int lookAhead1Char = lookAhead1(sql, i);
+                    // multi line comment and oracle hint /*+ */
+                    if (lookAhead1Char == '*') {
                         normalized.append("/*");
                         i += 2;
                         for (; i < length; i++) {
@@ -36,13 +38,28 @@ public class SqlUtils {
                             normalized.append(stateCh);
                         }
                         break;
+                        // single line comment
+                    } else if (lookAhead1Char == '/') {
+                        normalized.append("//");
+                        i += 2;
+                        for (; i < length; i++) {
+                            char stateCh = sql.charAt(i);
+                            if (stateCh == '\n') {
+                                normalized.append(stateCh);
+                                break;
+                            }
+                            normalized.append(stateCh);
+                        }
+                        break;
+
                     } else {
                         // unary operator
-                        newTokenState = true;
+                        numberTokenStartEnable = true;
                         normalized.append(ch);
                         break;
                     }
-
+//                case '#'
+//                    mysql 에서는 #도 한줄 짜리 comment이다.
                 case '-':
                     // single line comment state
                     if (lookAhead1(sql, i) == '-') {
@@ -59,7 +76,7 @@ public class SqlUtils {
                         break;
                     } else {
                         // unary operator
-                        newTokenState = true;
+                        numberTokenStartEnable = true;
                         normalized.append(ch);
                         break;
                     }
@@ -105,7 +122,8 @@ public class SqlUtils {
                 case '7':
                 case '8':
                 case '9':
-                    if (newTokenState) {
+                    // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
+                    if (numberTokenStartEnable) {
                         normalized.append('#');
                         outputParam.append(ch);
                         i++;
@@ -144,37 +162,45 @@ public class SqlUtils {
                 case '\t':
                 case '\n':
                 case '\r':
-                    newTokenState = true;
+                    numberTokenStartEnable = true;
                     normalized.append(ch);
                     break;
-
+                // http://msdn.microsoft.com/en-us/library/ms174986.aspx 참조.
                 case '*':
                 case '+':
+                case '%':
                 case '=':
                 case '<':
                 case '>':
-                    newTokenState = true;
+                case '&':
+                case '|':
+                case '^':
+                case '~':
+                case '!':
+                    numberTokenStartEnable = true;
                     normalized.append(ch);
                     break;
 
                 case '(':
                 case ')':
                 case ',':
-                    newTokenState = true;
+                case ';':
+                    numberTokenStartEnable = true;
                     normalized.append(ch);
                     break;
 
                 case '.':
                 case '_':
-                    newTokenState = false;
+                case '@': // Assignment Operator
+                    numberTokenStartEnable = false;
                     normalized.append(ch);
                     break;
 
                 default:
                     if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z') {
-                        newTokenState = false;
+                        numberTokenStartEnable = false;
                     } else {
-                        newTokenState = true;
+                        numberTokenStartEnable = true;
                     }
                     normalized.append(ch);
                     break;

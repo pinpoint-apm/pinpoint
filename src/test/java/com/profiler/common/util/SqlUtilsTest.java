@@ -52,6 +52,11 @@ public class SqlUtilsTest {
         assertEqual("select a.ZIPCODE,a.CITY from ZIPCODE as a");
         assertEqual("select ZIPCODE,123 from ZIPCODE", "select ZIPCODE,# from ZIPCODE");
 
+        assertEqual("SELECT * from table a=123 and b='abc' and c=1-3",
+                "SELECT * from table a=# and b='$' and c=#-#");
+
+        assertEqual("SYSTEM_RANGE(1, 10)", "SYSTEM_RANGE(#, #)");
+
     }
 
     @Test
@@ -79,6 +84,7 @@ public class SqlUtilsTest {
         assertEqual("(1< 2)", "(#< #)");
 
         assertEqual("-- 1.23", "-- 1.23");
+        assertEqual("- -1.23", "- -#");
         assertEqual("--1.23", "--1.23");
         assertEqual("/* 1.23 */", "/* 1.23 */");
         assertEqual("/*1.23*/", "/*1.23*/");
@@ -96,8 +102,11 @@ public class SqlUtilsTest {
     @Test
     public void singleLineCommentState() {
         assertEqual("--", "--");
+        assertEqual("//", "//");
         assertEqual("--123", "--123");
+        assertEqual("//123", "//123");
         assertEqual("--test", "--test");
+        assertEqual("//test", "//test");
         assertEqual("--test\ntest", "--test\ntest");
         assertEqual("--test\t\n", "--test\t\n");
     }
