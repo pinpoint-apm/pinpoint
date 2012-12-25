@@ -17,6 +17,7 @@
     <![endif]-->
 
     <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/common/js/jquery/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -26,6 +27,12 @@
     
     <script type="text/javascript" src="/common/js/springy/springy.js"></script>
     <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
+    <style>
+    .indicator {
+    	text-align:center;
+    	display:none; 
+    }
+    </style>
 </head>
 <body>
 
@@ -97,7 +104,6 @@
 
 <!-- MENU -->
 <div class="container">
-
     <form class="form-inline">
         <select id="application">
         	<option></option>
@@ -140,7 +146,7 @@
 			
 			<div class="tab-content">
 				<div class="tab-pane active" id="Tree" style="overflow:hidden;">
-					<div style="text-align:center;display:none;" class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
+					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 					<p id="tree"></p>
 				</div>
 				<div class="tab-pane" id="Graph">
@@ -167,9 +173,9 @@
 				<li><a href="#BusinessTransactionList" data-toggle="tab">Business Transactions</a></li>
 			</ul>
 			
-			<div class="tab-content">
+			<div class="tab-content" style="min-height:550px;">
 				<div class="tab-pane active" id="ScatterChart">
-					<div style="text-align:center;display:none;" class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
+					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 					<p id="scatter"></p>
 				</div>
 				<div class="tab-pane" id="BusinessTransactionList">
@@ -237,11 +243,11 @@ function getChartData(chartType, callback) {
 }
 
 function showIndicator() {
-	$(".indicator")[0].style.display = "";
+	$(".indicator").show();
 }
 
 function hideIndicator() {
-	$(".indicator")[0].style.display = "none";
+	$(".indicator").hide();
 }
 
 var transactionsCache;
@@ -257,11 +263,11 @@ function showTransactionList(transactions) {
 	    html.push(i + 1);
 	    html.push("</td>");
 	
-	    html.push("<td><a href='#' onclick='openTransactionDetails(");
+	    html.push("<td><div onclick='openTransactionDetails(");
 	    html.push(i);
-	    html.push(", this);'>");
+	    html.push(", this); return false;' style='cursor:pointer;'>");
 	    html.push(transactions[i].name);
-	    html.push("</a></td>");
+	    html.push("</div></td>");
 	
 	    html.push("<td class='calls'>");
 	    html.push(transactions[i].calls);
@@ -313,7 +319,7 @@ function openTransactionDetails(index, row) {
 
         html.push("<td><a href='#' onclick='openTrace(\"");
         html.push(traces[i].traceId);
-        html.push("\");'>");
+        html.push("\"); return false;' style='cursor:pointer;'>");
         html.push(traces[i].traceId);
         html.push("</a></td>");
 
