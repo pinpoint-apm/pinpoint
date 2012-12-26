@@ -7,18 +7,20 @@ import org.junit.Test;
 /**
  *
  */
-public class SqlUtilsTest {
+public class SqlParserTest {
+    private SqlParser sqlParser = new SqlParser();
+
     @Test
     public void normalizedSql() {
         StringBuilder sb = new StringBuilder(10);
 
-        String s = SqlUtils.normalizedSql("select * from table a = 1 and b=50 and c=? and d='11'", sb);
+        String s = sqlParser.normalizedSql("select * from table a = 1 and b=50 and c=? and d='11'", sb);
 
         System.out.println(s);
         System.out.println(sb.toString());
 
         StringBuilder sb2 = new StringBuilder(10);
-        String s2 = SqlUtils.normalizedSql(" ", sb2);
+        String s2 = sqlParser.normalizedSql(" ", sb2);
         System.out.println(s2);
 
         System.out.println((char) -1);
@@ -32,9 +34,14 @@ public class SqlUtilsTest {
         System.out.println((int) Character.MAX_HIGH_SURROGATE);
 
         StringBuilder sb3 = new StringBuilder();
-        String s3 = SqlUtils.normalizedSql("''", sb3);
+        String s3 = sqlParser.normalizedSql("''", sb3);
         System.out.println("s3:" + s3);
         System.out.println("sb3:" + sb3.toString());
+    }
+
+    @Test
+    public void nullCheck() {
+        sqlParser.normalizedSql(null, new StringBuilder());
     }
 
     @Test
@@ -69,39 +76,39 @@ public class SqlUtilsTest {
 
     @Test
     public void numberState() {
-        assertEqual("123", "#");
+        assertEqual("123", "#", "123");
         // -가 진짜 숫자의 -인지 알려면 구문분석이 필요하므로 그냥 숫자만 치환한다.
-        assertEqual("-123", "-#");
-        assertEqual("+123", "+#");
-        assertEqual("1.23", "#");
-        assertEqual("1.23.34", "#");
-        assertEqual("123 456", "# #");
-        assertEqual("1.23 4.56", "# #");
-        assertEqual("1.23-4.56", "#-#");
+        assertEqual("-123", "-#", "123");
+        assertEqual("+123", "+#", "123");
+        assertEqual("1.23", "#", "1.23");
+        assertEqual("1.23.34", "#", "1.23.34");
+        assertEqual("123 456", "# #", "123,456");
+        assertEqual("1.23 4.56", "# #", "1.23,4.56");
+        assertEqual("1.23-4.56", "#-#", "1.23,4.56");
 
-        assertEqual("1<2", "#<#");
-        assertEqual("1< 2", "#< #");
-        assertEqual("(1< 2)", "(#< #)");
+        assertEqual("1<2", "#<#", "1,2");
+        assertEqual("1< 2", "#< #", "1,2");
+        assertEqual("(1< 2)", "(#< #)", "1,2");
 
-        assertEqual("-- 1.23", "-- 1.23");
-        assertEqual("- -1.23", "- -#");
-        assertEqual("--1.23", "--1.23");
-        assertEqual("/* 1.23 */", "/* 1.23 */");
-        assertEqual("/*1.23*/", "/*1.23*/");
-        assertEqual("/* 1.23 \n*/", "/* 1.23 \n*/");
+        assertEqual("-- 1.23", "-- 1.23", "");
+        assertEqual("- -1.23", "- -#", "1.23");
+        assertEqual("--1.23", "--1.23", "");
+        assertEqual("/* 1.23 */", "/* 1.23 */", "");
+        assertEqual("/*1.23*/", "/*1.23*/", "");
+        assertEqual("/* 1.23 \n*/", "/* 1.23 \n*/", "");
 
-        assertEqual("test123", "test123");
-        assertEqual("test_123", "test_123");
-        assertEqual("test_ 123", "test_ #");
+        assertEqual("test123", "test123", "");
+        assertEqual("test_123", "test_123", "");
+        assertEqual("test_ 123", "test_ #", "123");
 
         // 사실 이건 불가능한 토큰임.
-        assertEqual("123tst", "#tst");
+        assertEqual("123tst", "#tst", "123");
     }
 
 
     @Test
     public void singleLineCommentState() {
-        assertEqual("--", "--");
+        assertEqual("--", "--", "");
         assertEqual("//", "//");
         assertEqual("--123", "--123");
         assertEqual("//123", "//123");
@@ -109,6 +116,7 @@ public class SqlUtilsTest {
         assertEqual("//test", "//test");
         assertEqual("--test\ntest", "--test\ntest");
         assertEqual("--test\t\n", "--test\t\n");
+        assertEqual("--test\n123 test", "--test\n# test");
     }
 
 
@@ -161,7 +169,7 @@ public class SqlUtilsTest {
 
     private void assertEqual(String expected, String actual) {
         StringBuilder sb = new StringBuilder();
-        String normalizedSql = SqlUtils.normalizedSql(expected, sb);
+        String normalizedSql = sqlParser.normalizedSql(expected, sb);
         try {
             Assert.assertEquals(actual, normalizedSql);
         } catch (AssertionFailedError e) {
@@ -170,9 +178,16 @@ public class SqlUtilsTest {
         }
     }
 
-    private void assertEqual(String expected, String actual, String expectedSb) {
-        StringBuilder sb = new StringBuilder();
-        String normalizedSql = SqlUtils.normalizedSql(expected, sb);
-        Assert.assertEquals(actual, normalizedSql);
+    private void assertEqual(String expected, String actual, String ouputExpected) {
+        StringBuilder output = new StringBuilder();
+        String normalizedSql = sqlParser.normalizedSql(expected, output);
+        try {
+            Assert.assertEquals("normalizedSql check", actual, normalizedSql);
+        } catch (AssertionFailedError e) {
+            System.err.println("Original :" + expected);
+            throw e;
+        }
+
+        Assert.assertEquals("outputParam check", ouputExpected, output.toString());
     }
 }

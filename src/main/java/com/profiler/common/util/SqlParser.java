@@ -3,10 +3,12 @@ package com.profiler.common.util;
 /**
  *
  */
-public class SqlUtils {
+public class SqlParser {
     public static final char SYMBOL_REPLACE = '$';
+    public static final char NUMBER_REPLACE = '#';
+    public static final char SEPARATOR = ',';
 
-    public static final String normalizedSql(String sql, StringBuilder outputParam) {
+    public String normalizedSql(String sql, StringBuilder outputParam) {
         if (sql == null) {
             return "";
         }
@@ -42,14 +44,7 @@ public class SqlUtils {
                     } else if (lookAhead1Char == '/') {
                         normalized.append("//");
                         i += 2;
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '\n') {
-                                normalized.append(stateCh);
-                                break;
-                            }
-                            normalized.append(stateCh);
-                        }
+                        i = readLine(sql, normalized, i);
                         break;
 
                     } else {
@@ -65,14 +60,7 @@ public class SqlUtils {
                     if (lookAhead1(sql, i) == '-') {
                         normalized.append("--");
                         i += 2;
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '\n') {
-                                normalized.append(stateCh);
-                                break;
-                            }
-                            normalized.append(stateCh);
-                        }
+                        i = readLine(sql, normalized, i);
                         break;
                     } else {
                         // unary operator
@@ -125,6 +113,8 @@ public class SqlUtils {
                     // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
                     if (numberTokenStartEnable) {
                         normalized.append('#');
+                        // number token start
+                        appendSeparator(outputParam);
                         outputParam.append(ch);
                         i++;
                         tokenEnd:
@@ -147,6 +137,7 @@ public class SqlUtils {
                                     break;
                                 default:
                                     // 여기서 처리하지 말고 루프 바깥으로 나가서 다시 token을 봐야 된다.
+//                                    outputParam.append(SEPARATOR);
                                     i--;
                                     break tokenEnd;
                             }
@@ -192,6 +183,7 @@ public class SqlUtils {
                 case '.':
                 case '_':
                 case '@': // Assignment Operator
+                case ':': // 오라클쪽의 bind 변수는 :bindvalue로도 가능.
                     numberTokenStartEnable = false;
                     normalized.append(ch);
                     break;
@@ -210,6 +202,17 @@ public class SqlUtils {
         return normalized.toString();
     }
 
+    private int readLine(String sql, StringBuilder normalized, int index) {
+        for (; index < sql.length(); index++) {
+            char ch = sql.charAt(index);
+            normalized.append(ch);
+            if (ch == '\n') {
+                break;
+            }
+        }
+        return index;
+    }
+
     /**
      * 미리 다음 문자열 하나를 까본다.
      *
@@ -217,12 +220,18 @@ public class SqlUtils {
      * @param index
      * @return
      */
-    private static int lookAhead1(String sql, int index) {
+    private int lookAhead1(String sql, int index) {
         index++;
         if (index < sql.length()) {
             return sql.charAt(index);
         } else {
             return -1;
+        }
+    }
+
+    private void appendSeparator(StringBuilder outputParam) {
+        if (outputParam.length() != 0) {
+            outputParam.append(SEPARATOR);
         }
     }
 
