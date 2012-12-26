@@ -17,7 +17,7 @@
     <![endif]-->
 
     <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="/common/js/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -387,6 +387,9 @@ $(document).ready(function () {
         $("#businessTransactions TBODY").empty();
         $("#businessTransactionsDetail TBODY").empty();
         
+        $('#chartTabs a:first').tab('show');
+        $('#transactionTabs a:first').tab('show');
+
         getChartData("flowserver", function(data) {
         	if (data.graphdata.nodes.length == 0) {
         	    alert("no data");
@@ -398,12 +401,9 @@ $(document).ready(function () {
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
 	        drawScatter(data.scatter, "#scatter");
+	        
+        	hideIndicator();
         });
-        
-        $('#chartTabs a:first').tab('show');
-        $('#transactionTabs a:first').tab('show');
-        
-        hideIndicator();
     });
     
     $("#btnTrace .dropdown-menu").on("click", function(e){
