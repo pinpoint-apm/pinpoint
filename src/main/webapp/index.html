@@ -337,7 +337,7 @@ $(document).ready(function () {
     $("#startdate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
 
     var min = date.getMinutes();
-    $("#starttime").val(date.getHours() + ":" + ((min < 10) ? (60 - (10 - min)) : (min - 10)));
+    $("#starttime").val((min < 10) ? (date.getHours() - 1 + ":" + (60 - (10 - min))) : (date.getHours() + (min - 10)));
 	
     $("#application").select2({
 		placeholder: "Select an application.",
