@@ -74,219 +74,222 @@
 <h4>TraceId: ${traceId}</h4>
 
 <div class="container">
+
 <div class="row">
-    <div class="span12">Server map (tree)</div>
-</div>
-<div class="row">
-    <div class="span12">
-        <p id="tree"></p>
-    </div>
+	<div class="span12">
+		<ul class="nav nav-tabs" id="chartTabs">
+			<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
+			<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
+			<li><a href="#Sankey" data-toggle="tab">Sankey Chart</a></li>
+		</ul>
+	
+		<div class="tab-content">
+			<div class="tab-pane active" id="Tree" style="overflow:hidden;">
+				<p id="tree"></p>
+			</div>
+			<div class="tab-pane" id="Graph">
+				<canvas id="springygraph" width="960" height="10" />
+			</div>
+			<div class="tab-pane" id="Sankey">
+				HIPPO개발자를 위한 차트입니다.<br/>
+				<p id="sankeygraph"></p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="row">
-    <div class="span12">Server map (sankey)</div>
-</div>
-<div class="row">
     <div class="span12">
-        <p id="sankeygraph"></p>
-    </div>
-</div>
-
-<div class="row">
-    <div class="span12">Server map (springy)</div>
-</div>
-<div class="row">
-    <div class="span12">
-        <canvas id="springygraph" width="640" height="480"/>
-    </div>
+		<ul class="nav nav-tabs" id="traceTabs">
+			<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
+			<li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
+		</ul>
+		
+		<div class="tab-content">
+			<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
+				<!-- begin call stack -->
+			    <table id="callStacks" class="table table-bordered">
+			        <thead>
+			        <tr>
+			            <th>Method</th>
+			            <th>Arguments</th>
+			            <th>Time[%]</th>
+			            <th>Time[ms]</th>
+			            <th>Agent</th>
+			            <th>Service</th>
+			        </tr>
+			        </thead>
+			        <tbody>
+			        <c:set var="startTime" scope="page" value="0"/>
+			        <c:set var="endTime" scope="page" value="0"/>
+			        <c:forEach items="${spanList}" var="span" varStatus="status">
+			            <c:set var="depth" scope="page" value="${span.depth}"/>
+			
+			            <c:if test="${span.root}">
+			                <c:set var="sp" scope="page" value="${span.span}"/>
+			                <c:set var="begin" scope="page" value="${sp.startTime}"/>
+			                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
+			                <c:if test="${status.first}">
+			                    <c:set var="startTime" scope="page" value="${sp.startTime}"/>
+			                </c:if>
+			                <c:if test="${status.first}">
+			                    <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
+			                </c:if>
+			                <tr>
+			                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+			                        <c:forEach begin="0" end="${depth}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
+			                            ${hippo:sortAnnotationListByKey(sp)}
+			                            ${hippo:getDisplayMethod(sp)}
+			                    </td>
+			                    <!-- method -->
+			                    <td class="arguments">
+			                            ${hippo:getDisplayArgument(sp)}
+			                    </td>
+			                    <!-- arguments -->
+			                    <td class="bar">
+			                        <c:if test="${status.first}">
+			                            <c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
+			                        </c:if>
+			                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
+			                            &nbsp;</div>
+			                    </td>
+			                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
+			                    <!-- exec -->
+			                    <td class="agent">${sp.agentId}</td>
+			                    <!-- agent -->
+			                    <td class="service">${sp.serviceName}</td>
+			                    <!-- service -->
+			                </tr>
+			            </c:if>
+			            <c:if test="${!span.root}">
+			                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+			                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
+			                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
+			
+			                <tr>
+			                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+			                        <c:forEach begin="0" end="${depth + 1}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
+			                            ${hippo:sortAnnotationListByKey(subSp)}
+			                            ${hippo:getDisplayMethod(subSp)}
+			                    </td>
+			                    <!-- method -->
+			                    <td class="arguments">
+			                            ${hippo:getDisplayArgument(subSp)}
+			                    </td>
+			                    <!-- arguments -->
+			                    <td class="bar">
+			                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
+			                            &nbsp;</div>
+			                    </td>
+			                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
+			                    <!-- exec -->
+			                    <td class="agent">${subSp.agentId}</td>
+			                    <!-- agent -->
+			                    <td class="agent">${subSp.serviceName}</td>
+			                    <!-- service -->
+			                </tr>
+			            </c:if>
+			        </c:forEach>
+			        </tbody>
+			    </table>
+			    <!-- end of call stack -->
+			</div>
+			<div class="tab-pane" id="Timeline">
+					<!-- begin of timeline -->
+					<div id="timeline" style="background-color:#E8E8E8;width:1000px;">
+			        <c:set var="startTime" scope="page" value="0"/>
+			        <c:set var="endTime" scope="page" value="0"/>
+			        <c:forEach items="${spanList}" var="span" varStatus="status">
+			            <c:if test="${span.root}">
+			                <c:set var="sp" scope="page" value="${span.span}"/>
+			                <c:set var="begin" scope="page" value="${sp.startTime}"/>
+			                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
+			
+			                <div id="spanDetail${status.count}"
+			                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+			                    <ul>
+			                        <li>root = ${span.root}</li>
+			                        <li>AgentId = ${sp.agentId}</li>
+			                        <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
+			                        <li>spanId = ${sp.spanId}</li>
+			                        <li>parentSpanId = ${sp.parentSpanId}</li>
+			                        <li>service = ${sp.serviceName}</li>
+			                        <li>name = ${sp.rpc}</li>
+			                        <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
+			                        <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
+			                        <li>endpoint = ${sp.endPoint}</li>
+			
+			                        <c:if test="${status.first}">
+			                            <c:set var="startTime" scope="page" value="${sp.startTime}"/>
+			                        </c:if>
+			                        <c:if test="${status.first}">
+			                            <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
+			                        </c:if>
+			
+			                        <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+			                            <li>${ano.key} = ${ano.value}</li>
+			                        </c:forEach>
+			                    </ul>
+			                </div>
+			
+			                <c:if test="${status.first}">
+			                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+			                </c:if>
+			
+			                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
+			                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+			                    <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
+			                </div>
+			            </c:if>
+			            <c:if test="${!span.root}">
+			                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+			                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
+			                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
+			
+			                <div id="spanDetail${status.count}"
+			                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+			                    <ul>
+			                        <li>root = ${span.root}</li>
+			                        <li>AgentId = ${subSp.agentId}</li>
+			                        <li>UUID = ${hippo:longLongToUUID(subSp.mostTraceId, subSp.leastTraceId)}</li>
+			                        <li>spanId = ${subSp.spanId}</li>
+			                            <%--<li>parentSpanId = ${subSp.parentSpanId}</li>--%>
+			                        <li>service = ${subSp.serviceName}</li>
+			                        <li>name = ${subSp.rpc}</li>
+			                        <li>startTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed)}</li>
+			                        <li>endTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed + subSp.endElapsed)}</li>
+			                        <li>endpoint = ${subSp.endPoint}</li>
+			
+			                        <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
+			                            <li>${ano.key} = ${ano.value}</li>
+			                        </c:forEach>
+			                    </ul>
+			                </div>
+			
+			                <c:if test="${status.first}">
+			                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+			                </c:if>
+			
+			                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
+			                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+			                    <div style="width:200px;">${subSp.serviceName} (${end - begin}ms)</div>
+			                </div>
+			            </c:if>
+			        </c:forEach>
+			    </div>
+			    <!-- end of timeline -->
+			</div>
+		</div>
+	</div>
 </div>
 
 <hr/>
-
-<div class="row">
-    <div class="span12"><br/><br/><br/>Call Stacks</div>
-</div>
-<div class="row">
-    <table id="callStacks" class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Method</th>
-            <th>Arguments</th>
-            <th>Time[%]</th>
-            <th>Time[ms]</th>
-            <th>Agent</th>
-            <th>Service</th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:set var="startTime" scope="page" value="0"/>
-        <c:set var="endTime" scope="page" value="0"/>
-        <c:forEach items="${spanList}" var="span" varStatus="status">
-            <c:set var="depth" scope="page" value="${span.depth}"/>
-
-            <c:if test="${span.root}">
-                <c:set var="sp" scope="page" value="${span.span}"/>
-                <c:set var="begin" scope="page" value="${sp.startTime}"/>
-                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
-                <c:if test="${status.first}">
-                    <c:set var="startTime" scope="page" value="${sp.startTime}"/>
-                </c:if>
-                <c:if test="${status.first}">
-                    <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
-                </c:if>
-                <tr>
-                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-                        <c:forEach begin="0" end="${depth}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
-                            ${hippo:sortAnnotationListByKey(sp)}
-                            ${hippo:getDisplayMethod(sp)}
-                    </td>
-                    <!-- method -->
-                    <td class="arguments">
-                            ${hippo:getDisplayArgument(sp)}
-                    </td>
-                    <!-- arguments -->
-                    <td class="bar">
-                        <c:if test="${status.first}">
-                            <c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
-                        </c:if>
-                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
-                            &nbsp;</div>
-                    </td>
-                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
-                    <!-- exec -->
-                    <td class="agent">${sp.agentId}</td>
-                    <!-- agent -->
-                    <td class="service">${sp.serviceName}</td>
-                    <!-- service -->
-                </tr>
-            </c:if>
-            <c:if test="${!span.root}">
-                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
-                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
-
-                <tr>
-                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-                        <c:forEach begin="0" end="${depth + 1}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
-                            ${hippo:sortAnnotationListByKey(subSp)}
-                            ${hippo:getDisplayMethod(subSp)}
-                    </td>
-                    <!-- method -->
-                    <td class="arguments">
-                            ${hippo:getDisplayArgument(subSp)}
-                    </td>
-                    <!-- arguments -->
-                    <td class="bar">
-                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
-                            &nbsp;</div>
-                    </td>
-                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
-                    <!-- exec -->
-                    <td class="agent">${subSp.agentId}</td>
-                    <!-- agent -->
-                    <td class="agent">${subSp.serviceName}</td>
-                    <!-- service -->
-                </tr>
-            </c:if>
-        </c:forEach>
-        </tbody>
-    </table>
-</div>
-
-<hr/>
-
-<div class="row">
-    <div class="span12"><br/><br/><br/>Application Timeline</div>
-</div>
-<div class="row">
-    <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
-        <c:set var="startTime" scope="page" value="0"/>
-        <c:set var="endTime" scope="page" value="0"/>
-        <c:forEach items="${spanList}" var="span" varStatus="status">
-            <c:if test="${span.root}">
-                <c:set var="sp" scope="page" value="${span.span}"/>
-                <c:set var="begin" scope="page" value="${sp.startTime}"/>
-                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
-
-                <div id="spanDetail${status.count}"
-                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-                    <ul>
-                        <li>root = ${span.root}</li>
-                        <li>AgentId = ${sp.agentId}</li>
-                        <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
-                        <li>spanId = ${sp.spanId}</li>
-                        <li>parentSpanId = ${sp.parentSpanId}</li>
-                        <li>service = ${sp.serviceName}</li>
-                        <li>name = ${sp.rpc}</li>
-                        <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
-                        <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
-                        <li>endpoint = ${sp.endPoint}</li>
-
-                        <c:if test="${status.first}">
-                            <c:set var="startTime" scope="page" value="${sp.startTime}"/>
-                        </c:if>
-                        <c:if test="${status.first}">
-                            <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
-                        </c:if>
-
-                        <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-                            <li>${ano.key} = ${ano.value}</li>
-                        </c:forEach>
-                    </ul>
-                </div>
-
-                <c:if test="${status.first}">
-                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-                </c:if>
-
-                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
-                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-                    <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
-                </div>
-            </c:if>
-            <c:if test="${!span.root}">
-                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
-                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
-
-                <div id="spanDetail${status.count}"
-                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-                    <ul>
-                        <li>root = ${span.root}</li>
-                        <li>AgentId = ${subSp.agentId}</li>
-                        <li>UUID = ${hippo:longLongToUUID(subSp.mostTraceId, subSp.leastTraceId)}</li>
-                        <li>spanId = ${subSp.spanId}</li>
-                            <%--<li>parentSpanId = ${subSp.parentSpanId}</li>--%>
-                        <li>service = ${subSp.serviceName}</li>
-                        <li>name = ${subSp.rpc}</li>
-                        <li>startTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed)}</li>
-                        <li>endTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed + subSp.endElapsed)}</li>
-                        <li>endpoint = ${subSp.endPoint}</li>
-
-                        <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
-                            <li>${ano.key} = ${ano.value}</li>
-                        </c:forEach>
-                    </ul>
-                </div>
-
-                <c:if test="${status.first}">
-                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-                </c:if>
-
-                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
-                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-                    <div style="width:200px;">${subSp.serviceName} (${end - begin}ms)</div>
-                </div>
-            </c:if>
-        </c:forEach>
-    </div>
-</div>
 
 <div class="row">
     <div class="span12"><br/><br/><br/>Application Details</div>
 </div>
 <div class="row">
-    <div class="span">
+    <div class="span12">
         <table id="businessTransactions" class="table table-bordered">
             <thead>
             <tr>
@@ -383,6 +386,9 @@
         drawSpringy(data, "#springygraph", 960, 500);
         drawTree(data, "#tree", 960, 500);
         drawSankeyChart(data, "#sankeygraph", 960, 500);
+        
+        $('#chartTabs a:first').tab('show');
+        $('#traceTabs a:first').tab('show');
     });
 </script>
 </body>

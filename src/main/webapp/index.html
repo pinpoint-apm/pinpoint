@@ -393,6 +393,7 @@ $(document).ready(function () {
         getChartData("flowserver", function(data) {
         	if (data.graphdata.nodes.length == 0) {
         	    alert("no data");
+	        	hideIndicator();
         	    return;
         	}
         	
