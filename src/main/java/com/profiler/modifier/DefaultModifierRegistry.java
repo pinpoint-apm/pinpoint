@@ -31,6 +31,8 @@ import com.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
+import com.profiler.modifier.servlet.HttpServletModifier;
+import com.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.profiler.modifier.tomcat.CatalinaModifier;
 import com.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.profiler.modifier.tomcat.TomcatConnectorModifier;
@@ -86,8 +88,19 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addTomcatModifier() {
-        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
-        addModifier(standardHostValveInvokeModifier);
+		// TODO 포함시키면 다음 exception이 발생하여 일단 주석처리함.
+		// ???: Tomcat StandardHostValve trace start fail. Caused:already Trace Object exist.
+		// java.lang.IllegalStateException: already Trace Object exist.
+		// at com.profiler.context.TraceContext.attachTraceObject(TraceContext.java:51)
+
+		// StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
+		// addModifier(standardHostValveInvokeModifier);
+    	
+    	HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeInstrumentor, agent);
+        addModifier(httpServletModifier);
+        
+        SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
+        addModifier(springServletModifier);
 
         Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatStandardServiceModifier);

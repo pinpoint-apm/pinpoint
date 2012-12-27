@@ -1,16 +1,13 @@
 package com.profiler.modifier;
 
-import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.Agent;
-import com.profiler.context.TraceContext;
-import com.profiler.interceptor.TraceContextSupport;
-import com.profiler.interceptor.bci.InstrumentException;
 import javassist.ClassPool;
 
+import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 
 public abstract class AbstractModifier implements Modifier {
