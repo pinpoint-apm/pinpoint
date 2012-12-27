@@ -1,11 +1,12 @@
 package com.profiler.common.bo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.util.Buffer;
 import com.profiler.common.util.BytesUtils;
 
@@ -45,7 +46,9 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     private int recursiveCallCount = 0;
 
-    public SpanBo(Span span) {
+    private boolean exception = false;
+
+	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
 
         this.mostTraceId = span.getMostTraceId();
@@ -63,6 +66,8 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
 
+        this.exception = span.isErr();
+        
         setAnnotationList(span.getAnnotations());
     }
 
@@ -234,10 +239,18 @@ public class SpanBo implements com.profiler.common.bo.Span {
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
+    
+    public boolean isException() {
+		return exception;
+	}
+
+	public void setException(boolean exception) {
+		this.exception = exception;
+	}
 
     private int getBufferLength(int a, int b, int c, int d) {
         int size = a + b + c + d;
-        size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
+        size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
         // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
         size += PARENTSPANID + SERVICETYPE;
@@ -276,7 +289,9 @@ public class SpanBo implements com.profiler.common.bo.Span {
         buffer.put1PrefixedBytes(serviceNameBytes);
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
-
+        
+        buffer.put(exception);
+        
         // 공간 절약을 위해서 flag는 무조껀 마지막에 넣어야 한다.
         if (flag != 0) {
             buffer.put(flag);
@@ -305,6 +320,9 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serviceName = buffer.read1UnsignedPrefixedString();
         this.serviceType = ServiceType.parse(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
+        
+        this.exception = buffer.readBoolean();
+        
         // flag는 무조껀 마지막에 넣어야 한다.
         if (buffer.limit() == 2) {
             this.flag = buffer.readShort();

@@ -34,7 +34,9 @@ struct SubSpan {
   10: i16 serviceType
   11: string endPoint
 
-  12: list<Annotation> annotations
+  12: bool err
+
+  13: list<Annotation> annotations
 }
 
 struct Span {
@@ -57,7 +59,9 @@ struct Span {
   12: list<Annotation> annotations
   13: optional i16 flag = 0
 
-  14: optional list<SubSpan> subSpanList
+  14: bool err
+
+  15: optional list<SubSpan> subSpanList
 }
 
 

@@ -92,7 +92,7 @@ public class Buffer {
 
     public boolean readBoolean() {
         byte b = readByte();
-        if (b == BOOLEAN_FALSE) {
+        if (b == BOOLEAN_TRUE) {
             return true;
         } else {
             return false;
