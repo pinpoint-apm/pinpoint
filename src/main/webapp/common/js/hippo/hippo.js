@@ -425,10 +425,19 @@ function drawScatter(data, targetId) {
 	      .data(data)
 	    .enter().append("circle")
 	      .attr("class", "dot")
-	      .attr("r", 3)
+	      .attr("r", 2.5)
 	      .attr("cx", function(d) { return x(d.timestamp); })
 	      .attr("cy", function(d) { return y(d.executionTime); })
-	      .style("fill", function(d) { return color(d.name); })
+	      .style("fill", function(d) {
+	    	  if (d.exception) {
+	    		  return "#d62728"; // red
+	    	  //} else if (d.executionTime > 500) {
+	    	  //	return "#ff7f0e"; // orange
+	    	  } else {
+	    		  return "#2ca02c"; // green
+	    	  }
+	    	  //return color(d.name);
+	      })
 	      .on("click", function(d) { openTrace(d.traceId); });
 	  
 /*
