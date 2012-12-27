@@ -105,6 +105,20 @@ public class BufferTest {
     }
 
     @Test
+    public void testBoolean() {
+        Buffer buffer = new Buffer(16);
+        buffer.put(true);
+        buffer.put(false);
+
+        Buffer read = new Buffer(buffer.getBuffer());
+        boolean b = read.readBoolean();
+        Assert.assertEquals(true, b);
+
+        boolean c = read.readBoolean();
+        Assert.assertEquals(false, c);
+    }
+
+    @Test
     public void testGetOffset() throws Exception {
 
     }
