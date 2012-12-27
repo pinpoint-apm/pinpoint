@@ -23,7 +23,8 @@ public class SubSpan implements Thriftable {
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
-
+    private boolean exception;
+    
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
     public SubSpan(Span parentSpan) {
@@ -101,8 +102,16 @@ public class SubSpan implements Thriftable {
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
+    
+    public boolean isException() {
+		return exception;
+	}
 
-    public String toString() {
+	public void setException(boolean exception) {
+		this.exception = exception;
+	}
+
+	public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("{");
@@ -114,6 +123,7 @@ public class SubSpan implements Thriftable {
         sb.append(", ServiceName=").append(serviceName);
         sb.append(", ServiceType=").append(serviceType);
         sb.append(", EndPoint=").append(endPoint);
+        sb.append(", Exception=").append(exception);
         sb.append(", Seq=").append(sequence);
         sb.append(",\n\t Annotations = {");
         for (HippoAnnotation a : annotations) {
@@ -133,7 +143,6 @@ public class SubSpan implements Thriftable {
     public com.profiler.common.dto.thrift.SubSpan toThrift(boolean child) {
         com.profiler.common.dto.thrift.SubSpan subSpan = new com.profiler.common.dto.thrift.SubSpan();
 
-
         long parentSpanStartTime = parentSpan.getStartTime();
         subSpan.setStartElapsed((int) (startTime - parentSpanStartTime));
         subSpan.setEndElapsed((int) (endTime - startTime));
@@ -148,13 +157,11 @@ public class SubSpan implements Thriftable {
             subSpan.setSpanId(parentSpanTraceID.getSpanId());
         }
 
-
         subSpan.setRpc(rpc);
         subSpan.setServiceName(serviceName);
         subSpan.setServiceType(serviceType.getCode());
-
-
         subSpan.setEndPoint(endPoint);
+        subSpan.setErr(exception);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());

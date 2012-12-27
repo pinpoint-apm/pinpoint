@@ -3,6 +3,7 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.sender.DataSender;
@@ -211,6 +212,7 @@ public final class Trace {
         }
     }
 
+    @Deprecated
     public void record(Annotation annotation) {
         if (!tracingEnabled)
             return;
@@ -218,37 +220,47 @@ public final class Trace {
         annotate(annotation.getCode());
     }
 
-    public void recordException(Object result) {
-        if (result instanceof Throwable) {
-            Throwable th = (Throwable) result;
-            recordAttribute("Exception", th.getMessage());
-        }
-    }
+	public void recordException(Object result) {
+		if (result instanceof Throwable) {
+			Throwable th = (Throwable) result;
+			recordAttribute(AnnotationNames.EXCEPTION, th.getMessage());
+
+			try {
+				StackFrame currentStackFrame = getCurrentStackFrame();
+				if (currentStackFrame instanceof RootStackFrame) {
+					((RootStackFrame) currentStackFrame).getSpan().setException(true);
+				} else {
+					((SubStackFrame) currentStackFrame).getSubSpan().setException(true);
+				}
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
+	}
 
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {
             return;
         }
         String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
-        recordAttribute("API", method);
+        recordAttribute(AnnotationNames.API, method);
     }
 
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         // API 저장 방법의 개선 필요.
         String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
-        recordAttribute("API", method);
+        recordAttribute(AnnotationNames.API, method);
         recocordArgs(args);
     }
 
     public void recordApi(int apiId) {
-        recordAttribute("API-ID", apiId);
+        recordAttribute(AnnotationNames.API_ID, apiId);
     }
 
     public void recordApi(int apiId, Object[] args) {
-        recordAttribute("API-ID", apiId);
+        recordAttribute(AnnotationNames.API_ID, apiId);
         recocordArgs(args);
     }
-
 
     private void recocordArgs(Object[] args) {
         if (args != null) {

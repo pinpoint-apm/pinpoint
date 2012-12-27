@@ -20,11 +20,13 @@ public class Span implements Thriftable {
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
+    private boolean exception;
 
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
     private List<SubSpan> subSpanList;
 
+    
     public Span(TraceID traceId) {
         this.traceID = traceId;
     }
@@ -96,8 +98,16 @@ public class Span implements Thriftable {
     public void setSubSpanList(List<SubSpan> subSpanList) {
         this.subSpanList = subSpanList;
     }
+    
+    public boolean isException() {
+		return exception;
+	}
 
-    public String toString() {
+	public void setException(boolean exception) {
+		this.exception = exception;
+	}
+
+	public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("{");
@@ -108,7 +118,7 @@ public class Span implements Thriftable {
         sb.append(", ServiceName = ").append(serviceName);
         sb.append(", ServiceType = ").append(serviceType);
         sb.append(", EndPoint = ").append(endPoint);
-
+        sb.append(", Exception = ").append(exception);
         sb.append(",\n\t Annotations = {");
         for (HippoAnnotation a : annotations) {
             sb.append("\n\t\t").append(a);
@@ -134,6 +144,7 @@ public class Span implements Thriftable {
         span.setSpanId(traceID.getSpanId());
         span.setParentSpanId(traceID.getParentSpanId());
         span.setEndPoint(endPoint);
+        span.setErr(exception);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
