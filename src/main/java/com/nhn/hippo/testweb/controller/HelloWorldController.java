@@ -27,132 +27,150 @@ import com.nhn.hippo.testweb.util.HttpInvoker;
 @Controller
 public class HelloWorldController implements DisposableBean {
 
-    private final ArcusClient arcus;
-    private final MemcachedClient memcached;
+	private final ArcusClient arcus;
+	private final MemcachedClient memcached;
 
-    public HelloWorldController() throws IOException {
-        arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
-        memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11211"));
-    }
+	public HelloWorldController() throws IOException {
+		arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
+		memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11211"));
+	}
 
-    @Autowired
-    private MemberService service;
+	@Autowired
+	private MemberService service;
 
 	@RequestMapping(value = "/encoding")
 	public String encoding(Model model, @RequestParam("name") String name) {
 		System.out.println("name=" + name);
-		
+
 		new RuntimeException().printStackTrace();
-		
+
 		return "donothing";
 	}
-    
-    @RequestMapping(value = "/donothing")
-    public String donothing(Model model) {
-        System.out.println("do nothing.");
-        return "donothing";
-    }
 
-    @RequestMapping(value = "/arcus")
-    public String arcus(Model model) {
-        Future<Boolean> future = null;
-        try {
-            future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
-            future.get(1000L, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            if (future != null)
-                future.cancel(true);
-        }
-        return "arcus";
-    }
+	@RequestMapping(value = "/donothing")
+	public String donothing(Model model) {
+		System.out.println("do nothing.");
+		return "donothing";
+	}
 
-    @RequestMapping(value = "/memcached")
-    public String memcached(Model model) {
-        Future<Boolean> future = null;
-        try {
-            future = memcached.set("hippo:testkey", 10, "Hello, Hippo.");
-            future.get(1000L, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            if (future != null)
-                future.cancel(true);
-        }
-        return "memcached";
-    }
+	@RequestMapping(value = "/arcus")
+	public String arcus(Model model) {
+		Future<Boolean> future = null;
+		try {
+			future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
+			future.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (future != null)
+				future.cancel(true);
+		}
+		return "arcus";
+	}
 
-    @RequestMapping(value = "/mysql")
-    public String mysql(Model model) {
-        int id = (new Random()).nextInt();
+	@RequestMapping(value = "/memcached")
+	public String memcached(Model model) {
+		Future<Boolean> future = null;
+		try {
+			future = memcached.set("hippo:testkey", 10, "Hello, Hippo.");
+			future.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (future != null)
+				future.cancel(true);
+		}
+		return "memcached";
+	}
 
-        Member member = new Member();
-        member.setId(id);
-        member.setName("chisu");
-        member.setJoined(new Date());
+	@RequestMapping(value = "/mysql")
+	public String mysql(Model model) {
+		int id = (new Random()).nextInt();
 
-        // add
-        service.add(member);
+		Member member = new Member();
+		member.setId(id);
+		member.setName("chisu");
+		member.setJoined(new Date());
 
-        // list
-        service.list();
+		// add
+		service.add(member);
 
-        // del
-        service.delete(id);
+		// list
+		service.list();
 
-        return "mysql";
-    }
+		// del
+		service.delete(id);
 
-    @RequestMapping(value = "/remotecombination")
-    public String remotecombination(Model model) {
-        HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-        client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
+		return "mysql";
+	}
 
-        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-        return "remotecombination";
-    }
+	@RequestMapping(value = "/remotecombination")
+	public String remotecombination(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
 
-    @RequestMapping(value = "/combination")
-    public String combination(Model model) {
-        mysql(model);
-        arcus(model);
-        memcached(model);
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		return "remotecombination";
+	}
 
-        HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-        client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+	@RequestMapping(value = "/combination")
+	public String combination(Model model) {
+		mysql(model);
+		arcus(model);
+		memcached(model);
 
-        client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
-        client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 
-        return "combination";
-    }
+		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
 
-    @RequestMapping(value = "/error500")
-    public String error500(Model model) {
-        int i = 1 / 0;
-        return "error";
-    }
+		return "combination";
+	}
 
-    @RequestMapping(value = "/throwexception")
-    public String exception(Model model) {
-        throw new RuntimeException("Exception test");
-    }
+	@RequestMapping(value = "/httperror")
+	public String httperror(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://127.0.0.1/", new HashMap<String, Object>());
+		return "error";
+	}
 
-    @RequestMapping(value = "/arcustimeout")
-    public String arcustimeout(Model model) {
-        Future<Boolean> future = null;
-        try {
-            future = arcus.set("hippo:expect-timeout", 10, "Hello, Timeout.");
-            future.get(100L, TimeUnit.MICROSECONDS);
-        } catch (Exception e) {
-            if (future != null)
-                future.cancel(true);
-        }
-        return "timeout";
-    }
+	@RequestMapping(value = "/error500")
+	public String error500(Model model) {
+		int i = 1 / 0;
+		return "error";
+	}
 
-    @Override
-    public void destroy() throws Exception {
-        arcus.shutdown();
-        memcached.shutdown();
-    }
+	@RequestMapping(value = "/slow")
+	public String slow(Model model) {
+		try {
+			Thread.sleep(new Random().nextInt(10) * 100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return "error";
+	}
+
+	@RequestMapping(value = "/throwexception")
+	public String exception(Model model) {
+		throw new RuntimeException("Exception test");
+	}
+
+	@RequestMapping(value = "/arcustimeout")
+	public String arcustimeout(Model model) {
+		Future<Boolean> future = null;
+		try {
+			future = arcus.set("hippo:expect-timeout", 10, "Hello, Timeout.");
+			future.get(10L, TimeUnit.MICROSECONDS);
+		} catch (Exception e) {
+			if (future != null)
+				future.cancel(true);
+			e.printStackTrace();
+		}
+		return "timeout";
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		arcus.shutdown();
+		memcached.shutdown();
+	}
 }
