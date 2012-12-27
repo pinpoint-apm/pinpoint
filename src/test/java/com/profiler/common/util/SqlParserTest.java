@@ -48,29 +48,30 @@ public class SqlParserTest {
     public void complex() {
 
         assertEqual("select * from table a = 1 and b=50 and c=? and d='11'",
-                "select * from table a = # and b=# and c=? and d='$'");
+                "select * from table a = # and b=# and c=? and d='$'", "1,50,11");
 
         assertEqual("select * from table a = -1 and b=-50 and c=? and d='-11'",
-                "select * from table a = -# and b=-# and c=? and d='$'");
+                "select * from table a = -# and b=-# and c=? and d='$'", "1,50,-11");
+
         assertEqual("select * from table a = 1/*test*/ and b=50/*test*/ and c=? and d='11'",
-                "select * from table a = #/*test*/ and b=#/*test*/ and c=? and d='$'");
+                "select * from table a = #/*test*/ and b=#/*test*/ and c=? and d='$'", "1,50,11");
 
         assertEqual("select ZIPCODE,CITY from ZIPCODE");
         assertEqual("select a.ZIPCODE,a.CITY from ZIPCODE as a");
-        assertEqual("select ZIPCODE,123 from ZIPCODE", "select ZIPCODE,# from ZIPCODE");
+        assertEqual("select ZIPCODE,123 from ZIPCODE", "select ZIPCODE,# from ZIPCODE", "123");
 
         assertEqual("SELECT * from table a=123 and b='abc' and c=1-3",
-                "SELECT * from table a=# and b='$' and c=#-#");
+                "SELECT * from table a=# and b='$' and c=#-#", "123,abc,1,3");
 
-        assertEqual("SYSTEM_RANGE(1, 10)", "SYSTEM_RANGE(#, #)");
+        assertEqual("SYSTEM_RANGE(1, 10)", "SYSTEM_RANGE(#, #)", "1,10");
 
     }
 
     @Test
     public void etcState() {
-        assertEqual("test.abc", "test.abc");
-        assertEqual("test.abc123", "test.abc123");
-        assertEqual("test.123", "test.123");
+        assertEqual("test.abc", "test.abc", "");
+        assertEqual("test.abc123", "test.abc123", "");
+        assertEqual("test.123", "test.123", "");
 
     }
 
@@ -109,42 +110,44 @@ public class SqlParserTest {
     @Test
     public void singleLineCommentState() {
         assertEqual("--", "--", "");
-        assertEqual("//", "//");
-        assertEqual("--123", "--123");
-        assertEqual("//123", "//123");
+        assertEqual("//", "//", "");
+        assertEqual("--123", "--123", "");
+        assertEqual("//123", "//123", "");
         assertEqual("--test", "--test");
         assertEqual("//test", "//test");
-        assertEqual("--test\ntest", "--test\ntest");
-        assertEqual("--test\t\n", "--test\t\n");
-        assertEqual("--test\n123 test", "--test\n# test");
+        assertEqual("--test\ntest", "--test\ntest", "");
+        assertEqual("--test\t\n", "--test\t\n", "");
+        assertEqual("--test\n123 test", "--test\n# test", "123");
     }
 
 
     @Test
     public void multiLineCommentState() {
-        assertEqual("/**/", "/**/");
-        assertEqual("/* */", "/* */");
-        assertEqual("/* */abc", "/* */abc");
-        assertEqual("/* * */", "/* * */");
-        assertEqual("/* * */", "/* * */");
+        assertEqual("/**/", "/**/", "");
+        assertEqual("/* */", "/* */", "");
+        assertEqual("/* */abc", "/* */abc", "");
+        assertEqual("/* * */", "/* * */", "");
+        assertEqual("/* * */", "/* * */", "");
 
-        assertEqual("/* abc", "/* abc");
+        assertEqual("/* abc", "/* abc", "");
 
-        assertEqual("select * from table", "select * from table");
+        assertEqual("select * from table", "select * from table", "");
     }
 
     @Test
     public void symbolState() {
-        assertEqual("''", "''");
-        assertEqual("'abc'", "'$'");
-        assertEqual("'a''bc'", "'$'");
-        assertEqual("'a' 'bc'", "'$' '$'");
+        assertEqual("''", "''", "");
+        assertEqual("'abc'", "'$'", "abc");
+        assertEqual("'a''bc'", "'$'", "a''bc");
+        assertEqual("'a' 'bc'", "'$' '$'", "a,bc");
+
+        assertEqual("'a''bc' 'a''bc'", "'$' '$'", "a''bc,a''bc");
 
 
-        assertEqual("select * from table where a='a'", "select * from table where a='$'");
+        assertEqual("select * from table where a='a'", "select * from table where a='$'", "a");
     }
 
-    @Test
+    //    @Test
     public void charout() {
         for (int i = 11; i < 67; i++) {
             System.out.println((char) i);
@@ -153,13 +156,13 @@ public class SqlParserTest {
 
     @Test
     public void commentAndSymbolCombine() {
-        assertEqual("/* 'test' */", "/* 'test' */");
-        assertEqual("/* 'test'' */", "/* 'test'' */");
+        assertEqual("/* 'test' */", "/* 'test' */", "");
+        assertEqual("/* 'test'' */", "/* 'test'' */", "");
         assertEqual("/* '' */", "/* '' */");
 
-        assertEqual("/*  */ 123 */", "/*  */ # */");
+        assertEqual("/*  */ 123 */", "/*  */ # */", "123");
 
-        assertEqual("' /* */'", "'$'");
+        assertEqual("' /* */'", "'$'", " /* */");
 
     }
 

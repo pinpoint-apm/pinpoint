@@ -74,15 +74,17 @@ public class SqlParser {
                     // empty symbol
                     if (lookAhead1(sql, i) == '\'') {
                         normalized.append("''");
+                        // $로 치환하지 않으므로 output에 파라미터를 넣을필요가 없다
                         i += 2;
                         break;
                     } else {
                         normalized.append('\'');
                         i++;
+                        appendSeparator(outputParam);
                         for (; i < length; i++) {
                             char stateCh = sql.charAt(i);
                             if (stateCh == '\'') {
-                                // '' 이 연속으로 나왔을 경우 무시한다.
+                                // '' 이 연속으로 나왔을 경우는 \' 이므로 그대로 넣는다.
                                 if (lookAhead1(sql, i) == '\'') {
                                     i++;
                                     outputParam.append("''");
@@ -90,7 +92,7 @@ public class SqlParser {
                                 } else {
                                     normalized.append(SYMBOL_REPLACE);
                                     normalized.append('\'');
-                                    outputParam.append(',');
+//                                    outputParam.append(',');
                                     break;
                                 }
                             }
@@ -112,7 +114,7 @@ public class SqlParser {
                 case '9':
                     // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
                     if (numberTokenStartEnable) {
-                        normalized.append('#');
+                        normalized.append(NUMBER_REPLACE);
                         // number token start
                         appendSeparator(outputParam);
                         outputParam.append(ch);
@@ -189,6 +191,7 @@ public class SqlParser {
                     break;
 
                 default:
+                    // 한글이면 ??
                     if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z') {
                         numberTokenStartEnable = false;
                     } else {
