@@ -10,15 +10,12 @@ public class HBaseTables {
 	
 	public static final String TRACE_INDEX = "TraceIndex";
 	public static final byte[] TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
-	public static final byte[] TRACE_INDEX_CN_ID = Bytes.toBytes("ID");
 
 	public static final String APPLICATION_TRACE_INDEX = "ApplicationTraceIndex";
 	public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
-	public static final byte[] APPLICATION_TRACE_INDEX_CN_ID = Bytes.toBytes("ID");
 
 	public static final String ROOT_TRACE_INDEX = "RootTraceIndex";
 	public static final byte[] ROOT_TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
-	public static final byte[] ROOT_TRACE_INDEX_CN_ID = Bytes.toBytes("ID");
 
 	public static final String TRACES = "Traces";
 	public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("Span");
