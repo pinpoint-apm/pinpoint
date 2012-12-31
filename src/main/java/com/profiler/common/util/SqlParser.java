@@ -16,6 +16,7 @@ public class SqlParser {
         final int length = sql.length();
         final StringBuilder normalized = new StringBuilder(length);
 
+        boolean change = false;
         boolean numberTokenStartEnable = true;
         for (int i = 0; i < length; i++) {
             final char ch = sql.charAt(i);
@@ -78,6 +79,7 @@ public class SqlParser {
                         i += 2;
                         break;
                     } else {
+                        change = true;
                         normalized.append('\'');
                         i++;
                         appendSeparator(outputParam);
@@ -114,6 +116,7 @@ public class SqlParser {
                 case '9':
                     // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
                     if (numberTokenStartEnable) {
+                        change = true;
                         normalized.append(NUMBER_REPLACE);
                         // number token start
                         appendSeparator(outputParam);
@@ -201,8 +204,14 @@ public class SqlParser {
                     break;
             }
         }
-
-        return normalized.toString();
+        if (change) {
+            return normalized.toString();
+        } else {
+            // 수정되지 않았을 경우의 재활용.
+            // 1. 성능향상을 위해 string을 생성하지 않도록.
+            // 2. hash code재활용.
+            return sql;
+        }
     }
 
     private int readLine(String sql, StringBuilder normalized, int index) {

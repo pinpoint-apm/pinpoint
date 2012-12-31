@@ -69,11 +69,22 @@ public class SqlParserTest {
 
     @Test
     public void etcState() {
+
         assertEqual("test.abc", "test.abc", "");
         assertEqual("test.abc123", "test.abc123", "");
         assertEqual("test.123", "test.123", "");
 
     }
+
+    @Test
+    public void objectEquals() {
+
+        assertEqualObject("test.abc");
+        assertEqualObject("test.abc123");
+        assertEqualObject("test.123");
+
+    }
+
 
     @Test
     public void numberState() {
@@ -192,5 +203,18 @@ public class SqlParserTest {
         }
 
         Assert.assertEquals("outputParam check", ouputExpected, output.toString());
+    }
+
+    private void assertEqualObject(String expected) {
+        StringBuilder output = new StringBuilder();
+        String normalizedSql = sqlParser.normalizedSql(expected, output);
+        try {
+            Assert.assertEquals("normalizedSql check", expected, normalizedSql);
+            Assert.assertSame(expected, normalizedSql);
+        } catch (AssertionFailedError e) {
+            System.err.println("Original :" + expected);
+            throw e;
+        }
+
     }
 }
