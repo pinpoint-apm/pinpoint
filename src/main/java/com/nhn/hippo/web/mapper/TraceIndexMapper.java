@@ -1,7 +1,11 @@
 package com.nhn.hippo.web.mapper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -9,15 +13,21 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class TraceIndexMapper implements RowMapper<byte[]> {
+public class TraceIndexMapper implements RowMapper<List<byte[]>> {
+	@Override
+	public List<byte[]> mapRow(Result result, int rowNum) throws Exception {
+		if (result == null) {
+			return Collections.emptyList();
+		}
 
-    private final byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
-    private final byte[] COLNAME_ID = Bytes.toBytes("ID");
+		KeyValue[] raw = result.raw();
 
-    @Override
-    public byte[] mapRow(Result result, int rowNum) throws Exception {
+		List<byte[]> list = new ArrayList<byte[]>(raw.length);
 
-        // TODO null처리 해야 될듯.
-        return result.getValue(COLFAM_TRACE, COLNAME_ID);
-    }
+		for (KeyValue kv : raw) {
+			list.add(kv.getQualifier());
+		}
+
+		return list;
+	}
 }

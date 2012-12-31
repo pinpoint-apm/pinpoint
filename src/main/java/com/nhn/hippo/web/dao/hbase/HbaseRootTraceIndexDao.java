@@ -25,15 +25,12 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
-	private final byte[] COLNAME_ID = Bytes.toBytes("ID");
-
 	@Autowired
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<byte[]> traceIndexMapper;
+	private RowMapper<List<byte[]>> traceIndexMapper;
 
 	private int scanCacheSize = 40;
 
@@ -42,13 +39,13 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 	}
 
 	@Override
-	public List<byte[]> scanTraceIndex(String agent, long start, long end) {
+	public List<List<byte[]>> scanTraceIndex(String agent, long start, long end) {
 		Scan scan = createScan(agent, start, end);
 		return hbaseOperations2.find(HBaseTables.ROOT_TRACE_INDEX, scan, traceIndexMapper);
 	}
 
 	@Override
-	public List<List<byte[]>> multiScanTraceIndex(String[] agents, long start, long end) {
+	public List<List<List<byte[]>>> multiScanTraceIndex(String[] agents, long start, long end) {
 		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
 		for (String agent : agents) {
 			Scan scan = createScan(agent, start, end);
@@ -68,8 +65,7 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 		scan.setStopRow(traceIndexEndKey);
-
-		scan.addColumn(COLFAM_TRACE, COLNAME_ID);
+		scan.addFamily(HBaseTables.ROOT_TRACE_INDEX_CF_TRACE);
 		scan.setId("rootTraceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.

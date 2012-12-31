@@ -21,7 +21,6 @@ import java.util.*;
 @Component
 public class SpanMapper implements RowMapper<List<SpanBo>> {
 
-    private final byte[] COLFAM_SPAN = Bytes.toBytes("Span");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private AnnotationMapper annotationMapper;

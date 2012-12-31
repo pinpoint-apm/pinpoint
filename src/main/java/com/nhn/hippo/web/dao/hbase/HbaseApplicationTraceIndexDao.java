@@ -26,14 +26,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final byte[] COLFAM_TRACE = HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
-	private final byte[] COLNAME_ID = HBaseTables.APPLICATION_TRACE_INDEX_CN_ID;
 
 	@Autowired
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<byte[]> traceIndexMapper;
+	private RowMapper<List<byte[]>> traceIndexMapper;
 
 	private int scanCacheSize = 40;
 
@@ -42,13 +41,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public List<byte[]> scanTraceIndex(String applicationName, long start, long end) {
+	public List<List<byte[]>> scanTraceIndex(String applicationName, long start, long end) {
 		Scan scan = createScan(applicationName, start, end);
 		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIndexMapper);
 	}
 
 	@Override
-	public List<List<byte[]>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
+	public List<List<List<byte[]>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
 		final List<Scan> multiScan = new ArrayList<Scan>(applicationNames.length);
 		for (String agent : applicationNames) {
 			Scan scan = createScan(agent, start, end);
@@ -71,7 +70,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 		scan.setStopRow(traceIndexEndKey);
-		scan.addColumn(COLFAM_TRACE, COLNAME_ID);
+		scan.addFamily(COLFAM_TRACE);
 		scan.setId("traceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.

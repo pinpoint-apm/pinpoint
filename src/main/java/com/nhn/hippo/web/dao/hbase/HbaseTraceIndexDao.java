@@ -1,9 +1,8 @@
 package com.nhn.hippo.web.dao.hbase;
 
-import com.nhn.hippo.web.dao.TraceIndexDao;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.SpanUtils;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -13,8 +12,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.nhn.hippo.web.dao.TraceIndexDao;
+import com.profiler.common.hbase.HBaseTables;
+import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.SpanUtils;
 
 /**
  *
@@ -24,15 +25,12 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final byte[] COLFAM_TRACE = Bytes.toBytes("Trace");
-	private final byte[] COLNAME_ID = Bytes.toBytes("ID");
-
 	@Autowired
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<byte[]> traceIndexMapper;
+	private RowMapper<List<byte[]>> traceIndexMapper;
 
 	private int scanCacheSize = 40;
 
@@ -41,13 +39,13 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	}
 
 	@Override
-	public List<byte[]> scanTraceIndex(String agent, long start, long end) {
+	public List<List<byte[]>> scanTraceIndex(String agent, long start, long end) {
 		Scan scan = createScan(agent, start, end);
 		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIndexMapper);
 	}
 
 	@Override
-	public List<List<byte[]>> multiScanTraceIndex(String[] agents, long start, long end) {
+	public List<List<List<byte[]>>> multiScanTraceIndex(String[] agents, long start, long end) {
 		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
 		for (String agent : agents) {
 			Scan scan = createScan(agent, start, end);
@@ -71,7 +69,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 		scan.setStopRow(traceIndexEndKey);
-		scan.addColumn(COLFAM_TRACE, COLNAME_ID);
+		scan.addFamily(HBaseTables.TRACE_INDEX_CF_TRACE);
 		scan.setId("traceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.

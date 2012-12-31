@@ -85,21 +85,25 @@ public class FlowChartServiceImpl implements FlowChartService {
 			if (logger.isTraceEnabled()) {
 				logger.trace("scan {}, {}, {}", new Object[] { agentIds[0], from, to });
 			}
-			List<byte[]> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+			List<List<byte[]>> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
 			Set<TraceId> result = new HashSet<TraceId>();
-			for (byte[] traceId : bytes) {
-				TraceId tid = new TraceId(traceId);
-				result.add(tid);
-				logger.trace("traceid:{}", tid);
+			for (List<byte[]> list : bytes) {
+				for (byte[] traceId : list) {
+					TraceId tid = new TraceId(traceId);
+					result.add(tid);
+					logger.trace("traceid:{}", tid);
+				}
 			}
 			return result;
 		} else {
 			// multi scan 가능한 동일 open htable 에서 액세스함.
-			List<List<byte[]>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+			List<List<List<byte[]>>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
 			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<byte[]> scan : multiScan) {
-				for (byte[] traceId : scan) {
-					result.add(new TraceId(traceId));
+			for (List<List<byte[]>> list : multiScan) {
+				for (List<byte[]> scan : list) {
+					for (byte[] traceId : scan) {
+						result.add(new TraceId(traceId));
+					}
 				}
 			}
 			return result;
@@ -299,12 +303,14 @@ public class FlowChartServiceImpl implements FlowChartService {
 			logger.trace("scan {}, {}, {}", new Object[] { applicationName, from, to });
 		}
 
-		List<byte[]> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+		List<List<byte[]>> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
 		Set<TraceId> result = new HashSet<TraceId>();
-		for (byte[] traceId : bytes) {
-			TraceId tid = new TraceId(traceId);
-			result.add(tid);
-			logger.trace("traceid:{}", tid);
+		for (List<byte[]> list : bytes) {
+			for (byte[] traceId : list) {
+				TraceId tid = new TraceId(traceId);
+				result.add(tid);
+				logger.trace("traceid:{}", tid);
+			}
 		}
 		return result;
 	}
