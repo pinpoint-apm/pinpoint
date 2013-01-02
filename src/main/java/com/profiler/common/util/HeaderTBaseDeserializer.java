@@ -16,7 +16,8 @@ public class HeaderTBaseDeserializer {
      * Create a new TDeserializer that uses the TBinaryProtocol by default.
      */
     public HeaderTBaseDeserializer() {
-        this(new TBinaryProtocol.Factory());
+//        this(new TBinaryProtocol.Factory());
+        this(new TCompactProtocol.Factory());
     }
 
     /**
