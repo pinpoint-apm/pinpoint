@@ -1,12 +1,15 @@
 package com.profiler.common.hbase;
 
-import org.apache.hadoop.hbase.client.*;
+import java.util.List;
+
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
-import org.springframework.data.hadoop.hbase.TableCallback;
-
-import java.util.List;
 
 /**
  *
