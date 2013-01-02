@@ -30,8 +30,8 @@ public class FlowChartController {
 	@Autowired
 	private FlowChartService flow;
 
-	@RequestMapping(value = "/flow", method = RequestMethod.GET)
-	public String flow(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
+	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
 		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);

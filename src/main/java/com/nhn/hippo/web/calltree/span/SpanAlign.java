@@ -2,8 +2,6 @@ package com.nhn.hippo.web.calltree.span;
 
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
-import com.profiler.common.dto.thrift.Span;
-import org.apache.commons.lang.StringUtils;
 
 /**
  *

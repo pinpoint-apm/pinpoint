@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -21,8 +19,6 @@ import com.profiler.common.hbase.HbaseOperations2;
  */
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
-
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
 	@Autowired
 	private HbaseOperations2 hbaseOperations2;

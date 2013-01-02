@@ -18,9 +18,7 @@ public class BusinessTransaction {
 	public BusinessTransaction(SpanBo span) {
 		this.rpc = span.getRpc();
 
-		long begin = span.getStartTime();
 		long elapsed = span.getElapsed();
-		long end = begin + elapsed;
 		totalTime = maxTime = minTime = elapsed;
 
 		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.isException()));
@@ -28,9 +26,7 @@ public class BusinessTransaction {
 	}
 
 	public void add(SpanBo span) {
-		long begin = span.getStartTime();
 		long elapsed = span.getElapsed();
-		long end = begin + elapsed;
 
 		totalTime += elapsed;
 		if (maxTime < elapsed)

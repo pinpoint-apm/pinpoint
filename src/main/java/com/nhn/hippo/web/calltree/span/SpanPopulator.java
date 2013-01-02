@@ -19,7 +19,7 @@ public class SpanPopulator {
         this.list = list;
     }
 
-    public List populateSubSpan() {
+    public List<SpanAlign> populateSubSpan() {
         if (list.size() == 0) {
             return Collections.emptyList();
         }

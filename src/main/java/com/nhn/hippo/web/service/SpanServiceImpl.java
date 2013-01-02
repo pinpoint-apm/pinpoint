@@ -1,9 +1,9 @@
 package com.nhn.hippo.web.service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import com.nhn.hippo.web.calltree.span.SpanPopulator;
-import com.profiler.common.bo.SubSpanBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.calltree.span.SpanAligner;
+import com.nhn.hippo.web.calltree.span.SpanPopulator;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;

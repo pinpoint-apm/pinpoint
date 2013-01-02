@@ -74,7 +74,7 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 	}
 
 	@Override
-	public List parallelScanTraceIndex(String[] agents, long start, long end) {
+	public List<List<List<byte[]>>> parallelScanTraceIndex(String[] agents, long start, long end) {
 		return null; // To change body of implemented methods use File |
 						// Settings | File Templates.
 	}

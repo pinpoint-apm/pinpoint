@@ -10,6 +10,5 @@ public interface RootTraceIndexDao {
 
     List<List<List<byte[]>>> multiScanTraceIndex(String[] agents, long start, long end);
 
-    List parallelScanTraceIndex(String[] agents, long start, long end);
-
+    List<List<List<byte[]>>> parallelScanTraceIndex(String[] agents, long start, long end);
 }
