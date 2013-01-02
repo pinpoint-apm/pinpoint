@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
-import com.profiler.server.dao.ApplicationTraceIndexDao;
-import com.profiler.server.dao.RootTraceIndexDaoDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
-import com.profiler.server.dao.TraceIndexDao;
 import com.profiler.server.dao.TracesDao;
 
 /**
