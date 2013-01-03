@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.Span;
@@ -14,10 +15,6 @@ import com.profiler.common.bo.Span;
 public class AnnotationUtils {
 
     private static final String FORMAT = "yyyy-MM-dd HH:mm:ss SSS";
-
-    private static final String API = "API";
-    private static final String ARCUS_COMMAND = "arcus.command";
-    private static final String HTTP_URL = "http.url";
 
     @Deprecated
     public static String longToDateStr(long date) {
@@ -43,7 +40,7 @@ public class AnnotationUtils {
 
     public static Object getDisplayMethod(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
-        int index = Collections.binarySearch(list, API);
+        int index = Collections.binarySearch(list, AnnotationNames.API);
 
         if (index > -1) {
             return list.get(index).getValue();
@@ -60,15 +57,19 @@ public class AnnotationUtils {
         List<AnnotationBo> list = span.getAnnotationBoList();
         int index = -1;
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
-            index = Collections.binarySearch(list, ARCUS_COMMAND);
+            index = Collections.binarySearch(list, AnnotationNames.ARCUS_COMMAND);
         }
 
         if (span.getServiceType() == ServiceType.HTTP_CLIENT) {
-            index = Collections.binarySearch(list, HTTP_URL);
+            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL);
         }
 
         if (span.getServiceType() == ServiceType.TOMCAT) {
-            index = Collections.binarySearch(list, HTTP_URL);
+            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL);
+        }
+        
+        if (span.getServiceType() == ServiceType.MYSQL) {
+        	index = Collections.binarySearch(list, AnnotationNames.ARGS0);
         }
 
         if (index > -1) {

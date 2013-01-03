@@ -134,6 +134,8 @@
 				</li>
 			</ul>
 		</div>
+		
+		<button id="btnTraceServerNow" class="btn btn-info" onclick="return false;">Now</button>
     </form>
 
     <div class="row">
@@ -346,13 +348,7 @@ $(document).ready(function () {
         $("#starttime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min));
     }
 
-    setQueryTimeRange(30);
-	
-    $("#application").select2({
-		placeholder: "Select an application.",
-	});
-    
-    $("#btnTraceServer").click(function(e) {
+    function query() {
     	if($("#application").val() == "") {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;
@@ -388,6 +384,21 @@ $(document).ready(function () {
 	        
         	hideIndicator();
         });
+    }
+    
+    setQueryTimeRange(30);
+	
+    $("#application").select2({
+		placeholder: "Select an application.",
+	});
+    
+    $("#btnTraceServerNow").click(function(e) {
+	    setQueryTimeRange(30);
+    	query();	
+    });
+    
+    $("#btnTraceServer").click(function(e) {
+		query();
     });
     
     $("#btnTrace .dropdown-menu").on("click", function(e){

@@ -17,6 +17,7 @@ import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.service.SpanService;
 import com.nhn.hippo.web.vo.TraceId;
+import com.nhn.hippo.web.vo.callstacks.RecordSet;
 
 /**
  *
@@ -35,18 +36,25 @@ public class BusinessTransactionController {
 	@RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
 	public ModelAndView flow(@RequestParam(value = "traceId") String traceId) {
 		logger.debug("traceId:{}", traceId);
+
+		// select spans
 		List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
 		mv.addObject("spanList", spanAligns);
 		mv.addObject("traceId", traceId);
 
-//		Set<TraceId> traceIds = new HashSet<TraceId>(1);
-//		traceIds.add(new TraceId(UUID.fromString(traceId)));
+		// call tree
 		ServerCallTree callTree = flow.selectServerCallTree(new TraceId(UUID.fromString(traceId)));
 		mv.addObject("nodes", callTree.getNodes());
 		mv.addObject("links", callTree.getLinks());
-		
+
+		// call stacks
+		RecordSet recordset = new RecordSet(spanAligns);
+		mv.addObject("callstack", recordset.getIterator());
+		mv.addObject("callstackStart", recordset.getStartTime());
+		mv.addObject("callstackEnd", recordset.getEndTime());
+
 		return mv;
 	}
 }

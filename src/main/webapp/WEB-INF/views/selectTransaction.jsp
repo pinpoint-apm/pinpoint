@@ -42,8 +42,14 @@
         }
     </script>
     <style type="text/css">
+        #callStacks TH {
+            padding: 3px;
+            font-size:12px;
+        }
+        
         #callStacks TD {
             padding: 3px;
+            font-size:12px;
         }
 
         #callStacks .method {
@@ -103,16 +109,17 @@
 		<ul class="nav nav-tabs" id="traceTabs">
 			<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
 			<li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
+			<li><a href="#Details" data-toggle="tab">Details (for HIPPO developer)</a></li>
 		</ul>
 		
 		<div class="tab-content">
 			<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
-				<!-- begin call stack -->
+				<!-- begin new call stack -->
 			    <table id="callStacks" class="table table-bordered">
 			        <thead>
 			        <tr>
 			            <th>Method</th>
-			            <th>Arguments</th>
+			            <th>Argument</th>
 			            <th>Time[%]</th>
 			            <th>Time[ms]</th>
 			            <th>Agent</th>
@@ -120,79 +127,43 @@
 			        </tr>
 			        </thead>
 			        <tbody>
-			        <c:set var="startTime" scope="page" value="0"/>
-			        <c:set var="endTime" scope="page" value="0"/>
-			        <c:forEach items="${spanList}" var="span" varStatus="status">
+			        <c:set var="startTime" scope="page" value="${callstackStart}"/>
+			        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
+			        
+			        <c:forEach items="${callstack}" var="record" varStatus="status">
 			            <c:set var="depth" scope="page" value="${span.depth}"/>
-			
-			            <c:if test="${span.root}">
-			                <c:set var="sp" scope="page" value="${span.span}"/>
-			                <c:set var="begin" scope="page" value="${sp.startTime}"/>
-			                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
-			                <c:if test="${status.first}">
-			                    <c:set var="startTime" scope="page" value="${sp.startTime}"/>
-			                </c:if>
-			                <c:if test="${status.first}">
-			                    <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
-			                </c:if>
-			                <tr>
-			                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-			                        <c:forEach begin="0" end="${depth}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
-			                            ${hippo:sortAnnotationListByKey(sp)}
-			                            ${hippo:getDisplayMethod(sp)}
-			                    </td>
-			                    <!-- method -->
-			                    <td class="arguments">
-			                            ${hippo:getDisplayArgument(sp)}
-			                    </td>
-			                    <!-- arguments -->
-			                    <td class="bar">
-			                        <c:if test="${status.first}">
-			                            <c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
-			                        </c:if>
-			                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
-			                            &nbsp;</div>
-			                    </td>
-			                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
-			                    <!-- exec -->
-			                    <td class="agent">${sp.agentId}</td>
-			                    <!-- agent -->
-			                    <td class="service">${sp.serviceName}</td>
-			                    <!-- service -->
-			                </tr>
-			            </c:if>
-			            <c:if test="${!span.root}">
-			                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-			                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
-			                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
-			
-			                <tr>
-			                    <td class="method" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-			                        <c:forEach begin="0" end="${depth + 1}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
-			                            ${hippo:sortAnnotationListByKey(subSp)}
-			                            ${hippo:getDisplayMethod(subSp)}
-			                    </td>
-			                    <!-- method -->
-			                    <td class="arguments">
-			                            ${hippo:getDisplayArgument(subSp)}
-			                    </td>
-			                    <!-- arguments -->
-			                    <td class="bar">
-			                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">
-			                            &nbsp;</div>
-			                    </td>
-			                    <td class="time"><fmt:formatNumber type="number" value="${end - begin}"/></td>
-			                    <!-- exec -->
-			                    <td class="agent">${subSp.agentId}</td>
-			                    <!-- agent -->
-			                    <td class="agent">${subSp.serviceName}</td>
-			                    <!-- service -->
-			                </tr>
-			            </c:if>
+		                <c:set var="begin" scope="page" value="${record.begin}"/>
+		                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
+		                
+						<c:if test="${status.first}">
+							<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
+						</c:if>
+		                
+		                <tr>
+		                    <td class="method">
+		                        <c:forEach begin="0" end="${record.tab}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
+		                        <c:if test="${record.method}"><i class="icon-tag"></i></c:if>
+		                        <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
+		                        ${record.title}
+		                    </td>
+		                    <td class="arguments">${record.arguments}</td>
+		                    <td class="bar">
+		                    	<c:if test="${record.method}">
+		                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
+		                    	</c:if>
+		                    </td>
+		                    <td class="time">
+		                    	<c:if test="${record.method}">
+		                    	<fmt:formatNumber type="number" value="${record.elapsed}"/>
+		                    	</c:if>
+		                    </td>
+		                    <td class="agent">${record.agent}</td>
+		                    <td class="service">${record.service}</td>
+		                </tr>
 			        </c:forEach>
 			        </tbody>
 			    </table>
-			    <!-- end of call stack -->
+			    <!-- end of new call stack -->
 			</div>
 			<div class="tab-pane" id="Timeline">
 					<!-- begin of timeline -->
@@ -279,74 +250,74 @@
 			    </div>
 			    <!-- end of timeline -->
 			</div>
+			<div class="tab-pane" id="Details">
+			
+				<!-- begin details -->
+				<table id="businessTransactions" class="table table-bordered" style="font-size:12px;">
+	            <thead>
+	            <tr>
+	                <th>#</th>
+	                <th>Action</th>
+	                <th>Arguments</th>
+	                <th>EndPoint</th>
+	                <th>Total[ms]</th>
+	                <th>Application</th>
+	                <th>Agent</th>
+	            </tr>
+	            </thead>
+	            <tbody>
+	
+	            <c:forEach items="${spanList}" var="span" varStatus="status">
+	                <c:if test="${span.root}">
+	                    <c:set var="sp" scope="page" value="${span.span}"/>
+	                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+	                        <tr>
+	                            <td>${span.depth}</td>
+	                            <td>${ano.key}</td>
+	                            <td>${ano.value}</td>
+	                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+	                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
+	                            <td></td>
+	                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+	                        </tr>
+	                    </c:forEach>
+	                    <tr>
+	                        <td colspan="7">&nbsp;</td>
+	                    </tr>
+	                </c:if>
+	                <c:if test="${!span.root}">
+	                    <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+	                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
+	                        <tr>
+	                            <td>${span.depth}</td>
+	                            <td>${ano.key}</td>
+	                            <td>${ano.value}</td>
+	                            <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
+	                            <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
+	                            <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
+	                        </tr>
+	                    </c:forEach>
+	                    <tr>
+	                        <td colspan="7">&nbsp;</td>
+	                    </tr>
+	                </c:if>
+	            </c:forEach>
+	            </tbody>
+	        	</table>
+				<!-- end of details -->
+			
+			
+			</div>
 		</div>
 	</div>
 </div>
 
-<hr/>
-
-<div class="row">
-    <div class="span12"><br/><br/><br/>Application Details</div>
-</div>
-<div class="row">
-    <div class="span12">
-        <table id="businessTransactions" class="table table-bordered">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Action</th>
-                <th>Arguments</th>
-                <th>EndPoint</th>
-                <th>Total[ms]</th>
-                <th>Exec[ms]</th>
-                <th>Application</th>
-                <th>Agent</th>
-            </tr>
-            </thead>
-            <tbody>
-
-            <c:forEach items="${spanList}" var="span" varStatus="status">
-                <c:if test="${span.root}">
-                    <c:set var="sp" scope="page" value="${span.span}"/>
-                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-                        <tr>
-                            <td>${span.depth}</td>
-                            <td>${ano.key}</td>
-                            <td>${ano.value}</td>
-                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
-                            <td></td>
-                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
-                        </tr>
-                    </c:forEach>
-                    <tr>
-                        <td colspan="7">&nbsp;</td>
-                    </tr>
-                </c:if>
-                <c:if test="${!span.root}">
-                    <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
-                        <tr>
-                            <td>${span.depth}</td>
-                            <td>${ano.key}</td>
-                            <td>${ano.value}</td>
-                            <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
-                            <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
-                            <td></td>
-                            <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
-                        </tr>
-                    </c:forEach>
-                    <tr>
-                        <td colspan="7">&nbsp;</td>
-                    </tr>
-                </c:if>
-            </c:forEach>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 <script type="text/javascript">
     var data = {
