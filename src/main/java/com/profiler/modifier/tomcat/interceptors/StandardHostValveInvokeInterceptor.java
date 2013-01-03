@@ -8,14 +8,18 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.profiler.Agent;
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.SpanID;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
-import com.profiler.interceptor.*;
+import com.profiler.interceptor.ApiIdSupport;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
 
@@ -63,7 +67,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
             int port = request.getServerPort();
             trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
-            trace.recordAttribute("http.url", request.getRequestURI());
+            trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestURI());
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
@@ -87,7 +91,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         HttpServletRequest request = (HttpServletRequest) args[0];
         String parameters = getRequestParameter(request);
         if (parameters != null && parameters.length() > 0) {
-            trace.recordAttribute("http.params", parameters);
+            trace.recordAttribute(AnnotationNames.HTTP_PARAM, parameters);
         }
 
 

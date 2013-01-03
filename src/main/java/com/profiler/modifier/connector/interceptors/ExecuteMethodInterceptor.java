@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.Trace;
@@ -65,7 +66,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		
 		int port = host.getPort();
 		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() +  ((port > 0) ? ":" + port : ""));
-		trace.recordAttribute("http.url", request.getRequestLine().getUri());
+		trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestLine().getUri());
     }
 
     @Override

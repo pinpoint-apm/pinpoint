@@ -1,6 +1,13 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.context.Annotation;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.profiler.common.AnnotationNames;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ApiIdSupport;
@@ -8,16 +15,8 @@ import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
-import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
 
@@ -53,11 +52,11 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
             String sql = getSql.invoke(target);
-            trace.recordAttribute("PreparedStatement", sql);
+            trace.recordAttribute(AnnotationNames.PREPAREDSTATEMENT, sql);
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            trace.recordAttribute("BindValue", bindString);
+            trace.recordAttribute(AnnotationNames.BINDVALUE, bindString);
 
 //            trace.recordApi(descriptor, args);
             trace.recordApi(apiId);
