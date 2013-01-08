@@ -41,4 +41,6 @@ public class SpanUtils {
     public static byte[] getTraceId(SubSpanList subSpanList) {
         return BytesUtils.longLongToBytes(subSpanList.getMostTraceId(), subSpanList.getLeastTraceId());
     }
+
+
 }

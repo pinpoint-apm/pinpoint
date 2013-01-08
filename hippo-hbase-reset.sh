@@ -7,6 +7,7 @@ disable 'ApplicationTraceIndex'
 disable 'Traces'
 disable 'SystemInfo'
 disable 'TerminalStatistics'
+disable 'SqlMetaData'
 
 drop 'AgentIdApplicationIndex'
 drop 'ApplicationIndex'
@@ -16,6 +17,7 @@ drop 'ApplicationTraceIndex'
 drop 'Traces'
 drop 'SystemInfo'
 drop 'TerminalStatistics'
+drop 'SqlMetaData'
 
 create 'AgentIdApplicationIndex', { NAME => 'Application' }
 create 'ApplicationIndex', { NAME => 'Agents' }
@@ -25,6 +27,7 @@ create 'ApplicationTraceIndex', { NAME => 'Trace' }
 create 'Traces', { NAME => 'Span' }, { NAME => 'Annotation' }, { NAME => 'TerminalSpan' }
 create 'SystemInfo', { NAME => 'JVM' }
 create 'TerminalStatistics', { NAME => 'Counter' }
+create 'SqlMetaData', { NAME => 'Sql' }
 
 list
 EOF
