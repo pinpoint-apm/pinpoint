@@ -21,9 +21,23 @@
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    
+	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
+    <!-- 
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
+    -->
+    
+	<script type="text/javascript" src="/common/js/d3.js"></script>
+	<script type="text/javascript" src="/common/js/d3.chart.js"></script>
+	<script type="text/javascript" src="/common/js/d3.chart.scatter.js"></script>
+    
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    
+    <script type="text/javascript" src="/common/js/hippo/chart-sankey.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-scatter2.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-tree.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-transactions.js"></script>
     
     <script type="text/javascript" src="/common/js/springy/springy.js"></script>
     <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
@@ -135,7 +149,7 @@
 			</ul>
 		</div>
 		
-		<button id="btnTraceServerNow" class="btn btn-info" onclick="return false;">Now</button>
+		<button id="btnTraceServerNow" class="btn btn-info" onclick="return false;">Realtime</button>
     </form>
 
     <div class="row">
@@ -230,18 +244,22 @@
 function getStartTime() {
 	var date = $("#startdate").val().split("-");
 	var time = $("#starttime").val().split(":");
-	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0).getTime();
+	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2], 0).getTime();
 }
 
 function getEndTime() {
 	var date = $("#enddate").val().split("-");
 	var time = $("#endtime").val().split(":");
-	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0).getTime();
+	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2], 0).getTime();
 }
 
-function getChartData(chartType, callback) {
+function getChartData(begin, end, chartType, callback) {
     var application = $("#application").val();
-	d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + getStartTime() + "&to=" + getEndTime(), function(d) { callback(d); });
+	d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+}
+
+function openTrace(uuid) {
+    window.open("/selectTransaction.hippo?traceId=" + uuid);
 }
 
 function showIndicator() {
@@ -252,100 +270,22 @@ function hideIndicator() {
 	$(".indicator").hide();
 }
 
-var transactionsCache;
-var prevDetaildRow;
-
-function showTransactionList(transactions) {
-	transactionsCache = transactions;
-	var html = [];
-	for (var i = 0; i < transactions.length; i++) {
-	    html.push("<tr>");
-	
-	    html.push("<td>");
-	    html.push(i + 1);
-	    html.push("</td>");
-	
-	    html.push("<td><div onclick='openTransactionDetails(");
-	    html.push(i);
-	    html.push(", this); return false;' style='cursor:pointer;'>");
-	    html.push(transactions[i].name);
-	    html.push("</div></td>");
-	
-	    html.push("<td class='calls'>");
-	    html.push(transactions[i].calls);
-	    html.push("</td>");
-	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].avgTime);
-	    html.push("</td>");
-	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].minTime);
-	    html.push("</td>");
-	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].maxTime);
-	    html.push("</td>");
-	
-	    html.push("<td class='health'>");
-	    html.push(transactions[i].health);
-	    html.push("</td>");
-	
-	    html.push("</tr>");
-	}
-	$("#businessTransactions TBODY").append(html.join(''));	
-}
-
-function openTransactionDetails(index, row) {
-    if (prevDetaildRow != null) {
-        prevDetaildRow.css({'background-color':'#FFFFFF'});
-    }
-    var currentRow = $(row).parent().parent();
-    currentRow.css({'background-color':'#FFFF00'});
-    prevDetaildRow = currentRow;
-
-    $("#businessTransactionsDetail TBODY").empty();
-
-    var traces = transactionsCache[index].traces;
-    var html = [];
-    for (var i = 0; i < traces.length; i++) {
-        html.push("<tr>");
-
-        html.push("<td>");
-        html.push(i + 1);
-        html.push("</td>");
-        
-        html.push("<td>");
-        html.push(new Date(traces[i].timestamp));
-        html.push("</td>");
-
-        html.push("<td><a href='#' onclick='openTrace(\"");
-        html.push(traces[i].traceId);
-        html.push("\"); return false;' style='cursor:pointer;'>");
-        html.push(traces[i].traceId);
-        html.push("</a></td>");
-
-        html.push("<td>");
-        html.push(traces[i].executionTime);
-        html.push("</td>");
-
-        html.push("</tr>");
-    }
-    $("#businessTransactionsDetail TBODY").append(html.join(''));
-}
-
 $(document).ready(function () {
+	var SCATTER_X_AXIS_LIM = 10 * 1000 * 60; // 10 min
+	
     function setQueryTimeRange(value) {
         var date = new Date();
         
         $("#enddate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
         var min = date.getMinutes();
-        $("#endtime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min));
+        var sec = date.getSeconds();
+        $("#endtime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min) + ":" + sec);
 
-        date = new Date(date.getTime() - (value * 1000 * 60));
+        date = new Date(date.getTime() - value);
         $("#startdate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
         min = date.getMinutes();
-        $("#starttime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min));
+        sec = date.getSeconds();
+        $("#starttime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min) + ":" + sec);
     }
 
     function query() {
@@ -369,39 +309,66 @@ $(document).ready(function () {
         $('#chartTabs a:first').tab('show');
         $('#transactionTabs a:first').tab('show');
 
-        getChartData("flowserver", function(data) {
+        getChartData(getStartTime(), getEndTime(), "flowserver", function(data) {
         	if (data.graphdata.nodes.length == 0) {
-        	    alert("no data");
+        	    // alert("no data");
 	        	hideIndicator();
-        	    return;
+        	    // return;
         	}
         	
 	        drawSpringy(data.graphdata, "#springygraph", 960, 500);
 	        drawTree(data.graphdata, "#tree", 960, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
-	        drawScatter(data.scatter, "#scatter");
+	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
         	hideIndicator();
         });
     }
     
-    setQueryTimeRange(30);
+    setQueryTimeRange(SCATTER_X_AXIS_LIM);
 	
     $("#application").select2({
 		placeholder: "Select an application.",
 	});
     
+    // realtime button
+    var timer;
+    function stopRealtimer() {
+    	if(timer)
+    		clearTimeout(timer);
+    }
+    
     $("#btnTraceServerNow").click(function(e) {
-	    setQueryTimeRange(30);
-    	query();	
+    	stopRealtimer();
+    	setQueryTimeRange(SCATTER_X_AXIS_LIM);
+	    query();
+	    
+	    var lastBegin = getStartTime();
+	    var lastEnd = getEndTime();
+	    
+		timer = setInterval(function() {
+			setQueryTimeRange(SCATTER_X_AXIS_LIM);
+			from = getStartTime();
+			to = getEndTime();
+			
+	        getChartData(lastEnd + 1, to, "flowserver", function(data) {
+	        	lastBegin = lastEnd + 1;
+	        	lastEnd = to;
+	        	
+	        	console.log("Get Chart data F=" + lastBegin + ", T=" + lastEnd);
+		        updateScatter(from, to, data.scatter, "#scatter");
+	        });
+		}, 2000);    
     });
     
     $("#btnTraceServer").click(function(e) {
+    	stopRealtimer();
 		query();
     });
     
     $("#btnTrace .dropdown-menu").on("click", function(e){
+    	stopRealtimer();
     	var value = $(e.srcElement).data("value");
         setQueryTimeRange(value);
         $("#btnTraceServer").click();

@@ -27,7 +27,12 @@
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    
+	<script type="text/javascript" src="/common/js/hippo/chart-sankey.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-scatter.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-tree.js"></script>
+    
     <script type="text/javascript" src="/common/js/springy/springy.js"></script>
     <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
     <script type="text/javascript">
