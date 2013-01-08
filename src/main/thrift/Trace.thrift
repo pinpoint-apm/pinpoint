@@ -77,3 +77,10 @@ struct SubSpanList {
   6: list<SubSpan> subSpanList
 }
 
+struct SqlMetaData {
+    1: string agentId
+    2: i64 startTime;
+
+    3: i32 hashCode
+    4: string sql;
+}

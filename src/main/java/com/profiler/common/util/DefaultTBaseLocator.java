@@ -14,6 +14,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short SUBSPAN = 60;
     private static final short SUBSPANLIST = 70;
 
+    private static final short SQLMETADATA = 300;
+
     @Override
     public TBase<?, ?> tBaseLookup(short type) {
         switch (type) {
@@ -31,6 +33,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return new SubSpan();
             case SUBSPANLIST:
                 return new SubSpanList();
+            case SQLMETADATA:
+                return new SqlMetaData();
         }
         throw new IllegalArgumentException("Unsupported type:" + type);
     }
@@ -58,6 +62,12 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof SubSpanList) {
             return SUBSPANLIST;
         }
-        throw new UnsupportedOperationException("Unsupported Type");
+        if (tbase instanceof SqlMetaData) {
+            return SQLMETADATA;
+        }
+        if (tbase == null) {
+            throw new UnsupportedOperationException("Unsupported Type is null");
+        }
+        throw new UnsupportedOperationException("Unsupported Type" + tbase.getClass());
     }
 }

@@ -29,31 +29,34 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestDataListThriftDTO implements org.apache.thrift.TBase<RequestDataListThriftDTO, RequestDataListThriftDTO._Fields>, java.io.Serializable, Cloneable {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RequestDataListThriftDTO");
+public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMetaData._Fields>, java.io.Serializable, Cloneable {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SqlMetaData");
 
     private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short) 1);
-    private static final org.apache.thrift.protocol.TField REQUEST_HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("requestHashCode", org.apache.thrift.protocol.TType.I32, (short) 2);
-    private static final org.apache.thrift.protocol.TField REQUEST_DATA_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("requestDataList", org.apache.thrift.protocol.TType.LIST, (short) 3);
+    private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short) 2);
+    private static final org.apache.thrift.protocol.TField HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hashCode", org.apache.thrift.protocol.TType.I32, (short) 3);
+    private static final org.apache.thrift.protocol.TField SQL_FIELD_DESC = new org.apache.thrift.protocol.TField("sql", org.apache.thrift.protocol.TType.STRING, (short) 4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
 
     static {
-        schemes.put(StandardScheme.class, new RequestDataListThriftDTOStandardSchemeFactory());
-        schemes.put(TupleScheme.class, new RequestDataListThriftDTOTupleSchemeFactory());
+        schemes.put(StandardScheme.class, new SqlMetaDataStandardSchemeFactory());
+        schemes.put(TupleScheme.class, new SqlMetaDataTupleSchemeFactory());
     }
 
     private String agentId; // required
-    private int requestHashCode; // required
-    private List<RequestDataThriftDTO> requestDataList; // required
+    private long startTime; // required
+    private int hashCode; // required
+    private String sql; // required
 
     /**
      * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
      */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
         AGENT_ID((short) 1, "agentId"),
-        REQUEST_HASH_CODE((short) 2, "requestHashCode"),
-        REQUEST_DATA_LIST((short) 3, "requestDataList");
+        START_TIME((short) 2, "startTime"),
+        HASH_CODE((short) 3, "hashCode"),
+        SQL((short) 4, "sql");
 
         private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,10 +73,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
             switch (fieldId) {
                 case 1: // AGENT_ID
                     return AGENT_ID;
-                case 2: // REQUEST_HASH_CODE
-                    return REQUEST_HASH_CODE;
-                case 3: // REQUEST_DATA_LIST
-                    return REQUEST_DATA_LIST;
+                case 2: // START_TIME
+                    return START_TIME;
+                case 3: // HASH_CODE
+                    return HASH_CODE;
+                case 4: // SQL
+                    return SQL;
                 default:
                     return null;
             }
@@ -114,66 +119,70 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     }
 
     // isset id assignments
-    private static final int __REQUESTHASHCODE_ISSET_ID = 0;
-    private BitSet __isset_bit_vector = new BitSet(1);
+    private static final int __STARTTIME_ISSET_ID = 0;
+    private static final int __HASHCODE_ISSET_ID = 1;
+    private BitSet __isset_bit_vector = new BitSet(2);
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
 
     static {
         Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
         tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.REQUEST_HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("requestHashCode", org.apache.thrift.TFieldRequirementType.DEFAULT,
+        tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        tmpMap.put(_Fields.HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hashCode", org.apache.thrift.TFieldRequirementType.DEFAULT,
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-        tmpMap.put(_Fields.REQUEST_DATA_LIST, new org.apache.thrift.meta_data.FieldMetaData("requestDataList", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
-                        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, RequestDataThriftDTO.class))));
+        tmpMap.put(_Fields.SQL, new org.apache.thrift.meta_data.FieldMetaData("sql", org.apache.thrift.TFieldRequirementType.DEFAULT,
+                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
         metaDataMap = Collections.unmodifiableMap(tmpMap);
-        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(RequestDataListThriftDTO.class, metaDataMap);
+        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SqlMetaData.class, metaDataMap);
     }
 
-    public RequestDataListThriftDTO() {
+    public SqlMetaData() {
     }
 
-    public RequestDataListThriftDTO(
+    public SqlMetaData(
             String agentId,
-            int requestHashCode,
-            List<RequestDataThriftDTO> requestDataList) {
+            long startTime,
+            int hashCode,
+            String sql) {
         this();
         this.agentId = agentId;
-        this.requestHashCode = requestHashCode;
-        setRequestHashCodeIsSet(true);
-        this.requestDataList = requestDataList;
+        this.startTime = startTime;
+        setStartTimeIsSet(true);
+        this.hashCode = hashCode;
+        setHashCodeIsSet(true);
+        this.sql = sql;
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public RequestDataListThriftDTO(RequestDataListThriftDTO other) {
+    public SqlMetaData(SqlMetaData other) {
         __isset_bit_vector.clear();
         __isset_bit_vector.or(other.__isset_bit_vector);
         if (other.isSetAgentId()) {
             this.agentId = other.agentId;
         }
-        this.requestHashCode = other.requestHashCode;
-        if (other.isSetRequestDataList()) {
-            List<RequestDataThriftDTO> __this__requestDataList = new ArrayList<RequestDataThriftDTO>();
-            for (RequestDataThriftDTO other_element : other.requestDataList) {
-                __this__requestDataList.add(new RequestDataThriftDTO(other_element));
-            }
-            this.requestDataList = __this__requestDataList;
+        this.startTime = other.startTime;
+        this.hashCode = other.hashCode;
+        if (other.isSetSql()) {
+            this.sql = other.sql;
         }
     }
 
-    public RequestDataListThriftDTO deepCopy() {
-        return new RequestDataListThriftDTO(this);
+    public SqlMetaData deepCopy() {
+        return new SqlMetaData(this);
     }
 
     @Override
     public void clear() {
         this.agentId = null;
-        setRequestHashCodeIsSet(false);
-        this.requestHashCode = 0;
-        this.requestDataList = null;
+        setStartTimeIsSet(false);
+        this.startTime = 0;
+        setHashCodeIsSet(false);
+        this.hashCode = 0;
+        this.sql = null;
     }
 
     public String getAgentId() {
@@ -201,67 +210,76 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         }
     }
 
-    public int getRequestHashCode() {
-        return this.requestHashCode;
+    public long getStartTime() {
+        return this.startTime;
     }
 
-    public void setRequestHashCode(int requestHashCode) {
-        this.requestHashCode = requestHashCode;
-        setRequestHashCodeIsSet(true);
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+        setStartTimeIsSet(true);
     }
 
-    public void unsetRequestHashCode() {
-        __isset_bit_vector.clear(__REQUESTHASHCODE_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field requestHashCode is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetRequestHashCode() {
-        return __isset_bit_vector.get(__REQUESTHASHCODE_ISSET_ID);
-    }
-
-    public void setRequestHashCodeIsSet(boolean value) {
-        __isset_bit_vector.set(__REQUESTHASHCODE_ISSET_ID, value);
-    }
-
-    public int getRequestDataListSize() {
-        return (this.requestDataList == null) ? 0 : this.requestDataList.size();
-    }
-
-    public java.util.Iterator<RequestDataThriftDTO> getRequestDataListIterator() {
-        return (this.requestDataList == null) ? null : this.requestDataList.iterator();
-    }
-
-    public void addToRequestDataList(RequestDataThriftDTO elem) {
-        if (this.requestDataList == null) {
-            this.requestDataList = new ArrayList<RequestDataThriftDTO>();
-        }
-        this.requestDataList.add(elem);
-    }
-
-    public List<RequestDataThriftDTO> getRequestDataList() {
-        return this.requestDataList;
-    }
-
-    public void setRequestDataList(List<RequestDataThriftDTO> requestDataList) {
-        this.requestDataList = requestDataList;
-    }
-
-    public void unsetRequestDataList() {
-        this.requestDataList = null;
+    public void unsetStartTime() {
+        __isset_bit_vector.clear(__STARTTIME_ISSET_ID);
     }
 
     /**
-     * Returns true if field requestDataList is set (has been assigned a value) and false otherwise
+     * Returns true if field startTime is set (has been assigned a value) and false otherwise
      */
-    public boolean isSetRequestDataList() {
-        return this.requestDataList != null;
+    public boolean isSetStartTime() {
+        return __isset_bit_vector.get(__STARTTIME_ISSET_ID);
     }
 
-    public void setRequestDataListIsSet(boolean value) {
+    public void setStartTimeIsSet(boolean value) {
+        __isset_bit_vector.set(__STARTTIME_ISSET_ID, value);
+    }
+
+    public int getHashCode() {
+        return this.hashCode;
+    }
+
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+        setHashCodeIsSet(true);
+    }
+
+    public void unsetHashCode() {
+        __isset_bit_vector.clear(__HASHCODE_ISSET_ID);
+    }
+
+    /**
+     * Returns true if field hashCode is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetHashCode() {
+        return __isset_bit_vector.get(__HASHCODE_ISSET_ID);
+    }
+
+    public void setHashCodeIsSet(boolean value) {
+        __isset_bit_vector.set(__HASHCODE_ISSET_ID, value);
+    }
+
+    public String getSql() {
+        return this.sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public void unsetSql() {
+        this.sql = null;
+    }
+
+    /**
+     * Returns true if field sql is set (has been assigned a value) and false otherwise
+     */
+    public boolean isSetSql() {
+        return this.sql != null;
+    }
+
+    public void setSqlIsSet(boolean value) {
         if (!value) {
-            this.requestDataList = null;
+            this.sql = null;
         }
     }
 
@@ -275,19 +293,27 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
                 }
                 break;
 
-            case REQUEST_HASH_CODE:
+            case START_TIME:
                 if (value == null) {
-                    unsetRequestHashCode();
+                    unsetStartTime();
                 } else {
-                    setRequestHashCode((Integer) value);
+                    setStartTime((Long) value);
                 }
                 break;
 
-            case REQUEST_DATA_LIST:
+            case HASH_CODE:
                 if (value == null) {
-                    unsetRequestDataList();
+                    unsetHashCode();
                 } else {
-                    setRequestDataList((List<RequestDataThriftDTO>) value);
+                    setHashCode((Integer) value);
+                }
+                break;
+
+            case SQL:
+                if (value == null) {
+                    unsetSql();
+                } else {
+                    setSql((String) value);
                 }
                 break;
 
@@ -299,11 +325,14 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
             case AGENT_ID:
                 return getAgentId();
 
-            case REQUEST_HASH_CODE:
-                return Integer.valueOf(getRequestHashCode());
+            case START_TIME:
+                return Long.valueOf(getStartTime());
 
-            case REQUEST_DATA_LIST:
-                return getRequestDataList();
+            case HASH_CODE:
+                return Integer.valueOf(getHashCode());
+
+            case SQL:
+                return getSql();
 
         }
         throw new IllegalStateException();
@@ -320,10 +349,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         switch (field) {
             case AGENT_ID:
                 return isSetAgentId();
-            case REQUEST_HASH_CODE:
-                return isSetRequestHashCode();
-            case REQUEST_DATA_LIST:
-                return isSetRequestDataList();
+            case START_TIME:
+                return isSetStartTime();
+            case HASH_CODE:
+                return isSetHashCode();
+            case SQL:
+                return isSetSql();
         }
         throw new IllegalStateException();
     }
@@ -332,12 +363,12 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
     public boolean equals(Object that) {
         if (that == null)
             return false;
-        if (that instanceof RequestDataListThriftDTO)
-            return this.equals((RequestDataListThriftDTO) that);
+        if (that instanceof SqlMetaData)
+            return this.equals((SqlMetaData) that);
         return false;
     }
 
-    public boolean equals(RequestDataListThriftDTO that) {
+    public boolean equals(SqlMetaData that) {
         if (that == null)
             return false;
 
@@ -350,21 +381,30 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
                 return false;
         }
 
-        boolean this_present_requestHashCode = true;
-        boolean that_present_requestHashCode = true;
-        if (this_present_requestHashCode || that_present_requestHashCode) {
-            if (!(this_present_requestHashCode && that_present_requestHashCode))
+        boolean this_present_startTime = true;
+        boolean that_present_startTime = true;
+        if (this_present_startTime || that_present_startTime) {
+            if (!(this_present_startTime && that_present_startTime))
                 return false;
-            if (this.requestHashCode != that.requestHashCode)
+            if (this.startTime != that.startTime)
                 return false;
         }
 
-        boolean this_present_requestDataList = true && this.isSetRequestDataList();
-        boolean that_present_requestDataList = true && that.isSetRequestDataList();
-        if (this_present_requestDataList || that_present_requestDataList) {
-            if (!(this_present_requestDataList && that_present_requestDataList))
+        boolean this_present_hashCode = true;
+        boolean that_present_hashCode = true;
+        if (this_present_hashCode || that_present_hashCode) {
+            if (!(this_present_hashCode && that_present_hashCode))
                 return false;
-            if (!this.requestDataList.equals(that.requestDataList))
+            if (this.hashCode != that.hashCode)
+                return false;
+        }
+
+        boolean this_present_sql = true && this.isSetSql();
+        boolean that_present_sql = true && that.isSetSql();
+        if (this_present_sql || that_present_sql) {
+            if (!(this_present_sql && that_present_sql))
+                return false;
+            if (!this.sql.equals(that.sql))
                 return false;
         }
 
@@ -376,13 +416,13 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         return 0;
     }
 
-    public int compareTo(RequestDataListThriftDTO other) {
+    public int compareTo(SqlMetaData other) {
         if (!getClass().equals(other.getClass())) {
             return getClass().getName().compareTo(other.getClass().getName());
         }
 
         int lastComparison = 0;
-        RequestDataListThriftDTO typedOther = (RequestDataListThriftDTO) other;
+        SqlMetaData typedOther = (SqlMetaData) other;
 
         lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
         if (lastComparison != 0) {
@@ -394,22 +434,32 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
                 return lastComparison;
             }
         }
-        lastComparison = Boolean.valueOf(isSetRequestHashCode()).compareTo(typedOther.isSetRequestHashCode());
+        lastComparison = Boolean.valueOf(isSetStartTime()).compareTo(typedOther.isSetStartTime());
         if (lastComparison != 0) {
             return lastComparison;
         }
-        if (isSetRequestHashCode()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestHashCode, typedOther.requestHashCode);
+        if (isSetStartTime()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.startTime, typedOther.startTime);
             if (lastComparison != 0) {
                 return lastComparison;
             }
         }
-        lastComparison = Boolean.valueOf(isSetRequestDataList()).compareTo(typedOther.isSetRequestDataList());
+        lastComparison = Boolean.valueOf(isSetHashCode()).compareTo(typedOther.isSetHashCode());
         if (lastComparison != 0) {
             return lastComparison;
         }
-        if (isSetRequestDataList()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestDataList, typedOther.requestDataList);
+        if (isSetHashCode()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hashCode, typedOther.hashCode);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(isSetSql()).compareTo(typedOther.isSetSql());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (isSetSql()) {
+            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sql, typedOther.sql);
             if (lastComparison != 0) {
                 return lastComparison;
             }
@@ -431,7 +481,7 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("RequestDataListThriftDTO(");
+        StringBuilder sb = new StringBuilder("SqlMetaData(");
         boolean first = true;
 
         sb.append("agentId:");
@@ -442,15 +492,19 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         }
         first = false;
         if (!first) sb.append(", ");
-        sb.append("requestHashCode:");
-        sb.append(this.requestHashCode);
+        sb.append("startTime:");
+        sb.append(this.startTime);
         first = false;
         if (!first) sb.append(", ");
-        sb.append("requestDataList:");
-        if (this.requestDataList == null) {
+        sb.append("hashCode:");
+        sb.append(this.hashCode);
+        first = false;
+        if (!first) sb.append(", ");
+        sb.append("sql:");
+        if (this.sql == null) {
             sb.append("null");
         } else {
-            sb.append(this.requestDataList);
+            sb.append(this.sql);
         }
         first = false;
         sb.append(")");
@@ -479,15 +533,15 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
         }
     }
 
-    private static class RequestDataListThriftDTOStandardSchemeFactory implements SchemeFactory {
-        public RequestDataListThriftDTOStandardScheme getScheme() {
-            return new RequestDataListThriftDTOStandardScheme();
+    private static class SqlMetaDataStandardSchemeFactory implements SchemeFactory {
+        public SqlMetaDataStandardScheme getScheme() {
+            return new SqlMetaDataStandardScheme();
         }
     }
 
-    private static class RequestDataListThriftDTOStandardScheme extends StandardScheme<RequestDataListThriftDTO> {
+    private static class SqlMetaDataStandardScheme extends StandardScheme<SqlMetaData> {
 
-        public void read(org.apache.thrift.protocol.TProtocol iprot, RequestDataListThriftDTO struct) throws org.apache.thrift.TException {
+        public void read(org.apache.thrift.protocol.TProtocol iprot, SqlMetaData struct) throws org.apache.thrift.TException {
             org.apache.thrift.protocol.TField schemeField;
             iprot.readStructBegin();
             while (true) {
@@ -504,28 +558,26 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
                             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         break;
-                    case 2: // REQUEST_HASH_CODE
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                            struct.requestHashCode = iprot.readI32();
-                            struct.setRequestHashCodeIsSet(true);
+                    case 2: // START_TIME
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                            struct.startTime = iprot.readI64();
+                            struct.setStartTimeIsSet(true);
                         } else {
                             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         break;
-                    case 3: // REQUEST_DATA_LIST
-                        if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                            {
-                                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                                struct.requestDataList = new ArrayList<RequestDataThriftDTO>(_list0.size);
-                                for (int _i1 = 0; _i1 < _list0.size; ++_i1) {
-                                    RequestDataThriftDTO _elem2; // required
-                                    _elem2 = new RequestDataThriftDTO();
-                                    _elem2.read(iprot);
-                                    struct.requestDataList.add(_elem2);
-                                }
-                                iprot.readListEnd();
-                            }
-                            struct.setRequestDataListIsSet(true);
+                    case 3: // HASH_CODE
+                        if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                            struct.hashCode = iprot.readI32();
+                            struct.setHashCodeIsSet(true);
+                        } else {
+                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                        }
+                        break;
+                    case 4: // SQL
+                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            struct.sql = iprot.readString();
+                            struct.setSqlIsSet(true);
                         } else {
                             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
                         }
@@ -539,7 +591,7 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
             struct.validate();
         }
 
-        public void write(org.apache.thrift.protocol.TProtocol oprot, RequestDataListThriftDTO struct) throws org.apache.thrift.TException {
+        public void write(org.apache.thrift.protocol.TProtocol oprot, SqlMetaData struct) throws org.apache.thrift.TException {
             struct.validate();
 
             oprot.writeStructBegin(STRUCT_DESC);
@@ -548,18 +600,15 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
                 oprot.writeString(struct.agentId);
                 oprot.writeFieldEnd();
             }
-            oprot.writeFieldBegin(REQUEST_HASH_CODE_FIELD_DESC);
-            oprot.writeI32(struct.requestHashCode);
+            oprot.writeFieldBegin(START_TIME_FIELD_DESC);
+            oprot.writeI64(struct.startTime);
             oprot.writeFieldEnd();
-            if (struct.requestDataList != null) {
-                oprot.writeFieldBegin(REQUEST_DATA_LIST_FIELD_DESC);
-                {
-                    oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.requestDataList.size()));
-                    for (RequestDataThriftDTO _iter3 : struct.requestDataList) {
-                        _iter3.write(oprot);
-                    }
-                    oprot.writeListEnd();
-                }
+            oprot.writeFieldBegin(HASH_CODE_FIELD_DESC);
+            oprot.writeI32(struct.hashCode);
+            oprot.writeFieldEnd();
+            if (struct.sql != null) {
+                oprot.writeFieldBegin(SQL_FIELD_DESC);
+                oprot.writeString(struct.sql);
                 oprot.writeFieldEnd();
             }
             oprot.writeFieldStop();
@@ -568,68 +617,64 @@ public class RequestDataListThriftDTO implements org.apache.thrift.TBase<Request
 
     }
 
-    private static class RequestDataListThriftDTOTupleSchemeFactory implements SchemeFactory {
-        public RequestDataListThriftDTOTupleScheme getScheme() {
-            return new RequestDataListThriftDTOTupleScheme();
+    private static class SqlMetaDataTupleSchemeFactory implements SchemeFactory {
+        public SqlMetaDataTupleScheme getScheme() {
+            return new SqlMetaDataTupleScheme();
         }
     }
 
-    private static class RequestDataListThriftDTOTupleScheme extends TupleScheme<RequestDataListThriftDTO> {
+    private static class SqlMetaDataTupleScheme extends TupleScheme<SqlMetaData> {
 
         @Override
-        public void write(org.apache.thrift.protocol.TProtocol prot, RequestDataListThriftDTO struct) throws org.apache.thrift.TException {
+        public void write(org.apache.thrift.protocol.TProtocol prot, SqlMetaData struct) throws org.apache.thrift.TException {
             TTupleProtocol oprot = (TTupleProtocol) prot;
             BitSet optionals = new BitSet();
             if (struct.isSetAgentId()) {
                 optionals.set(0);
             }
-            if (struct.isSetRequestHashCode()) {
+            if (struct.isSetStartTime()) {
                 optionals.set(1);
             }
-            if (struct.isSetRequestDataList()) {
+            if (struct.isSetHashCode()) {
                 optionals.set(2);
             }
-            oprot.writeBitSet(optionals, 3);
+            if (struct.isSetSql()) {
+                optionals.set(3);
+            }
+            oprot.writeBitSet(optionals, 4);
             if (struct.isSetAgentId()) {
                 oprot.writeString(struct.agentId);
             }
-            if (struct.isSetRequestHashCode()) {
-                oprot.writeI32(struct.requestHashCode);
+            if (struct.isSetStartTime()) {
+                oprot.writeI64(struct.startTime);
             }
-            if (struct.isSetRequestDataList()) {
-                {
-                    oprot.writeI32(struct.requestDataList.size());
-                    for (RequestDataThriftDTO _iter4 : struct.requestDataList) {
-                        _iter4.write(oprot);
-                    }
-                }
+            if (struct.isSetHashCode()) {
+                oprot.writeI32(struct.hashCode);
+            }
+            if (struct.isSetSql()) {
+                oprot.writeString(struct.sql);
             }
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol prot, RequestDataListThriftDTO struct) throws org.apache.thrift.TException {
+        public void read(org.apache.thrift.protocol.TProtocol prot, SqlMetaData struct) throws org.apache.thrift.TException {
             TTupleProtocol iprot = (TTupleProtocol) prot;
-            BitSet incoming = iprot.readBitSet(3);
+            BitSet incoming = iprot.readBitSet(4);
             if (incoming.get(0)) {
                 struct.agentId = iprot.readString();
                 struct.setAgentIdIsSet(true);
             }
             if (incoming.get(1)) {
-                struct.requestHashCode = iprot.readI32();
-                struct.setRequestHashCodeIsSet(true);
+                struct.startTime = iprot.readI64();
+                struct.setStartTimeIsSet(true);
             }
             if (incoming.get(2)) {
-                {
-                    org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-                    struct.requestDataList = new ArrayList<RequestDataThriftDTO>(_list5.size);
-                    for (int _i6 = 0; _i6 < _list5.size; ++_i6) {
-                        RequestDataThriftDTO _elem7; // required
-                        _elem7 = new RequestDataThriftDTO();
-                        _elem7.read(iprot);
-                        struct.requestDataList.add(_elem7);
-                    }
-                }
-                struct.setRequestDataListIsSet(true);
+                struct.hashCode = iprot.readI32();
+                struct.setHashCodeIsSet(true);
+            }
+            if (incoming.get(3)) {
+                struct.sql = iprot.readString();
+                struct.setSqlIsSet(true);
             }
         }
     }
