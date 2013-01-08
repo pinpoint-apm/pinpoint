@@ -41,16 +41,19 @@ public class MySQLStatementModifier extends AbstractModifier {
             Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdate1);
             Interceptor executeUpdate2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
-            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "boolean"}, executeUpdate2);
+            statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdate2);
 
             Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("execute", new String[]{"java.lang.String"}, executeUpdate3);
             Interceptor executeUpdate4 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
-            statementClass.addInterceptor("execute", new String[]{"java.lang.String", "boolean"}, executeUpdate4);
+            statementClass.addInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdate4);
 
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             return statementClass.toBytecode();
         } catch (InstrumentException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+            }
             return null;
         }
     }

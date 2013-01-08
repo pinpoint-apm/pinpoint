@@ -114,6 +114,11 @@ public class TomcatProfiler implements ClassFileTransformer {
         }
         String javassistClassName = className.replace('/', '.');
 
-        return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
+        try {
+            return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Modifier:" + findModifier.getTargetClass() + " modify fail. Cause:" + e.getMessage(), e);
+            return null;
+        }
     }
 }

@@ -33,6 +33,7 @@ public class Agent {
     private final String agentId;
     private final String nodeName;
     private final String applicationName;
+    private final long startTime;
 
     public Agent(ProfilerConfig profilerConfig) {
         Assert.notNull(profilerConfig, "profilerConfig must not be null");
@@ -44,10 +45,12 @@ public class Agent {
 //        일단 임시로 호환성을 위해 agentid에 머신name을넣도록 하자
         String machineName = NetworkUtils.getMachineName();
         this.agentId = getId("hippo.agentId", machineName);
+        // TODO node name의 string limit 제한을 해결해야 된다.
         this.nodeName = getId("hippo.nodeName", machineName);
         this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
 
         this.dataSender = createDataSender();
+        this.startTime = System.currentTimeMillis();
 
         initializeTraceContext();
 
@@ -93,7 +96,7 @@ public class Agent {
                 logger.warning(idName + " is too long(1~24). value=" + id);
             }
             // validate = false;
-            // TODO 이거 후처리를 어떻게 해야 될지. agent를 시작 시키지 않아야 될거 같은데. lifecycle이 이쪽저쪽에 퍼져 있어서 일관된 stop에 문제가 있음..
+            // TODO 이제 그냥 exception을 던지면 됨 agent 생성 타이밍이 최초 vm스타트와 동일하다.
         } catch (UnsupportedEncodingException e) {
             logger.log(Level.WARNING, "invalid agentId. Cause:" + e.getMessage(), e);
         }
@@ -125,6 +128,10 @@ public class Agent {
         return agentId;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     public String getApplicationName() {
         return applicationName;
     }
@@ -153,8 +160,9 @@ public class Agent {
         agentInfo.setPorts(ports);
         agentInfo.setAgentId(getAgentId());
         agentInfo.setApplicationName(getApplicationName());
+
         agentInfo.setIsAlive(true);
-        agentInfo.setTimestamp(System.currentTimeMillis());
+        agentInfo.setTimestamp(this.startTime);
 
         this.dataSender.send(agentInfo);
     }
@@ -177,10 +185,11 @@ public class Agent {
 
         agentInfo.setHostname(ip);
         agentInfo.setPorts(ports);
-        agentInfo.setIsAlive(false);
-        agentInfo.setTimestamp(System.currentTimeMillis());
         agentInfo.setAgentId(getAgentId());
         agentInfo.setApplicationName(getApplicationName());
+
+        agentInfo.setIsAlive(false);
+        agentInfo.setTimestamp(this.startTime);
 
         this.dataSender.send(agentInfo);
         // 종료 처리 필요.
