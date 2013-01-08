@@ -42,6 +42,10 @@ public class MultiplexedPacketHandler {
     @Qualifier("SubSpanListHandler")
     private Handler subSpanListHandler;
 
+    @Autowired()
+    @Qualifier("SqlMetaDataHandler")
+    private Handler sqlMetaDataHandler;
+
     public MultiplexedPacketHandler() {
     }
 
@@ -79,6 +83,9 @@ public class MultiplexedPacketHandler {
         }
         if (tBase instanceof SubSpanList) {
             return subSpanListHandler;
+        }
+        if (tBase instanceof SqlMetaData) {
+            return sqlMetaDataHandler;
         }
         logger.warn("Unknown type of data received. data=" + tBase);
         throw new UnsupportedOperationException();

@@ -20,7 +20,7 @@ import com.profiler.server.dao.TracesDao;
 
 public class SpanHandler implements Handler {
 
-    private final Logger logger = LoggerFactory.getLogger(SpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TraceIndexDao traceIndexDao;

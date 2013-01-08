@@ -18,7 +18,7 @@ import com.profiler.server.dao.TracesDao;
  */
 public class SubSpanHandler implements Handler {
 
-    private final Logger logger = LoggerFactory.getLogger(SubSpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TracesDao traceDao;

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class SubSpanListHandler implements Handler {
 
-    private final Logger logger = LoggerFactory.getLogger(SubSpanHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     @Autowired
