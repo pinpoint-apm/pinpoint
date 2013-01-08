@@ -3,11 +3,17 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.SqlMetaData;
+import com.profiler.common.util.ParsingResult;
+import com.profiler.common.util.SqlParser;
 import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.metadata.SqlCacheTable;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
+import com.profiler.util.Assert;
 
 /**
  * @author netspider
@@ -29,6 +35,10 @@ public final class Trace {
     private CallStack callStack;
 
     private Storage storage;
+
+    // TODO 아래 관련 핸들링 로직은 traceContext로 빼야지 이쁠뜻하다.
+    private SqlCacheTable sqlCacheTable;
+    private SqlParser sqlParser;
 
     public Trace() {
         // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
@@ -220,23 +230,23 @@ public final class Trace {
         annotate(annotation.getCode());
     }
 
-	public void recordException(Object result) {
-		if (result instanceof Throwable) {
-			Throwable th = (Throwable) result;
-			recordAttribute(AnnotationNames.EXCEPTION, th.getMessage());
+    public void recordException(Object result) {
+        if (result instanceof Throwable) {
+            Throwable th = (Throwable) result;
+            recordAttribute(AnnotationNames.EXCEPTION, th.getMessage());
 
-			try {
-				StackFrame currentStackFrame = getCurrentStackFrame();
-				if (currentStackFrame instanceof RootStackFrame) {
-					((RootStackFrame) currentStackFrame).getSpan().setException(true);
-				} else {
-					((SubStackFrame) currentStackFrame).getSubSpan().setException(true);
-				}
-			} catch (Exception e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
-			}
-		}
-	}
+            try {
+                StackFrame currentStackFrame = getCurrentStackFrame();
+                if (currentStackFrame instanceof RootStackFrame) {
+                    ((RootStackFrame) currentStackFrame).getSpan().setException(true);
+                } else {
+                    ((SubStackFrame) currentStackFrame).getSubSpan().setException(true);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+    }
 
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {
@@ -272,6 +282,45 @@ public final class Trace {
 
     public void recordAttribute(final String key, final String value) {
         recordAttribute(key, (Object) value);
+    }
+
+    public void recordSqlInfo(String sql) {
+        ParsingResult parsingResult = parseSql(sql);
+        recordAttribute(AnnotationNames.SQL_ID, parsingResult.getSql().hashCode());
+        String output = parsingResult.getOutput();
+        if (output != null && output.length() != 0) {
+            recordAttribute(AnnotationNames.SQL_PARAM, output);
+        }
+    }
+
+
+    public ParsingResult parseSql(String sql) {
+        Assert.notNull(sql, "sql must not null");
+
+        // 해당 api의 구현을 그냥 tarceContext api에 만들어야 될듯 하다.
+        ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
+        String normalizedSql = parsingResult.getSql();
+        // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
+        boolean newValue = this.sqlCacheTable.put(normalizedSql);
+        if (newValue) {
+            if (logger.isLoggable(Level.FINE)) {
+                // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
+                logger.fine("NewSQLParsingResult:" + parsingResult);
+            }
+            // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
+            // 그러므로 메타데이터를 서버로 전송해야 한다.
+
+            // 프로파일 데이터를 보내는데 사용되는 queue가 아니고,
+            // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
+            SqlMetaData sqlMetaData = new SqlMetaData();
+            sqlMetaData.setAgentId(Agent.getInstance().getAgentId());
+            sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
+            sqlMetaData.setHashCode(normalizedSql.hashCode());
+            sqlMetaData.setSql(normalizedSql);
+            this.getStorage().getDataSender().send(sqlMetaData);
+        }
+        // hashId그냥 return String에서 까보면 됨.
+        return parsingResult;
     }
 
     public void recordAttribute(final String key, final Object value) {
@@ -359,6 +408,15 @@ public final class Trace {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+
+    public void setSqlCacheTable(SqlCacheTable sqlCacheTable) {
+        this.sqlCacheTable = sqlCacheTable;
+    }
+
+    public void setSqlParser(SqlParser sqlParser) {
+        this.sqlParser = sqlParser;
     }
 
 

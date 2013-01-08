@@ -95,6 +95,7 @@ public class UdpDataSender implements DataSender, Runnable {
         }
         started = false;
         // io thread 안전 종료. queue 비우기.
+        // TODO 종료 처리가 안이쁨. 고쳐야 될듯.
     }
 
     // TODO: sender thread가 한 개로 충분한가.

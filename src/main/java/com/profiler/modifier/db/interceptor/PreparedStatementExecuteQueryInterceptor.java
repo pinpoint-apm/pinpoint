@@ -52,11 +52,14 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
             String sql = getSql.invoke(target);
-            trace.recordAttribute(AnnotationNames.PREPAREDSTATEMENT, sql);
+
+            // 일단 중복처리
+            trace.recordAttribute(AnnotationNames.SQL, sql);
+            trace.recordSqlInfo(sql);
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            trace.recordAttribute(AnnotationNames.BINDVALUE, bindString);
+            trace.recordAttribute(AnnotationNames.SQL_BINDVALUE, bindString);
 
 //            trace.recordApi(descriptor, args);
             trace.recordApi(apiId);

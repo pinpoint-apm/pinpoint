@@ -1,8 +1,8 @@
 package com.profiler.context;
 
 
-import com.profiler.sender.DataSender;
-import com.profiler.sender.LoggingDataSender;
+import com.profiler.common.util.SqlParser;
+import com.profiler.metadata.SqlCacheTable;
 import com.profiler.util.Assert;
 import com.profiler.util.NamedThreadLocal;
 
@@ -37,6 +37,9 @@ public class TraceContext {
 
     private StorageFactory storageFactory;
 
+    private SqlCacheTable sqlTable = new SqlCacheTable(1000);
+    private SqlParser sqlParser = new SqlParser();
+
     public TraceContext() {
     }
 
@@ -54,6 +57,8 @@ public class TraceContext {
 //        trace.setDataSender(this.dataSender);
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
+        trace.setSqlCacheTable(this.sqlTable);
+        trace.setSqlParser(this.sqlParser);
         //
 //        trace.setTransactionId(transactionId.getAndIncrement());
         threadLocal.set(trace);

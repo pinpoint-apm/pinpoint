@@ -1,6 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.context.Annotation;
+import com.profiler.common.AnnotationNames;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ApiIdSupport;
@@ -48,7 +48,14 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
             trace.recordApi(apiId, args);
-
+            if (args.length > 0) {
+                Object arg = args[0];
+                if (arg instanceof String) {
+                    trace.recordSqlInfo((String) arg);
+                    // TODO 일단 중복 처리.
+                    trace.recordAttribute(AnnotationNames.SQL, args[0]);
+                }
+            }
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {

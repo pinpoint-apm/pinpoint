@@ -1,5 +1,7 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.common.AnnotationNames;
+import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
@@ -49,9 +51,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
-//            if (args.length > 0) {
-//                trace.recordAttribute("Statement", args[0]);
-//            }
+
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -74,8 +74,17 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
         if (trace == null) {
             return;
         }
-        trace.recordApi(descriptor, args);
+
+        trace.recordApi(descriptor);
         trace.recordException(result);
+        if (args.length > 0) {
+            Object arg = args[0];
+            if (arg instanceof String) {
+                trace.recordSqlInfo((String) arg);
+                // TODO 일단 중복 처리.
+                trace.recordAttribute(AnnotationNames.SQL, args[0]);
+            }
+        }
 
         trace.markAfterTime();
         trace.traceBlockEnd();
