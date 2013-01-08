@@ -12,15 +12,15 @@ public class SqlParserTest {
 
     @Test
     public void normalizedSql() {
-        StringBuilder sb = new StringBuilder(10);
 
-        String s = sqlParser.normalizedSql("select * from table a = 1 and b=50 and c=? and d='11'", sb);
+        ParsingResult parsingResult = sqlParser.normalizedSql("select * from table a = 1 and b=50 and c=? and d='11'");
+        String s = parsingResult.getSql();
 
         System.out.println(s);
-        System.out.println(sb.toString());
+        System.out.println(parsingResult.getOutput());
 
-        StringBuilder sb2 = new StringBuilder(10);
-        String s2 = sqlParser.normalizedSql(" ", sb2);
+        ParsingResult parsingResult2 = sqlParser.normalizedSql(" ");
+        String s2 = parsingResult2.getSql();
         System.out.println(s2);
 
         System.out.println((char) -1);
@@ -33,15 +33,15 @@ public class SqlParserTest {
         System.out.println((int) Character.MIN_LOW_SURROGATE);
         System.out.println((int) Character.MAX_HIGH_SURROGATE);
 
-        StringBuilder sb3 = new StringBuilder();
-        String s3 = sqlParser.normalizedSql("''", sb3);
+        ParsingResult parsingResult3 = sqlParser.normalizedSql("''");
+        String s3 = parsingResult3.getSql();
         System.out.println("s3:" + s3);
-        System.out.println("sb3:" + sb3.toString());
+        System.out.println("sb3:" + parsingResult3.getOutput());
     }
 
     @Test
     public void nullCheck() {
-        sqlParser.normalizedSql(null, new StringBuilder());
+        sqlParser.normalizedSql(null);
     }
 
     @Test
@@ -182,8 +182,8 @@ public class SqlParserTest {
     }
 
     private void assertEqual(String expected, String actual) {
-        StringBuilder sb = new StringBuilder();
-        String normalizedSql = sqlParser.normalizedSql(expected, sb);
+        ParsingResult parsingResult = sqlParser.normalizedSql(expected);
+        String normalizedSql = parsingResult.getSql();
         try {
             Assert.assertEquals(actual, normalizedSql);
         } catch (AssertionFailedError e) {
@@ -193,8 +193,8 @@ public class SqlParserTest {
     }
 
     private void assertEqual(String expected, String actual, String ouputExpected) {
-        StringBuilder output = new StringBuilder();
-        String normalizedSql = sqlParser.normalizedSql(expected, output);
+        ParsingResult parsingResult = sqlParser.normalizedSql(expected);
+        String normalizedSql = parsingResult.getSql();
         try {
             Assert.assertEquals("normalizedSql check", actual, normalizedSql);
         } catch (AssertionFailedError e) {
@@ -202,12 +202,12 @@ public class SqlParserTest {
             throw e;
         }
 
-        Assert.assertEquals("outputParam check", ouputExpected, output.toString());
+        Assert.assertEquals("outputParam check", ouputExpected, parsingResult.getOutput());
     }
 
     private void assertEqualObject(String expected) {
-        StringBuilder output = new StringBuilder();
-        String normalizedSql = sqlParser.normalizedSql(expected, output);
+        ParsingResult parsingResult = sqlParser.normalizedSql(expected);
+        String normalizedSql = parsingResult.getSql();
         try {
             Assert.assertEquals("normalizedSql check", expected, normalizedSql);
             Assert.assertSame(expected, normalizedSql);

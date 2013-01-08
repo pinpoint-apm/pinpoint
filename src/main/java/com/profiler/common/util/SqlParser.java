@@ -8,13 +8,16 @@ public class SqlParser {
     public static final char NUMBER_REPLACE = '#';
     public static final char SEPARATOR = ',';
 
-    public String normalizedSql(String sql, StringBuilder outputParam) {
+    private static ParsingResult NULL = new ParsingResult("", new StringBuilder());
+
+    public ParsingResult normalizedSql(String sql) {
         if (sql == null) {
-            return "";
+            return NULL;
         }
 
+        ParsingResult parsingResult = new ParsingResult();
         final int length = sql.length();
-        final StringBuilder normalized = new StringBuilder(length);
+        final StringBuilder normalized = new StringBuilder(length + 16);
 
         boolean change = false;
         boolean numberTokenStartEnable = true;
@@ -82,14 +85,14 @@ public class SqlParser {
                         change = true;
                         normalized.append('\'');
                         i++;
-                        appendSeparator(outputParam);
+                        parsingResult.appendOutputSeparator(SEPARATOR);
                         for (; i < length; i++) {
                             char stateCh = sql.charAt(i);
                             if (stateCh == '\'') {
                                 // '' 이 연속으로 나왔을 경우는 \' 이므로 그대로 넣는다.
                                 if (lookAhead1(sql, i) == '\'') {
                                     i++;
-                                    outputParam.append("''");
+                                    parsingResult.appendOutputParam("''");
                                     continue;
                                 } else {
                                     normalized.append(SYMBOL_REPLACE);
@@ -98,7 +101,7 @@ public class SqlParser {
                                     break;
                                 }
                             }
-                            outputParam.append(stateCh);
+                            parsingResult.appendOutputParam(stateCh);
                         }
                         break;
                     }
@@ -119,8 +122,8 @@ public class SqlParser {
                         change = true;
                         normalized.append(NUMBER_REPLACE);
                         // number token start
-                        appendSeparator(outputParam);
-                        outputParam.append(ch);
+                        parsingResult.appendOutputSeparator(SEPARATOR);
+                        parsingResult.appendOutputParam(ch);
                         i++;
                         tokenEnd:
                         for (; i < length; i++) {
@@ -138,7 +141,7 @@ public class SqlParser {
                                 case '9':
                                 case '.':
                                 case 'E':
-                                    outputParam.append(stateCh);
+                                    parsingResult.appendOutputParam(stateCh);
                                     break;
                                 default:
                                     // 여기서 처리하지 말고 루프 바깥으로 나가서 다시 token을 봐야 된다.
@@ -205,12 +208,14 @@ public class SqlParser {
             }
         }
         if (change) {
-            return normalized.toString();
+            parsingResult.setSql(normalized.toString());
+            return parsingResult;
         } else {
             // 수정되지 않았을 경우의 재활용.
             // 1. 성능향상을 위해 string을 생성하지 않도록.
             // 2. hash code재활용.
-            return sql;
+            parsingResult.setSql(sql);
+            return parsingResult;
         }
     }
 
@@ -241,10 +246,5 @@ public class SqlParser {
         }
     }
 
-    private void appendSeparator(StringBuilder outputParam) {
-        if (outputParam.length() != 0) {
-            outputParam.append(SEPARATOR);
-        }
-    }
 
 }
