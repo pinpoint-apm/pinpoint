@@ -40,298 +40,298 @@ import com.profiler.common.hbase.HBaseTables;
 @Service
 public class FlowChartServiceImpl implements FlowChartService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	@Qualifier("hbaseClient")
-	HBaseClient client;
+    @Autowired
+    @Qualifier("hbaseClient")
+    HBaseClient client;
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
 
-	@Autowired
-	private RootTraceIndexDao rootTraceIndexDao;
+    @Autowired
+    private RootTraceIndexDao rootTraceIndexDao;
 
-	@Autowired
-	private TraceIndexDao traceIndexDao;
+    @Autowired
+    private TraceIndexDao traceIndexDao;
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Autowired
-	private TerminalStatisticsDao terminalStatisticsDao;
+    @Autowired
+    private TerminalStatisticsDao terminalStatisticsDao;
 
-	@Override
-	public List<String> selectAllApplicationNames() {
-		return applicationIndexDao.selectAllApplicationNames();
-	}
+    @Override
+    public List<String> selectAllApplicationNames() {
+        return applicationIndexDao.selectAllApplicationNames();
+    }
 
-	@Override
-	public String[] selectAgentIdsFromApplicationName(String applicationName) {
-		return applicationIndexDao.selectAgentIds(applicationName);
-	}
+    @Override
+    public String[] selectAgentIdsFromApplicationName(String applicationName) {
+        return applicationIndexDao.selectAgentIds(applicationName);
+    }
 
-	@Override
-	public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
-		if (agentIds == null) {
-			throw new NullPointerException("agentIds");
-		}
+    @Override
+    public Set<TraceId> selectTraceIdsFromTraceIndex(String[] agentIds, long from, long to) {
+        if (agentIds == null) {
+            throw new NullPointerException("agentIds");
+        }
 
-		if (agentIds.length == 1) {
-			// single scan
-			if (logger.isTraceEnabled()) {
-				logger.trace("scan {}, {}, {}", new Object[] { agentIds[0], from, to });
-			}
-			List<List<byte[]>> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
-			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<byte[]> list : bytes) {
-				for (byte[] traceId : list) {
-					TraceId tid = new TraceId(traceId);
-					result.add(tid);
-					logger.trace("traceid:{}", tid);
-				}
-			}
-			return result;
-		} else {
-			// multi scan 가능한 동일 open htable 에서 액세스함.
-			List<List<List<byte[]>>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
-			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<List<byte[]>> list : multiScan) {
-				for (List<byte[]> scan : list) {
-					for (byte[] traceId : scan) {
-						result.add(new TraceId(traceId));
-					}
-				}
-			}
-			return result;
-		}
-	}
+        if (agentIds.length == 1) {
+            // single scan
+            if (logger.isTraceEnabled()) {
+                logger.trace("scan {}, {}, {}", new Object[]{agentIds[0], from, to});
+            }
+            List<List<byte[]>> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (List<byte[]> list : bytes) {
+                for (byte[] traceId : list) {
+                    TraceId tid = new TraceId(traceId);
+                    result.add(tid);
+                    logger.trace("traceid:{}", tid);
+                }
+            }
+            return result;
+        } else {
+            // multi scan 가능한 동일 open htable 에서 액세스함.
+            List<List<List<byte[]>>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+            Set<TraceId> result = new HashSet<TraceId>();
+            for (List<List<byte[]>> list : multiScan) {
+                for (List<byte[]> scan : list) {
+                    for (byte[] traceId : scan) {
+                        result.add(new TraceId(traceId));
+                    }
+                }
+            }
+            return result;
+        }
+    }
 
-	@Override
-	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
-		final RPCCallTree tree = new RPCCallTree();
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
-		for (List<SpanBo> transaction : traces) {
-			for (SpanBo eachTransaction : transaction) {
-				tree.addSpan(eachTransaction);
-			}
-		}
-		return tree.build();
-	}
+    @Override
+    public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
+        final RPCCallTree tree = new RPCCallTree();
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+        for (List<SpanBo> transaction : traces) {
+            for (SpanBo eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
-		final ServerCallTree tree = new ServerCallTree();
+    @Override
+    public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
+        final ServerCallTree tree = new ServerCallTree();
 
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
-		for (List<SpanBo> transaction : traces) {
-			// List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(transaction);
-			for (SpanBo eachTransaction : transaction) {
-				tree.addSpan(eachTransaction);
-			}
-		}
-		return tree.build();
-	}
+        for (List<SpanBo> transaction : traces) {
+            // List<SpanBo> processed = refine(transaction);
+            markRecursiveCall(transaction);
+            for (SpanBo eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
+            }
+        }
+        return tree.build();
+    }
 
-	/**
-	 * makes call tree of transaction detail view
-	 */
-	@Override
-	public ServerCallTree selectServerCallTree(TraceId traceId) {
-		final ServerCallTree tree = new ServerCallTree();
+    /**
+     * makes call tree of transaction detail view
+     */
+    @Override
+    public ServerCallTree selectServerCallTree(TraceId traceId) {
+        final ServerCallTree tree = new ServerCallTree();
 
-		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
+        List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
-		Set<String> endPoints = new HashSet<String>();
+        Set<String> endPoints = new HashSet<String>();
 
-		// List<SpanBo> processed = refine(transaction);
-		markRecursiveCall(transaction);
-		for (SpanBo eachTransaction : transaction) {
-			tree.addSpan(eachTransaction);
-			endPoints.add(eachTransaction.getEndPoint());
-		}
+        // List<SpanBo> processed = refine(transaction);
+        markRecursiveCall(transaction);
+        for (SpanBo eachTransaction : transaction) {
+            tree.addSpan(eachTransaction);
+            endPoints.add(eachTransaction.getEndPoint());
+        }
 
-		for (SpanBo eachTransaction : transaction) {
-			List<SubSpanBo> subSpanList = eachTransaction.getSubSpanList();
-			
-			if (subSpanList == null)
-				continue;
-			
-			for (SubSpanBo subTransaction : subSpanList) {
-				// remove subspan of the rpc client
-				if (!endPoints.contains(subTransaction.getEndPoint())) {
-					// this is unknown cloud
-					tree.addSubSpan(subTransaction);
-				}
-			}
-		}
+        for (SpanBo eachTransaction : transaction) {
+            List<SubSpanBo> subSpanList = eachTransaction.getSubSpanList();
 
-		return tree.build();
-	}
+            if (subSpanList == null)
+                continue;
 
-	/**
-	 * makes call tree of  main view
-	 */
-	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
-		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
-		final ServerCallTree tree = new ServerCallTree();
+            for (SubSpanBo subTransaction : subSpanList) {
+                // remove subspan of the rpc client
+                if (!endPoints.contains(subTransaction.getEndPoint())) {
+                    // this is unknown cloud
+                    tree.addSubSpan(subTransaction);
+                }
+            }
+        }
 
-		StopWatch watch = new StopWatch();
-		watch.start("scanNonTerminalSpans");
+        return tree.build();
+    }
 
-		// fetch non-terminal spans
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+    /**
+     * makes call tree of  main view
+     */
+    @Override
+    public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
+        final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
+        final ServerCallTree tree = new ServerCallTree();
 
-		watch.stop();
-		int totalNonTerminalSpansCount = 0;
+        StopWatch watch = new StopWatch();
+        watch.start("scanNonTerminalSpans");
 
-		Set<String> endPoints = new HashSet<String>();
+        // fetch non-terminal spans
+        List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
-		// processing spans
-		for (List<SpanBo> transaction : traces) {
-			totalNonTerminalSpansCount += transaction.size();
+        watch.stop();
+        int totalNonTerminalSpansCount = 0;
 
-			// List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(transaction);
-			for (SpanBo eachTransaction : transaction) {
-				tree.addSpan(eachTransaction);
+        Set<String> endPoints = new HashSet<String>();
 
-				// make query param
-				terminalQueryParams.put(eachTransaction.getServiceName(), eachTransaction.getServiceType());
+        // processing spans
+        for (List<SpanBo> transaction : traces) {
+            totalNonTerminalSpansCount += transaction.size();
 
-				endPoints.add(eachTransaction.getEndPoint());
-			}
-		}
+            // List<SpanBo> processed = refine(transaction);
+            markRecursiveCall(transaction);
+            for (SpanBo eachTransaction : transaction) {
+                tree.addSpan(eachTransaction);
 
-		if (logger.isInfoEnabled()) {
-			logger.info("Fetch non-terminal spans elapsed : {}ms, {} traces, {} spans", new Object[] { watch.getLastTaskTimeMillis(), traces.size(), totalNonTerminalSpansCount });
-		}
+                // make query param
+                terminalQueryParams.put(eachTransaction.getServiceName(), eachTransaction.getServiceType());
 
-		watch.start("scanTerminalStatistics");
+                endPoints.add(eachTransaction.getEndPoint());
+            }
+        }
 
-		// fetch terminal info
-		for (Entry<String, ServiceType> param : terminalQueryParams.entrySet()) {
-			ServiceType svcType = param.getValue();
-			if (!svcType.isRpcClient() && !svcType.isUnknown() && !svcType.isTerminal()) {
-				long start = System.currentTimeMillis();
-				List<List<TerminalRequest>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
-				logger.info("	Fetch terminals of {} : {}ms", param.getKey(), System.currentTimeMillis() - start);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetch non-terminal spans elapsed : {}ms, {} traces, {} spans", new Object[]{watch.getLastTaskTimeMillis(), traces.size(), totalNonTerminalSpansCount});
+        }
 
-				for (List<TerminalRequest> terminal : terminals) {
-					for (TerminalRequest t : terminal) {
-						// TODO 임시방편
-						if (!endPoints.contains(t.getTo())) {
-							if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
-								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
-							}
-							tree.addTerminal(t);
-						}
-					}
-				}
-			}
-		}
+        watch.start("scanTerminalStatistics");
 
-		watch.stop();
-		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
+        // fetch terminal info
+        for (Entry<String, ServiceType> param : terminalQueryParams.entrySet()) {
+            ServiceType svcType = param.getValue();
+            if (!svcType.isRpcClient() && !svcType.isUnknown() && !svcType.isTerminal()) {
+                long start = System.currentTimeMillis();
+                List<List<TerminalRequest>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
+                logger.info("	Fetch terminals of {} : {}ms", param.getKey(), System.currentTimeMillis() - start);
 
-		return tree.build();
-	}
+                for (List<TerminalRequest> terminal : terminals) {
+                    for (TerminalRequest t : terminal) {
+                        // TODO 임시방편
+                        if (!endPoints.contains(t.getTo())) {
+                            if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
+                                t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
+                            }
+                            tree.addTerminal(t);
+                        }
+                    }
+                }
+            }
+        }
 
-	@Deprecated
-	private SpanBo findChildSpan(final List<SpanBo> list, final SpanBo parent) {
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo child = list.get(i);
+        watch.stop();
+        logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
 
-			if (child.getParentSpanId() == parent.getSpanId()) {
-				return child;
-			}
-		}
-		return null;
-	}
+        return tree.build();
+    }
 
-	@Deprecated
-	private List<SpanBo> refine(final List<SpanBo> list) {
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo span = list.get(i);
+    @Deprecated
+    private SpanBo findChildSpan(final List<SpanBo> list, final SpanBo parent) {
+        for (int i = 0; i < list.size(); i++) {
+            SpanBo child = list.get(i);
 
-			if (span.getServiceType().isRpcClient()) {
-				SpanBo child = findChildSpan(list, span);
+            if (child.getParentSpanId() == parent.getSpanId()) {
+                return child;
+            }
+        }
+        return null;
+    }
 
-				if (child != null) {
-					child.setParentSpanId(span.getParentSpanId());
-					child.getAnnotationBoList().addAll(span.getAnnotationBoList());
-					list.remove(i);
-					i--;
-					continue;
-				} else {
-					// using as a terminal node.
-					span.setServiceName(span.getEndPoint());
-					span.setServiceType(ServiceType.UNKNOWN_CLOUD);
-				}
-			}
-		}
-		return list;
-	}
+    @Deprecated
+    private List<SpanBo> refine(final List<SpanBo> list) {
+        for (int i = 0; i < list.size(); i++) {
+            SpanBo span = list.get(i);
 
-	private void markRecursiveCall(final List<SpanBo> list) {
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo a = list.get(i);
-			for (int j = 0; j < list.size(); j++) {
-				if (i == j)
-					continue;
-				SpanBo b = list.get(j);
-				if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
-					a.increaseRecursiveCallCount();
-				}
-			}
-		}
-	}
+            if (span.getServiceType().isRpcClient()) {
+                SpanBo child = findChildSpan(list, span);
 
-	@Override
-	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName");
-		}
+                if (child != null) {
+                    child.setParentSpanId(span.getParentSpanId());
+                    child.getAnnotationBoList().addAll(span.getAnnotationBoList());
+                    list.remove(i);
+                    i--;
+                    continue;
+                } else {
+                    // using as a terminal node.
+                    span.setServiceName(span.getEndPoint());
+                    span.setServiceType(ServiceType.UNKNOWN_CLOUD);
+                }
+            }
+        }
+        return list;
+    }
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("scan {}, {}, {}", new Object[] { applicationName, from, to });
-		}
+    private void markRecursiveCall(final List<SpanBo> list) {
+        for (int i = 0; i < list.size(); i++) {
+            SpanBo a = list.get(i);
+            for (int j = 0; j < list.size(); j++) {
+                if (i == j)
+                    continue;
+                SpanBo b = list.get(j);
+                if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
+                    a.increaseRecursiveCallCount();
+                }
+            }
+        }
+    }
 
-		List<List<byte[]>> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
-		Set<TraceId> result = new HashSet<TraceId>();
-		for (List<byte[]> list : bytes) {
-			for (byte[] traceId : list) {
-				TraceId tid = new TraceId(traceId);
-				result.add(tid);
-				logger.trace("traceid:{}", tid);
-			}
-		}
-		return result;
-	}
+    @Override
+    public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName");
+        }
 
-	@Override
-	public String[] selectAgentIds(String[] hosts) {
-		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-		column.add(new HbaseColumn("Agents", "AgentID"));
+        if (logger.isTraceEnabled()) {
+            logger.trace("scan {}, {}, {}", new Object[]{applicationName, from, to});
+        }
 
-		HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
-		Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+        List<List<byte[]>> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+        Set<TraceId> result = new HashSet<TraceId>();
+        for (List<byte[]> list : bytes) {
+            for (byte[] traceId : list) {
+                TraceId tid = new TraceId(traceId);
+                result.add(tid);
+                logger.trace("traceid:{}", tid);
+            }
+        }
+        return result;
+    }
 
-		if (logger.isDebugEnabled()) {
-			while (iterator.hasNext()) {
-				logger.debug("selectedAgentId={}", iterator.next());
-			}
-			logger.debug("!!!==============WARNING==============!!!");
-			logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
-			logger.debug("!!!===================================!!!");
-		}
+    @Override
+    public String[] selectAgentIds(String[] hosts) {
+        List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+        column.add(new HbaseColumn("Agents", "AgentID"));
 
-		return hosts;
-	}
+        HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
+        Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+
+        if (logger.isDebugEnabled()) {
+            while (iterator.hasNext()) {
+                logger.debug("selectedAgentId={}", iterator.next());
+            }
+            logger.debug("!!!==============WARNING==============!!!");
+            logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+            logger.debug("!!!===================================!!!");
+        }
+
+        return hosts;
+    }
 }

@@ -1,0 +1,36 @@
+package com.nhn.hippo.web.mapper;
+
+import com.nhn.hippo.web.vo.TerminalRequest;
+import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SqlMetaDataBo;
+import com.profiler.common.util.RowKeyUtils;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.data.hadoop.hbase.RowMapper;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ */
+@Component
+public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
+    @Override
+    public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
+
+        byte[] rowKey = result.getRow();
+
+        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
+        KeyValue[] keyList = result.raw();
+        for (KeyValue keyValue : keyList) {
+            SqlMetaDataBo sqlMetaDataBo = RowKeyUtils.parseSqlId(rowKey);
+            String sql = Bytes.toString(keyValue.getBuffer(), keyValue.getQualifierOffset(), keyValue.getQualifierLength());
+            sqlMetaDataBo.setSql(sql);
+            sqlMetaDataList.add(sqlMetaDataBo);
+        }
+        return sqlMetaDataList;
+    }
+}
