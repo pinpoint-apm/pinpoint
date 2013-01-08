@@ -100,7 +100,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
             so.setSoTimeout(1000 * 10);
             return so;
         } catch (SocketException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException("Socket create Fail. Caused:" + e.getMessage(), e);
         }
     }
 
