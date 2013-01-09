@@ -9,6 +9,7 @@
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
+    <link href="/common/css/datepicker.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -20,12 +21,15 @@
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
+    <!-- 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	-->
     
 	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
     <!-- 
     <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
     -->
+	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
     
 	<script type="text/javascript" src="/common/js/d3.js"></script>
 	<script type="text/javascript" src="/common/js/d3.chart.js"></script>
@@ -118,10 +122,8 @@
 
 <!-- MENU -->
 <div class="container">
+	<!-- 
     <form class="form-inline">
-        <select id="application">
-        	<option></option>
-        </select>
         <input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-11-06" />
         <input id="starttime" type="text" class="input-small" placeholder="StartTime" value="10:00" />
         ~
@@ -151,6 +153,34 @@
 		
 		<button id="btnTraceServerNow" class="btn btn-info" onclick="return false;">Realtime</button>
     </form>
+	-->
+
+	<form class="well well-small form-inline" id="search" onsubmit="return false;">
+		<select id="application">
+        	<option></option>
+        </select>
+		<div id="until" class="btn-group" data-toggle="buttons-radio">
+			<button id="now" type="button" class="btn btn-primary active">now</button>
+			<button id="specific" type="button" class="btn">select</button>
+		</div>
+		<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
+		<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
+		
+		<div id="period" class="btn-group" data-toggle="buttons-radio">
+			<button type="button" value="5" class="btn btn-mini">5m</button>
+			<button type="button" value="20" class="btn btn-mini btn-inverse active">20m</button>
+			<button type="button" value="60" class="btn btn-mini">1h</button>
+			<button type="button" value="360" class="btn btn-mini">6h</button>
+			<button type="button" value="1440" class="btn btn-mini">1d</button>
+		</div>
+		
+		<div class="pull-right">
+			<label class="checkbox" style="margin:5px">
+		    	<input id="auto_refresh" type="checkbox" style="margin-top:6px"> auto-refresh
+		    </label>
+	    </div>
+	</form>
+
 
     <div class="row">
         <div class="span10">
@@ -241,6 +271,7 @@
 <!-- END OF MENU -->
 
 <script type="text/javascript">
+/*
 function getStartTime() {
 	var date = $("#startdate").val().split("-");
 	var time = $("#starttime").val().split(":");
@@ -252,6 +283,7 @@ function getEndTime() {
 	var time = $("#endtime").val().split(":");
 	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2], 0).getTime();
 }
+*/
 
 function getChartData(begin, end, chartType, callback) {
     var application = $("#application").val();
@@ -271,8 +303,123 @@ function hideIndicator() {
 }
 
 $(document).ready(function () {
+	function getStartTime() {
+		var period = $("#period").find("button.active").val().split(",") * 1000 * 60;
+		return getEndTime() - period;
+	}
+
+	function getEndTime() {
+ 		var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
+			now = new Date(),
+			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
+		
+		if (input.getTime() > now.getTime()) {
+			input = now;
+		}
+		return input.getTime();
+	}
+	
+   	function now() {
+	   	var date = new Date();
+	   	var format_date = d3.time.format("%Y/%m/%d"),
+	   		format_time = d3.time.format("%H:%M:%S");
+	   	$('#date').val(format_date(date));
+	   	$('#time').val(format_time(date));
+   	}
+   	
+   	/*
+   	function time() {
+   		var format = d3.time.format("%Y/%m/%d %H:%M"),
+   			now = new Date(),
+   			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
+   		
+   		if (input.getTime() > now.getTime()) {
+   			input = now;
+   		}
+   		
+   		return Math.floor(input / 1000);
+   	}
+   	*/
+	
+   	$('#date').datepicker().on('changeDate', function(ev){
+   		update();
+	});
+	
+	$('#time').bind('focus', function(e){
+		$(this).data("time", $(this).val());
+	}).bind('blur', function(e){
+		if ($(this).data("time") !== $(this).val()) {
+	   		update();
+		}
+	});
+	
+	$('#until').delegate("button", "click", function(){
+   		var $this = $(this);
+   		
+   		$this.siblings(".btn-primary").removeClass("btn-primary");
+   		$this.addClass("btn-primary");
+   		
+   		if ($this.attr("id") === "now") {
+   			$("#date").attr("disabled", "").val("");
+   			$("#time").attr("disabled", "").val("");
+	   		update();
+   		} else {
+   			now();
+   			$("#date").attr("disabled", null);
+   			$("#time").attr("disabled", null);
+   		}
+   	});
+   	
+   	$('#period').delegate("button", "click", function(){
+   		var $this = $(this);
+   		
+   		$this.siblings(".btn-inverse").removeClass("btn-inverse active");
+   		$this.addClass("btn-inverse active");
+   		update();
+   		$("#auto_refresh").trigger("change");
+   	});
+   	
+   	var timer;
+	$("#auto_refresh").bind("change", function(){
+		if (this.checked) {
+			clearInterval(timer);
+	    	// stopRealtimer();
+	    	now();
+	    	//setQueryTimeRange(SCATTER_X_AXIS_LIM);
+		    update();
+		    
+		    var lastBegin = getStartTime();
+		    var lastEnd = getEndTime();
+		    
+			timer = setInterval(function() {
+				now();
+				// setQueryTimeRange(SCATTER_X_AXIS_LIM);
+				from = getStartTime();
+				to = getEndTime();
+
+				console.log("tick");
+				console.log(new Date(from));
+				console.log(new Date(to));
+				
+				console.log(new Date(lastEnd + 1));
+				console.log(new Date(to));
+				
+		        getChartData(lastEnd + 1, to, "flowserver", function(data) {
+		        	lastBegin = lastEnd + 1;
+		        	lastEnd = to;
+			        updateScatter(from, to, data.scatter, "#scatter");
+		        });
+			}, 2000);
+			console.log("auto refresh started")
+		} else {
+			console.log("auto refresh stopped")
+			clearInterval(timer);
+		}
+	});
+	
 	var SCATTER_X_AXIS_LIM = 10 * 1000 * 60; // 10 min
 	
+	/*
     function setQueryTimeRange(value) {
         var date = new Date();
         
@@ -287,8 +434,9 @@ $(document).ready(function () {
         sec = date.getSeconds();
         $("#starttime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min) + ":" + sec);
     }
+	*/
 
-    function query() {
+    function update() {
     	if($("#application").val() == "") {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;
@@ -326,19 +474,22 @@ $(document).ready(function () {
         });
     }
     
-    setQueryTimeRange(SCATTER_X_AXIS_LIM);
+    // setQueryTimeRange(SCATTER_X_AXIS_LIM);
 	
     $("#application").select2({
 		placeholder: "Select an application.",
 	});
     
     // realtime button
+    /*
     var timer;
     function stopRealtimer() {
     	if(timer)
     		clearTimeout(timer);
     }
+    */
     
+    /*
     $("#btnTraceServerNow").click(function(e) {
     	stopRealtimer();
     	setQueryTimeRange(SCATTER_X_AXIS_LIM);
@@ -371,6 +522,7 @@ $(document).ready(function () {
         setQueryTimeRange(value * 60 * 1000);
         $("#btnTraceServer").click();
     });
+    */
     
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");
