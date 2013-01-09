@@ -355,8 +355,6 @@ $(document).ready(function () {
 	        getChartData(lastEnd + 1, to, "flowserver", function(data) {
 	        	lastBegin = lastEnd + 1;
 	        	lastEnd = to;
-	        	
-	        	console.log("Get Chart data F=" + lastBegin + ", T=" + lastEnd);
 		        updateScatter(from, to, data.scatter, "#scatter");
 	        });
 		}, 2000);    

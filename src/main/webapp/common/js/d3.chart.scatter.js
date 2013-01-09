@@ -361,7 +361,6 @@ d3.chart.scatter._renderer = function(){
 					.style("stroke", "#ddd")
 					.style("stroke-dasharray", "3,3")
 					.attr("x1", function (d) {
-						console.log(d)
 						return left_padding + 0.5;
 					})
 					.attr("x2", function (d) {
@@ -451,6 +450,7 @@ d3.chart.scatter._renderer = function(){
 				.attr("cy", function(d) { return yScale(d.executionTime); });
 
 			brush.clear();
+			this.brush.call(brush.x(xScale).y(yScale)); 
 		},
 
 		_draw : function() {
