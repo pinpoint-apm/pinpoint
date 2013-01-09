@@ -368,7 +368,7 @@ $(document).ready(function () {
     $("#btnTrace .dropdown-menu").on("click", function(e){
     	stopRealtimer();
     	var value = $(e.srcElement).data("value");
-        setQueryTimeRange(value);
+        setQueryTimeRange(value * 60 * 1000);
         $("#btnTraceServer").click();
     });
     
