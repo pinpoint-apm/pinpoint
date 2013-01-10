@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.nhn.hippo.web.calltree.span.SpanAlign;
-import com.nhn.hippo.web.utils.AnnotationUtils;
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.util.AnnotationUtils;
 
 /**
  * @author netspider
