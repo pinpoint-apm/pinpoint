@@ -403,6 +403,7 @@ $(document).ready(function () {
     		return true;
     	}
 
+    	cleanup();
     	showIndicator();
         
         getChartData(getStartTime(), getEndTime(), "flowserver", function(data) {
