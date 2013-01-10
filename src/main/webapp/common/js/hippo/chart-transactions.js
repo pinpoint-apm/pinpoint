@@ -7,10 +7,6 @@ function showTransactionList(transactions) {
 	for (var i = 0; i < transactions.length; i++) {
 	    html.push("<tr>");
 	
-	    html.push("<td>");
-	    html.push(i + 1);
-	    html.push("</td>");
-	
 	    html.push("<td><div onclick='openTransactionDetails(");
 	    html.push(i);
 	    html.push(", this); return false;' style='cursor:pointer;'>");
@@ -31,10 +27,6 @@ function showTransactionList(transactions) {
 	
 	    html.push("<td class='time'>");
 	    html.push(transactions[i].maxTime);
-	    html.push("</td>");
-	
-	    html.push("<td class='health'>");
-	    html.push(transactions[i].health);
 	    html.push("</td>");
 	
 	    html.push("</tr>");

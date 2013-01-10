@@ -228,13 +228,11 @@
 		            <table id="businessTransactions" class="table table-bordered">
 		                <thead>
 		                <tr>
-		                    <th>#</th>
 		                    <th>Name</th>
 		                    <th>Calls</th>
 		                    <th>Time(ms)</th>
 		                    <th>Min Time(ms)</th>
 		                    <th>Max Time(ms)</th>
-		                    <th>Health</th>
 		                </tr>
 		                </thead>
 		                <tbody>
@@ -271,20 +269,6 @@
 <!-- END OF MENU -->
 
 <script type="text/javascript">
-/*
-function getStartTime() {
-	var date = $("#startdate").val().split("-");
-	var time = $("#starttime").val().split(":");
-	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2], 0).getTime();
-}
-
-function getEndTime() {
-	var date = $("#enddate").val().split("-");
-	var time = $("#endtime").val().split(":");
-	return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2], 0).getTime();
-}
-*/
-
 function getChartData(begin, end, chartType, callback) {
     var application = $("#application").val();
 	d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
@@ -326,20 +310,6 @@ $(document).ready(function () {
 	   	$('#date').val(format_date(date));
 	   	$('#time').val(format_time(date));
    	}
-   	
-   	/*
-   	function time() {
-   		var format = d3.time.format("%Y/%m/%d %H:%M"),
-   			now = new Date(),
-   			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
-   		
-   		if (input.getTime() > now.getTime()) {
-   			input = now;
-   		}
-   		
-   		return Math.floor(input / 1000);
-   	}
-   	*/
 	
    	$('#date').datepicker().on('changeDate', function(ev){
    		update();
@@ -383,9 +353,7 @@ $(document).ready(function () {
 	$("#auto_refresh").bind("change", function(){
 		if (this.checked) {
 			clearInterval(timer);
-	    	// stopRealtimer();
 	    	now();
-	    	//setQueryTimeRange(SCATTER_X_AXIS_LIM);
 		    update();
 		    
 		    var lastBegin = getStartTime();
@@ -393,7 +361,6 @@ $(document).ready(function () {
 		    
 			timer = setInterval(function() {
 				now();
-				// setQueryTimeRange(SCATTER_X_AXIS_LIM);
 				from = getStartTime();
 				to = getEndTime();
 
@@ -416,26 +383,20 @@ $(document).ready(function () {
 			clearInterval(timer);
 		}
 	});
-	
-	var SCATTER_X_AXIS_LIM = 10 * 1000 * 60; // 10 min
-	
-	/*
-    function setQueryTimeRange(value) {
-        var date = new Date();
+
+	function cleanup() {
+        $("#springygraph").empty();
+        $("#sankeygraph").empty();
+        $("#tree").empty();
+        $("#scatter").empty();
         
-        $("#enddate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
-        var min = date.getMinutes();
-        var sec = date.getSeconds();
-        $("#endtime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min) + ":" + sec);
-
-        date = new Date(date.getTime() - value);
-        $("#startdate").val(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
-        min = date.getMinutes();
-        sec = date.getSeconds();
-        $("#starttime").val(date.getHours() + ":" + ((min < 10) ? ("0" + min) : min) + ":" + sec);
-    }
-	*/
-
+        $("#businessTransactions TBODY").empty();
+        $("#businessTransactionsDetail TBODY").empty();
+        
+        $('#chartTabs a:first').tab('show');
+        $('#transactionTabs a:first').tab('show');		
+	}
+	
     function update() {
     	if($("#application").val() == "") {
     		alert("\n\nSelect an application, please.\n\n");
@@ -443,25 +404,10 @@ $(document).ready(function () {
     	}
 
     	showIndicator();
-    	
-    	// cleanup chart
-        $("#springygraph").empty();
-        $("#sankeygraph").empty();
-        $("#tree").empty();
-        $("#scatter").empty();
         
-        // cleanup transaction tables
-        $("#businessTransactions TBODY").empty();
-        $("#businessTransactionsDetail TBODY").empty();
-        
-        $('#chartTabs a:first').tab('show');
-        $('#transactionTabs a:first').tab('show');
-
         getChartData(getStartTime(), getEndTime(), "flowserver", function(data) {
         	if (data.graphdata.nodes.length == 0) {
-        	    // alert("no data");
 	        	hideIndicator();
-        	    // return;
         	}
         	
 	        drawSpringy(data.graphdata, "#springygraph", 960, 500);
@@ -473,56 +419,10 @@ $(document).ready(function () {
         	hideIndicator();
         });
     }
-    
-    // setQueryTimeRange(SCATTER_X_AXIS_LIM);
 	
     $("#application").select2({
 		placeholder: "Select an application.",
 	});
-    
-    // realtime button
-    /*
-    var timer;
-    function stopRealtimer() {
-    	if(timer)
-    		clearTimeout(timer);
-    }
-    */
-    
-    /*
-    $("#btnTraceServerNow").click(function(e) {
-    	stopRealtimer();
-    	setQueryTimeRange(SCATTER_X_AXIS_LIM);
-	    query();
-	    
-	    var lastBegin = getStartTime();
-	    var lastEnd = getEndTime();
-	    
-		timer = setInterval(function() {
-			setQueryTimeRange(SCATTER_X_AXIS_LIM);
-			from = getStartTime();
-			to = getEndTime();
-			
-	        getChartData(lastEnd + 1, to, "flowserver", function(data) {
-	        	lastBegin = lastEnd + 1;
-	        	lastEnd = to;
-		        updateScatter(from, to, data.scatter, "#scatter");
-	        });
-		}, 2000);    
-    });
-    
-    $("#btnTraceServer").click(function(e) {
-    	stopRealtimer();
-		query();
-    });
-    
-    $("#btnTrace .dropdown-menu").on("click", function(e){
-    	stopRealtimer();
-    	var value = $(e.srcElement).data("value");
-        setQueryTimeRange(value * 60 * 1000);
-        $("#btnTraceServer").click();
-    });
-    */
     
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");

@@ -45,8 +45,14 @@ d3.chart.scatter._renderer = function(){
 				selectedTraceIdSet = {};
 				var e = brush.extent();
 				chart.selectAll(".dot").each(function(d) {
-					if (new Date(e[0][0]).getTime() <= d.timestamp && d.timestamp <= new Date(e[1][0]).getTime() && e[0][1] <= d.executionTime && d.executionTime <= e[1][1]) {
-						selectedTraceIdSet[d.traceId] = d;
+					if (new Date(e[0][0]).getTime() <= d.timestamp && d.timestamp <= new Date(e[1][0]).getTime()) {
+						if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+							var time = Math.min(option.chart.y.limit, d.executionTime);
+						}
+
+					 	if (e[0][1] <= time && e[1][1] >= time) {
+							selectedTraceIdSet[d.traceId] = d;
+						}
 					}
 				});
 			})
@@ -61,7 +67,8 @@ d3.chart.scatter._renderer = function(){
 		_prepare : function() {
 			this.axis = chart.append("g").attr("class", "axis");
 			this.brush = chart.append("g").attr("class", "brush").attr("y", 0).attr("x", 0).attr("width", axis_width).attr("height", axis_height).style("fill", "none");
-			this.graph = chart.append("g").attr("class", "graph");
+			this.dot_green = chart.append("g").attr("class", "dot-green");
+			this.dot_red = chart.append("g").attr("class", "dot-red");
 			this.desc = chart.append("g").attr("class", "desc");
 
 			// title
@@ -207,27 +214,53 @@ d3.chart.scatter._renderer = function(){
 		},
 		
 		_draw_chart : function() {
-
 			if (data.length > 0) {
-				this.graph.selectAll(".dot")
-					.data(data)
+				var dot_green = [],
+					dot_red = [];
+
+				for (var i = 0; i < data.length; i++) {
+					if (data[i].exception) {
+						dot_red.push(data[i]);
+						continue;
+					}
+					dot_green.push(data[i]);
+				}
+
+				this.dot_green.selectAll(".dot")
+					.data(dot_green)
 					.enter().append("circle")
 					.attr("class", "dot")
 					.attr("r", 3)
 					.attr("cx", function(d) { return xScale(d.timestamp); })
-					.attr("cy", function(d) { return yScale(d.executionTime); })
-					.style("fill", function(d) {
-						if (d.exception) {
-							return "#d62728"; // red
-						} else {
-							return "#2ca02c"; // green
+					.attr("cy", function(d) { 
+						if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+							return yScale(Math.min(option.chart.y.limit, d.executionTime));
 						}
+						return yScale(d.executionTime); 
 					})
+					.style("fill", "#2ca02c")
+					.on("click", function(d) {
+						self._openTrace(d.traceId);
+					});
+
+				this.dot_red.selectAll(".dot")
+					.data(dot_red)
+					.enter().append("circle")
+					.attr("class", "dot")
+					.attr("r", 3)
+					.attr("cx", function(d) { return xScale(d.timestamp); })
+					.attr("cy", function(d) { 
+						if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+							return yScale(Math.min(option.chart.y.limit, d.executionTime));
+						}
+						return yScale(d.executionTime); 
+					})
+					.style("fill", "#d62728") // red
 					.on("click", function(d) {
 						self._openTrace(d.traceId);
 					});
 			} else {
-				this.graph.append("text")
+				this.dot_green.append("text")
 					.attr("class", "label nodata")
 					.attr("x", left_padding + axis_width/2)
 					.attr("y", top_padding + axis_height/2)
@@ -327,7 +360,12 @@ d3.chart.scatter._renderer = function(){
 				} else {
 //					xScale = xScale.domain(d3.extent(data, function(d) { return d.timestamp; }).map(function(t){return new Date(t);}));
 					xScale = d3.time.scale().domain([new Date(option.chart.x.start), new Date(option.chart.x.end)]).range([left_padding, left_padding + axis_width]);
-					yScale = yScale.domain(d3.extent(data, function(d) { return d.executionTime; }));
+
+					if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+						yScale = d3.scale.linear().domain([0, option.chart.y.limit]).rangeRound([top_padding + axis_height, top_padding]);	
+					} else {
+						yScale = yScale.domain(d3.extent(data, function(d) { return d.executionTime; }));
+					}
 				}
 			}
 			var tick = this.autoDateTick(xScale);
@@ -424,30 +462,59 @@ d3.chart.scatter._renderer = function(){
 					return d3.time.format(tick[2])(new Date(d));
 				});
 			
-			var dot = this.graph.selectAll(".dot")
-				.data(data);
 
-			dot.exit().remove();
-			dot.enter().append("circle")
+			var dot_green = [],
+				dot_red = [];
+
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].exception) {
+					dot_red.push(data[i]);
+					continue;
+				}
+				dot_green.push(data[i]);
+			}
+
+			var green = this.dot_green.selectAll(".dot")
+				.data(dot_green);
+			green.exit().remove();
+			green.enter().append("circle")
 				.attr("class", "dot")
 				.attr("r", 3)
 				.on("click", function(d) {
 					self._openTrace(d.traceId);
 				});
 			
-			this.graph.selectAll(".dot")
+			this.dot_green.selectAll(".dot")
 				// .transition()
-				.style("fill", function(d) {
-					if (d.exception) {
-						return "#d62728"; // red
-					} else {
-						return "#2ca02c"; // green
-					}
-					return color(d.name);
-				})
+				.style("fill", "#2ca02c") //return color(d.name)
 				// .duration(1500)
 				.attr("cx", function(d) { return xScale(d.timestamp); })
-				.attr("cy", function(d) { return yScale(d.executionTime); });
+				.attr("cy", function(d) { 
+					if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+						return yScale(Math.min(option.chart.y.limit, d.executionTime));
+					}
+					return yScale(d.executionTime); 
+				});
+
+			var red = this.dot_red.selectAll(".dot")
+				.data(dot_red);
+			red.exit().remove();
+			red.enter().append("circle")
+				.attr("class", "dot")
+				.attr("r", 3)
+				.on("click", function(d) {
+					self._openTrace(d.traceId);
+				});
+			
+			this.dot_red.selectAll(".dot")
+				.style("fill", "#d62728")
+				.attr("cx", function(d) { return xScale(d.timestamp); })
+				.attr("cy", function(d) { 
+					if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+						return yScale(Math.min(option.chart.y.limit, d.executionTime));
+					}
+					return yScale(d.executionTime); 
+				});
 
 			brush.clear();
 			this.brush.call(brush.x(xScale).y(yScale)); 
@@ -459,6 +526,11 @@ d3.chart.scatter._renderer = function(){
 				xScale = d3.time.scale().domain([new Date(option.chart.x.start), new Date(option.chart.x.end)]).range([left_padding, left_padding + axis_width]);
 				yScale = d3.scale.linear().domain([0, 1]).rangeRound([top_padding + axis_height, top_padding]);
 			}
+
+			if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {
+				yScale = d3.scale.linear().domain([0, option.chart.y.limit]).rangeRound([top_padding + axis_height, top_padding]);	
+			}
+
 			this._prepare();
 			this._draw_desc();	
 			this._draw_axis();
