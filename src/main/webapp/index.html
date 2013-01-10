@@ -352,6 +352,7 @@ $(document).ready(function () {
    	var timer;
 	$("#auto_refresh").bind("change", function(){
 		if (this.checked) {
+			if (timer != null) return;
 			clearInterval(timer);
 	    	now();
 		    update();
@@ -381,6 +382,7 @@ $(document).ready(function () {
 		} else {
 			console.log("auto refresh stopped")
 			clearInterval(timer);
+			timer = null;
 		}
 	});
 
