@@ -219,7 +219,7 @@ d3.chart.scatter._renderer = function(){
 					dot_red = [];
 
 				for (var i = 0; i < data.length; i++) {
-					if (data[i].exception) {
+					if (data[i].resultCode == 1) {
 						dot_red.push(data[i]);
 						continue;
 					}
@@ -467,7 +467,7 @@ d3.chart.scatter._renderer = function(){
 				dot_red = [];
 
 			for (var i = 0; i < data.length; i++) {
-				if (data[i].exception) {
+				if (data[i].resultCode == 1) {
 					dot_red.push(data[i]);
 					continue;
 				}

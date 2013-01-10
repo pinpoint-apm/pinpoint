@@ -1,11 +1,13 @@
 package com.nhn.hippo.web.service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.vo.TraceId;
+import com.nhn.hippo.web.vo.scatter.Dot;
 
 /**
  * @author netspider
@@ -76,4 +78,6 @@ public interface FlowChartService {
 	public String[] selectAgentIds(String[] hosts);
 	
 	public ServerCallTree selectServerCallTree(TraceId traceId);
+	
+	public Iterator<Dot> selectScatterData(String applicationName, long from, long to);
 }

@@ -371,7 +371,7 @@ $(document).ready(function () {
 				console.log(new Date(lastEnd + 1));
 				console.log(new Date(to));
 				
-		        getChartData(lastEnd + 1, to, "flowserver", function(data) {
+		        getChartData(lastEnd + 1, to, "scatter", function(data) {
 		        	lastBegin = lastEnd + 1;
 		        	lastEnd = to;
 			        updateScatter(from, to, data.scatter, "#scatter");
@@ -415,8 +415,13 @@ $(document).ready(function () {
 	        drawTree(data.graphdata, "#tree", 960, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
-	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+	        // drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
+        	hideIndicator();
+        });
+        
+        getChartData(getStartTime(), getEndTime(), "scatter", function(data) {
+	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
         	hideIndicator();
         });
     }

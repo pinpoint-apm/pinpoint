@@ -1,5 +1,7 @@
 package com.nhn.hippo.web.controller;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.vo.TraceId;
+import com.nhn.hippo.web.vo.scatter.Dot;
 
 /**
  * retrieve data for drawing call tree.
@@ -64,13 +67,30 @@ public class FlowChartController {
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
 		model.addAttribute("businessTransactions", callTree.getBusinessTransactions().getBusinessTransactionIterator());
-		model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
+		// model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
+		model.addAttribute("traces", Collections.emptyList().iterator());
 
 		logger.debug("callTree:{}", callTree);
 
 		return "flowserver";
 	}
 
+	@RequestMapping(value = "/scatter", method = RequestMethod.GET)
+	public String scatter(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		StopWatch watch = new StopWatch();
+		watch.start("selectScatterData");
+
+		Iterator<Dot> scatterData = flow.selectScatterData(applicationName, from, to);
+		watch.stop();
+
+		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+
+		model.addAttribute("scatter", scatterData);
+
+		return "scatter";
+	}
+
+	@Deprecated
 	@RequestMapping(value = "/flow2", method = RequestMethod.GET)
 	public String flowbyHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
@@ -86,6 +106,7 @@ public class FlowChartController {
 		return "flow";
 	}
 
+	@Deprecated
 	@RequestMapping(value = "/flowserver2", method = RequestMethod.GET)
 	public String flowserverByHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
