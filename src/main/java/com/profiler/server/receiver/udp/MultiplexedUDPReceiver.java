@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
 import com.profiler.server.util.BufferPool;
+import com.profiler.server.util.PacketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -64,7 +65,9 @@ public class MultiplexedUDPReceiver implements DataReceiver {
                 }
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("DatagramPacket read size:" + packet.getLength());
+                    logger.debug("DatagramPacket SocketAddress:" + packet.getSocketAddress() + " read size:" + packet.getLength());
+                    // 데이터가 많을것이니 trace로
+                    logger.trace("dump packet:" + PacketUtils.dumpDatagramPacket(packet));
                 }
                 success = true;
             } catch (IOException e) {

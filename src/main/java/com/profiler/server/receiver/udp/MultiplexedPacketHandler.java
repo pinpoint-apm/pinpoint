@@ -3,6 +3,7 @@ package com.profiler.server.receiver.udp;
 import java.net.DatagramPacket;
 
 import com.profiler.common.dto.thrift.*;
+import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -55,9 +56,15 @@ public class MultiplexedPacketHandler {
             TBase<?, ?> tBase = deserializer.deserialize(locator, packet.getData());
             dispatch(tBase, packet);
         } catch (TException e) {
-            logger.warn("packet serialize error " + e.getMessage(), e);
+            logger.warn("packet serialize error. SendSocketAddress:" + packet.getSocketAddress() + "Cause:" + e.getMessage(), e);
+            logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
+        } catch (Exception e) {
+            // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+            logger.warn("Unexpected error. SendSocketAddress:" + packet.getSocketAddress() + " Cause:" + e.getMessage(), e);
+            logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
         }
     }
+
 
     private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
         Handler handler = getHandler(tBase);
@@ -87,8 +94,7 @@ public class MultiplexedPacketHandler {
         if (tBase instanceof SqlMetaData) {
             return sqlMetaDataHandler;
         }
-        logger.warn("Unknown type of data received. data=" + tBase);
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
 
 }
