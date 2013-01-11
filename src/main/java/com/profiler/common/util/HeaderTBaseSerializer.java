@@ -22,7 +22,8 @@ public class HeaderTBaseSerializer {
     /**
      * This is the byte array that data is actually serialized into
      */
-    private final ByteArrayOutputStream baos_ = new ByteArrayOutputStream();
+    // udp 패킷 사이즈에 최대 맞춤.
+    private final ByteArrayOutputStream baos_ = new ByteArrayOutputStream(1024 * 64);
 
     /**
      * This transport wraps that byte array

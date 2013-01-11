@@ -51,10 +51,10 @@ public class HeaderTBaseDeserializer {
         }
     }
 
-    private void validate(Header header) {
+    private void validate(Header header) throws TException {
         boolean accepted = HeaderUtils.validateSignature(header.getSignature());
         if (!accepted) {
-            throw new IllegalArgumentException("Invalid Signature:" + header);
+            throw new TException("Invalid Signature:" + header);
         }
     }
 

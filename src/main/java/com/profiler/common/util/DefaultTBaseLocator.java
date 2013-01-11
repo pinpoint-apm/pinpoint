@@ -2,6 +2,7 @@ package com.profiler.common.util;
 
 import com.profiler.common.dto.thrift.*;
 import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
 
 public class DefaultTBaseLocator implements TBaseLocator {
 
@@ -17,7 +18,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short SQLMETADATA = 300;
 
     @Override
-    public TBase<?, ?> tBaseLookup(short type) {
+    public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
             case JVM_INFO_THRIFT_DTO:
                 return new JVMInfoThriftDTO();
@@ -36,11 +37,14 @@ public class DefaultTBaseLocator implements TBaseLocator {
             case SQLMETADATA:
                 return new SqlMetaData();
         }
-        throw new IllegalArgumentException("Unsupported type:" + type);
+        throw new TException("Unsupported type:" + type);
     }
 
     @Override
-    public short typeLookup(TBase<?, ?> tbase) {
+    public short typeLookup(TBase<?, ?> tbase) throws TException {
+        if (tbase == null) {
+            throw new IllegalArgumentException("tbase must not be null");
+        }
         if (tbase instanceof JVMInfoThriftDTO) {
             return JVM_INFO_THRIFT_DTO;
         }
@@ -65,9 +69,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof SqlMetaData) {
             return SQLMETADATA;
         }
-        if (tbase == null) {
-            throw new UnsupportedOperationException("Unsupported Type is null");
-        }
-        throw new UnsupportedOperationException("Unsupported Type" + tbase.getClass());
+
+        throw new TException("Unsupported Type" + tbase.getClass());
     }
 }
