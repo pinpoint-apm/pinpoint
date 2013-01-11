@@ -164,6 +164,13 @@ public class Agent {
         agentInfo.setIsAlive(true);
         agentInfo.setTimestamp(this.startTime);
 
+        send3(agentInfo);
+    }
+
+    private void send3(AgentInfo agentInfo) {
+        // 특정 collector가 죽더라도 나머지 collector가 받을수 있도록 일부러 중복해서 3번 보낸다.
+        this.dataSender.send(agentInfo);
+        this.dataSender.send(agentInfo);
         this.dataSender.send(agentInfo);
     }
 
@@ -191,7 +198,7 @@ public class Agent {
         agentInfo.setIsAlive(false);
         agentInfo.setTimestamp(this.startTime);
 
-        this.dataSender.send(agentInfo);
+        send3(agentInfo);
         // 종료 처리 필요.
         this.dataSender.stop();
     }

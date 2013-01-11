@@ -4,7 +4,6 @@ import com.profiler.common.dto.Header;
 import com.profiler.common.util.DefaultTBaseLocator;
 import com.profiler.common.util.HeaderTBaseSerializer;
 import com.profiler.common.util.TBaseLocator;
-import com.profiler.config.ProfilerConfig;
 import com.profiler.context.Thriftable;
 import com.profiler.util.Assert;
 import org.apache.thrift.TBase;
@@ -149,18 +148,18 @@ public class UdpDataSender implements DataSender, Runnable {
     }
 
     private byte[] serialize(TBase<?, ?> dto) {
-        Header header = createHeader(dto);
         try {
+            Header header = createHeader(dto);
             return serializer.serialize(header, dto);
         } catch (TException e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Serialize fail:" + dto, e);
+                logger.log(Level.WARNING, "Serialize fail:" + dto + " Caused:" + e.getMessage(), e);
             }
             return null;
         }
     }
 
-    private Header createHeader(TBase<?, ?> dto) {
+    private Header createHeader(TBase<?, ?> dto) throws TException {
         // TODO 구지 객체 생성을 안하고 정적 lookup이 가능할것 같음.
         short type = locator.typeLookup(dto);
         Header header = new Header();
