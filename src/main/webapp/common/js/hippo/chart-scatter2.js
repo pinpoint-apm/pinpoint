@@ -32,37 +32,6 @@ function updateScatter(start, end, scatter_data, targetId, limit) {
 	}
 }
 
-function sliceTimeSpan(start, end) {
-	var chunk = 1 * 60 * 1000;
-	var timeslot = [];
-	var s = start;
-	var e = s + chunk;
-
-	while (true) {
-		if (e >= end) {
-			break;
-		}
-
-		s = e + chunk;
-		e = s + chunk;
-
-		if (e > end) {
-			e = end;
-			timeslot.push({
-				'start' : s,
-				'end' : e
-			});
-			break;
-		} else {
-			timeslot.push({
-				'start' : s,
-				'end' : e
-			});
-		}
-	}
-	return $(timeslot);
-}
-
 function drawScatter(start, end, scatter_data, targetId) {
 	console.log("Draw scatter from=" + new Date(start) + ", end="
 			+ new Date(end));
@@ -85,7 +54,7 @@ function drawScatter(start, end, scatter_data, targetId) {
 				limit : 10000
 			},
 			desc : {
-				title : "scatter"
+				// title : "scatter"
 			}
 		}
 	});

@@ -13,6 +13,9 @@ d3.chart.scatter.prototype.draw = function() {
 	this._draw();
 };
 d3.chart.scatter._renderer = function(){
+	var COLOR_GREEN = "#347C2C"; //"#2CA02C";
+	var COLOR_RED = "#C11B17"; //"#D62728";
+	
 	var self = this,
 		option = this.option,
 		data = this.data,
@@ -101,6 +104,34 @@ d3.chart.scatter._renderer = function(){
 				.style('font-style', 'italic')
 				.style("text-anchor", "end")
 				.attr("transform", "rotate(-90 " + (left_padding + 15) + " " + (top_padding) + ")");
+			
+			this.progressbar = this.desc.append("rect")
+				.attr("class", "prgressbar")
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("width", 0)
+				.attr("height", 0)
+				.style("fill", "#FFE87C")
+				.style("fill-opacity", "0.5");
+		},
+		
+		showProgressbar : function(begin, end) {
+			xScale = d3.time.scale().domain([new Date(option.chart.x.start), new Date(option.chart.x.end)]).range([left_padding, left_padding + axis_width]);
+			yScale = d3.scale.linear().domain([0, 1]).rangeRound([top_padding + axis_height, top_padding]);
+			
+			this.progressbar
+				.attr("x", xScale(begin))
+				.attr("width", xScale(end) - xScale(begin))
+				.attr("y", top_padding)
+				.attr("height", chart_height - bottom_padding - top_padding);
+			
+			// this.progressbar.fadeIn(500);
+			this.progressbar.style("display", "");
+		},
+		
+		hideProgressbar : function() {
+			this.progressbar.style("display", "none");
+			// this.progressbar.fadeOut(500);
 		},
 		
 		_setEventHandler : function() {
@@ -229,7 +260,7 @@ d3.chart.scatter._renderer = function(){
 				this.dot_green.selectAll(".dot")
 					.data(dot_green)
 					.enter().append("circle")
-					.attr("class", "dot")
+					.attr("class", "dot green")
 					.attr("r", 3)
 					.attr("cx", function(d) { return xScale(d.timestamp); })
 					.attr("cy", function(d) { 
@@ -238,7 +269,7 @@ d3.chart.scatter._renderer = function(){
 						}
 						return yScale(d.executionTime); 
 					})
-					.style("fill", "#2ca02c")
+					.style("fill", COLOR_GREEN)
 					.on("click", function(d) {
 						self._openTrace(d.traceId);
 					});
@@ -246,7 +277,7 @@ d3.chart.scatter._renderer = function(){
 				this.dot_red.selectAll(".dot")
 					.data(dot_red)
 					.enter().append("circle")
-					.attr("class", "dot")
+					.attr("class", "dot red")
 					.attr("r", 3)
 					.attr("cx", function(d) { return xScale(d.timestamp); })
 					.attr("cy", function(d) { 
@@ -255,7 +286,7 @@ d3.chart.scatter._renderer = function(){
 						}
 						return yScale(d.executionTime); 
 					})
-					.style("fill", "#d62728") // red
+					.style("fill", COLOR_RED)
 					.on("click", function(d) {
 						self._openTrace(d.traceId);
 					});
@@ -478,7 +509,7 @@ d3.chart.scatter._renderer = function(){
 				.data(dot_green);
 			green.exit().remove();
 			green.enter().append("circle")
-				.attr("class", "dot")
+				.attr("class", "dot green")
 				.attr("r", 3)
 				.on("click", function(d) {
 					self._openTrace(d.traceId);
@@ -486,7 +517,7 @@ d3.chart.scatter._renderer = function(){
 			
 			this.dot_green.selectAll(".dot")
 				// .transition()
-				.style("fill", "#2ca02c") //return color(d.name)
+				.style("fill", COLOR_GREEN)
 				// .duration(1500)
 				.attr("cx", function(d) { return xScale(d.timestamp); })
 				.attr("cy", function(d) { 
@@ -500,14 +531,14 @@ d3.chart.scatter._renderer = function(){
 				.data(dot_red);
 			red.exit().remove();
 			red.enter().append("circle")
-				.attr("class", "dot")
+				.attr("class", "dot red")
 				.attr("r", 3)
 				.on("click", function(d) {
 					self._openTrace(d.traceId);
 				});
 			
 			this.dot_red.selectAll(".dot")
-				.style("fill", "#d62728")
+				.style("fill", COLOR_RED)
 				.attr("cx", function(d) { return xScale(d.timestamp); })
 				.attr("cy", function(d) { 
 					if (typeof option.chart.y.limit === "number" && option.chart.y.limit > 0) {

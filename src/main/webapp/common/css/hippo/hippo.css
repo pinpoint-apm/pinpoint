@@ -51,8 +51,14 @@ rect.frame {
   shape-rendering: crispEdges;
 }
 
-.dot {
-  stroke: #000;
+.dot.green{
+	// fill #2ca02c
+  //stroke: #347C17;
+}
+
+.dot.red{
+	// fill #d62728;
+  //stroke: #B93B8F;
 }
 
 .node circle {
@@ -67,7 +73,6 @@ path.link {
   stroke-width: 1.5px;
 }
 
-
 /*
  * business transaction table
  */
@@ -77,4 +82,12 @@ path.link {
 
 #businessTransactions .time {
 	text-align:right;	
+}
+
+/*
+ * indicator
+ */
+.indicator {
+	text-align:center;
+	display:none; 
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>HIPPO Web UI</title>
+    <title>HIPPO</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,14 +21,8 @@
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-    <!-- 
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	-->
     
 	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
-    <!-- 
-    <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
-    -->
 	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
     
 	<script type="text/javascript" src="/common/js/d3.js"></script>
@@ -36,21 +30,14 @@
 	<script type="text/javascript" src="/common/js/d3.chart.scatter.js"></script>
     
     <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
+    <script type="text/javascript" src="/common/js/springy/springy.js"></script>
+    <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
     
     <script type="text/javascript" src="/common/js/hippo/chart-sankey.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-scatter2.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-tree.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-transactions.js"></script>
-    
-    <script type="text/javascript" src="/common/js/springy/springy.js"></script>
-    <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
-    <style>
-    .indicator {
-    	text-align:center;
-    	display:none; 
-    }
-    </style>
 </head>
 <body>
 
@@ -122,39 +109,6 @@
 
 <!-- MENU -->
 <div class="container">
-	<!-- 
-    <form class="form-inline">
-        <input id="startdate" type="text" class="input-small" placeholder="StartDate" value="2012-11-06" />
-        <input id="starttime" type="text" class="input-small" placeholder="StartTime" value="10:00" />
-        ~
-        <input id="enddate" type="text" class="input-small" placeholder="EndDate" value="2012-12-31" />
-        <input id="endtime" type="text" class="input-small" placeholder="EndTime" value="12:00" />
-        
-	    <div id="btnTrace" class="btn-group">
-			<button id="btnTraceServer" class="btn btn-primary" onclick="return false;">Trace</button>
-			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-		  		<span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				<li>
-					<a href="#" onclick="return false;" data-value="30">Last 30 Minutes</a>
-				</li>
-				<li>
-					<a href="#" onclick="return false;" data-value="60">Last 1 Hour</a>
-				</li>
-				<li>
-					<a href="#" onclick="return false;" data-value="360">Last 6 Hours</a>
-				</li>
-				<li>
-					<a href="#" onclick="return false;" data-value="1440">Last 1 Day</a>
-				</li>
-			</ul>
-		</div>
-		
-		<button id="btnTraceServerNow" class="btn btn-info" onclick="return false;">Realtime</button>
-    </form>
-	-->
-
 	<form class="well well-small form-inline" id="search" onsubmit="return false;">
 		<select id="application">
         	<option></option>
@@ -269,24 +223,16 @@
 <!-- END OF MENU -->
 
 <script type="text/javascript">
-function getChartData(begin, end, chartType, callback) {
-    var application = $("#application").val();
-	d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-}
-
 function openTrace(uuid) {
     window.open("/selectTransaction.hippo?traceId=" + uuid);
 }
 
-function showIndicator() {
-	$(".indicator").show();
-}
-
-function hideIndicator() {
-	$(".indicator").hide();
-}
-
 $(document).ready(function () {
+	function getChartData(begin, end, chartType, callback) {
+	    var application = $("#application").val();
+		d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
 	function getStartTime() {
 		var period = $("#period").find("button.active").val().split(",") * 1000 * 60;
 		return getEndTime() - period;
@@ -311,6 +257,14 @@ $(document).ready(function () {
 	   	$('#time').val(format_time(date));
    	}
 	
+	function showIndicator() {
+		$(".indicator").show();
+	}
+	
+	function hideIndicator() {
+		$(".indicator").hide();
+	}
+
    	$('#date').datepicker().on('changeDate', function(ev){
    		update();
 	});
@@ -353,6 +307,9 @@ $(document).ready(function () {
 	$("#auto_refresh").bind("change", function(){
 		if (this.checked) {
 			if (timer != null) return;
+
+			console.log("auto refresh started")
+			
 			clearInterval(timer);
 	    	now();
 		    update();
@@ -364,13 +321,6 @@ $(document).ready(function () {
 				now();
 				from = getStartTime();
 				to = getEndTime();
-
-				console.log("tick");
-				console.log(new Date(from));
-				console.log(new Date(to));
-				
-				console.log(new Date(lastEnd + 1));
-				console.log(new Date(to));
 				
 		        getChartData(lastEnd + 1, to, "scatter", function(data) {
 		        	lastBegin = lastEnd + 1;
@@ -378,7 +328,6 @@ $(document).ready(function () {
 			        updateScatter(from, to, data.scatter, "#scatter");
 		        });
 			}, 2000);
-			console.log("auto refresh started")
 		} else {
 			console.log("auto refresh stopped")
 			clearInterval(timer);
@@ -399,6 +348,47 @@ $(document).ready(function () {
         $('#transactionTabs a:first').tab('show');		
 	}
 	
+	function sliceTimeSpan(start, end) {
+		console.log("Slice the time. " + new Date(start) + " ~ " + new Date(end));
+		
+		var chunk = 10 * 60 * 1000;
+		
+		if (end - start < chunk) {
+			return [{
+				'start' : start,
+				'end' : end
+			}];
+		}
+		
+		var timeslot = [];
+		var s = start;
+		var e = s + chunk;
+		
+		while (true) {
+			if (e >= end) {
+				break;
+			}
+			
+			s = e + 1000;
+			e = s + chunk;
+
+			if (e > end) {
+				e = end;
+				timeslot.push({
+					'start' : s,
+					'end' : e
+				});
+				break;
+			} else {
+				timeslot.push({
+					'start' : s,
+					'end' : e
+				});
+			}
+		}
+		return $(timeslot);
+	}
+	
     function update() {
     	if($("#application").val() == "") {
     		alert("\n\nSelect an application, please.\n\n");
@@ -417,14 +407,37 @@ $(document).ready(function () {
 	        drawTree(data.graphdata, "#tree", 960, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
 	        showTransactionList(data.businessTransactions);
-	        // drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
         	hideIndicator();
         });
         
-        getChartData(getStartTime(), getEndTime(), "scatter", function(data) {
-	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+        var slot = sliceTimeSpan(getStartTime(), getEndTime());
+        var index = slot.length - 1;
+        
+        console.log("Total spans " + slot.length);
+        
+        getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
         	hideIndicator();
+	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+	        
+	        var scatterFetchTimer = setInterval(function() {
+				if(index <= 0) {
+			        scatter.hideProgressbar();
+					clearTimeout(scatterFetchTimer);
+					console.log("Fetching scatter data finished.");
+					return;
+				}
+	        	try {
+	        		scatter.showProgressbar(slot[index].start, slot[index].end);
+		        	getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
+				        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+		        	});
+			        index--;
+	        	} catch(e) {
+	        		console.log(e);
+					clearTimeout(scatterFetchTimer);
+	        	}
+	        }, 500);
         });
     }
 	
