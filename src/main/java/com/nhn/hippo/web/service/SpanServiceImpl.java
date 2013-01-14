@@ -39,7 +39,7 @@ public class SpanServiceImpl implements SpanService {
     public List<SpanAlign> selectSpan(String uuid) {
         UUID id = UUID.fromString(uuid);
         List<SpanBo> spans = traceDao.selectSpanAndAnnotation(id);
-        if (spans == null) {
+        if (spans == null || spans.isEmpty()) {
             return Collections.emptyList();
         }
 

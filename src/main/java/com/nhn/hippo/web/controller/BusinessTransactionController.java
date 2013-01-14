@@ -41,6 +41,13 @@ public class BusinessTransactionController {
 		List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
+
+		if (spanAligns.isEmpty()) {
+			mv.addObject("errorCode", 9);
+			mv.setViewName("error");
+			return mv;
+		}
+		
 		mv.addObject("spanList", spanAligns);
 		mv.addObject("traceId", traceId);
 
