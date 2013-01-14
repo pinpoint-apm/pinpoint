@@ -44,7 +44,7 @@ public class SubSpanList implements Thriftable {
 
             tSubSpan.setAgentId(Agent.getInstance().getAgentId());
 
-            long parentSpanStartTime = subSpan.getStartTime();
+            long parentSpanStartTime = subSpan.getParentSpan().getStartTime();
             tSubSpan.setStartElapsed((int) (subSpan.getStartTime() - parentSpanStartTime));
             tSubSpan.setEndElapsed((int) (subSpan.getEndTime() - subSpan.getStartTime()));
 
