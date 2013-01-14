@@ -1,16 +1,15 @@
 package com.profiler.modifier.tomcat;
 
+import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.Agent;
-import com.profiler.context.TraceContext;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.modifier.AbstractModifier;
-
-import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Modify org.apache.catalina.core.StandardHostValve class

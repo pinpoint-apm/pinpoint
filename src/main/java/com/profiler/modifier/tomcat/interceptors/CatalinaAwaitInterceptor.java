@@ -1,14 +1,13 @@
 package com.profiler.modifier.tomcat.interceptors;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.profiler.Agent;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.Assert;
 import com.profiler.util.StringUtils;
-import net.spy.memcached.compat.log.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

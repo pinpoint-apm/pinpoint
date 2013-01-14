@@ -40,7 +40,6 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-
             InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
 
             LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);

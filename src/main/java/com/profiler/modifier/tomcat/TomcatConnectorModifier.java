@@ -1,18 +1,14 @@
 package com.profiler.modifier.tomcat;
 
-import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.modifier.tomcat.interceptors.ConnectorInitializeInterceptor;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.Agent;
-import com.profiler.modifier.AbstractModifier;
-
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.profiler.Agent;
+import com.profiler.interceptor.Interceptor;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.modifier.AbstractModifier;
 
 /**
  * Tomcat connector 정보를 수집하기 위한 modifier
@@ -36,7 +32,7 @@ public class TomcatConnectorModifier extends AbstractModifier {
             logger.info("Modifing. " + javassistClassName);
         }
         try {
-//            // initialize()할 때 protocol과 port번호를 저장해둔다.
+			// initialize()할 때 protocol과 port번호를 저장해둔다.
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.ConnectorInitializeInterceptor", new Object[]{agent});
             InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
             aClass.addInterceptor("initialize", null, interceptor);
@@ -51,6 +47,4 @@ public class TomcatConnectorModifier extends AbstractModifier {
             return null;
         }
     }
-
-
 }

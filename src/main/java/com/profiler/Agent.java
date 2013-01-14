@@ -54,7 +54,7 @@ public class Agent {
 
         initializeTraceContext();
 
-        this.systemMonitor = new SystemMonitor(this.traceContext);
+        this.systemMonitor = new SystemMonitor(this.traceContext, this.profilerConfig);
         this.systemMonitor.setDataSender(dataSender);
 
         // 매핑 테이블 초기화를 위해 엑세스

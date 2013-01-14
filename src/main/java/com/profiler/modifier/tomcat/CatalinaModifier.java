@@ -1,17 +1,14 @@
 package com.profiler.modifier.tomcat;
 
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.modifier.tomcat.interceptors.CatalinaAwaitInterceptor;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import com.profiler.Agent;
-import com.profiler.modifier.AbstractModifier;
-
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.profiler.Agent;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.modifier.AbstractModifier;
+import com.profiler.modifier.tomcat.interceptors.CatalinaAwaitInterceptor;
 
 /**
  * Tomcat startup정보를 HIPPO서버로 전송하는 코드를 호출하기위한 modifier
