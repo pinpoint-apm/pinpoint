@@ -23,7 +23,10 @@ public class AgentInfoHandler implements Handler {
     private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
-        assert (tbase instanceof Span);
+        if (!(tbase instanceof AgentInfo)) {
+            logger.warn("invalid tbase:" + tbase);
+            return;
+        }
 
         try {
             AgentInfo agentInfo = (AgentInfo) tbase;

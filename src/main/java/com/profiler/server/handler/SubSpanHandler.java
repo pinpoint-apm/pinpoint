@@ -35,7 +35,7 @@ public class SubSpanHandler implements Handler {
             SubSpan subSpan = (SubSpan) tbase;
 
             if (logger.isInfoEnabled()) {
-                logger.info("Received SubSPAN=" + subSpan);
+                logger.info("Received SubSPAN={}", subSpan);
             }
 
             String applicationName = agentIdApplicationIndexDao.selectApplicationName(subSpan.getAgentId());

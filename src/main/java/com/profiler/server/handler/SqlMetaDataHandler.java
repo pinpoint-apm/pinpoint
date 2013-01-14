@@ -27,7 +27,7 @@ public class SqlMetaDataHandler implements Handler {
         }
         SqlMetaData sqlMetaData = (SqlMetaData) tbase;
         if (logger.isInfoEnabled()) {
-            logger.info("Received SqlMetaData=" + sqlMetaData);
+            logger.info("Received SqlMetaData{}", sqlMetaData);
         }
         sqlMetaDataDao.insert(sqlMetaData);
 
