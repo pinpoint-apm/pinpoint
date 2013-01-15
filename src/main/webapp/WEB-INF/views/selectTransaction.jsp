@@ -185,8 +185,13 @@
 				<c:if test="${status.first}">
 					<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
 				</c:if>
-                
+
+				<c:if test="${record.title == 'Exception'}">
+                <tr class="error">
+				</c:if>                
+				<c:if test="${record.title != 'Exception'}">
                 <tr>
+				</c:if>                
                 	<c:if test="${record.method}">
                 	<c:set var="seq" scope="page" value="${seq + 1}"/>
                 	<td class="seq">${seq}</td>
@@ -211,11 +216,9 @@
                     	<c:if test="${record.tab > 0}">
                         	<c:forEach begin="0" end="${record.tab}">&nbsp;</c:forEach>
                         </c:if>
-                        <c:if test="${record.method}"></c:if>
                         <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
                         ${record.title}
                     </td>
-                    
                     
                     <td class="arguments">${record.arguments}</td>
                     <td class="time">

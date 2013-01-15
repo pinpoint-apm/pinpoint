@@ -65,7 +65,7 @@ public class RecordSet {
                 continue;
 
             if (AnnotationNames.EXCEPTION.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getValue().toString(), null, 0L, 0L, null, null));
+                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null));
             } else if (AnnotationNames.SQL_BINDVALUE.equals(annKey)) {
                 recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null));
             } else if (AnnotationNames.SQL.equals(annKey)) {
