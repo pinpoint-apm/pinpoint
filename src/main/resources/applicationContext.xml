@@ -46,6 +46,7 @@
     <bean class="com.profiler.server.dao.hbase.HbaseApplicationIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseApplicationTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseAgentIdApplicationIndexDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseAgentInfoDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTerminalStatisticsDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseSqlMetaDataDao"></bean>
 

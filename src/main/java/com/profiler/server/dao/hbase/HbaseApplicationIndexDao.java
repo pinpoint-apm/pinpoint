@@ -20,7 +20,7 @@ import com.profiler.server.dao.ApplicationIndexDao;
  */
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;

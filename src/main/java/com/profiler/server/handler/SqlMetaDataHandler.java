@@ -22,7 +22,7 @@ public class SqlMetaDataHandler implements Handler {
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         if (!(tbase instanceof SqlMetaData)) {
-            logger.warn("invalid tbase:" + tbase);
+            logger.warn("invalid tbase:{}", tbase);
             return;
         }
         SqlMetaData sqlMetaData = (SqlMetaData) tbase;
