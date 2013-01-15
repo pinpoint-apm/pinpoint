@@ -1,4 +1,5 @@
 exec ./hbase shell <<EOF
+disable 'AgentInfo'
 disable 'AgentIdApplicationIndex'
 disable 'ApplicationIndex'
 disable 'RootTraceIndex'
@@ -9,6 +10,7 @@ disable 'SystemInfo'
 disable 'TerminalStatistics'
 disable 'SqlMetaData'
 
+drop 'AgentInfo'
 drop 'AgentIdApplicationIndex'
 drop 'ApplicationIndex'
 drop 'RootTraceIndex'
@@ -19,6 +21,7 @@ drop 'SystemInfo'
 drop 'TerminalStatistics'
 drop 'SqlMetaData'
 
+create 'AgentInfo', { NAME => 'Info' }
 create 'AgentIdApplicationIndex', { NAME => 'Application' }
 create 'ApplicationIndex', { NAME => 'Agents' }
 create 'RootTraceIndex', { NAME => 'Trace' }

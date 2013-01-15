@@ -27,7 +27,6 @@ public class RowKeyUtils {
 
     public static byte[] getSqlId(String agentId, int hashCode, long agentStartTime) {
         // TODO 일단 agent의 조회 시간 로직을 따로 만들어야 되므로 그냥0으로 하자.
-        agentStartTime = 0;
         if (agentId == null) {
             throw new IllegalArgumentException("agentId must not be null");
         }
