@@ -1,15 +1,11 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.common.AnnotationNames;
-import com.profiler.common.util.ParsingResult;
-import com.profiler.context.Annotation;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
-import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
@@ -81,8 +77,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
             Object arg = args[0];
             if (arg instanceof String) {
                 trace.recordSqlInfo((String) arg);
-                // TODO 일단 중복 처리.
-                trace.recordAttribute(AnnotationNames.SQL, args[0]);
+                // TODO parsing result 추가 처리 고려
             }
         }
 

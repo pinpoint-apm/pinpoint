@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationNames;
+import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ApiIdSupport;
@@ -22,7 +23,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
-    private final MetaObject<String> getSql = new MetaObject<String>("__getSql");
+    private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
@@ -51,11 +52,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
-            String sql = getSql.invoke(target);
+            ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
 
-            // 일단 중복처리
-            trace.recordAttribute(AnnotationNames.SQL, sql);
-            trace.recordSqlInfo(sql);
+            trace.recordSqlParsingResult(parsingResult);
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
@@ -63,7 +62,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
 //            trace.recordApi(descriptor, args);
             trace.recordApi(apiId);
-
+            // clean 타이밍을 변경해야 될듯 하다.
             clean(target);
 
 

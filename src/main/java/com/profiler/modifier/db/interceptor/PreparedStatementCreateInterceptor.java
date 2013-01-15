@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
@@ -22,7 +23,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
-    private final MetaObject setSql = new MetaObject("__setSql", String.class);
+    private final MetaObject setSql = new MetaObject("__setSql", Object.class);
     private int apiId;
 
     @Override
@@ -69,14 +70,17 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
             this.setUrl.invoke(result, databaseInfo);
             String sql = (String) args[0];
-            this.setSql.invoke(result, sql);
+
+            ParsingResult parsingResult = trace.recordSqlInfo(sql);
+            if (parsingResult != null) {
+                this.setSql.invoke(result, parsingResult);
+            }
 
             trace.recordException(result);
-//            trace.recordAttribute("PreparedStatement", sql);
         }
 
 //        trace.recordApi(descriptor, args);
-        trace.recordApi(apiId, args);
+        trace.recordApi(apiId);
 
         trace.markAfterTime();
         trace.traceBlockEnd();

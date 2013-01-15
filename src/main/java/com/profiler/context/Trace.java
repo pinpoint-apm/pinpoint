@@ -284,8 +284,16 @@ public final class Trace {
         recordAttribute(key, (Object) value);
     }
 
-    public void recordSqlInfo(String sql) {
+    public ParsingResult recordSqlInfo(String sql) {
+        if (sql == null) {
+            return null;
+        }
         ParsingResult parsingResult = parseSql(sql);
+        recordSqlParsingResult(parsingResult);
+        return parsingResult;
+    }
+
+    public void recordSqlParsingResult(ParsingResult parsingResult) {
         recordAttribute(AnnotationNames.SQL_ID, parsingResult.getSql().hashCode());
         String output = parsingResult.getOutput();
         if (output != null && output.length() != 0) {
@@ -295,7 +303,6 @@ public final class Trace {
 
 
     public ParsingResult parseSql(String sql) {
-        Assert.notNull(sql, "sql must not null");
 
         // 해당 api의 구현을 그냥 tarceContext api에 만들어야 될듯 하다.
         ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
