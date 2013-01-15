@@ -12,7 +12,6 @@
 
     <link href="/common/css/hippo/hippo.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
-    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
@@ -47,9 +46,15 @@
         }
     </script>
     <style type="text/css">
+		body {
+		    padding-top: 5px;
+		    padding-left:30px;
+		    padding-right:30px;
+		}
         #callStacks TH {
             padding: 3px;
             font-size:12px;
+            text-align:center;
         }
         
         #callStacks TD {
@@ -57,23 +62,74 @@
             font-size:12px;
         }
 
+        #callStacks .seq {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align:center;
+        }
+        
+        #callStacks .seq.info {
+        	border-right:0px;
+        }
+        
         #callStacks .method {
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 400px;
+            max-width: 300px;
             white-space: nowrap;
+            font-family:consolas;
+            font-weight:normal;
+        }
+        
+        #callStacks .method.info {
+            font-weight:normal;
+            border-left:0px;
         }
 
         #callStacks .arguments {
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 400px;
+            max-width: 300px;
             white-space: nowrap;
+            font-family:consolas;
         }
 
+        #callStacks .exectime {
+            text-align: center;
+            width:80px;
+        }
+        
+        #callStacks .exectime.info {
+        	border-left:0px;
+        }
+        
         #callStacks .time {
             text-align: right;
-            padding-right: 20px;
+            padding-right: 10px;
+            width:60px;
+        }
+        
+        #callStacks .gap {
+            text-align: right;
+            padding-right: 10px;
+            width:40px;
+        }
+        
+        #callStacks .gap.info {
+        	border-left:0px;
+        }
+        
+        #callStacks .service {
+            width:110px;
+			overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #callStacks .agent {
+            width:110px;
+			overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         #callStacks .bar {
@@ -82,240 +138,214 @@
     </style>
 </head>
 <body>
-<h4>TraceId: ${traceId}</h4>
 
-<div class="container">
+<h3>Application : ${applicationName}</h3>
+<h5>TraceId : ${traceId}</h5>
+  	<br/>
 
-<div class="row">
-	<div class="span12">
-		<ul class="nav nav-tabs" id="chartTabs">
-			<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
-			<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
-			<li><a href="#Sankey" data-toggle="tab">Sankey Chart</a></li>
-		</ul>
+<ul class="nav nav-tabs" id="traceTabs">
+	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
+	<li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
+	<li><a href="#Details" data-toggle="tab">Details (for HIPPO developer)</a></li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
+		<!-- begin new call stack -->
+	    <table id="callStacks" class="table table-bordered table-hover">
+	        <thead>
+	        <tr>
+	        	<th>Seq</th>
+	            <th>Exec Time</th>
+	            <th>Gap</th>
+	            <th>Method</th>
+	            <th>Argument</th>
+	            <th>Time[ms]</th>
+	            <th>Time[%]</th>
+	            <th>Service</th>
+	            <th>Agent</th>
+	        </tr>
+	        </thead>
+	        <tbody>
+	        <c:set var="startTime" scope="page" value="${callstackStart}"/>
+	        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
+	        <c:set var="seq" scope="page" value="0"/>
+			<c:set var="gap" scope="page" value="0"/>
+	        
+	        <c:forEach items="${callstack}" var="record" varStatus="status">
+	            <c:set var="depth" scope="page" value="${span.depth}"/>
+	            <c:if test="${record.method}">
+	            	<c:if test="${not status.first}">
+               			<c:set var="gap" scope="page" value="${record.begin - begin}"/>
+               		</c:if>
+	                <c:set var="begin" scope="page" value="${record.begin}"/>
+	                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
+               	</c:if>
+                
+				<c:if test="${status.first}">
+					<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
+				</c:if>
+                
+                <tr>
+                	<c:if test="${record.method}">
+                	<c:set var="seq" scope="page" value="${seq + 1}"/>
+                	<td class="seq">${seq}</td>
+                    <td class="exectime">
+                    	<c:if test="${record.method}">
+                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+                    	</c:if>
+                    </td>
+                    <td class="gap">${gap}</td>
+                    <td class="method">
+                    </c:if>
+                	<c:if test="${not record.method}">
+                	<td class="seq info"></td>
+                    <td class="exectime info">
+                    	<c:if test="${record.method}">
+                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+                    	</c:if>
+                    </td>
+                    <td class="gap info"></td>
+                    <td class="method">
+                    </c:if>
+                    	<c:if test="${record.tab > 0}">
+                        	<c:forEach begin="0" end="${record.tab}">&nbsp;</c:forEach>
+                        </c:if>
+                        <c:if test="${record.method}"></c:if>
+                        <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
+                        ${record.title}
+                    </td>
+                    
+                    
+                    <td class="arguments">${record.arguments}</td>
+                    <td class="time">
+                    	<c:if test="${record.method}">
+                    	<fmt:formatNumber type="number" value="${record.elapsed}"/>
+                    	</c:if>
+                    </td>
+                    <td class="bar">
+                    	<c:if test="${record.method}">
+                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
+                    	</c:if>
+                    </td>
+                    <td class="service">${record.service}</td>
+                    <td class="agent">${record.agent}</td>
+                </tr>
+	        </c:forEach>
+	        </tbody>
+	    </table>
+	    <!-- end of new call stack -->
+	</div>
+	<div class="tab-pane" id="Timeline">
+	        <!-- begin timeline -->
+	        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
+				<c:set var="startTime" scope="page" value="${callstackStart}"/>
+		        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
+		        
+		        <c:forEach items="${timeline}" var="record" varStatus="status">
+		            <c:set var="depth" scope="page" value="${span.depth}"/>
+	                <c:set var="begin" scope="page" value="${record.begin}"/>
+	                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
+					<c:if test="${status.first}">
+						<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+					</c:if>
+	                
+                   	<c:if test="${record.method}">
+                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;"
+                        	onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+							<div style="width:200px;">${record.service} (${end - begin}ms)</div>
+                        </div>
+                        
+						<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+	                    <ul>
+	                        <li>${record}</li>
+	                    </ul>
+		                </div>
+                   	</c:if>
+		        </c:forEach>
+	        </div>
+	        <!-- end timeline -->
+	</div>
+	<div class="tab-pane" id="Details">
 	
-		<div class="tab-content">
-			<div class="tab-pane active" id="Tree" style="overflow:hidden;">
-				<p id="tree"></p>
-			</div>
-			<div class="tab-pane" id="Graph">
-				<canvas id="springygraph" width="960" height="10" />
-			</div>
-			<div class="tab-pane" id="Sankey">
-				HIPPO개발자를 위한 차트입니다.<br/>
-				<p id="sankeygraph"></p>
-			</div>
-		</div>
+		<!-- begin details -->
+		<table id="businessTransactions" class="table table-bordered table-hover" style="font-size:12px;">
+           <thead>
+           <tr>
+               <th>#</th>
+               <th>Action</th>
+               <th>Arguments</th>
+               <th>EndPoint</th>
+               <th>Total[ms]</th>
+               <th>Application</th>
+               <th>Agent</th>
+           </tr>
+           </thead>
+           <tbody>
+
+           <c:forEach items="${spanList}" var="span" varStatus="status">
+               <c:if test="${span.root}">
+                   <c:set var="sp" scope="page" value="${span.span}"/>
+                   <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
+                       <tr>
+                           <td>${span.depth}</td>
+                           <td>${ano.key}</td>
+                           <td>${ano.value}</td>
+                           <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
+                           <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
+                           <td></td>
+                           <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                       </tr>
+                   </c:forEach>
+                   <tr>
+                       <td colspan="7">&nbsp;</td>
+                   </tr>
+               </c:if>
+               <c:if test="${!span.root}">
+                   <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+                   <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
+                       <tr>
+                           <td>${span.depth}</td>
+                           <td>${ano.key}</td>
+                           <td>${ano.value}</td>
+                           <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
+                           <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
+                           <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
+                       </tr>
+                   </c:forEach>
+                   <tr>
+                       <td colspan="7">&nbsp;</td>
+                   </tr>
+               </c:if>
+           </c:forEach>
+           </tbody>
+       	</table>
+		<!-- end of details -->
+	
+	
 	</div>
 </div>
 
-<div class="row">
-    <div class="span12">
-		<ul class="nav nav-tabs" id="traceTabs">
-			<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
-			<li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
-			<li><a href="#Details" data-toggle="tab">Details (for HIPPO developer)</a></li>
-		</ul>
-		
-		<div class="tab-content">
-			<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
-				<!-- begin new call stack -->
-			    <table id="callStacks" class="table table-bordered">
-			        <thead>
-			        <tr>
-			            <th>Method</th>
-			            <th>Argument</th>
-			            <th>Time[%]</th>
-			            <th>Time[ms]</th>
-			            <th>Agent</th>
-			            <th>Service</th>
-			        </tr>
-			        </thead>
-			        <tbody>
-			        <c:set var="startTime" scope="page" value="${callstackStart}"/>
-			        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
-			        
-			        <c:forEach items="${callstack}" var="record" varStatus="status">
-			            <c:set var="depth" scope="page" value="${span.depth}"/>
-		                <c:set var="begin" scope="page" value="${record.begin}"/>
-		                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
-		                
-						<c:if test="${status.first}">
-							<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
-						</c:if>
-		                
-		                <tr>
-		                    <td class="method">
-		                        <c:forEach begin="0" end="${record.tab}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</c:forEach>
-		                        <c:if test="${record.method}"><i class="icon-tag"></i></c:if>
-		                        <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
-		                        ${record.title}
-		                    </td>
-		                    <td class="arguments">${record.arguments}</td>
-		                    <td class="bar">
-		                    	<c:if test="${record.method}">
-		                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
-		                    	</c:if>
-		                    </td>
-		                    <td class="time">
-		                    	<c:if test="${record.method}">
-		                    	<fmt:formatNumber type="number" value="${record.elapsed}"/>
-		                    	</c:if>
-		                    </td>
-		                    <td class="agent">${record.agent}</td>
-		                    <td class="service">${record.service}</td>
-		                </tr>
-			        </c:forEach>
-			        </tbody>
-			    </table>
-			    <!-- end of new call stack -->
-			</div>
-			<div class="tab-pane" id="Timeline">
-					<!-- begin of timeline -->
-					<div id="timeline" style="background-color:#E8E8E8;width:1000px;">
-			        <c:set var="startTime" scope="page" value="0"/>
-			        <c:set var="endTime" scope="page" value="0"/>
-			        <c:forEach items="${spanList}" var="span" varStatus="status">
-			            <c:if test="${span.root}">
-			                <c:set var="sp" scope="page" value="${span.span}"/>
-			                <c:set var="begin" scope="page" value="${sp.startTime}"/>
-			                <c:set var="end" scope="page" value="${sp.startTime + sp.elapsed}"/>
-			
-			                <div id="spanDetail${status.count}"
-			                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-			                    <ul>
-			                        <li>root = ${span.root}</li>
-			                        <li>AgentId = ${sp.agentId}</li>
-			                        <li>UUID = ${hippo:longLongToUUID(sp.mostTraceId, sp.leastTraceId)}</li>
-			                        <li>spanId = ${sp.spanId}</li>
-			                        <li>parentSpanId = ${sp.parentSpanId}</li>
-			                        <li>service = ${sp.serviceName}</li>
-			                        <li>name = ${sp.rpc}</li>
-			                        <li>startTime = ${hippo:longToDateStr(sp.startTime)}</li>
-			                        <li>endTime = ${hippo:longToDateStr(sp.startTime + sp.elapsed)}</li>
-			                        <li>endpoint = ${sp.endPoint}</li>
-			
-			                        <c:if test="${status.first}">
-			                            <c:set var="startTime" scope="page" value="${sp.startTime}"/>
-			                        </c:if>
-			                        <c:if test="${status.first}">
-			                            <c:set var="endTime" scope="page" value="${sp.startTime + sp.elapsed}"/>
-			                        </c:if>
-			
-			                        <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-			                            <li>${ano.key} = ${ano.value}</li>
-			                        </c:forEach>
-			                    </ul>
-			                </div>
-			
-			                <c:if test="${status.first}">
-			                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-			                </c:if>
-			
-			                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
-			                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-			                    <div style="width:200px;">${sp.serviceName} (${end - begin}ms)</div>
-			                </div>
-			            </c:if>
-			            <c:if test="${!span.root}">
-			                <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-			                <c:set var="begin" scope="page" value="${span.span.startTime + subSp.startElapsed}"/>
-			                <c:set var="end" scope="page" value="${span.span.startTime + subSp.startElapsed + subSp.endElapsed}"/>
-			
-			                <div id="spanDetail${status.count}"
-			                     style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-			                    <ul>
-			                        <li>root = ${span.root}</li>
-			                        <li>AgentId = ${subSp.agentId}</li>
-			                        <li>UUID = ${hippo:longLongToUUID(subSp.mostTraceId, subSp.leastTraceId)}</li>
-			                        <li>spanId = ${subSp.spanId}</li>
-			                            <%--<li>parentSpanId = ${subSp.parentSpanId}</li>--%>
-			                        <li>service = ${subSp.serviceName}</li>
-			                        <li>name = ${subSp.rpc}</li>
-			                        <li>startTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed)}</li>
-			                        <li>endTime = ${hippo:longToDateStr(span.span.startTime + subSp.startElapsed + subSp.endElapsed)}</li>
-			                        <li>endpoint = ${subSp.endPoint}</li>
-			
-			                        <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
-			                            <li>${ano.key} = ${ano.value}</li>
-			                        </c:forEach>
-			                    </ul>
-			                </div>
-			
-			                <c:if test="${status.first}">
-			                    <c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-			                </c:if>
-			
-			                <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px;margin-top:3px;"
-			                     onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-			                    <div style="width:200px;">${subSp.serviceName} (${end - begin}ms)</div>
-			                </div>
-			            </c:if>
-			        </c:forEach>
-			    </div>
-			    <!-- end of timeline -->
-			</div>
-			<div class="tab-pane" id="Details">
-			
-				<!-- begin details -->
-				<table id="businessTransactions" class="table table-bordered" style="font-size:12px;">
-	            <thead>
-	            <tr>
-	                <th>#</th>
-	                <th>Action</th>
-	                <th>Arguments</th>
-	                <th>EndPoint</th>
-	                <th>Total[ms]</th>
-	                <th>Application</th>
-	                <th>Agent</th>
-	            </tr>
-	            </thead>
-	            <tbody>
-	
-	            <c:forEach items="${spanList}" var="span" varStatus="status">
-	                <c:if test="${span.root}">
-	                    <c:set var="sp" scope="page" value="${span.span}"/>
-	                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
-	                        <tr>
-	                            <td>${span.depth}</td>
-	                            <td>${ano.key}</td>
-	                            <td>${ano.value}</td>
-	                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
-	                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
-	                            <td></td>
-	                            <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
-	                        </tr>
-	                    </c:forEach>
-	                    <tr>
-	                        <td colspan="7">&nbsp;</td>
-	                    </tr>
-	                </c:if>
-	                <c:if test="${!span.root}">
-	                    <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
-	                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
-	                        <tr>
-	                            <td>${span.depth}</td>
-	                            <td>${ano.key}</td>
-	                            <td>${ano.value}</td>
-	                            <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
-	                            <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
-	                            <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
-	                        </tr>
-	                    </c:forEach>
-	                    <tr>
-	                        <td colspan="7">&nbsp;</td>
-	                    </tr>
-	                </c:if>
-	            </c:forEach>
-	            </tbody>
-	        	</table>
-				<!-- end of details -->
-			
-			
-			</div>
-		</div>
+
+<ul class="nav nav-tabs" id="chartTabs">
+	<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
+	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
+	<li><a href="#Sankey" data-toggle="tab">Sankey Chart</a></li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane active" id="Tree" style="overflow:hidden;">
+		<p id="tree"></p>
+	</div>
+	<div class="tab-pane" id="Graph">
+		<canvas id="springygraph" width="960" height="10" />
+	</div>
+	<div class="tab-pane" id="Sankey">
+		HIPPO개발자를 위한 차트입니다.<br/>
+		<p id="sankeygraph"></p>
 	</div>
 </div>
+
 
 <br/>
 <br/>

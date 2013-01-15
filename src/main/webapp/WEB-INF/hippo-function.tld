@@ -13,7 +13,7 @@
 		<description></description>
 		<name>longToDateStr</name>
 		<function-class>com.profiler.common.util.AnnotationUtils</function-class>
-		<function-signature>java.lang.String longToDateStr(long)</function-signature>
+		<function-signature>java.lang.String longToDateStr(long, java.lang.String)</function-signature>
 	</function>
 	
 	<function>

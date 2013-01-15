@@ -48,7 +48,9 @@ public class BusinessTransactionController {
 			return mv;
 		}
 		
+		// debug 
 		mv.addObject("spanList", spanAligns);
+		
 		mv.addObject("traceId", traceId);
 
 		// call tree
@@ -58,7 +60,9 @@ public class BusinessTransactionController {
 
 		// call stacks
 		RecordSet recordset = new RecordSet(spanAligns);
+		mv.addObject("applicationName", recordset.getApplicationName());
 		mv.addObject("callstack", recordset.getIterator());
+		mv.addObject("timeline", recordset.getIterator());
 		mv.addObject("callstackStart", recordset.getStartTime());
 		mv.addObject("callstackEnd", recordset.getEndTime());
 

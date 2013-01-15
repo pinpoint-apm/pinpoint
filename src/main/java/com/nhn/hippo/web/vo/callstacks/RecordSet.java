@@ -19,7 +19,8 @@ public class RecordSet {
     private long endTime = -1;
 
     private final List<Record> recordset;
-
+    private String applicationName;
+    
     public RecordSet(List<SpanAlign> spanAligns) {
         recordset = new ArrayList<Record>();
         addSpanRecord(spanAligns);
@@ -52,8 +53,12 @@ public class RecordSet {
     public boolean isEndTimeSet() {
         return endTime != -1;
     }
+    
+    public String getApplicationName() {
+		return applicationName;
+	}
 
-    private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
+	private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
         for (AnnotationBo ann : annotationBoList) {
             String annKey = ann.getKey();
             if (AnnotationNames.API.equals(annKey) || AnnotationNames.API_ID.equals(annKey))
@@ -85,6 +90,8 @@ public class RecordSet {
                 if (!marked) {
                     setStartTime(begin);
                     setEndTime(begin + elapsed);
+                    applicationName = arguments;
+                    marked = true;
                 }
 
                 recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName()));
@@ -102,6 +109,7 @@ public class RecordSet {
                 if (!marked) {
                     setStartTime(begin);
                     setEndTime(begin + elapsed);
+                    marked = true;
                 }
 
                 recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName()));
