@@ -349,7 +349,7 @@ $(document).ready(function () {
 	}
 	
 	function sliceTimeSpan(start, end) {
-		console.log("Slice the time. " + new Date(start) + " ~ " + new Date(end));
+		console.log("Slice the time. " + new Date(start) + " (" + start + ") ~ " + new Date(end) + "(" + end + ")");
 		
 		var chunk = 10 * 60 * 1000;
 		
@@ -364,12 +364,17 @@ $(document).ready(function () {
 		var s = start;
 		var e = s + chunk;
 		
+		timeslot.push({
+			'start' : s,
+			'end' : e
+		});
+		
 		while (true) {
 			if (e >= end) {
 				break;
 			}
 			
-			s = e + 1000;
+			s = e + 1; // plus 1ms
 			e = s + chunk;
 
 			if (e > end) {
@@ -414,14 +419,12 @@ $(document).ready(function () {
         var slot = sliceTimeSpan(getStartTime(), getEndTime());
         var index = slot.length - 1;
         
-        console.log("Total spans " + slot.length);
-        
         getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
         	hideIndicator();
 	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
 	        var scatterFetchTimer = setInterval(function() {
-				if(index <= 0) {
+				if(index < 0) {
 			        scatter.hideProgressbar();
 					clearTimeout(scatterFetchTimer);
 					console.log("Fetching scatter data finished.");
@@ -437,7 +440,7 @@ $(document).ready(function () {
 	        		console.log(e);
 					clearTimeout(scatterFetchTimer);
 	        	}
-	        }, 500);
+	        }, 100);
         });
     }
 	

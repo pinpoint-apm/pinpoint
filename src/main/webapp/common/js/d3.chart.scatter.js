@@ -125,13 +125,11 @@ d3.chart.scatter._renderer = function(){
 				.attr("y", top_padding)
 				.attr("height", chart_height - bottom_padding - top_padding);
 			
-			// this.progressbar.fadeIn(500);
 			this.progressbar.style("display", "");
 		},
 		
 		hideProgressbar : function() {
 			this.progressbar.style("display", "none");
-			// this.progressbar.fadeOut(500);
 		},
 		
 		_setEventHandler : function() {
