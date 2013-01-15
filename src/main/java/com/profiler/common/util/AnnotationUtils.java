@@ -16,9 +16,8 @@ public class AnnotationUtils {
 
     private static final String FORMAT = "yyyy-MM-dd HH:mm:ss SSS";
 
-    @Deprecated
-    public static String longToDateStr(long date) {
-        SimpleDateFormat format = new SimpleDateFormat(FORMAT);
+    public static String longToDateStr(long date, String fmt) {
+        SimpleDateFormat format = new SimpleDateFormat((fmt == null) ? FORMAT : fmt);
         return format.format(new Date(date));
     }
 
