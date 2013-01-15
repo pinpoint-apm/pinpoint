@@ -30,8 +30,15 @@
 
     <bean id="trace" class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
 
+
     <bean class="com.nhn.hippo.web.dao.hbase.HbaseTraceDao"></bean>
     <bean class="com.nhn.hippo.web.service.SpanServiceImpl"></bean>
+
+    <bean class="com.nhn.hippo.web.dao.hbase.HbaseSqlMetaDataDao"></bean>
+    <bean class="com.nhn.hippo.web.mapper.SqlMetaDataMapper"></bean>
+
+    <bean class="com.nhn.hippo.web.dao.hbase.HbaseAgentInfoDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseAgentInfoDao"></bean>
 
     <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.nhn.hippo.web.mapper.AnnotationMapper"></bean>

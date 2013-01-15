@@ -3,6 +3,7 @@ package com.nhn.hippo.web.service;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.calltree.span.SpanAligner;
 import com.nhn.hippo.web.calltree.span.SpanPopulator;
+import com.nhn.hippo.web.dao.AgentInfoDao;
 import com.nhn.hippo.web.dao.SqlMetaDataDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.profiler.common.AnnotationNames;
@@ -35,6 +36,9 @@ public class SpanServiceImpl implements SpanService {
     @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
 
+    @Autowired
+    private AgentInfoDao agentInfoDao;
+
     @Override
     public List<SpanAlign> selectSpan(String uuid) {
         UUID id = UUID.fromString(uuid);
@@ -47,10 +51,7 @@ public class SpanServiceImpl implements SpanService {
         transitionApiId(order);
         transitionSqlId(order);
         // TODO root span not found시 row data라도 보여줘야 됨.
-        if (order.size() != spans.size()) {
-            // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성?
-            logger.info("span node not complete! ");
-        }
+
         return order;
 
     }
@@ -73,37 +74,58 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                for (AnnotationBo annotationBo : annotationBoList) {
-                    // TODO SQL-ID 일단 날코딩 나중에 뭔가 key를 따자
-                    if ("SQL-ID".equals(annotationBo.getKey())) {
-
-                        String agentId = getAgentId(spanAlign);
-                        // TODO 일단 시간까지 조회는 하지 말고 하자.
-                        int hashCode = (Integer) annotationBo.getValue();
-                        List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentId, hashCode, 0);
-                        int size = sqlMetaDataList.size();
-                        if (size == 0) {
-                            AnnotationBo api = new AnnotationBo();
-                            api.setKey(AnnotationNames.SQL_METADATA);
-                            api.setValue("SQL-ID not found hashCode:" + hashCode);
-                            annotationBoList.add(api);
-                        } else if (size == 1) {
-                            AnnotationBo api = new AnnotationBo();
-                            api.setKey(AnnotationNames.SQL_METADATA);
-                            api.setValue(sqlMetaDataList.get(0).getSql());
-                            annotationBoList.add(api);
-                        } else {
-                            AnnotationBo api = new AnnotationBo();
-                            api.setKey(AnnotationNames.SQL_METADATA);
-                            api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
-                            annotationBoList.add(api);
-                        }
-
-                        break;
-                    }
+                AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.SQL_ID);
+                if (sqlIdAnnotation == null) {
+                    return;
                 }
+
+                String agentId = getAgentId(spanAlign);
+                long startTime = spanAlign.getSpan().getStartTime();
+                long agentStartTime = agentInfoDao.selectAgentInfoBeforeStartTime(agentId, startTime);
+                logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
+
+                // TODO 일단 시간까지 조회는 하지 말고 하자.
+                int hashCode = (Integer) sqlIdAnnotation.getValue();
+                List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentId, hashCode, agentStartTime);
+                int size = sqlMetaDataList.size();
+                if (size == 0) {
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationNames.SQL_METADATA);
+                    api.setValue("SQL-ID not found hashCode:" + hashCode);
+                    annotationBoList.add(api);
+                } else if (size == 1) {
+                    AnnotationBo sqlParamAnnotationBo = findAnnotation(annotationBoList, AnnotationNames.SQL_PARAM);
+                    if (sqlParamAnnotationBo == null) {
+                        AnnotationBo sqlMeta = new AnnotationBo();
+                        sqlMeta.setKey(AnnotationNames.SQL_METADATA);
+                        sqlMeta.setValue(sqlMetaDataList.get(0).getSql());
+                        annotationBoList.add(sqlMeta);
+
+                        AnnotationBo sql = new AnnotationBo();
+                        sql.setKey(AnnotationNames.SQL);
+                        sql.setValue(sqlMetaDataList.get(0).getSql());
+                        annotationBoList.add(sql);
+                    } else {
+                        // merge 해야 된다.
+                    }
+                } else {
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationNames.SQL_METADATA);
+                    api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
+                    annotationBoList.add(api);
+                }
+
             }
         });
+    }
+
+    private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, String key) {
+        for (AnnotationBo annotationBo : annotationBoList) {
+            if (key.equals(annotationBo.getKey())) {
+                return annotationBo;
+            }
+        }
+        return null;
     }
 
     private String collisionSqlHashCodeMessage(int hashCode, List<SqlMetaDataBo> sqlMetaDataList) {
@@ -134,25 +156,26 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                for (AnnotationBo annotationBo : annotationBoList) {
-                    // TODO API-ID 일단 날코딩 나중에 뭔가 key를 따자
-                    if ("API-ID".equals(annotationBo.getKey())) {
-                        MethodMapping methodMapping = ApiMappingTable.findMethodMapping((Integer) annotationBo.getValue());
-                        if (methodMapping == null) {
-                            continue;
-                        }
-                        String className = methodMapping.getClassMapping().getClassName();
-                        String methodName = methodMapping.getMethodName();
-                        String[] parameterType = methodMapping.getParameterType();
-                        String[] parameterName = methodMapping.getParameterName();
-                        String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
-                        AnnotationBo api = new AnnotationBo();
-                        api.setKey("API");
-                        api.setValue(className + "." + methodName + args);
-                        annotationBoList.add(api);
-                        break;
-                    }
+
+                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_ID);
+                if (apiIdAnnotation == null) {
+                    return;
                 }
+
+                MethodMapping methodMapping = ApiMappingTable.findMethodMapping((Integer) apiIdAnnotation.getValue());
+                if (methodMapping == null) {
+                    return;
+                }
+                String className = methodMapping.getClassMapping().getClassName();
+                String methodName = methodMapping.getMethodName();
+                String[] parameterType = methodMapping.getParameterType();
+                String[] parameterName = methodMapping.getParameterName();
+                String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
+                AnnotationBo api = new AnnotationBo();
+                api.setKey("API");
+                api.setValue(className + "." + methodName + args);
+                annotationBoList.add(api);
+
             }
         });
     }
@@ -164,6 +187,10 @@ public class SpanServiceImpl implements SpanService {
     private List<SpanAlign> order(List<SpanBo> spans) {
         SpanAligner spanAligner = new SpanAligner(spans);
         List<SpanAlign> sort = spanAligner.sort();
+        if (sort.size() != spans.size()) {
+            // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성?
+            logger.warn("span node not complete! spans:{}, sort{}", spans, sort);
+        }
         SpanPopulator spanPopulator = new SpanPopulator(sort);
         List<SpanAlign> populatedList = spanPopulator.populateSubSpan();
         return populatedList;
