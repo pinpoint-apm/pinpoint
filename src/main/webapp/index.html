@@ -432,8 +432,8 @@ $(document).ready(function () {
 				}
 	        	try {
 	        		scatter.showProgressbar(slot[index].start, slot[index].end);
-		        	getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
-				        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+		        	getChartData(slot[index].start, slot[index].end, "scatter", function(data2) {
+				        updateScatter(getStartTime(), getEndTime(), data2.scatter, "#scatter");
 		        	});
 			        index--;
 	        	} catch(e) {

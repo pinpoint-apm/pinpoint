@@ -113,6 +113,24 @@ d3.chart.scatter._renderer = function(){
 				.attr("height", 0)
 				.style("fill", "#FFE87C")
 				.style("fill-opacity", "0.5");
+			
+			this.greenCounter = this.desc.append("text")
+				.attr("x", chart_width - left_padding - 200)
+				.attr("y", top_padding - 5)
+				.attr("width", 100)
+				.attr("height", 50)
+				.style("fill", COLOR_GREEN)
+				.style('font-size', '12px')
+				.style('font-family', 'tahoma');
+			
+			this.redCounter = this.desc.append("text")
+				.attr("x", chart_width - left_padding - 100)
+				.attr("y", top_padding - 5)
+				.attr("width", 100)
+				.attr("height", 50)
+				.style("fill", COLOR_RED)
+				.style('font-size', '12px')
+				.style('font-family', 'tahoma');
 		},
 		
 		showProgressbar : function(begin, end) {
@@ -126,6 +144,11 @@ d3.chart.scatter._renderer = function(){
 				.attr("height", chart_height - bottom_padding - top_padding);
 			
 			this.progressbar.style("display", "");
+		},
+		
+		showDataCount : function(count) {
+			this.greenCounter.text($(".dot.green").length);
+			this.redCounter.text($(".dot.red").length);
 		},
 		
 		hideProgressbar : function() {

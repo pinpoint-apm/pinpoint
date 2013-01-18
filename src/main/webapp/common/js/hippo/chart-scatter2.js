@@ -5,31 +5,18 @@ function updateScatter(start, end, scatter_data, targetId, limit) {
 		alert("[ERROR] scatter chart is not initialized.")
 	}
 
-	if (limit) {
-		scatter.option.chart.x.start = start;
-		scatter.option.chart.x.end = end;
-		scatter.add(scatter_data, function(data) {
-			var ret = [];
-			data.forEach(function(d) {
-				if (d.timestamp >= start && d.timestamp <= end) {
-					ret.push(d);
-				}
-			});
-			return ret;
+	scatter.option.chart.x.start = start;
+	scatter.option.chart.x.end = end;
+	scatter.add(scatter_data, function(data) {
+		var ret = [];
+		data.forEach(function(d) {
+			if (d.timestamp >= start && d.timestamp <= end) {
+				ret.push(d);
+			}
 		});
-	} else {
-		scatter.option.chart.x.start = start;
-		scatter.option.chart.x.end = end;
-		scatter.add(scatter_data, function(data) {
-			var ret = [];
-			data.forEach(function(d) {
-				if (d.timestamp >= start && d.timestamp <= end) {
-					ret.push(d);
-				}
-			});
-			return ret;
-		});
-	}
+		return ret;
+	});
+	scatter.showDataCount();
 }
 
 function drawScatter(start, end, scatter_data, targetId) {
@@ -59,5 +46,5 @@ function drawScatter(start, end, scatter_data, targetId) {
 		}
 	});
 
-	updateScatter(start, end, scatter_data, targetId);
+	// updateScatter(start, end, scatter_data, targetId);
 }
