@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.ServiceType;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ApiIdSupport;
@@ -37,6 +38,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 		}
 
 		trace.traceBlockBegin();
+		trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
 		trace.markBeforeTime();
 	}
 
