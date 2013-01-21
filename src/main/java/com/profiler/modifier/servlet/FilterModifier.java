@@ -16,16 +16,16 @@ import com.profiler.modifier.AbstractModifier;
  * @author netspider
  * 
  */
-public class SpringFrameworkServletModifier extends AbstractModifier {
+public class FilterModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(SpringFrameworkServletModifier.class.getName());
+	private final Logger logger = Logger.getLogger(FilterModifier.class.getName());
 
-	public SpringFrameworkServletModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+	public FilterModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
 	}
 
 	public String getTargetClass() {
-		return "org/springframework/web/servlet/FrameworkServlet";
+		return "javax/servlet/Filter";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -36,16 +36,13 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
-			Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
+			Interceptor doFilterInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
 
-			setTraceContext(doGetInterceptor);
-			setTraceContext(doPostInterceptor);
+			setTraceContext(doFilterInterceptor);
 
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
 
-			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
-			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doPostInterceptor);
+			servlet.addInterceptor("doFilter", new String[] { "javax.servlet.ServletRequest", "javax.servlet.ServletResponse", "javax.servlet.FilterChain" }, doFilterInterceptor);
 
 			return servlet.toBytecode();
 		} catch (InstrumentException e) {

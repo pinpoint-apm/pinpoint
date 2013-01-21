@@ -159,7 +159,11 @@ public class SubSpan implements Thriftable {
 
         subSpan.setRpc(rpc);
         subSpan.setServiceName(serviceName);
-        subSpan.setServiceType(serviceType.getCode());
+        
+		if (serviceType != null) {
+			subSpan.setServiceType(serviceType.getCode());
+		}
+		
         subSpan.setEndPoint(endPoint);
         subSpan.setErr(exception);
 
