@@ -29,10 +29,10 @@ struct SubSpan {
   6: i32 startElapsed
   7: i32 endElapsed
 
-  8: string rpc
-  9: string serviceName
-  10: i16 serviceType
-  11: string endPoint
+  8: optional string rpc
+  9: optional string serviceName
+  10: optional i16 serviceType
+  11: optional string endPoint
 
   12: bool err
 
@@ -62,9 +62,8 @@ struct Span {
   14: bool err
 
   15: optional list<SubSpan> subSpanList
+  16: optional list<MethodInfo> methodList
 }
-
-
 
 struct SubSpanList {
   1: string agentId
@@ -74,13 +73,13 @@ struct SubSpanList {
 
   4: i64 spanId
 
-  6: list<SubSpan> subSpanList
+  5: list<SubSpan> subSpanList
+  6: optional list<MethodInfo> methodList
 }
 
 struct SqlMetaData {
     1: string agentId
     2: i64 startTime;
-
     3: i32 hashCode
     4: string sql;
 }

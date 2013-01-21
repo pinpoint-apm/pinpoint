@@ -4,6 +4,7 @@ public enum ServiceType {
 	
 	UNKNOWN(		(short) 0,		"UNKNOWN",		false),
 	UNKNOWN_CLOUD(	(short) 1,		"UNKNOWN_CLOUD",false),
+	INTERNAL_METHOD((short) 2,		"INTERNAL_METHOD", false),
 	
 	TOMCAT(			(short) 1001,	"TOMCAT",		false), 
 	BLOC(			(short) 1002,	"BLOC",			false),
