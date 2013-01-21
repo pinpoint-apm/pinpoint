@@ -82,6 +82,12 @@ public class SpanHandler implements Handler {
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : subSpanList) {
                     ServiceType subSpanServiceType = ServiceType.parse(subSpan.getServiceType());
+                    
+					// skip
+					if (subSpanServiceType == ServiceType.INTERNAL_METHOD) {
+						continue;
+					}
+                    
                     // if terminal update statistics
                     if (subSpanServiceType.isRpcClient()) {
                         terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
