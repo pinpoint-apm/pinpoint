@@ -145,7 +145,7 @@
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
-	<li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
+	<li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
 	<li><a href="#Details" data-toggle="tab">Details (for HIPPO developer)</a></li>
 </ul>
 
