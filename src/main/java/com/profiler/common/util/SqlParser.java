@@ -1,14 +1,19 @@
 package com.profiler.common.util;
 
+import java.util.List;
+
 /**
  *
  */
 public class SqlParser {
+
     public static final char SYMBOL_REPLACE = '$';
     public static final char NUMBER_REPLACE = '#';
-    public static final char SEPARATOR = ',';
 
     private static ParsingResult NULL = new ParsingResult("", new StringBuilder());
+
+    public SqlParser() {
+    }
 
     public ParsingResult normalizedSql(String sql) {
         if (sql == null) {
@@ -18,8 +23,8 @@ public class SqlParser {
         ParsingResult parsingResult = new ParsingResult();
         final int length = sql.length();
         final StringBuilder normalized = new StringBuilder(length + 16);
-
         boolean change = false;
+        int replaceIndex = 0;
         boolean numberTokenStartEnable = true;
         for (int i = 0; i < length; i++) {
             final char ch = sql.charAt(i);
@@ -85,7 +90,7 @@ public class SqlParser {
                         change = true;
                         normalized.append('\'');
                         i++;
-                        parsingResult.appendOutputSeparator(SEPARATOR);
+                        parsingResult.appendOutputSeparator();
                         for (; i < length; i++) {
                             char stateCh = sql.charAt(i);
                             if (stateCh == '\'') {
@@ -95,13 +100,14 @@ public class SqlParser {
                                     parsingResult.appendOutputParam("''");
                                     continue;
                                 } else {
+                                    normalized.append(replaceIndex++);
                                     normalized.append(SYMBOL_REPLACE);
                                     normalized.append('\'');
 //                                    outputParam.append(',');
                                     break;
                                 }
                             }
-                            parsingResult.appendOutputParam(stateCh);
+                            parsingResult.appendSeparatorCheckOutputParam(stateCh);
                         }
                         break;
                     }
@@ -120,9 +126,10 @@ public class SqlParser {
                     // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
                     if (numberTokenStartEnable) {
                         change = true;
+                        normalized.append(replaceIndex++);
                         normalized.append(NUMBER_REPLACE);
                         // number token start
-                        parsingResult.appendOutputSeparator(SEPARATOR);
+                        parsingResult.appendOutputSeparator();
                         parsingResult.appendOutputParam(ch);
                         i++;
                         tokenEnd:
@@ -246,5 +253,159 @@ public class SqlParser {
         }
     }
 
+    public String combineOutputParams(String sql, List<String> outputParams) {
+
+        final int length = sql.length();
+        final StringBuilder normalized = new StringBuilder(length + 16);
+        for (int i = 0; i < length; i++) {
+            final char ch = sql.charAt(i);
+            switch (ch) {
+                // COMMENT start check
+                case '/':
+                    // comment state
+                    int lookAhead1Char = lookAhead1(sql, i);
+                    // multi line comment and oracle hint /*+ */
+                    if (lookAhead1Char == '*') {
+                        normalized.append("/*");
+                        i += 2;
+                        for (; i < length; i++) {
+                            char stateCh = sql.charAt(i);
+                            if (stateCh == '*') {
+                                if (lookAhead1(sql, i) == '/') {
+                                    normalized.append("*/");
+                                    i++;
+                                    break;
+                                }
+                            }
+                            normalized.append(stateCh);
+                        }
+                        break;
+                        // single line comment
+                    } else if (lookAhead1Char == '/') {
+                        normalized.append("//");
+                        i += 2;
+                        i = readLine(sql, normalized, i);
+                        break;
+
+                    } else {
+                        // unary operator
+//                        numberTokenStartEnable = true;
+                        normalized.append(ch);
+                        break;
+                    }
+//                case '#'
+//                    mysql 에서는 #도 한줄 짜리 comment이다.
+                case '-':
+                    // single line comment state
+                    if (lookAhead1(sql, i) == '-') {
+                        normalized.append("--");
+                        i += 2;
+                        i = readLine(sql, normalized, i);
+                        break;
+                    } else {
+                        // unary operator
+//                        numberTokenStartEnable = true;
+                        normalized.append(ch);
+                        break;
+                    }
+
+                    // number start check
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
+                    if (lookAhead1(sql, i) == -1) {
+                        normalized.append(ch);
+                        break;
+                    }
+                    StringBuilder outputIndex = new StringBuilder();
+                    outputIndex.append(ch);
+                    // number token start
+                    i++;
+                    tokenEnd:
+                    for (; i < length; i++) {
+                        char stateCh = sql.charAt(i);
+                        switch (stateCh) {
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                if (lookAhead1(sql, i) == -1) {
+                                    outputIndex.append(stateCh);
+                                    normalized.append(outputIndex.toString());
+                                    break tokenEnd;
+                                }
+                                outputIndex.append(stateCh);
+                                break;
+                            case NUMBER_REPLACE:
+                                int numberIndex = 0;
+                                try {
+                                    numberIndex = Integer.parseInt(outputIndex.toString());
+                                } catch (NumberFormatException e) {
+                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    normalized.append(outputIndex.toString());
+                                    normalized.append(NUMBER_REPLACE);
+                                    break tokenEnd;
+                                }
+                                try {
+                                    String replaceNumber = outputParams.get(numberIndex);
+                                    normalized.append(replaceNumber);
+                                } catch (IndexOutOfBoundsException e) {
+                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    normalized.append(outputIndex.toString());
+                                    normalized.append(NUMBER_REPLACE);
+                                    break tokenEnd;
+                                }
+                                break tokenEnd;
+
+                            case SYMBOL_REPLACE:
+                                int symbolIndex = 0;
+                                try {
+                                    symbolIndex = Integer.parseInt(outputIndex.toString());
+                                } catch (NumberFormatException e) {
+                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    normalized.append(outputIndex.toString());
+                                    normalized.append(SYMBOL_REPLACE);
+                                }
+                                try {
+                                    String replaceSymbol = outputParams.get(symbolIndex);
+                                    normalized.append(replaceSymbol);
+                                } catch (IndexOutOfBoundsException e) {
+                                    normalized.append(outputIndex.toString());
+                                    normalized.append(SYMBOL_REPLACE);
+                                }
+                                break tokenEnd;
+
+                            default:
+                                // 여기서 처리하지 말고 루프 바깥으로 나가서 다시 token을 봐야 된다.
+//                                    outputParam.append(SEPARATOR);
+                                normalized.append(outputIndex.toString());
+                                i--;
+                                break tokenEnd;
+                        }
+                    }
+                    break;
+
+                default:
+                    normalized.append(ch);
+                    break;
+            }
+        }
+
+        return normalized.toString();
+    }
 
 }

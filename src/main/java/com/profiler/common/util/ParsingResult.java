@@ -1,13 +1,18 @@
 package com.profiler.common.util;
 
+import java.io.StringWriter;
+
 /**
  *
  */
 public class ParsingResult {
+    public static final char SEPARATOR = ',';
     private String sql;
     private StringBuilder output;
 
+
     public ParsingResult() {
+
     }
 
     public ParsingResult(String sql, StringBuilder output) {
@@ -32,19 +37,25 @@ public class ParsingResult {
 
     /**
      * 최초 한번은 불려야 된다 안불리고 appendOutputParam을 호출하면 nullpointer exception
-     *
-     * @param separator
      */
-    void appendOutputSeparator(char separator) {
+    void appendOutputSeparator() {
         if (output == null) {
             this.output = new StringBuilder();
         } else {
-            this.output.append(separator);
+            this.output.append(SEPARATOR);
         }
     }
 
     void appendOutputParam(String str) {
         this.output.append(str);
+    }
+
+    void appendSeparatorCheckOutputParam(char ch) {
+        if (ch == ',') {
+            this.output.append(",,");
+        } else {
+            this.output.append(ch);
+        }
     }
 
     void appendOutputParam(char ch) {
