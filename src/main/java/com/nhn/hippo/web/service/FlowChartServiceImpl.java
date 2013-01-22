@@ -164,6 +164,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 				continue;
 
 			for (SubSpanBo subTransaction : subSpanList) {
+				// skip internal method
+				if (subTransaction.getServiceType() == ServiceType.INTERNAL_METHOD) {
+					continue;
+				}
+				
 				// remove subspan of the rpc client
 				if (!endPoints.contains(subTransaction.getEndPoint())) {
 					// this is unknown cloud
