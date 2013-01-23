@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.hippo.testweb.domain.Member;
+import com.nhn.hippo.testweb.service.DummyService;
 import com.nhn.hippo.testweb.service.MemberService;
 import com.nhn.hippo.testweb.util.HttpConnectorOptions;
 import com.nhn.hippo.testweb.util.HttpInvoker;
@@ -38,12 +39,18 @@ public class HelloWorldController implements DisposableBean {
 	@Autowired
 	private MemberService service;
 
+	@Autowired
+	private DummyService dummyService;
+
+	@RequestMapping(value = "/dummy")
+	public String dummy(Model model) {
+		dummyService.doSomething();
+		return "donothing";
+	}
+
 	@RequestMapping(value = "/encoding")
 	public String encoding(Model model, @RequestParam("name") String name) {
 		System.out.println("name=" + name);
-
-		new RuntimeException().printStackTrace();
-
 		return "donothing";
 	}
 
