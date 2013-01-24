@@ -217,7 +217,7 @@
                         	<c:forEach begin="0" end="${record.tab}">&nbsp;</c:forEach>
                         </c:if>
                         <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
-                        ${record.title}
+                        ${record.tab} | ${record.title}
                     </td>
                     
                     <td class="arguments">${record.arguments}</td>
