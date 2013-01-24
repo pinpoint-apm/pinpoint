@@ -11,6 +11,7 @@ import java.util.List;
 /**
  *
  */
+@Deprecated
 public class SpanPopulator {
     private List<SpanAlign> list;
     private int index = 0;
@@ -43,7 +44,7 @@ public class SpanPopulator {
             long nextSpanStartTime = getNextSpanStartTime();
             if (subStartTime <= nextSpanStartTime) {
                 SpanAlign subSpanAlign = new SpanAlign(spanAlign.getDepth(), span, subSpanBo);
-                subSpanAlign.setRoot(false);
+                subSpanAlign.setSpan(false);
                 populatedList.add(subSpanAlign);
             } else {
                 if (nextSpanStartTime == Long.MAX_VALUE) {

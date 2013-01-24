@@ -78,7 +78,7 @@ public class RecordSet {
         boolean marked = false;
 
         for (SpanAlign sa : spanAligns) {
-            if (sa.isRoot()) {
+            if (sa.isSpan()) {
                 SpanBo span = sa.getSpan();
                 AnnotationUtils.sortAnnotationListByKey(span);
                 String method = (String) AnnotationUtils.getDisplayMethod(span);

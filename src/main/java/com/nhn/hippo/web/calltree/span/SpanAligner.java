@@ -16,6 +16,7 @@ import com.profiler.common.bo.SpanBo;
 /**
  *
  */
+@Deprecated
 public class SpanAligner {
 
     public static final Long SPAN_ROOT = -1L;

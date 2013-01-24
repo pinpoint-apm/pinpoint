@@ -7,47 +7,61 @@ import com.profiler.common.bo.SubSpanBo;
  *
  */
 public class SpanAlign {
-    private int depth;
-    private SpanBo span;
-    private SubSpanBo subSpanBo;
-    private boolean root = true;
+	private int depth;
+	private SpanBo spanBo;
+	private SubSpanBo subSpanBo;
+	private boolean span = true;
 
-    public SpanAlign(int depth, SpanBo span) {
-        this.depth = depth;
-        this.span = span;
-    }
+	public SpanAlign(int depth, SpanBo spanBo) {
+		this.depth = depth;
+		this.spanBo = spanBo;
+		this.span = true;
+	}
 
-    public SpanAlign(int depth, SpanBo root, SubSpanBo subSpanBo) {
-        this.depth = depth;
-        this.span = root;
-        this.subSpanBo = subSpanBo;
-    }
+	public SpanAlign(int depth, SpanBo spanBo, SubSpanBo subSpanBo) {
+		this.depth = depth;
+		this.spanBo = spanBo;
+		this.subSpanBo = subSpanBo;
+		this.span = false;
+	}
 
-    public void setRoot(boolean root) {
-        this.root = root;
-    }
+	public void setSpan(boolean span) {
+		this.span = span;
+	}
 
-    public boolean isRoot() {
-        return root;
-    }
+	public boolean isSpan() {
+		return span;
+	}
 
-    public int getDepth() {
-        return depth;
-    }
+	public int getDepth() {
+		return depth;
+	}
 
-//    public String getDepthSpace() {
-//        StringBuilder sb = new StringBuilder(depth);
-//        for (int i = 0; i < depth; i++) {
-//            sb.append(' ');
-//        }
-//        return sb.toString();
-//    }
+	public SpanBo getSpan() {
+		return spanBo;
+	}
 
-    public SpanBo getSpan() {
-        return span;
-    }
+	public SubSpanBo getSubSpanBo() {
+		return subSpanBo;
+	}
 
-    public SubSpanBo getSubSpanBo() {
-        return subSpanBo;
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("SpanAlign={");
+		sb.append("depth=").append(depth);
+
+		if (subSpanBo != null) {
+			sb.append(", orgDepth").append(subSpanBo.getDepth());
+			sb.append(", subSpabBo=").append(subSpanBo.getServiceName());
+		} else {
+			sb.append(", spabBo=").append(spanBo.getServiceName());
+		}
+
+		sb.append("}\n");
+
+		return sb.toString();
+	}
+
 }
