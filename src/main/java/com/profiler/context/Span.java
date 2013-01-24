@@ -25,7 +25,6 @@ public class Span implements Thriftable {
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
     private List<SubSpan> subSpanList;
-
     
     public Span(TraceID traceId) {
         this.traceID = traceId;

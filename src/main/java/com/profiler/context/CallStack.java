@@ -38,18 +38,18 @@ public class CallStack {
         return null;
     }
 
-
     public synchronized void setStackFrame(StackFrame stackFrame) {
         stack[index] = stackFrame;
     }
 
-    public synchronized void push() {
+    public synchronized int push() {
         index++;
         if (index > stack.length - 1) {
             StackFrame[] old = stack;
-            stack = new RootStackFrame[index + 4];
+            stack = new StackFrame[index + 4];
             System.arraycopy(old, 0, stack, 0, old.length);
         }
+        return index;
     }
 
     public synchronized int getStackFrameIndex() {
@@ -86,4 +86,8 @@ public class CallStack {
         System.arraycopy(currentStack, 0, copy, 0, currentIndex);
         return copy;
     }
+
+	public synchronized int index() {
+		return index;
+	}
 }

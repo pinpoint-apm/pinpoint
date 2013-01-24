@@ -47,7 +47,8 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
-		TraceID nextId = trace.getTraceId();
+		TraceID nextId = trace.getTraceId().getNextTraceId();
+		trace.recordNextSpanId(nextId.getSpanId());
 
 		final HttpUriRequest request = (HttpUriRequest) args[0];
 
@@ -63,7 +64,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
 
 		int port = host.getPort();
-		trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));
+		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() + ((port > 0) ? ":" + port : ""));
 		trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestLine().getUri());
 	}
 

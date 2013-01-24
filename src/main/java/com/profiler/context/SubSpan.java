@@ -1,10 +1,10 @@
 package com.profiler.context;
 
-import com.profiler.Agent;
-import com.profiler.common.ServiceType;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.profiler.Agent;
+import com.profiler.common.ServiceType;
 
 /**
  * Span represent RPC
@@ -27,6 +27,9 @@ public class SubSpan implements Thriftable {
     
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
+    private Long nextSpanId = null;
+    private Integer depth = null;
+    
     public SubSpan(Span parentSpan) {
         this.parentSpan = parentSpan;
     }
@@ -110,13 +113,31 @@ public class SubSpan implements Thriftable {
 	public void setException(boolean exception) {
 		this.exception = exception;
 	}
+	
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public long getNextSpanId() {
+		return nextSpanId;
+	}
+
+	public void setNextSpanId(long nextSpanId) {
+		this.nextSpanId = nextSpanId;
+	}
 
 	public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("{");
+        sb.append("\n\t Depth = ").append(depth);
+        sb.append("\n\t NextSpanid=").append(nextSpanId);
         sb.append("\n\t ParentTraceID=").append(parentSpan.getTraceID());
-        sb.append("\n\t sequence=").append(sequence);
+        sb.append("\n\t Sequence=").append(sequence);
         sb.append(",\n\t StartTime=").append(startTime);
         sb.append(", EndTime=").append(endTime);
         sb.append(",\n\t Name=").append(rpc);
@@ -174,6 +195,14 @@ public class SubSpan implements Thriftable {
         }
         subSpan.setAnnotations(annotationList);
 
+		if (depth != null) {
+			subSpan.setDepth(depth);
+		}
+
+		if (nextSpanId != null) {
+			subSpan.setNextSpanId(nextSpanId);
+		}
+        
         return subSpan;
     }
 }

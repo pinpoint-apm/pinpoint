@@ -31,6 +31,7 @@ import com.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
+import com.profiler.modifier.dummy.DummyModifier;
 import com.profiler.modifier.servlet.FilterModifier;
 import com.profiler.modifier.servlet.HttpServletModifier;
 import com.profiler.modifier.servlet.SpringFrameworkServletModifier;
@@ -64,6 +65,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		if (old != null) {
 			throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
 		}
+	}
+	
+	public void addDummyModifier() {
+		DummyModifier modifier = new DummyModifier(byteCodeInstrumentor, agent);
+		addModifier(modifier);
 	}
 
 	public void addConnectorModifier() {

@@ -51,8 +51,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        TraceID nextId = trace.getTraceId();
-        nextId.getNextTraceId();
+        TraceID nextId = trace.getTraceId().getNextTraceId();
+        trace.recordNextSpanId(nextId.getSpanId());
+        
         final HttpHost host = (HttpHost) args[0];
         final HttpRequest request = (HttpRequest) args[1];
         // UUID format을 그대로.
@@ -65,7 +66,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
 		
 		int port = host.getPort();
-		trace.recordEndPoint(host.getHostName() +  ((port > 0) ? ":" + port : ""));
+		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() +  ((port > 0) ? ":" + port : ""));
 		trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestLine().getUri());
     }
 

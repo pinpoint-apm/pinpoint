@@ -37,7 +37,13 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 			return;
 		}
 
-		trace.traceBlockBegin();
+		try {
+			trace.traceBlockBegin();
+		} catch (Exception e) {
+			System.out.println("@@@@@@@@@@@@" + e.getMessage());
+			throw new RuntimeException(e);
+		}
+		
 		trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
 		trace.markBeforeTime();
 	}
@@ -52,11 +58,9 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 		if (trace == null) {
 			return;
 		}
-
+        
 		trace.recordApi(descriptor);
-		// trace.recordApi(this.apiId);
 		trace.recordException(result);
-
 		trace.markAfterTime();
 		trace.traceBlockEnd();
 	}

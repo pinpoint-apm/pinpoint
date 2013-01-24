@@ -81,7 +81,9 @@ public class TomcatProfiler implements ClassFileTransformer {
 
 	private ModifierRegistry createModifierRegistry() {
 		DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(byteCodeInstrumentor, agent, profilerConfig);
-
+		
+		modifierRepository.addDummyModifier();
+		
 		modifierRepository.addTomcatModifier();
 
 		// jdbc
