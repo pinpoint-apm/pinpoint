@@ -43,6 +43,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)11);
   private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.BOOL, (short)12);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)13);
+  private static final org.apache.thrift.protocol.TField DEPTH_FIELD_DESC = new org.apache.thrift.protocol.TField("depth", org.apache.thrift.protocol.TType.I32, (short)14);
+  private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I64, (short)15);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -57,12 +59,14 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private short sequence; // required
   private int startElapsed; // required
   private int endElapsed; // required
-  private String rpc; // required
-  private String serviceName; // required
-  private short serviceType; // required
-  private String endPoint; // required
+  private String rpc; // optional
+  private String serviceName; // optional
+  private short serviceType; // optional
+  private String endPoint; // optional
   private boolean err; // required
   private List<Annotation> annotations; // required
+  private int depth; // optional
+  private long nextSpanId; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -78,7 +82,9 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     SERVICE_TYPE((short)10, "serviceType"),
     END_POINT((short)11, "endPoint"),
     ERR((short)12, "err"),
-    ANNOTATIONS((short)13, "annotations");
+    ANNOTATIONS((short)13, "annotations"),
+    DEPTH((short)14, "depth"),
+    NEXT_SPAN_ID((short)15, "nextSpanId");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -119,6 +125,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           return ERR;
         case 13: // ANNOTATIONS
           return ANNOTATIONS;
+        case 14: // DEPTH
+          return DEPTH;
+        case 15: // NEXT_SPAN_ID
+          return NEXT_SPAN_ID;
         default:
           return null;
       }
@@ -167,8 +177,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final int __ENDELAPSED_ISSET_ID = 5;
   private static final int __SERVICETYPE_ISSET_ID = 6;
   private static final int __ERR_ISSET_ID = 7;
-  private BitSet __isset_bit_vector = new BitSet(8);
-  private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.MOST_TRACE_ID,_Fields.LEAST_TRACE_ID,_Fields.SPAN_ID};
+  private static final int __DEPTH_ISSET_ID = 8;
+  private static final int __NEXTSPANID_ISSET_ID = 9;
+  private BitSet __isset_bit_vector = new BitSet(10);
+  private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.MOST_TRACE_ID,_Fields.LEAST_TRACE_ID,_Fields.SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.SERVICE_TYPE,_Fields.END_POINT,_Fields.DEPTH,_Fields.NEXT_SPAN_ID};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -186,19 +198,23 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.END_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("endElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
+    tmpMap.put(_Fields.DEPTH, new org.apache.thrift.meta_data.FieldMetaData("depth", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpan.class, metaDataMap);
   }
@@ -210,10 +226,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     short sequence,
     int startElapsed,
     int endElapsed,
-    String rpc,
-    String serviceName,
-    short serviceType,
-    String endPoint,
     boolean err,
     List<Annotation> annotations)
   {
@@ -224,11 +236,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     setStartElapsedIsSet(true);
     this.endElapsed = endElapsed;
     setEndElapsedIsSet(true);
-    this.rpc = rpc;
-    this.serviceName = serviceName;
-    this.serviceType = serviceType;
-    setServiceTypeIsSet(true);
-    this.endPoint = endPoint;
     this.err = err;
     setErrIsSet(true);
     this.annotations = annotations;
@@ -267,6 +274,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       this.annotations = __this__annotations;
     }
+    this.depth = other.depth;
+    this.nextSpanId = other.nextSpanId;
   }
 
   public SubSpan deepCopy() {
@@ -296,6 +305,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     setErrIsSet(false);
     this.err = false;
     this.annotations = null;
+    setDepthIsSet(false);
+    this.depth = 0;
+    setNextSpanIdIsSet(false);
+    this.nextSpanId = 0;
   }
 
   public String getAgentId() {
@@ -604,6 +617,50 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
   }
 
+  public int getDepth() {
+    return this.depth;
+  }
+
+  public void setDepth(int depth) {
+    this.depth = depth;
+    setDepthIsSet(true);
+  }
+
+  public void unsetDepth() {
+    __isset_bit_vector.clear(__DEPTH_ISSET_ID);
+  }
+
+  /** Returns true if field depth is set (has been assigned a value) and false otherwise */
+  public boolean isSetDepth() {
+    return __isset_bit_vector.get(__DEPTH_ISSET_ID);
+  }
+
+  public void setDepthIsSet(boolean value) {
+    __isset_bit_vector.set(__DEPTH_ISSET_ID, value);
+  }
+
+  public long getNextSpanId() {
+    return this.nextSpanId;
+  }
+
+  public void setNextSpanId(long nextSpanId) {
+    this.nextSpanId = nextSpanId;
+    setNextSpanIdIsSet(true);
+  }
+
+  public void unsetNextSpanId() {
+    __isset_bit_vector.clear(__NEXTSPANID_ISSET_ID);
+  }
+
+  /** Returns true if field nextSpanId is set (has been assigned a value) and false otherwise */
+  public boolean isSetNextSpanId() {
+    return __isset_bit_vector.get(__NEXTSPANID_ISSET_ID);
+  }
+
+  public void setNextSpanIdIsSet(boolean value) {
+    __isset_bit_vector.set(__NEXTSPANID_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -710,6 +767,22 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       break;
 
+    case DEPTH:
+      if (value == null) {
+        unsetDepth();
+      } else {
+        setDepth((Integer)value);
+      }
+      break;
+
+    case NEXT_SPAN_ID:
+      if (value == null) {
+        unsetNextSpanId();
+      } else {
+        setNextSpanId((Long)value);
+      }
+      break;
+
     }
   }
 
@@ -754,6 +827,12 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     case ANNOTATIONS:
       return getAnnotations();
 
+    case DEPTH:
+      return Integer.valueOf(getDepth());
+
+    case NEXT_SPAN_ID:
+      return Long.valueOf(getNextSpanId());
+
     }
     throw new IllegalStateException();
   }
@@ -791,6 +870,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       return isSetErr();
     case ANNOTATIONS:
       return isSetAnnotations();
+    case DEPTH:
+      return isSetDepth();
+    case NEXT_SPAN_ID:
+      return isSetNextSpanId();
     }
     throw new IllegalStateException();
   }
@@ -889,8 +972,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         return false;
     }
 
-    boolean this_present_serviceType = true;
-    boolean that_present_serviceType = true;
+    boolean this_present_serviceType = true && this.isSetServiceType();
+    boolean that_present_serviceType = true && that.isSetServiceType();
     if (this_present_serviceType || that_present_serviceType) {
       if (!(this_present_serviceType && that_present_serviceType))
         return false;
@@ -922,6 +1005,24 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (!(this_present_annotations && that_present_annotations))
         return false;
       if (!this.annotations.equals(that.annotations))
+        return false;
+    }
+
+    boolean this_present_depth = true && this.isSetDepth();
+    boolean that_present_depth = true && that.isSetDepth();
+    if (this_present_depth || that_present_depth) {
+      if (!(this_present_depth && that_present_depth))
+        return false;
+      if (this.depth != that.depth)
+        return false;
+    }
+
+    boolean this_present_nextSpanId = true && this.isSetNextSpanId();
+    boolean that_present_nextSpanId = true && that.isSetNextSpanId();
+    if (this_present_nextSpanId || that_present_nextSpanId) {
+      if (!(this_present_nextSpanId && that_present_nextSpanId))
+        return false;
+      if (this.nextSpanId != that.nextSpanId)
         return false;
     }
 
@@ -1071,6 +1172,26 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetDepth()).compareTo(typedOther.isSetDepth());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDepth()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.depth, typedOther.depth);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetNextSpanId()).compareTo(typedOther.isSetNextSpanId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetNextSpanId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.nextSpanId, typedOther.nextSpanId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1130,34 +1251,42 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     sb.append("endElapsed:");
     sb.append(this.endElapsed);
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("rpc:");
-    if (this.rpc == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.rpc);
+    if (isSetRpc()) {
+      if (!first) sb.append(", ");
+      sb.append("rpc:");
+      if (this.rpc == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.rpc);
+      }
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("serviceName:");
-    if (this.serviceName == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.serviceName);
+    if (isSetServiceName()) {
+      if (!first) sb.append(", ");
+      sb.append("serviceName:");
+      if (this.serviceName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.serviceName);
+      }
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("serviceType:");
-    sb.append(this.serviceType);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("endPoint:");
-    if (this.endPoint == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.endPoint);
+    if (isSetServiceType()) {
+      if (!first) sb.append(", ");
+      sb.append("serviceType:");
+      sb.append(this.serviceType);
+      first = false;
     }
-    first = false;
+    if (isSetEndPoint()) {
+      if (!first) sb.append(", ");
+      sb.append("endPoint:");
+      if (this.endPoint == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.endPoint);
+      }
+      first = false;
+    }
     if (!first) sb.append(", ");
     sb.append("err:");
     sb.append(this.err);
@@ -1170,6 +1299,18 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       sb.append(this.annotations);
     }
     first = false;
+    if (isSetDepth()) {
+      if (!first) sb.append(", ");
+      sb.append("depth:");
+      sb.append(this.depth);
+      first = false;
+    }
+    if (isSetNextSpanId()) {
+      if (!first) sb.append(", ");
+      sb.append("nextSpanId:");
+      sb.append(this.nextSpanId);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -1329,6 +1470,22 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 14: // DEPTH
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.depth = iprot.readI32();
+              struct.setDepthIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 15: // NEXT_SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.nextSpanId = iprot.readI64();
+              struct.setNextSpanIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1374,22 +1531,30 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       oprot.writeI32(struct.endElapsed);
       oprot.writeFieldEnd();
       if (struct.rpc != null) {
-        oprot.writeFieldBegin(RPC_FIELD_DESC);
-        oprot.writeString(struct.rpc);
-        oprot.writeFieldEnd();
+        if (struct.isSetRpc()) {
+          oprot.writeFieldBegin(RPC_FIELD_DESC);
+          oprot.writeString(struct.rpc);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.serviceName != null) {
-        oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
-        oprot.writeString(struct.serviceName);
+        if (struct.isSetServiceName()) {
+          oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
+          oprot.writeString(struct.serviceName);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.isSetServiceType()) {
+        oprot.writeFieldBegin(SERVICE_TYPE_FIELD_DESC);
+        oprot.writeI16(struct.serviceType);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(SERVICE_TYPE_FIELD_DESC);
-      oprot.writeI16(struct.serviceType);
-      oprot.writeFieldEnd();
       if (struct.endPoint != null) {
-        oprot.writeFieldBegin(END_POINT_FIELD_DESC);
-        oprot.writeString(struct.endPoint);
-        oprot.writeFieldEnd();
+        if (struct.isSetEndPoint()) {
+          oprot.writeFieldBegin(END_POINT_FIELD_DESC);
+          oprot.writeString(struct.endPoint);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldBegin(ERR_FIELD_DESC);
       oprot.writeBool(struct.err);
@@ -1404,6 +1569,16 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           }
           oprot.writeListEnd();
         }
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetDepth()) {
+        oprot.writeFieldBegin(DEPTH_FIELD_DESC);
+        oprot.writeI32(struct.depth);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetNextSpanId()) {
+        oprot.writeFieldBegin(NEXT_SPAN_ID_FIELD_DESC);
+        oprot.writeI64(struct.nextSpanId);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -1463,7 +1638,13 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (struct.isSetAnnotations()) {
         optionals.set(12);
       }
-      oprot.writeBitSet(optionals, 13);
+      if (struct.isSetDepth()) {
+        optionals.set(13);
+      }
+      if (struct.isSetNextSpanId()) {
+        optionals.set(14);
+      }
+      oprot.writeBitSet(optionals, 15);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1509,12 +1690,18 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           }
         }
       }
+      if (struct.isSetDepth()) {
+        oprot.writeI32(struct.depth);
+      }
+      if (struct.isSetNextSpanId()) {
+        oprot.writeI64(struct.nextSpanId);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, SubSpan struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(13);
+      BitSet incoming = iprot.readBitSet(15);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -1576,6 +1763,14 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           }
         }
         struct.setAnnotationsIsSet(true);
+      }
+      if (incoming.get(13)) {
+        struct.depth = iprot.readI32();
+        struct.setDepthIsSet(true);
+      }
+      if (incoming.get(14)) {
+        struct.nextSpanId = iprot.readI64();
+        struct.setNextSpanIdIsSet(true);
       }
     }
   }

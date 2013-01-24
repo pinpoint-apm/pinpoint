@@ -4,7 +4,9 @@ public enum ServiceType {
 	
 	UNKNOWN(		(short) 0,		"UNKNOWN",		false),
 	UNKNOWN_CLOUD(	(short) 1,		"UNKNOWN_CLOUD",false),
-	INTERNAL_METHOD((short) 2,		"INTERNAL_METHOD", false),
+	
+	// TODO internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
+	INTERNAL_METHOD((short) 2,		"INTERNAL_METHOD", false), 
 	
 	TOMCAT(			(short) 1001,	"TOMCAT",		false), 
 	BLOC(			(short) 1002,	"BLOC",			false),
@@ -49,6 +51,10 @@ public enum ServiceType {
 		return UNKNOWN;
 	}
 
+	public boolean isInternalMethod() {
+		return code == 2;
+	}
+	
 	public boolean isRpcClient() {
 		return code >= 9000 && code < 10000;
 	}

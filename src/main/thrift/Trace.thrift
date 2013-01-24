@@ -37,6 +37,9 @@ struct SubSpan {
   12: bool err
 
   13: list<Annotation> annotations
+  
+  14: optional i32 depth
+  15: optional i64 nextSpanId
 }
 
 struct Span {
@@ -62,7 +65,6 @@ struct Span {
   14: bool err
 
   15: optional list<SubSpan> subSpanList
-  16: optional list<MethodInfo> methodList
 }
 
 struct SubSpanList {
@@ -74,7 +76,6 @@ struct SubSpanList {
   4: i64 spanId
 
   5: list<SubSpan> subSpanList
-  6: optional list<MethodInfo> methodList
 }
 
 struct SqlMetaData {

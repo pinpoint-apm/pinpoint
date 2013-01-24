@@ -34,7 +34,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)6);
+  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -54,7 +54,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     MOST_TRACE_ID((short)2, "mostTraceId"),
     LEAST_TRACE_ID((short)3, "leastTraceId"),
     SPAN_ID((short)4, "spanId"),
-    SUB_SPAN_LIST((short)6, "subSpanList");
+    SUB_SPAN_LIST((short)5, "subSpanList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,7 +77,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
           return LEAST_TRACE_ID;
         case 4: // SPAN_ID
           return SPAN_ID;
-        case 6: // SUB_SPAN_LIST
+        case 5: // SUB_SPAN_LIST
           return SUB_SPAN_LIST;
         default:
           return null;
@@ -660,7 +660,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // SUB_SPAN_LIST
+          case 5: // SUB_SPAN_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();

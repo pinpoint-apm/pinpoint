@@ -43,6 +43,9 @@ public class SubSpanBo implements Span {
 	private List<AnnotationBo> annotationBoList;
 
 	private boolean exception = false;
+	
+	private int depth = -1;
+	private long nextSpanId = -1;
 
 	public SubSpanBo() {
 	}
@@ -67,6 +70,14 @@ public class SubSpanBo implements Span {
 		
         this.exception = tSubSpan.isErr();
 		
+		if (tSubSpan.isSetDepth()) {
+			this.depth = tSubSpan.getDepth();
+		}
+        
+		if (tSubSpan.isSetNextSpanId()) {
+			this.nextSpanId = tSubSpan.getNextSpanId();
+		}
+        
 		setAnnotationBoList(tSubSpan.getAnnotations());
 	}
 
@@ -87,6 +98,15 @@ public class SubSpanBo implements Span {
 		this.serviceType = ServiceType.parse(subSpan.getServiceType());
 
 		this.endPoint = subSpan.getEndPoint();
+		
+		if (subSpan.isSetDepth()) {
+			this.depth = subSpan.getDepth();
+		}
+
+		if (subSpan.isSetNextSpanId()) {
+			this.nextSpanId = subSpan.getNextSpanId();
+		}
+		
 		setAnnotationBoList(subSpan.getAnnotations());
 	}
 
@@ -107,6 +127,15 @@ public class SubSpanBo implements Span {
 		this.serviceType = ServiceType.parse(subSpan.getServiceType());
 
 		this.endPoint = subSpan.getEndPoint();
+		
+		if (subSpan.isSetDepth()) {
+			this.depth = subSpan.getDepth();
+		}
+
+		if (subSpan.isSetNextSpanId()) {
+			this.nextSpanId = subSpan.getNextSpanId();
+		}
+		
 		setAnnotationBoList(subSpan.getAnnotations());
 	}
 
@@ -218,6 +247,22 @@ public class SubSpanBo implements Span {
 		this.exception = exception;
 	}
 
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public long getNextSpanId() {
+		return nextSpanId;
+	}
+
+	public void setNextSpanId(long nextSpanId) {
+		this.nextSpanId = nextSpanId;
+	}
+
 	private void setAnnotationBoList(List<Annotation> annotations) {
 		List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
 		for (Annotation ano : annotations) {
@@ -233,8 +278,8 @@ public class SubSpanBo implements Span {
 		// PARENTSPANID + FLAG + TERMINAL;
 		size += SERVICETYPE;
 
-		// startTime 4, elapsed 4
-		size += 8;
+		// startTime 4, elapsed 4, depth 4, nextSpanId 8
+		size += 20;
 		return size;
 	}
 
@@ -267,6 +312,9 @@ public class SubSpanBo implements Span {
 		buffer.put1PrefixedBytes(endPointBytes);
 
 		buffer.put(exception);
+		
+		buffer.put(depth);
+		buffer.put(nextSpanId);
 		
 		writeAnnotation(buffer);
 
@@ -312,6 +360,9 @@ public class SubSpanBo implements Span {
 
 		this.exception = buffer.readBoolean();
 		
+		this.depth = buffer.readInt();
+		this.nextSpanId = buffer.readLong();
+		
 		this.annotationBoList = readAnnotation(buffer);
 		return buffer.getOffset();
 	}
@@ -329,6 +380,25 @@ public class SubSpanBo implements Span {
 
 	@Override
 	public String toString() {
-		return "SubSpanBo{" + "agentId='" + agentId + '\'' + ", startElapsed=" + startElapsed + ", endElapsed=" + endElapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", sequence=" + sequence + ", endPoint='" + endPoint + ", serviceType=" + serviceType + "}";
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(this.getClass().getName()).append("={");
+		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId);
+		sb.append("\n\tmostTraceId=").append(mostTraceId).append(", leastTraceId=").append(leastTraceId);
+		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
+		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
+		sb.append("\n\trpc=").append(rpc).append(", serviceName=").append(serviceName).append(", endPoint=").append(endPoint);
+		sb.append("\n\texception=").append(exception);
+		sb.append("\n\tdepth=").append(depth);
+		sb.append("\n\tnextSpanId=").append(nextSpanId);
+		sb.append("\n\tannotations={");
+		for (AnnotationBo a : annotationBoList) {
+			sb.append("\n\t\tkey=").append(a.getKey());
+			sb.append(", value=").append(a.getValue());
+		}
+		sb.append("\n\t}");
+		sb.append("}");
+
+		return sb.toString();
 	}
 }
