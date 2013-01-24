@@ -37,13 +37,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 			return;
 		}
 
-		try {
-			trace.traceBlockBegin();
-		} catch (Exception e) {
-			System.out.println("@@@@@@@@@@@@" + e.getMessage());
-			throw new RuntimeException(e);
-		}
-		
+		trace.traceBlockBegin();
 		trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
 		trace.markBeforeTime();
 	}
