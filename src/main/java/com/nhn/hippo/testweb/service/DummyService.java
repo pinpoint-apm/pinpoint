@@ -1,6 +1,11 @@
 package com.nhn.hippo.testweb.service;
 
+import java.util.HashMap;
+
 import org.springframework.stereotype.Service;
+
+import com.nhn.hippo.testweb.util.HttpConnectorOptions;
+import com.nhn.hippo.testweb.util.HttpInvoker;
 
 @Service
 public class DummyService {
@@ -54,5 +59,7 @@ public class DummyService {
 
 	private void ca() {
 		System.out.println("ca");
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://localhost:8080/mysqlsimple.hippo", new HashMap<String, Object>());
 	}
 }
