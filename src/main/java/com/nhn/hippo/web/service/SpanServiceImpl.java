@@ -60,7 +60,7 @@ public class SpanServiceImpl implements SpanService {
 		for (SpanAlign spanAlign : spans) {
 			List<AnnotationBo> annotationBoList;
 			if (spanAlign.isSpan()) {
-				annotationBoList = spanAlign.getSpan().getAnnotationBoList();
+				annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
 				annotationReplacementCallback.replacement(spanAlign, annotationBoList);
 			} else {
 				annotationBoList = spanAlign.getSubSpanBo().getAnnotationBoList();
@@ -79,7 +79,7 @@ public class SpanServiceImpl implements SpanService {
 				}
 
 				String agentId = getAgentId(spanAlign);
-				long startTime = spanAlign.getSpan().getStartTime();
+				long startTime = spanAlign.getSpanBo().getStartTime();
 				long agentStartTime = agentInfoDao.selectAgentInfoBeforeStartTime(agentId, startTime);
 				logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
 
@@ -145,7 +145,7 @@ public class SpanServiceImpl implements SpanService {
 
 	private String getAgentId(SpanAlign spanAlign) {
 		if (spanAlign.isSpan()) {
-			return spanAlign.getSpan().getAgentId();
+			return spanAlign.getSpanBo().getAgentId();
 		} else {
 			return spanAlign.getSubSpanBo().getAgentId();
 		}

@@ -35,7 +35,7 @@ public class SpanPopulator {
 
     private void populatedSpan(List<SpanAlign> populatedList) {
         SpanAlign spanAlign = list.get(index);
-        SpanBo span = spanAlign.getSpan();
+        SpanBo span = spanAlign.getSpanBo();
         populatedList.add(spanAlign);
         long startTime = span.getStartTime();
         List<SubSpanBo> subSpanBos = sortSubSpan(span);
@@ -62,7 +62,7 @@ public class SpanPopulator {
         if (nextIndex >= list.size()) {
             return Long.MAX_VALUE;
         }
-        return list.get(nextIndex).getSpan().getStartTime();
+        return list.get(nextIndex).getSpanBo().getStartTime();
     }
 
     private List<SubSpanBo> sortSubSpan(SpanBo span) {

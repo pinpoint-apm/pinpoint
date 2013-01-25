@@ -37,7 +37,7 @@ public class SpanAlign {
 		return depth;
 	}
 
-	public SpanBo getSpan() {
+	public SpanBo getSpanBo() {
 		return spanBo;
 	}
 

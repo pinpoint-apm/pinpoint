@@ -79,7 +79,7 @@ public class RecordSet {
 
         for (SpanAlign sa : spanAligns) {
             if (sa.isSpan()) {
-                SpanBo span = sa.getSpan();
+                SpanBo span = sa.getSpanBo();
                 AnnotationUtils.sortAnnotationListByKey(span);
                 String method = (String) AnnotationUtils.getDisplayMethod(span);
                 String arguments = (String) AnnotationUtils.getDisplayArgument(span);
@@ -103,7 +103,7 @@ public class RecordSet {
                 String method = (String) AnnotationUtils.getDisplayMethod(subSpan);
                 Object arguments = AnnotationUtils.getDisplayArgument(subSpan);
 
-                long begin = sa.getSpan().getStartTime() + subSpan.getStartElapsed();
+                long begin = sa.getSpanBo().getStartTime() + subSpan.getStartElapsed();
                 long elapsed = subSpan.getEndElapsed();
 
                 if (!marked) {

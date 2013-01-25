@@ -287,8 +287,8 @@
            <tbody>
 
            <c:forEach items="${spanList}" var="span" varStatus="status">
-               <c:if test="${span.root}">
-                   <c:set var="sp" scope="page" value="${span.span}"/>
+               <c:if test="${span.span}">
+                   <c:set var="sp" scope="page" value="${span.spanBo}"/>
                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
                        <tr>
                            <td>${span.depth}</td>
@@ -304,7 +304,7 @@
                        <td colspan="7">&nbsp;</td>
                    </tr>
                </c:if>
-               <c:if test="${!span.root}">
+               <c:if test="${!span.span}">
                    <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
                        <tr>

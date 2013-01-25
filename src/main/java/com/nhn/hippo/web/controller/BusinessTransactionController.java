@@ -37,34 +37,39 @@ public class BusinessTransactionController {
 	public ModelAndView flow(@RequestParam(value = "traceId") String traceId) {
 		logger.debug("traceId:{}", traceId);
 
-		// select spans
-		List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
-
 		ModelAndView mv = new ModelAndView("selectTransaction");
 
-		if (spanAligns.isEmpty()) {
-			mv.addObject("errorCode", 9);
-			mv.setViewName("error");
-			return mv;
+		try {
+			// select spans
+			List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
+
+			if (spanAligns.isEmpty()) {
+				mv.addObject("errorCode", 9);
+				mv.setViewName("error");
+				return mv;
+			}
+
+			// debug
+			mv.addObject("spanList", spanAligns);
+
+			mv.addObject("traceId", traceId);
+
+			// call tree
+			ServerCallTree callTree = flow.selectServerCallTree(new TraceId(UUID.fromString(traceId)));
+			mv.addObject("nodes", callTree.getNodes());
+			mv.addObject("links", callTree.getLinks());
+
+			// call stacks
+			RecordSet recordset = new RecordSet(spanAligns);
+			mv.addObject("applicationName", recordset.getApplicationName());
+			mv.addObject("callstack", recordset.getIterator());
+			mv.addObject("timeline", recordset.getIterator());
+			mv.addObject("callstackStart", recordset.getStartTime());
+			mv.addObject("callstackEnd", recordset.getEndTime());
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		// debug 
-		mv.addObject("spanList", spanAligns);
-		
-		mv.addObject("traceId", traceId);
-
-		// call tree
-		ServerCallTree callTree = flow.selectServerCallTree(new TraceId(UUID.fromString(traceId)));
-		mv.addObject("nodes", callTree.getNodes());
-		mv.addObject("links", callTree.getLinks());
-
-		// call stacks
-		RecordSet recordset = new RecordSet(spanAligns);
-		mv.addObject("applicationName", recordset.getApplicationName());
-		mv.addObject("callstack", recordset.getIterator());
-		mv.addObject("timeline", recordset.getIterator());
-		mv.addObject("callstackStart", recordset.getStartTime());
-		mv.addObject("callstackEnd", recordset.getEndTime());
 
 		return mv;
 	}

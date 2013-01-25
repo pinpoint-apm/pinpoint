@@ -104,7 +104,7 @@ public class SpanServiceTest {
 
         List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
         for (SpanAlign spanAlign : sort) {
-            logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpan());
+            logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpanBo());
         }
         // reorder(spans);
     }
