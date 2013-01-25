@@ -60,6 +60,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
         }
         if (!InterceptorUtils.isSuccess(result)) {
             return;
+            // TODO traceBlockEnd() 호출 해야함.
         }
         TraceContext traceContext = TraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
