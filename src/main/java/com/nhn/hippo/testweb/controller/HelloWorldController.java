@@ -106,19 +106,19 @@ public class HelloWorldController implements DisposableBean {
 
 		return "mysql";
 	}
-	
+
 	@RequestMapping(value = "/mysqlsimple")
 	public String mysqlsimple(Model model) {
 		int id = (new Random()).nextInt();
-		
+
 		Member member = new Member();
 		member.setId(id);
 		member.setName("chisu");
 		member.setJoined(new Date());
-		
+
 		// add
 		service.add(member);
-		
+
 		return "mysql";
 	}
 
@@ -127,16 +127,33 @@ public class HelloWorldController implements DisposableBean {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
 
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		return "remotecombination";
+	}
+
+	@RequestMapping(value = "/remotecombination2")
+	public String remotecombination2(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://localhost:8080/combination2.hippo", new HashMap<String, Object>());
+
+		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		return "remotecombination";
+	}
+
+	@RequestMapping(value = "/remotemysql")
+	public String remotemysql(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://localhost:8080/mysql.hippo", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
 	@RequestMapping(value = "/combination")
 	public String combination(Model model) {
 		mysql(model);
-		arcus(model);
-		memcached(model);
+		// arcus(model);
+		// memcached(model);
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -144,6 +161,19 @@ public class HelloWorldController implements DisposableBean {
 
 		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+
+		return "combination";
+	}
+
+	@RequestMapping(value = "/combination2")
+	public String combination2(Model model) {
+		mysql(model);
+		// arcus(model);
+		// memcached(model);
+
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 
 		return "combination";
 	}
