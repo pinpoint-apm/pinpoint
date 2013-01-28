@@ -61,6 +61,15 @@ public class SubSpanList implements Thriftable {
             for (HippoAnnotation a : subSpan.getAnnotations()) {
                 annotationList.add(a.toThrift());
             }
+            
+			if (subSpan.getDepth() != -1) {
+				tSubSpan.setDepth(subSpan.getDepth());
+			}
+
+			if (subSpan.getNextSpanId() != -1) {
+				tSubSpan.setNextSpanId(subSpan.getNextSpanId());
+			}
+            
             tSubSpan.setAnnotations(annotationList);
             result.add(tSubSpan);
         }
