@@ -127,8 +127,8 @@ public class HelloWorldController implements DisposableBean {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
 
-		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -137,8 +137,8 @@ public class HelloWorldController implements DisposableBean {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:8080/combination2.hippo", new HashMap<String, Object>());
 
-		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		// client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -152,8 +152,8 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/combination")
 	public String combination(Model model) {
 		mysql(model);
-		// arcus(model);
-		// memcached(model);
+		arcus(model);
+		memcached(model);
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -168,8 +168,8 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/combination2")
 	public String combination2(Model model) {
 		mysql(model);
-		// arcus(model);
-		// memcached(model);
+		arcus(model);
+		memcached(model);
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
