@@ -32,6 +32,7 @@ import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
 import com.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.profiler.modifier.dummy.DummyModifier;
+import com.profiler.modifier.method.MethodModifier;
 import com.profiler.modifier.servlet.FilterModifier;
 import com.profiler.modifier.servlet.HttpServletModifier;
 import com.profiler.modifier.servlet.SpringFrameworkServletModifier;
@@ -68,8 +69,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 	
 	public void addDummyModifier() {
-		DummyModifier modifier = new DummyModifier(byteCodeInstrumentor, agent);
-		addModifier(modifier);
+		DummyModifier dummyModifier = new DummyModifier(byteCodeInstrumentor, agent);
+		addModifier(dummyModifier);
+		
+		MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
+		addModifier(methodModifier);
 	}
 
 	public void addConnectorModifier() {

@@ -443,4 +443,12 @@ public class JavaAssistClass implements InstrumentClass {
         }
         return null;
     }
+    
+	public CtMethod[] getDeclaredMethods() {
+		return ctClass.getDeclaredMethods();
+	}
+	
+	public boolean isInterceptable() {
+		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
+	}
 }

@@ -1,5 +1,7 @@
 package com.profiler.interceptor.bci;
 
+import javassist.CtMethod;
+
 import com.profiler.interceptor.Interceptor;
 
 public interface InstrumentClass {
@@ -32,4 +34,8 @@ public interface InstrumentClass {
 	boolean insertCodeAfterConstructor(String[] args, String code);
 
 	boolean insertCodeBeforeConstructor(String[] args, String code);
+	
+	public CtMethod[] getDeclaredMethods();
+	
+	public boolean isInterceptable();
 }
