@@ -53,8 +53,12 @@ public class SpanAlign {
 		sb.append("depth=").append(depth);
 
 		if (subSpanBo != null) {
-			sb.append(", orgDepth").append(subSpanBo.getDepth());
-			sb.append(", subSpabBo=").append(subSpanBo.getServiceName());
+			sb.append(",\torgDepth=").append(subSpanBo.getDepth());
+			sb.append(",\tseq=").append(subSpanBo.getSequence());
+			sb.append(",\tsubSpabBo=").append(subSpanBo.getServiceName());
+			sb.append(",\tserviceType=").append(subSpanBo.getServiceType());
+			sb.append(",\t\tstartElapsed=").append(subSpanBo.getStartElapsed());
+			sb.append(",\t\tendElapsed=").append(subSpanBo.getEndElapsed());
 		} else {
 			sb.append(", spabBo=").append(spanBo.getServiceName());
 		}
