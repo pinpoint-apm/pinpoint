@@ -3,6 +3,7 @@ package com.profiler.server.dao.hbase;
 import com.profiler.common.dto.thrift.SqlMetaData;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.Buffer;
 import com.profiler.common.util.RowKeyUtils;
 import com.profiler.server.dao.SqlMetaDataDao;
 import org.apache.hadoop.hbase.client.Put;
@@ -23,11 +24,11 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     @Override
     public void insert(SqlMetaData sqlMetaData) {
-        String agentId = sqlMetaData.getAgentId();
         if (logger.isDebugEnabled()) {
             logger.debug("insert:" + sqlMetaData);
         }
 
+        String agentId = sqlMetaData.getAgentId();
         byte[] rowKey = RowKeyUtils.getSqlId(agentId, sqlMetaData.getHashCode(), sqlMetaData.getStartTime());
 
 
