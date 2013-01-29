@@ -1,16 +1,19 @@
 package com.profiler.server.handler;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.SubSpan;
-import com.profiler.common.dto.thrift.SubSpanList;
-import com.profiler.server.dao.*;
+import java.net.DatagramPacket;
+import java.util.List;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.DatagramPacket;
-import java.util.List;
+import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.SubSpan;
+import com.profiler.common.dto.thrift.SubSpanList;
+import com.profiler.server.dao.AgentIdApplicationIndexDao;
+import com.profiler.server.dao.TerminalStatisticsDao;
+import com.profiler.server.dao.TracesDao;
 
 /**
  *
@@ -57,6 +60,11 @@ public class SubSpanListHandler implements Handler {
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : ssList) {
                     ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
+                    
+					if (serviceType.isInternalMethod()) {
+						continue;
+					}
+                    
                     // if terminal update statistics
                     if (serviceType.isRpcClient()) {
                         terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
