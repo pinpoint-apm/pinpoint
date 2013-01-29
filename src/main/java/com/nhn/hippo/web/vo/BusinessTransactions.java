@@ -43,6 +43,7 @@ public final class BusinessTransactions {
 		};
 	}
 
+	@Deprecated
 	public Iterator<BusinessTransaction> getTracesIterator() {
 		traceIterator = transactions.entrySet().iterator();
 

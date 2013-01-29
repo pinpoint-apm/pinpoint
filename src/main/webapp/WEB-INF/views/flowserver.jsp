@@ -48,20 +48,5 @@
 	    ]
     } <c:if test="${!status.last}">,</c:if>
 </c:forEach>
-],
-
-"scatter" : [
-<c:forEach items="${traces}" var="t" varStatus="status3">
-    <c:forEach items="${t.traces}" var="trace" varStatus="status4">
-        {
-	        "traceId" : "${trace.traceId}",
-	        "timestamp" : ${trace.startTime},
-	        "executionTime" : ${trace.executionTime},
-	        "name" : "${t.rpc}",
-	        "exception" : ${trace.exception}
-        } <c:if test="${!status4.last}">,</c:if>
-    </c:forEach>
-    <c:if test="${!status3.last}">,</c:if>
-</c:forEach>
 ]
 }
