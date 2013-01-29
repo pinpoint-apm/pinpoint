@@ -35,7 +35,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      * @return
      */
     @Override
-    public long selectAgentInfoBeforeStartTime(final String agentInfo, final long currentTime) {
+    public long findAgentInfoBeforeStartTime(final String agentInfo, final long currentTime) {
         Scan scan = createScan(agentInfo, currentTime);
         Long startTime = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<Long>() {
             @Override

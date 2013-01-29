@@ -31,13 +31,13 @@ public class HbaseAgentInfoDaoTest {
         AgentInfo agentInfo3 = createAgentInfo(30000);
         insertDao.insert(agentInfo3);
 
-        long testcaseAgent1 = selectDao.selectAgentInfoBeforeStartTime("testcaseAgent", 20005);
+        long testcaseAgent1 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 20005);
         Assert.assertEquals(testcaseAgent1, 20000);
 
-        long testcaseAgent2 = selectDao.selectAgentInfoBeforeStartTime("testcaseAgent", 10004);
+        long testcaseAgent2 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 10004);
         Assert.assertEquals(testcaseAgent2, 10000);
 
-        long testcaseAgent3 = selectDao.selectAgentInfoBeforeStartTime("testcaseAgent", 50000);
+        long testcaseAgent3 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 50000);
         Assert.assertEquals(testcaseAgent3, 30000);
 
 
