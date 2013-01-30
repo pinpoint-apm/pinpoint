@@ -21,24 +21,33 @@ public class SpanAligner2 {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Map<Long, SpanBo> spanMap;
+	private Long rootSpanId;
 
 	public SpanAligner2(List<SpanBo> spans) {
 		spanMap = new HashMap<Long, SpanBo>(spans.size());
 
+		long rootSpanStartTime = Long.MAX_VALUE;
+
 		for (SpanBo span : spans) {
-			if (spanMap.containsKey(span.getSpanId())) {
+			if (spanMap.containsKey(Long.valueOf(span.getSpanId()))) {
 				throw new IllegalStateException("duplicated spanId. id:" + span.getSpanId());
 			}
+
+			if (span.getStartTime() < rootSpanStartTime) {
+				rootSpanId = (span.getParentSpanId() == -1) ? -1L : span.getSpanId();
+				rootSpanStartTime = span.getStartTime();
+			}
+
 			this.spanMap.put((span.getParentSpanId() == -1) ? -1L : span.getSpanId(), span);
 		}
 	}
 
 	public List<SpanAlign> sort() {
 		List<SpanAlign> list = new ArrayList<SpanAlign>();
-		SpanBo root = spanMap.get(new Long(-1));
+		SpanBo root = spanMap.get(rootSpanId);
 
 		if (root == null) {
-			throw new IllegalStateException("root span not found");
+			throw new IllegalStateException("root span not found. rootSpanId=" + rootSpanId + ", map=" + spanMap.keySet());
 		}
 
 		populate(root, 0, list);
@@ -63,9 +72,9 @@ public class SpanAligner2 {
 			SpanAlign sa = new SpanAlign(depth, parentSpan, subSpanBo);
 			container.add(sa);
 
-			Long nextSpanId = new Long(subSpanBo.getNextSpanId());
+			Long nextSpanId = Long.valueOf(subSpanBo.getNextSpanId());
 			if (nextSpanId != -1 && spanMap.containsKey(nextSpanId)) {
-				populate(spanMap.get(new Long(nextSpanId)), depth, container);
+				populate(spanMap.get(Long.valueOf(nextSpanId)), depth, container);
 			}
 		}
 	}
