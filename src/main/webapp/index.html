@@ -228,9 +228,19 @@ function openTrace(uuid) {
 }
 
 $(document).ready(function () {
-	function getChartData(begin, end, chartType, callback) {
+	function getServerMapData(begin, end, callback) {
 	    var application = $("#application").val();
-		d3.json("/" + chartType + ".hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+		d3.json("/servermap.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getScatterData(begin, end, callback) {
+	    var application = $("#application").val();
+		d3.json("/scatter.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getBusinessTransactionsData(begin, end, callback) {
+	    var application = $("#application").val();
+		d3.json("/businesstransactions.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
 	}
 	
 	function getStartTime() {
@@ -322,7 +332,7 @@ $(document).ready(function () {
 				from = getStartTime();
 				to = getEndTime();
 				
-		        getChartData(lastEnd + 1, to, "scatter", function(data) {
+		        getScatterData(lastEnd + 1, to, function(data) {
 		        	lastBegin = lastEnd + 1;
 		        	lastEnd = to;
 			        updateScatter(from, to, data.scatter, "#scatter");
@@ -403,7 +413,8 @@ $(document).ready(function () {
     	cleanup();
     	showIndicator();
         
-        getChartData(getStartTime(), getEndTime(), "flowserver", function(data) {
+    	// display chart
+        getServerMapData(getStartTime(), getEndTime(), function(data) {
         	if (data.graphdata.nodes.length == 0) {
 	        	hideIndicator();
         	}
@@ -411,15 +422,19 @@ $(document).ready(function () {
 	        drawSpringy(data.graphdata, "#springygraph", 960, 500);
 	        drawTree(data.graphdata, "#tree", 960, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 960, 500);
-	        showTransactionList(data.businessTransactions);
 	        
         	hideIndicator();
+        });
+        
+    	// display business transactions
+        getBusinessTransactionsData(getStartTime(), getEndTime(), function(data) {
+        	showTransactionList(data.businessTransactions);
         });
         
         var slot = sliceTimeSpan(getStartTime(), getEndTime());
         var index = slot.length - 1;
         
-        getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
+        getScatterData(slot[index].start, slot[index].end, function(data) {
         	hideIndicator();
         	
 	        drawScatter(getStartTime(), getEndTime(), "#scatter");
@@ -440,7 +455,7 @@ $(document).ready(function () {
 				}
 	        	try {
 	        		scatter.showProgressbar(slot[index].start, slot[index].end);
-		        	getChartData(slot[index].start, slot[index].end, "scatter", function(data2) {
+		        	getScatterData(slot[index].start, slot[index].end, function(data2) {
 				        updateScatter(getStartTime(), getEndTime(), data2.scatter, "#scatter");
 		        	});
 			        index--;

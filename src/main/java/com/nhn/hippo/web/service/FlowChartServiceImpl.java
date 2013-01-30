@@ -24,6 +24,7 @@ import com.nhn.hippo.web.dao.RootTraceIndexDao;
 import com.nhn.hippo.web.dao.TerminalStatisticsDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
+import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TerminalRequest;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
@@ -321,6 +322,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return result;
 	}
 
+	@Deprecated
 	@Override
 	public String[] selectAgentIds(String[] hosts) {
 		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
@@ -354,5 +356,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 
 		return list.iterator();
+	}
+	
+	@Override
+	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to) {
+		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+
+		BusinessTransactions businessTransactions = new BusinessTransactions();
+
+		for (List<SpanBo> transaction : traces) {
+			for (SpanBo eachTransaction : transaction) {
+				businessTransactions.add(eachTransaction);
+			}
+		}
+
+		return businessTransactions;
 	}
 }

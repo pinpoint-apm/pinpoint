@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TerminalRequest;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
@@ -29,7 +28,6 @@ public class ServerCallTree {
 
 	private final Map<String, Server> servers = new HashMap<String, Server>();
 	private final Map<String, ServerRequest> serverRequests = new HashMap<String, ServerRequest>();
-	private final BusinessTransactions businessTransactions = new BusinessTransactions();
 
 	private boolean isBuilt = false;
 
@@ -81,9 +79,9 @@ public class ServerCallTree {
 		}
 
 		addServer(String.valueOf(span.getSpanId()), server);
-
+		
 		if (span.getParentSpanId() == -1) {
-			businessTransactions.add(span);
+//			businessTransactions.add(span);
 		} else {
 			spans.add(span);
 		}
@@ -178,10 +176,6 @@ public class ServerCallTree {
 
 	public Collection<ServerRequest> getLinks() {
 		return this.serverRequests.values();
-	}
-
-	public BusinessTransactions getBusinessTransactions() {
-		return businessTransactions;
 	}
 
 	@Override

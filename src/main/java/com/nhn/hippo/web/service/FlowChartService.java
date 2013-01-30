@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 
@@ -80,4 +81,6 @@ public interface FlowChartService {
 	public ServerCallTree selectServerCallTree(TraceId traceId);
 	
 	public Iterator<Dot> selectScatterData(String applicationName, long from, long to);
+	
+	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to);
 }

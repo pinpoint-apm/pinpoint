@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
+import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 
@@ -32,6 +33,7 @@ public class FlowChartController {
 	@Autowired
 	private FlowChartService flow;
 
+	@Deprecated
 	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
 	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
@@ -46,8 +48,8 @@ public class FlowChartController {
 		return "flow";
 	}
 
-	@RequestMapping(value = "/flowserver", method = RequestMethod.GET)
-	public String flowserver(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/servermap", method = RequestMethod.GET)
+	public String servermap(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TODO 제거 하거나, interceptor로 할것.
 		StopWatch watch = new StopWatch();
 		watch.start("scanTraceindex");
@@ -65,14 +67,23 @@ public class FlowChartController {
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-		model.addAttribute("businessTransactions", callTree.getBusinessTransactions().getBusinessTransactionIterator());
-
-		// model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
-		// model.addAttribute("traces", Collections.emptyList().iterator());
 
 		logger.debug("callTree:{}", callTree);
+		
+		return "servermap";
+	}
 
-		return "flowserver";
+	@RequestMapping(value = "/businesstransactions", method = RequestMethod.GET)
+	public String businesstransactions(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
+		
+		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIds, applicationName, from, to);
+
+		model.addAttribute("businessTransactions", selectBusinessTransactions.getBusinessTransactionIterator());
+
+		return "businesstransactions";
 	}
 
 	@RequestMapping(value = "/scatter", method = RequestMethod.GET)
@@ -128,8 +139,6 @@ public class FlowChartController {
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-		model.addAttribute("businessTransactions", callTree.getBusinessTransactions().getBusinessTransactionIterator());
-		model.addAttribute("traces", callTree.getBusinessTransactions().getTracesIterator());
 
 		logger.debug("callTree:{}", callTree);
 
