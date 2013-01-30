@@ -421,11 +421,15 @@ $(document).ready(function () {
         
         getChartData(slot[index].start, slot[index].end, "scatter", function(data) {
         	hideIndicator();
-	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+        	
+	        drawScatter(getStartTime(), getEndTime(), "#scatter");
+	        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
 	        if (slot.length == 1) {
 	        	return;
 	        }
+
+	        index--;
 	        
 	        var scatterFetchTimer = setInterval(function() {
 				if(index < 0) {

@@ -19,7 +19,7 @@ function updateScatter(start, end, scatter_data, targetId, limit) {
 	scatter.showDataCount();
 }
 
-function drawScatter(start, end, scatter_data, targetId) {
+function drawScatter(start, end, targetId) {
 	console.log("Draw scatter from=" + new Date(start) + ", end="
 			+ new Date(end));
 
@@ -45,6 +45,4 @@ function drawScatter(start, end, scatter_data, targetId) {
 			}
 		}
 	});
-
-	// updateScatter(start, end, scatter_data, targetId);
 }
