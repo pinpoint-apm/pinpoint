@@ -423,6 +423,10 @@ $(document).ready(function () {
         	hideIndicator();
 	        drawScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
+	        if (slot.length == 1) {
+	        	return;
+	        }
+	        
 	        var scatterFetchTimer = setInterval(function() {
 				if(index < 0) {
 			        scatter.hideProgressbar();
