@@ -2,7 +2,9 @@ package com.profiler.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +33,9 @@ public class ProfilerConfig {
 	private long samplingElapsedTimeBaseDiscardTimeLimit;
 
 	private int profileJvmCollectInterval;
+	
+	private Set<String> profileInclude = new HashSet<String>(4);
+	private Set<String> profileIncludeSub = new HashSet<String>(4);
 
 	public ProfilerConfig() {
 	}
@@ -136,6 +141,19 @@ public class ProfilerConfig {
 		// JVM
 		this.profileJvmCollectInterval = readInt(prop, "profile.jvm.collect.interval", 1000);
 
+		// profile package include
+		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
+		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
+		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
+		String[] tmp = readString(prop, "profile.include", "").split(",");
+		for (String str : tmp) {
+			if (str.endsWith(".*")) {
+				this.profileIncludeSub.add(str.substring(0, str.length() - 2).replace('.', '/') + "/");
+			} else {
+				this.profileInclude.add(str.trim().replace('.', '/'));
+			}
+		}
+		
 		logger.info("configuration loaded successfully.");
 	}
 
@@ -176,6 +194,26 @@ public class ProfilerConfig {
 
 	public boolean isJdbcProfileDbcp() {
 		return jdbcProfileDbcp;
+	}
+	
+	/**
+	 * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public boolean isProfilableClass(String className) {
+		if (profileInclude.contains(className)) {
+			return true;
+		} else {
+			String packageName = className.substring(0, className.lastIndexOf("/") + 1);
+			for (String pkg : profileIncludeSub) {
+				if (packageName.startsWith(pkg)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override

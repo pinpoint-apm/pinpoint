@@ -109,14 +109,16 @@ public class TomcatProfiler implements ClassFileTransformer {
 		Modifier findModifier = this.modifierRepository.findModifier(className);
 		
 		if (findModifier == null) {
-			// TODO : 디버그 용도로 추가함. 나중에 이 기능이 필요하면 configuration으로 빼면 됨.
+			// TODO : 디버그 용도로 추가함
 			// TODO : modifier가 중복 적용되면 어떻게 되지???
-			if (className.startsWith("com/nhn/hippo/testweb/controller")) {
+			if (profilerConfig.isProfilableClass(className)) {
+				// 테스트 장비에서 callstack view가 잘 보이는지 확인하려고 추가함.
 				findModifier = this.modifierRepository.findModifier("*");
 			} else {
 				return null;
 			}
 		}
+		
 		if (logger.isLoggable(Level.FINE)) {
 			logger.fine("[transform] cl" + classLoader + " className:" + className + " Modifier:" + findModifier.getClass().getName());
 		}
