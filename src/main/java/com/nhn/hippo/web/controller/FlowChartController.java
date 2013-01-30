@@ -3,6 +3,8 @@ package com.nhn.hippo.web.controller;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,10 @@ public class FlowChartController {
 	@Autowired
 	private FlowChartService flow;
 
+	private void addResponseHeader(final HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*.*");
+	}
+	
 	@Deprecated
 	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
 	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
@@ -49,7 +55,7 @@ public class FlowChartController {
 	}
 
 	@RequestMapping(value = "/servermap", method = RequestMethod.GET)
-	public String servermap(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	public String servermap(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TODO 제거 하거나, interceptor로 할것.
 		StopWatch watch = new StopWatch();
 		watch.start("scanTraceindex");
@@ -70,11 +76,12 @@ public class FlowChartController {
 
 		logger.debug("callTree:{}", callTree);
 		
+		addResponseHeader(response);
 		return "servermap";
 	}
 
 	@RequestMapping(value = "/businesstransactions", method = RequestMethod.GET)
-	public String businesstransactions(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	public String businesstransactions(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 		
 		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
@@ -83,11 +90,12 @@ public class FlowChartController {
 
 		model.addAttribute("businessTransactions", selectBusinessTransactions.getBusinessTransactionIterator());
 
+		addResponseHeader(response);
 		return "businesstransactions";
 	}
 
 	@RequestMapping(value = "/scatter", method = RequestMethod.GET)
-	public String scatter(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	public String scatter(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
@@ -98,6 +106,7 @@ public class FlowChartController {
 
 		model.addAttribute("scatter", scatterData);
 
+		addResponseHeader(response);
 		return "scatter";
 	}
 
