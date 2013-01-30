@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
 
@@ -18,10 +15,8 @@ import com.profiler.common.bo.SubSpanBo;
  */
 public class SpanAligner2 {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	private final Map<Long, SpanBo> spanMap;
-	private Long rootSpanId;
+	private Long rootSpanId = null;
 
 	public SpanAligner2(List<SpanBo> spans) {
 		spanMap = new HashMap<Long, SpanBo>(spans.size());
@@ -33,12 +28,15 @@ public class SpanAligner2 {
 				throw new IllegalStateException("duplicated spanId. id:" + span.getSpanId());
 			}
 
-			if (span.getStartTime() < rootSpanStartTime) {
+			if (span.getParentSpanId() == -1L) {
+				rootSpanId = -1L;
+				spanMap.put(-1L, span);
+				continue;
+			} else if (rootSpanId != -1 && span.getStartTime() < rootSpanStartTime) {
 				rootSpanId = (span.getParentSpanId() == -1) ? -1L : span.getSpanId();
 				rootSpanStartTime = span.getStartTime();
 			}
-
-			this.spanMap.put((span.getParentSpanId() == -1) ? -1L : span.getSpanId(), span);
+			spanMap.put(span.getSpanId(), span);
 		}
 	}
 
