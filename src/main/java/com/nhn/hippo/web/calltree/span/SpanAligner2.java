@@ -32,7 +32,7 @@ public class SpanAligner2 {
 				rootSpanId = -1L;
 				spanMap.put(-1L, span);
 				continue;
-			} else if (rootSpanId != -1 && span.getStartTime() < rootSpanStartTime) {
+			} else if ((rootSpanId == null || rootSpanId != -1) && span.getStartTime() < rootSpanStartTime) {
 				rootSpanId = (span.getParentSpanId() == -1) ? -1L : span.getSpanId();
 				rootSpanStartTime = span.getStartTime();
 			}
