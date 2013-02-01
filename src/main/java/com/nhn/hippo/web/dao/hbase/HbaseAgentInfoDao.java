@@ -36,6 +36,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      */
     @Override
     public long findAgentInfoBeforeStartTime(final String agentInfo, final long currentTime) {
+        // TODO cache를 걸어야 될듯 하다.
         Scan scan = createScan(agentInfo, currentTime);
         Long startTime = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<Long>() {
             @Override

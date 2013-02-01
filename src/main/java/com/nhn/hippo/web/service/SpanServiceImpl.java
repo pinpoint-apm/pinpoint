@@ -3,10 +3,12 @@ package com.nhn.hippo.web.service;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.calltree.span.SpanAligner2;
 import com.nhn.hippo.web.dao.AgentInfoDao;
+import com.nhn.hippo.web.dao.ApiMetaDataDao;
 import com.nhn.hippo.web.dao.SqlMetaDataDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.bo.AnnotationBo;
+import com.profiler.common.bo.ApiMetaDataBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SqlMetaDataBo;
 import com.profiler.common.mapping.ApiMappingTable;
@@ -38,6 +40,9 @@ public class SpanServiceImpl implements SpanService {
     private SqlMetaDataDao sqlMetaDataDao;
 
     @Autowired
+    private ApiMetaDataDao apiMetaDataDao;
+
+    @Autowired
     private AgentInfoDao agentInfoDao;
 
     private SqlParser sqlParser = new SqlParser();
@@ -53,11 +58,13 @@ public class SpanServiceImpl implements SpanService {
 
         List<SpanAlign> order = order(spans);
         transitionApiId(order);
+        transitionDynamicApiId(order);
         transitionSqlId(order);
         // TODO root span not found시 row data라도 보여줘야 됨.
 
         return order;
     }
+
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
         for (SpanAlign spanAlign : spans) {
@@ -85,6 +92,13 @@ public class SpanServiceImpl implements SpanService {
                 long startTime = spanAlign.getSpanBo().getStartTime();
                 long agentStartTime = agentInfoDao.findAgentInfoBeforeStartTime(agentId, startTime);
                 logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
+                if (agentStartTime == 0) {
+                    AnnotationBo agentInfoNotFound = new AnnotationBo();
+                    agentInfoNotFound.setKey(AnnotationNames.SQL);
+                    agentInfoNotFound.setValue("SQL-ID not found. Cause:agentInfo not found. agentId:" + agentId + " startTime:" + startTime);
+                    annotationBoList.add(agentInfoNotFound);
+                    return;
+                }
 
                 // TODO 일단 시간까지 조회는 하지 말고 하자.
                 int hashCode = (Integer) sqlIdAnnotation.getValue();
@@ -92,7 +106,7 @@ public class SpanServiceImpl implements SpanService {
                 int size = sqlMetaDataList.size();
                 if (size == 0) {
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationNames.SQL_METADATA);
+                    api.setKey(AnnotationNames.SQL);
                     api.setValue("SQL-ID not found hashCode:" + hashCode);
                     annotationBoList.add(api);
                 } else if (size == 1) {
@@ -110,21 +124,29 @@ public class SpanServiceImpl implements SpanService {
                     } else {
                         SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(0);
                         logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
-                        String outputParams = (String) sqlIdAnnotation.getValue();
+                        String outputParams = (String) sqlParamAnnotationBo.getValue();
                         List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(outputParams);
                         logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
                         String originalSql = sqlParser.combineOutputParams(sqlMetaDataBo.getSql(), parsedOutputParams);
                         logger.debug("outputPrams{}, originalSql:{}", outputParams, originalSql);
 
+
+                        AnnotationBo sqlMeta = new AnnotationBo();
+                        sqlMeta.setKey(AnnotationNames.SQL_METADATA);
+                        sqlMeta.setValue(sqlMetaDataList.get(0).getSql());
+                        annotationBoList.add(sqlMeta);
+
                         AnnotationBo sql = new AnnotationBo();
                         sql.setKey(AnnotationNames.SQL);
                         sql.setValue(originalSql);
                         annotationBoList.add(sql);
+
+
                     }
                 } else {
                     // TODO 보완해야됨.
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationNames.SQL_METADATA);
+                    api.setKey(AnnotationNames.SQL);
                     api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
                     annotationBoList.add(api);
                 }
@@ -141,6 +163,7 @@ public class SpanServiceImpl implements SpanService {
         }
         return null;
     }
+
 
     private String collisionSqlHashCodeMessage(int hashCode, List<SqlMetaDataBo> sqlMetaDataList) {
         // TODO 이거 체크하는 테스트를 따로 만들어야 될듯 하다. 왠간하면 확율상 hashCode 충돌 케이스를 쉽게 만들수 없음.
@@ -166,6 +189,85 @@ public class SpanServiceImpl implements SpanService {
         }
     }
 
+    private void transitionDynamicApiId(List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_DID);
+                if (apiIdAnnotation == null) {
+                    return;
+                }
+
+                String agentId = getAgentId(spanAlign);
+                long startTime = spanAlign.getSpanBo().getStartTime();
+                long agentStartTime = agentInfoDao.findAgentInfoBeforeStartTime(agentId, startTime);
+                logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
+                if (agentStartTime == 0) {
+                    AnnotationBo agentInfoNotFound = new AnnotationBo();
+                    agentInfoNotFound.setKey(AnnotationNames.API);
+                    agentInfoNotFound.setValue("API-DynamicID not found. Cause:agentInfo not found. agentId:" + agentId + " startTime:" + startTime);
+                    annotationBoList.add(agentInfoNotFound);
+                    return;
+                }
+                int apiId = (Integer) apiIdAnnotation.getValue();
+                List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentId, apiId, agentStartTime);
+                int size = apiMetaDataList.size();
+                if (size == 0) {
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationNames.API);
+                    api.setValue("API-DID not found api:" + apiId);
+                    annotationBoList.add(api);
+                } else if (size == 1) {
+                    ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(0);
+                    AnnotationBo apiMetaData = new AnnotationBo();
+                    apiMetaData.setKey(AnnotationNames.API_METADATA);
+                    apiMetaData.setValue(apiMetaDataBo);
+                    annotationBoList.add(apiMetaData);
+
+
+                    AnnotationBo apiAnnotation = new AnnotationBo();
+                    apiAnnotation.setKey(AnnotationNames.API);
+                    String apiInfo = getApiInfo(apiMetaDataBo);
+                    apiAnnotation.setValue(apiInfo);
+                    annotationBoList.add(apiAnnotation);
+                } else {
+                    AnnotationBo apiAnnotation = new AnnotationBo();
+                    apiAnnotation.setKey(AnnotationNames.API);
+                    String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
+                    apiAnnotation.setValue(collisonMessage);
+                    annotationBoList.add(apiAnnotation);
+                }
+
+            }
+
+
+        });
+    }
+
+    private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {
+        // TODO 이거 체크하는 테스트를 따로 만들어야 될듯 하다. 왠간하면 확율상 hashCode 충돌 케이스를 쉽게 만들수 없음.
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("Collision Api DynamicId:");
+        sb.append(apidId);
+        sb.append('\n');
+        for (int i = 0; i < apiMetaDataList.size(); i++) {
+            if (i != 0) {
+                sb.append("or\n");
+            }
+            ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(i);
+            sb.append(getApiInfo(apiMetaDataBo));
+        }
+        return sb.toString();
+    }
+
+    private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
+        if (apiMetaDataBo.getLineNumber() != -1) {
+            return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
+        } else {
+            return apiMetaDataBo.getApiInfo();
+        }
+    }
+
     private void transitionApiId(List<SpanAlign> spans) {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
@@ -185,12 +287,13 @@ public class SpanServiceImpl implements SpanService {
                 String[] parameterName = methodMapping.getParameterName();
                 String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
                 AnnotationBo api = new AnnotationBo();
-                api.setKey("API");
+                api.setKey(AnnotationNames.API);
                 api.setValue(className + "." + methodName + args);
                 annotationBoList.add(api);
             }
         });
     }
+
 
     public static interface AnnotationReplacementCallback {
         void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);

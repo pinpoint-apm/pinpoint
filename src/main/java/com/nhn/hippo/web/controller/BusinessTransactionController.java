@@ -68,7 +68,9 @@ public class BusinessTransactionController {
 			mv.addObject("callstackEnd", recordset.getEndTime());
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
+//             아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
+//            throw e;
 		}
 
 		return mv;
