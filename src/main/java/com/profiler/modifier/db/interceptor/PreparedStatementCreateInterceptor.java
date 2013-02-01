@@ -4,6 +4,7 @@ import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -11,11 +12,12 @@ import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+
     private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
 
     private MethodDescriptor descriptor;
 
@@ -28,11 +30,11 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        if (isDebug) {
+            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
         if (JDBCScope.isInternal()) {
-            logger.info("internal jdbc scope. skip trace");
+            logger.fine("internal jdbc scope. skip trace");
             return;
         }
         TraceContext traceContext = TraceContext.getTraceContext();
@@ -51,11 +53,11 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        if (isDebug) {
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
         if (JDBCScope.isInternal()) {
-            logger.info("internal jdbc scope. skip trace");
+            logger.fine("internal jdbc scope. skip trace");
             return;
         }
         if (!InterceptorUtils.isSuccess(result)) {

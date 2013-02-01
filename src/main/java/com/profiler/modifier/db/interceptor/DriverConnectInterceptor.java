@@ -5,6 +5,7 @@ import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.modifier.db.util.JDBCUrlParser;
 import com.profiler.util.InterceptorUtils;
@@ -21,6 +22,8 @@ import java.util.logging.Logger;
 public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(DriverConnectInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private JDBCUrlParser urlParser = new JDBCUrlParser();
@@ -30,10 +33,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
-        }
-        if (logger.isLoggable(Level.FINE)) {
+        if (isDebug) {
+            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
             logger.fine("JDBCScope push:" + Thread.currentThread().getName());
         }
         JDBCScope.pushScope();
@@ -50,10 +51,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-        }
-        if (logger.isLoggable(Level.FINE)) {
+        if (isDebug) {
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
             logger.fine("JDBCScope pop:" + Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.

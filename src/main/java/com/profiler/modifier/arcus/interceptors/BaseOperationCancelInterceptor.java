@@ -1,9 +1,9 @@
 package com.profiler.modifier.arcus.interceptors;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 import com.profiler.context.AsyncTrace;
@@ -17,12 +17,14 @@ import com.profiler.util.StringUtils;
 public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 
 	private final Logger logger = Logger.getLogger(BaseOperationCancelInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
 	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		if (isDebug) {
+			logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);

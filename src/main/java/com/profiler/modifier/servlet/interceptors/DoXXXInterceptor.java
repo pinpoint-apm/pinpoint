@@ -15,17 +15,19 @@ import com.profiler.context.SpanID;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
-import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
 
 public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = Logger.getLogger(DoXXXInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
@@ -55,8 +57,8 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
 */
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        if (isDebug) {
+            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         try {
@@ -102,8 +104,8 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        if (isDebug) {
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
 
         traceContext.getActiveThreadCounter().end();

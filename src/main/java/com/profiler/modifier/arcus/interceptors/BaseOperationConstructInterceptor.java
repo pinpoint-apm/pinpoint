@@ -2,11 +2,11 @@ package com.profiler.modifier.arcus.interceptors;
 
 import com.profiler.context.*;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -15,12 +15,14 @@ import java.util.logging.Logger;
 public class BaseOperationConstructInterceptor implements StaticAfterInterceptor {
 
 	private final Logger logger = Logger.getLogger(BaseOperationConstructInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
 	private MetaObject<Object> setAsyncTrace = new MetaObject<Object>("__setAsyncTrace", Object.class);
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+		if (isDebug) {
+			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 		
 		TraceContext traceContext = TraceContext.getTraceContext();

@@ -1,7 +1,6 @@
 package com.profiler.modifier.dummy;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.Agent;
@@ -9,6 +8,7 @@ import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.AbstractModifier;
 
 /**
@@ -17,6 +17,7 @@ import com.profiler.modifier.AbstractModifier;
 public class DummyModifier extends AbstractModifier {
 
 	private final Logger logger = Logger.getLogger(DummyModifier.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
 
 	public DummyModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -27,8 +28,8 @@ public class DummyModifier extends AbstractModifier {
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("Modifing. " + javassistClassName);
+		if (isDebug) {
+			logger.fine("Modifing. " + javassistClassName);
 		}
 
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);

@@ -13,10 +13,10 @@ import com.profiler.context.SpanID;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
-import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
 
@@ -26,13 +26,15 @@ import com.profiler.util.StringUtils;
 public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
     private MethodDescriptor descriptor;
 //    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        if (isDebug) {
+            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         try {
@@ -82,9 +84,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-//            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        if (isDebug) {
+//            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
 
         TraceContext traceContext = TraceContext.getTraceContext();

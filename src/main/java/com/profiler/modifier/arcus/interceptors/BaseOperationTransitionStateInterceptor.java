@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
@@ -25,6 +26,7 @@ import com.profiler.util.StringUtils;
 public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor {
 
 	private final Logger logger = Logger.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -33,8 +35,8 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		if (isDebug) {
+			logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);

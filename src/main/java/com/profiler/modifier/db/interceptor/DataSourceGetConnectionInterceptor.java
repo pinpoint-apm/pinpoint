@@ -1,12 +1,12 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -15,18 +15,19 @@ import java.util.logging.Logger;
 public class DataSourceGetConnectionInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = Logger.getLogger(DataSourceGetConnectionInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        if (isDebug) {
+            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
         }
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        if (isDebug) {
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
 
         if (!InterceptorUtils.isSuccess(result)) {

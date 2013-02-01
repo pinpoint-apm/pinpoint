@@ -1,9 +1,9 @@
 package com.profiler.modifier.tomcat.interceptors;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.logging.LoggingUtils;
 import org.apache.catalina.connector.Connector;
 
 import com.profiler.Agent;
@@ -17,6 +17,7 @@ import com.profiler.util.StringUtils;
 public class ConnectorInitializeInterceptor implements StaticAfterInterceptor {
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
 
     private Agent agent;
 
@@ -27,8 +28,8 @@ public class ConnectorInitializeInterceptor implements StaticAfterInterceptor {
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        if (isDebug) {
+            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
         }
         Connector connector = (Connector) target;
         agent.getServerInfo().addConnector(connector.getProtocol(), connector.getPort());

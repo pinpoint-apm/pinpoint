@@ -2,9 +2,9 @@ package com.profiler.modifier.connector.interceptors;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.logging.LoggingUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -32,12 +32,14 @@ import com.profiler.util.StringUtils;
 public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
 	private final Logger logger = Logger.getLogger(Execute2MethodInterceptor.class.getName());
+    private final boolean isDebug = LoggingUtils.isDebug(logger);
+
 	private MethodDescriptor descriptor;
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		if (isDebug) {
+			logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 		TraceContext traceContext = TraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
@@ -70,8 +72,8 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		if (isDebug) {
+			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 
 		TraceContext traceContext = TraceContext.getTraceContext();
