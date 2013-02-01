@@ -49,4 +49,13 @@ public class ApiUtils {
         sb.append(')');
         return sb.toString();
     }
+
+    public static String mergeApiDescriptor(String className, String methodName, String parameterDescriptor) {
+        StringBuilder buffer = new StringBuilder(256);
+        buffer.append(className);
+        buffer.append(".");
+        buffer.append(methodName);
+        buffer.append(parameterDescriptor);
+        return buffer.toString();
+    }
 }

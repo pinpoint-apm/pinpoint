@@ -16,6 +16,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short SUBSPANLIST = 70;
 
     private static final short SQLMETADATA = 300;
+    private static final short APIMETADATA = 310;
 
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
@@ -36,6 +37,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return new SubSpanList();
             case SQLMETADATA:
                 return new SqlMetaData();
+            case APIMETADATA:
+                return new ApiMetaData();
         }
         throw new TException("Unsupported type:" + type);
     }
@@ -44,6 +47,15 @@ public class DefaultTBaseLocator implements TBaseLocator {
     public short typeLookup(TBase<?, ?> tbase) throws TException {
         if (tbase == null) {
             throw new IllegalArgumentException("tbase must not be null");
+        }
+        if (tbase instanceof Span) {
+            return SPAN;
+        }
+        if (tbase instanceof SubSpanList) {
+            return SUBSPANLIST;
+        }
+        if (tbase instanceof SubSpan) {
+            return SUBSPAN;
         }
         if (tbase instanceof JVMInfoThriftDTO) {
             return JVM_INFO_THRIFT_DTO;
@@ -54,22 +66,15 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof RequestThriftDTO) {
             return REQUEST_THRIFT_DTO;
         }
-        if (tbase instanceof Span) {
-            return SPAN;
-        }
         if (tbase instanceof AgentInfo) {
             return AGENT_INFO;
-        }
-        if (tbase instanceof SubSpan) {
-            return SUBSPAN;
-        }
-        if (tbase instanceof SubSpanList) {
-            return SUBSPANLIST;
         }
         if (tbase instanceof SqlMetaData) {
             return SQLMETADATA;
         }
-
+        if (tbase instanceof ApiMetaData) {
+            return APIMETADATA;
+        }
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 }

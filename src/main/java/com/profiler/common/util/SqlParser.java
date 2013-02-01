@@ -148,6 +148,7 @@ public class SqlParser {
                                 case '9':
                                 case '.':
                                 case 'E':
+                                case 'e':
                                     parsingResult.appendOutputParam(stateCh);
                                     break;
                                 default:

@@ -61,7 +61,10 @@ public class HeaderTBaseDeserializer {
     private Header readHeader() throws TException {
         byte signature = protocol_.readByte();
         byte version = protocol_.readByte();
-        short type = protocol_.readI16();
+        // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
+        byte type1 = protocol_.readByte();
+        byte type2 = protocol_.readByte();
+        short type = BytesUtils.bytesToShort(type1, type2);
         return new Header(signature, version, type);
     }
 

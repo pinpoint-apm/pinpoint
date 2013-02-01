@@ -12,7 +12,6 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,804 +24,793 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpanList._Fields>, java.io.Serializable, Cloneable {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SubSpanList");
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SubSpanList");
 
-    private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short) 1);
-    private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short) 2);
-    private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short) 3);
-    private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short) 4);
-    private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short) 5);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)5);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+  static {
+    schemes.put(StandardScheme.class, new SubSpanListStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new SubSpanListTupleSchemeFactory());
+  }
 
-    static {
-        schemes.put(StandardScheme.class, new SubSpanListStandardSchemeFactory());
-        schemes.put(TupleScheme.class, new SubSpanListTupleSchemeFactory());
-    }
+  private String agentId; // required
+  private long mostTraceId; // required
+  private long leastTraceId; // required
+  private long spanId; // required
+  private List<SubSpan> subSpanList; // required
 
-    private String agentId; // required
-    private long mostTraceId; // required
-    private long leastTraceId; // required
-    private long spanId; // required
-    private List<SubSpan> subSpanList; // required
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+    AGENT_ID((short)1, "agentId"),
+    MOST_TRACE_ID((short)2, "mostTraceId"),
+    LEAST_TRACE_ID((short)3, "leastTraceId"),
+    SPAN_ID((short)4, "spanId"),
+    SUB_SPAN_LIST((short)5, "subSpanList");
 
-    /**
-     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
-     */
-    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-        AGENT_ID((short) 1, "agentId"),
-        MOST_TRACE_ID((short) 2, "mostTraceId"),
-        LEAST_TRACE_ID((short) 3, "leastTraceId"),
-        SPAN_ID((short) 4, "spanId"),
-        SUB_SPAN_LIST((short) 5, "subSpanList");
-
-        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-        static {
-            for (_Fields field : EnumSet.allOf(_Fields.class)) {
-                byName.put(field.getFieldName(), field);
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, or null if its not found.
-         */
-        public static _Fields findByThriftId(int fieldId) {
-            switch (fieldId) {
-                case 1: // AGENT_ID
-                    return AGENT_ID;
-                case 2: // MOST_TRACE_ID
-                    return MOST_TRACE_ID;
-                case 3: // LEAST_TRACE_ID
-                    return LEAST_TRACE_ID;
-                case 4: // SPAN_ID
-                    return SPAN_ID;
-                case 5: // SUB_SPAN_LIST
-                    return SUB_SPAN_LIST;
-                default:
-                    return null;
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, throwing an exception
-         * if it is not found.
-         */
-        public static _Fields findByThriftIdOrThrow(int fieldId) {
-            _Fields fields = findByThriftId(fieldId);
-            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-            return fields;
-        }
-
-        /**
-         * Find the _Fields constant that matches name, or null if its not found.
-         */
-        public static _Fields findByName(String name) {
-            return byName.get(name);
-        }
-
-        private final short _thriftId;
-        private final String _fieldName;
-
-        _Fields(short thriftId, String fieldName) {
-            _thriftId = thriftId;
-            _fieldName = fieldName;
-        }
-
-        public short getThriftFieldId() {
-            return _thriftId;
-        }
-
-        public String getFieldName() {
-            return _fieldName;
-        }
-    }
-
-    // isset id assignments
-    private static final int __MOSTTRACEID_ISSET_ID = 0;
-    private static final int __LEASTTRACEID_ISSET_ID = 1;
-    private static final int __SPANID_ISSET_ID = 2;
-    private BitSet __isset_bit_vector = new BitSet(3);
-    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
     static {
-        Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-        tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-        tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-        tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.DEFAULT,
-                new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
-                        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
-        metaDataMap = Collections.unmodifiableMap(tmpMap);
-        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpanList.class, metaDataMap);
-    }
-
-    public SubSpanList() {
-    }
-
-    public SubSpanList(
-            String agentId,
-            long mostTraceId,
-            long leastTraceId,
-            long spanId,
-            List<SubSpan> subSpanList) {
-        this();
-        this.agentId = agentId;
-        this.mostTraceId = mostTraceId;
-        setMostTraceIdIsSet(true);
-        this.leastTraceId = leastTraceId;
-        setLeastTraceIdIsSet(true);
-        this.spanId = spanId;
-        setSpanIdIsSet(true);
-        this.subSpanList = subSpanList;
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
 
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public SubSpanList(SubSpanList other) {
-        __isset_bit_vector.clear();
-        __isset_bit_vector.or(other.__isset_bit_vector);
-        if (other.isSetAgentId()) {
-            this.agentId = other.agentId;
-        }
-        this.mostTraceId = other.mostTraceId;
-        this.leastTraceId = other.leastTraceId;
-        this.spanId = other.spanId;
-        if (other.isSetSubSpanList()) {
-            List<SubSpan> __this__subSpanList = new ArrayList<SubSpan>();
-            for (SubSpan other_element : other.subSpanList) {
-                __this__subSpanList.add(new SubSpan(other_element));
-            }
-            this.subSpanList = __this__subSpanList;
-        }
-    }
-
-    public SubSpanList deepCopy() {
-        return new SubSpanList(this);
-    }
-
-    @Override
-    public void clear() {
-        this.agentId = null;
-        setMostTraceIdIsSet(false);
-        this.mostTraceId = 0;
-        setLeastTraceIdIsSet(false);
-        this.leastTraceId = 0;
-        setSpanIdIsSet(false);
-        this.spanId = 0;
-        this.subSpanList = null;
-    }
-
-    public String getAgentId() {
-        return this.agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public void unsetAgentId() {
-        this.agentId = null;
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // AGENT_ID
+          return AGENT_ID;
+        case 2: // MOST_TRACE_ID
+          return MOST_TRACE_ID;
+        case 3: // LEAST_TRACE_ID
+          return LEAST_TRACE_ID;
+        case 4: // SPAN_ID
+          return SPAN_ID;
+        case 5: // SUB_SPAN_LIST
+          return SUB_SPAN_LIST;
+        default:
+          return null;
+      }
     }
 
     /**
-     * Returns true if field agentId is set (has been assigned a value) and false otherwise
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
      */
-    public boolean isSetAgentId() {
-        return this.agentId != null;
-    }
-
-    public void setAgentIdIsSet(boolean value) {
-        if (!value) {
-            this.agentId = null;
-        }
-    }
-
-    public long getMostTraceId() {
-        return this.mostTraceId;
-    }
-
-    public void setMostTraceId(long mostTraceId) {
-        this.mostTraceId = mostTraceId;
-        setMostTraceIdIsSet(true);
-    }
-
-    public void unsetMostTraceId() {
-        __isset_bit_vector.clear(__MOSTTRACEID_ISSET_ID);
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
 
     /**
-     * Returns true if field mostTraceId is set (has been assigned a value) and false otherwise
+     * Find the _Fields constant that matches name, or null if its not found.
      */
-    public boolean isSetMostTraceId() {
-        return __isset_bit_vector.get(__MOSTTRACEID_ISSET_ID);
+    public static _Fields findByName(String name) {
+      return byName.get(name);
     }
 
-    public void setMostTraceIdIsSet(boolean value) {
-        __isset_bit_vector.set(__MOSTTRACEID_ISSET_ID, value);
+    private final short _thriftId;
+    private final String _fieldName;
+
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
     }
 
-    public long getLeastTraceId() {
-        return this.leastTraceId;
+    public short getThriftFieldId() {
+      return _thriftId;
     }
 
-    public void setLeastTraceId(long leastTraceId) {
-        this.leastTraceId = leastTraceId;
-        setLeastTraceIdIsSet(true);
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
+
+  // isset id assignments
+  private static final int __MOSTTRACEID_ISSET_ID = 0;
+  private static final int __LEASTTRACEID_ISSET_ID = 1;
+  private static final int __SPANID_ISSET_ID = 2;
+  private BitSet __isset_bit_vector = new BitSet(3);
+  public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpanList.class, metaDataMap);
+  }
+
+  public SubSpanList() {
+  }
+
+  public SubSpanList(
+    String agentId,
+    long mostTraceId,
+    long leastTraceId,
+    long spanId,
+    List<SubSpan> subSpanList)
+  {
+    this();
+    this.agentId = agentId;
+    this.mostTraceId = mostTraceId;
+    setMostTraceIdIsSet(true);
+    this.leastTraceId = leastTraceId;
+    setLeastTraceIdIsSet(true);
+    this.spanId = spanId;
+    setSpanIdIsSet(true);
+    this.subSpanList = subSpanList;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public SubSpanList(SubSpanList other) {
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
+    if (other.isSetAgentId()) {
+      this.agentId = other.agentId;
+    }
+    this.mostTraceId = other.mostTraceId;
+    this.leastTraceId = other.leastTraceId;
+    this.spanId = other.spanId;
+    if (other.isSetSubSpanList()) {
+      List<SubSpan> __this__subSpanList = new ArrayList<SubSpan>();
+      for (SubSpan other_element : other.subSpanList) {
+        __this__subSpanList.add(new SubSpan(other_element));
+      }
+      this.subSpanList = __this__subSpanList;
+    }
+  }
+
+  public SubSpanList deepCopy() {
+    return new SubSpanList(this);
+  }
+
+  @Override
+  public void clear() {
+    this.agentId = null;
+    setMostTraceIdIsSet(false);
+    this.mostTraceId = 0;
+    setLeastTraceIdIsSet(false);
+    this.leastTraceId = 0;
+    setSpanIdIsSet(false);
+    this.spanId = 0;
+    this.subSpanList = null;
+  }
+
+  public String getAgentId() {
+    return this.agentId;
+  }
+
+  public void setAgentId(String agentId) {
+    this.agentId = agentId;
+  }
+
+  public void unsetAgentId() {
+    this.agentId = null;
+  }
+
+  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentId() {
+    return this.agentId != null;
+  }
+
+  public void setAgentIdIsSet(boolean value) {
+    if (!value) {
+      this.agentId = null;
+    }
+  }
+
+  public long getMostTraceId() {
+    return this.mostTraceId;
+  }
+
+  public void setMostTraceId(long mostTraceId) {
+    this.mostTraceId = mostTraceId;
+    setMostTraceIdIsSet(true);
+  }
+
+  public void unsetMostTraceId() {
+    __isset_bit_vector.clear(__MOSTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field mostTraceId is set (has been assigned a value) and false otherwise */
+  public boolean isSetMostTraceId() {
+    return __isset_bit_vector.get(__MOSTTRACEID_ISSET_ID);
+  }
+
+  public void setMostTraceIdIsSet(boolean value) {
+    __isset_bit_vector.set(__MOSTTRACEID_ISSET_ID, value);
+  }
+
+  public long getLeastTraceId() {
+    return this.leastTraceId;
+  }
+
+  public void setLeastTraceId(long leastTraceId) {
+    this.leastTraceId = leastTraceId;
+    setLeastTraceIdIsSet(true);
+  }
+
+  public void unsetLeastTraceId() {
+    __isset_bit_vector.clear(__LEASTTRACEID_ISSET_ID);
+  }
+
+  /** Returns true if field leastTraceId is set (has been assigned a value) and false otherwise */
+  public boolean isSetLeastTraceId() {
+    return __isset_bit_vector.get(__LEASTTRACEID_ISSET_ID);
+  }
+
+  public void setLeastTraceIdIsSet(boolean value) {
+    __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
+  }
+
+  public long getSpanId() {
+    return this.spanId;
+  }
+
+  public void setSpanId(long spanId) {
+    this.spanId = spanId;
+    setSpanIdIsSet(true);
+  }
+
+  public void unsetSpanId() {
+    __isset_bit_vector.clear(__SPANID_ISSET_ID);
+  }
+
+  /** Returns true if field spanId is set (has been assigned a value) and false otherwise */
+  public boolean isSetSpanId() {
+    return __isset_bit_vector.get(__SPANID_ISSET_ID);
+  }
+
+  public void setSpanIdIsSet(boolean value) {
+    __isset_bit_vector.set(__SPANID_ISSET_ID, value);
+  }
+
+  public int getSubSpanListSize() {
+    return (this.subSpanList == null) ? 0 : this.subSpanList.size();
+  }
+
+  public java.util.Iterator<SubSpan> getSubSpanListIterator() {
+    return (this.subSpanList == null) ? null : this.subSpanList.iterator();
+  }
+
+  public void addToSubSpanList(SubSpan elem) {
+    if (this.subSpanList == null) {
+      this.subSpanList = new ArrayList<SubSpan>();
+    }
+    this.subSpanList.add(elem);
+  }
+
+  public List<SubSpan> getSubSpanList() {
+    return this.subSpanList;
+  }
+
+  public void setSubSpanList(List<SubSpan> subSpanList) {
+    this.subSpanList = subSpanList;
+  }
+
+  public void unsetSubSpanList() {
+    this.subSpanList = null;
+  }
+
+  /** Returns true if field subSpanList is set (has been assigned a value) and false otherwise */
+  public boolean isSetSubSpanList() {
+    return this.subSpanList != null;
+  }
+
+  public void setSubSpanListIsSet(boolean value) {
+    if (!value) {
+      this.subSpanList = null;
+    }
+  }
+
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case AGENT_ID:
+      if (value == null) {
+        unsetAgentId();
+      } else {
+        setAgentId((String)value);
+      }
+      break;
+
+    case MOST_TRACE_ID:
+      if (value == null) {
+        unsetMostTraceId();
+      } else {
+        setMostTraceId((Long)value);
+      }
+      break;
+
+    case LEAST_TRACE_ID:
+      if (value == null) {
+        unsetLeastTraceId();
+      } else {
+        setLeastTraceId((Long)value);
+      }
+      break;
+
+    case SPAN_ID:
+      if (value == null) {
+        unsetSpanId();
+      } else {
+        setSpanId((Long)value);
+      }
+      break;
+
+    case SUB_SPAN_LIST:
+      if (value == null) {
+        unsetSubSpanList();
+      } else {
+        setSubSpanList((List<SubSpan>)value);
+      }
+      break;
+
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case AGENT_ID:
+      return getAgentId();
+
+    case MOST_TRACE_ID:
+      return Long.valueOf(getMostTraceId());
+
+    case LEAST_TRACE_ID:
+      return Long.valueOf(getLeastTraceId());
+
+    case SPAN_ID:
+      return Long.valueOf(getSpanId());
+
+    case SUB_SPAN_LIST:
+      return getSubSpanList();
+
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void unsetLeastTraceId() {
-        __isset_bit_vector.clear(__LEASTTRACEID_ISSET_ID);
+    switch (field) {
+    case AGENT_ID:
+      return isSetAgentId();
+    case MOST_TRACE_ID:
+      return isSetMostTraceId();
+    case LEAST_TRACE_ID:
+      return isSetLeastTraceId();
+    case SPAN_ID:
+      return isSetSpanId();
+    case SUB_SPAN_LIST:
+      return isSetSubSpanList();
     }
+    throw new IllegalStateException();
+  }
 
-    /**
-     * Returns true if field leastTraceId is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetLeastTraceId() {
-        return __isset_bit_vector.get(__LEASTTRACEID_ISSET_ID);
-    }
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
+      return false;
+    if (that instanceof SubSpanList)
+      return this.equals((SubSpanList)that);
+    return false;
+  }
 
-    public void setLeastTraceIdIsSet(boolean value) {
-        __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
-    }
+  public boolean equals(SubSpanList that) {
+    if (that == null)
+      return false;
 
-    public long getSpanId() {
-        return this.spanId;
-    }
-
-    public void setSpanId(long spanId) {
-        this.spanId = spanId;
-        setSpanIdIsSet(true);
-    }
-
-    public void unsetSpanId() {
-        __isset_bit_vector.clear(__SPANID_ISSET_ID);
-    }
-
-    /**
-     * Returns true if field spanId is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetSpanId() {
-        return __isset_bit_vector.get(__SPANID_ISSET_ID);
-    }
-
-    public void setSpanIdIsSet(boolean value) {
-        __isset_bit_vector.set(__SPANID_ISSET_ID, value);
-    }
-
-    public int getSubSpanListSize() {
-        return (this.subSpanList == null) ? 0 : this.subSpanList.size();
-    }
-
-    public java.util.Iterator<SubSpan> getSubSpanListIterator() {
-        return (this.subSpanList == null) ? null : this.subSpanList.iterator();
-    }
-
-    public void addToSubSpanList(SubSpan elem) {
-        if (this.subSpanList == null) {
-            this.subSpanList = new ArrayList<SubSpan>();
-        }
-        this.subSpanList.add(elem);
-    }
-
-    public List<SubSpan> getSubSpanList() {
-        return this.subSpanList;
-    }
-
-    public void setSubSpanList(List<SubSpan> subSpanList) {
-        this.subSpanList = subSpanList;
-    }
-
-    public void unsetSubSpanList() {
-        this.subSpanList = null;
-    }
-
-    /**
-     * Returns true if field subSpanList is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSetSubSpanList() {
-        return this.subSpanList != null;
-    }
-
-    public void setSubSpanListIsSet(boolean value) {
-        if (!value) {
-            this.subSpanList = null;
-        }
-    }
-
-    public void setFieldValue(_Fields field, Object value) {
-        switch (field) {
-            case AGENT_ID:
-                if (value == null) {
-                    unsetAgentId();
-                } else {
-                    setAgentId((String) value);
-                }
-                break;
-
-            case MOST_TRACE_ID:
-                if (value == null) {
-                    unsetMostTraceId();
-                } else {
-                    setMostTraceId((Long) value);
-                }
-                break;
-
-            case LEAST_TRACE_ID:
-                if (value == null) {
-                    unsetLeastTraceId();
-                } else {
-                    setLeastTraceId((Long) value);
-                }
-                break;
-
-            case SPAN_ID:
-                if (value == null) {
-                    unsetSpanId();
-                } else {
-                    setSpanId((Long) value);
-                }
-                break;
-
-            case SUB_SPAN_LIST:
-                if (value == null) {
-                    unsetSubSpanList();
-                } else {
-                    setSubSpanList((List<SubSpan>) value);
-                }
-                break;
-
-        }
-    }
-
-    public Object getFieldValue(_Fields field) {
-        switch (field) {
-            case AGENT_ID:
-                return getAgentId();
-
-            case MOST_TRACE_ID:
-                return Long.valueOf(getMostTraceId());
-
-            case LEAST_TRACE_ID:
-                return Long.valueOf(getLeastTraceId());
-
-            case SPAN_ID:
-                return Long.valueOf(getSpanId());
-
-            case SUB_SPAN_LIST:
-                return getSubSpanList();
-
-        }
-        throw new IllegalStateException();
-    }
-
-    /**
-     * Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise
-     */
-    public boolean isSet(_Fields field) {
-        if (field == null) {
-            throw new IllegalArgumentException();
-        }
-
-        switch (field) {
-            case AGENT_ID:
-                return isSetAgentId();
-            case MOST_TRACE_ID:
-                return isSetMostTraceId();
-            case LEAST_TRACE_ID:
-                return isSetLeastTraceId();
-            case SPAN_ID:
-                return isSetSpanId();
-            case SUB_SPAN_LIST:
-                return isSetSubSpanList();
-        }
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        if (that == null)
-            return false;
-        if (that instanceof SubSpanList)
-            return this.equals((SubSpanList) that);
+    boolean this_present_agentId = true && this.isSetAgentId();
+    boolean that_present_agentId = true && that.isSetAgentId();
+    if (this_present_agentId || that_present_agentId) {
+      if (!(this_present_agentId && that_present_agentId))
+        return false;
+      if (!this.agentId.equals(that.agentId))
         return false;
     }
 
-    public boolean equals(SubSpanList that) {
-        if (that == null)
-            return false;
+    boolean this_present_mostTraceId = true;
+    boolean that_present_mostTraceId = true;
+    if (this_present_mostTraceId || that_present_mostTraceId) {
+      if (!(this_present_mostTraceId && that_present_mostTraceId))
+        return false;
+      if (this.mostTraceId != that.mostTraceId)
+        return false;
+    }
 
-        boolean this_present_agentId = true && this.isSetAgentId();
-        boolean that_present_agentId = true && that.isSetAgentId();
-        if (this_present_agentId || that_present_agentId) {
-            if (!(this_present_agentId && that_present_agentId))
-                return false;
-            if (!this.agentId.equals(that.agentId))
-                return false;
+    boolean this_present_leastTraceId = true;
+    boolean that_present_leastTraceId = true;
+    if (this_present_leastTraceId || that_present_leastTraceId) {
+      if (!(this_present_leastTraceId && that_present_leastTraceId))
+        return false;
+      if (this.leastTraceId != that.leastTraceId)
+        return false;
+    }
+
+    boolean this_present_spanId = true;
+    boolean that_present_spanId = true;
+    if (this_present_spanId || that_present_spanId) {
+      if (!(this_present_spanId && that_present_spanId))
+        return false;
+      if (this.spanId != that.spanId)
+        return false;
+    }
+
+    boolean this_present_subSpanList = true && this.isSetSubSpanList();
+    boolean that_present_subSpanList = true && that.isSetSubSpanList();
+    if (this_present_subSpanList || that_present_subSpanList) {
+      if (!(this_present_subSpanList && that_present_subSpanList))
+        return false;
+      if (!this.subSpanList.equals(that.subSpanList))
+        return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(SubSpanList other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    SubSpanList typedOther = (SubSpanList)other;
+
+    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAgentId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetMostTraceId()).compareTo(typedOther.isSetMostTraceId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetMostTraceId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mostTraceId, typedOther.mostTraceId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetLeastTraceId()).compareTo(typedOther.isSetLeastTraceId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetLeastTraceId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.leastTraceId, typedOther.leastTraceId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSpanId()).compareTo(typedOther.isSetSpanId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSpanId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanId, typedOther.spanId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSubSpanList()).compareTo(typedOther.isSetSubSpanList());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSubSpanList()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.subSpanList, typedOther.subSpanList);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    return 0;
+  }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+  }
+
+  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("SubSpanList(");
+    boolean first = true;
+
+    sb.append("agentId:");
+    if (this.agentId == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.agentId);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("mostTraceId:");
+    sb.append(this.mostTraceId);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("leastTraceId:");
+    sb.append(this.leastTraceId);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("spanId:");
+    sb.append(this.spanId);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("subSpanList:");
+    if (this.subSpanList == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.subSpanList);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws org.apache.thrift.TException {
+    // check for required fields
+  }
+
+  private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    try {
+      write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
+  }
+
+  private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+    try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bit_vector = new BitSet(1);
+      read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
+  }
+
+  private static class SubSpanListStandardSchemeFactory implements SchemeFactory {
+    public SubSpanListStandardScheme getScheme() {
+      return new SubSpanListStandardScheme();
+    }
+  }
+
+  private static class SubSpanListStandardScheme extends StandardScheme<SubSpanList> {
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot, SubSpanList struct) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField schemeField;
+      iprot.readStructBegin();
+      while (true)
+      {
+        schemeField = iprot.readFieldBegin();
+        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
         }
-
-        boolean this_present_mostTraceId = true;
-        boolean that_present_mostTraceId = true;
-        if (this_present_mostTraceId || that_present_mostTraceId) {
-            if (!(this_present_mostTraceId && that_present_mostTraceId))
-                return false;
-            if (this.mostTraceId != that.mostTraceId)
-                return false;
+        switch (schemeField.id) {
+          case 1: // AGENT_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.agentId = iprot.readString();
+              struct.setAgentIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // MOST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.mostTraceId = iprot.readI64();
+              struct.setMostTraceIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // LEAST_TRACE_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.leastTraceId = iprot.readI64();
+              struct.setLeastTraceIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // SPAN_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanId = iprot.readI64();
+              struct.setSpanIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // SUB_SPAN_LIST
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                struct.subSpanList = new ArrayList<SubSpan>(_list24.size);
+                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
+                {
+                  SubSpan _elem26; // required
+                  _elem26 = new SubSpan();
+                  _elem26.read(iprot);
+                  struct.subSpanList.add(_elem26);
+                }
+                iprot.readListEnd();
+              }
+              struct.setSubSpanListIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      struct.validate();
+    }
 
-        boolean this_present_leastTraceId = true;
-        boolean that_present_leastTraceId = true;
-        if (this_present_leastTraceId || that_present_leastTraceId) {
-            if (!(this_present_leastTraceId && that_present_leastTraceId))
-                return false;
-            if (this.leastTraceId != that.leastTraceId)
-                return false;
+    public void write(org.apache.thrift.protocol.TProtocol oprot, SubSpanList struct) throws org.apache.thrift.TException {
+      struct.validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (struct.agentId != null) {
+        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+        oprot.writeString(struct.agentId);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.mostTraceId);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(LEAST_TRACE_ID_FIELD_DESC);
+      oprot.writeI64(struct.leastTraceId);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
+      oprot.writeI64(struct.spanId);
+      oprot.writeFieldEnd();
+      if (struct.subSpanList != null) {
+        oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
+        {
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
+          for (SubSpan _iter27 : struct.subSpanList)
+          {
+            _iter27.write(oprot);
+          }
+          oprot.writeListEnd();
         }
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
 
-        boolean this_present_spanId = true;
-        boolean that_present_spanId = true;
-        if (this_present_spanId || that_present_spanId) {
-            if (!(this_present_spanId && that_present_spanId))
-                return false;
-            if (this.spanId != that.spanId)
-                return false;
+  }
+
+  private static class SubSpanListTupleSchemeFactory implements SchemeFactory {
+    public SubSpanListTupleScheme getScheme() {
+      return new SubSpanListTupleScheme();
+    }
+  }
+
+  private static class SubSpanListTupleScheme extends TupleScheme<SubSpanList> {
+
+    @Override
+    public void write(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
+      TTupleProtocol oprot = (TTupleProtocol) prot;
+      BitSet optionals = new BitSet();
+      if (struct.isSetAgentId()) {
+        optionals.set(0);
+      }
+      if (struct.isSetMostTraceId()) {
+        optionals.set(1);
+      }
+      if (struct.isSetLeastTraceId()) {
+        optionals.set(2);
+      }
+      if (struct.isSetSpanId()) {
+        optionals.set(3);
+      }
+      if (struct.isSetSubSpanList()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetAgentId()) {
+        oprot.writeString(struct.agentId);
+      }
+      if (struct.isSetMostTraceId()) {
+        oprot.writeI64(struct.mostTraceId);
+      }
+      if (struct.isSetLeastTraceId()) {
+        oprot.writeI64(struct.leastTraceId);
+      }
+      if (struct.isSetSpanId()) {
+        oprot.writeI64(struct.spanId);
+      }
+      if (struct.isSetSubSpanList()) {
+        {
+          oprot.writeI32(struct.subSpanList.size());
+          for (SubSpan _iter28 : struct.subSpanList)
+          {
+            _iter28.write(oprot);
+          }
         }
-
-        boolean this_present_subSpanList = true && this.isSetSubSpanList();
-        boolean that_present_subSpanList = true && that.isSetSubSpanList();
-        if (this_present_subSpanList || that_present_subSpanList) {
-            if (!(this_present_subSpanList && that_present_subSpanList))
-                return false;
-            if (!this.subSpanList.equals(that.subSpanList))
-                return false;
-        }
-
-        return true;
+      }
     }
 
     @Override
-    public int hashCode() {
-        return 0;
+    public void read(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
+      TTupleProtocol iprot = (TTupleProtocol) prot;
+      BitSet incoming = iprot.readBitSet(5);
+      if (incoming.get(0)) {
+        struct.agentId = iprot.readString();
+        struct.setAgentIdIsSet(true);
+      }
+      if (incoming.get(1)) {
+        struct.mostTraceId = iprot.readI64();
+        struct.setMostTraceIdIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.leastTraceId = iprot.readI64();
+        struct.setLeastTraceIdIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.spanId = iprot.readI64();
+        struct.setSpanIdIsSet(true);
+      }
+      if (incoming.get(4)) {
+        {
+          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.subSpanList = new ArrayList<SubSpan>(_list29.size);
+          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
+          {
+            SubSpan _elem31; // required
+            _elem31 = new SubSpan();
+            _elem31.read(iprot);
+            struct.subSpanList.add(_elem31);
+          }
+        }
+        struct.setSubSpanListIsSet(true);
+      }
     }
-
-    public int compareTo(SubSpanList other) {
-        if (!getClass().equals(other.getClass())) {
-            return getClass().getName().compareTo(other.getClass().getName());
-        }
-
-        int lastComparison = 0;
-        SubSpanList typedOther = (SubSpanList) other;
-
-        lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetAgentId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetMostTraceId()).compareTo(typedOther.isSetMostTraceId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetMostTraceId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mostTraceId, typedOther.mostTraceId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetLeastTraceId()).compareTo(typedOther.isSetLeastTraceId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetLeastTraceId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.leastTraceId, typedOther.leastTraceId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetSpanId()).compareTo(typedOther.isSetSpanId());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetSpanId()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanId, typedOther.spanId);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        lastComparison = Boolean.valueOf(isSetSubSpanList()).compareTo(typedOther.isSetSubSpanList());
-        if (lastComparison != 0) {
-            return lastComparison;
-        }
-        if (isSetSubSpanList()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.subSpanList, typedOther.subSpanList);
-            if (lastComparison != 0) {
-                return lastComparison;
-            }
-        }
-        return 0;
-    }
-
-    public _Fields fieldForId(int fieldId) {
-        return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
-        schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
-    }
-
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
-        schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("SubSpanList(");
-        boolean first = true;
-
-        sb.append("agentId:");
-        if (this.agentId == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.agentId);
-        }
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("mostTraceId:");
-        sb.append(this.mostTraceId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("leastTraceId:");
-        sb.append(this.leastTraceId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("spanId:");
-        sb.append(this.spanId);
-        first = false;
-        if (!first) sb.append(", ");
-        sb.append("subSpanList:");
-        if (this.subSpanList == null) {
-            sb.append("null");
-        } else {
-            sb.append(this.subSpanList);
-        }
-        first = false;
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public void validate() throws org.apache.thrift.TException {
-        // check for required fields
-    }
-
-    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
-        try {
-            write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
-        }
-    }
-
-    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
-        try {
-            // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-            __isset_bit_vector = new BitSet(1);
-            read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
-        }
-    }
-
-    private static class SubSpanListStandardSchemeFactory implements SchemeFactory {
-        public SubSpanListStandardScheme getScheme() {
-            return new SubSpanListStandardScheme();
-        }
-    }
-
-    private static class SubSpanListStandardScheme extends StandardScheme<SubSpanList> {
-
-        public void read(org.apache.thrift.protocol.TProtocol iprot, SubSpanList struct) throws org.apache.thrift.TException {
-            org.apache.thrift.protocol.TField schemeField;
-            iprot.readStructBegin();
-            while (true) {
-                schemeField = iprot.readFieldBegin();
-                if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
-                    break;
-                }
-                switch (schemeField.id) {
-                    case 1: // AGENT_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                            struct.agentId = iprot.readString();
-                            struct.setAgentIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 2: // MOST_TRACE_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.mostTraceId = iprot.readI64();
-                            struct.setMostTraceIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 3: // LEAST_TRACE_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.leastTraceId = iprot.readI64();
-                            struct.setLeastTraceIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 4: // SPAN_ID
-                        if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                            struct.spanId = iprot.readI64();
-                            struct.setSpanIdIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    case 5: // SUB_SPAN_LIST
-                        if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                            {
-                                org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
-                                struct.subSpanList = new ArrayList<SubSpan>(_list48.size);
-                                for (int _i49 = 0; _i49 < _list48.size; ++_i49) {
-                                    SubSpan _elem50; // required
-                                    _elem50 = new SubSpan();
-                                    _elem50.read(iprot);
-                                    struct.subSpanList.add(_elem50);
-                                }
-                                iprot.readListEnd();
-                            }
-                            struct.setSubSpanListIsSet(true);
-                        } else {
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                        }
-                        break;
-                    default:
-                        org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-                }
-                iprot.readFieldEnd();
-            }
-            iprot.readStructEnd();
-            struct.validate();
-        }
-
-        public void write(org.apache.thrift.protocol.TProtocol oprot, SubSpanList struct) throws org.apache.thrift.TException {
-            struct.validate();
-
-            oprot.writeStructBegin(STRUCT_DESC);
-            if (struct.agentId != null) {
-                oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
-                oprot.writeString(struct.agentId);
-                oprot.writeFieldEnd();
-            }
-            oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
-            oprot.writeI64(struct.mostTraceId);
-            oprot.writeFieldEnd();
-            oprot.writeFieldBegin(LEAST_TRACE_ID_FIELD_DESC);
-            oprot.writeI64(struct.leastTraceId);
-            oprot.writeFieldEnd();
-            oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-            oprot.writeI64(struct.spanId);
-            oprot.writeFieldEnd();
-            if (struct.subSpanList != null) {
-                oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
-                {
-                    oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-                    for (SubSpan _iter51 : struct.subSpanList) {
-                        _iter51.write(oprot);
-                    }
-                    oprot.writeListEnd();
-                }
-                oprot.writeFieldEnd();
-            }
-            oprot.writeFieldStop();
-            oprot.writeStructEnd();
-        }
-
-    }
-
-    private static class SubSpanListTupleSchemeFactory implements SchemeFactory {
-        public SubSpanListTupleScheme getScheme() {
-            return new SubSpanListTupleScheme();
-        }
-    }
-
-    private static class SubSpanListTupleScheme extends TupleScheme<SubSpanList> {
-
-        @Override
-        public void write(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
-            TTupleProtocol oprot = (TTupleProtocol) prot;
-            BitSet optionals = new BitSet();
-            if (struct.isSetAgentId()) {
-                optionals.set(0);
-            }
-            if (struct.isSetMostTraceId()) {
-                optionals.set(1);
-            }
-            if (struct.isSetLeastTraceId()) {
-                optionals.set(2);
-            }
-            if (struct.isSetSpanId()) {
-                optionals.set(3);
-            }
-            if (struct.isSetSubSpanList()) {
-                optionals.set(4);
-            }
-            oprot.writeBitSet(optionals, 5);
-            if (struct.isSetAgentId()) {
-                oprot.writeString(struct.agentId);
-            }
-            if (struct.isSetMostTraceId()) {
-                oprot.writeI64(struct.mostTraceId);
-            }
-            if (struct.isSetLeastTraceId()) {
-                oprot.writeI64(struct.leastTraceId);
-            }
-            if (struct.isSetSpanId()) {
-                oprot.writeI64(struct.spanId);
-            }
-            if (struct.isSetSubSpanList()) {
-                {
-                    oprot.writeI32(struct.subSpanList.size());
-                    for (SubSpan _iter52 : struct.subSpanList) {
-                        _iter52.write(oprot);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void read(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
-            TTupleProtocol iprot = (TTupleProtocol) prot;
-            BitSet incoming = iprot.readBitSet(5);
-            if (incoming.get(0)) {
-                struct.agentId = iprot.readString();
-                struct.setAgentIdIsSet(true);
-            }
-            if (incoming.get(1)) {
-                struct.mostTraceId = iprot.readI64();
-                struct.setMostTraceIdIsSet(true);
-            }
-            if (incoming.get(2)) {
-                struct.leastTraceId = iprot.readI64();
-                struct.setLeastTraceIdIsSet(true);
-            }
-            if (incoming.get(3)) {
-                struct.spanId = iprot.readI64();
-                struct.setSpanIdIsSet(true);
-            }
-            if (incoming.get(4)) {
-                {
-                    org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-                    struct.subSpanList = new ArrayList<SubSpan>(_list53.size);
-                    for (int _i54 = 0; _i54 < _list53.size; ++_i54) {
-                        SubSpan _elem55; // required
-                        _elem55 = new SubSpan();
-                        _elem55.read(iprot);
-                        struct.subSpanList.add(_elem55);
-                    }
-                }
-                struct.setSubSpanListIsSet(true);
-            }
-        }
-    }
+  }
 
 }
 

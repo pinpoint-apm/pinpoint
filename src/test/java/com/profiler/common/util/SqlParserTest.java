@@ -125,6 +125,15 @@ public class SqlParserTest {
         assertEqual("123tst", "0#tst", "123");
     }
 
+    @Test
+    public void numberState2() {
+        assertEqual("1.23e", "0#", "1.23e");
+        assertEqual("1.23E", "0#", "1.23E");
+        // -가 진짜 숫자의 -인지 알려면 구문분석이 필요하므로 그냥 숫자만 치환한다.
+        assertEqual("1.4e-10", "0#-1#", "1.4e,10");
+
+    }
+
 
     @Test
     public void singleLineCommentState() {

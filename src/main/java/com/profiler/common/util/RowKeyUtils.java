@@ -1,5 +1,6 @@
 package com.profiler.common.util;
 
+import com.profiler.common.bo.ApiMetaDataBo;
 import com.profiler.common.bo.SqlMetaDataBo;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -25,7 +26,17 @@ public class RowKeyUtils {
         return rowKey;
     }
 
+    public static byte[] getApiId(String agentId, int apiCode, long agentStartTime) {
+        return getMetaInfoRowKey(agentId, apiCode, agentStartTime);
+    }
+
+
     public static byte[] getSqlId(String agentId, int hashCode, long agentStartTime) {
+        return getMetaInfoRowKey(agentId, hashCode, agentStartTime);
+
+    }
+
+    private static byte[] getMetaInfoRowKey(String agentId, int keyCode, long agentStartTime) {
         // TODO 일단 agent의 조회 시간 로직을 따로 만들어야 되므로 그냥0으로 하자.
         if (agentId == null) {
             throw new IllegalArgumentException("agentId must not be null");
@@ -38,7 +49,7 @@ public class RowKeyUtils {
 
         byte[] buffer = new byte[AGENT_NAME_LIMIT + INT_BYTE_LENGTH + LONG_BYTE_LENGTH];
         Bytes.putBytes(buffer, 0, agentBytes, 0, agentBytes.length);
-        BytesUtils.writeInt(hashCode, buffer, AGENT_NAME_LIMIT);
+        BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_LIMIT);
         long reverseCurrentTimeMillis = TimeUtils.reverseCurrentTimeMillis(agentStartTime);
         BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_LIMIT + INT_BYTE_LENGTH);
         return buffer;
@@ -50,6 +61,14 @@ public class RowKeyUtils {
         long startTIme = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(rowKey, AGENT_NAME_LIMIT + INT_BYTE_LENGTH));
         SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, hashCode, startTIme);
         return sqlMetaDataBo;
+    }
+
+    public static ApiMetaDataBo parseApiId(byte[] rowKey) {
+        String agentId = Bytes.toString(rowKey, 0, AGENT_NAME_LIMIT).trim();
+        int apiId = BytesUtils.bytesToInt(rowKey, AGENT_NAME_LIMIT);
+        long startTIme = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(rowKey, AGENT_NAME_LIMIT + INT_BYTE_LENGTH));
+        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, apiId, startTIme);
+        return apiMetaDataBo;
     }
 
 }

@@ -7,16 +7,6 @@ struct Annotation {
   4: optional i64 timestamp,
 }
 
-struct ApiAnnotation {
-  1: optional i32 apiId,
-  2: optional string className,
-  3: optional string methodName,
-  4: optional list<string> parameterType,
-  5: optional list<string> parameterName,
-  6: optional list<string> parameterValue,
-  7: optional i32 line,
-}
-
 struct SubSpan {
   1: optional string agentId
 
@@ -83,4 +73,13 @@ struct SqlMetaData {
     2: i64 startTime;
     3: i32 hashCode
     4: string sql;
+}
+
+
+struct ApiMetaData {
+  1: string agentId
+  2: i64 startTime;
+  3: i32 apiId,
+  4: string apiInfo,
+  5: optional i32 line,
 }

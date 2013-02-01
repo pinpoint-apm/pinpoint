@@ -80,6 +80,10 @@ public class BytesUtils {
         return v;
     }
 
+    public static short bytesToShort(byte byte1, byte byte2) {
+        return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
+    }
+
     public static long bytesToFirstLong(byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -133,6 +137,14 @@ public class BytesUtils {
         buf[offset++] = (byte) (value >> 16);
         buf[offset++] = (byte) (value >> 8);
         buf[offset] = (byte) (value);
+    }
+
+    public static byte writeShort1(short value) {
+        return (byte) (value >> 8);
+    }
+
+    public static byte writeShort2(short value) {
+        return (byte) (value);
     }
 
     public static void writeShort(short value, byte[] buf, int offset) {
