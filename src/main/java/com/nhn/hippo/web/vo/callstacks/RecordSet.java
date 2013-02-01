@@ -65,11 +65,11 @@ public class RecordSet {
                 continue;
 
             if (AnnotationNames.EXCEPTION.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null));
+                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
             } else if (AnnotationNames.SQL_BINDVALUE.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null));
+                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
             } else if (AnnotationNames.SQL.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null));
+                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
             }
         }
     }
@@ -94,7 +94,7 @@ public class RecordSet {
                     marked = true;
                 }
 
-                recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName()));
+                recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName(), span.getServiceType()));
                 addAnnotationRecord(sa.getDepth() + 1, span.getAnnotationBoList());
             } else {
                 SubSpanBo subSpan = sa.getSubSpanBo();
@@ -112,7 +112,7 @@ public class RecordSet {
                     marked = true;
                 }
 
-                recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName()));
+                recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType()));
                 addAnnotationRecord(sa.getDepth() + 1, subSpan.getAnnotationBoList());
             }
         }

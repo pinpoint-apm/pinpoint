@@ -253,7 +253,7 @@
 						<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
 					</c:if>
 	                
-                   	<c:if test="${record.method}">
+                   	<c:if test="${record.method and not record.excludeFromTimeline}">
                         <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;"
                         	onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
 							<div style="width:200px;">${record.service} (${end - begin}ms)</div>

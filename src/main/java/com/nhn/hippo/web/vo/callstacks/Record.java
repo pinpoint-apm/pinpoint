@@ -1,5 +1,7 @@
 package com.nhn.hippo.web.vo.callstacks;
 
+import com.profiler.common.ServiceType;
+
 /**
  * each stack
  * 
@@ -16,8 +18,9 @@ public class Record {
 	private final long elapsed;
 	private final String agent;
 	private final String service;
+	private final boolean excludeFromTimeline;
 
-	public Record(int tab, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service) {
+	public Record(int tab, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType) {
 		this.tab = tab;
 		this.method = method;
 
@@ -27,6 +30,7 @@ public class Record {
 		this.elapsed = elapsed;
 		this.agent = agent;
 		this.service = service;
+		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
 	}
 
 	public int getTab() {
@@ -59,6 +63,10 @@ public class Record {
 
 	public String getService() {
 		return service;
+	}
+
+	public boolean isExcludeFromTimeline() {
+		return excludeFromTimeline;
 	}
 
 	@Override
