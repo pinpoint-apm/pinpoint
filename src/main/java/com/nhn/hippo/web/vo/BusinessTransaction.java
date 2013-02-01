@@ -36,9 +36,9 @@ public class BusinessTransaction {
 
 		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.isException()));
 
-		if (span.getParentSpanId() == -1) {
+		//if (span.getParentSpanId() == -1) {
 			calls++;
-		}
+		//}
 	}
 
 	public String getRpc() {
