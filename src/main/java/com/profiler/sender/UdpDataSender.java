@@ -14,8 +14,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +29,11 @@ public class UdpDataSender implements DataSender, Runnable {
 
     private final Logger logger = Logger.getLogger(UdpDataSender.class.getName());
 
-    private final LinkedBlockingQueue queue = new LinkedBlockingQueue(1024);
+    private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
+
+    private int maxDrainSize = 10;
+    // 주의 single thread용임
+    private List<Object> drain = new ArrayList<Object>(maxDrainSize);
 
     private DatagramSocket udpSocket = null;
     private Thread ioThread;
@@ -35,8 +42,8 @@ public class UdpDataSender implements DataSender, Runnable {
     // 주의 single thread용임
     private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
-    private boolean started = false;
 
+    private AtomicBoolean started = new AtomicBoolean();
     private Object stopLock = new Object();
 
     public UdpDataSender(String host, int port) {
@@ -47,12 +54,12 @@ public class UdpDataSender implements DataSender, Runnable {
 
         this.ioThread = createIoThread();
 
-        this.started = true;
+        this.started.set(true);
     }
 
     private Thread createIoThread() {
         Thread thread = new Thread(this);
-        thread.setName("HIPPO-UdpDataSender:IoThread");
+        thread.setName("HIPPO-UdpDataSender-IoThread");
         thread.setDaemon(true);
         thread.start();
         return thread;
@@ -67,59 +74,92 @@ public class UdpDataSender implements DataSender, Runnable {
             datagramSocket.connect(serverAddress);
             return datagramSocket;
         } catch (SocketException e) {
-            throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
+            throw new IllegalStateException("DataramSocket create fail. Cause" + e.getMessage(), e);
         }
     }
 
     public boolean send(TBase<?, ?> data) {
-        if (!started) {
-            return false;
-        }
-        // TODO: addedQueue가 full일 때 IllegalStateException처리.
-        return queue.offer(data);
+        return putQueue(data);
     }
 
     public boolean send(Thriftable thriftable) {
-        if (!started) {
+        return putQueue(thriftable);
+    }
+
+    private boolean putQueue(Object data) {
+        if (data == null) {
+            logger.warning("putQueue(). data is null");
             return false;
         }
-        // TODO: addedQueue가 full일 때 IllegalStateException처리.
-        return queue.offer(thriftable);
+        if (!started.get()) {
+            return false;
+        }
+        boolean offer = queue.offer(data);
+        if (!offer) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning("Drop data. queue is full. size:" + queue.size());
+            }
+        }
+        return offer;
     }
+
 
     @Override
     public void stop() {
-        if (!started) {
+        if (!started.get()) {
             return;
         }
-        started = false;
+        started.set(false);
         // io thread 안전 종료. queue 비우기.
         // TODO 종료 처리가 안이쁨. 고쳐야 될듯.
     }
 
-    // TODO: sender thread가 한 개로 충분한가.
     public void run() {
+        doSend();
+    }
+
+    private void doSend() {
+        drain:
         while (true) {
             try {
-                Object dto = take();
-                if (dto == null) {
+                List<Object> dtoList = takeN();
+                if (dtoList != null) {
+                    sendPacketN(dtoList);
                     continue;
                 }
-                send0(dto);
-            } catch (Throwable e) {
-                logger.log(Level.WARNING, "Unexpected Error Cause:" + e.getMessage(), e);
+
+                while(true) {
+                    Object dto = takeOne();
+                    if (dto != null) {
+                        sendPacket(dto);
+                        continue drain;
+                    }
+                }
+
+            } catch (Throwable th) {
+                logger.log(Level.WARNING, "Unexpected Error Cause:" + th.getMessage(), th);
             }
         }
     }
 
-    private void send0(Object dto) {
+    private void sendPacketN(List<Object> dtoList) {
+        for (Object dto : dtoList) {
+            try {
+                sendPacket(dto);
+            } catch (Throwable th) {
+                logger.log(Level.WARNING, "Unexpected Error Cause:" + th.getMessage(), th);
+            }
+        }
+    }
+
+    private void sendPacket(Object dto) {
         TBase tBase;
         if (dto instanceof TBase) {
             tBase = (TBase) dto;
         } else if (dto instanceof Thriftable) {
             tBase = ((Thriftable) dto).toThrift();
         } else {
-            logger.warning("invalid type:" + dto.getClass());
+            logger.warning("sendPacket fail. invalid type:" + dto.getClass());
             return;
         }
         byte[] sendData = serialize(tBase);
@@ -138,8 +178,7 @@ public class UdpDataSender implements DataSender, Runnable {
         }
     }
 
-    // TODO: addedqueue에서 bulk로 drain
-    private Object take() {
+    private Object takeOne() {
         try {
             return queue.poll(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -147,9 +186,18 @@ public class UdpDataSender implements DataSender, Runnable {
         }
     }
 
+    private List<Object> takeN() {
+        drain.clear();
+        int size = queue.drainTo(drain, 10);
+        if (size <= 0) {
+            return null;
+        }
+        return drain;
+    }
+
     private byte[] serialize(TBase<?, ?> dto) {
         try {
-            Header header = createHeader(dto);
+            Header header = headerLookup(dto);
             return serializer.serialize(header, dto);
         } catch (TException e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -159,11 +207,8 @@ public class UdpDataSender implements DataSender, Runnable {
         }
     }
 
-    private Header createHeader(TBase<?, ?> dto) throws TException {
-        // TODO 구지 객체 생성을 안하고 정적 lookup이 가능할것 같음.
-        short type = locator.typeLookup(dto);
-        Header header = new Header();
-        header.setType(type);
-        return header;
+    private Header headerLookup(TBase<?, ?> dto) throws TException {
+        // header 객체 생성을 안하고 정적 lookup이 되도록 변경.
+        return locator.headerLookup(dto);
     }
 }
