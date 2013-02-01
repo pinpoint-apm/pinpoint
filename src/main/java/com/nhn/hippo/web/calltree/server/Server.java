@@ -11,16 +11,16 @@ import com.profiler.common.bo.SubSpanBo;
  * @author netspider
  */
 public class Server implements Comparable<Server> {
-	private int sequence;
-	private final String id;
-	private final Set<String> agentIds = new HashSet<String>();
-	private final String applicationName;
-	private final String endPoint;
-	private final ServiceType serviceType;
+	protected int sequence;
+	protected final String id;
+	protected final Set<String> agentIds = new HashSet<String>();
+	protected final String applicationName;
+	protected final String endPoint;
+	protected final ServiceType serviceType;
 
-	private int recursiveCallCount;
+	protected int recursiveCallCount;
 
-	public Server(SubSpanBo span) {
+	public Server(SubSpanBo span, NodeIdGenerator idGenerator) {
 		if (span.getServiceType().isTerminal()) {
 			this.agentIds.add(span.getAgentId());
 		} else {
@@ -33,7 +33,8 @@ public class Server implements Comparable<Server> {
 			this.applicationName = span.getEndPoint();
 			this.serviceType = ServiceType.UNKNOWN_CLOUD;
 		} else {
-			this.id = span.getServiceName();
+			this.id = idGenerator.makeServerId(span);
+			// this.id = span.getServiceName();
 			this.applicationName = span.getServiceName();
 			this.serviceType = span.getServiceType();
 		}
@@ -42,8 +43,9 @@ public class Server implements Comparable<Server> {
 		this.recursiveCallCount = 0;
 	}
 
-	public Server(SpanBo span) {
-		this.id = span.getServiceName();
+	public Server(SpanBo span, NodeIdGenerator idGenerator) {
+		// this.id = span.getServiceName();
+		this.id = idGenerator.makeServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
 			this.agentIds.add(span.getAgentId());

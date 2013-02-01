@@ -1,6 +1,6 @@
 package com.nhn.hippo.web.vo;
 
-public class TerminalRequest {
+public class TerminalStatistics {
 
 	private final String id;
 	private final String from;
@@ -8,7 +8,7 @@ public class TerminalRequest {
 	private short toServiceType;
 	private long requestCount;
 
-	public TerminalRequest(String from, String to, short toServiceType, long requestCount) {
+	public TerminalStatistics(String from, String to, short toServiceType, long requestCount) {
 		this.id = from + to + toServiceType;
 		this.from = from;
 		this.to = to;
@@ -40,7 +40,7 @@ public class TerminalRequest {
 		this.toServiceType = toServiceType;
 	}
 
-	public TerminalRequest mergeWith(TerminalRequest terminalRequest) {
+	public TerminalStatistics mergeWith(TerminalStatistics terminalRequest) {
 		if (this.equals(terminalRequest)) {
 			this.requestCount += terminalRequest.requestCount;
 			return this;
@@ -72,7 +72,7 @@ public class TerminalRequest {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TerminalRequest other = (TerminalRequest) obj;
+		TerminalStatistics other = (TerminalStatistics) obj;
 		if (from == null) {
 			if (other.from != null)
 				return false;

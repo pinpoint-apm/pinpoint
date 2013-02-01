@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.hippo.web.vo.TerminalRequest;
+import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
@@ -31,13 +31,13 @@ public class ServerMap {
 	// temporary variables
 	private final List<SpanBo> spans = new ArrayList<SpanBo>();
 	private final List<SubSpanBo> subspans = new ArrayList<SubSpanBo>();
-	private final Map<String, TerminalRequest> terminalRequests = new HashMap<String, TerminalRequest>();
+	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
 
 	private boolean isBuilt = false;
 
-	public void addTerminalRequest(TerminalRequest terminal) {
+	public void addTerminalRequest(TerminalStatistics terminal) {
 		if (terminalRequests.containsKey(terminal.getId())) {
-			TerminalRequest req = terminalRequests.get(terminal.getId());
+			TerminalStatistics req = terminalRequests.get(terminal.getId());
 			req.mergeWith(terminal);
 		} else {
 			terminalRequests.put(terminal.getId(), terminal);
@@ -79,8 +79,8 @@ public class ServerMap {
 			return this;
 
 		// add terminal to the nodes
-		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
-			TerminalRequest terminal = entry.getValue();
+		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
+			TerminalStatistics terminal = entry.getValue();
 			Node node = new Node(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.parse(terminal.getToServiceType()));
 			nodes.addNode(node.getId(), node);
 		}
@@ -92,8 +92,8 @@ public class ServerMap {
 		}
 
 		// add terminal requests
-		for (Entry<String, TerminalRequest> entry : terminalRequests.entrySet()) {
-			TerminalRequest terminal = entry.getValue();
+		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
+			TerminalStatistics terminal = entry.getValue();
 			Link link = new Link(nodes.get(terminal.getFrom()), nodes.get(terminal.getTo()), terminal.getRequestCount());
 			links.add(link);
 		}

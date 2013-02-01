@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
+import com.nhn.hippo.web.calltree.server.NodeIdGenerator;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
@@ -25,7 +26,7 @@ import com.nhn.hippo.web.dao.TerminalStatisticsDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.vo.BusinessTransactions;
-import com.nhn.hippo.web.vo.TerminalRequest;
+import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.ServiceType;
@@ -124,9 +125,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return tree.build();
 	}
 
+	@Deprecated
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
-		final ServerCallTree tree = new ServerCallTree();
+		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_APPLICATION_NAME);
 
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
@@ -145,7 +147,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(TraceId traceId) {
-		final ServerCallTree tree = new ServerCallTree();
+		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_SERVER_INSTANCE);
 
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
@@ -169,7 +171,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				if (subTransaction.getServiceType() == ServiceType.INTERNAL_METHOD) {
 					continue;
 				}
-				
+
 				// remove subspan of the rpc client
 				if (!endPoints.contains(subTransaction.getEndPoint())) {
 					// this is unknown cloud
@@ -187,7 +189,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
-		final ServerCallTree tree = new ServerCallTree();
+		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_APPLICATION_NAME);
 
 		StopWatch watch = new StopWatch();
 		watch.start("scanNonTerminalSpans");
@@ -227,17 +229,17 @@ public class FlowChartServiceImpl implements FlowChartService {
 			ServiceType svcType = param.getValue();
 			if (!svcType.isRpcClient() && !svcType.isUnknown() && !svcType.isTerminal()) {
 				long start = System.currentTimeMillis();
-				List<List<TerminalRequest>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
+				List<List<TerminalStatistics>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
 				logger.info("	Fetch terminals of {} : {}ms", param.getKey(), System.currentTimeMillis() - start);
 
-				for (List<TerminalRequest> terminal : terminals) {
-					for (TerminalRequest t : terminal) {
+				for (List<TerminalStatistics> terminal : terminals) {
+					for (TerminalStatistics t : terminal) {
 						// TODO 임시방편
 						if (!endPoints.contains(t.getTo())) {
 							if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
 								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
 							}
-							tree.addTerminal(t);
+							tree.addTerminalStatistics(t);
 						}
 					}
 				}
@@ -357,7 +359,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		return list.iterator();
 	}
-	
+
 	@Override
 	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);

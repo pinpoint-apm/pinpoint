@@ -9,7 +9,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.hippo.web.dao.TerminalStatisticsDao;
-import com.nhn.hippo.web.vo.TerminalRequest;
+import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.TerminalSpanUtils;
@@ -30,10 +30,10 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 	@Autowired
 	@Qualifier("terminalRequestCountMapper")
-	private RowMapper<List<TerminalRequest>> terminalRequestCountMapper;
+	private RowMapper<List<TerminalStatistics>> terminalRequestCountMapper;
 
 	@Override
-	public List<List<TerminalRequest>> selectTerminal(String applicationName, long from, long to) {
+	public List<List<TerminalStatistics>> selectTerminal(String applicationName, long from, long to) {
 		Scan scan = createScan(applicationName, from, to);
 		return hbaseOperations2.find(HBaseTables.TERMINAL_STATISTICS, scan, terminalRequestCountMapper);
 	}

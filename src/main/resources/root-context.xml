@@ -23,7 +23,7 @@
     </bean>
     <bean id="applicationNameMapper" class="com.nhn.hippo.web.mapper.ApplicationNameMapper"></bean>
     <bean id="agentIdMapper" class="com.nhn.hippo.web.mapper.AgentIdMapper"></bean>
-    <bean id="terminalRequestCountMapper" class="com.nhn.hippo.web.mapper.TerminalRequestCountMapper"></bean>
+    <bean id="terminalRequestCountMapper" class="com.nhn.hippo.web.mapper.TerminalStatisticsMapper"></bean>
 
     <bean id="sqlMetaDataMapper" class="com.nhn.hippo.web.mapper.SqlMetaDataMapper"></bean>
 </beans>

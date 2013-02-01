@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.hippo.web.vo.TerminalRequest;
+import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.TerminalSpanUtils;
 
@@ -17,13 +17,13 @@ import com.profiler.common.util.TerminalSpanUtils;
  *
  */
 @Component
-public class TerminalRequestCountMapper implements RowMapper<List<TerminalRequest>> {
+public class TerminalStatisticsMapper implements RowMapper<List<TerminalStatistics>> {
 
 	@Override
-	public List<TerminalRequest> mapRow(Result result, int rowNum) throws Exception {
+	public List<TerminalStatistics> mapRow(Result result, int rowNum) throws Exception {
 		KeyValue[] keyList = result.raw();
 		
-		List<TerminalRequest> requestList = new ArrayList<TerminalRequest>();
+		List<TerminalStatistics> requestList = new ArrayList<TerminalStatistics>();
 		for (KeyValue kv : keyList) {
 			if (kv.getFamilyLength() == HBaseTables.TERMINAL_STATISTICS_CF_COUNTER.length) {
 				String from = TerminalSpanUtils.getApplicationNameFromRowKey(kv.getRow());
@@ -31,7 +31,7 @@ public class TerminalRequestCountMapper implements RowMapper<List<TerminalReques
 				long requestCount = Bytes.toLong(kv.getValue());
 				short serviceType = TerminalSpanUtils.getServiceTypeFromColumnName(kv.getQualifier());
 
-				TerminalRequest request = new TerminalRequest(from, to, serviceType, requestCount);
+				TerminalStatistics request = new TerminalStatistics(from, to, serviceType, requestCount);
 				requestList.add(request);
 			}
 		}

@@ -2,7 +2,7 @@ package com.nhn.hippo.web.dao;
 
 import java.util.List;
 
-import com.nhn.hippo.web.vo.TerminalRequest;
+import com.nhn.hippo.web.vo.TerminalStatistics;
 
 /**
  * 
@@ -10,5 +10,5 @@ import com.nhn.hippo.web.vo.TerminalRequest;
  * 
  */
 public interface TerminalStatisticsDao {
-	public List<List<TerminalRequest>> selectTerminal(String applicationName, long from, long to);
+	public List<List<TerminalStatistics>> selectTerminal(String applicationName, long from, long to);
 }
