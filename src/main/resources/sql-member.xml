@@ -14,7 +14,12 @@
 		insert into member (id, name, joined) values(#id#, #name#, #joined#)
 	</insert>
 
-	<update id="update" parameterClass="Member">
+    <insert id="addStatement" parameterClass="Member">
+		insert into member (id, name, joined) values($id$, $name$, #joined#);
+	</insert>
+
+
+    <update id="update" parameterClass="Member">
 		update member set name = #name#, joined = #joined# where id = #id#
 	</update>
 

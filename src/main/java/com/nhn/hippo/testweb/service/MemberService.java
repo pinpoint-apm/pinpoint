@@ -6,7 +6,9 @@ import com.nhn.hippo.testweb.domain.Member;
 
 public interface MemberService {
 
-	void add(Member member);
+    void add(Member member);
+
+    void addStatement(Member member);
 
 	void update(Member member);
 
@@ -15,5 +17,6 @@ public interface MemberService {
 	List<Member> list();
 
 	void delete(int id);
+
 
 }

@@ -8,6 +8,8 @@ public interface MemberDao {
 
 	void add(Member member);
 
+    void addStatement(Member member);
+
 	void update(Member member);
 
 	Member get(int id);

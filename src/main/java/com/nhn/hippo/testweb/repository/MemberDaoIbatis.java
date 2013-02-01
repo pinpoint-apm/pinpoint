@@ -1,5 +1,6 @@
 package com.nhn.hippo.testweb.repository;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,12 @@ public class MemberDaoIbatis implements MemberDao {
 		sqlMapClientTemplate.insert("add", member);
 	}
 
-	public void delete(int id) {
+    @Override
+    public void addStatement(Member member) {
+        sqlMapClientTemplate.insert("addStatement", member);
+    }
+
+    public void delete(int id) {
 		sqlMapClientTemplate.delete("delete", id);
 	}
 

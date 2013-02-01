@@ -22,7 +22,12 @@ public class MemberServiceImpl implements MemberService {
 		dao.add(member);
 	}
 
-	public void delete(int id) {
+    @Override
+    public void addStatement(Member member) {
+        dao.addStatement(member);
+    }
+
+    public void delete(int id) {
 		dao.delete(id);
 	}
 

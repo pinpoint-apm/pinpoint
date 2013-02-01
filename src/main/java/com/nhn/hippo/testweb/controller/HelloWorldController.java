@@ -107,6 +107,27 @@ public class HelloWorldController implements DisposableBean {
 		return "mysql";
 	}
 
+    @RequestMapping(value = "/mysqlStatement")
+    public String mysqlStatement(Model model) {
+        int id = (new Random()).nextInt();
+
+        Member member = new Member();
+        member.setId(id);
+        member.setName("chisu");
+        member.setJoined(new Date());
+
+        // add
+        service.addStatement(member);
+
+        // list
+        service.list();
+
+        // del
+        service.delete(id);
+
+        return "mysql";
+    }
+
 	@RequestMapping(value = "/mysqlsimple")
 	public String mysqlsimple(Model model) {
 		int id = (new Random()).nextInt();
