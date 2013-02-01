@@ -34,7 +34,7 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
             logger.fine("JDBCScope push:" + Thread.currentThread().getName());
         }
         JDBCScope.pushScope();
