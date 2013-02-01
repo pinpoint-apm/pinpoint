@@ -73,7 +73,8 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (isDebug) {
-			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+            // result는 로깅하지 않는다.
+            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
 		TraceContext traceContext = TraceContext.getTraceContext();

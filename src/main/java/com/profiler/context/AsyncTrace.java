@@ -6,13 +6,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.ServiceType;
-import com.profiler.sender.DataSender;
+import com.profiler.logging.LoggingUtils;
 
 /**
  *
  */
 public class AsyncTrace {
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static final Logger logger = Logger.getLogger(AsyncTrace.class.getName());
+    private static final boolean isDebug = LoggingUtils.isDebug(logger);
 
     public static final int NON_REGIST = -1;
     // private int id;
@@ -123,7 +124,7 @@ public class AsyncTrace {
 
     void logSpan(SubSpan subSpan) {
         try {
-            if (logger.isLoggable(Level.INFO)) {
+            if (isDebug) {
                 Thread thread = Thread.currentThread();
                 logger.info("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
             }

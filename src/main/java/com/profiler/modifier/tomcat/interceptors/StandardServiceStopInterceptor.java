@@ -25,7 +25,7 @@ public class StandardServiceStopInterceptor implements StaticAfterInterceptor {
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 		// TODO 시작이 실패했을때 stop이 불러 지는가?
 		// if (!InterceptorUtils.isSuccess(result)) {

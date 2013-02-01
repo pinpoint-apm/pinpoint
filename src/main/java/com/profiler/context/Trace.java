@@ -3,14 +3,11 @@ package com.profiler.context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.Agent;
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.SqlMetaData;
 import com.profiler.common.util.ParsingResult;
-import com.profiler.common.util.SqlParser;
 import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.metadata.LRUCache;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
 
@@ -19,7 +16,8 @@ import com.profiler.sender.LoggingDataSender;
  */
 public final class Trace {
 
-    private final Logger logger = Logger.getLogger(Trace.class.getName());
+    private static final Logger logger = Logger.getLogger(Trace.class.getName());
+    private static final boolean isDebug = LoggingUtils.isDebug(logger);
 
     private static final DataSender DEFULT_DATA_SENDER = new LoggingDataSender();
 
@@ -193,8 +191,8 @@ public final class Trace {
 
     void logSpan(SubSpan subSpan) {
         try {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
+            if (isDebug) {
+                logger.fine("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
 //            if (flushType == 0) {
 //                storage.store(subSpan);
@@ -209,7 +207,7 @@ public final class Trace {
 
     void logSpan(Span span) {
         try {
-            if (logger.isLoggable(Level.INFO)) {
+            if (isDebug) {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
 

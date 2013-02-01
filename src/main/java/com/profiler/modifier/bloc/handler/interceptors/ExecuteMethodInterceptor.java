@@ -85,8 +85,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-//            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
-            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 
         TraceContext traceContext = TraceContext.getTraceContext();

@@ -52,7 +52,7 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
             logger.fine("JDBCScope pop:" + Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
