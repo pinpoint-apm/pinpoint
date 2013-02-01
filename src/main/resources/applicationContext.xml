@@ -35,6 +35,7 @@
     <bean id="SubSpanHandler" class="com.profiler.server.handler.SubSpanHandler"/>
     <bean id="SubSpanListHandler" class="com.profiler.server.handler.SubSpanListHandler"/>
     <bean id="SqlMetaDataHandler" class="com.profiler.server.handler.SqlMetaDataHandler"/>
+    <bean id="ApiMetaDataHandler" class="com.profiler.server.handler.ApiMetaDataHandler"/>
 
 
     <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
@@ -49,6 +50,7 @@
     <bean class="com.profiler.server.dao.hbase.HbaseAgentInfoDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTerminalStatisticsDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseSqlMetaDataDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseApiMetaDataDao"></bean>
 
 
     <bean id="applicationNameMapper" class="com.profiler.server.dao.mapper.ApplicationNameMapper"></bean>

@@ -47,6 +47,10 @@ public class MultiplexedPacketHandler {
     @Qualifier("SqlMetaDataHandler")
     private Handler sqlMetaDataHandler;
 
+    @Autowired()
+    @Qualifier("ApiMetaDataHandler")
+    private Handler apiMetaDataHandler;
+
     public MultiplexedPacketHandler() {
     }
 
@@ -93,6 +97,9 @@ public class MultiplexedPacketHandler {
         }
         if (tBase instanceof SqlMetaData) {
             return sqlMetaDataHandler;
+        }
+        if (tBase instanceof ApiMetaData) {
+            return apiMetaDataHandler;
         }
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
