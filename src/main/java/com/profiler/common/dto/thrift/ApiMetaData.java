@@ -27,31 +27,34 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMetaData._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SqlMetaData");
+public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMetaData._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ApiMetaData");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hashCode", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField SQL_FIELD_DESC = new org.apache.thrift.protocol.TField("sql", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)3);
+  private static final org.apache.thrift.protocol.TField API_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("apiInfo", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SqlMetaDataStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SqlMetaDataTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new ApiMetaDataStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new ApiMetaDataTupleSchemeFactory());
   }
 
   private String agentId; // required
   private long startTime; // required
-  private int hashCode; // required
-  private String sql; // required
+  private int apiId; // required
+  private String apiInfo; // required
+  private int line; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
     START_TIME((short)2, "startTime"),
-    HASH_CODE((short)3, "hashCode"),
-    SQL((short)4, "sql");
+    API_ID((short)3, "apiId"),
+    API_INFO((short)4, "apiInfo"),
+    LINE((short)5, "line");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,10 +73,12 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
           return AGENT_ID;
         case 2: // START_TIME
           return START_TIME;
-        case 3: // HASH_CODE
-          return HASH_CODE;
-        case 4: // SQL
-          return SQL;
+        case 3: // API_ID
+          return API_ID;
+        case 4: // API_INFO
+          return API_INFO;
+        case 5: // LINE
+          return LINE;
         default:
           return null;
       }
@@ -115,8 +120,10 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
 
   // isset id assignments
   private static final int __STARTTIME_ISSET_ID = 0;
-  private static final int __HASHCODE_ISSET_ID = 1;
-  private BitSet __isset_bit_vector = new BitSet(2);
+  private static final int __APIID_ISSET_ID = 1;
+  private static final int __LINE_ISSET_ID = 2;
+  private BitSet __isset_bit_vector = new BitSet(3);
+  private _Fields optionals[] = {_Fields.LINE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -124,50 +131,53 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.API_ID, new org.apache.thrift.meta_data.FieldMetaData("apiId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.SQL, new org.apache.thrift.meta_data.FieldMetaData("sql", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.API_INFO, new org.apache.thrift.meta_data.FieldMetaData("apiInfo", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.LINE, new org.apache.thrift.meta_data.FieldMetaData("line", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SqlMetaData.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ApiMetaData.class, metaDataMap);
   }
 
-  public SqlMetaData() {
+  public ApiMetaData() {
   }
 
-  public SqlMetaData(
+  public ApiMetaData(
     String agentId,
     long startTime,
-    int hashCode,
-    String sql)
+    int apiId,
+    String apiInfo)
   {
     this();
     this.agentId = agentId;
     this.startTime = startTime;
     setStartTimeIsSet(true);
-    this.hashCode = hashCode;
-    setHashCodeIsSet(true);
-    this.sql = sql;
+    this.apiId = apiId;
+    setApiIdIsSet(true);
+    this.apiInfo = apiInfo;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public SqlMetaData(SqlMetaData other) {
+  public ApiMetaData(ApiMetaData other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
     this.startTime = other.startTime;
-    this.hashCode = other.hashCode;
-    if (other.isSetSql()) {
-      this.sql = other.sql;
+    this.apiId = other.apiId;
+    if (other.isSetApiInfo()) {
+      this.apiInfo = other.apiInfo;
     }
+    this.line = other.line;
   }
 
-  public SqlMetaData deepCopy() {
-    return new SqlMetaData(this);
+  public ApiMetaData deepCopy() {
+    return new ApiMetaData(this);
   }
 
   @Override
@@ -175,9 +185,11 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     this.agentId = null;
     setStartTimeIsSet(false);
     this.startTime = 0;
-    setHashCodeIsSet(false);
-    this.hashCode = 0;
-    this.sql = null;
+    setApiIdIsSet(false);
+    this.apiId = 0;
+    this.apiInfo = null;
+    setLineIsSet(false);
+    this.line = 0;
   }
 
   public String getAgentId() {
@@ -225,49 +237,71 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     __isset_bit_vector.set(__STARTTIME_ISSET_ID, value);
   }
 
-  public int getHashCode() {
-    return this.hashCode;
+  public int getApiId() {
+    return this.apiId;
   }
 
-  public void setHashCode(int hashCode) {
-    this.hashCode = hashCode;
-    setHashCodeIsSet(true);
+  public void setApiId(int apiId) {
+    this.apiId = apiId;
+    setApiIdIsSet(true);
   }
 
-  public void unsetHashCode() {
-    __isset_bit_vector.clear(__HASHCODE_ISSET_ID);
+  public void unsetApiId() {
+    __isset_bit_vector.clear(__APIID_ISSET_ID);
   }
 
-  /** Returns true if field hashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetHashCode() {
-    return __isset_bit_vector.get(__HASHCODE_ISSET_ID);
+  /** Returns true if field apiId is set (has been assigned a value) and false otherwise */
+  public boolean isSetApiId() {
+    return __isset_bit_vector.get(__APIID_ISSET_ID);
   }
 
-  public void setHashCodeIsSet(boolean value) {
-    __isset_bit_vector.set(__HASHCODE_ISSET_ID, value);
+  public void setApiIdIsSet(boolean value) {
+    __isset_bit_vector.set(__APIID_ISSET_ID, value);
   }
 
-  public String getSql() {
-    return this.sql;
+  public String getApiInfo() {
+    return this.apiInfo;
   }
 
-  public void setSql(String sql) {
-    this.sql = sql;
+  public void setApiInfo(String apiInfo) {
+    this.apiInfo = apiInfo;
   }
 
-  public void unsetSql() {
-    this.sql = null;
+  public void unsetApiInfo() {
+    this.apiInfo = null;
   }
 
-  /** Returns true if field sql is set (has been assigned a value) and false otherwise */
-  public boolean isSetSql() {
-    return this.sql != null;
+  /** Returns true if field apiInfo is set (has been assigned a value) and false otherwise */
+  public boolean isSetApiInfo() {
+    return this.apiInfo != null;
   }
 
-  public void setSqlIsSet(boolean value) {
+  public void setApiInfoIsSet(boolean value) {
     if (!value) {
-      this.sql = null;
+      this.apiInfo = null;
     }
+  }
+
+  public int getLine() {
+    return this.line;
+  }
+
+  public void setLine(int line) {
+    this.line = line;
+    setLineIsSet(true);
+  }
+
+  public void unsetLine() {
+    __isset_bit_vector.clear(__LINE_ISSET_ID);
+  }
+
+  /** Returns true if field line is set (has been assigned a value) and false otherwise */
+  public boolean isSetLine() {
+    return __isset_bit_vector.get(__LINE_ISSET_ID);
+  }
+
+  public void setLineIsSet(boolean value) {
+    __isset_bit_vector.set(__LINE_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -288,19 +322,27 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
       }
       break;
 
-    case HASH_CODE:
+    case API_ID:
       if (value == null) {
-        unsetHashCode();
+        unsetApiId();
       } else {
-        setHashCode((Integer)value);
+        setApiId((Integer)value);
       }
       break;
 
-    case SQL:
+    case API_INFO:
       if (value == null) {
-        unsetSql();
+        unsetApiInfo();
       } else {
-        setSql((String)value);
+        setApiInfo((String)value);
+      }
+      break;
+
+    case LINE:
+      if (value == null) {
+        unsetLine();
+      } else {
+        setLine((Integer)value);
       }
       break;
 
@@ -315,11 +357,14 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     case START_TIME:
       return Long.valueOf(getStartTime());
 
-    case HASH_CODE:
-      return Integer.valueOf(getHashCode());
+    case API_ID:
+      return Integer.valueOf(getApiId());
 
-    case SQL:
-      return getSql();
+    case API_INFO:
+      return getApiInfo();
+
+    case LINE:
+      return Integer.valueOf(getLine());
 
     }
     throw new IllegalStateException();
@@ -336,10 +381,12 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
       return isSetAgentId();
     case START_TIME:
       return isSetStartTime();
-    case HASH_CODE:
-      return isSetHashCode();
-    case SQL:
-      return isSetSql();
+    case API_ID:
+      return isSetApiId();
+    case API_INFO:
+      return isSetApiInfo();
+    case LINE:
+      return isSetLine();
     }
     throw new IllegalStateException();
   }
@@ -348,12 +395,12 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof SqlMetaData)
-      return this.equals((SqlMetaData)that);
+    if (that instanceof ApiMetaData)
+      return this.equals((ApiMetaData)that);
     return false;
   }
 
-  public boolean equals(SqlMetaData that) {
+  public boolean equals(ApiMetaData that) {
     if (that == null)
       return false;
 
@@ -375,21 +422,30 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
         return false;
     }
 
-    boolean this_present_hashCode = true;
-    boolean that_present_hashCode = true;
-    if (this_present_hashCode || that_present_hashCode) {
-      if (!(this_present_hashCode && that_present_hashCode))
+    boolean this_present_apiId = true;
+    boolean that_present_apiId = true;
+    if (this_present_apiId || that_present_apiId) {
+      if (!(this_present_apiId && that_present_apiId))
         return false;
-      if (this.hashCode != that.hashCode)
+      if (this.apiId != that.apiId)
         return false;
     }
 
-    boolean this_present_sql = true && this.isSetSql();
-    boolean that_present_sql = true && that.isSetSql();
-    if (this_present_sql || that_present_sql) {
-      if (!(this_present_sql && that_present_sql))
+    boolean this_present_apiInfo = true && this.isSetApiInfo();
+    boolean that_present_apiInfo = true && that.isSetApiInfo();
+    if (this_present_apiInfo || that_present_apiInfo) {
+      if (!(this_present_apiInfo && that_present_apiInfo))
         return false;
-      if (!this.sql.equals(that.sql))
+      if (!this.apiInfo.equals(that.apiInfo))
+        return false;
+    }
+
+    boolean this_present_line = true && this.isSetLine();
+    boolean that_present_line = true && that.isSetLine();
+    if (this_present_line || that_present_line) {
+      if (!(this_present_line && that_present_line))
+        return false;
+      if (this.line != that.line)
         return false;
     }
 
@@ -401,13 +457,13 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     return 0;
   }
 
-  public int compareTo(SqlMetaData other) {
+  public int compareTo(ApiMetaData other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    SqlMetaData typedOther = (SqlMetaData)other;
+    ApiMetaData typedOther = (ApiMetaData)other;
 
     lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
@@ -429,22 +485,32 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetHashCode()).compareTo(typedOther.isSetHashCode());
+    lastComparison = Boolean.valueOf(isSetApiId()).compareTo(typedOther.isSetApiId());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hashCode, typedOther.hashCode);
+    if (isSetApiId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.apiId, typedOther.apiId);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetSql()).compareTo(typedOther.isSetSql());
+    lastComparison = Boolean.valueOf(isSetApiInfo()).compareTo(typedOther.isSetApiInfo());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetSql()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sql, typedOther.sql);
+    if (isSetApiInfo()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.apiInfo, typedOther.apiInfo);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetLine()).compareTo(typedOther.isSetLine());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetLine()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.line, typedOther.line);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -466,7 +532,7 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SqlMetaData(");
+    StringBuilder sb = new StringBuilder("ApiMetaData(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -481,17 +547,23 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     sb.append(this.startTime);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("hashCode:");
-    sb.append(this.hashCode);
+    sb.append("apiId:");
+    sb.append(this.apiId);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("sql:");
-    if (this.sql == null) {
+    sb.append("apiInfo:");
+    if (this.apiInfo == null) {
       sb.append("null");
     } else {
-      sb.append(this.sql);
+      sb.append(this.apiInfo);
     }
     first = false;
+    if (isSetLine()) {
+      if (!first) sb.append(", ");
+      sb.append("line:");
+      sb.append(this.line);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -518,15 +590,15 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
     }
   }
 
-  private static class SqlMetaDataStandardSchemeFactory implements SchemeFactory {
-    public SqlMetaDataStandardScheme getScheme() {
-      return new SqlMetaDataStandardScheme();
+  private static class ApiMetaDataStandardSchemeFactory implements SchemeFactory {
+    public ApiMetaDataStandardScheme getScheme() {
+      return new ApiMetaDataStandardScheme();
     }
   }
 
-  private static class SqlMetaDataStandardScheme extends StandardScheme<SqlMetaData> {
+  private static class ApiMetaDataStandardScheme extends StandardScheme<ApiMetaData> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, SqlMetaData struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, ApiMetaData struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -552,18 +624,26 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // HASH_CODE
+          case 3: // API_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.hashCode = iprot.readI32();
-              struct.setHashCodeIsSet(true);
+              struct.apiId = iprot.readI32();
+              struct.setApiIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // SQL
+          case 4: // API_INFO
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.sql = iprot.readString();
-              struct.setSqlIsSet(true);
+              struct.apiInfo = iprot.readString();
+              struct.setApiInfoIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // LINE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.line = iprot.readI32();
+              struct.setLineIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -577,7 +657,7 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, SqlMetaData struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, ApiMetaData struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -589,12 +669,17 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(HASH_CODE_FIELD_DESC);
-      oprot.writeI32(struct.hashCode);
+      oprot.writeFieldBegin(API_ID_FIELD_DESC);
+      oprot.writeI32(struct.apiId);
       oprot.writeFieldEnd();
-      if (struct.sql != null) {
-        oprot.writeFieldBegin(SQL_FIELD_DESC);
-        oprot.writeString(struct.sql);
+      if (struct.apiInfo != null) {
+        oprot.writeFieldBegin(API_INFO_FIELD_DESC);
+        oprot.writeString(struct.apiInfo);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetLine()) {
+        oprot.writeFieldBegin(LINE_FIELD_DESC);
+        oprot.writeI32(struct.line);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -603,16 +688,16 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
 
   }
 
-  private static class SqlMetaDataTupleSchemeFactory implements SchemeFactory {
-    public SqlMetaDataTupleScheme getScheme() {
-      return new SqlMetaDataTupleScheme();
+  private static class ApiMetaDataTupleSchemeFactory implements SchemeFactory {
+    public ApiMetaDataTupleScheme getScheme() {
+      return new ApiMetaDataTupleScheme();
     }
   }
 
-  private static class SqlMetaDataTupleScheme extends TupleScheme<SqlMetaData> {
+  private static class ApiMetaDataTupleScheme extends TupleScheme<ApiMetaData> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, SqlMetaData struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, ApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -621,31 +706,37 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
       if (struct.isSetStartTime()) {
         optionals.set(1);
       }
-      if (struct.isSetHashCode()) {
+      if (struct.isSetApiId()) {
         optionals.set(2);
       }
-      if (struct.isSetSql()) {
+      if (struct.isSetApiInfo()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetLine()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
       if (struct.isSetStartTime()) {
         oprot.writeI64(struct.startTime);
       }
-      if (struct.isSetHashCode()) {
-        oprot.writeI32(struct.hashCode);
+      if (struct.isSetApiId()) {
+        oprot.writeI32(struct.apiId);
       }
-      if (struct.isSetSql()) {
-        oprot.writeString(struct.sql);
+      if (struct.isSetApiInfo()) {
+        oprot.writeString(struct.apiInfo);
+      }
+      if (struct.isSetLine()) {
+        oprot.writeI32(struct.line);
       }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, SqlMetaData struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, ApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -655,12 +746,16 @@ public class SqlMetaData implements org.apache.thrift.TBase<SqlMetaData, SqlMeta
         struct.setStartTimeIsSet(true);
       }
       if (incoming.get(2)) {
-        struct.hashCode = iprot.readI32();
-        struct.setHashCodeIsSet(true);
+        struct.apiId = iprot.readI32();
+        struct.setApiIdIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.sql = iprot.readString();
-        struct.setSqlIsSet(true);
+        struct.apiInfo = iprot.readString();
+        struct.setApiInfoIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.line = iprot.readI32();
+        struct.setLineIsSet(true);
       }
     }
   }
