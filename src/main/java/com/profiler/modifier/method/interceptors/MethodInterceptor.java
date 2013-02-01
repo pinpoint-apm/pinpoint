@@ -45,7 +45,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-		if (logger.isLoggable(Level.INFO)) {
+		if (isDebug) {
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
