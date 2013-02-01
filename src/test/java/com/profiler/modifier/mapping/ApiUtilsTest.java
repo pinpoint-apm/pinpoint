@@ -15,13 +15,13 @@ public class ApiUtilsTest {
     @Test
     public void testParseClassId() throws Exception {
         int i = ApiUtils.parseClassId(2147483647);
-        Assert.assertEquals(i, 2147483);
+        Assert.assertEquals(i, 21474836);
 
     }
 
     @Test
     public void testParseMethodId() throws Exception {
         int i = ApiUtils.parseMethodId(2147483647);
-        Assert.assertEquals(i, 647);
+        Assert.assertEquals(i, 47);
     }
 }
