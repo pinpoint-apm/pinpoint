@@ -34,9 +34,8 @@ public final class Trace {
 
     private Storage storage;
 
-    // TODO 아래 관련 핸들링 로직은 traceContext로 빼야지 이쁠뜻하다.
-    private LRUCache sqlCache;
-    private SqlParser sqlParser;
+    private TraceContext traceContext;
+
 
     // use for calculating depth of each Span.
     private Integer latestStackIndex = null;
@@ -70,10 +69,6 @@ public final class Trace {
 
     public void setStorage(Storage storage) {
         this.storage = storage;
-    }
-
-    public DataSender getDataSender() {
-        return storage.getDataSender();
     }
 
     public short getSequence() {
@@ -256,14 +251,16 @@ public final class Trace {
         if (methodDescriptor == null) {
             return;
         }
-        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
-        recordAttribute(AnnotationNames.API, method);
+        if(methodDescriptor.getApiId() == -1) {
+            recordAttribute(AnnotationNames.API, methodDescriptor.getFullName());
+        } else {
+            recordAttribute(AnnotationNames.API_DID, methodDescriptor.getApiId());
+        }
     }
 
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         // API 저장 방법의 개선 필요.
-        String method = methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName() + methodDescriptor.getParameterDescriptor() + ":" + methodDescriptor.getLineNumber();
-        recordAttribute(AnnotationNames.API, method);
+        recordApi(methodDescriptor);
         recocordArgs(args);
     }
 
@@ -292,7 +289,7 @@ public final class Trace {
         if (sql == null) {
             return null;
         }
-        ParsingResult parsingResult = parseSql(sql);
+        ParsingResult parsingResult = traceContext.parseSql(sql);
         recordSqlParsingResult(parsingResult);
         return parsingResult;
     }
@@ -303,35 +300,6 @@ public final class Trace {
         if (output != null && output.length() != 0) {
             recordAttribute(AnnotationNames.SQL_PARAM, output);
         }
-    }
-
-    public ParsingResult parseSql(String sql) {
-
-        // 해당 api의 구현을 그냥 tarceContext api에 만들어야 될듯 하다.
-        ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
-        String normalizedSql = parsingResult.getSql();
-        // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
-        boolean newValue = this.sqlCache.put(normalizedSql);
-        if (newValue) {
-            if (logger.isLoggable(Level.FINE)) {
-                // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
-                logger.fine("NewSQLParsingResult:" + parsingResult);
-            }
-            // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
-            // 그러므로 메타데이터를 서버로 전송해야 한다.
-
-            // 프로파일 데이터를 보내는데 사용되는 queue가 아니고,
-            // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
-            SqlMetaData sqlMetaData = new SqlMetaData();
-            sqlMetaData.setAgentId(Agent.getInstance().getAgentId());
-            sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
-            sqlMetaData.setHashCode(normalizedSql.hashCode());
-            sqlMetaData.setSql(normalizedSql);
-            // 다른 우선순위가 더 높은 sender가 존재하면 좋을듯 하다.
-            this.getStorage().getDataSender().send(sqlMetaData);
-        }
-        // hashId그냥 return String에서 까보면 됨.
-        return parsingResult;
     }
 
     public void recordAttribute(final String key, final Object value) {
@@ -436,13 +404,8 @@ public final class Trace {
         }
     }
 
-    public void setSqlCache(LRUCache sqlCache) {
-        this.sqlCache = sqlCache;
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
-
-    public void setSqlParser(SqlParser sqlParser) {
-        this.sqlParser = sqlParser;
-    }
-
 
 }

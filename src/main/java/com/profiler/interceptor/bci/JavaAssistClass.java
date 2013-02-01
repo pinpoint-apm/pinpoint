@@ -217,9 +217,9 @@ public class JavaAssistClass implements InstrumentClass {
 
         methodDescriptor.setClassName(ctClass.getName());
 
-        CtClass[] parameterTypes = behavior.getParameterTypes();
-        String[] parameterType = JavaAssistUtils.getParameterType(parameterTypes);
-        methodDescriptor.setParameterTypes(parameterType);
+        CtClass[] ctParameterTypes = behavior.getParameterTypes();
+        String[] parameterTypes = JavaAssistUtils.getParameterType(ctParameterTypes);
+        methodDescriptor.setParameterTypes(parameterTypes);
 
         String[] parameterVariableName = JavaAssistUtils.getParameterVariableName(behavior);
         methodDescriptor.setParameterVariableName(parameterVariableName);
@@ -227,9 +227,11 @@ public class JavaAssistClass implements InstrumentClass {
         int lineNumber = JavaAssistUtils.getLineNumber(behavior);
         methodDescriptor.setLineNumber(lineNumber);
 
-        String parameterDescription = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterVariableName);
-        methodDescriptor.setParameterDescriptor(parameterDescription);
+        String parameterDescriptor = ApiUtils.mergeParameterVariableNameDescription(parameterTypes, parameterVariableName);
+        methodDescriptor.setParameterDescriptor(parameterDescriptor);
 
+        String apiDescriptor = ApiUtils.mergeApiDescriptor(ctClass.getName(), methodName, parameterDescriptor);
+        methodDescriptor.setApiDescriptor(apiDescriptor);
 
         interceptor.setMethodDescriptor(methodDescriptor);
     }

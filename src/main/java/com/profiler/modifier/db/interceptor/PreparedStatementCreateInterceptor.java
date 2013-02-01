@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
+public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
     private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
 
     private MethodDescriptor descriptor;
@@ -80,8 +80,8 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             trace.recordException(result);
         }
 
-//        trace.recordApi(descriptor, args);
-        trace.recordApi(apiId);
+        trace.recordApi(descriptor);
+//        trace.recordApi(apiId);
 
         trace.markAfterTime();
         trace.traceBlockEnd();
@@ -91,10 +91,8 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
 }

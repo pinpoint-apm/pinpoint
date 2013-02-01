@@ -19,7 +19,7 @@ import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
-public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
+public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
 
@@ -60,8 +60,8 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             String bindString = toBindVariable(bindValue);
             trace.recordAttribute(AnnotationNames.SQL_BINDVALUE, bindString);
 
-//            trace.recordApi(descriptor, args);
-            trace.recordApi(apiId);
+            trace.recordApi(descriptor);
+//            trace.recordApi(apiId);
             // clean 타이밍을 변경해야 될듯 하다.
             clean(target);
 
@@ -121,10 +121,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
+
 }

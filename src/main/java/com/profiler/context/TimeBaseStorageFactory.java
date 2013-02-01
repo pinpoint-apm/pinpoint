@@ -26,4 +26,9 @@ public class TimeBaseStorageFactory implements StorageFactory {
         timeBaseStorage.setDiscard(config.isSamplingElapsedTimeBaseDiscard());
         return timeBaseStorage;
     }
+
+    @Override
+    public DataSender getDataSender() {
+        return this.dataSender;
+    }
 }

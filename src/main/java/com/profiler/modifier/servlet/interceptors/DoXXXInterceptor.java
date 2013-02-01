@@ -23,11 +23,10 @@ import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.StringUtils;
 
-public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport, TraceContextSupport {
+public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = Logger.getLogger(DoXXXInterceptor.class.getName());
     private MethodDescriptor descriptor;
-    private int apiId;
     private TraceContext traceContext;
 
 /*    
@@ -126,8 +125,8 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
 
-        // trace.recordApi(descriptor);
-        trace.recordApi(this.apiId);
+        trace.recordApi(descriptor);
+//        trace.recordApi(this.apiId);
 
         trace.recordException(result);
 
@@ -187,12 +186,10 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
 
     @Override
     public void setTraceContext(TraceContext traceContext) {

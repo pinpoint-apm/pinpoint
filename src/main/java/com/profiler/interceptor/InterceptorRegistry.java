@@ -33,7 +33,7 @@ public class InterceptorRegistry {
         }
         int newId = id.getAndIncrement();
         if (newId > max) {
-            throw new IllegalArgumentException("id" + id);
+            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
 
         this.index[newId] = interceptor;

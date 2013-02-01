@@ -19,11 +19,10 @@ import com.profiler.util.StringUtils;
  * @author netspider
  * 
  */
-public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport, TraceContextSupport {
+public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = Logger.getLogger(MethodInterceptor.class.getName());
 	private MethodDescriptor descriptor;
-	private int apiId;
 	private TraceContext traceContext;
 
 	@Override
@@ -62,15 +61,12 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 	@Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-	}
-
-	@Override
-	public void setApiId(int apiId) {
-		this.apiId = apiId;
-	}
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
+    }
 
 	@Override
 	public void setTraceContext(TraceContext traceContext) {
 		this.traceContext = traceContext;
-	}
+    }
 }

@@ -89,7 +89,9 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 	@Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-	}
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
+    }
 
 	private HttpHost extractHost(final URI uri) {
 		if (uri == null) {

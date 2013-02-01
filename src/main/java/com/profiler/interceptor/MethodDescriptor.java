@@ -20,4 +20,12 @@ public interface MethodDescriptor {
 
 
     int getLineNumber();
+
+    String getFullName();
+
+    void setApiId(int apiId);
+
+    int getApiId();
+
+    String getApiDescriptor();
 }

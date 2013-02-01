@@ -1,5 +1,7 @@
 package com.profiler.interceptor;
 
+import com.profiler.common.mapping.ApiUtils;
+
 /**
  *
  */
@@ -15,9 +17,13 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
 
     private String parameterDescriptor;
 
+    private String apiDescriptor;
 
     private int lineNumber;
 
+    private int apiId = -1;
+
+    private String fullName;
 
     public DefaultMethodDescriptor() {
     }
@@ -27,6 +33,8 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
         this.parameterVariableName = parameterVariableName;
+        this.parameterDescriptor = ApiUtils.mergeParameterVariableNameDescription(parameterTypes, parameterVariableName);
+        this.apiDescriptor = ApiUtils.mergeApiDescriptor(className, methodName, parameterDescriptor);
     }
 
     public String getParameterDescriptor() {
@@ -82,5 +90,42 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    @Override
+    public String getFullName() {
+        if (fullName != null) {
+            return fullName;
+        }
+        StringBuilder buffer = new StringBuilder(256);
+        buffer.append(className);
+        buffer.append(".");
+        buffer.append(methodName);
+        buffer.append(parameterDescriptor);
+        if (lineNumber != -1) {
+            buffer.append(":");
+            buffer.append(lineNumber);
+        }
+        fullName = buffer.toString();
+        return fullName;
+    }
+
+    public void setApiDescriptor(String apiDescriptor) {
+        this.apiDescriptor = apiDescriptor;
+    }
+
+    @Override
+    public String getApiDescriptor() {
+        return apiDescriptor;
+    }
+
+    @Override
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
+    }
+
+    @Override
+    public int getApiId() {
+        return apiId;
     }
 }

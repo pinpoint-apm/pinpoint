@@ -61,8 +61,9 @@ public class MethodModifier extends AbstractModifier {
 				for (int i = 0; i < paramClass.length; i++) {
 					params[i] = paramClass[i].getName();
 				}
-
-				System.out.println("### c=" + javassistClassName + ", m=" + m.getName() + ", params=" + Arrays.toString(params));
+                if(logger.isLoggable(Level.INFO)) {
+                    logger.info("### c=" + javassistClassName + ", m=" + m.getName() + ", params=" + Arrays.toString(params));
+                }
 				clazz.addInterceptor(m.getName(), params, interceptor);
 			}
 

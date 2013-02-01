@@ -82,7 +82,7 @@ public class AsyncTrace {
     }
 
     private void clearReference() {
-        // 관련 reference를 null로 하는게 좋지 않을까 함?
+        this.storage = null;
     }
 
     public void markAfterTime() {

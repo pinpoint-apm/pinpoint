@@ -88,5 +88,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 }

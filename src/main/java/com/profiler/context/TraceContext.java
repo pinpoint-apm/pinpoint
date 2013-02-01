@@ -1,14 +1,26 @@
 package com.profiler.context;
 
 
+import com.profiler.Agent;
+import com.profiler.common.dto.thrift.ApiMetaData;
+import com.profiler.common.dto.thrift.SqlMetaData;
+import com.profiler.common.util.ParsingResult;
 import com.profiler.common.util.SqlParser;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.metadata.LRUCache;
+import com.profiler.metadata.Result;
+import com.profiler.metadata.StringCache;
+import com.profiler.sender.DataSender;
 import com.profiler.util.Assert;
 import com.profiler.util.NamedThreadLocal;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TraceContext {
+
+    private final Logger logger = Logger.getLogger(TraceContext.class.getName());
 
     private static TraceContext CONTEXT = new TraceContext();
 
@@ -37,8 +49,10 @@ public class TraceContext {
 
     private StorageFactory storageFactory;
 
-    private LRUCache LRU = new LRUCache(1000);
+    private LRUCache<String> sqlCache = new LRUCache<String>(1000);
     private SqlParser sqlParser = new SqlParser();
+
+    private StringCache apiCache = new StringCache();
 
     public TraceContext() {
     }
@@ -57,15 +71,15 @@ public class TraceContext {
 //        trace.setDataSender(this.dataSender);
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
-        trace.setSqlCache(this.LRU);
-        trace.setSqlParser(this.sqlParser);
+        trace.setTraceContext(this);
+
         //
 //        trace.setTransactionId(transactionId.getAndIncrement());
         threadLocal.set(trace);
     }
 
     public void detachTraceObject() {
-        this.threadLocal.set(null);
+        this.threadLocal.remove();
     }
 
     public GlobalCallTrace getGlobalCallTrace() {
@@ -95,5 +109,53 @@ public class TraceContext {
     public void setStorageFactory(StorageFactory storageFactory) {
         Assert.notNull(storageFactory, "storageFactory myst not be null");
         this.storageFactory = storageFactory;
+    }
+
+
+    public int cacheApi(MethodDescriptor methodDescriptor) {
+        String fullName = methodDescriptor.getFullName();
+        Result result = this.apiCache.put(fullName);
+        if (result.isNewValue()) {
+            ApiMetaData apiMetadata = new ApiMetaData();
+            apiMetadata.setAgentId(Agent.getInstance().getAgentId());
+            apiMetadata.setStartTime(Agent.getInstance().getStartTime());
+            apiMetadata.setApiId(result.getId());
+            apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
+            apiMetadata.setLine(methodDescriptor.getLineNumber());
+            DataSender dataSender = storageFactory.getDataSender();
+            dataSender.send(apiMetadata);
+            methodDescriptor.setApiId(result.getId());
+        }
+        return result.getId();
+    }
+
+
+
+    public ParsingResult parseSql(String sql) {
+
+        ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
+        String normalizedSql = parsingResult.getSql();
+        // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
+        boolean newValue = this.sqlCache.put(normalizedSql);
+        if (newValue) {
+            if (logger.isLoggable(Level.FINE)) {
+                // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
+                logger.fine("NewSQLParsingResult:" + parsingResult);
+            }
+            // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
+            // 그러므로 메타데이터를 서버로 전송해야 한다.
+
+            // 프로파일 데이터를 보내는데 사용되는 queue가 아니고,
+            // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
+            SqlMetaData sqlMetaData = new SqlMetaData();
+            sqlMetaData.setAgentId(Agent.getInstance().getAgentId());
+            sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
+            sqlMetaData.setHashCode(normalizedSql.hashCode());
+            sqlMetaData.setSql(normalizedSql);
+            // 다른 우선순위가 더 높은 sender가 존재하면 좋을듯 하다.
+            this.storageFactory.getDataSender().send(sqlMetaData);
+        }
+        // hashId그냥 return String에서 까보면 됨.
+        return parsingResult;
     }
 }

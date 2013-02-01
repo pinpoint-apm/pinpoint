@@ -5,6 +5,7 @@ import com.profiler.util.Assert;
 /**
  * 없애도 될듯하다.
  */
+@Deprecated
 public class SqlObject {
     private String parsedSql;
 

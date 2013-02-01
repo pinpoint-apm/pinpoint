@@ -15,13 +15,12 @@ import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
-public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
+public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private MethodDescriptor descriptor;
-    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -85,8 +84,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
     private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
         try {
-//            trace.recordApi(descriptor, arg);
-            trace.recordApi(apiId, arg);
+            trace.recordApi(descriptor, arg);
+//            trace.recordApi(apiId, arg);
             trace.recordException(result);
 //            Boolean autocommit = (Boolean) arg;
 //            boolean success = InterceptorUtils.isSuccess(result);
@@ -138,8 +137,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
 
-//            trace.recordApi(descriptor);
-            trace.recordApi(apiId);
+            trace.recordApi(descriptor);
+//            trace.recordApi(apiId);
             trace.recordException(result);
 
 //            boolean success = InterceptorUtils.isSuccess(result);
@@ -178,8 +177,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
 
-//            trace.recordApi(descriptor);
-            trace.recordApi(apiId);
+            trace.recordApi(descriptor);
+//            trace.recordApi(apiId);
             trace.recordException(result);
 //            boolean success = InterceptorUtils.isSuccess(result);
 //            if (success) {
@@ -201,10 +200,9 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
+
 }

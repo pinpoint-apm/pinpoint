@@ -4,6 +4,8 @@ import com.profiler.common.AnnotationNames;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ApiIdSupport;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
@@ -18,12 +20,13 @@ import java.util.logging.Logger;
  *
  * @author netspider
  */
-public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ApiIdSupport {
+public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(StatementExecuteUpdateInterceptor.class.getName());
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
-    private int apiId;
+//    private int apiId;
+    private MethodDescriptor descriptor;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -47,7 +50,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
             trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
-            trace.recordApi(apiId);
+            trace.recordApi(descriptor);
             if (args.length > 0) {
                 Object arg = args[0];
                 if (arg instanceof String) {
@@ -84,7 +87,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     }
 
     @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 }

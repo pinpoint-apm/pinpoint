@@ -23,11 +23,11 @@ import com.profiler.util.StringUtils;
 /**
  * @author netspider
  */
-public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ApiIdSupport {
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
     private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
     private MethodDescriptor descriptor;
-    private int apiId;
+//    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -99,8 +99,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
 
-//		trace.recordApi(descriptor);
-        trace.recordApi(this.apiId);
+		trace.recordApi(descriptor);
+//        trace.recordApi(this.apiId);
         trace.recordException(result);
 
         trace.markAfterTime();
@@ -156,10 +156,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
     }
 
-    @Override
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
+
 }
