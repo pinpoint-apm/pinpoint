@@ -14,26 +14,26 @@ import com.profiler.common.bo.SubSpanBo;
  * 
  */
 public class SpanAligner2 {
-
-	private final Map<Long, SpanBo> spanMap;
-	private Long rootSpanId = null;
+    private static final int ROOT = -1;
+	private final Map<Integer, SpanBo> spanMap;
+	private Integer rootSpanId = null;
 
 	public SpanAligner2(List<SpanBo> spans) {
-		spanMap = new HashMap<Long, SpanBo>(spans.size());
+		spanMap = new HashMap<Integer, SpanBo>(spans.size());
 
 		long rootSpanStartTime = Long.MAX_VALUE;
 
 		for (SpanBo span : spans) {
-			if (spanMap.containsKey(Long.valueOf(span.getSpanId()))) {
+			if (spanMap.containsKey(span.getSpanId())) {
 				throw new IllegalStateException("duplicated spanId. id:" + span.getSpanId());
 			}
 
-			if (span.getParentSpanId() == -1L) {
-				rootSpanId = -1L;
-				spanMap.put(-1L, span);
+			if (span.getParentSpanId() == ROOT) {
+				rootSpanId = ROOT;
+				spanMap.put(ROOT, span);
 				continue;
-			} else if ((rootSpanId == null || rootSpanId != -1) && span.getStartTime() < rootSpanStartTime) {
-				rootSpanId = (span.getParentSpanId() == -1) ? -1L : span.getSpanId();
+			} else if ((rootSpanId == null || rootSpanId != ROOT) && span.getStartTime() < rootSpanStartTime) {
+				rootSpanId = (span.getParentSpanId() == ROOT) ? ROOT : span.getSpanId();
 				rootSpanStartTime = span.getStartTime();
 			}
 			spanMap.put(span.getSpanId(), span);
@@ -70,9 +70,9 @@ public class SpanAligner2 {
 			SpanAlign sa = new SpanAlign(depth, parentSpan, subSpanBo);
 			container.add(sa);
 
-			Long nextSpanId = Long.valueOf(subSpanBo.getNextSpanId());
-			if (nextSpanId != -1 && spanMap.containsKey(nextSpanId)) {
-				populate(spanMap.get(Long.valueOf(nextSpanId)), depth, container);
+			int nextSpanId = subSpanBo.getNextSpanId();
+			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
+				populate(spanMap.get(nextSpanId), depth, container);
 			}
 		}
 	}

@@ -26,7 +26,7 @@ public class SpanAligner {
     private List<SpanBo> spans;
 
     //    private Map<Long, Span> spanIdMap;
-    private Map<Long, List<SpanBo>> parentSpanIdMap;
+    private Map<Integer, List<SpanBo>> parentSpanIdMap;
 
     private int depth = 0;
 
@@ -65,12 +65,12 @@ public class SpanAligner {
 
     public void buildIndex() {
         SpanIdChecker spanIdCheck = new SpanIdChecker(spans);
-        Map<Long, List<SpanBo>> parentSpanIdMap = new HashMap<Long, List<SpanBo>>();
+        Map<Integer, List<SpanBo>> parentSpanIdMap = new HashMap<Integer, List<SpanBo>>();
 
         for (SpanBo span : spans) {
             spanIdCheck.check(span);
 
-            long parentSpanId = span.getParentSpanId();
+            int parentSpanId = span.getParentSpanId();
             List<SpanBo> spanList = parentSpanIdMap.get(parentSpanId);
             if (spanList != null) {
                 spanList.add(span);
@@ -142,7 +142,7 @@ public class SpanAligner {
     }
 
     public static class SpanIdChecker {
-        private Map<Long, SpanBo> spanCheck = new HashMap<Long, SpanBo>();
+        private Map<Integer, SpanBo> spanCheck = new HashMap<Integer, SpanBo>();
         private List<SpanBo> spans;
 
         public SpanIdChecker(List<SpanBo> spans) {

@@ -46,7 +46,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
-        Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
+        Map<Integer, SpanBo> spanMap = new HashMap<Integer, SpanBo>();
         List<SubSpanBo> subSpanBoList = new ArrayList<SubSpanBo>();
         for (KeyValue kv : keyList) {
             // family name "span"일때로만 한정.
@@ -55,7 +55,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanBo.setMostTraceId(most);
                 spanBo.setLeastTraceId(least);
 
-                spanBo.setSpanID(Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset()));
+                spanBo.setSpanID(Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset()));
                 spanBo.readValue(kv.getBuffer(), kv.getValueOffset());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
@@ -67,7 +67,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 subSpanBo.setMostTraceId(most);
                 subSpanBo.setLeastTraceId(least);
 
-                long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
+                int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
                 short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + 8);
                 subSpanBo.setSpanId(spanId);
                 subSpanBo.setSequence(sequence);
@@ -86,7 +86,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             }
         }
         if (annotationMapper != null) {
-            Map<Long, List<AnnotationBo>> annotationMap = annotationMapper.mapRow(result, rowNum);
+            Map<Integer, List<AnnotationBo>> annotationMap = annotationMapper.mapRow(result, rowNum);
             addAnnotation(spanList, annotationMap);
         }
 
@@ -95,9 +95,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     }
 
-    private void addAnnotation(List<SpanBo> spanList, Map<Long, List<AnnotationBo>> annotationMap) {
+    private void addAnnotation(List<SpanBo> spanList, Map<Integer, List<AnnotationBo>> annotationMap) {
         for (SpanBo bo : spanList) {
-            long spanID = bo.getSpanId();
+            int spanID = bo.getSpanId();
             List<AnnotationBo> anoList = annotationMap.get(spanID);
             bo.setAnnotationBoList(anoList);
         }
