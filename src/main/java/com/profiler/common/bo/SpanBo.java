@@ -23,7 +23,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     // private static final int MOSTTRACEID = 8;
     // private static final int LEASTTRACEID = 8;
     // private static final int SPANID = 8;
-    private static final int PARENTSPANID = 8;
+    private static final int PARENTSPANID = 4;
     // private static final int TIMESTAMP = 8;
     private static final int SERVICETYPE = 2;
     private static final int FLAG = 2;
@@ -31,8 +31,8 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private String agentId;
     private long mostTraceId;
     private long leastTraceId;
-    private long spanId;
-    private long parentSpanId;
+    private int spanId;
+    private int parentSpanId;
     private long startTime;
     private int elapsed;
     private String rpc;
@@ -71,7 +71,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         setAnnotationList(span.getAnnotations());
     }
 
-    public SpanBo(long mostTraceId, long leastTraceId, long startTime, int elapsed, long spanId) {
+    public SpanBo(long mostTraceId, long leastTraceId, long startTime, int elapsed, int spanId) {
         this.mostTraceId = mostTraceId;
         this.leastTraceId = leastTraceId;
 
@@ -152,19 +152,19 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serviceName = serviceName;
     }
 
-    public long getSpanId() {
+    public int getSpanId() {
         return spanId;
     }
 
-    public void setSpanID(long spanId) {
+    public void setSpanID(int spanId) {
         this.spanId = spanId;
     }
 
-    public long getParentSpanId() {
+    public int getParentSpanId() {
         return parentSpanId;
     }
 
-    public void setParentSpanId(long parentSpanId) {
+    public void setParentSpanId(int parentSpanId) {
         this.parentSpanId = parentSpanId;
     }
 
@@ -311,7 +311,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.agentId = buffer.read1PrefixedString();
 
         // this.spanID = buffer.readLong();
-        this.parentSpanId = buffer.readLong();
+        this.parentSpanId = buffer.readInt();
 
         this.startTime = buffer.readLong();
         this.elapsed = buffer.readInt();

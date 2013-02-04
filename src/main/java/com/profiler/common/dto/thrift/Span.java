@@ -33,8 +33,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I32, (short)5);
   private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)6);
   private static final org.apache.thrift.protocol.TField ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("elapsed", org.apache.thrift.protocol.TType.I32, (short)7);
   private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)8);
@@ -55,8 +55,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private String agentId; // required
   private long mostTraceId; // required
   private long leastTraceId; // required
-  private long spanId; // required
-  private long parentSpanId; // required
+  private int spanId; // required
+  private int parentSpanId; // required
   private long startTime; // required
   private int elapsed; // required
   private String rpc; // required
@@ -190,9 +190,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -228,8 +228,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     String agentId,
     long mostTraceId,
     long leastTraceId,
-    long spanId,
-    long parentSpanId,
+    int spanId,
+    int parentSpanId,
     long startTime,
     int elapsed,
     String rpc,
@@ -405,11 +405,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
   }
 
-  public long getSpanId() {
+  public int getSpanId() {
     return this.spanId;
   }
 
-  public void setSpanId(long spanId) {
+  public void setSpanId(int spanId) {
     this.spanId = spanId;
     setSpanIdIsSet(true);
   }
@@ -427,11 +427,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     __isset_bit_vector.set(__SPANID_ISSET_ID, value);
   }
 
-  public long getParentSpanId() {
+  public int getParentSpanId() {
     return this.parentSpanId;
   }
 
-  public void setParentSpanId(long parentSpanId) {
+  public void setParentSpanId(int parentSpanId) {
     this.parentSpanId = parentSpanId;
     setParentSpanIdIsSet(true);
   }
@@ -734,7 +734,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Long)value);
+        setSpanId((Integer)value);
       }
       break;
 
@@ -742,7 +742,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetParentSpanId();
       } else {
-        setParentSpanId((Long)value);
+        setParentSpanId((Integer)value);
       }
       break;
 
@@ -841,10 +841,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return Long.valueOf(getLeastTraceId());
 
     case SPAN_ID:
-      return Long.valueOf(getSpanId());
+      return Integer.valueOf(getSpanId());
 
     case PARENT_SPAN_ID:
-      return Long.valueOf(getParentSpanId());
+      return Integer.valueOf(getParentSpanId());
 
     case START_TIME:
       return Long.valueOf(getStartTime());
@@ -1411,16 +1411,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             }
             break;
           case 4: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.spanId = iprot.readI64();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.spanId = iprot.readI32();
               struct.setSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
           case 5: // PARENT_SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.parentSpanId = iprot.readI64();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.parentSpanId = iprot.readI32();
               struct.setParentSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1553,10 +1553,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       oprot.writeI64(struct.leastTraceId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-      oprot.writeI64(struct.spanId);
+      oprot.writeI32(struct.spanId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
-      oprot.writeI64(struct.parentSpanId);
+      oprot.writeI32(struct.parentSpanId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
@@ -1690,10 +1690,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeI64(struct.leastTraceId);
       }
       if (struct.isSetSpanId()) {
-        oprot.writeI64(struct.spanId);
+        oprot.writeI32(struct.spanId);
       }
       if (struct.isSetParentSpanId()) {
-        oprot.writeI64(struct.parentSpanId);
+        oprot.writeI32(struct.parentSpanId);
       }
       if (struct.isSetStartTime()) {
         oprot.writeI64(struct.startTime);
@@ -1756,11 +1756,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setLeastTraceIdIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.spanId = iprot.readI64();
+        struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
       if (incoming.get(4)) {
-        struct.parentSpanId = iprot.readI64();
+        struct.parentSpanId = iprot.readI32();
         struct.setParentSpanIdIsSet(true);
       }
       if (incoming.get(5)) {

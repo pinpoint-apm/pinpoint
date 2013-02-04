@@ -33,7 +33,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)4);
   private static final org.apache.thrift.protocol.TField SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("sequence", org.apache.thrift.protocol.TType.I16, (short)5);
   private static final org.apache.thrift.protocol.TField START_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("startElapsed", org.apache.thrift.protocol.TType.I32, (short)6);
   private static final org.apache.thrift.protocol.TField END_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("endElapsed", org.apache.thrift.protocol.TType.I32, (short)7);
@@ -44,7 +44,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.BOOL, (short)12);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)13);
   private static final org.apache.thrift.protocol.TField DEPTH_FIELD_DESC = new org.apache.thrift.protocol.TField("depth", org.apache.thrift.protocol.TType.I32, (short)14);
-  private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I64, (short)15);
+  private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I32, (short)15);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -55,7 +55,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private String agentId; // optional
   private long mostTraceId; // optional
   private long leastTraceId; // optional
-  private long spanId; // optional
+  private int spanId; // optional
   private short sequence; // required
   private int startElapsed; // required
   private int endElapsed; // required
@@ -66,7 +66,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private boolean err; // required
   private List<Annotation> annotations; // required
   private int depth; // optional
-  private long nextSpanId; // optional
+  private int nextSpanId; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -191,7 +191,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("sequence", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.START_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("startElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -214,7 +214,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     tmpMap.put(_Fields.DEPTH, new org.apache.thrift.meta_data.FieldMetaData("depth", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpan.class, metaDataMap);
   }
@@ -378,11 +378,11 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     __isset_bit_vector.set(__LEASTTRACEID_ISSET_ID, value);
   }
 
-  public long getSpanId() {
+  public int getSpanId() {
     return this.spanId;
   }
 
-  public void setSpanId(long spanId) {
+  public void setSpanId(int spanId) {
     this.spanId = spanId;
     setSpanIdIsSet(true);
   }
@@ -639,11 +639,11 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     __isset_bit_vector.set(__DEPTH_ISSET_ID, value);
   }
 
-  public long getNextSpanId() {
+  public int getNextSpanId() {
     return this.nextSpanId;
   }
 
-  public void setNextSpanId(long nextSpanId) {
+  public void setNextSpanId(int nextSpanId) {
     this.nextSpanId = nextSpanId;
     setNextSpanIdIsSet(true);
   }
@@ -691,7 +691,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Long)value);
+        setSpanId((Integer)value);
       }
       break;
 
@@ -779,7 +779,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (value == null) {
         unsetNextSpanId();
       } else {
-        setNextSpanId((Long)value);
+        setNextSpanId((Integer)value);
       }
       break;
 
@@ -798,7 +798,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       return Long.valueOf(getLeastTraceId());
 
     case SPAN_ID:
-      return Long.valueOf(getSpanId());
+      return Integer.valueOf(getSpanId());
 
     case SEQUENCE:
       return Short.valueOf(getSequence());
@@ -831,7 +831,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       return Integer.valueOf(getDepth());
 
     case NEXT_SPAN_ID:
-      return Long.valueOf(getNextSpanId());
+      return Integer.valueOf(getNextSpanId());
 
     }
     throw new IllegalStateException();
@@ -1380,8 +1380,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
             }
             break;
           case 4: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.spanId = iprot.readI64();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.spanId = iprot.readI32();
               struct.setSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1479,8 +1479,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
             }
             break;
           case 15: // NEXT_SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.nextSpanId = iprot.readI64();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.nextSpanId = iprot.readI32();
               struct.setNextSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1518,7 +1518,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       if (struct.isSetSpanId()) {
         oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-        oprot.writeI64(struct.spanId);
+        oprot.writeI32(struct.spanId);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(SEQUENCE_FIELD_DESC);
@@ -1578,7 +1578,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       if (struct.isSetNextSpanId()) {
         oprot.writeFieldBegin(NEXT_SPAN_ID_FIELD_DESC);
-        oprot.writeI64(struct.nextSpanId);
+        oprot.writeI32(struct.nextSpanId);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -1655,7 +1655,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         oprot.writeI64(struct.leastTraceId);
       }
       if (struct.isSetSpanId()) {
-        oprot.writeI64(struct.spanId);
+        oprot.writeI32(struct.spanId);
       }
       if (struct.isSetSequence()) {
         oprot.writeI16(struct.sequence);
@@ -1694,7 +1694,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         oprot.writeI32(struct.depth);
       }
       if (struct.isSetNextSpanId()) {
-        oprot.writeI64(struct.nextSpanId);
+        oprot.writeI32(struct.nextSpanId);
       }
     }
 
@@ -1715,7 +1715,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         struct.setLeastTraceIdIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.spanId = iprot.readI64();
+        struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
       if (incoming.get(4)) {
@@ -1769,7 +1769,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         struct.setDepthIsSet(true);
       }
       if (incoming.get(14)) {
-        struct.nextSpanId = iprot.readI64();
+        struct.nextSpanId = iprot.readI32();
         struct.setNextSpanIdIsSet(true);
       }
     }

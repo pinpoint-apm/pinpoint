@@ -13,7 +13,7 @@ struct SubSpan {
   2: optional i64 mostTraceId
   3: optional i64 leastTraceId
 
-  4: optional i64 spanId
+  4: optional i32 spanId
   5: i16 sequence
 
   6: i32 startElapsed
@@ -29,7 +29,7 @@ struct SubSpan {
   13: list<Annotation> annotations
   
   14: optional i32 depth
-  15: optional i64 nextSpanId
+  15: optional i32 nextSpanId
 }
 
 struct Span {
@@ -38,8 +38,8 @@ struct Span {
   2: i64 mostTraceId
   3: i64 leastTraceId
   
-  4: i64 spanId
-  5: i64 parentSpanId
+  4: i32 spanId
+  5: i32 parentSpanId
   
   6: i64 startTime
   7: i32 elapsed
@@ -63,7 +63,7 @@ struct SubSpanList {
   2: i64 mostTraceId
   3: i64 leastTraceId
 
-  4: i64 spanId
+  4: i32 spanId
 
   5: list<SubSpan> subSpanList
 }

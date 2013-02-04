@@ -20,8 +20,8 @@ public class SubSpanBo implements Span {
 
 	// private static final int MOSTTRACEID = 8;
 	// private static final int LEASTTRACEID = 8;
-	// private static final int SPANID = 8;
-	private static final int PARENTSPANID = 8;
+	// private static final int SPANID = 4;
+	private static final int PARENTSPANID = 4;
 	// private static final int TIMESTAMP = 8;
 	private static final int SERVICETYPE = 2;
 	private static final int FLAG = 2;
@@ -30,7 +30,7 @@ public class SubSpanBo implements Span {
 	private long mostTraceId;
 	private long leastTraceId;
 
-	private long spanId;
+	private int spanId;
 	private short sequence;
 
 	private int startElapsed;
@@ -45,7 +45,7 @@ public class SubSpanBo implements Span {
 	private boolean exception = false;
 	
 	private int depth = -1;
-	private long nextSpanId = -1;
+	private int nextSpanId = -1;
 
 	public SubSpanBo() {
 	}
@@ -171,11 +171,11 @@ public class SubSpanBo implements Span {
 		this.leastTraceId = leastTraceId;
 	}
 
-	public void setSpanId(long spanId) {
+	public void setSpanId(int spanId) {
 		this.spanId = spanId;
 	}
 
-	public long getSpanId() {
+	public int getSpanId() {
 		return this.spanId;
 	}
 
@@ -255,11 +255,11 @@ public class SubSpanBo implements Span {
 		this.depth = depth;
 	}
 
-	public long getNextSpanId() {
+	public int getNextSpanId() {
 		return nextSpanId;
 	}
 
-	public void setNextSpanId(long nextSpanId) {
+	public void setNextSpanId(int nextSpanId) {
 		this.nextSpanId = nextSpanId;
 	}
 
@@ -278,8 +278,8 @@ public class SubSpanBo implements Span {
 		// PARENTSPANID + FLAG + TERMINAL;
 		size += SERVICETYPE;
 
-		// startTime 4, elapsed 4, depth 4, nextSpanId 8
-		size += 20;
+		// startTime 4, elapsed 4, depth 4, nextSpanId 4
+		size += 16;
 		return size;
 	}
 
@@ -361,7 +361,7 @@ public class SubSpanBo implements Span {
 		this.exception = buffer.readBoolean();
 		
 		this.depth = buffer.readInt();
-		this.nextSpanId = buffer.readLong();
+		this.nextSpanId = buffer.readInt();
 		
 		this.annotationBoList = readAnnotation(buffer);
 		return buffer.getOffset();

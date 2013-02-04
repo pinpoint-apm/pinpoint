@@ -224,6 +224,14 @@ public class BytesUtils {
         return buf;
     }
 
+    public static byte[] add(int preFix, short postFix) {
+        byte[] buf = new byte[4 + 2];
+        writeInt(preFix, buf, 0);
+        writeShort(postFix, buf, 4);
+        return buf;
+    }
+
+
     public static byte[] add(long preFix, short postFix) {
         byte[] buf = new byte[8 + 2];
         writeLong(preFix, buf, 0);
