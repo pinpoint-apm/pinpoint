@@ -1,15 +1,13 @@
 package com.profiler.context;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.sender.DataSender;
-import com.profiler.sender.LoggingDataSender;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author netspider
@@ -18,8 +16,6 @@ public final class Trace {
 
     private static final Logger logger = Logger.getLogger(Trace.class.getName());
     private static final boolean isDebug = LoggingUtils.isDebug(logger);
-
-    private static final DataSender DEFULT_DATA_SENDER = new LoggingDataSender();
 
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
@@ -34,9 +30,8 @@ public final class Trace {
 
     private TraceContext traceContext;
 
-
     // use for calculating depth of each Span.
-    private Integer latestStackIndex = null;
+    private int latestStackIndex = -1;
 
     public Trace() {
         // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
@@ -156,9 +151,12 @@ public final class Trace {
 
     public void traceBlockEnd(int stackId) {
         StackFrame currentStackFrame = callStack.getCurrentStackFrame();
-        if (currentStackFrame.getStackFrameId() != stackId) {
-            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨.
-            logger.warning("Corrupted CallStack found. StackId not matched");
+        int stackFrameId = currentStackFrame.getStackFrameId();
+        if (stackFrameId != stackId) {
+            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning("Corrupted CallStack found. StackId not matched. expected:" + stackId + " current:" + stackFrameId);
+            }
         }
         if (currentStackFrame instanceof RootStackFrame) {
             logSpan(((RootStackFrame) currentStackFrame).getSpan());
@@ -194,12 +192,7 @@ public final class Trace {
             if (isDebug) {
                 logger.fine("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
-//            if (flushType == 0) {
-//                storage.store(subSpan);
-//            } else if(flushType == 1) {
-//                dataSender.send(subSpan);
             this.storage.store(subSpan);
-//            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -210,21 +203,10 @@ public final class Trace {
             if (isDebug) {
                 logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
             }
-
-            // dataSender.send(span);
             this.storage.store(span);
-            // subSpan.cancelTimer();
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-    }
-
-    @Deprecated
-    public void record(Annotation annotation) {
-        if (!tracingEnabled)
-            return;
-
-        annotate(annotation.getCode());
     }
 
     public void recordException(Object result) {
@@ -249,7 +231,7 @@ public final class Trace {
         if (methodDescriptor == null) {
             return;
         }
-        if(methodDescriptor.getApiId() == -1) {
+        if (methodDescriptor.getApiId() == -1) {
             recordAttribute(AnnotationNames.API, methodDescriptor.getFullName());
         } else {
             recordAttribute(AnnotationNames.API_DID, methodDescriptor.getApiId());
@@ -367,7 +349,7 @@ public final class Trace {
         }
     }
 
-    public void recordNextSpanId(long spanId) {
+    public void recordNextSpanId(int spanId) {
         if (!tracingEnabled)
             return;
 

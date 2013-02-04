@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class TraceID {
 	private UUID id;
-	private long parentSpanId;
-	private long spanId;
+	private int parentSpanId;
+	private int spanId;
 	private boolean sampled;
 	private short flags;
 
@@ -18,7 +18,7 @@ public class TraceID {
 		return new TraceID(id, spanId, SpanID.nextSpanID(spanId), sampled, flags);
 	}
 
-	public TraceID(UUID id, long parentSpanId, long spanId, boolean sampled, short flags) {
+	public TraceID(UUID id, int parentSpanId, int spanId, boolean sampled, short flags) {
 		this.id = id;
 		this.parentSpanId = parentSpanId;
 		this.spanId = spanId;
@@ -70,11 +70,11 @@ public class TraceID {
         }
     }
 
-	public long getParentSpanId() {
+	public int getParentSpanId() {
 		return parentSpanId;
 	}
 
-	public long getSpanId() {
+	public int getSpanId() {
 		return spanId;
 	}
 
@@ -90,11 +90,11 @@ public class TraceID {
 		this.id = traceId;
 	}
 
-	public void setParentSpanId(long parentSpanId) {
+	public void setParentSpanId(int parentSpanId) {
 		this.parentSpanId = parentSpanId;
 	}
 
-	public void setSpanId(long spanId) {
+	public void setSpanId(int spanId) {
 		this.spanId = spanId;
 	}
 

@@ -27,7 +27,7 @@ public class SubSpan implements Thriftable {
     
     private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
 
-    private long nextSpanId = -1;
+    private int nextSpanId = -1;
     private int depth = -1;
     
     public SubSpan(Span parentSpan) {
@@ -122,11 +122,11 @@ public class SubSpan implements Thriftable {
 		this.depth = depth;
 	}
 
-	public long getNextSpanId() {
+	public int getNextSpanId() {
 		return nextSpanId;
 	}
 
-	public void setNextSpanId(long nextSpanId) {
+	public void setNextSpanId(int nextSpanId) {
 		this.nextSpanId = nextSpanId;
 	}
 

@@ -52,16 +52,12 @@ public class SpanTest {
 //            trace.setTraceId(Trace.getNextTraceId());
 
             trace.recordMessage("msg:client send");
-            trace.record(Annotation.ClientSend);
 
             trace.recordMessage("msg:server recv");
-            trace.record(Annotation.ServerRecv);
 
             trace.recordMessage("msg:server send");
-            trace.record(Annotation.ServerSend);
 
             trace.recordMessage("msg:client recv");
-            trace.record(Annotation.ClientRecv);
 
             endLatch.countDown();
         }

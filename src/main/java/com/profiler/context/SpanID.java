@@ -4,22 +4,22 @@ import java.util.Random;
 
 public class SpanID {
 
-    public static final long NULL = -1;
+    public static final int NULL = -1;
 
     private static Random seed = new Random();
 
-    public static long newSpanID() {
-        long id = seed.nextLong();
-        if (id == NULL) {
-            return newSpanID();
+    public static int newSpanID() {
+        int id = seed.nextInt();
+        while (id == NULL) {
+            id = seed.nextInt();
         }
         return id;
     }
 
-    public static long nextSpanID(long parentId) {
-        long newId = newSpanID();
-        if (newId == parentId) {
-            return nextSpanID(parentId);
+    public static int nextSpanID(long parentId) {
+        int newId = newSpanID();
+        while (newId == parentId) {
+            newId = newSpanID();
         }
         return newId;
     }

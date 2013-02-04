@@ -4,7 +4,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +17,6 @@ import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 /**
  *
