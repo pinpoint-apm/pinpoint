@@ -64,12 +64,14 @@ public class SubSpanListHandler implements Handler {
 					if (serviceType.isInternalMethod()) {
 						continue;
 					}
-                    
+					
                     // if terminal update statistics
+					int elapsed = subSpan.getEndElapsed();
+					
                     if (serviceType.isRpcClient()) {
-                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
+                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, subSpan.isErr());
                     } else {
-                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
+                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, subSpan.isErr());
                     }
                 }
             }

@@ -51,11 +51,14 @@ public class SubSpanHandler implements Handler {
             traceDao.insertSubSpan(applicationName, subSpan);
 
             ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
+            
             // if terminal update statistics
+            int elapsed = subSpan.getEndElapsed();
+            
             if (serviceType.isRpcClient()) {
-                terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
+                terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, subSpan.isErr());
             } else {
-                terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
+                terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, subSpan.isErr());
             }
         } catch (Exception e) {
             logger.warn("SubSpan handle error " + e.getMessage(), e);

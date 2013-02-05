@@ -87,12 +87,14 @@ public class SpanHandler implements Handler {
 					if (subSpanServiceType == ServiceType.INTERNAL_METHOD) {
 						continue;
 					}
-                    
+					
                     // if terminal update statistics
+					int elapsed = subSpan.getEndElapsed();
+					
                     if (subSpanServiceType.isRpcClient()) {
-                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode());
+                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, subSpan.isErr());
                     } else {
-                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode());
+                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, subSpan.isErr());
                     }
                 }
             }
