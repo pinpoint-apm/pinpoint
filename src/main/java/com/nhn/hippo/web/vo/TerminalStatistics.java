@@ -1,19 +1,26 @@
 package com.nhn.hippo.web.vo;
 
+import com.profiler.common.ServiceType;
+
+/**
+ * 
+ * @author netspider
+ * 
+ */
 public class TerminalStatistics {
 
 	private final String id;
 	private final String from;
 	private final String to;
 	private short toServiceType;
-	private long requestCount;
+	private final ResponseHistogram histogram;
 
-	public TerminalStatistics(String from, String to, short toServiceType, long requestCount) {
+	public TerminalStatistics(String from, String to, short toServiceType) {
 		this.id = from + to + toServiceType;
 		this.from = from;
 		this.to = to;
 		this.toServiceType = toServiceType;
-		this.requestCount = requestCount;
+		this.histogram = new ResponseHistogram(ServiceType.parse(toServiceType));
 	}
 
 	public String getId() {
@@ -28,10 +35,6 @@ public class TerminalStatistics {
 		return to;
 	}
 
-	public long getRequestCount() {
-		return requestCount;
-	}
-
 	public short getToServiceType() {
 		return toServiceType;
 	}
@@ -40,9 +43,15 @@ public class TerminalStatistics {
 		this.toServiceType = toServiceType;
 	}
 
+	public ResponseHistogram getHistogram() {
+		return histogram;
+	}
+
 	public TerminalStatistics mergeWith(TerminalStatistics terminalRequest) {
 		if (this.equals(terminalRequest)) {
-			this.requestCount += terminalRequest.requestCount;
+			// TODO merge histogram here.
+
+			// this.histogram.mergeWith(terminalRequest.getHistogram());
 			return this;
 		} else {
 			throw new IllegalArgumentException("Can't merge with different link.");
@@ -51,7 +60,7 @@ public class TerminalStatistics {
 
 	@Override
 	public String toString() {
-		return "{From=" + from + ", To=" + to + ", ReqCount=" + requestCount + "}";
+		return "{ From=" + from + ", To=" + to + ", ToSvcType=" + toServiceType + ", Histogram=" + histogram + " }";
 	}
 
 	@Override

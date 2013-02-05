@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.dao.hbase;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,23 +31,24 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 	@Autowired
 	@Qualifier("terminalRequestCountMapper")
-	private RowMapper<List<TerminalStatistics>> terminalRequestCountMapper;
+	private RowMapper<Map<String, TerminalStatistics>> terminalRequestCountMapper;
 
 	@Override
-	public List<List<TerminalStatistics>> selectTerminal(String applicationName, long from, long to) {
+	public List<Map<String, TerminalStatistics>> selectTerminal(String applicationName, long from, long to) {
 		Scan scan = createScan(applicationName, from, to);
 		return hbaseOperations2.find(HBaseTables.TERMINAL_STATISTICS, scan, terminalRequestCountMapper);
 	}
 
 	private Scan createScan(String applicationName, long from, long to) {
-		byte[] startKey = TerminalSpanUtils.makeRowKey(applicationName, TimeSlot.getSlot(from));
-		byte[] endKey = TerminalSpanUtils.makeRowKey(applicationName, TimeSlot.getSlot(to));
+		byte[] startKey = TerminalSpanUtils.makeRowKey(applicationName, TimeSlot.getStatisticsRowSlot(from));
+		byte[] endKey = TerminalSpanUtils.makeRowKey(applicationName, TimeSlot.getStatisticsRowSlot(to));
 
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);
 		scan.addFamily(HBaseTables.TERMINAL_STATISTICS_CF_COUNTER);
+		scan.addFamily(HBaseTables.TERMINAL_STATISTICS_CF_ERROR_COUNTER);
 		scan.setId("terminalStatisticsScan");
 
 		return scan;

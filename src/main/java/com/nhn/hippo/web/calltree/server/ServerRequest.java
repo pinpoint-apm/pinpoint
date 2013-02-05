@@ -1,5 +1,7 @@
 package com.nhn.hippo.web.calltree.server;
 
+import com.nhn.hippo.web.vo.ResponseHistogram;
+
 /**
  * @author netspider
  */
@@ -7,9 +9,9 @@ public class ServerRequest {
 	protected final String id;
 	protected final Server from;
 	protected final Server to;
-	protected final Histogram histogram = new Histogram(100);
+	private final ResponseHistogram histogram;
 
-	public ServerRequest(Server from, Server to) {
+	public ServerRequest(Server from, Server to, ResponseHistogram histogram) {
 		if (from == null) {
 			throw new NullPointerException("from must not be null");
 		}
@@ -19,10 +21,7 @@ public class ServerRequest {
 		this.from = from;
 		this.to = to;
 		this.id = from.getId() + to.getId();
-	}
-
-	public void addRequest(int elapsed) {
-		histogram.addSample(elapsed);
+		this.histogram = histogram;
 	}
 
 	public boolean isSelfCalled() {
@@ -41,12 +40,8 @@ public class ServerRequest {
 		return to;
 	}
 
-	public Histogram getHistogram() {
+	public ResponseHistogram getHistogram() {
 		return histogram;
-	}
-
-	public int getRequestCount() {
-		return histogram.getSampleCount();
 	}
 
 	@Override

@@ -229,16 +229,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 			ServiceType svcType = param.getValue();
 			if (!svcType.isRpcClient() && !svcType.isUnknown() && !svcType.isTerminal()) {
 				long start = System.currentTimeMillis();
-				List<List<TerminalStatistics>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
+				List<Map<String, TerminalStatistics>> terminals = terminalStatisticsDao.selectTerminal(param.getKey(), from, to);
 				logger.info("	Fetch terminals of {} : {}ms", param.getKey(), System.currentTimeMillis() - start);
 
-				for (List<TerminalStatistics> terminal : terminals) {
-					for (TerminalStatistics t : terminal) {
+				for (Map<String, TerminalStatistics> terminal : terminals) {
+					for (Entry<String, TerminalStatistics> entry : terminal.entrySet()) {
 						// TODO 임시방편
+						TerminalStatistics t = entry.getValue();
+
 						if (!endPoints.contains(t.getTo())) {
+
 							if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
 								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
 							}
+
 							tree.addTerminalStatistics(t);
 						}
 					}

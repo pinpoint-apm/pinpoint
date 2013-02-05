@@ -4,6 +4,13 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+/**
+ * 사용안함, com.nhn.hippo.web.vo.ResponseHistogram를 사용합니다.
+ * 
+ * @author netspider
+ * 
+ */
+@Deprecated
 public class Histogram {
 
 	private final TreeMap<Integer, Integer> counts = new TreeMap<Integer, Integer>();

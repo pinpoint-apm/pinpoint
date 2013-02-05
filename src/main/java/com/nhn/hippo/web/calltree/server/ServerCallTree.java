@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.hippo.web.vo.ResponseHistogram;
 import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
@@ -111,7 +112,7 @@ public class ServerCallTree {
 		// add terminal requests
 		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
 			TerminalStatistics terminal = entry.getValue();
-			TerminalServerRequest request = new TerminalServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()), (int) terminal.getRequestCount());
+			ServerRequest request = new ServerRequest(servers.get(terminal.getFrom()), servers.get(terminal.getTo()), terminal.getHistogram());
 			serverRequests.put(request.getId(), request);
 		}
 
@@ -132,7 +133,7 @@ public class ServerCallTree {
 				logger.debug("invalid form server {}", from);
 				continue;
 			}
-			ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.getServiceType()));
 
 			// TODO: local call인 경우 보여주지 않음.
 			if (serverRequest.isSelfCalled()) {
@@ -140,8 +141,9 @@ public class ServerCallTree {
 			}
 
 			if (serverRequests.containsKey(serverRequest.getId())) {
-				serverRequests.get(serverRequest.getId()).addRequest(span.getElapsed());
+				serverRequests.get(serverRequest.getId()).getHistogram().addSample(span.getElapsed());
 			} else {
+				serverRequest.getHistogram().addSample(span.getElapsed());
 				serverRequests.put(serverRequest.getId(), serverRequest);
 			}
 		}
@@ -161,10 +163,10 @@ public class ServerCallTree {
 			Server fromServer = servers.get(spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));
 
-			ServerRequest serverRequest = new ServerRequest(fromServer, toServer);
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.getServiceType()));
 
 			if (serverRequests.containsKey(serverRequest.getId())) {
-				serverRequests.get(serverRequest.getId()).addRequest(span.getEndElapsed());
+				serverRequests.get(serverRequest.getId()).getHistogram().addSample(span.getEndElapsed());
 			} else {
 				serverRequests.put(serverRequest.getId(), serverRequest);
 			}
