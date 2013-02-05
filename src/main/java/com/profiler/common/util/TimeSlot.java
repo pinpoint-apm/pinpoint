@@ -8,7 +8,7 @@ package com.profiler.common.util;
 public class TimeSlot {
 	private static final int RESOLUTION = 60000; // one minute
 
-	public static long getSlot(long time) {
+	public static long getStatisticsRowSlot(long time) {
 		return (time / RESOLUTION) * RESOLUTION;
 	}
 }

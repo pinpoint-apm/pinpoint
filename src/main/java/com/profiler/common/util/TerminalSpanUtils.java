@@ -2,6 +2,8 @@ package com.profiler.common.util;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.profiler.common.ServiceType;
+
 /**
  * 
  * @author netspider
@@ -13,30 +15,49 @@ public class TerminalSpanUtils {
 	private static final int APPLICATION_NAME_MAX_LEN = 24;
 
 	/**
-	 * columnName format = "SERVICETYPE(4byte)" + "APPLICATIONNAME"
+	 * columnName format = SERVICETYPE(2bytes) + SLOT(2bytes) + APPLICATIONNAME(str)
 	 * 
 	 * @param serviceType
 	 * @param applicationName
+	 * @param elapsed
 	 * @return
 	 */
-	public static byte[] makeColumnName(short serviceType, String applicationName) {
+	public static byte[] makeColumnName(short serviceType, String applicationName, int elapsed) {
 		byte[] t = Bytes.toBytes(serviceType);
+		byte[] s = findResponseHistogramSlotNo(serviceType, elapsed);
 		byte[] n = Bytes.toBytes(applicationName);
 
-		byte[] buf = new byte[t.length + n.length];
+		byte[] buf = new byte[t.length + s.length + n.length];
 		System.arraycopy(t, 0, buf, 0, t.length);
-		System.arraycopy(n, 0, buf, t.length, n.length);
+		System.arraycopy(s, 0, buf, t.length, s.length);
+		System.arraycopy(n, 0, buf, t.length + s.length, n.length);
 
 		return buf;
 	}
 
-	public static short getServiceTypeFromColumnName(byte[] bytes) {
+	private static byte[] findResponseHistogramSlotNo(short serviceType, int elapsed) {
+		short[] slots = ServiceType.parse(serviceType).getHistogramSlots();
+
+		for (short slot : slots) {
+			if (elapsed < slot) {
+				return Bytes.toBytes(slot);
+			}
+		}
+
+		return new byte[] { 0, 0 };
+	}
+
+	public static short getDestServiceTypeFromColumnName(byte[] bytes) {
 		return (short) (((bytes[0] & 0xff) << 8) | ((bytes[1] & 0xff)));
 	}
 
-	public static String getApplicationNameFromColumnName(byte[] bytes) {
-		byte[] temp = new byte[bytes.length - 2];
-		System.arraycopy(bytes, 2, temp, 0, bytes.length - 2);
+	public static short getHistogramSlotFromColumnName(byte[] bytes) {
+		return (short) (((bytes[2] & 0xff) << 8) | ((bytes[3] & 0xff)));
+	}
+
+	public static String getDestApplicationNameFromColumnName(byte[] bytes) {
+		byte[] temp = new byte[bytes.length - 4]; // 4 = servietype + responsecode
+		System.arraycopy(bytes, 4, temp, 0, bytes.length - 4);
 		return new String(temp);
 	}
 

@@ -4,17 +4,33 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.profiler.common.ServiceType;
+
 public class TerminalSpanUtilsTest {
 
 	@Test
 	public void column() {
-		short t = (short) 3001;
+		short t = ServiceType.ARCUS.getCode();
 		String a = "Hello, World.";
 
-		byte[] columnName = TerminalSpanUtils.makeColumnName(t, a);
+		short[] slots = ServiceType.ARCUS.getHistogramSlots();
 
-		Assert.assertEquals(t, TerminalSpanUtils.getServiceTypeFromColumnName(columnName));
-		Assert.assertEquals(a, TerminalSpanUtils.getApplicationNameFromColumnName(columnName));
+		for (int i = 0; i < slots.length; i++) {
+			short slot = slots[i];
+
+			byte[] columnName = TerminalSpanUtils.makeColumnName(t, a, slot - 1);
+
+			Assert.assertEquals(t, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
+			Assert.assertEquals(slot, TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
+			Assert.assertEquals(a, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
+		}
+
+		// check max value
+		byte[] columnName = TerminalSpanUtils.makeColumnName(t, a, 100000);
+
+		Assert.assertEquals(t, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
+		Assert.assertEquals(slots[slots.length - 1], TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
+		Assert.assertEquals(a, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
 	}
 
 	@Test

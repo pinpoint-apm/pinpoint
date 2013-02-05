@@ -35,7 +35,8 @@ public class HBaseTables {
     public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
 
     public static final String TERMINAL_STATISTICS = "TerminalStatistics";
-    public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
+    public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Cnt");
+    public static final byte[] TERMINAL_STATISTICS_CF_ERROR_COUNTER = Bytes.toBytes("ErrCnt");
 
     public static final String SQL_METADATA = "SqlMetaData";
     public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
