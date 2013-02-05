@@ -31,7 +31,7 @@ create 'TraceIndex', { NAME => 'Trace' }
 create 'ApplicationTraceIndex', { NAME => 'Trace' }
 create 'Traces', { NAME => 'Span' }, { NAME => 'Annotation' }, { NAME => 'TerminalSpan' }
 create 'SystemInfo', { NAME => 'JVM' }
-create 'TerminalStatistics', { NAME => 'Counter' }
+create 'TerminalStatistics', { NAME => 'Cnt' }, { NAME => 'ErrCnt' }
 create 'SqlMetaData', { NAME => 'Sql' }
 create 'ApiMetaData', { NAME => 'Api' }
 
