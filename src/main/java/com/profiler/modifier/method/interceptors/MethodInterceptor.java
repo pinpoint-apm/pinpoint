@@ -1,7 +1,5 @@
 package com.profiler.modifier.method.interceptors;
 
-import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.ServiceType;
@@ -12,7 +10,6 @@ import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.util.StringUtils;
 
 /**
  * 
