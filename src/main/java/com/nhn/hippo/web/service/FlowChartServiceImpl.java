@@ -21,7 +21,6 @@ import com.nhn.hippo.web.calltree.server.NodeIdGenerator;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
-import com.nhn.hippo.web.dao.RootTraceIndexDao;
 import com.nhn.hippo.web.dao.TerminalStatisticsDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
@@ -51,9 +50,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Autowired
 	private TraceDao traceDao;
-
-	@Autowired
-	private RootTraceIndexDao rootTraceIndexDao;
 
 	@Autowired
 	private TraceIndexDao traceIndexDao;

@@ -18,8 +18,9 @@ import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.SpanUtils;
 
 /**
- *
+ * root trace index가 필요 없을것 같음.
  */
+@Deprecated
 @Repository
 public class HbaseRootTraceIndexDao implements RootTraceIndexDao {
 
