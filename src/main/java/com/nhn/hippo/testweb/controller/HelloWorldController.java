@@ -42,6 +42,14 @@ public class HelloWorldController implements DisposableBean {
 	@Autowired
 	private DummyService dummyService;
 
+	private void randomSlowMethod() {
+		try {
+			Thread.sleep((new Random().nextInt(10)) * 1000L);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@RequestMapping(value = "/dummy")
 	public String dummy(Model model) {
 		dummyService.doSomething();
@@ -107,26 +115,26 @@ public class HelloWorldController implements DisposableBean {
 		return "mysql";
 	}
 
-    @RequestMapping(value = "/mysqlStatement")
-    public String mysqlStatement(Model model) {
-        int id = (new Random()).nextInt();
+	@RequestMapping(value = "/mysqlStatement")
+	public String mysqlStatement(Model model) {
+		int id = (new Random()).nextInt();
 
-        Member member = new Member();
-        member.setId(id);
-        member.setName("chisu");
-        member.setJoined(new Date());
+		Member member = new Member();
+		member.setId(id);
+		member.setName("chisu");
+		member.setJoined(new Date());
 
-        // add
-        service.addStatement(member);
+		// add
+		service.addStatement(member);
 
-        // list
-        service.list();
+		// list
+		service.list();
 
-        // del
-        service.delete(id);
+		// del
+		service.delete(id);
 
-        return "mysql";
-    }
+		return "mysql";
+	}
 
 	@RequestMapping(value = "/mysqlsimple")
 	public String mysqlsimple(Model model) {
@@ -176,6 +184,8 @@ public class HelloWorldController implements DisposableBean {
 		arcus(model);
 		memcached(model);
 
+		randomSlowMethod();
+		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -191,6 +201,8 @@ public class HelloWorldController implements DisposableBean {
 		mysql(model);
 		arcus(model);
 		memcached(model);
+		
+		randomSlowMethod();
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
