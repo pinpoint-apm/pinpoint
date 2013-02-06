@@ -1,19 +1,19 @@
 package com.profiler.server.dao.hbase;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.hbase.HBaseAdminTemplate;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
-import com.profiler.common.util.SpanUtils;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,11 +21,14 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.hbase.HBaseAdminTemplate;
+import com.profiler.common.hbase.HBaseTables;
+import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.RowKeyUtils;
+import com.profiler.common.util.SpanUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 //@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
@@ -83,7 +86,7 @@ public class TraceDaoTest {
 
         traceIndex.insert(span);
         // TODO 서버가 받은 시간으로 변경해야 될듯.
-        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), SpanUtils.AGENT_NAME_LIMIT, span.getStartTime());
+        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), HBaseTables.AGENT_NAME_MAX_LEN, span.getStartTime());
         byte[] result = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
 
         Assert.assertArrayEquals(SpanUtils.getTraceId(span), result);
