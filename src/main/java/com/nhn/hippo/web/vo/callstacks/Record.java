@@ -1,6 +1,5 @@
 package com.nhn.hippo.web.vo.callstacks;
 
-import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 
 /**

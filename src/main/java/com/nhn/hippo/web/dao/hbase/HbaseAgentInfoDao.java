@@ -1,11 +1,5 @@
 package com.nhn.hippo.web.dao.hbase;
 
-import com.nhn.hippo.web.dao.AgentInfoDao;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
-import com.profiler.common.util.RowKeyUtils;
-import com.profiler.common.util.TimeUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -15,6 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.stereotype.Repository;
+
+import com.nhn.hippo.web.dao.AgentInfoDao;
+import com.profiler.common.hbase.HBaseTables;
+import com.profiler.common.hbase.HbaseOperations2;
+import com.profiler.common.util.BytesUtils;
+import com.profiler.common.util.RowKeyUtils;
+import com.profiler.common.util.TimeUtils;
 
 /**
  *
@@ -43,7 +44,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             public Long extractData(ResultScanner results) throws Exception {
                 for (Result next; (next = results.next()) != null; ) {
                     byte[] row = next.getRow();
-                    long reverseStartTime = BytesUtils.bytesToLong(row, RowKeyUtils.AGENT_NAME_LIMIT);
+                    long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
                     long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
                     logger.debug("agent:{} startTime value {}", agentInfo, startTime);
                     // 바로 전 시작 시간을 찾아야 한다.
@@ -68,10 +69,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         byte[] agentIdBytes = Bytes.toBytes(agentInfo);
         long startTime = TimeUtils.reverseCurrentTimeMillis(currentTime);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, RowKeyUtils.AGENT_NAME_LIMIT, startTime);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTime);
         scan.setStartRow(startKeyBytes);
 
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, RowKeyUtils.AGENT_NAME_LIMIT, Long.MAX_VALUE);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
         scan.setStopRow(endKeyBytes);
 
         return scan;

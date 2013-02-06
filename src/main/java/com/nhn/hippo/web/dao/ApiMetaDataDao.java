@@ -1,9 +1,8 @@
 package com.nhn.hippo.web.dao;
 
-import com.profiler.common.bo.ApiMetaDataBo;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
+
+import com.profiler.common.bo.ApiMetaDataBo;
 
 /**
  *
