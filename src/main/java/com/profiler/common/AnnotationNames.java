@@ -16,10 +16,10 @@ public enum AnnotationNames {
     // 자동 id
 
     SQL_ID(20, "SQL-ID"),
-    SQL(21, "SQL"),
+    SQL(21, "SQL", true),
     SQL_METADATA(22, "SQL-METADATA"),
     SQL_PARAM(23, "SQL-PARAMS"),
-    SQL_BINDVALUE(24, "SQL-BindValue"),
+    SQL_BINDVALUE(24, "SQL-BindValue", true),
 
     STRING_ID(30, "STRING_ID"),
 
@@ -40,12 +40,12 @@ public enum AnnotationNames {
     ARGS9(-10, "args[9]"),
     ARGSN(-11, "args[N]"),
 
-    EXCEPTION(-50, "Exception"),
+    EXCEPTION(-50, "Exception", true),
     UNKNOWN(-9999, "UNKNOWN");
 
     private int code;
     private String value;
-    private boolean view;
+    private boolean viewInRecordSet;
 
     public final static int MAX_ARGS_SIZE = 10;
 
@@ -53,10 +53,10 @@ public enum AnnotationNames {
         this(code, value, false);
     }
 
-    private AnnotationNames(int code, String value, boolean view) {
+    private AnnotationNames(int code, String value, boolean viewInRecordSet) {
         this.code = code;
         this.value = value;
-        this.view = view;
+        this.viewInRecordSet = viewInRecordSet;
     }
 
     public String getValue() {
@@ -67,8 +67,8 @@ public enum AnnotationNames {
         return code;
     }
 
-    public boolean isView() {
-        return view;
+    public boolean isViewInRecordSet() {
+        return viewInRecordSet;
     }
 
     private static Map<Integer, AnnotationNames> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationNames>();
