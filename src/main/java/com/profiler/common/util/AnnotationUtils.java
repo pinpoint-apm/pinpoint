@@ -28,7 +28,7 @@ public class AnnotationUtils {
     private static Comparator<AnnotationBo> annotationKeyComparator = new Comparator<AnnotationBo>() {
         @Override
         public int compare(AnnotationBo a1, AnnotationBo a2) {
-            return a1.getKey().compareTo(a2.getKey());
+            return a1.getKey() - a2.getKey();
         }
     };
 
@@ -39,7 +39,7 @@ public class AnnotationUtils {
 
     public static Object getDisplayMethod(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
-        int index = Collections.binarySearch(list, AnnotationNames.API);
+        int index = Collections.binarySearch(list, AnnotationNames.API, AnnotationBo.AnnotationBoComparator);
 
         if (index > -1) {
             return list.get(index).getValue();
@@ -56,19 +56,19 @@ public class AnnotationUtils {
         List<AnnotationBo> list = span.getAnnotationBoList();
         int index = -1;
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
-            index = Collections.binarySearch(list, AnnotationNames.ARCUS_COMMAND);
+            index = Collections.binarySearch(list, AnnotationNames.ARCUS_COMMAND, AnnotationBo.AnnotationBoComparator);
         }
 
         if (span.getServiceType() == ServiceType.HTTP_CLIENT) {
-            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL);
+            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL, AnnotationBo.AnnotationBoComparator);
         }
 
         if (span.getServiceType() == ServiceType.TOMCAT) {
-            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL);
+            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL, AnnotationBo.AnnotationBoComparator);
         }
         
         if (span.getServiceType() == ServiceType.MYSQL) {
-        	index = Collections.binarySearch(list, AnnotationNames.ARGS0);
+        	index = Collections.binarySearch(list, AnnotationNames.ARGS0, AnnotationBo.AnnotationBoComparator);
         }
 
         if (index > -1) {

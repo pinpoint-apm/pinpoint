@@ -1,39 +1,126 @@
 package com.profiler.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author netspider
  */
-public class AnnotationNames {
-    public static final String API = "API";
-    public static final String API_ID = "API-ID";
-    public static final String API_METADATA = "API-METADATA";
+public enum AnnotationNames {
+
+
+    API_DID(10, "API-DID"),
+    API_ID(11, "API-ID"),
+    API(12, "API"),
+    API_METADATA(13, "API-METADATA"),
     // 자동 id
-    public static final String API_DID = "API-DID";
 
-    public static final String EXCEPTION = "Exception";
+    SQL_ID(20, "SQL-ID"),
+    SQL(21, "SQL"),
+    SQL_METADATA(22, "SQL-METADATA"),
+    SQL_PARAM(23, "SQL-PARAMS"),
+    SQL_BINDVALUE(24, "SQL-BindValue"),
 
-    public static final String SQL = "SQL";
-    public static final String SQL_ID = "SQL-ID";
-    public static final String SQL_METADATA = "SQL-METADATA";
-    public static final String SQL_PARAM = "SQL-PARAMS";
-    public static final String SQL_BINDVALUE = "SQL-BindValue";
+    STRING_ID(30, "STRING_ID"),
 
-    public static final String ARGS0 = "args[0]";
-    public static final String ARGS1 = "args[1]";
-    public static final String ARGS2 = "args[2]";
-    public static final String ARGS3 = "args[3]";
-    public static final String ARGS4 = "args[4]";
-    public static final String ARGS5 = "args[5]";
-    public static final String ARGS6 = "args[6]";
-    public static final String ARGS7 = "args[7]";
-    public static final String ARGS8 = "args[8]";
-    public static final String ARGS9 = "args[9]";
-    public static final String ARGS10 = "args[10]";
+    HTTP_URL(40, "http.url"),
+    HTTP_PARAM(41, "http.params"),
 
-    public static final String HTTP_URL = "http.url";
-    public static final String HTTP_PARAM = "http.params";
+    ARCUS_COMMAND(50, "arcus.command"),
 
-    public static final String ARCUS_COMMAND = "arcus.command";
+    ARGS0(-1, "args[0]"),
+    ARGS1(-2, "args[1]"),
+    ARGS2(-3, "args[2]"),
+    ARGS3(-4, "args[3]"),
+    ARGS4(-5, "args[4]"),
+    ARGS5(-6, "args[5]"),
+    ARGS6(-7, "args[6]"),
+    ARGS7(-8, "args[7]"),
+    ARGS8(-9, "args[8]"),
+    ARGS9(-10, "args[9]"),
+    ARGSN(-11, "args[N]"),
 
+    EXCEPTION(-50, "Exception"),
+    UNKNOWN(-9999, "UNKNOWN");
 
+    private int code;
+    private String value;
+    private boolean view;
+
+    public final static int MAX_ARGS_SIZE = 10;
+
+    private AnnotationNames(int code, String value) {
+        this(code, value, false);
+    }
+
+    private AnnotationNames(int code, String value, boolean view) {
+        this.code = code;
+        this.value = value;
+        this.view = view;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public boolean isView() {
+        return view;
+    }
+
+    private static Map<Integer, AnnotationNames> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationNames>();
+    static {
+        initializeLookupTable();
+    }
+
+    public static void initializeLookupTable() {
+        AnnotationNames[] values = AnnotationNames.values();
+        for (AnnotationNames name : values) {
+            AnnotationNames check = CODE_LOOKUP_TABLE.put(name.getCode(), name);
+            if (check != null) {
+                throw new IllegalStateException("duplicated code fonud. code:" + name.getCode());
+            }
+        }
+    }
+
+    public static AnnotationNames findAnnotationNames(int code) {
+        AnnotationNames annotationNames = CODE_LOOKUP_TABLE.get(code);
+        if (annotationNames == null) {
+            return UNKNOWN;
+        }
+        return annotationNames;
+    }
+
+    public static AnnotationNames getArgs(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("negative index:" + index);
+        }
+        switch (index) {
+            case 0:
+                return ARGS0;
+            case 1:
+                return ARGS1;
+            case 2:
+                return ARGS2;
+            case 3:
+                return ARGS3;
+            case 4:
+                return ARGS4;
+            case 5:
+                return ARGS5;
+            case 6:
+                return ARGS6;
+            case 7:
+                return ARGS7;
+            case 8:
+                return ARGS8;
+            case 9:
+                return ARGS9;
+            default:
+                return ARGSN;
+        }
+    }
 }

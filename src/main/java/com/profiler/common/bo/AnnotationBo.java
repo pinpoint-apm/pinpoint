@@ -1,14 +1,16 @@
 package com.profiler.common.bo;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.util.Buffer;
-import com.profiler.common.util.BytesUtils;
+
+import java.util.Comparator;
 
 /**
  *
  */
-public class AnnotationBo implements Comparable<String> {
+public class AnnotationBo {
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
@@ -19,8 +21,7 @@ public class AnnotationBo implements Comparable<String> {
     private byte version = 0;
     private long spanId;
 
-    private String key;
-    private byte[] keyBytes;
+    private int key;
 
     private int valueType;
     private byte[] byteValue;
@@ -55,19 +56,16 @@ public class AnnotationBo implements Comparable<String> {
         this.version = (byte) (version & 0xFF);
     }
 
-    public String getKey() {
+    public int getKey() {
         return key;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public String getKeyName() {
+        return AnnotationNames.findAnnotationNames(this.key).getValue();
     }
 
-    public byte[] getKeyBytes() {
-        if (keyBytes == null) {
-            keyBytes = BytesUtils.getBytes(key);
-        }
-        return keyBytes;
+    public void setKey(int key) {
+        this.key = key;
     }
 
 
@@ -98,22 +96,22 @@ public class AnnotationBo implements Comparable<String> {
     public void writeValue(Buffer buffer) {
         // long timestamp; // required 8
         // long duration; // optional 8
-        // String key; // required 4+string.length
+        // int key; // required 4
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
         buffer.put(this.version);
-        buffer.putPrefixedBytes(getKeyBytes());
+        buffer.put(this.key);
         buffer.put(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
     }
 
     public int getBufferSize() {
-        // String key; // required 4+string.length
+        // int key; // required 4+string.length
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
         int size = 0;
         size += 1 + 4 + 4 + 4;
-        size += this.getKeyBytes().length;
+        size += 4;
         if (this.getByteValue() != null) {
             size += this.getByteValue().length;
         }
@@ -128,7 +126,7 @@ public class AnnotationBo implements Comparable<String> {
 
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
-        this.key = buffer.readPrefixedString();
+        this.key = buffer.readInt();
         this.valueType = buffer.readInt();
         this.byteValue = buffer.readPrefixedBytes();
         this.value = transcoder.decode(valueType, byteValue);
@@ -142,8 +140,13 @@ public class AnnotationBo implements Comparable<String> {
         return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", value=" + value + '}';
     }
 
-    @Override
-    public int compareTo(String key) {
-        return this.key.compareTo(key);
-    }
+    public static final Comparator AnnotationBoComparator = new Comparator() {
+        @Override
+        public int compare(Object o1, Object o2) {
+            AnnotationBo annotationBo = (AnnotationBo) o1;
+            int key = annotationBo.getKey();
+            AnnotationNames annotationNames = (AnnotationNames) o2;
+            return key - annotationNames.getCode();
+        }
+    };
 }

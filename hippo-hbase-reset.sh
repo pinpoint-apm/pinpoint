@@ -33,7 +33,7 @@ create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , TTL => 259200  }, { NAME => 'TerminalSpan' , TTL => 259200  }
 create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
-create 'TerminalStatistics', { NAME => 'Count' , TTL => 259200  }, { NAME => 'ErrorCount' , TTL => 259200  }
+create 'TerminalStatistics', { NAME => 'Counter' , TTL => 259200  }, { NAME => 'ErrorCount' , TTL => 259200  }
 create 'SqlMetaData', { NAME => 'Sql' , TTL => 259200  }
 create 'ApiMetaData', { NAME => 'Api' , TTL => 259200  }
 create 'BusinessTransaction', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Err' , TTL => 259200  }

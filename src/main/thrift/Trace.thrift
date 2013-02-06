@@ -1,10 +1,11 @@
 namespace java com.profiler.common.dto.thrift
 
 struct Annotation {
-  1: string key,
-  2: i32 valueTypeCode,
-  3: optional binary value,
-  4: optional i64 timestamp,
+  1: i32 key,
+  2: optional string key2;
+  3: i32 valueTypeCode,
+  4: optional binary value,
+  5: optional i64 timestamp,
 }
 
 struct SubSpan {
