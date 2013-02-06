@@ -3,18 +3,20 @@ package com.profiler.interceptor.bci;
 // TODO 추후 별도 계층구조가 필요하면 분화 필요.
 public class InstrumentException extends Exception {
 
-    public InstrumentException() {
-    }
+	private static final long serialVersionUID = 7594176009977030312L;
 
-    public InstrumentException(String message) {
-        super(message);
-    }
+	public InstrumentException() {
+	}
 
-    public InstrumentException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public InstrumentException(String message) {
+		super(message);
+	}
 
-    public InstrumentException(Throwable cause) {
-        super(cause);
-    }
+	public InstrumentException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public InstrumentException(Throwable cause) {
+		super(cause);
+	}
 }

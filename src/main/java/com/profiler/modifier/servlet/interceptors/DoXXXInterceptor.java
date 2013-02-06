@@ -1,6 +1,5 @@
 package com.profiler.modifier.servlet.interceptors;
 
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,7 +20,6 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.NumberUtils;
-import com.profiler.util.StringUtils;
 
 public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

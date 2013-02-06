@@ -1,15 +1,13 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.profiler.logging.LoggingUtils;
 import org.apache.catalina.connector.Connector;
 
 import com.profiler.Agent;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.Assert;
-import com.profiler.util.StringUtils;
 
 /**
  *

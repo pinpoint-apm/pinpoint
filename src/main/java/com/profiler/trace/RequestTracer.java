@@ -1,15 +1,14 @@
 package com.profiler.trace;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.profiler.Agent;
 import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
 import com.profiler.common.dto.thrift.RequestThriftDTO;
 import com.profiler.config.ProfilerConstant;
-import com.profiler.sender.UdpDataSender;
 import com.profiler.util.SystemUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 @Deprecated
 public class RequestTracer {

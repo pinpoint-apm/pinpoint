@@ -1,6 +1,5 @@
 package com.profiler.modifier.bloc.handler.interceptors;
 
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -18,7 +17,6 @@ import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.NumberUtils;
-import com.profiler.util.StringUtils;
 
 /**
  * @author netspider

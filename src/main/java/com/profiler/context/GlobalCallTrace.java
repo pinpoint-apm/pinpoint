@@ -1,7 +1,5 @@
 package com.profiler.context;
 
-import com.profiler.sender.DataSender;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;

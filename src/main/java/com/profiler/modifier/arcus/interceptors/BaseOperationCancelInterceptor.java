@@ -1,15 +1,13 @@
 package com.profiler.modifier.arcus.interceptors;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 /**
  *

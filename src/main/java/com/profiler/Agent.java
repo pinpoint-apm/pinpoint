@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.mapping.ApiMappingTable;
-import com.profiler.common.util.SpanUtils;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.BypassStorageFactory;
 import com.profiler.context.TimeBaseStorageFactory;
@@ -92,7 +92,7 @@ public class Agent {
     private void validateId(String id, String idName) {
         try {
             byte[] bytes = id.getBytes("UTF-8");
-            if (bytes.length > SpanUtils.AGENT_NAME_LIMIT) {
+            if (bytes.length > HBaseTables.AGENT_NAME_MAX_LEN) {
                 logger.warning(idName + " is too long(1~24). value=" + id);
             }
             // validate = false;
@@ -100,7 +100,6 @@ public class Agent {
         } catch (UnsupportedEncodingException e) {
             logger.log(Level.WARNING, "invalid agentId. Cause:" + e.getMessage(), e);
         }
-
     }
 
     private static class SingletonHolder {

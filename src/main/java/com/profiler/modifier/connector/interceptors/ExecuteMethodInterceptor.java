@@ -1,9 +1,7 @@
 package com.profiler.modifier.connector.interceptors;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.profiler.logging.LoggingUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
@@ -13,11 +11,10 @@ import com.profiler.context.Header;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.context.TraceID;
-import com.profiler.interceptor.ApiIdSupport;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.util.StringUtils;
+import com.profiler.logging.LoggingUtils;
 
 /**
  * Method interceptor

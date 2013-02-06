@@ -1,17 +1,18 @@
 package com.profiler.trace;
 
-import com.profiler.Agent;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
 import com.profiler.common.dto.thrift.RequestDataThriftDTO;
-import com.profiler.config.ProfilerConfig;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.util.NamedThreadLocal;
 import com.profiler.util.QueryStringUtil;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @Deprecated
 public class DatabaseRequestTracer {

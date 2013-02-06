@@ -1,13 +1,13 @@
 package com.profiler.modifier.arcus.interceptors;
 
-import com.profiler.context.*;
+import java.util.logging.Logger;
+
+import com.profiler.context.AsyncTrace;
+import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
 
 /**
  *

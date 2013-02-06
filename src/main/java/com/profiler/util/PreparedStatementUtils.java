@@ -1,7 +1,6 @@
 package com.profiler.util;
 
 
-import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

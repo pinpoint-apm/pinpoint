@@ -1,12 +1,10 @@
 package com.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
-
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
-import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;

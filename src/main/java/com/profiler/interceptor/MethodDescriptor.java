@@ -1,31 +1,26 @@
 package com.profiler.interceptor;
 
-import java.lang.reflect.Method;
-
 /**
  *
  */
 public interface MethodDescriptor {
-    String getMethodName();
+	String getMethodName();
 
-    String getClassName();
+	String getClassName();
 
+	String[] getParameterTypes();
 
-    String[] getParameterTypes();
+	String[] getParameterVariableName();
 
-    String[] getParameterVariableName();
+	String getParameterDescriptor();
 
+	int getLineNumber();
 
-    String getParameterDescriptor();
+	String getFullName();
 
+	void setApiId(int apiId);
 
-    int getLineNumber();
+	int getApiId();
 
-    String getFullName();
-
-    void setApiId(int apiId);
-
-    int getApiId();
-
-    String getApiDescriptor();
+	String getApiDescriptor();
 }

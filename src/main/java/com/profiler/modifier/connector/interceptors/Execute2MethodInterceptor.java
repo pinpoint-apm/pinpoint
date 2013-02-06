@@ -1,10 +1,8 @@
 package com.profiler.modifier.connector.interceptors;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.profiler.logging.LoggingUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -17,7 +15,7 @@ import com.profiler.context.TraceID;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.util.StringUtils;
+import com.profiler.logging.LoggingUtils;
 
 /**
  * Method interceptor
