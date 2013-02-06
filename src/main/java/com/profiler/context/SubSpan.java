@@ -25,7 +25,7 @@ public class SubSpan implements Thriftable {
     private String endPoint;
     private boolean exception;
     
-    private final List<HippoAnnotation> annotations = new ArrayList<HippoAnnotation>(5);
+    private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
     private int nextSpanId = -1;
     private int depth = -1;
@@ -46,11 +46,11 @@ public class SubSpan implements Thriftable {
         this.sequence = sequence;
     }
 
-    public boolean addAnnotation(HippoAnnotation annotation) {
+    public boolean addAnnotation(Annotation annotation) {
         return annotations.add(annotation);
     }
 
-    public List<HippoAnnotation> getAnnotations() {
+    public List<Annotation> getAnnotations() {
         return annotations;
     }
 
@@ -147,7 +147,7 @@ public class SubSpan implements Thriftable {
         sb.append(", Exception=").append(exception);
         sb.append(", Seq=").append(sequence);
         sb.append(",\n\t Annotations = {");
-        for (HippoAnnotation a : annotations) {
+        for (Annotation a : annotations) {
             sb.append("\n\t\t").append(a);
         }
         sb.append("\n\t}");
@@ -190,7 +190,7 @@ public class SubSpan implements Thriftable {
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
-        for (HippoAnnotation a : annotations) {
+        for (Annotation a : annotations) {
             annotationList.add(a.toThrift());
         }
         subSpan.setAnnotations(annotationList);

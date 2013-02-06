@@ -58,7 +58,7 @@ public class SubSpanList implements Thriftable {
 
             // 여기서 데이터 인코딩을 하자.
             List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(subSpan.getAnnotationSize());
-            for (HippoAnnotation a : subSpan.getAnnotations()) {
+            for (Annotation a : subSpan.getAnnotations()) {
                 annotationList.add(a.toThrift());
             }
             

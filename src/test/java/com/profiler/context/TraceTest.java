@@ -1,5 +1,6 @@
 package com.profiler.context;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.sender.DataSender;
 
@@ -21,7 +22,7 @@ public class TraceTest {
         // http server receive
         trace.recordRpcName(ServiceType.UNKNOWN, "service_name", "http://");
         trace.recordEndPoint("http:localhost:8080");
-        trace.recordAttribute("KEY", "VALUE");
+        trace.recordAttribute(AnnotationNames.API, "VALUE");
 
         // get data form db
         getDataFromDB(trace);
@@ -75,7 +76,7 @@ public class TraceTest {
 
         // db server request
         trace.recordRpcName(ServiceType.MYSQL, "mysql", "rpc");
-        trace.recordAttribute("mysql.query", "SELECT * FROM TABLE");
+        trace.recordAttribute(AnnotationNames.SQL, "SELECT * FROM TABLE");
 
         // get a db response
 

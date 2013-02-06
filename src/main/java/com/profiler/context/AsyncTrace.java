@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.logging.LoggingUtils;
 
@@ -90,21 +91,15 @@ public class AsyncTrace {
         subSpan.setEndTime(System.currentTimeMillis());
     }
 
-    public void record(Annotation annotation) {
-        annotate(annotation.getCode());
-    }
 
-    public void recordAttribute(final String key, final String value) {
+    public void recordAttribute(final AnnotationNames key, final String value) {
         recordAttibute(key, (Object) value);
     }
 
-    public void recordAttibute(final String key, final Object value) {
-        subSpan.addAnnotation(new HippoAnnotation(key, value));
+    public void recordAttibute(final AnnotationNames key, final Object value) {
+        subSpan.addAnnotation(new Annotation(key, value));
     }
 
-    public void recordMessage(String key) {
-        annotate(key);
-    }
 
     public void recordRpcName(final ServiceType serviceType, final String service, final String rpc) {
         this.subSpan.setServiceType(serviceType);
@@ -117,8 +112,8 @@ public class AsyncTrace {
         this.subSpan.setEndPoint(endPoint);
     }
 
-    private void annotate(final String key) {
-        this.subSpan.addAnnotation(new HippoAnnotation(key));
+    private void annotate(final AnnotationNames key) {
+        this.subSpan.addAnnotation(new Annotation(key));
 
     }
 

@@ -255,13 +255,16 @@ public final class Trace {
 
     private void recocordArgs(Object[] args) {
         if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                recordAttribute("args[" + i + "]", args[i]);
+            int min = Math.min(args.length, AnnotationNames.MAX_ARGS_SIZE);
+            for (int i = 0; i < min; i++) {
+                recordAttribute(AnnotationNames.getArgs(i), args[i]);
             }
+            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
         }
     }
 
-    public void recordAttribute(final String key, final String value) {
+
+    public void recordAttribute(final AnnotationNames key, final String value) {
         recordAttribute(key, (Object) value);
     }
 
@@ -282,7 +285,7 @@ public final class Trace {
         }
     }
 
-    public void recordAttribute(final String key, final Object value) {
+    public void recordAttribute(final AnnotationNames key, final Object value) {
         if (!tracingEnabled)
             return;
 
@@ -291,22 +294,16 @@ public final class Trace {
             StackFrame currentStackFrame = getCurrentStackFrame();
             if (currentStackFrame instanceof RootStackFrame) {
                 Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new HippoAnnotation(key, value));
+                span.addAnnotation(new Annotation(key, value));
             } else {
                 SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new HippoAnnotation(key, value));
+                span.addAnnotation(new Annotation(key, value));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    public void recordMessage(String message) {
-        if (!tracingEnabled)
-            return;
-
-        annotate(message);
-    }
 
     public void recordRpcName(final ServiceType serviceType, final String serviceName, final String rpc) {
         if (!tracingEnabled)
@@ -366,7 +363,7 @@ public final class Trace {
         }
     }
 
-    private void annotate(final String key) {
+    private void annotate(final AnnotationNames key) {
         if (!tracingEnabled)
             return;
 
@@ -374,10 +371,10 @@ public final class Trace {
             StackFrame currentStackFrame = getCurrentStackFrame();
             if (currentStackFrame instanceof RootStackFrame) {
                 Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new HippoAnnotation(key));
+                span.addAnnotation(new Annotation(key));
             } else {
                 SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new HippoAnnotation(key));
+                span.addAnnotation(new Annotation(key));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);

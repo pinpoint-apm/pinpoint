@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.AnnotationNames;
 import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
@@ -75,7 +76,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			asyncTrace.recordRpcName(svcType, serviceCode, baseOperation.getClass().getSimpleName());
 
 			String cmd = getCommand(baseOperation);
-			asyncTrace.recordAttibute("arcus.command", cmd);
+			asyncTrace.recordAttibute(AnnotationNames.ARCUS_COMMAND, cmd);
 
 			// TimeObject timeObject = (TimeObject)
 			// asyncTrace.getAttachObject();
@@ -96,7 +97,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			}
 			Exception exception = baseOperation.getException();
 			if (exception != null) {
-				asyncTrace.recordAttibute("Exception", InterceptorUtils.exceptionToString(exception));
+				asyncTrace.recordAttibute(AnnotationNames.EXCEPTION, InterceptorUtils.exceptionToString(exception));
 			}
 			if (!baseOperation.isCancelled()) {
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
@@ -104,7 +105,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			} else {
-				asyncTrace.recordAttribute("Exception", "cancelled by user");
+				asyncTrace.recordAttribute(AnnotationNames.EXCEPTION, "cancelled by user");
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
 				// asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
 				asyncTrace.markAfterTime();
