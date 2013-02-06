@@ -292,7 +292,7 @@
                    <c:forEach items="${sp.annotationBoList}" var="ano" varStatus="annoStatus">
                        <tr>
                            <td>${span.depth}</td>
-                           <td>${ano.key}</td>
+                           <td>${ano.keyName}</td>
                            <td>${ano.value}</td>
                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
@@ -309,7 +309,7 @@
                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
                        <tr>
                            <td>${span.depth}</td>
-                           <td>${ano.key}</td>
+                           <td>${ano.keyName}</td>
                            <td>${ano.value}</td>
                            <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
                            <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
@@ -382,8 +382,10 @@
             {
                 "source": ${link.from.sequence},
                 "target": ${link.to.sequence},
-                "value": ${link.histogram.sampleCount},
-                "histogram": ${link.histogram}
+                "value" : ${link.histogram.totalCount},
+                "error" : ${link.histogram.errorCount},
+                "slow" : ${link.histogram.slowCount},
+                "histogram" : ${link.histogram}
             }
             <c:if test="${!status.last}">,
             </c:if>
