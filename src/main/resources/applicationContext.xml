@@ -51,6 +51,7 @@
     <bean class="com.profiler.server.dao.hbase.HbaseTerminalStatisticsDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseSqlMetaDataDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseApiMetaDataDao"></bean>
+    <bean class="com.profiler.server.dao.hbase.HbaseBusinessTransactionStatisticsDao"></bean>
 
 
     <bean id="applicationNameMapper" class="com.profiler.server.dao.mapper.ApplicationNameMapper"></bean>

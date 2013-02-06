@@ -13,6 +13,7 @@ import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.RootTraceIndexDaoDao;
 
+@Deprecated
 public class HbaseRootTraceIndexDao implements RootTraceIndexDaoDao {
     // TODO 소스가 HbaeTraceIndexDao 동일함. 중복이므로 향후 합치는 방안강구.
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

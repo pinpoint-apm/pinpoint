@@ -3,7 +3,6 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
-import com.profiler.common.dto.thrift.SubSpan;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
-import com.profiler.server.dao.RootTraceIndexDaoDao;
+import com.profiler.server.dao.BusinessTransactionStatisticsDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TraceIndexDao;
 import com.profiler.server.dao.TracesDao;
@@ -29,9 +29,6 @@ public class SpanHandler implements Handler {
     private TracesDao traceDao;
 
     @Autowired
-    private RootTraceIndexDaoDao rootTraceIndexDao;
-
-    @Autowired
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
     @Autowired
@@ -40,6 +37,9 @@ public class SpanHandler implements Handler {
     @Autowired
     private TerminalStatisticsDao terminalStatistics;
 
+    @Autowired
+    private BusinessTransactionStatisticsDao businessTransactionStatistics;
+    
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         assert (tbase instanceof Span);
 
@@ -59,19 +59,19 @@ public class SpanHandler implements Handler {
                 logger.info("Applicationname '{}' found. Write the log.", applicationName);
             }
 
-
             traceDao.insert(applicationName, span);
 
-            // indexing root span
-            if (span.getParentSpanId() == -1) {
-                rootTraceIndexDao.insert(span);
-            }
+			// (indexing root span)
+			// if (span.getParentSpanId() == -1) {
+			// rootTraceIndexDao.insert(span);
+			// }
 
             // indexing non-terminal span
             ServiceType serviceType = ServiceType.parse(span.getServiceType());
             if (serviceType.isIndexable()) {
                 traceIndexDao.insert(span);
                 applicationTraceIndexDao.insert(applicationName, span);
+                businessTransactionStatistics.update(applicationName, span);
             } else {
                 logger.debug("Skip writing index. '{}'", span);
             }
