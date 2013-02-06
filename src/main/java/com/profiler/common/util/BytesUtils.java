@@ -7,6 +7,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class BytesUtils {
 
+	public static int INT_BYTE_LENGTH = 4;
+	public static int LONG_BYTE_LENGTH = 8;
+	
     private static final byte[] EMPTY_BYTES = new byte[0];
     private static final Charset UTF8 = Charset.forName("UTF-8");
 

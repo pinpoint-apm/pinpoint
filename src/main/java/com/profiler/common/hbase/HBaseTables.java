@@ -3,7 +3,10 @@ package com.profiler.common.hbase;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseTables {
-
+	
+	public static final int APPLICATION_NAME_MAX_LEN = 24;
+    public static final int AGENT_NAME_MAX_LEN = 24;
+	
     public static final String SYSTEMINFO = "Systeminfo";
     public static final byte[] SYSTEMINFO_CF_JVM = Bytes.toBytes("JVM");
     public static final byte[] SYSTEMINFO_CN_INFO = Bytes.toBytes("info");

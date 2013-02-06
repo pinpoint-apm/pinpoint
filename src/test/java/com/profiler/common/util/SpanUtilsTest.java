@@ -1,6 +1,8 @@
 package com.profiler.common.util;
 
 import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.hbase.HBaseTables;
+
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
@@ -26,7 +28,7 @@ public class SpanUtilsTest {
     @Test
     public void testGetTraceIndexRowKey2() throws Exception {
         String agentId = "";
-        for (int i = 0; i < SpanUtils.AGENT_NAME_LIMIT; i++) {
+        for (int i = 0; i < HBaseTables.AGENT_NAME_MAX_LEN; i++) {
             agentId += "1";
         }
 
@@ -37,7 +39,7 @@ public class SpanUtilsTest {
     @Test
     public void testGetTraceIndexRowKey3() throws Exception {
         String agentId = "";
-        for (int i = 0; i < SpanUtils.AGENT_NAME_LIMIT + 1; i++) {
+        for (int i = 0; i < HBaseTables.AGENT_NAME_MAX_LEN + 1; i++) {
             agentId += "1";
         }
 
@@ -59,7 +61,7 @@ public class SpanUtilsTest {
         String agentId = Bytes.toString(traceIndexRowKey, 0, 24).trim();
         Assert.assertEquals(agentId0, agentId);
 
-        long time = Bytes.toLong(traceIndexRowKey, SpanUtils.AGENT_NAME_LIMIT);
+        long time = Bytes.toLong(traceIndexRowKey, HBaseTables.AGENT_NAME_MAX_LEN);
         Assert.assertEquals(time, l1);
     }
 }

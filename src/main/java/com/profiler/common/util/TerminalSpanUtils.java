@@ -3,6 +3,7 @@ package com.profiler.common.util;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.hbase.HBaseTables;
 
 /**
  * 
@@ -10,9 +11,6 @@ import com.profiler.common.ServiceType;
  * 
  */
 public class TerminalSpanUtils {
-
-	// TODO global variable로 변경
-	private static final int APPLICATION_NAME_MAX_LEN = 24;
 
 	/**
 	 * columnName format = SERVICETYPE(2bytes) + SLOT(2bytes) + APPLICATIONNAME(str)
@@ -72,9 +70,9 @@ public class TerminalSpanUtils {
 		byte[] slot = Bytes.toBytes(time);
 		byte[] n = Bytes.toBytes(applicationName);
 
-		byte[] buf = new byte[APPLICATION_NAME_MAX_LEN + slot.length];
+		byte[] buf = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN + slot.length];
 		System.arraycopy(n, 0, buf, 0, n.length);
-		System.arraycopy(slot, 0, buf, APPLICATION_NAME_MAX_LEN, slot.length);
+		System.arraycopy(slot, 0, buf, HBaseTables.APPLICATION_NAME_MAX_LEN, slot.length);
 
 		return buf;
 	}
