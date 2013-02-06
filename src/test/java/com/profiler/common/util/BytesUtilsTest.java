@@ -1,5 +1,6 @@
 package com.profiler.common.util;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.apache.hadoop.hbase.util.Bytes;
@@ -63,4 +64,14 @@ public class BytesUtilsTest {
         byte[] buf = Bytes.add(Bytes.toBytes("testAgent"), Bytes.toBytes(11L));
         Assert.assertArrayEquals(testAgents, buf);
     }
+    
+	@Test
+	public void testMerge() {
+		byte[] b1 = new byte[] { 1, 2 };
+		byte[] b2 = new byte[] { 3, 4 };
+
+		byte[] b3 = BytesUtils.merge(b1, b2);
+
+		Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
+	}
 }

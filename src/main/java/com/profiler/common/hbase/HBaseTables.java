@@ -38,6 +38,11 @@ public class HBaseTables {
     public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
     public static final byte[] TERMINAL_STATISTICS_CF_ERROR_COUNTER = Bytes.toBytes("ErrorCount");
 
+	public static final String BUSINESS_TRANSACTION_STATISTICS = "BusinessTransactionStatistics";
+	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL = Bytes.toBytes("Normal");
+	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_SLOW = Bytes.toBytes("Slow");
+	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_ERROR = Bytes.toBytes("Error");
+
     public static final String SQL_METADATA = "SqlMetaData";
     public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
 

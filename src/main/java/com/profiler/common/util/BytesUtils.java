@@ -244,4 +244,30 @@ public class BytesUtils {
             return EMPTY_BYTES;
         return value.getBytes(UTF8);
     }
+    
+	public static byte[] merge(byte[] b1, byte[] b2) {
+		if (b1 == null || b2 == null) {
+			throw new IllegalArgumentException();
+		}
+
+		byte[] result = new byte[b1.length + b2.length];
+
+		System.arraycopy(b1, 0, result, 0, b1.length);
+		System.arraycopy(b2, 0, result, b1.length, b2.length);
+
+		return result;
+	}
+	
+	public static byte[] toFixedLengthBytes(String str, int length) {
+		byte[] b1 = str.getBytes(UTF8);
+
+		if (b1.length > length) {
+			throw new IllegalArgumentException("String is longer then target length of bytes.");
+		}
+
+		byte[] b = new byte[length];
+		System.arraycopy(b1, 0, b, 0, b1.length);
+
+		return b;
+	}
 }
