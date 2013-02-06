@@ -428,7 +428,9 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public byte[] toBytecode() {
         try {
-            return ctClass.toBytecode();
+            byte[] bytes = ctClass.toBytecode();
+            ctClass.detach();
+            return bytes;
         } catch (IOException e) {
             logger.log(Level.INFO, "IoException class:" + ctClass.getName() + " " + e.getMessage(), e);
         } catch (CannotCompileException e) {

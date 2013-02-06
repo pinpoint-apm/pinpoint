@@ -39,8 +39,9 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
             updateGetConnectionMethod(cc);
 
             printClassConvertComplete(javassistClassName);
-
-            return cc.toBytecode();
+            byte[] bytes = cc.toBytecode();
+            cc.detach();
+            return bytes;
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
