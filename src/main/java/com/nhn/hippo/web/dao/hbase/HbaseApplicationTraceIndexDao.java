@@ -26,8 +26,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final byte[] COLFAM_TRACE = HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
-
 	@Autowired
 	private HbaseOperations2 hbaseOperations2;
 
@@ -75,7 +73,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 		scan.setStopRow(traceIndexEndKey);
-		scan.addFamily(COLFAM_TRACE);
+		scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
 		scan.setId("traceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
