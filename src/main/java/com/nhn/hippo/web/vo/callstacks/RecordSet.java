@@ -60,17 +60,9 @@ public class RecordSet {
 
 	private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
         for (AnnotationBo ann : annotationBoList) {
-            int annKey = ann.getKey();
-            if (AnnotationNames.API.getCode() == annKey || AnnotationNames.API_ID.getCode() == annKey)
-                continue;
-
-            AnnotationNames annotationNames = AnnotationNames.findAnnotationNames(ann.getKey());
-            if (AnnotationNames.EXCEPTION.getCode() == annKey) {
-                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
-            } else if (AnnotationNames.SQL_BINDVALUE.getCode() == annKey) {
-                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
-            } else if (AnnotationNames.SQL.getCode() == annKey) {
-                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
+            AnnotationNames annotation = AnnotationNames.findAnnotationNames(ann.getKey());
+            if (annotation.isViewInRecordSet()) {
+                recordset.add(new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
             }
         }
     }
