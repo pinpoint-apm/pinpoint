@@ -60,16 +60,17 @@ public class RecordSet {
 
 	private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
         for (AnnotationBo ann : annotationBoList) {
-            String annKey = ann.getKey();
-            if (AnnotationNames.API.equals(annKey) || AnnotationNames.API_ID.equals(annKey))
+            int annKey = ann.getKey();
+            if (AnnotationNames.API.getCode() == annKey || AnnotationNames.API_ID.getCode() == annKey)
                 continue;
 
-            if (AnnotationNames.EXCEPTION.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
-            } else if (AnnotationNames.SQL_BINDVALUE.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
-            } else if (AnnotationNames.SQL.equals(annKey)) {
-                recordset.add(new Record(depth, false, ann.getKey(), ann.getValue().toString(), 0L, 0L, null, null, null));
+            AnnotationNames annotationNames = AnnotationNames.findAnnotationNames(ann.getKey());
+            if (AnnotationNames.EXCEPTION.getCode() == annKey) {
+                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
+            } else if (AnnotationNames.SQL_BINDVALUE.getCode() == annKey) {
+                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
+            } else if (AnnotationNames.SQL.getCode() == annKey) {
+                recordset.add(new Record(depth, false, annotationNames.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
             }
         }
     }
@@ -93,7 +94,6 @@ public class RecordSet {
                     applicationName = arguments;
                     marked = true;
                 }
-
                 recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName(), span.getServiceType()));
                 addAnnotationRecord(sa.getDepth() + 1, span.getAnnotationBoList());
             } else {

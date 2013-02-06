@@ -83,7 +83,7 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.SQL_ID);
+                AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.SQL_ID.getCode());
                 if (sqlIdAnnotation == null) {
                     return;
                 }
@@ -94,7 +94,7 @@ public class SpanServiceImpl implements SpanService {
                 logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
                 if (agentStartTime == 0) {
                     AnnotationBo agentInfoNotFound = new AnnotationBo();
-                    agentInfoNotFound.setKey(AnnotationNames.SQL);
+                    agentInfoNotFound.setKey(AnnotationNames.SQL.getCode());
                     agentInfoNotFound.setValue("SQL-ID not found. Cause:agentInfo not found. agentId:" + agentId + " startTime:" + startTime);
                     annotationBoList.add(agentInfoNotFound);
                     return;
@@ -106,19 +106,19 @@ public class SpanServiceImpl implements SpanService {
                 int size = sqlMetaDataList.size();
                 if (size == 0) {
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationNames.SQL);
+                    api.setKey(AnnotationNames.SQL.getCode());
                     api.setValue("SQL-ID not found hashCode:" + hashCode);
                     annotationBoList.add(api);
                 } else if (size == 1) {
-                    AnnotationBo sqlParamAnnotationBo = findAnnotation(annotationBoList, AnnotationNames.SQL_PARAM);
+                    AnnotationBo sqlParamAnnotationBo = findAnnotation(annotationBoList, AnnotationNames.SQL_PARAM.getCode());
                     if (sqlParamAnnotationBo == null) {
                         AnnotationBo sqlMeta = new AnnotationBo();
-                        sqlMeta.setKey(AnnotationNames.SQL_METADATA);
+                        sqlMeta.setKey(AnnotationNames.SQL_METADATA.getCode());
                         sqlMeta.setValue(sqlMetaDataList.get(0).getSql());
                         annotationBoList.add(sqlMeta);
 
                         AnnotationBo sql = new AnnotationBo();
-                        sql.setKey(AnnotationNames.SQL);
+                        sql.setKey(AnnotationNames.SQL.getCode());
                         sql.setValue(sqlMetaDataList.get(0).getSql());
                         annotationBoList.add(sql);
                     } else {
@@ -132,12 +132,12 @@ public class SpanServiceImpl implements SpanService {
 
 
                         AnnotationBo sqlMeta = new AnnotationBo();
-                        sqlMeta.setKey(AnnotationNames.SQL_METADATA);
+                        sqlMeta.setKey(AnnotationNames.SQL_METADATA.getCode());
                         sqlMeta.setValue(sqlMetaDataList.get(0).getSql());
                         annotationBoList.add(sqlMeta);
 
                         AnnotationBo sql = new AnnotationBo();
-                        sql.setKey(AnnotationNames.SQL);
+                        sql.setKey(AnnotationNames.SQL.getCode());
                         sql.setValue(originalSql);
                         annotationBoList.add(sql);
 
@@ -146,7 +146,7 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     // TODO 보완해야됨.
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationNames.SQL);
+                    api.setKey(AnnotationNames.SQL.getCode());
                     api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
                     annotationBoList.add(api);
                 }
@@ -155,9 +155,9 @@ public class SpanServiceImpl implements SpanService {
         });
     }
 
-    private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, String key) {
+    private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, int key) {
         for (AnnotationBo annotationBo : annotationBoList) {
-            if (key.equals(annotationBo.getKey())) {
+            if (key == annotationBo.getKey()) {
                 return annotationBo;
             }
         }
@@ -193,7 +193,7 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_DID);
+                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_DID.getCode());
                 if (apiIdAnnotation == null) {
                     return;
                 }
@@ -204,7 +204,7 @@ public class SpanServiceImpl implements SpanService {
                 logger.info("{} Agent StartTime fonud:{}", agentId, agentStartTime);
                 if (agentStartTime == 0) {
                     AnnotationBo agentInfoNotFound = new AnnotationBo();
-                    agentInfoNotFound.setKey(AnnotationNames.API);
+                    agentInfoNotFound.setKey(AnnotationNames.API.getCode());
                     agentInfoNotFound.setValue("API-DynamicID not found. Cause:agentInfo not found. agentId:" + agentId + " startTime:" + startTime);
                     annotationBoList.add(agentInfoNotFound);
                     return;
@@ -214,25 +214,25 @@ public class SpanServiceImpl implements SpanService {
                 int size = apiMetaDataList.size();
                 if (size == 0) {
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationNames.API);
+                    api.setKey(AnnotationNames.API.getCode());
                     api.setValue("API-DID not found api:" + apiId);
                     annotationBoList.add(api);
                 } else if (size == 1) {
                     ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(0);
                     AnnotationBo apiMetaData = new AnnotationBo();
-                    apiMetaData.setKey(AnnotationNames.API_METADATA);
+                    apiMetaData.setKey(AnnotationNames.API_METADATA.getCode());
                     apiMetaData.setValue(apiMetaDataBo);
                     annotationBoList.add(apiMetaData);
 
 
                     AnnotationBo apiAnnotation = new AnnotationBo();
-                    apiAnnotation.setKey(AnnotationNames.API);
+                    apiAnnotation.setKey(AnnotationNames.API.getCode());
                     String apiInfo = getApiInfo(apiMetaDataBo);
                     apiAnnotation.setValue(apiInfo);
                     annotationBoList.add(apiAnnotation);
                 } else {
                     AnnotationBo apiAnnotation = new AnnotationBo();
-                    apiAnnotation.setKey(AnnotationNames.API);
+                    apiAnnotation.setKey(AnnotationNames.API.getCode());
                     String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
                     apiAnnotation.setValue(collisonMessage);
                     annotationBoList.add(apiAnnotation);
@@ -272,7 +272,7 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_ID);
+                AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationNames.API_ID.getCode());
                 if (apiIdAnnotation == null) {
                     return;
                 }
@@ -287,7 +287,7 @@ public class SpanServiceImpl implements SpanService {
                 String[] parameterName = methodMapping.getParameterName();
                 String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
                 AnnotationBo api = new AnnotationBo();
-                api.setKey(AnnotationNames.API);
+                api.setKey(AnnotationNames.API.getCode());
                 api.setValue(className + "." + methodName + args);
                 annotationBoList.add(api);
             }

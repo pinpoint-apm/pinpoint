@@ -68,7 +68,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 subSpanBo.setLeastTraceId(least);
 
                 int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
-                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + 8);
+                // 앞의 spanid가 int이므로 4.
+                int spanIdOffset = 4;
+                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + spanIdOffset);
                 subSpanBo.setSpanId(spanId);
                 subSpanBo.setSequence(sequence);
 

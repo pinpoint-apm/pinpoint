@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.profiler.common.AnnotationNames;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -136,7 +137,7 @@ public class SpanServiceTest {
 
         span.setParentSpanId(-1);
         List<Annotation> annotations = new ArrayList<Annotation>();
-        annotations.add(new Annotation("root ann", 0));
+        annotations.add(new Annotation(AnnotationNames.API.getCode(), 0));
         span.setAnnotations(annotations);
         return span;
     }
@@ -160,7 +161,7 @@ public class SpanServiceTest {
 
         sub.setParentSpanId(span.getSpanId());
         List<Annotation> annotations = new ArrayList<Annotation>();
-        annotations.add(new Annotation("sub ann" + andIncrement, 0));
+        annotations.add(new Annotation(AnnotationNames.API.getCode(), 0));
         sub.setAnnotations(annotations);
         return sub;
     }
