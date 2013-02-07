@@ -349,39 +349,67 @@ d3.chart.scatter._renderer = function(){
 				return;
 			}
 			
-			$("#selectedBusinessTransactionsDetail TBODY").empty();
-			
-			var html = [];
+			var query = [];
 			for (var i = 0; i < keys.length; i++) {
-				html.push("<tr>");
-
-				html.push("<td>");
-				html.push(i + 1);
-				html.push("</td>");
-
-				html.push("<td>");
-				html.push(new Date(traces[keys[i]].timestamp));
-				html.push("</td>");
-
-				html.push("<td><a href='#' onclick='openTrace(\"");
-				html.push(traces[keys[i]].traceId);
-				html.push("\");'>");
-				html.push(traces[keys[i]].traceId);
-				html.push("</a></td>");
-
-				html.push("<td>");
-				html.push(traces[keys[i]].executionTime);
-				html.push("</td>");
-
-				html.push("<td>");
-				html.push(traces[keys[i]].name);
-				html.push("</td>");
-
-				html.push("</tr>");
+				if (i > 0) {
+					query.push("&");
+				}
+				query.push("tr");
+				query.push(i);
+				query.push("=");
+				query.push(traces[keys[i]].traceId);
+				
+				query.push("&ti");
+				query.push(i);
+				query.push("=");
+				query.push(traces[keys[i]].timestamp)
+				
+				query.push("&re");
+				query.push(i);
+				query.push("=");
+				query.push(traces[keys[i]].executionTime)
 			}
+			
+			// queryparameter를 POST로 보내야할 것 같음.
+			d3.json("/requestmetadata.hippo?" + query.join(""), function(d) {
+				$("#selectedBusinessTransactionsDetail TBODY").empty();
+				
+				console.log(d);
+				
+				var data = d.metadata;
+				
+				var html = [];
+				for (var i = 0; i < data.length; i++) {
+					html.push("<tr>");
 
-			$("#selectedBusinessTransactionsDetail TBODY").append(html.join(''));
-			$('#traceIdSelectModal').modal({});
+					html.push("<td>");
+					html.push(i + 1);
+					html.push("</td>");
+
+					html.push("<td>");
+					html.push(new Date(data[i].startTime));
+					html.push("</td>");
+
+					html.push("<td><a href='#' onclick='openTrace(\"");
+					html.push(data[i].traceId);
+					html.push("\");'>");
+					html.push(data[i].traceId);
+					html.push("</a></td>");
+
+					html.push("<td>");
+					html.push(data[i].elapsed);
+					html.push("</td>");
+
+					html.push("<td>");
+					html.push(data[i].application);
+					html.push("</td>");
+
+					html.push("</tr>");
+				}
+
+				$("#selectedBusinessTransactionsDetail TBODY").append(html.join(''));
+				$('#traceIdSelectModal').modal({});
+			});
 		},
 		
 		add : function(data_to_add, filter) {

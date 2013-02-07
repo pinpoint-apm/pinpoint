@@ -1,8 +1,10 @@
 package com.nhn.hippo.web.controller;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -18,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
+import com.nhn.hippo.web.service.SpanService;
 import com.nhn.hippo.web.vo.BusinessTransactions;
+import com.nhn.hippo.web.vo.RequestMetadata;
+import com.nhn.hippo.web.vo.RequestMetadataQuery;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 
@@ -35,10 +40,13 @@ public class FlowChartController {
 	@Autowired
 	private FlowChartService flow;
 
+	@Autowired
+	private SpanService spanService;
+
 	private void addResponseHeader(final HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*.*");
 	}
-	
+
 	@Deprecated
 	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
 	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
@@ -75,7 +83,7 @@ public class FlowChartController {
 		model.addAttribute("links", callTree.getLinks());
 
 		logger.debug("callTree:{}", callTree);
-		
+
 		addResponseHeader(response);
 		return "servermap";
 	}
@@ -83,7 +91,7 @@ public class FlowChartController {
 	@RequestMapping(value = "/businesstransactions", method = RequestMethod.GET)
 	public String businesstransactions(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		
+
 		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
 		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIds, applicationName, from, to);
@@ -108,6 +116,38 @@ public class FlowChartController {
 
 		addResponseHeader(response);
 		return "scatter";
+	}
+
+	// TODO UI에서 한꺼번에 많은 데이터를 조회하지 않도록 제한해야함.
+	@RequestMapping(value = "/requestmetadata", method = RequestMethod.GET)
+	public String requestmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
+		String TRACEID = "tr";
+		String TIME = "ti";
+		String RESPONSE_TIME = "re";
+
+		RequestMetadataQuery query = new RequestMetadataQuery();
+
+		int index = 0;
+		while (true) {
+			String traceId = request.getParameter(TRACEID + index);
+			String time = request.getParameter(TIME + index);
+			String responseTime = request.getParameter(RESPONSE_TIME + index);
+
+			if (traceId == null || time == null || responseTime == null) {
+				break;
+			}
+
+			query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
+			index++;
+		}
+
+		if (query.size() > 0) {
+			Map<String, RequestMetadata> metadata = spanService.selectRequestMetadata(query);
+			model.addAttribute("metadata", metadata);
+		}
+
+		addResponseHeader(response);
+		return "requestmetadata";
 	}
 
 	@Deprecated
