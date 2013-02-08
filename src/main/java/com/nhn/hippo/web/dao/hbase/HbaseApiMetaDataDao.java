@@ -29,8 +29,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private ApiMetaDataMapper mapper;
 
     @Override
-    public List<ApiMetaDataBo> getApiMetaData(String agentId, int apiId, long time) {
-        byte[] sqlId = RowKeyUtils.getApiId(agentId, apiId, time);
+    public List<ApiMetaDataBo> getApiMetaData(String agentId, short identifier, int apiId, long time) {
+        byte[] sqlId = RowKeyUtils.getApiId(agentId, identifier, apiId, time);
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.API_METADATA_CF_API);
 

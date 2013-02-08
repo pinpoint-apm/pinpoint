@@ -2,6 +2,7 @@ package com.nhn.hippo.web.mapper;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ public class AgentIdMapper implements RowMapper<String[]> {
 		int index = 0;
 
 		for (KeyValue kv : raw) {
-			ret[index++] = new String(kv.getQualifier(), "UTF-8");
+			ret[index++] = Bytes.toString(kv.getQualifier());
 		}
 
 		return ret;

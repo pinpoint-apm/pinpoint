@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.dao.hbase;
 
+import com.profiler.common.bo.AgentInfoBo;
 import com.profiler.common.dto.thrift.AgentInfo;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -31,14 +32,14 @@ public class HbaseAgentInfoDaoTest {
         AgentInfo agentInfo3 = createAgentInfo(30000);
         insertDao.insert(agentInfo3);
 
-        long testcaseAgent1 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 20005);
-        Assert.assertEquals(testcaseAgent1, 20000);
+        AgentInfoBo testcaseAgent1 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 20005);
+        Assert.assertEquals(testcaseAgent1.getTimestamp(), 20000);
 
-        long testcaseAgent2 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 10004);
-        Assert.assertEquals(testcaseAgent2, 10000);
+        AgentInfoBo testcaseAgent2 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 10004);
+        Assert.assertEquals(testcaseAgent2.getTimestamp(), 10000);
 
-        long testcaseAgent3 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 50000);
-        Assert.assertEquals(testcaseAgent3, 30000);
+        AgentInfoBo testcaseAgent3 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 50000);
+        Assert.assertEquals(testcaseAgent3.getTimestamp(), 30000);
 
 
     }

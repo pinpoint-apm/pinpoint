@@ -1,9 +1,11 @@
 package com.nhn.hippo.web.dao;
 
+import com.profiler.common.bo.AgentInfoBo;
+
 /**
  *
  */
 public interface AgentInfoDao {
 
-    long findAgentInfoBeforeStartTime(String agentInfo, long currentTime);
+    AgentInfoBo findAgentInfoBeforeStartTime(String agentInfo, long currentTime);
 }

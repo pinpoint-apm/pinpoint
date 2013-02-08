@@ -29,8 +29,8 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private SqlMetaDataMapper mapper;
 
     @Override
-    public List<SqlMetaDataBo> getSqlMetaData(String agentId, int hashCode, long time) {
-        byte[] sqlId = RowKeyUtils.getSqlId(agentId, hashCode, time);
+    public List<SqlMetaDataBo> getSqlMetaData(String agentId, short identifier, int hashCode, long time) {
+        byte[] sqlId = RowKeyUtils.getSqlId(agentId, identifier, hashCode, time);
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.SQL_METADATA_CF_SQL);
 

@@ -1,9 +1,6 @@
 package com.nhn.hippo.web.calltree.span;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
@@ -62,6 +59,9 @@ public class SpanAligner2 {
 		container.add(element);
 
 		List<SubSpanBo> subSpanList = parentSpan.getSubSpanList();
+        if (subSpanList == null) {
+            return;
+        }
 		for (SubSpanBo subSpanBo : subSpanList) {
 			if (subSpanBo.getDepth() != -1) {
 				depth = spanDepth + subSpanBo.getDepth() + 1;

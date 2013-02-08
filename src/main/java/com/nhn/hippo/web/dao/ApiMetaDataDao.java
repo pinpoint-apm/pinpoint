@@ -8,5 +8,5 @@ import com.profiler.common.bo.ApiMetaDataBo;
  *
  */
 public interface ApiMetaDataDao {
-    List<ApiMetaDataBo> getApiMetaData(String agentId, int apiId, long time);
+    List<ApiMetaDataBo> getApiMetaData(String agentId, short identifier, int apiId, long time);
 }

@@ -8,5 +8,5 @@ import java.util.List;
  *
  */
 public interface SqlMetaDataDao {
-    List<SqlMetaDataBo> getSqlMetaData(String agentId, int hashCode, long time);
+    List<SqlMetaDataBo> getSqlMetaData(String agentId, short identifier, int hashCode, long time);
 }
