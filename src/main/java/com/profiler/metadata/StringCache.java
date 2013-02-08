@@ -1,5 +1,7 @@
 package com.profiler.metadata;
 
+import com.profiler.common.util.BytesUtils;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,8 +19,8 @@ public class StringCache {
         if(find != null) {
             return new Result(false, find);
         }
-
-        int newId = idGen.getAndIncrement();
+        //음수까지 활용하여 가능한 데이터 인코딩을 작게 유지되게 함.
+        int newId = BytesUtils.decodeZigZagInt(idGen.getAndIncrement());
         Integer before = this.cache.putIfAbsent(string, newId);
         if (before != null) {
             return new Result(false, before);

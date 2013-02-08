@@ -103,7 +103,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         trace.recordException(result);
 
         trace.markAfterTime();
-        trace.traceBlockEnd();
+        trace.traceRootBlockEnd();
     }
 
     /**

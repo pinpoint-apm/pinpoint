@@ -2,10 +2,10 @@ package com.profiler.util;
 
 import com.profiler.common.dto.Header;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import com.profiler.common.util.DefaultTBaseLocator;
-import com.profiler.common.util.HeaderTBaseDeserializer;
-import com.profiler.common.util.HeaderTBaseSerializer;
-import com.profiler.common.util.TBaseLocator;
+import com.profiler.common.io.DefaultTBaseLocator;
+import com.profiler.common.io.HeaderTBaseDeserializer;
+import com.profiler.common.io.HeaderTBaseSerializer;
+import com.profiler.common.io.TBaseLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

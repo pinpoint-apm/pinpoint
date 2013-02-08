@@ -20,8 +20,8 @@ public class RequestTracer {
     private static final Set<String> requestSet = Collections.synchronizedSet(new HashSet<String>());
 
     public static void startTransaction(String requestURL, String clientIP, long requestTime, String parameters) {
-        long cpuUserTime[] = SystemUtils.getThreadTime();
-
+//        long cpuUserTime[] = SystemUtils.getThreadTime();
+        long cpuUserTime[] = null;
         String tempRequestID = Thread.currentThread().getName() + "_" + System.nanoTime();
         int tempRequestHashCode = tempRequestID.hashCode();
 
@@ -46,7 +46,8 @@ public class RequestTracer {
      * Transaction is successfully ended.
      */
     public static void endTransaction() {
-        long cpuUserTime[] = SystemUtils.getThreadTime();
+        long cpuUserTime[] = null;
+//        long cpuUserTime[] = SystemUtils.getThreadTime();
         RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_RESPONSE, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
         finishTransaction(dto);
@@ -58,8 +59,8 @@ public class RequestTracer {
      * @param throwable
      */
     public static void exceptionTransaction(Throwable throwable) {
-        long cpuUserTime[] = SystemUtils.getThreadTime();
-
+//        long cpuUserTime[] = SystemUtils.getThreadTime();
+        long cpuUserTime[] = null;
         RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_UNCAUGHT_EXCEPTION, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
         dto.setExtraData1(throwable.getMessage());

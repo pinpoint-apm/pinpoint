@@ -2,6 +2,7 @@ package com.profiler;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +21,7 @@ import com.profiler.util.NetworkUtils;
 public class Agent {
 
     private static final Logger logger = Logger.getLogger(Agent.class.getName());
+    private static final Random IDENTIFIER_KEY = new Random();
 
     private volatile boolean alive = false;
 
@@ -34,6 +36,9 @@ public class Agent {
     private final String nodeName;
     private final String applicationName;
     private final long startTime;
+    private final short identifier;
+
+
 
     public Agent(ProfilerConfig profilerConfig) {
         Assert.notNull(profilerConfig, "profilerConfig must not be null");
@@ -51,6 +56,7 @@ public class Agent {
 
         this.dataSender = createDataSender();
         this.startTime = System.currentTimeMillis();
+        this.identifier = (short) IDENTIFIER_KEY.nextInt(16);
 
         initializeTraceContext();
 
@@ -115,7 +121,7 @@ public class Agent {
         return alive;
     }
 
-    public void setIsAlive(boolean alive) {
+    public void setAlive(boolean alive) {
         this.alive = alive;
     }
 
@@ -125,6 +131,10 @@ public class Agent {
 
     public String getAgentId() {
         return agentId;
+    }
+
+    public short getIdentifier() {
+        return identifier;
     }
 
     public long getStartTime() {
@@ -157,7 +167,9 @@ public class Agent {
 
         agentInfo.setHostname(ip);
         agentInfo.setPorts(ports);
+
         agentInfo.setAgentId(getAgentId());
+        agentInfo.setIdentifier(this.identifier);
         agentInfo.setApplicationName(getApplicationName());
 
         agentInfo.setIsAlive(true);
@@ -191,7 +203,9 @@ public class Agent {
 
         agentInfo.setHostname(ip);
         agentInfo.setPorts(ports);
+
         agentInfo.setAgentId(getAgentId());
+        agentInfo.setIdentifier(this.identifier);
         agentInfo.setApplicationName(getApplicationName());
 
         agentInfo.setIsAlive(false);

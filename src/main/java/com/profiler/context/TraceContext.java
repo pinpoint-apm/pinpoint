@@ -118,6 +118,8 @@ public class TraceContext {
         if (result.isNewValue()) {
             ApiMetaData apiMetadata = new ApiMetaData();
             apiMetadata.setAgentId(Agent.getInstance().getAgentId());
+            apiMetadata.setAgentIdentifier(Agent.getInstance().getIdentifier());
+
             apiMetadata.setStartTime(Agent.getInstance().getStartTime());
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
@@ -149,6 +151,8 @@ public class TraceContext {
             // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
             SqlMetaData sqlMetaData = new SqlMetaData();
             sqlMetaData.setAgentId(Agent.getInstance().getAgentId());
+            sqlMetaData.setAgentIdentifier(Agent.getInstance().getIdentifier());
+
             sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);

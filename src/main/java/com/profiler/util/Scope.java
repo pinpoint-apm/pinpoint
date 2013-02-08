@@ -5,10 +5,10 @@ package com.profiler.util;
  */
 public class Scope {
 
-    private NamedThreadLocal<Boolean> scope = new NamedThreadLocal<Boolean>("JDBCScope");
+    private final NamedThreadLocal<Boolean> scope;
 
-    public Scope(String threadLocalName) {
-        this.scope = new NamedThreadLocal<Boolean>(threadLocalName);
+    public Scope(final String scopeName) {
+        this.scope = new NamedThreadLocal<Boolean>(scopeName);
     }
 
     public void pushScope() {

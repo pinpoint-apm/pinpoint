@@ -36,12 +36,12 @@ public class TraceID {
 		return new TraceKey(most, least, spanId);
 	}
 
-	public static class TraceKey {
-		private long most;
-		private long least;
-		private long span;
+	public static final class TraceKey {
+		private final long most;
+		private final long least;
+		private final int span;
 
-		public TraceKey(long most, long least, long span) {
+		public TraceKey(long most, long least, int span) {
 			this.most = most;
 			this.least = least;
 			this.span = span;
@@ -65,7 +65,7 @@ public class TraceID {
         public int hashCode() {
             int result = (int) (most ^ (most >>> 32));
             result = 31 * result + (int) (least ^ (least >>> 32));
-            result = 31 * result + (int) (span ^ (span >>> 32));
+            result = 31 * result + span;
             return result;
         }
     }
@@ -108,7 +108,7 @@ public class TraceID {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(128);
 
 		sb.append("{");
 		sb.append("id=").append(id);

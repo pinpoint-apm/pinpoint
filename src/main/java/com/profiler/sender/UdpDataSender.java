@@ -1,9 +1,9 @@
 package com.profiler.sender;
 
 import com.profiler.common.dto.Header;
-import com.profiler.common.util.DefaultTBaseLocator;
-import com.profiler.common.util.HeaderTBaseSerializer;
-import com.profiler.common.util.TBaseLocator;
+import com.profiler.common.io.DefaultTBaseLocator;
+import com.profiler.common.io.HeaderTBaseSerializer;
+import com.profiler.common.io.TBaseLocator;
 import com.profiler.context.Thriftable;
 import com.profiler.util.Assert;
 import org.apache.thrift.TBase;

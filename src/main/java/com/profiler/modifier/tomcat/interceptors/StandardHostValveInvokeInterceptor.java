@@ -108,7 +108,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         trace.recordException(result);
 
         trace.markAfterTime();
-        trace.traceBlockEnd();
+        trace.traceRootBlockEnd();
     }
 
     /**

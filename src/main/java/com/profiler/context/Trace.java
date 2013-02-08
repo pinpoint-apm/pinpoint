@@ -34,7 +34,6 @@ public final class Trace {
     private int latestStackIndex = -1;
 
     public Trace() {
-        // traceObject에서 spanid의 유효성을 히스토리를 관리한다면 같은 thread에서는 span랜덤생성아이디의 충돌을 방지할수 있기는 함.
         TraceID traceId = TraceID.newTraceId();
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();
@@ -46,7 +45,6 @@ public final class Trace {
         // this.root = continueRoot;
         this.callStack = new CallStack(continueRoot);
         latestStackIndex = this.callStack.push();
-        // StackFrame stackFrame = createStackFrame(ROOT_STACKID);
         StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
     }
@@ -134,6 +132,10 @@ public final class Trace {
         }
 
         callStack.setStackFrame(stackFrame);
+    }
+
+    public void traceRootBlockEnd() {
+        traceBlockEnd(ROOT_STACKID);
     }
 
     public void traceBlockEnd() {

@@ -4,17 +4,14 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 public class SystemUtils {
+    private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
 
-	public static long[] getThreadTime() {
-		long result[] = new long[2];
 
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-
-		System.out.println(Thread.currentThread().getName() + " CPU:" + bean.getCurrentThreadCpuTime() + " User:" + bean.getCurrentThreadUserTime());
-
-		result[0] = bean.getCurrentThreadCpuTime();
-		result[1] = bean.getCurrentThreadUserTime();
-
-		return result;
+	public static long getCurrentThreadCpuTime() {
+		return THREAD_MX_BEAN.getCurrentThreadCpuTime();
 	}
+
+    public static long getCurrentThreadUserTime() {
+        return  THREAD_MX_BEAN.getCurrentThreadUserTime();
+    }
 }

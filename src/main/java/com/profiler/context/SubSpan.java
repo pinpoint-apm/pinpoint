@@ -131,7 +131,7 @@ public class SubSpan implements Thriftable {
 	}
 
 	public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append("{");
         sb.append("\n\t Depth = ").append(depth);
@@ -172,6 +172,8 @@ public class SubSpan implements Thriftable {
         // 다른 span의 sub로 들어가지 않을 경우
         if (!child) {
             subSpan.setAgentId(Agent.getInstance().getAgentId());
+            subSpan.setAgentIdentifier(Agent.getInstance().getIdentifier());
+
             TraceID parentSpanTraceID = parentSpan.getTraceID();
             subSpan.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
             subSpan.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());

@@ -25,6 +25,8 @@ public class SubSpanList implements Thriftable {
         SubSpan first = subSpanList.get(0);
         Span parentSpan = first.getParentSpan();
         tSubSpanList.setAgentId(Agent.getInstance().getAgentId());
+        tSubSpanList.setAgentIdentifier(Agent.getInstance().getIdentifier());
+
         UUID id = parentSpan.getTraceID().getId();
         tSubSpanList.setMostTraceId(id.getMostSignificantBits());
         tSubSpanList.setLeastTraceId(id.getLeastSignificantBits());
@@ -43,6 +45,7 @@ public class SubSpanList implements Thriftable {
             com.profiler.common.dto.thrift.SubSpan tSubSpan = new com.profiler.common.dto.thrift.SubSpan();
 
             tSubSpan.setAgentId(Agent.getInstance().getAgentId());
+            tSubSpan.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
             long parentSpanStartTime = subSpan.getParentSpan().getStartTime();
             tSubSpan.setStartElapsed((int) (subSpan.getStartTime() - parentSpanStartTime));
