@@ -1,7 +1,7 @@
 package com.profiler.common.buffer;
 
 /**
- *
+ * 버퍼사이즈가 자동으로 확장되는 buffer
  */
 public class AutomaticBuffer extends FixedBuffer {
 
