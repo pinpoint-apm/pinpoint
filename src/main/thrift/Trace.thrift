@@ -10,77 +10,82 @@ struct Annotation {
 
 struct SubSpan {
   1: optional string agentId
+  2: optional i16 agentIdentifier
 
-  2: optional i64 mostTraceId
-  3: optional i64 leastTraceId
+  3: optional i64 mostTraceId
+  4: optional i64 leastTraceId
 
-  4: optional i32 spanId
-  5: i16 sequence
+  5: optional i32 spanId
+  6: i16 sequence
 
-  6: i32 startElapsed
-  7: i32 endElapsed
+  7: i32 startElapsed
+  8: i32 endElapsed
 
-  8: optional string rpc
-  9: optional string serviceName
-  10: optional i16 serviceType
-  11: optional string endPoint
+  9: optional string rpc
+  10: optional string serviceName
+  11: optional i16 serviceType
+  12: optional string endPoint
 
-  12: bool err
+  13: bool err
 
-  13: list<Annotation> annotations
+  14: list<Annotation> annotations
   
-  14: optional i32 depth
-  15: optional i32 nextSpanId
+  15: optional i32 depth
+  16: optional i32 nextSpanId
 }
 
 struct Span {
   1: string agentId
+  2: i16 agentIdentifier
   
-  2: i64 mostTraceId
-  3: i64 leastTraceId
+  3: i64 mostTraceId
+  4: i64 leastTraceId
   
-  4: i32 spanId
-  5: i32 parentSpanId
+  5: i32 spanId
+  6: i32 parentSpanId
   
-  6: i64 startTime
-  7: i32 elapsed
+  7: i64 startTime
+  8: i32 elapsed
   
-  8: string rpc
-  9: string serviceName
-  10: i16 serviceType
-  11: string endPoint
+  9: string rpc
+  10: string serviceName
+  11: i16 serviceType
+  12: string endPoint
   
-  12: list<Annotation> annotations
-  13: optional i16 flag = 0
+  13: list<Annotation> annotations
+  14: optional i16 flag = 0
 
-  14: bool err
+  15: bool err
 
-  15: optional list<SubSpan> subSpanList
+  16: optional list<SubSpan> subSpanList
 }
 
 struct SubSpanList {
   1: string agentId
+  2: i16 agentIdentifier
 
-  2: i64 mostTraceId
-  3: i64 leastTraceId
+  3: i64 mostTraceId
+  4: i64 leastTraceId
 
-  4: i32 spanId
+  5: i32 spanId
 
-  5: list<SubSpan> subSpanList
+  6: list<SubSpan> subSpanList
 }
 
 struct SqlMetaData {
     1: string agentId
-    2: i64 startTime;
-    3: i32 hashCode
-    4: string sql;
+    2: i16 agentIdentifier
+    3: i64 startTime;
+    4: i32 hashCode
+    5: string sql;
 }
 
 
 struct ApiMetaData {
   1: string agentId
-  2: i64 startTime;
-  3: i32 apiId,
-  4: string apiInfo,
-  5: optional i32 line,
+  2: i16 agentIdentifier
+  3: i64 startTime;
+  4: i32 apiId,
+  5: string apiInfo,
+  6: optional i32 line,
 }
