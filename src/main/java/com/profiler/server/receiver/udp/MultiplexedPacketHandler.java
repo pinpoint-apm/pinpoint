@@ -7,8 +7,8 @@ import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.profiler.common.util.HeaderTBaseDeserializer;
-import com.profiler.common.util.TBaseLocator;
+import com.profiler.common.io.HeaderTBaseDeserializer;
+import com.profiler.common.io.TBaseLocator;
 import com.profiler.server.handler.Handler;
 
 import org.slf4j.Logger;

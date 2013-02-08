@@ -29,7 +29,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         }
 
         String agentId = sqlMetaData.getAgentId();
-        byte[] rowKey = RowKeyUtils.getSqlId(agentId, sqlMetaData.getHashCode(), sqlMetaData.getStartTime());
+        byte[] rowKey = RowKeyUtils.getSqlId(agentId, sqlMetaData.getAgentIdentifier(), sqlMetaData.getHashCode(), sqlMetaData.getStartTime());
 
 
         Put put = new Put(rowKey);

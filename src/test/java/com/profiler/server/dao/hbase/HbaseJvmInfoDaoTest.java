@@ -18,7 +18,7 @@ import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.TBaseLocator;
+import com.profiler.common.io.TBaseLocator;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 // @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})

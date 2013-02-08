@@ -3,7 +3,8 @@ package com.profiler.server.dao.hbase;
 import com.profiler.common.dto.thrift.ApiMetaData;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
+import com.profiler.common.buffer.FixedBuffer;
 import com.profiler.common.util.RowKeyUtils;
 import com.profiler.server.dao.ApiMetaDataDao;
 import org.apache.hadoop.hbase.client.Put;
@@ -29,12 +30,12 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         }
 
         String agentId = apiMetaData.getAgentId();
-        byte[] rowKey = RowKeyUtils.getApiId(agentId, apiMetaData.getApiId(), apiMetaData.getStartTime());
+        byte[] rowKey = RowKeyUtils.getApiId(agentId, apiMetaData.getAgentIdentifier(), apiMetaData.getApiId(), apiMetaData.getStartTime());
 
         Put put = new Put(rowKey);
         String api = apiMetaData.getApiInfo();
         int bufferSize = api.length() + 4 + 4;
-        Buffer buffer = new Buffer(bufferSize);
+        Buffer buffer = new FixedBuffer(bufferSize);
         buffer.putPrefixedBytes(Bytes.toBytes(api));
         if(apiMetaData.isSetLine()) {
             buffer.put(apiMetaData.getLine());

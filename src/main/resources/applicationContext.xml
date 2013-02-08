@@ -38,7 +38,7 @@
     <bean id="ApiMetaDataHandler" class="com.profiler.server.handler.ApiMetaDataHandler"/>
 
 
-    <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
+    <bean class="com.profiler.common.io.DefaultTBaseLocator"></bean>
 
     <bean class="com.profiler.server.dao.hbase.HbaseRootTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTraceIndexDao"></bean>

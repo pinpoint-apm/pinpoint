@@ -8,8 +8,9 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.dto.thrift.SubSpanList;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
+import com.profiler.common.buffer.FixedBuffer;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.TracesDao;
 import org.apache.hadoop.hbase.client.Put;
@@ -118,7 +119,7 @@ public class HbaseTraceDao implements TracesDao {
         }
         // size
         size += 4;
-        Buffer buffer = new Buffer(size);
+        Buffer buffer = new FixedBuffer(size);
         buffer.put(boList.size());
         for (AnnotationBo bo : boList) {
             bo.writeValue(buffer);

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.dto.Header;
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import com.profiler.common.util.PacketUtils;
+import com.profiler.common.io.PacketUtils;
 import com.profiler.server.dao.JvmInfoDao;
 
 public class JVMDataHandler implements Handler {

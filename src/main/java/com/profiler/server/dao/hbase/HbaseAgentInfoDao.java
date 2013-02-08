@@ -1,5 +1,9 @@
 package com.profiler.server.dao.hbase;
 
+import com.profiler.common.bo.AgentInfoBo;
+import com.profiler.common.buffer.AutomaticBuffer;
+import com.profiler.common.buffer.Buffer;
+import com.profiler.common.buffer.FixedBuffer;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -23,6 +27,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
 
+
+
 	@Override
 	public void insert(AgentInfo agentInfo) {
 		if (logger.isDebugEnabled()) {
@@ -34,8 +40,13 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
 		Put put = new Put(rowKey);
 
-		// 추가 agent 정보를 넣어야 됨. 일단 sqlMetaData에 필요한 starttime만 넣음.
-		put.add(HBaseTables.AGENTINFO_CF_INFO, null, null);
+        //          추가 agent 정보를 넣어야 됨. 일단 sqlMetaData에 필요한 starttime만 넣음.
+//        AgentInfo
+
+        AgentInfoBo agentInfoBo = new AgentInfoBo(agentInfo);
+        byte[] bytes = agentInfoBo.writeValue();
+
+        put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO__IDENTIFIER, bytes);
 
 		hbaseTemplate.put(HBaseTables.AGENTINFO, put);
 	}

@@ -28,7 +28,7 @@
         <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
     </bean>
 
-    <bean class="com.profiler.common.util.DefaultTBaseLocator"></bean>
+    <bean class="com.profiler.common.io.DefaultTBaseLocator"></bean>
 
     <bean id="testTraceIndex" class="com.profiler.server.dao.hbase.HbaseTraceIndex">
         <property name="tableName" value="TestTraceIndex"/>
