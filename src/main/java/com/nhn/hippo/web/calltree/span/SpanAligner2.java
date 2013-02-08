@@ -70,6 +70,7 @@ public class SpanAligner2 {
 			SpanAlign sa = new SpanAlign(depth, parentSpan, subSpanBo);
 			container.add(sa);
 
+			// TODO subspan이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
 			int nextSpanId = subSpanBo.getNextSpanId();
 			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
 				populate(spanMap.get(nextSpanId), depth, container);
