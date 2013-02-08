@@ -5,6 +5,8 @@ package com.profiler.common.bo;
  */
 public class ApiMetaDataBo {
     private String agentId;
+    private short identifier;
+
     private int apiId;
     private long startTime;
 
@@ -14,8 +16,9 @@ public class ApiMetaDataBo {
     public ApiMetaDataBo() {
     }
 
-    public ApiMetaDataBo(String agentId, int apiId, long startTime) {
+    public ApiMetaDataBo(String agentId, short identifier, int apiId, long startTime) {
         this.agentId = agentId;
+        this.identifier = identifier;
         this.apiId = apiId;
         this.startTime = startTime;
     }
@@ -34,6 +37,14 @@ public class ApiMetaDataBo {
 
     public void setApiId(int apiId) {
         this.apiId = apiId;
+    }
+
+    public short getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(short identifier) {
+        this.identifier = identifier;
     }
 
     public long getStartTime() {
@@ -64,10 +75,13 @@ public class ApiMetaDataBo {
     public String toString() {
         return "ApiMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
+                ", identifier=" + identifier +
                 ", apiId=" + apiId +
                 ", startTime=" + startTime +
                 ", apiInfo='" + apiInfo + '\'' +
                 ", lineNumber=" + lineNumber +
                 '}';
     }
+
+
 }

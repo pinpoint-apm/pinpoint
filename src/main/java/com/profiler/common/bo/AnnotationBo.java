@@ -3,7 +3,8 @@ package com.profiler.common.bo;
 import com.profiler.common.AnnotationNames;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.util.AnnotationTranscoder;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
+import com.profiler.common.buffer.FixedBuffer;
 
 import java.util.Comparator;
 
@@ -119,7 +120,7 @@ public class AnnotationBo {
     }
 
     public int readValue(byte[] buf, int offset) {
-        Buffer buffer = new Buffer(buf, offset);
+        Buffer buffer = new FixedBuffer(buf, offset);
         readValue(buffer);
         return buffer.getOffset();
     }

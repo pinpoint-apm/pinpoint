@@ -6,8 +6,9 @@ import java.util.List;
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.SubSpan;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
+import com.profiler.common.buffer.FixedBuffer;
 
 /**
  *
@@ -22,11 +23,15 @@ public class SubSpanBo implements Span {
 	// private static final int LEASTTRACEID = 8;
 	// private static final int SPANID = 4;
 	private static final int PARENTSPANID = 4;
+
+
 	// private static final int TIMESTAMP = 8;
 	private static final int SERVICETYPE = 2;
 	private static final int FLAG = 2;
+    private static final int AGENTIDENTIFIER = 2;
 
 	private String agentId;
+    private short agentIdentifier;
 	private long mostTraceId;
 	private long leastTraceId;
 
@@ -52,6 +57,7 @@ public class SubSpanBo implements Span {
 
 	public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, SubSpan tSubSpan) {
 		this.agentId = tSpan.getAgentId();
+        this.agentIdentifier = tSpan.getAgentIdentifier();
 
 		this.mostTraceId = tSpan.getMostTraceId();
 		this.leastTraceId = tSpan.getLeastTraceId();
@@ -83,6 +89,7 @@ public class SubSpanBo implements Span {
 
 	public SubSpanBo(com.profiler.common.dto.thrift.SubSpanList subSpanList, SubSpan subSpan) {
 		this.agentId = subSpanList.getAgentId();
+        this.agentIdentifier = subSpanList.getAgentIdentifier();
 
 		this.mostTraceId = subSpanList.getMostTraceId();
 		this.leastTraceId = subSpanList.getLeastTraceId();
@@ -112,6 +119,7 @@ public class SubSpanBo implements Span {
 
 	public SubSpanBo(SubSpan subSpan) {
 		this.agentId = subSpan.getAgentId();
+        this.agentIdentifier = subSpan.getAgentIdentifier();
 
 		this.mostTraceId = subSpan.getMostTraceId();
 		this.leastTraceId = subSpan.getLeastTraceId();
@@ -155,7 +163,15 @@ public class SubSpanBo implements Span {
 		this.agentId = agentId;
 	}
 
-	public long getMostTraceId() {
+    public short getAgentIdentifier() {
+        return agentIdentifier;
+    }
+
+    public void setAgentIdentifier(short agentIdentifier) {
+        this.agentIdentifier = agentIdentifier;
+    }
+
+    public long getMostTraceId() {
 		return mostTraceId;
 	}
 
@@ -276,7 +292,7 @@ public class SubSpanBo implements Span {
 		size += 1 + 1 + 1 + 1 + 1+ VERSION_SIZE; // chunk size chunk
 		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
 		// PARENTSPANID + FLAG + TERMINAL;
-		size += SERVICETYPE;
+		size += SERVICETYPE + AGENTIDENTIFIER;
 
 		// startTime 4, elapsed 4, depth 4, nextSpanId 4
 		size += 16;
@@ -292,7 +308,7 @@ public class SubSpanBo implements Span {
 		int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length);
 		int annotationSize = getAnnotationBufferSize(annotationBoList);
 
-		Buffer buffer = new Buffer(bufferLength + annotationSize);
+		Buffer buffer = new FixedBuffer(bufferLength + annotationSize);
 
 		buffer.put(version);
 
@@ -300,6 +316,7 @@ public class SubSpanBo implements Span {
 		// buffer.put(leastTraceID);
 
 		buffer.put1PrefixedBytes(agentIDBytes);
+        buffer.put(agentIdentifier);
 
 		buffer.put(startElapsed);
 		buffer.put(endElapsed);
@@ -339,7 +356,7 @@ public class SubSpanBo implements Span {
 	}
 
 	public int readValue(byte[] bytes, int offset) {
-		Buffer buffer = new Buffer(bytes, offset);
+		Buffer buffer = new FixedBuffer(bytes, offset);
 
 		this.version = buffer.readByte();
 
@@ -347,6 +364,7 @@ public class SubSpanBo implements Span {
 		// this.leastTraceID = buffer.readLong();
 
 		this.agentId = buffer.read1PrefixedString();
+        this.agentIdentifier = buffer.readShort();
 
 		this.startElapsed = buffer.readInt();
 		this.endElapsed = buffer.readInt();
@@ -380,7 +398,7 @@ public class SubSpanBo implements Span {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(512);
 
 		sb.append(this.getClass().getName()).append("={");
 		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId);

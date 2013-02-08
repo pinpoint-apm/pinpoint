@@ -10,7 +10,9 @@ public class SqlParser {
     public static final char SYMBOL_REPLACE = '$';
     public static final char NUMBER_REPLACE = '#';
 
-    private static ParsingResult NULL = new ParsingResult("", new StringBuilder());
+    private static final ParsingResult NULL = new ParsingResult("", new StringBuilder());
+    private static final int NEXT_TOKEN_NOT_EXIST = -1;
+
 
     public SqlParser() {
     }
@@ -250,7 +252,7 @@ public class SqlParser {
         if (index < sql.length()) {
             return sql.charAt(index);
         } else {
-            return -1;
+            return NEXT_TOKEN_NOT_EXIST;
         }
     }
 
@@ -322,7 +324,7 @@ public class SqlParser {
                 case '8':
                 case '9':
                     // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
-                    if (lookAhead1(sql, i) == -1) {
+                    if (lookAhead1(sql, i) == NEXT_TOKEN_NOT_EXIST) {
                         normalized.append(ch);
                         break;
                     }
@@ -344,7 +346,7 @@ public class SqlParser {
                             case '7':
                             case '8':
                             case '9':
-                                if (lookAhead1(sql, i) == -1) {
+                                if (lookAhead1(sql, i) == NEXT_TOKEN_NOT_EXIST) {
                                     outputIndex.append(stateCh);
                                     normalized.append(outputIndex.toString());
                                     break tokenEnd;

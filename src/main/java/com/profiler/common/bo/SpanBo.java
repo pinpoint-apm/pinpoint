@@ -7,8 +7,9 @@ import java.util.List;
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
+import com.profiler.common.buffer.FixedBuffer;
 
 /**
  *
@@ -22,13 +23,16 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     // private static final int MOSTTRACEID = 8;
     // private static final int LEASTTRACEID = 8;
-    // private static final int SPANID = 8;
+    // private static final int SPANID = 4;
     private static final int PARENTSPANID = 4;
+
     // private static final int TIMESTAMP = 8;
     private static final int SERVICETYPE = 2;
     private static final int FLAG = 2;
+    private static final int AGENTIDENTIFIER = 2;
 
     private String agentId;
+    private short agentIdentifier;
     private long mostTraceId;
     private long leastTraceId;
     private int spanId;
@@ -50,6 +54,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
+        this.agentIdentifier = span.getAgentIdentifier();
 
         this.mostTraceId = span.getMostTraceId();
         this.leastTraceId = span.getLeastTraceId();
@@ -104,9 +109,23 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.agentId = agentId;
     }
 
+    public short getAgentIdentifier() {
+        return agentIdentifier;
+    }
+
+    public void setAgentIdentifier(short agentIdentifier) {
+        this.agentIdentifier = agentIdentifier;
+    }
+
+
     public long getStartTime() {
         return startTime;
     }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
 
     public int getElapsed() {
         return elapsed;
@@ -116,9 +135,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.elapsed = elapsed;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
+
 
     public long getMostTraceId() {
         return mostTraceId;
@@ -128,6 +145,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.mostTraceId = mostTraceId;
     }
 
+
     public long getLeastTraceId() {
         return leastTraceId;
     }
@@ -135,6 +153,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     public void setLeastTraceId(long leastTraceId) {
         this.leastTraceId = leastTraceId;
     }
+
 
     public String getRpc() {
         return rpc;
@@ -253,7 +272,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
         // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
-        size += PARENTSPANID + SERVICETYPE;
+        size += PARENTSPANID + SERVICETYPE + AGENTIDENTIFIER;
         if (flag != 0) {
             size += FLAG;
         }
@@ -270,7 +289,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
         int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length);
 
-        Buffer buffer = new Buffer(bufferLength);
+        Buffer buffer = new FixedBuffer(bufferLength);
 
         buffer.put(version);
 
@@ -278,6 +297,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         // buffer.put(leastTraceID);
 
         buffer.put1PrefixedBytes(agentIDBytes);
+        buffer.put(agentIdentifier);
 
         // buffer.put(spanID);
         buffer.put(parentSpanId);
@@ -301,7 +321,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     }
 
     public int readValue(byte[] bytes, int offset) {
-        Buffer buffer = new Buffer(bytes, offset);
+        Buffer buffer = new FixedBuffer(bytes, offset);
 
         this.version = buffer.readByte();
 
@@ -309,6 +329,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         // this.leastTraceID = buffer.readLong();
 
         this.agentId = buffer.read1PrefixedString();
+        this.agentIdentifier = buffer.readShort();
 
         // this.spanID = buffer.readLong();
         this.parentSpanId = buffer.readInt();

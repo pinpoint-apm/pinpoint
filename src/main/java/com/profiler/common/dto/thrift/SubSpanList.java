@@ -31,10 +31,11 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SubSpanList");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)4);
-  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)5);
+  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,6 +44,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   }
 
   private String agentId; // required
+  private short agentIdentifier; // required
   private long mostTraceId; // required
   private long leastTraceId; // required
   private int spanId; // required
@@ -51,10 +53,11 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
-    MOST_TRACE_ID((short)2, "mostTraceId"),
-    LEAST_TRACE_ID((short)3, "leastTraceId"),
-    SPAN_ID((short)4, "spanId"),
-    SUB_SPAN_LIST((short)5, "subSpanList");
+    AGENT_IDENTIFIER((short)2, "agentIdentifier"),
+    MOST_TRACE_ID((short)3, "mostTraceId"),
+    LEAST_TRACE_ID((short)4, "leastTraceId"),
+    SPAN_ID((short)5, "spanId"),
+    SUB_SPAN_LIST((short)6, "subSpanList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -71,13 +74,15 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       switch(fieldId) {
         case 1: // AGENT_ID
           return AGENT_ID;
-        case 2: // MOST_TRACE_ID
+        case 2: // AGENT_IDENTIFIER
+          return AGENT_IDENTIFIER;
+        case 3: // MOST_TRACE_ID
           return MOST_TRACE_ID;
-        case 3: // LEAST_TRACE_ID
+        case 4: // LEAST_TRACE_ID
           return LEAST_TRACE_ID;
-        case 4: // SPAN_ID
+        case 5: // SPAN_ID
           return SPAN_ID;
-        case 5: // SUB_SPAN_LIST
+        case 6: // SUB_SPAN_LIST
           return SUB_SPAN_LIST;
         default:
           return null;
@@ -119,15 +124,18 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   }
 
   // isset id assignments
-  private static final int __MOSTTRACEID_ISSET_ID = 0;
-  private static final int __LEASTTRACEID_ISSET_ID = 1;
-  private static final int __SPANID_ISSET_ID = 2;
-  private BitSet __isset_bit_vector = new BitSet(3);
+  private static final int __AGENTIDENTIFIER_ISSET_ID = 0;
+  private static final int __MOSTTRACEID_ISSET_ID = 1;
+  private static final int __LEASTTRACEID_ISSET_ID = 2;
+  private static final int __SPANID_ISSET_ID = 3;
+  private BitSet __isset_bit_vector = new BitSet(4);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.AGENT_IDENTIFIER, new org.apache.thrift.meta_data.FieldMetaData("agentIdentifier", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.MOST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("mostTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.LEAST_TRACE_ID, new org.apache.thrift.meta_data.FieldMetaData("leastTraceId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -146,6 +154,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
 
   public SubSpanList(
     String agentId,
+    short agentIdentifier,
     long mostTraceId,
     long leastTraceId,
     int spanId,
@@ -153,6 +162,8 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   {
     this();
     this.agentId = agentId;
+    this.agentIdentifier = agentIdentifier;
+    setAgentIdentifierIsSet(true);
     this.mostTraceId = mostTraceId;
     setMostTraceIdIsSet(true);
     this.leastTraceId = leastTraceId;
@@ -171,6 +182,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
+    this.agentIdentifier = other.agentIdentifier;
     this.mostTraceId = other.mostTraceId;
     this.leastTraceId = other.leastTraceId;
     this.spanId = other.spanId;
@@ -190,6 +202,8 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   @Override
   public void clear() {
     this.agentId = null;
+    setAgentIdentifierIsSet(false);
+    this.agentIdentifier = 0;
     setMostTraceIdIsSet(false);
     this.mostTraceId = 0;
     setLeastTraceIdIsSet(false);
@@ -220,6 +234,28 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     if (!value) {
       this.agentId = null;
     }
+  }
+
+  public short getAgentIdentifier() {
+    return this.agentIdentifier;
+  }
+
+  public void setAgentIdentifier(short agentIdentifier) {
+    this.agentIdentifier = agentIdentifier;
+    setAgentIdentifierIsSet(true);
+  }
+
+  public void unsetAgentIdentifier() {
+    __isset_bit_vector.clear(__AGENTIDENTIFIER_ISSET_ID);
+  }
+
+  /** Returns true if field agentIdentifier is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentIdentifier() {
+    return __isset_bit_vector.get(__AGENTIDENTIFIER_ISSET_ID);
+  }
+
+  public void setAgentIdentifierIsSet(boolean value) {
+    __isset_bit_vector.set(__AGENTIDENTIFIER_ISSET_ID, value);
   }
 
   public long getMostTraceId() {
@@ -336,6 +372,14 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       }
       break;
 
+    case AGENT_IDENTIFIER:
+      if (value == null) {
+        unsetAgentIdentifier();
+      } else {
+        setAgentIdentifier((Short)value);
+      }
+      break;
+
     case MOST_TRACE_ID:
       if (value == null) {
         unsetMostTraceId();
@@ -376,6 +420,9 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     case AGENT_ID:
       return getAgentId();
 
+    case AGENT_IDENTIFIER:
+      return Short.valueOf(getAgentIdentifier());
+
     case MOST_TRACE_ID:
       return Long.valueOf(getMostTraceId());
 
@@ -401,6 +448,8 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     switch (field) {
     case AGENT_ID:
       return isSetAgentId();
+    case AGENT_IDENTIFIER:
+      return isSetAgentIdentifier();
     case MOST_TRACE_ID:
       return isSetMostTraceId();
     case LEAST_TRACE_ID:
@@ -432,6 +481,15 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       if (!(this_present_agentId && that_present_agentId))
         return false;
       if (!this.agentId.equals(that.agentId))
+        return false;
+    }
+
+    boolean this_present_agentIdentifier = true;
+    boolean that_present_agentIdentifier = true;
+    if (this_present_agentIdentifier || that_present_agentIdentifier) {
+      if (!(this_present_agentIdentifier && that_present_agentIdentifier))
+        return false;
+      if (this.agentIdentifier != that.agentIdentifier)
         return false;
     }
 
@@ -493,6 +551,16 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     }
     if (isSetAgentId()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAgentIdentifier()).compareTo(typedOther.isSetAgentIdentifier());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAgentIdentifier()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentIdentifier, typedOther.agentIdentifier);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -563,6 +631,10 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     } else {
       sb.append(this.agentId);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("agentIdentifier:");
+    sb.append(this.agentIdentifier);
     first = false;
     if (!first) sb.append(", ");
     sb.append("mostTraceId:");
@@ -636,7 +708,15 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // MOST_TRACE_ID
+          case 2: // AGENT_IDENTIFIER
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.agentIdentifier = iprot.readI16();
+              struct.setAgentIdentifierIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // MOST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.mostTraceId = iprot.readI64();
               struct.setMostTraceIdIsSet(true);
@@ -644,7 +724,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // LEAST_TRACE_ID
+          case 4: // LEAST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.leastTraceId = iprot.readI64();
               struct.setLeastTraceIdIsSet(true);
@@ -652,7 +732,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // SPAN_ID
+          case 5: // SPAN_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.spanId = iprot.readI32();
               struct.setSpanIdIsSet(true);
@@ -660,7 +740,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // SUB_SPAN_LIST
+          case 6: // SUB_SPAN_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
@@ -697,6 +777,9 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         oprot.writeString(struct.agentId);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(AGENT_IDENTIFIER_FIELD_DESC);
+      oprot.writeI16(struct.agentIdentifier);
+      oprot.writeFieldEnd();
       oprot.writeFieldBegin(MOST_TRACE_ID_FIELD_DESC);
       oprot.writeI64(struct.mostTraceId);
       oprot.writeFieldEnd();
@@ -739,21 +822,27 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       if (struct.isSetAgentId()) {
         optionals.set(0);
       }
-      if (struct.isSetMostTraceId()) {
+      if (struct.isSetAgentIdentifier()) {
         optionals.set(1);
       }
-      if (struct.isSetLeastTraceId()) {
+      if (struct.isSetMostTraceId()) {
         optionals.set(2);
       }
-      if (struct.isSetSpanId()) {
+      if (struct.isSetLeastTraceId()) {
         optionals.set(3);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetSpanId()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetSubSpanList()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
+      }
+      if (struct.isSetAgentIdentifier()) {
+        oprot.writeI16(struct.agentIdentifier);
       }
       if (struct.isSetMostTraceId()) {
         oprot.writeI64(struct.mostTraceId);
@@ -778,24 +867,28 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.agentIdentifier = iprot.readI16();
+        struct.setAgentIdentifierIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.mostTraceId = iprot.readI64();
         struct.setMostTraceIdIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.leastTraceId = iprot.readI64();
         struct.setLeastTraceIdIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         {
           org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.subSpanList = new ArrayList<SubSpan>(_list29.size);

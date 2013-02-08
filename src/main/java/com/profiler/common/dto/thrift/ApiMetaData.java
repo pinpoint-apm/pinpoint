@@ -31,10 +31,11 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ApiMetaData");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField API_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("apiInfo", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
+  private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField API_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("apiInfo", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,6 +44,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   }
 
   private String agentId; // required
+  private short agentIdentifier; // required
   private long startTime; // required
   private int apiId; // required
   private String apiInfo; // required
@@ -51,10 +53,11 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
-    START_TIME((short)2, "startTime"),
-    API_ID((short)3, "apiId"),
-    API_INFO((short)4, "apiInfo"),
-    LINE((short)5, "line");
+    AGENT_IDENTIFIER((short)2, "agentIdentifier"),
+    START_TIME((short)3, "startTime"),
+    API_ID((short)4, "apiId"),
+    API_INFO((short)5, "apiInfo"),
+    LINE((short)6, "line");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -71,13 +74,15 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
       switch(fieldId) {
         case 1: // AGENT_ID
           return AGENT_ID;
-        case 2: // START_TIME
+        case 2: // AGENT_IDENTIFIER
+          return AGENT_IDENTIFIER;
+        case 3: // START_TIME
           return START_TIME;
-        case 3: // API_ID
+        case 4: // API_ID
           return API_ID;
-        case 4: // API_INFO
+        case 5: // API_INFO
           return API_INFO;
-        case 5: // LINE
+        case 6: // LINE
           return LINE;
         default:
           return null;
@@ -119,16 +124,19 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   }
 
   // isset id assignments
-  private static final int __STARTTIME_ISSET_ID = 0;
-  private static final int __APIID_ISSET_ID = 1;
-  private static final int __LINE_ISSET_ID = 2;
-  private BitSet __isset_bit_vector = new BitSet(3);
+  private static final int __AGENTIDENTIFIER_ISSET_ID = 0;
+  private static final int __STARTTIME_ISSET_ID = 1;
+  private static final int __APIID_ISSET_ID = 2;
+  private static final int __LINE_ISSET_ID = 3;
+  private BitSet __isset_bit_vector = new BitSet(4);
   private _Fields optionals[] = {_Fields.LINE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.AGENT_IDENTIFIER, new org.apache.thrift.meta_data.FieldMetaData("agentIdentifier", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.API_ID, new org.apache.thrift.meta_data.FieldMetaData("apiId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -146,12 +154,15 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
 
   public ApiMetaData(
     String agentId,
+    short agentIdentifier,
     long startTime,
     int apiId,
     String apiInfo)
   {
     this();
     this.agentId = agentId;
+    this.agentIdentifier = agentIdentifier;
+    setAgentIdentifierIsSet(true);
     this.startTime = startTime;
     setStartTimeIsSet(true);
     this.apiId = apiId;
@@ -168,6 +179,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
+    this.agentIdentifier = other.agentIdentifier;
     this.startTime = other.startTime;
     this.apiId = other.apiId;
     if (other.isSetApiInfo()) {
@@ -183,6 +195,8 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   @Override
   public void clear() {
     this.agentId = null;
+    setAgentIdentifierIsSet(false);
+    this.agentIdentifier = 0;
     setStartTimeIsSet(false);
     this.startTime = 0;
     setApiIdIsSet(false);
@@ -213,6 +227,28 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     if (!value) {
       this.agentId = null;
     }
+  }
+
+  public short getAgentIdentifier() {
+    return this.agentIdentifier;
+  }
+
+  public void setAgentIdentifier(short agentIdentifier) {
+    this.agentIdentifier = agentIdentifier;
+    setAgentIdentifierIsSet(true);
+  }
+
+  public void unsetAgentIdentifier() {
+    __isset_bit_vector.clear(__AGENTIDENTIFIER_ISSET_ID);
+  }
+
+  /** Returns true if field agentIdentifier is set (has been assigned a value) and false otherwise */
+  public boolean isSetAgentIdentifier() {
+    return __isset_bit_vector.get(__AGENTIDENTIFIER_ISSET_ID);
+  }
+
+  public void setAgentIdentifierIsSet(boolean value) {
+    __isset_bit_vector.set(__AGENTIDENTIFIER_ISSET_ID, value);
   }
 
   public long getStartTime() {
@@ -314,6 +350,14 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
       }
       break;
 
+    case AGENT_IDENTIFIER:
+      if (value == null) {
+        unsetAgentIdentifier();
+      } else {
+        setAgentIdentifier((Short)value);
+      }
+      break;
+
     case START_TIME:
       if (value == null) {
         unsetStartTime();
@@ -354,6 +398,9 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     case AGENT_ID:
       return getAgentId();
 
+    case AGENT_IDENTIFIER:
+      return Short.valueOf(getAgentIdentifier());
+
     case START_TIME:
       return Long.valueOf(getStartTime());
 
@@ -379,6 +426,8 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     switch (field) {
     case AGENT_ID:
       return isSetAgentId();
+    case AGENT_IDENTIFIER:
+      return isSetAgentIdentifier();
     case START_TIME:
       return isSetStartTime();
     case API_ID:
@@ -410,6 +459,15 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
       if (!(this_present_agentId && that_present_agentId))
         return false;
       if (!this.agentId.equals(that.agentId))
+        return false;
+    }
+
+    boolean this_present_agentIdentifier = true;
+    boolean that_present_agentIdentifier = true;
+    if (this_present_agentIdentifier || that_present_agentIdentifier) {
+      if (!(this_present_agentIdentifier && that_present_agentIdentifier))
+        return false;
+      if (this.agentIdentifier != that.agentIdentifier)
         return false;
     }
 
@@ -471,6 +529,16 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     }
     if (isSetAgentId()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAgentIdentifier()).compareTo(typedOther.isSetAgentIdentifier());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAgentIdentifier()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentIdentifier, typedOther.agentIdentifier);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -541,6 +609,10 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     } else {
       sb.append(this.agentId);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("agentIdentifier:");
+    sb.append(this.agentIdentifier);
     first = false;
     if (!first) sb.append(", ");
     sb.append("startTime:");
@@ -616,7 +688,15 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // START_TIME
+          case 2: // AGENT_IDENTIFIER
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.agentIdentifier = iprot.readI16();
+              struct.setAgentIdentifierIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // START_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.startTime = iprot.readI64();
               struct.setStartTimeIsSet(true);
@@ -624,7 +704,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // API_ID
+          case 4: // API_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.apiId = iprot.readI32();
               struct.setApiIdIsSet(true);
@@ -632,7 +712,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // API_INFO
+          case 5: // API_INFO
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.apiInfo = iprot.readString();
               struct.setApiInfoIsSet(true);
@@ -640,7 +720,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // LINE
+          case 6: // LINE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.line = iprot.readI32();
               struct.setLineIsSet(true);
@@ -666,6 +746,9 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
         oprot.writeString(struct.agentId);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(AGENT_IDENTIFIER_FIELD_DESC);
+      oprot.writeI16(struct.agentIdentifier);
+      oprot.writeFieldEnd();
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
       oprot.writeFieldEnd();
@@ -703,21 +786,27 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
       if (struct.isSetAgentId()) {
         optionals.set(0);
       }
-      if (struct.isSetStartTime()) {
+      if (struct.isSetAgentIdentifier()) {
         optionals.set(1);
       }
-      if (struct.isSetApiId()) {
+      if (struct.isSetStartTime()) {
         optionals.set(2);
       }
-      if (struct.isSetApiInfo()) {
+      if (struct.isSetApiId()) {
         optionals.set(3);
       }
-      if (struct.isSetLine()) {
+      if (struct.isSetApiInfo()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetLine()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
+      }
+      if (struct.isSetAgentIdentifier()) {
+        oprot.writeI16(struct.agentIdentifier);
       }
       if (struct.isSetStartTime()) {
         oprot.writeI64(struct.startTime);
@@ -736,24 +825,28 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.agentIdentifier = iprot.readI16();
+        struct.setAgentIdentifierIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.startTime = iprot.readI64();
         struct.setStartTimeIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.apiId = iprot.readI32();
         struct.setApiIdIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.apiInfo = iprot.readString();
         struct.setApiInfoIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         struct.line = iprot.readI32();
         struct.setLineIsSet(true);
       }

@@ -5,6 +5,7 @@ package com.profiler.common.bo;
  */
 public class SqlMetaDataBo {
     private String agentId;
+    private short identifier;
     private int hashCode;
     private long startTime;
 
@@ -14,8 +15,9 @@ public class SqlMetaDataBo {
     }
 
 
-    public SqlMetaDataBo(String agentId, int hashCode, long startTime) {
+    public SqlMetaDataBo(String agentId, short identifier, int hashCode, long startTime) {
         this.agentId = agentId;
+        this.identifier = identifier;
         this.hashCode = hashCode;
         this.startTime = startTime;
     }
@@ -26,6 +28,14 @@ public class SqlMetaDataBo {
 
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    public short getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(short identifier) {
+        this.identifier = identifier;
     }
 
     public int getHashCode() {
@@ -56,6 +66,7 @@ public class SqlMetaDataBo {
     public String toString() {
         return "SqlMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
+                ", identifier=" + identifier +
                 ", hashCode=" + hashCode +
                 ", startTime=" + startTime +
                 ", sql='" + sql + '\'' +
