@@ -12,10 +12,11 @@ public class RowKeyUtilsTest {
     @Test
     public void testGetSqlId() throws Exception {
         long startTime = System.currentTimeMillis();
-        byte[] agents = RowKeyUtils.getSqlId("agent", 1, startTime);
+        byte[] agents = RowKeyUtils.getSqlId("agent", (short)1234, 1, startTime);
 
         SqlMetaDataBo sqlId = RowKeyUtils.parseSqlId(agents);
         Assert.assertEquals(sqlId.getAgentId(), "agent");
+        Assert.assertEquals(sqlId.getIdentifier(), 1234);
         Assert.assertEquals(sqlId.getHashCode(), 1);
         Assert.assertEquals(sqlId.getStartTime(), startTime);
     }

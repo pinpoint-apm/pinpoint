@@ -74,4 +74,19 @@ public class BytesUtilsTest {
 
 		Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
 	}
+
+    @Test
+    public void testZigZag() throws Exception {
+        testEncodingDecodingZigZag(0);
+        testEncodingDecodingZigZag(1);
+        testEncodingDecodingZigZag(2);
+        testEncodingDecodingZigZag(3);
+    }
+
+
+    private void testEncodingDecodingZigZag(int value) {
+        int encode = BytesUtils.encodeZigZagInt(value);
+        int decode = BytesUtils.decodeZigZagInt(encode);
+        Assert.assertEquals(value, decode);
+    }
 }

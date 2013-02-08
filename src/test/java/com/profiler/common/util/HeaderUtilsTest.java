@@ -1,7 +1,7 @@
 package com.profiler.common.util;
 
 import com.profiler.common.dto.Header;
-import com.profiler.common.util.HeaderUtils;
+import com.profiler.common.io.HeaderUtils;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;

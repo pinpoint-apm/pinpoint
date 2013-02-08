@@ -1,7 +1,7 @@
 package com.profiler.common.util;
 
 
-import com.profiler.common.util.PacketUtils;
+import com.profiler.common.io.PacketUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

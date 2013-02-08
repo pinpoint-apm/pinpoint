@@ -1,5 +1,7 @@
-package com.profiler.common.util;
+package com.profiler.common.buffer;
 
+import com.profiler.common.buffer.Buffer;
+import com.profiler.common.buffer.FixedBuffer;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -8,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class BufferTest {
+public class FixedBufferTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
@@ -16,13 +18,13 @@ public class BufferTest {
         String test = "test";
         int expected = 3333;
 
-        Buffer buffer = new Buffer(1024);
+        Buffer buffer = new FixedBuffer(1024);
         buffer.putPrefixedBytes(test.getBytes("UTF-8"));
 
         buffer.put(expected);
         byte[] buffer1 = buffer.getBuffer();
 
-        Buffer actual = new Buffer(buffer1);
+        Buffer actual = new FixedBuffer(buffer1);
         String s = actual.readPrefixedString();
         Assert.assertEquals(test, s);
 
@@ -54,11 +56,11 @@ public class BufferTest {
 
     @Test
     public void testReadPrefixedBytes() throws Exception {
-        Buffer buffer = new Buffer(1024);
+        Buffer buffer = new FixedBuffer(1024);
         buffer.put1PrefixedBytes("string".getBytes("UTF-8"));
         byte[] buffer1 = buffer.getBuffer();
 
-        Buffer read = new Buffer(buffer1);
+        Buffer read = new FixedBuffer(buffer1);
         byte[] bytes = read.read1PrefixedBytes();
         String s = new String(bytes, "UTF-8");
         logger.info(s);
@@ -66,11 +68,11 @@ public class BufferTest {
 
     @Test
     public void testNullTerminatedBytes() throws Exception {
-        Buffer buffer = new Buffer(1024);
+        Buffer buffer = new FixedBuffer(1024);
         buffer.putNullTerminatedBytes("string".getBytes("UTF-8"));
         byte[] buffer1 = buffer.getBuffer();
 
-        Buffer read = new Buffer(buffer1);
+        Buffer read = new FixedBuffer(buffer1);
         String readString = read.readNullTerminatedString();
 
         logger.info(readString);
@@ -89,11 +91,11 @@ public class BufferTest {
     }
 
     private void checkUnsignedByte(int value) {
-        Buffer buffer = new Buffer(1024);
+        Buffer buffer = new FixedBuffer(1024);
         buffer.put((byte) value);
         byte[] buffer1 = buffer.getBuffer();
 
-        Buffer reader = new Buffer(buffer1);
+        Buffer reader = new FixedBuffer(buffer1);
         int i = reader.readUnsignedByte();
         Assert.assertEquals(value, i);
     }
@@ -101,16 +103,32 @@ public class BufferTest {
 
     @Test
     public void testGetBuffer() throws Exception {
+        Buffer buffer = new FixedBuffer(4);
+        buffer.put(1);
+        Assert.assertEquals(buffer.getOffset(), 4);
+        Assert.assertEquals(buffer.getBuffer().length, 4);
+    }
+
+    @Test
+    public void testSliceGetBuffer() throws Exception {
+        Buffer buffer = new FixedBuffer(5);
+        buffer.put(1);
+        Assert.assertEquals(buffer.getOffset(), 4);
+        Assert.assertEquals(buffer.getBuffer().length, 4);
+
+        byte[] buffer1 = buffer.getBuffer();
+        byte[] buffer2 = buffer.getBuffer();
+        Assert.assertTrue(buffer1 != buffer2);
 
     }
 
     @Test
     public void testBoolean() {
-        Buffer buffer = new Buffer(16);
+        Buffer buffer = new FixedBuffer(16);
         buffer.put(true);
         buffer.put(false);
 
-        Buffer read = new Buffer(buffer.getBuffer());
+        Buffer read = new FixedBuffer(buffer.getBuffer());
         boolean b = read.readBoolean();
         Assert.assertEquals(true, b);
 
@@ -120,6 +138,11 @@ public class BufferTest {
 
     @Test
     public void testGetOffset() throws Exception {
+        Buffer buffer = new FixedBuffer();
+        Assert.assertEquals(buffer.getOffset(), 0);
+
+        buffer.put(4);
+        Assert.assertEquals(buffer.getOffset(), 4);
 
     }
 }

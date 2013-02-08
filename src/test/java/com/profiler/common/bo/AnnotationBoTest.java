@@ -1,7 +1,8 @@
 package com.profiler.common.bo;
 
 import com.profiler.common.AnnotationNames;
-import com.profiler.common.util.Buffer;
+import com.profiler.common.buffer.Buffer;
+import com.profiler.common.buffer.FixedBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class AnnotationBoTest {
         bo.setByteValue("value".getBytes("UTF-8"));
         int bufferSize = bo.getBufferSize();
 
-        Buffer buffer = new Buffer(bufferSize);
+        Buffer buffer = new FixedBuffer(bufferSize);
         bo.writeValue(buffer);
 
         AnnotationBo bo2 = new AnnotationBo();
