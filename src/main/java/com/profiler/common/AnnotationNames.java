@@ -71,7 +71,7 @@ public enum AnnotationNames {
         return viewInRecordSet;
     }
 
-    private static Map<Integer, AnnotationNames> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationNames>();
+    private static final Map<Integer, AnnotationNames> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationNames>();
     static {
         initializeLookupTable();
     }
