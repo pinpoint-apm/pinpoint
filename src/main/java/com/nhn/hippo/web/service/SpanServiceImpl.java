@@ -400,11 +400,11 @@ public class SpanServiceImpl implements SpanService {
 		Collections.sort(result, new Comparator<SpanBo>() {
 			@Override
 			public int compare(SpanBo o1, SpanBo o2) {
-				if (o1.isException() && o2.isException()) {
+				if (o1.getException() != 0 && o2.getException() != 0) {
 					return o2.getElapsed() - o1.getElapsed();
-				} else if (o1.isException()) {
+				} else if (o1.getException() != 0) {
 					return 1;
-				} else if (o2.isException()) {
+				} else if (o2.getException() != 0) {
 					return -1;
 				} else {
 					return o2.getElapsed() - o1.getElapsed();
