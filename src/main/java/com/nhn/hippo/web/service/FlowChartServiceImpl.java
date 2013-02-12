@@ -12,7 +12,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -31,10 +30,6 @@ import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
-import com.profiler.common.hbase.HBaseClient;
-import com.profiler.common.hbase.HBaseQuery;
-import com.profiler.common.hbase.HBaseQuery.HbaseColumn;
-import com.profiler.common.hbase.HBaseTables;
 
 /**
  * @author netspider
@@ -43,10 +38,6 @@ import com.profiler.common.hbase.HBaseTables;
 public class FlowChartServiceImpl implements FlowChartService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Autowired
-	@Qualifier("hbaseClient")
-	HBaseClient client;
 
 	@Autowired
 	private TraceDao traceDao;
@@ -327,20 +318,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Deprecated
 	@Override
 	public String[] selectAgentIds(String[] hosts) {
-		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-		column.add(new HbaseColumn("Agents", "AgentID"));
-
-		HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
-		Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
-
-		if (logger.isDebugEnabled()) {
-			while (iterator.hasNext()) {
-				logger.debug("selectedAgentId={}", iterator.next());
-			}
-			logger.debug("!!!==============WARNING==============!!!");
-			logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
-			logger.debug("!!!===================================!!!");
-		}
+//		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+//		column.add(new HbaseColumn("Agents", "AgentID"));
+//
+//		HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
+//		Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+//
+//		if (logger.isDebugEnabled()) {
+//			while (iterator.hasNext()) {
+//				logger.debug("selectedAgentId={}", iterator.next());
+//			}
+//			logger.debug("!!!==============WARNING==============!!!");
+//			logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+//			logger.debug("!!!===================================!!!");
+//		}
 
 		return hosts;
 	}
