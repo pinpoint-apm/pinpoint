@@ -6,11 +6,8 @@ import java.io.Writer;
 
 public class InterceptorUtils {
 	public static boolean isThrowable(Object result) {
-		if (result instanceof Throwable) {
-			return true;
-		}
-		return false;
-	}
+        return result instanceof Throwable;
+    }
 
 	public static boolean isSuccess(Object result) {
 		return !isThrowable(result);

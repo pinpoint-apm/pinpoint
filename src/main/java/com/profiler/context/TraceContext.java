@@ -34,7 +34,7 @@ public class TraceContext {
         return CONTEXT;
     }
 
-    private ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
+    private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
 
     private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
 
@@ -51,10 +51,10 @@ public class TraceContext {
 
     private StorageFactory storageFactory;
 
-    private LRUCache<String> sqlCache = new LRUCache<String>(1000);
-    private SqlParser sqlParser = new SqlParser();
+    private final LRUCache<String> sqlCache = new LRUCache<String>(1000);
+    private final SqlParser sqlParser = new SqlParser();
 
-    private StringCache apiCache = new StringCache();
+    private final StringCache apiCache = new StringCache();
 
     public TraceContext() {
     }

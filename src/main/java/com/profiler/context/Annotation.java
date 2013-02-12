@@ -10,8 +10,6 @@ import java.util.logging.Logger;
  * @author netspider
  */
 public class Annotation implements Thriftable {
-    private static final Logger logger = Logger.getLogger(Annotation.class.getName());
-    private boolean isDebug = logger.isLoggable(Level.FINE);
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
@@ -20,22 +18,15 @@ public class Annotation implements Thriftable {
 
     private final Object value;
 
-    private String threadname;
 
     public Annotation(AnnotationNames key) {
         this.key = key;
         this.value = null;
-        if (isDebug) {
-            this.threadname = Thread.currentThread().getName();
-        }
     }
 
     public Annotation(AnnotationNames key, Object value) {
         this.key = key;
         this.value = value;
-        if (isDebug) {
-            this.threadname = Thread.currentThread().getName();
-        }
     }
 
     public AnnotationNames getKey() {
@@ -45,9 +36,6 @@ public class Annotation implements Thriftable {
 
     @Override
     public String toString() {
-        if (isDebug) {
-            return "Annotation [key=" + key + ", value=" + value + ", threadname=" + threadname + "]";
-        }
         return "Annotation [key=" + key + ", value=" + value + "]";
     }
 
