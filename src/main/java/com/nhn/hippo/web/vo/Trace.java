@@ -6,13 +6,13 @@ public class Trace {
 	private final long executionTime;
 	private final long startTime;
 
-	private final boolean exception;
+	private final int exceptionCode;
 
-	public Trace(String traceId, long executionTime, long startTime, boolean exception) {
+	public Trace(String traceId, long executionTime, long startTime, int exceptionCode) {
 		this.traceId = traceId;
 		this.executionTime = executionTime;
 		this.startTime = startTime;
-		this.exception = exception;
+		this.exceptionCode = exceptionCode;
 	}
 
 	public String getTraceId() {
@@ -27,7 +27,7 @@ public class Trace {
 		return startTime;
 	}
 
-	public boolean isException() {
-		return exception;
+	public int getExceptionCode() {
+		return exceptionCode;
 	}
 }

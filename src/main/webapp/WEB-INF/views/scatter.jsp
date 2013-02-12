@@ -8,7 +8,7 @@
 			"traceId" : "${dot.traceId}",
 			"timestamp" : ${dot.timestamp},
 			"executionTime" : ${dot.executionTime},
-			"resultCode" : ${dot.resultCode}
+			"resultCode" : ${dot.exceptionCode}
 		}
 	    <c:if test="${!status.last}">,</c:if>
 	</c:forEach>

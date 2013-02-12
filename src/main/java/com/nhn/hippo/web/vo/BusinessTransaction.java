@@ -21,7 +21,7 @@ public class BusinessTransaction {
 		long elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
 
-		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.isException()));
+		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.getException()));
 		calls++;
 	}
 
@@ -34,7 +34,7 @@ public class BusinessTransaction {
 		if (minTime > elapsed)
 			minTime = elapsed;
 
-		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.isException()));
+		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.getException()));
 
 		//if (span.getParentSpanId() == -1) {
 			calls++;

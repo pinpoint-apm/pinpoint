@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-         pageEncoding="EUC-KR" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <meta charset="utf-8">
@@ -90,7 +89,7 @@
 
         link.append("title").text(
                 function (d) {
-                    return d.source.name + " ¡æ " + d.target.name + "\n"
+                    return d.source.name + " â†’ " + d.target.name + "\n"
                             + format(d.value);
                 });
 
