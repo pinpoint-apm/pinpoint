@@ -389,12 +389,12 @@ d3.chart.scatter._renderer = function(){
 					html.push(data[i].traceId);
 					html.push("\");'>");
 
-					html.push("<td>");
+					html.push("<td style='padding-right:5px;text-align:right'>");
 					html.push(i + 1);
 					html.push("</td>");
 
 					html.push("<td>");
-					html.push(new Date(data[i].startTime).format("yyyy-mm-dd HH:MM:ss L"));
+					html.push(new Date(data[i].startTime).format("HH:MM:ss L"));
 					html.push("</td>");
 
 					html.push("<td style='padding-right:30px;text-align:right'>");
@@ -413,6 +413,9 @@ d3.chart.scatter._renderer = function(){
 					
 					html.push("<td>");
 					html.push(data[i].agentId);
+					html.push("</td>");
+					
+					html.push("<td>");
 					html.push("</td>");
 
 					html.push("</tr>");
