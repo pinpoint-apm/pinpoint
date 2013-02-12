@@ -387,7 +387,7 @@ d3.chart.scatter._renderer = function(){
 					html.push("</td>");
 
 					html.push("<td>");
-					html.push(new Date(data[i].startTime));
+					html.push(new Date(data[i].startTime).format("yyyy-mm-dd HH:MM:ss"));
 					html.push("</td>");
 
 					html.push("<td><a href='#' onclick='openTrace(\"");
@@ -396,8 +396,8 @@ d3.chart.scatter._renderer = function(){
 					html.push(data[i].traceId);
 					html.push("</a></td>");
 
-					html.push("<td>");
-					html.push(data[i].elapsed);
+					html.push("<td style='padding-right:30px;text-align:right'>");
+					html.push(formatNumber(data[i].elapsed));
 					html.push("</td>");
 
 					html.push("<td>");
