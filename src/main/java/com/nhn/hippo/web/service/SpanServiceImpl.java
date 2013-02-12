@@ -403,9 +403,9 @@ public class SpanServiceImpl implements SpanService {
 				if (o1.getException() != 0 && o2.getException() != 0) {
 					return o2.getElapsed() - o1.getElapsed();
 				} else if (o1.getException() != 0) {
-					return 1;
-				} else if (o2.getException() != 0) {
 					return -1;
+				} else if (o2.getException() != 0) {
+					return 1;
 				} else {
 					return o2.getElapsed() - o1.getElapsed();
 				}
