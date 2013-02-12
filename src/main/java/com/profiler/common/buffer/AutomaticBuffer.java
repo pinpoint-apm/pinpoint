@@ -33,7 +33,7 @@ public class AutomaticBuffer extends FixedBuffer {
         }
 
         while (remain < size) {
-            length = length * 2;
+            length <<= 2;
             final byte[] expendBuffer = new byte[length];
             System.arraycopy(buffer, 0, expendBuffer, 0, buffer.length);
             buffer = expendBuffer;

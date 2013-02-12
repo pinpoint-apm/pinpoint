@@ -7,25 +7,10 @@ import org.junit.Test;
  *
  */
 public class AutomaticBufferTest {
+
     @Test
     public void testPut1PrefixedBytes() throws Exception {
 
-    }
-
-    @Test
-    public void testPut2PrefixedBytes() throws Exception {
-        int zigzag1 = zigzag1(9);
-        System.out.println(zigzag1);
-        int zigzag = zigzag1(10);
-        System.out.println(zigzag);
-    }
-
-    private int zigzag1(int n) {
-        return (n >>> 1) ^ -(n & 1);
-    }
-
-    private int zigzag(int i) {
-        return (i<<1) ^ (i>>31);
     }
 
     @Test
