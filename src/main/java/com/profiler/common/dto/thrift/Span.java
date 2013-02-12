@@ -44,7 +44,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)13);
   private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)14);
-  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.BOOL, (short)15);
+  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)15);
   private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)16);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -67,7 +67,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private String endPoint; // required
   private List<Annotation> annotations; // required
   private short flag; // optional
-  private boolean err; // required
+  private int err; // optional
   private List<SubSpan> subSpanList; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -185,7 +185,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.FLAG,_Fields.SUB_SPAN_LIST};
+  private _Fields optionals[] = {_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -218,8 +218,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
     tmpMap.put(_Fields.FLAG, new org.apache.thrift.meta_data.FieldMetaData("flag", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
@@ -245,8 +245,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     String serviceName,
     short serviceType,
     String endPoint,
-    List<Annotation> annotations,
-    boolean err)
+    List<Annotation> annotations)
   {
     this();
     this.agentId = agentId;
@@ -270,8 +269,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setServiceTypeIsSet(true);
     this.endPoint = endPoint;
     this.annotations = annotations;
-    this.err = err;
-    setErrIsSet(true);
   }
 
   /**
@@ -348,7 +345,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.flag = (short)0;
 
     setErrIsSet(false);
-    this.err = false;
+    this.err = 0;
     this.subSpanList = null;
   }
 
@@ -680,11 +677,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     __isset_bit_vector.set(__FLAG_ISSET_ID, value);
   }
 
-  public boolean isErr() {
+  public int getErr() {
     return this.err;
   }
 
-  public void setErr(boolean err) {
+  public void setErr(int err) {
     this.err = err;
     setErrIsSet(true);
   }
@@ -858,7 +855,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetErr();
       } else {
-        setErr((Boolean)value);
+        setErr((Integer)value);
       }
       break;
 
@@ -918,7 +915,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return Short.valueOf(getFlag());
 
     case ERR:
-      return Boolean.valueOf(isErr());
+      return Integer.valueOf(getErr());
 
     case SUB_SPAN_LIST:
       return getSubSpanList();
@@ -1109,8 +1106,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_err = true;
-    boolean that_present_err = true;
+    boolean this_present_err = true && this.isSetErr();
+    boolean that_present_err = true && that.isSetErr();
     if (this_present_err || that_present_err) {
       if (!(this_present_err && that_present_err))
         return false;
@@ -1400,10 +1397,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       sb.append(this.flag);
       first = false;
     }
-    if (!first) sb.append(", ");
-    sb.append("err:");
-    sb.append(this.err);
-    first = false;
+    if (isSetErr()) {
+      if (!first) sb.append(", ");
+      sb.append("err:");
+      sb.append(this.err);
+      first = false;
+    }
     if (isSetSubSpanList()) {
       if (!first) sb.append(", ");
       sb.append("subSpanList:");
@@ -1582,8 +1581,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             }
             break;
           case 15: // ERR
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.err = iprot.readBool();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.err = iprot.readI32();
               struct.setErrIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1682,9 +1681,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeI16(struct.flag);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(ERR_FIELD_DESC);
-      oprot.writeBool(struct.err);
-      oprot.writeFieldEnd();
+      if (struct.isSetErr()) {
+        oprot.writeFieldBegin(ERR_FIELD_DESC);
+        oprot.writeI32(struct.err);
+        oprot.writeFieldEnd();
+      }
       if (struct.subSpanList != null) {
         if (struct.isSetSubSpanList()) {
           oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
@@ -1815,7 +1816,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeI16(struct.flag);
       }
       if (struct.isSetErr()) {
-        oprot.writeBool(struct.err);
+        oprot.writeI32(struct.err);
       }
       if (struct.isSetSubSpanList()) {
         {
@@ -1899,7 +1900,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setFlagIsSet(true);
       }
       if (incoming.get(14)) {
-        struct.err = iprot.readBool();
+        struct.err = iprot.readI32();
         struct.setErrIsSet(true);
       }
       if (incoming.get(15)) {

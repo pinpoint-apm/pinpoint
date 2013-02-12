@@ -47,8 +47,6 @@ public class SubSpanBo implements Span {
 	private String endPoint;
 	private List<AnnotationBo> annotationBoList;
 
-	private boolean exception = false;
-	
 	private int depth = -1;
 	private int nextSpanId = -1;
 
@@ -73,8 +71,6 @@ public class SubSpanBo implements Span {
 		this.serviceType = ServiceType.parse(tSubSpan.getServiceType());
 
 		this.endPoint = tSubSpan.getEndPoint();
-		
-        this.exception = tSubSpan.isErr();
 		
 		if (tSubSpan.isSetDepth()) {
 			this.depth = tSubSpan.getDepth();
@@ -255,14 +251,6 @@ public class SubSpanBo implements Span {
 		return annotationBoList;
 	}
 
-	public boolean isException() {
-		return exception;
-	}
-
-	public void setException(boolean exception) {
-		this.exception = exception;
-	}
-
 	public int getDepth() {
 		return depth;
 	}
@@ -289,7 +277,7 @@ public class SubSpanBo implements Span {
 
 	private int getBufferLength(int a, int b, int c, int d) {
 		int size = a + b + c + d;
-		size += 1 + 1 + 1 + 1 + 1+ VERSION_SIZE; // chunk size chunk
+		size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
 		// PARENTSPANID + FLAG + TERMINAL;
 		size += SERVICETYPE + AGENTIDENTIFIER;
@@ -328,8 +316,6 @@ public class SubSpanBo implements Span {
 		buffer.put(serviceType.getCode());
 		buffer.put1PrefixedBytes(endPointBytes);
 
-		buffer.put(exception);
-		
 		buffer.put(depth);
 		buffer.put(nextSpanId);
 		
@@ -376,8 +362,6 @@ public class SubSpanBo implements Span {
 		this.serviceType = ServiceType.parse(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
 
-		this.exception = buffer.readBoolean();
-		
 		this.depth = buffer.readInt();
 		this.nextSpanId = buffer.readInt();
 		
@@ -406,7 +390,6 @@ public class SubSpanBo implements Span {
 		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
 		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
 		sb.append("\n\trpc=").append(rpc).append(", serviceName=").append(serviceName).append(", endPoint=").append(endPoint);
-		sb.append("\n\texception=").append(exception);
 		sb.append("\n\tdepth=").append(depth);
 		sb.append("\n\tnextSpanId=").append(nextSpanId);
 		sb.append("\n\tannotations={");

@@ -31,6 +31,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private static final int SERVICETYPE = 2;
     private static final int FLAG = 2;
     private static final int AGENTIDENTIFIER = 2;
+    private static final int EXCEPTION_SIZE = 4;
 
     private String agentId;
     private short agentIdentifier;
@@ -51,7 +52,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     private int recursiveCallCount = 0;
 
-    private boolean exception = false;
+    private int exception;
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
@@ -72,7 +73,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
 
-        this.exception = span.isErr();
+        this.exception = span.getErr();
         
         setAnnotationList(span.getAnnotations());
     }
@@ -264,20 +265,20 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serviceType = serviceType;
     }
     
-    public boolean isException() {
+    public int getException() {
 		return exception;
 	}
 
-	public void setException(boolean exception) {
+	public void setException(int exception) {
 		this.exception = exception;
 	}
 
     private int getBufferLength(int a, int b, int c, int d) {
         int size = a + b + c + d;
-        size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
+        size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
         // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
-        size += PARENTSPANID + SERVICETYPE + AGENTIDENTIFIER;
+        size += PARENTSPANID + SERVICETYPE + AGENTIDENTIFIER + EXCEPTION_SIZE;
         if (flag != 0) {
             size += FLAG;
         }
@@ -347,7 +348,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serviceType = ServiceType.parse(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
         
-        this.exception = buffer.readBoolean();
+        this.exception = buffer.readInt();
         
         // flag는 무조껀 마지막에 넣어야 한다.
         if (buffer.limit() == 2) {

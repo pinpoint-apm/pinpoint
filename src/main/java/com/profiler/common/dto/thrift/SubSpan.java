@@ -42,7 +42,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)10);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)11);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
-  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.BOOL, (short)13);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
   private static final org.apache.thrift.protocol.TField DEPTH_FIELD_DESC = new org.apache.thrift.protocol.TField("depth", org.apache.thrift.protocol.TType.I32, (short)15);
   private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I32, (short)16);
@@ -65,7 +64,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private String serviceName; // optional
   private short serviceType; // optional
   private String endPoint; // optional
-  private boolean err; // required
   private List<Annotation> annotations; // required
   private int depth; // optional
   private int nextSpanId; // optional
@@ -84,7 +82,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     SERVICE_NAME((short)10, "serviceName"),
     SERVICE_TYPE((short)11, "serviceType"),
     END_POINT((short)12, "endPoint"),
-    ERR((short)13, "err"),
     ANNOTATIONS((short)14, "annotations"),
     DEPTH((short)15, "depth"),
     NEXT_SPAN_ID((short)16, "nextSpanId");
@@ -126,8 +123,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           return SERVICE_TYPE;
         case 12: // END_POINT
           return END_POINT;
-        case 13: // ERR
-          return ERR;
         case 14: // ANNOTATIONS
           return ANNOTATIONS;
         case 15: // DEPTH
@@ -182,10 +177,9 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   private static final int __STARTELAPSED_ISSET_ID = 5;
   private static final int __ENDELAPSED_ISSET_ID = 6;
   private static final int __SERVICETYPE_ISSET_ID = 7;
-  private static final int __ERR_ISSET_ID = 8;
-  private static final int __DEPTH_ISSET_ID = 9;
-  private static final int __NEXTSPANID_ISSET_ID = 10;
-  private BitSet __isset_bit_vector = new BitSet(11);
+  private static final int __DEPTH_ISSET_ID = 8;
+  private static final int __NEXTSPANID_ISSET_ID = 9;
+  private BitSet __isset_bit_vector = new BitSet(10);
   private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.AGENT_IDENTIFIER,_Fields.MOST_TRACE_ID,_Fields.LEAST_TRACE_ID,_Fields.SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.SERVICE_TYPE,_Fields.END_POINT,_Fields.DEPTH,_Fields.NEXT_SPAN_ID};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -214,8 +208,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
@@ -234,7 +226,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     short sequence,
     int startElapsed,
     int endElapsed,
-    boolean err,
     List<Annotation> annotations)
   {
     this();
@@ -244,8 +235,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     setStartElapsedIsSet(true);
     this.endElapsed = endElapsed;
     setEndElapsedIsSet(true);
-    this.err = err;
-    setErrIsSet(true);
     this.annotations = annotations;
   }
 
@@ -275,7 +264,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     if (other.isSetEndPoint()) {
       this.endPoint = other.endPoint;
     }
-    this.err = other.err;
     if (other.isSetAnnotations()) {
       List<Annotation> __this__annotations = new ArrayList<Annotation>();
       for (Annotation other_element : other.annotations) {
@@ -313,8 +301,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     setServiceTypeIsSet(false);
     this.serviceType = 0;
     this.endPoint = null;
-    setErrIsSet(false);
-    this.err = false;
     this.annotations = null;
     setDepthIsSet(false);
     this.depth = 0;
@@ -590,28 +576,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
   }
 
-  public boolean isErr() {
-    return this.err;
-  }
-
-  public void setErr(boolean err) {
-    this.err = err;
-    setErrIsSet(true);
-  }
-
-  public void unsetErr() {
-    __isset_bit_vector.clear(__ERR_ISSET_ID);
-  }
-
-  /** Returns true if field err is set (has been assigned a value) and false otherwise */
-  public boolean isSetErr() {
-    return __isset_bit_vector.get(__ERR_ISSET_ID);
-  }
-
-  public void setErrIsSet(boolean value) {
-    __isset_bit_vector.set(__ERR_ISSET_ID, value);
-  }
-
   public int getAnnotationsSize() {
     return (this.annotations == null) ? 0 : this.annotations.size();
   }
@@ -792,14 +756,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       break;
 
-    case ERR:
-      if (value == null) {
-        unsetErr();
-      } else {
-        setErr((Boolean)value);
-      }
-      break;
-
     case ANNOTATIONS:
       if (value == null) {
         unsetAnnotations();
@@ -865,9 +821,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     case END_POINT:
       return getEndPoint();
 
-    case ERR:
-      return Boolean.valueOf(isErr());
-
     case ANNOTATIONS:
       return getAnnotations();
 
@@ -912,8 +865,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       return isSetServiceType();
     case END_POINT:
       return isSetEndPoint();
-    case ERR:
-      return isSetErr();
     case ANNOTATIONS:
       return isSetAnnotations();
     case DEPTH:
@@ -1042,15 +993,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (!(this_present_endPoint && that_present_endPoint))
         return false;
       if (!this.endPoint.equals(that.endPoint))
-        return false;
-    }
-
-    boolean this_present_err = true;
-    boolean that_present_err = true;
-    if (this_present_err || that_present_err) {
-      if (!(this_present_err && that_present_err))
-        return false;
-      if (this.err != that.err)
         return false;
     }
 
@@ -1217,16 +1159,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetErr()).compareTo(typedOther.isSetErr());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetErr()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.err, typedOther.err);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetAnnotations()).compareTo(typedOther.isSetAnnotations());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1358,10 +1290,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       }
       first = false;
     }
-    if (!first) sb.append(", ");
-    sb.append("err:");
-    sb.append(this.err);
-    first = false;
     if (!first) sb.append(", ");
     sb.append("annotations:");
     if (this.annotations == null) {
@@ -1522,14 +1450,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // ERR
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.err = iprot.readBool();
-              struct.setErrIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 14: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
@@ -1640,9 +1560,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
           oprot.writeFieldEnd();
         }
       }
-      oprot.writeFieldBegin(ERR_FIELD_DESC);
-      oprot.writeBool(struct.err);
-      oprot.writeFieldEnd();
       if (struct.annotations != null) {
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
@@ -1719,19 +1636,16 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (struct.isSetEndPoint()) {
         optionals.set(11);
       }
-      if (struct.isSetErr()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(12);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetDepth()) {
         optionals.set(13);
       }
-      if (struct.isSetDepth()) {
+      if (struct.isSetNextSpanId()) {
         optionals.set(14);
       }
-      if (struct.isSetNextSpanId()) {
-        optionals.set(15);
-      }
-      oprot.writeBitSet(optionals, 16);
+      oprot.writeBitSet(optionals, 15);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1768,9 +1682,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       if (struct.isSetEndPoint()) {
         oprot.writeString(struct.endPoint);
       }
-      if (struct.isSetErr()) {
-        oprot.writeBool(struct.err);
-      }
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
@@ -1791,7 +1702,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, SubSpan struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(16);
+      BitSet incoming = iprot.readBitSet(15);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -1841,10 +1752,6 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         struct.setEndPointIsSet(true);
       }
       if (incoming.get(12)) {
-        struct.err = iprot.readBool();
-        struct.setErrIsSet(true);
-      }
-      if (incoming.get(13)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<Annotation>(_list5.size);
@@ -1858,11 +1765,11 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(14)) {
+      if (incoming.get(13)) {
         struct.depth = iprot.readI32();
         struct.setDepthIsSet(true);
       }
-      if (incoming.get(15)) {
+      if (incoming.get(14)) {
         struct.nextSpanId = iprot.readI32();
         struct.setNextSpanIdIsSet(true);
       }
