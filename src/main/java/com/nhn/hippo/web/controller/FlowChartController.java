@@ -1,7 +1,7 @@
 package com.nhn.hippo.web.controller;
 
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,10 +22,10 @@ import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.service.SpanService;
 import com.nhn.hippo.web.vo.BusinessTransactions;
-import com.nhn.hippo.web.vo.RequestMetadata;
 import com.nhn.hippo.web.vo.RequestMetadataQuery;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
+import com.profiler.common.bo.SpanBo;
 
 /**
  * retrieve data for drawing call tree.
@@ -158,7 +158,7 @@ public class FlowChartController {
 		}
 
 		if (query.size() > 0) {
-			Map<String, RequestMetadata> metadata = spanService.selectRequestMetadata(query);
+			List<SpanBo> metadata = spanService.selectRequestMetadata(query);
 			model.addAttribute("metadata", metadata);
 		}
 

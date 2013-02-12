@@ -1,26 +1,34 @@
 package com.nhn.hippo.web.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.calltree.span.SpanAligner2;
 import com.nhn.hippo.web.dao.AgentInfoDao;
 import com.nhn.hippo.web.dao.ApiMetaDataDao;
 import com.nhn.hippo.web.dao.SqlMetaDataDao;
 import com.nhn.hippo.web.dao.TraceDao;
-import com.nhn.hippo.web.vo.RequestMetadata;
 import com.nhn.hippo.web.vo.RequestMetadataQuery;
 import com.profiler.common.AnnotationNames;
-import com.profiler.common.bo.*;
+import com.profiler.common.bo.AgentInfoBo;
+import com.profiler.common.bo.AnnotationBo;
+import com.profiler.common.bo.ApiMetaDataBo;
+import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SqlMetaDataBo;
 import com.profiler.common.mapping.ApiMappingTable;
 import com.profiler.common.mapping.ApiUtils;
 import com.profiler.common.mapping.MethodMapping;
 import com.profiler.common.util.OutputParameterParser;
 import com.profiler.common.util.SqlParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 /**
  *
@@ -373,22 +381,37 @@ public class SpanServiceImpl implements SpanService {
     }
 
     @Override
-    public Map<String, RequestMetadata> selectRequestMetadata(RequestMetadataQuery query) {
+    public List<SpanBo> selectRequestMetadata(RequestMetadataQuery query) {
         List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query.getTraceIds());
 
-        Map<String, RequestMetadata> result = new HashMap<String, RequestMetadata>(query.size());
+        List<SpanBo> result = new ArrayList<SpanBo>(query.size());
 
         // 조회된 녀석들 중에서 UUID, starttime, responseTime이 같은것들만 골라냄.
         for (List<SpanBo> spans : selectedSpans) {
             for (SpanBo span : spans) {
                 // check UUID and time
                 if (query.isExists(span.getMostTraceId(), span.getLeastTraceId(), span.getStartTime(), span.getElapsed())) {
-                    RequestMetadata m = new RequestMetadata(span.getMostTraceId(), span.getLeastTraceId(), span.getStartTime(), span.getElapsed(), span.getRpc());
-                    result.put(m.toString(), m);
+                    result.add(span);
                 }
             }
         }
 
+        // TODO 일단 임시로...
+		Collections.sort(result, new Comparator<SpanBo>() {
+			@Override
+			public int compare(SpanBo o1, SpanBo o2) {
+				if (o1.isException() && o2.isException()) {
+					return o2.getElapsed() - o1.getElapsed();
+				} else if (o1.isException()) {
+					return 1;
+				} else if (o2.isException()) {
+					return -1;
+				} else {
+					return o2.getElapsed() - o1.getElapsed();
+				}
+			}
+		});
+        
         return result;
     }
 }

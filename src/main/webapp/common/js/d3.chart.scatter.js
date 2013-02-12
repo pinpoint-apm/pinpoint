@@ -380,28 +380,39 @@ d3.chart.scatter._renderer = function(){
 				
 				var html = [];
 				for (var i = 0; i < data.length; i++) {
-					html.push("<tr>");
+					if(data[i].exception) {
+						html.push("<tr class='error' style='cursor:pointer'");
+					} else {
+						html.push("<tr style='cursor:pointer'");
+					}
+					html.push(" onclick='openTrace(\"");
+					html.push(data[i].traceId);
+					html.push("\");'>");
 
 					html.push("<td>");
 					html.push(i + 1);
 					html.push("</td>");
 
 					html.push("<td>");
-					html.push(new Date(data[i].startTime).format("yyyy-mm-dd HH:MM:ss"));
+					html.push(new Date(data[i].startTime).format("yyyy-mm-dd HH:MM:ss L"));
 					html.push("</td>");
-
-					html.push("<td><a href='#' onclick='openTrace(\"");
-					html.push(data[i].traceId);
-					html.push("\");'>");
-					html.push(data[i].traceId);
-					html.push("</a></td>");
 
 					html.push("<td style='padding-right:30px;text-align:right'>");
 					html.push(formatNumber(data[i].elapsed));
 					html.push("</td>");
 
 					html.push("<td>");
+					if (data[i].exception) {
+						html.push(data[i].exception);
+					}
+					html.push("</td>");
+					
+					html.push("<td>");
 					html.push(data[i].application);
+					html.push("</td>");
+					
+					html.push("<td>");
+					html.push(data[i].agentId);
 					html.push("</td>");
 
 					html.push("</tr>");

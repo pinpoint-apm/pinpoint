@@ -5,10 +5,13 @@
 	"metadata" : [
 		<c:forEach items="${metadata}" var="v" varStatus="status">
 		{
-			"traceId" : "${v.value.traceId}",
-			"startTime" : ${v.value.startTime},
-			"elapsed" : ${v.value.elapsed},
-			"application" : "${v.value.application}"
+			"traceId" : "${v.traceId}",
+			"startTime" : ${v.startTime},
+			"elapsed" : ${v.elapsed},
+			"application" : "${v.rpc}",
+			"agentId" : "${v.agentId}",
+			"endpoint" : "${v.endPoint}",
+			"exception" : ${v.exception}
 		}
     	<c:if test="${!status.last}">,</c:if>
 		</c:forEach>

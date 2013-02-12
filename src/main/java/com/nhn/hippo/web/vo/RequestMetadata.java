@@ -3,10 +3,12 @@ package com.nhn.hippo.web.vo;
 import java.util.UUID;
 
 /**
+ * UI로 이 객체 대신 SpanBO를 던진다.
  * 
  * @author netspider
  * 
  */
+@Deprecated
 public class RequestMetadata {
 
 	private final String traceId;
