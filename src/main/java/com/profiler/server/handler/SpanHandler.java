@@ -3,6 +3,7 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
+import com.profiler.common.util.SubSpanUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +91,11 @@ public class SpanHandler implements Handler {
 					
                     // if terminal update statistics
 					int elapsed = subSpan.getEndElapsed();
-					
+                    boolean hasException = SubSpanUtils.hasException(subSpan);
                     if (subSpanServiceType.isRpcClient()) {
-                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, subSpan.isErr());
+                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, hasException);
                     } else {
-                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, subSpan.isErr());
+                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, hasException);
                     }
                 }
             }

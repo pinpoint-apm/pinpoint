@@ -27,8 +27,15 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
 		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(System.currentTimeMillis());
 		
 		byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(applicationName, 24), Bytes.toBytes(rowTimeSlot));
-		byte[] cf = (span.isErr() ? BUSINESS_TRANSACTION_STATISTICS_CF_ERROR : BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL);
-		byte[] columnName = Bytes.toBytes(span.getRpc()); // application url
+		byte[] cf;
+        if (span.getErr() == 0) {
+            // 에러 없음.
+            cf = BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL;
+        } else {
+            // 에러 있음.
+            cf = BUSINESS_TRANSACTION_STATISTICS_CF_ERROR;
+        }
+        byte[] columnName = Bytes.toBytes(span.getRpc()); // application url
 
 		hbaseTemplate.incrementColumnValue(BUSINESS_TRANSACTION_STATISTICS, rowKey, cf, columnName, 1L);
 	}

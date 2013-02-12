@@ -29,19 +29,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	@Override
 	public void insert(String applicationName, final Span span) {
 		int elapsedTime = span.getElapsed();
-		int resultCode = 0;
-
-		List<Annotation> anns = span.getAnnotations();
-		for (Annotation ann : anns) {
-			if (AnnotationNames.EXCEPTION.equals(ann.getKey())) {
-				resultCode = 1;
-				break;
-			}
-		}
-
 		byte[] value = new byte[8];
 		BytesUtils.writeInt(elapsedTime, value, 0);
-		BytesUtils.writeInt(resultCode, value, 4);
+		BytesUtils.writeInt(span.getErr(), value, 4);
 
 		// TODO 서버가 받은 시간으로 변경해야 될듯.
 		Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(applicationName, span), span.getStartTime());
