@@ -226,7 +226,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 						if (!endPoints.contains(t.getTo())) {
 
-							if (ServiceType.parse(t.getToServiceType()).isRpcClient()) {
+							if (ServiceType.findServiceType(t.getToServiceType()).isRpcClient()) {
 								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
 							}
 

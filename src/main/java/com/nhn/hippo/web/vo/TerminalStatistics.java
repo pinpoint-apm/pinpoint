@@ -20,7 +20,7 @@ public class TerminalStatistics {
 		this.from = from;
 		this.to = to;
 		this.toServiceType = toServiceType;
-		this.histogram = new ResponseHistogram(ServiceType.parse(toServiceType));
+		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
 	}
 
 	public String getId() {
