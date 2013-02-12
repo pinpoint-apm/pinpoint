@@ -81,7 +81,7 @@ public enum AnnotationNames {
         for (AnnotationNames name : values) {
             AnnotationNames check = CODE_LOOKUP_TABLE.put(name.getCode(), name);
             if (check != null) {
-                throw new IllegalStateException("duplicated code fonud. code:" + name.getCode());
+                throw new IllegalStateException("duplicated code found. code:" + name.getCode());
             }
         }
     }

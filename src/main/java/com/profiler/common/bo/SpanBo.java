@@ -69,7 +69,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
         this.rpc = span.getRpc();
         this.serviceName = span.getServiceName();
-        this.serviceType = ServiceType.parse(span.getServiceType());
+        this.serviceType = ServiceType.findServiceType(span.getServiceType());
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
 
@@ -345,7 +345,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
         this.rpc = buffer.read1UnsignedPrefixedString();
         this.serviceName = buffer.read1UnsignedPrefixedString();
-        this.serviceType = ServiceType.parse(buffer.readShort());
+        this.serviceType = ServiceType.findServiceType(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
         
         this.exception = buffer.readInt();

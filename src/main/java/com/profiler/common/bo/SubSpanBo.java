@@ -68,7 +68,7 @@ public class SubSpanBo implements Span {
 
 		this.rpc = tSubSpan.getRpc();
 		this.serviceName = tSubSpan.getServiceName();
-		this.serviceType = ServiceType.parse(tSubSpan.getServiceType());
+		this.serviceType = ServiceType.findServiceType(tSubSpan.getServiceType());
 
 		this.endPoint = tSubSpan.getEndPoint();
 		
@@ -98,7 +98,7 @@ public class SubSpanBo implements Span {
 
 		this.rpc = subSpan.getRpc();
 		this.serviceName = subSpan.getServiceName();
-		this.serviceType = ServiceType.parse(subSpan.getServiceType());
+		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 
 		this.endPoint = subSpan.getEndPoint();
 		
@@ -128,7 +128,7 @@ public class SubSpanBo implements Span {
 
 		this.rpc = subSpan.getRpc();
 		this.serviceName = subSpan.getServiceName();
-		this.serviceType = ServiceType.parse(subSpan.getServiceType());
+		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 
 		this.endPoint = subSpan.getEndPoint();
 		
@@ -359,7 +359,7 @@ public class SubSpanBo implements Span {
 
 		this.rpc = buffer.read1UnsignedPrefixedString();
 		this.serviceName = buffer.read1UnsignedPrefixedString();
-		this.serviceType = ServiceType.parse(buffer.readShort());
+		this.serviceType = ServiceType.findServiceType(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
 
 		this.depth = buffer.readInt();

@@ -34,7 +34,7 @@ public class TerminalSpanUtils {
 	}
 
 	private static byte[] findResponseHistogramSlotNo(short serviceType, int elapsed) {
-		short[] slots = ServiceType.parse(serviceType).getHistogramSlots();
+		short[] slots = ServiceType.findServiceType(serviceType).getHistogramSlots();
 
 		for (short slot : slots) {
 			if (elapsed < slot) {

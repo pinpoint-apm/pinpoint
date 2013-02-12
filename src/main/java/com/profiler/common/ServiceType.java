@@ -1,5 +1,8 @@
 package com.profiler.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.profiler.common.ResponseCode.*;
 
 public enum ServiceType {
@@ -40,25 +43,16 @@ public enum ServiceType {
 		this.histogramDescs = histogramDescs;
 	}
 
-	public static ServiceType parse(short code) {
-		ServiceType[] values = ServiceType.values();
-		for (ServiceType type : values) {
-			if (type.code == code) {
-				return type;
-			}
-		}
-		return UNKNOWN;
-	}
-	
-	public static ServiceType parse(String desc) {
-		ServiceType[] values = ServiceType.values();
-		for (ServiceType type : values) {
-			if (type.desc.equals(desc)) {
-				return type;
-			}
-		}
-		return UNKNOWN;
-	}
+    public static ServiceType parse(String desc) {
+        ServiceType[] values = ServiceType.values();
+        for (ServiceType type : values) {
+            if (type.desc.equals(desc)) {
+                return type;
+            }
+        }
+        return UNKNOWN;
+    }
+
 
 	public boolean isInternalMethod() {
 		return code == 2;
@@ -100,4 +94,28 @@ public enum ServiceType {
 	public String toString() {
 		return desc;
 	}
+
+    public static ServiceType findServiceType(short code) {
+        ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
+        if (serviceType == null) {
+            return UNKNOWN;
+        }
+        return serviceType;
+    }
+
+
+    private static final Map<Short, ServiceType> CODE_LOOKUP_TABLE = new HashMap<Short, ServiceType>();
+    static {
+        initializeLookupTable();
+    }
+
+    public static void initializeLookupTable() {
+        ServiceType[] values = ServiceType.values();
+        for (ServiceType servieceType : values) {
+            ServiceType check = CODE_LOOKUP_TABLE.put(servieceType.code, servieceType);
+            if (check != null) {
+                throw new IllegalStateException("duplicated code found. code:" + servieceType.code);
+            }
+        }
+    }
 }
