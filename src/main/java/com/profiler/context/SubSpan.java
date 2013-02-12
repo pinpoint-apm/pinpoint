@@ -23,8 +23,7 @@ public class SubSpan implements Thriftable {
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
-    private boolean exception;
-    
+
     private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
     private int nextSpanId = -1;
@@ -106,13 +105,7 @@ public class SubSpan implements Thriftable {
         this.serviceType = serviceType;
     }
     
-    public boolean isException() {
-		return exception;
-	}
 
-	public void setException(boolean exception) {
-		this.exception = exception;
-	}
 	
 	public int getDepth() {
 		return depth;
@@ -144,7 +137,6 @@ public class SubSpan implements Thriftable {
         sb.append(", ServiceName=").append(serviceName);
         sb.append(", ServiceType=").append(serviceType);
         sb.append(", EndPoint=").append(endPoint);
-        sb.append(", Exception=").append(exception);
         sb.append(", Seq=").append(sequence);
         sb.append(",\n\t Annotations = {");
         for (Annotation a : annotations) {
@@ -188,7 +180,6 @@ public class SubSpan implements Thriftable {
 		}
 		
         subSpan.setEndPoint(endPoint);
-        subSpan.setErr(exception);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());

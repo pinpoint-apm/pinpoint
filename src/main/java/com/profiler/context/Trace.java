@@ -116,10 +116,6 @@ public final class Trace {
         return stackFrame.getAfterTime();
     }
 
-//    public void attachObject(Object object) {
-//        StackFrame stackFrame = getCurrentStackFrame();
-//        stackFrame.attachObject(object);
-//    }
 
     public void traceBlockBegin(int stackId) {
         int currentStackIndex = callStack.push();
@@ -142,14 +138,6 @@ public final class Trace {
         traceBlockEnd(NOCHECK_STACKID);
     }
 
-//    public void traceBlockFinalEnd() {
-//        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
-//        if (currentStackFrame.getStackFrameId() != ROOT_STACKID) {
-//            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨.
-//            logger.warning("Corrupted RootCallStack found. StackId not matched");
-//        }
-//        logSpan(currentStackFrame);
-//    }
 
     public void traceBlockEnd(int stackId) {
         StackFrame currentStackFrame = callStack.getCurrentStackFrame();
@@ -190,25 +178,19 @@ public final class Trace {
     }
 
     void logSpan(SubSpan subSpan) {
-        try {
-            if (isDebug) {
-                logger.fine("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
-            }
-            this.storage.store(subSpan);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        if (isDebug) {
+            Thread th = Thread.currentThread();
+            logger.fine("[WRITE SubSPAN]" + subSpan + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
+        this.storage.store(subSpan);
     }
 
     void logSpan(Span span) {
-        try {
-            if (isDebug) {
-                logger.info("[WRITE SPAN]" + span + " CurrentThreadID=" + Thread.currentThread().getId() + ",\n\t CurrentThreadName=" + Thread.currentThread().getName() + "\n\n");
-            }
-            this.storage.store(span);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        if (isDebug) {
+            Thread th = Thread.currentThread();
+            logger.info("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
+        this.storage.store(span);
     }
 
     public void recordException(Object result) {
@@ -216,15 +198,9 @@ public final class Trace {
             Throwable th = (Throwable) result;
             recordAttribute(AnnotationNames.EXCEPTION, th.getMessage());
 
-            try {
-                StackFrame currentStackFrame = getCurrentStackFrame();
-                if (currentStackFrame instanceof RootStackFrame) {
-                    ((RootStackFrame) currentStackFrame).getSpan().setException(true);
-                } else {
-                    ((SubStackFrame) currentStackFrame).getSubSpan().setException(true);
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
+            Span span = getCallStack().getSpan();
+            if (span.getException() == 0) {
+                span.setException(1);
             }
         }
     }
@@ -288,99 +264,69 @@ public final class Trace {
     }
 
     public void recordAttribute(final AnnotationNames key, final Object value) {
-        if (!tracingEnabled)
-            return;
-
-        try {
-            // TODO API 단일화 필요.
-            StackFrame currentStackFrame = getCurrentStackFrame();
-            if (currentStackFrame instanceof RootStackFrame) {
-                Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new Annotation(key, value));
-            } else {
-                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new Annotation(key, value));
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.addAnnotation(new Annotation(key, value));
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.addAnnotation(new Annotation(key, value));
         }
+
     }
 
 
     public void recordRpcName(final ServiceType serviceType, final String serviceName, final String rpc) {
-        if (!tracingEnabled)
-            return;
-
-        try {
-            // TODO API 단일화 필요.
-            StackFrame currentStackFrame = getCurrentStackFrame();
-            if (currentStackFrame instanceof RootStackFrame) {
-                Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.setServiceType(serviceType);
-                span.setServiceName(serviceName);
-                span.setRpc(rpc);
-            } else {
-                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.setServiceType(serviceType);
-                span.setServiceName(serviceName);
-                span.setRpc(rpc);
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setServiceType(serviceType);
+            span.setServiceName(serviceName);
+            span.setRpc(rpc);
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.setServiceType(serviceType);
+            span.setServiceName(serviceName);
+            span.setRpc(rpc);
         }
+
     }
 
     public void recordEndPoint(final String endPoint) {
-        if (!tracingEnabled)
-            return;
         // TODO API 단일화 필요.
-        try {
-            StackFrame currentStackFrame = getCurrentStackFrame();
-            if (currentStackFrame instanceof RootStackFrame) {
-                Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.setEndPoint(endPoint);
-            } else {
-                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.setEndPoint(endPoint);
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setEndPoint(endPoint);
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.setEndPoint(endPoint);
         }
+
     }
 
     public void recordNextSpanId(int spanId) {
-        if (!tracingEnabled)
-            return;
-
-        try {
-            StackFrame currentStackFrame = getCurrentStackFrame();
-            if (currentStackFrame instanceof RootStackFrame) {
-                logger.log(Level.WARNING, "OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
-            } else {
-                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.setNextSpanId(spanId);
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            logger.log(Level.WARNING, "OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.setNextSpanId(spanId);
         }
     }
 
     private void annotate(final AnnotationNames key) {
-        if (!tracingEnabled)
-            return;
-
-        try {
-            StackFrame currentStackFrame = getCurrentStackFrame();
-            if (currentStackFrame instanceof RootStackFrame) {
-                Span span = ((RootStackFrame) currentStackFrame).getSpan();
-                span.addAnnotation(new Annotation(key));
-            } else {
-                SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-                span.addAnnotation(new Annotation(key));
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.addAnnotation(new Annotation(key));
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.addAnnotation(new Annotation(key));
         }
+
     }
 
     public void setTraceContext(TraceContext traceContext) {

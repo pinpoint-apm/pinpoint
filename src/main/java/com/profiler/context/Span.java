@@ -20,7 +20,7 @@ public class Span implements Thriftable {
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
-    private boolean exception;
+    private int exception;
 
     private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
@@ -98,12 +98,12 @@ public class Span implements Thriftable {
         this.subSpanList = subSpanList;
     }
     
-    public boolean isException() {
+    public int getException() {
 		return exception;
 	}
 
-	public void setException(boolean exception) {
-		this.exception = exception;
+	public void setException(int exception) {
+	    this.exception = exception;
 	}
 
 	public String toString() {
@@ -145,7 +145,9 @@ public class Span implements Thriftable {
         span.setSpanId(traceID.getSpanId());
         span.setParentSpanId(traceID.getParentSpanId());
         span.setEndPoint(endPoint);
-        span.setErr(exception);
+        if (exception != 0) {
+            span.setErr(exception);
+        }
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
