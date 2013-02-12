@@ -3,6 +3,7 @@ package com.profiler.common.bo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
@@ -101,6 +102,10 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.version = (byte) (version & 0xFF);
     }
 
+	public String getTraceId() {
+		return new UUID(mostTraceId, leastTraceId).toString();
+	}
+    
     public String getAgentId() {
         return agentId;
     }
