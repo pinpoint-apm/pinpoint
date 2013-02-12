@@ -24,10 +24,6 @@
         </property>
     </bean>
 
-    <bean id="hbaseClient" class="com.profiler.common.hbase.HBaseClient" destroy-method="close">
-        <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
-        <constructor-arg value="32" index="1"></constructor-arg>
-    </bean>
 
     <bean id="hbaseTemplate" class="com.profiler.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"></property>

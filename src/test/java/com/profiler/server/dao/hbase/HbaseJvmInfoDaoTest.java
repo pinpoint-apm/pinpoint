@@ -15,7 +15,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
-import com.profiler.common.hbase.HBaseClient;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.io.TBaseLocator;
@@ -27,10 +26,6 @@ public class HbaseJvmInfoDaoTest {
 
 	@Autowired
 	private HbaseOperations2 hbaseOperations;
-
-	// static 하니 inject가 잘안됨 방안을 찾아봐야 될듯.
-	@Autowired
-	public HBaseClient hbaseClient;
 
 	@Autowired
 	@Qualifier("testHbaseJvmInfoDaoTest")
