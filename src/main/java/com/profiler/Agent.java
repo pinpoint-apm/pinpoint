@@ -30,6 +30,8 @@ public class Agent {
     private final SystemMonitor systemMonitor;
 
     private TraceContext traceContext;
+
+    private DataSender priorityDataSender;
     private DataSender dataSender;
 
     private final String agentId;
@@ -54,6 +56,7 @@ public class Agent {
         this.nodeName = getId("hippo.nodeName", machineName);
         this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
 
+        this.priorityDataSender = createDataSender();
         this.dataSender = createDataSender();
         this.startTime = System.currentTimeMillis();
         this.identifier = (short) IDENTIFIER_KEY.nextInt(16);
@@ -76,6 +79,7 @@ public class Agent {
 
         this.traceContext.setAgentId(this.agentId);
         this.traceContext.setApplicationId(this.applicationName);
+        this.traceContext.setPriorityDataSender(this.priorityDataSender);
 
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
             TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.dataSender, this.profilerConfig);
@@ -180,9 +184,9 @@ public class Agent {
 
     private void send3(AgentInfo agentInfo) {
         // 특정 collector가 죽더라도 나머지 collector가 받을수 있도록 일부러 중복해서 3번 보낸다.
-        this.dataSender.send(agentInfo);
-        this.dataSender.send(agentInfo);
-        this.dataSender.send(agentInfo);
+        this.priorityDataSender.send(agentInfo);
+        this.priorityDataSender.send(agentInfo);
+        this.priorityDataSender.send(agentInfo);
     }
 
     public void start() {
@@ -214,6 +218,8 @@ public class Agent {
         send3(agentInfo);
         // 종료 처리 필요.
         this.dataSender.stop();
+        this.priorityDataSender.stop();
+
     }
 
 }

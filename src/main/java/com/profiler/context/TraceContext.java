@@ -47,6 +47,8 @@ public class TraceContext {
 
     private String applicationId;
 
+    private DataSender priorityDataSender;
+
     private StorageFactory storageFactory;
 
     private LRUCache<String> sqlCache = new LRUCache<String>(1000);
@@ -124,8 +126,8 @@ public class TraceContext {
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());
-            DataSender dataSender = storageFactory.getDataSender();
-            dataSender.send(apiMetadata);
+
+            this.priorityDataSender.send(apiMetadata);
             methodDescriptor.setApiId(result.getId());
         }
         return result.getId();
@@ -156,10 +158,14 @@ public class TraceContext {
             sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);
-            // 다른 우선순위가 더 높은 sender가 존재하면 좋을듯 하다.
-            this.storageFactory.getDataSender().send(sqlMetaData);
+
+            this.priorityDataSender.send(sqlMetaData);
         }
         // hashId그냥 return String에서 까보면 됨.
         return parsingResult;
+    }
+
+    public void setPriorityDataSender(DataSender priorityDataSender) {
+        this.priorityDataSender = priorityDataSender;
     }
 }
