@@ -27,7 +27,7 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 	@Override
 	public void update(String sourceApplicationName, String destApplicationName, short destServiceType, int elapsed, boolean isError) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("[UpdatingTerminalStatistics] " + sourceApplicationName + " -> " + destApplicationName + " (" + ServiceType.parse(destServiceType) + ")");
+			logger.debug("[UpdatingTerminalStatistics] " + sourceApplicationName + " -> " + destApplicationName + " (" + ServiceType.findServiceType(destServiceType) + ")");
 		}
 
 		byte[] columnName = TerminalSpanUtils.makeColumnName(destServiceType, destApplicationName, elapsed);

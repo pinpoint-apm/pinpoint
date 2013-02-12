@@ -51,38 +51,28 @@ public class SpanHandler implements Handler {
                 logger.info("Received SPAN={}", span);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
-
+            final String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
             if (applicationName == null) {
-                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
+                logger.warn("ApplicationName '{}' not found. Drop the log.", applicationName);
                 return;
             } else {
-                logger.info("Applicationname '{}' found. Write the log.", applicationName);
+                logger.debug("ApplicationName '{}' found. Write the log.", applicationName);
             }
 
             traceDao.insert(applicationName, span);
 
-			// (indexing root span)
-			// if (span.getParentSpanId() == -1) {
-			// rootTraceIndexDao.insert(span);
-			// }
-
             // indexing non-terminal span
-            ServiceType serviceType = ServiceType.parse(span.getServiceType());
-            if (serviceType.isIndexable()) {
-                traceIndexDao.insert(span);
-                applicationTraceIndexDao.insert(applicationName, span);
-                businessTransactionStatistics.update(applicationName, span);
-            } else {
-                logger.debug("Skip writing index. '{}'", span);
-            }
+            ServiceType serviceType = ServiceType.findServiceType(span.getServiceType());
+            traceIndexDao.insert(span);
+            applicationTraceIndexDao.insert(applicationName, span);
+            businessTransactionStatistics.update(applicationName, span);
 
             List<SubSpan> subSpanList = span.getSubSpanList();
             if (subSpanList != null) {
                 logger.info("handle subSpan size:{}", subSpanList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : subSpanList) {
-                    ServiceType subSpanServiceType = ServiceType.parse(subSpan.getServiceType());
+                    ServiceType subSpanServiceType = ServiceType.findServiceType(subSpan.getServiceType());
                     
 					// skip
 					if (subSpanServiceType == ServiceType.INTERNAL_METHOD) {

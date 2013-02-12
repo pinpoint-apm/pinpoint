@@ -3,6 +3,7 @@ package com.profiler.server.receiver.udp;
 import java.net.DatagramPacket;
 
 import com.profiler.common.dto.thrift.*;
+import com.profiler.server.util.AcceptedTime;
 import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -54,11 +55,11 @@ public class MultiplexedPacketHandler {
     public MultiplexedPacketHandler() {
     }
 
-    public void handlePacket(DatagramPacket packet) {
+    public void handlePacket(DatagramPacket packet, long acceptedTime) {
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         try {
             TBase<?, ?> tBase = deserializer.deserialize(locator, packet.getData());
-            dispatch(tBase, packet);
+            dispatch(tBase, packet, acceptedTime);
         } catch (TException e) {
             logger.warn("packet serialize error. SendSocketAddress:" + packet.getSocketAddress() + "Cause:" + e.getMessage(), e);
             logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
@@ -70,12 +71,12 @@ public class MultiplexedPacketHandler {
     }
 
 
-    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
+    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket, long acceptedTime) {
         Handler handler = getHandler(tBase);
         if (logger.isDebugEnabled()) {
             logger.debug("handler name:" + handler.getClass().getName());
         }
-
+        AcceptedTime.setAcceptedTime(acceptedTime);
         handler.handler(tBase, datagramPacket);
     }
 

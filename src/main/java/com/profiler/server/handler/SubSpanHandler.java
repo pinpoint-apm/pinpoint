@@ -51,7 +51,7 @@ public class SubSpanHandler implements Handler {
 
             traceDao.insertSubSpan(applicationName, subSpan);
 
-            ServiceType serviceType = ServiceType.parse(subSpan.getServiceType());
+            ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
             
             // if terminal update statistics
             int elapsed = subSpan.getEndElapsed();
