@@ -235,7 +235,7 @@ $(document).ready(function () {
 	
 	function getScatterData(begin, end, callback) {
 	    var application = $("#application").val();
-		d3.json("/scatter2.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
+		d3.json("/scatter.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
 	}
 	
 	function getBusinessTransactionsData(begin, end, callback) {
@@ -318,7 +318,7 @@ $(document).ready(function () {
 		if (this.checked) {
 			if (timer != null) return;
 
-			console.log("[auto-refresh] started.")
+			console.log("auto refresh started")
 			
 			clearInterval(timer);
 	    	now();
@@ -332,19 +332,16 @@ $(document).ready(function () {
 				from = getStartTime();
 				to = getEndTime();
 				
-				console.log("[auto-refresh] fetching data. from=" + (lastEnd + 1) + ", to=" + to);
-				
 		        getScatterData(lastEnd + 1, to, function(data) {
 		        	lastBegin = lastEnd + 1;
 		        	lastEnd = to;
-		        	console.log("[auto-refresh] data fetched. " + data.scatter.length);
 			        updateScatter(from, to, data.scatter, "#scatter");
 		        });
 			}, 2000);
 		} else {
+			console.log("auto refresh stopped")
 			clearInterval(timer);
 			timer = null;
-			console.log("[auto-refresh] stopped.")
 		}
 	});
 
@@ -434,52 +431,39 @@ $(document).ready(function () {
         	showTransactionList(data.businessTransactions);
         });
         
-    	// scatter 껍데기 먼저 그린다.
-        drawScatter(getStartTime(), getEndTime(), "#scatter");
-        getScatterData(getStartTime(), getEndTime(), function(data) {
+        var slot = sliceTimeSpan(getStartTime(), getEndTime());
+        var index = slot.length - 1;
+        
+        getScatterData(slot[index].start, slot[index].end, function(data) {
         	hideIndicator();
         	
-        	// 처음 조회된 데이터를 그려준다.
+	        drawScatter(getStartTime(), getEndTime(), "#scatter");
 	        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
 	        
-	        if (data.scatter.length == 0) {
+	        if (slot.length == 1) {
 	        	return;
 	        }
+
+	        index--;
 	        
-	        // 데이터 조회가 추가로 필요한지 확인한다.
-	        var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
-	        var queryNext = true;
-	        
-	        var fetch = function() {
-        		console.log("fetch scatter data");
-        		clearInterval(scatterFetchTimer);
-        		
-				if(!queryNext || lastTimeStamp >= getEndTime()) {
+	        var scatterFetchTimer = setInterval(function() {
+				if(index < 0) {
 			        scatter.hideProgressbar();
-					console.log("fetching scatter data finished.");
+					clearTimeout(scatterFetchTimer);
+					console.log("Fetching scatter data finished.");
 					return;
 				}
-				
 	        	try {
-	        		scatter.showProgressbar(lastTimeStamp + 1, getEndTime());
-	        		console.log("fetching scatter data.");
-	        		
-		        	getScatterData(lastTimeStamp + 1, getEndTime(), function(data2) {
-		        		console.log("fetched " + data2.scatter.length);
-		        		scatter.hideProgressbar();
-		    	        if (data2.scatter.length == 0) {
-		    	        	queryNext = false;
-		    	        	return;
-		    	        }
+	        		scatter.showProgressbar(slot[index].start, slot[index].end);
+		        	getScatterData(slot[index].start, slot[index].end, function(data2) {
 				        updateScatter(getStartTime(), getEndTime(), data2.scatter, "#scatter");
-		        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
-		        		scatterFetchTimer = setInterval(fetch, 200);
 		        	});
+			        index--;
 	        	} catch(e) {
 	        		console.log(e);
+					clearTimeout(scatterFetchTimer);
 	        	}
-	        }
-	        var scatterFetchTimer = setInterval(fetch, 200);
+	        }, 100);
         });
     }
 	

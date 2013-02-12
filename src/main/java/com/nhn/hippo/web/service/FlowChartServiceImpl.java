@@ -350,6 +350,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		return list.iterator();
 	}
+	
+	@Override
+	public Iterator<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
+		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit).iterator();
+	}
 
 	@Override
 	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to) {

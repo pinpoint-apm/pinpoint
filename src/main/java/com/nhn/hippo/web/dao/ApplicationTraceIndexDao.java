@@ -13,4 +13,6 @@ public interface ApplicationTraceIndexDao {
 	List<List<List<byte[]>>> multiScanTraceIndex(String[] applicationNames, long start, long end);
 
 	List<List<Dot>> scanTraceScatter(String applicationName, long start, long end);
+	
+	List<Dot> scanTraceScatter2(String applicationName, long start, long end, int rowLimit);
 }

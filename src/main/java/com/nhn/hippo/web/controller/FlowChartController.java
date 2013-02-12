@@ -117,6 +117,22 @@ public class FlowChartController {
 		addResponseHeader(response);
 		return "scatter";
 	}
+	
+	@RequestMapping(value = "/scatter2", method = RequestMethod.GET)
+	public String scatter2(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
+		StopWatch watch = new StopWatch();
+		watch.start("selectScatterData");
+
+		Iterator<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
+		watch.stop();
+
+		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+
+		model.addAttribute("scatter", scatterData);
+
+		addResponseHeader(response);
+		return "scatter";
+	}
 
 	// TODO UI에서 한꺼번에 많은 데이터를 조회하지 않도록 제한해야함.
 	@RequestMapping(value = "/requestmetadata", method = RequestMethod.GET)
