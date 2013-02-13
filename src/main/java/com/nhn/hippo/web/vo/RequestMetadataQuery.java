@@ -1,10 +1,13 @@
 package com.nhn.hippo.web.vo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -35,11 +38,11 @@ public class RequestMetadataQuery {
 	}
 
 	public List<UUID> getTraceIds() {
-		List<UUID> result = new ArrayList<UUID>(queryConditions.size());
+		Set<UUID> temp = new HashSet<UUID>(queryConditions.size());
 		for (Entry<QueryCondition, Object> entry : queryConditions.entrySet()) {
-			result.add(entry.getKey().getTraceId());
+			temp.add(entry.getKey().getTraceId());
 		}
-		return result;
+		return new ArrayList<UUID>(temp);
 	}
 
 	public int size() {

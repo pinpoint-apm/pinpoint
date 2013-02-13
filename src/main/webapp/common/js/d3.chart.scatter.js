@@ -45,7 +45,8 @@ d3.chart.scatter._renderer = function(){
 				chart.selectAll("rect.extent").style("fill", "#444").style("fill-opacity", "0.5");
 			})
 			.on("brush", function(p) {
-				selectedTraceIdSet = {};
+				// selectedTraceIdSet = {};
+				selectedTraceIdSet = [];
 				var e = brush.extent();
 				chart.selectAll(".dot").each(function(d) {
 					if (new Date(e[0][0]).getTime() <= d.timestamp && d.timestamp <= new Date(e[1][0]).getTime()) {
@@ -54,7 +55,13 @@ d3.chart.scatter._renderer = function(){
 						}
 
 					 	if (e[0][1] <= time && e[1][1] >= time) {
-							selectedTraceIdSet[d.traceId] = d;
+							// selectedTraceIdSet[d.traceId] = d;
+							var v = {};
+							v.traceId = d.traceId;
+							v.timestamp = d.timestamp;
+							v.executionTime = d.executionTime;
+					 		
+					 		selectedTraceIdSet.push(v);
 						}
 					}
 				});
@@ -337,37 +344,35 @@ d3.chart.scatter._renderer = function(){
 		},
 		
 		_displaySelectedTraceIdList : function(traces) {
-			var keys = Object.keys(traces);
-			
-			console.log(traces, keys.length);
-			if (keys.length === 0) {
+			if (traces.length === 0) {
 				return;
 			}
 			
-			if (keys.length === 1) {
-				self._openTrace(keys[0]);
+			if (traces.length === 1) {
+				self._openTrace(traces[0].traceId);
 				return;
 			}
 			
 			var query = [];
-			for (var i = 0; i < keys.length; i++) {
+			var temp = {};
+			for (var i = 0; i < traces.length; i++) {
 				if (i > 0) {
 					query.push("&");
 				}
 				query.push("tr");
 				query.push(i);
 				query.push("=");
-				query.push(traces[keys[i]].traceId);
+				query.push(traces[i].traceId);
 				
 				query.push("&ti");
 				query.push(i);
 				query.push("=");
-				query.push(traces[keys[i]].timestamp)
+				query.push(traces[i].timestamp)
 				
 				query.push("&re");
 				query.push(i);
 				query.push("=");
-				query.push(traces[keys[i]].executionTime)
+				query.push(traces[i].executionTime)
 			}
 			
 			// queryparameter를 POST로 보내야할 것 같음.
