@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * @author netspider
  */
-public enum AnnotationNames {
+public enum AnnotationKey {
 
 
     API_DID(10, "API-DID"),
@@ -49,11 +49,11 @@ public enum AnnotationNames {
 
     public final static int MAX_ARGS_SIZE = 10;
 
-    private AnnotationNames(int code, String value) {
+    private AnnotationKey(int code, String value) {
         this(code, value, false);
     }
 
-    private AnnotationNames(int code, String value, boolean viewInRecordSet) {
+    private AnnotationKey(int code, String value, boolean viewInRecordSet) {
         this.code = code;
         this.value = value;
         this.viewInRecordSet = viewInRecordSet;
@@ -71,30 +71,30 @@ public enum AnnotationNames {
         return viewInRecordSet;
     }
 
-    private static final Map<Integer, AnnotationNames> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationNames>();
+    private static final Map<Integer, AnnotationKey> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationKey>();
     static {
         initializeLookupTable();
     }
 
     public static void initializeLookupTable() {
-        AnnotationNames[] values = AnnotationNames.values();
-        for (AnnotationNames name : values) {
-            AnnotationNames check = CODE_LOOKUP_TABLE.put(name.getCode(), name);
+        AnnotationKey[] values = AnnotationKey.values();
+        for (AnnotationKey name : values) {
+            AnnotationKey check = CODE_LOOKUP_TABLE.put(name.getCode(), name);
             if (check != null) {
                 throw new IllegalStateException("duplicated code found. code:" + name.getCode());
             }
         }
     }
 
-    public static AnnotationNames findAnnotationNames(int code) {
-        AnnotationNames annotationNames = CODE_LOOKUP_TABLE.get(code);
-        if (annotationNames == null) {
+    public static AnnotationKey findAnnotationKey(int code) {
+        AnnotationKey annotationKey = CODE_LOOKUP_TABLE.get(code);
+        if (annotationKey == null) {
             return UNKNOWN;
         }
-        return annotationNames;
+        return annotationKey;
     }
 
-    public static AnnotationNames getArgs(int index) {
+    public static AnnotationKey getArgs(int index) {
         if (index < 0) {
             throw new IllegalArgumentException("negative index:" + index);
         }

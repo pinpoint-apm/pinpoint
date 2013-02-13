@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.Span;
@@ -39,7 +39,7 @@ public class AnnotationUtils {
 
     public static Object getDisplayMethod(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
-        int index = Collections.binarySearch(list, AnnotationNames.API, AnnotationBo.AnnotationBoComparator);
+        int index = Collections.binarySearch(list, AnnotationKey.API, AnnotationBo.AnnotationBoComparator);
 
         if (index > -1) {
             return list.get(index).getValue();
@@ -56,19 +56,19 @@ public class AnnotationUtils {
         List<AnnotationBo> list = span.getAnnotationBoList();
         int index = -1;
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
-            index = Collections.binarySearch(list, AnnotationNames.ARCUS_COMMAND, AnnotationBo.AnnotationBoComparator);
+            index = Collections.binarySearch(list, AnnotationKey.ARCUS_COMMAND, AnnotationBo.AnnotationBoComparator);
         }
 
         if (span.getServiceType() == ServiceType.HTTP_CLIENT) {
-            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL, AnnotationBo.AnnotationBoComparator);
+            index = Collections.binarySearch(list, AnnotationKey.HTTP_URL, AnnotationBo.AnnotationBoComparator);
         }
 
         if (span.getServiceType() == ServiceType.TOMCAT) {
-            index = Collections.binarySearch(list, AnnotationNames.HTTP_URL, AnnotationBo.AnnotationBoComparator);
+            index = Collections.binarySearch(list, AnnotationKey.HTTP_URL, AnnotationBo.AnnotationBoComparator);
         }
         
         if (span.getServiceType() == ServiceType.MYSQL) {
-        	index = Collections.binarySearch(list, AnnotationNames.ARGS0, AnnotationBo.AnnotationBoComparator);
+        	index = Collections.binarySearch(list, AnnotationKey.ARGS0, AnnotationBo.AnnotationBoComparator);
         }
 
         if (index > -1) {

@@ -1,6 +1,6 @@
 package com.profiler.common.bo;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.buffer.FixedBuffer;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ public class AnnotationBoTest {
     @Test
     public void testWriteValue() throws Exception {
         AnnotationBo bo = new AnnotationBo();
-        bo.setKey(AnnotationNames.API.getCode());
+        bo.setKey(AnnotationKey.API.getCode());
         bo.setByteValue("value".getBytes("UTF-8"));
         int bufferSize = bo.getBufferSize();
 

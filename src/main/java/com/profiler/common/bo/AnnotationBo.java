@@ -1,6 +1,6 @@
 package com.profiler.common.bo;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.buffer.Buffer;
@@ -62,7 +62,7 @@ public class AnnotationBo {
     }
 
     public String getKeyName() {
-        return AnnotationNames.findAnnotationNames(this.key).getValue();
+        return AnnotationKey.findAnnotationKey(this.key).getValue();
     }
 
     public void setKey(int key) {
@@ -146,8 +146,8 @@ public class AnnotationBo {
         public int compare(Object o1, Object o2) {
             AnnotationBo annotationBo = (AnnotationBo) o1;
             int key = annotationBo.getKey();
-            AnnotationNames annotationNames = (AnnotationNames) o2;
-            return key - annotationNames.getCode();
+            AnnotationKey annotationKey = (AnnotationKey) o2;
+            return key - annotationKey.getCode();
         }
     };
 }
