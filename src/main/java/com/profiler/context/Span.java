@@ -21,6 +21,7 @@ public class Span implements Thriftable {
     private ServiceType serviceType;
     private String endPoint;
     private int exception;
+    private String remoteAddr;
 
     private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
@@ -103,11 +104,19 @@ public class Span implements Thriftable {
 	}
 
 	public void setException(int exception) {
-	    this.exception = exception;
+		this.exception = exception;
+	}
+
+	public String getRemoteAddr() {
+		return remoteAddr;
+	}
+
+	public void setRemoteAddr(String remoteAddr) {
+		this.remoteAddr = remoteAddr;
 	}
 
 	public String toString() {
-        StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 
         sb.append("{");
         sb.append("\n\t TraceID = ").append(traceID);
@@ -118,6 +127,7 @@ public class Span implements Thriftable {
         sb.append(", ServiceType = ").append(serviceType);
         sb.append(", EndPoint = ").append(endPoint);
         sb.append(", Exception = ").append(exception);
+        sb.append(", RemoteAddr = ").append(remoteAddr);
         sb.append(",\n\t Annotations = {");
         for (Annotation a : annotations) {
             sb.append("\n\t\t").append(a);
@@ -145,6 +155,7 @@ public class Span implements Thriftable {
         span.setSpanId(traceID.getSpanId());
         span.setParentSpanId(traceID.getParentSpanId());
         span.setEndPoint(endPoint);
+        span.setRemoteAddr(remoteAddr);
         if (exception != 0) {
             span.setErr(exception);
         }

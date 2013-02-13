@@ -304,7 +304,17 @@ public final class Trace {
             SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
             span.setEndPoint(endPoint);
         }
-
+    }
+    
+    public void recordRemoteAddr(final String remoteAddr) {
+    	// TODO API 단일화 필요.
+    	StackFrame currentStackFrame = getCurrentStackFrame();
+    	if (currentStackFrame instanceof RootStackFrame) {
+    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
+    		span.setRemoteAddr(remoteAddr);
+    	} else {
+    		// do nothing.
+    	}
     }
 
     public void recordNextSpanId(int spanId) {

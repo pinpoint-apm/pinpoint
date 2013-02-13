@@ -41,7 +41,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
             HttpServletRequest request = (HttpServletRequest) args[0];
             String requestURL = request.getRequestURI();
-            String clientIP = request.getRemoteAddr();
+            String remoteAddr = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
@@ -50,7 +50,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
                 if (logger.isLoggable(Level.INFO)) {
                 	// logger.info("TraceID exist. continue trace. " + nextTraceId);
                     logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
                 }
                 // trace = new Trace(nextTraceId);
                 trace = new Trace(traceId);
@@ -59,7 +59,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
                 trace = new Trace();
                 if (logger.isLoggable(Level.INFO)) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
                 }
                 traceContext.attachTraceObject(trace);
             }
@@ -69,6 +69,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
             int port = request.getServerPort();
             trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
+            trace.recordRemoteAddr(remoteAddr);
             trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestURI());
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
