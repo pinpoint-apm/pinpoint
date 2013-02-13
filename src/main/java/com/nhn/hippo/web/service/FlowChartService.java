@@ -80,9 +80,9 @@ public interface FlowChartService {
 	
 	public ServerCallTree selectServerCallTree(TraceId traceId);
 	
-	public Iterator<Dot> selectScatterData(String applicationName, long from, long to);
+	public List<Dot> selectScatterData(String applicationName, long from, long to);
 	
-	public Iterator<Dot> selectScatterData(String applicationName, long from, long to, int limit);
+	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit);
 	
 	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to);
 }

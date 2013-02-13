@@ -337,7 +337,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public Iterator<Dot> selectScatterData(String applicationName, long from, long to) {
+	public List<Dot> selectScatterData(String applicationName, long from, long to) {
 		List<List<Dot>> scanTrace = applicationTraceIndexDao.scanTraceScatter(applicationName, from, to);
 
 		List<Dot> list = new ArrayList<Dot>();
@@ -348,12 +348,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
-		return list.iterator();
+		return list;
 	}
 	
 	@Override
-	public Iterator<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
-		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit).iterator();
+	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
+		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
 	}
 
 	@Override

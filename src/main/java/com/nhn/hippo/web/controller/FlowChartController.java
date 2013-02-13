@@ -107,7 +107,7 @@ public class FlowChartController {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		Iterator<Dot> scatterData = flow.selectScatterData(applicationName, from, to);
+		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
@@ -123,7 +123,7 @@ public class FlowChartController {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		Iterator<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
+		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
