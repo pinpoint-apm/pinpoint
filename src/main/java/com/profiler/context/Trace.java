@@ -1,6 +1,6 @@
 package com.profiler.context;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
@@ -196,7 +196,7 @@ public final class Trace {
     public void recordException(Object result) {
         if (result instanceof Throwable) {
             Throwable th = (Throwable) result;
-            recordAttribute(AnnotationNames.EXCEPTION, th.getMessage());
+            recordAttribute(AnnotationKey.EXCEPTION, th.getMessage());
 
             Span span = getCallStack().getSpan();
             if (span.getException() == 0) {
@@ -210,9 +210,9 @@ public final class Trace {
             return;
         }
         if (methodDescriptor.getApiId() == 0) {
-            recordAttribute(AnnotationNames.API, methodDescriptor.getFullName());
+            recordAttribute(AnnotationKey.API, methodDescriptor.getFullName());
         } else {
-            recordAttribute(AnnotationNames.API_DID, methodDescriptor.getApiId());
+            recordAttribute(AnnotationKey.API_DID, methodDescriptor.getApiId());
         }
     }
 
@@ -223,26 +223,26 @@ public final class Trace {
     }
 
     public void recordApi(int apiId) {
-        recordAttribute(AnnotationNames.API_ID, apiId);
+        recordAttribute(AnnotationKey.API_ID, apiId);
     }
 
     public void recordApi(int apiId, Object[] args) {
-        recordAttribute(AnnotationNames.API_ID, apiId);
+        recordAttribute(AnnotationKey.API_ID, apiId);
         recocordArgs(args);
     }
 
     private void recocordArgs(Object[] args) {
         if (args != null) {
-            int min = Math.min(args.length, AnnotationNames.MAX_ARGS_SIZE);
+            int min = Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE);
             for (int i = 0; i < min; i++) {
-                recordAttribute(AnnotationNames.getArgs(i), args[i]);
+                recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
             // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
         }
     }
 
 
-    public void recordAttribute(final AnnotationNames key, final String value) {
+    public void recordAttribute(final AnnotationKey key, final String value) {
         recordAttribute(key, (Object) value);
     }
 
@@ -256,14 +256,14 @@ public final class Trace {
     }
 
     public void recordSqlParsingResult(ParsingResult parsingResult) {
-        recordAttribute(AnnotationNames.SQL_ID, parsingResult.getSql().hashCode());
+        recordAttribute(AnnotationKey.SQL_ID, parsingResult.getSql().hashCode());
         String output = parsingResult.getOutput();
         if (output != null && output.length() != 0) {
-            recordAttribute(AnnotationNames.SQL_PARAM, output);
+            recordAttribute(AnnotationKey.SQL_PARAM, output);
         }
     }
 
-    public void recordAttribute(final AnnotationNames key, final Object value) {
+    public void recordAttribute(final AnnotationKey key, final Object value) {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof RootStackFrame) {
@@ -327,7 +327,7 @@ public final class Trace {
         }
     }
 
-    private void annotate(final AnnotationNames key) {
+    private void annotate(final AnnotationKey key) {
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();

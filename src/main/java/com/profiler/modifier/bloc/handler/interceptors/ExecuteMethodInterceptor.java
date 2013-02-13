@@ -5,7 +5,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.SpanID;
@@ -68,9 +68,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             trace.markBeforeTime();
             trace.recordRpcName(ServiceType.BLOC, traceContext.getApplicationId(), requestURL);
             trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
-            trace.recordAttribute(AnnotationNames.HTTP_URL, request.requestURI().toString());
+            trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
             if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationNames.HTTP_PARAM, parameters);
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
         } catch (Exception e) {

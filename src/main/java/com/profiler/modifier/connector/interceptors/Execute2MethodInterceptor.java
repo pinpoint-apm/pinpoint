@@ -3,10 +3,10 @@ package com.profiler.modifier.connector.interceptors;
 import java.net.URI;
 import java.util.logging.Logger;
 
+import com.profiler.common.AnnotationKey;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.profiler.common.AnnotationNames;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.Trace;
@@ -65,7 +65,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 
 		int port = host.getPort();
 		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() + ((port > 0) ? ":" + port : ""));
-		trace.recordAttribute(AnnotationNames.HTTP_URL, request.getRequestLine().getUri());
+		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
 	}
 
 	@Override

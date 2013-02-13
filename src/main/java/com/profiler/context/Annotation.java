@@ -1,10 +1,7 @@
 package com.profiler.context;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.util.AnnotationTranscoder;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author netspider
@@ -14,22 +11,22 @@ public class Annotation implements Thriftable {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     //    private final long timestamp;
-    private final AnnotationNames key;
+    private final AnnotationKey key;
 
     private final Object value;
 
 
-    public Annotation(AnnotationNames key) {
+    public Annotation(AnnotationKey key) {
         this.key = key;
         this.value = null;
     }
 
-    public Annotation(AnnotationNames key, Object value) {
+    public Annotation(AnnotationKey key, Object value) {
         this.key = key;
         this.value = value;
     }
 
-    public AnnotationNames getKey() {
+    public AnnotationKey getKey() {
         return this.key;
     }
 

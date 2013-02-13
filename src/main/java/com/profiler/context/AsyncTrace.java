@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.logging.LoggingUtils;
 
@@ -92,11 +92,11 @@ public class AsyncTrace {
     }
 
 
-    public void recordAttribute(final AnnotationNames key, final String value) {
+    public void recordAttribute(final AnnotationKey key, final String value) {
         recordAttibute(key, (Object) value);
     }
 
-    public void recordAttibute(final AnnotationNames key, final Object value) {
+    public void recordAttibute(final AnnotationKey key, final Object value) {
         subSpan.addAnnotation(new Annotation(key, value));
     }
 
@@ -112,7 +112,7 @@ public class AsyncTrace {
         this.subSpan.setEndPoint(endPoint);
     }
 
-    private void annotate(final AnnotationNames key) {
+    private void annotate(final AnnotationKey key) {
         this.subSpan.addAnnotation(new Annotation(key));
 
     }

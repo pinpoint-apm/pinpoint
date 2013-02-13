@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
@@ -17,7 +17,6 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
@@ -59,7 +58,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            trace.recordAttribute(AnnotationNames.SQL_BINDVALUE, bindString);
+            trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
 
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);
