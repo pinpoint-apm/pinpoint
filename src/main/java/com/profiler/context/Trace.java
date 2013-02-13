@@ -209,7 +209,7 @@ public final class Trace {
         if (methodDescriptor == null) {
             return;
         }
-        if (methodDescriptor.getApiId() == -1) {
+        if (methodDescriptor.getApiId() == 0) {
             recordAttribute(AnnotationNames.API, methodDescriptor.getFullName());
         } else {
             recordAttribute(AnnotationNames.API_DID, methodDescriptor.getApiId());

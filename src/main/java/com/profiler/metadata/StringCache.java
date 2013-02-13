@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class StringCache {
-
-    private final AtomicInteger idGen = new AtomicInteger();
+    // 0인값은 존재 하지 않음을 나타냄.
+    private final AtomicInteger idGen = new AtomicInteger(1);
     private final ConcurrentMap<String, Integer> cache = new ConcurrentHashMap<String, Integer>();
 
     public Result put(String string) {
