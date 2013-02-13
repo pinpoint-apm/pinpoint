@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.nhn.hippo.web.calltree.span.SpanAlign;
-import com.profiler.common.AnnotationNames;
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
@@ -60,7 +60,7 @@ public class RecordSet {
 
 	private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
         for (AnnotationBo ann : annotationBoList) {
-            AnnotationNames annotation = AnnotationNames.findAnnotationNames(ann.getKey());
+            AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
             if (annotation.isViewInRecordSet()) {
                 recordset.add(new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
             }
