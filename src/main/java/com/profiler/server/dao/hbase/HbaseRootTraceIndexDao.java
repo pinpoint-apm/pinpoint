@@ -29,8 +29,9 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDaoDao {
             return;
         }
 
-        Put put = new Put(SpanUtils.getTraceIndexRowKey(rootSpan), rootSpan.getStartTime());
         long acceptedTime = AcceptedTime.getAcceptedTime();
+        byte[] agentIdTraceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(rootSpan.getAgentId(), acceptedTime);
+        Put put = new Put(agentIdTraceIndexRowKey);
         put.add(ROOT_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(rootSpan), acceptedTime, null);
 
         hbaseTemplate.put(ROOT_TRACE_INDEX, put);

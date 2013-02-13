@@ -30,8 +30,10 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Override
 	public void insert(final Span span) {
 
-		Put put = new Put(SpanUtils.getTraceIndexRowKey(span));
         long acceptedTime = AcceptedTime.getAcceptedTime();
+        byte[] agentIdTraceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), acceptedTime);
+
+        Put put = new Put(agentIdTraceIndexRowKey);
         put.add(TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, null);
 
 		hbaseTemplate.put(tableName, put);
