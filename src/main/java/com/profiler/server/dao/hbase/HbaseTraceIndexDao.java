@@ -2,6 +2,7 @@ package com.profiler.server.dao.hbase;
 
 import static com.profiler.common.hbase.HBaseTables.TRACE_INDEX_CF_TRACE;
 
+import com.profiler.server.util.AcceptedTime;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,9 +29,10 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	@Override
 	public void insert(final Span span) {
-		// TODO 서버가 받은 시간으로 변경해야 될듯?
-		Put put = new Put(SpanUtils.getTraceIndexRowKey(span), span.getStartTime());
-		put.add(TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), null);
+
+		Put put = new Put(SpanUtils.getTraceIndexRowKey(span));
+        long acceptedTime = AcceptedTime.getAcceptedTime();
+        put.add(TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, null);
 
 		hbaseTemplate.put(tableName, put);
 	}

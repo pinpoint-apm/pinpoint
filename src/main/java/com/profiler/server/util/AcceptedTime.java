@@ -14,7 +14,6 @@ public class AcceptedTime {
     }
 
 
-
     public static long getAcceptedTime() {
         return local.get();
     }

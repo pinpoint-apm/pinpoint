@@ -3,6 +3,7 @@ package com.profiler.server.dao.hbase;
 import static com.profiler.common.hbase.HBaseTables.ROOT_TRACE_INDEX;
 import static com.profiler.common.hbase.HBaseTables.ROOT_TRACE_INDEX_CF_TRACE;
 
+import com.profiler.server.util.AcceptedTime;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +29,9 @@ public class HbaseRootTraceIndexDao implements RootTraceIndexDaoDao {
             return;
         }
 
-        // TODO 서버가 받은 시간을 키로 사용해야 될듯 함???
         Put put = new Put(SpanUtils.getTraceIndexRowKey(rootSpan), rootSpan.getStartTime());
-        put.add(ROOT_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(rootSpan), null);
+        long acceptedTime = AcceptedTime.getAcceptedTime();
+        put.add(ROOT_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(rootSpan), acceptedTime, null);
 
         hbaseTemplate.put(ROOT_TRACE_INDEX, put);
     }

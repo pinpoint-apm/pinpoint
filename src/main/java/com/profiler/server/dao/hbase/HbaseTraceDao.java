@@ -13,6 +13,7 @@ import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.TracesDao;
+import com.profiler.server.util.AcceptedTime;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -35,12 +36,14 @@ public class HbaseTraceDao implements TracesDao {
     public void insert(final String applicationName, final Span span) {
 
         SpanBo spanBo = new SpanBo(span);
-        byte[] value = spanBo.writeValue();
-        // TODO 서버 시간으로 변경해야 될듯 함.
-        Put put = new Put(SpanUtils.getTraceId(span), spanBo.getStartTime());
+
+        Put put = new Put(SpanUtils.getTraceId(span));
+
+        byte[] spanValue = spanBo.writeValue();
         // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
         byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
-        put.add(TRACES_CF_SPAN, spanId, value);
+        long acceptedTime = AcceptedTime.getAcceptedTime();
+        put.add(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
 
         List<Annotation> annotations = span.getAnnotations();
         if (annotations != null && annotations.size() != 0) {
@@ -59,26 +62,15 @@ public class HbaseTraceDao implements TracesDao {
         if (subSpanList == null || subSpanList.size() == 0) {
             return;
         }
-
+        long acceptedTime = AcceptedTime.getAcceptedTime();
         for (SubSpan subSpan : subSpanList) {
             SubSpanBo subSpanBo = new SubSpanBo(span, subSpan);
             byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
             byte[] value = subSpanBo.writeValue();
-            put.add(TRACES_CF_TERMINALSPAN, rowId, value);
+            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }
     }
 
-    private short getSequence(Span span, SubSpan subSpan, short sequence) {
-        if (sequence == -1) {
-            // 첫번째 subspan에는 sequencen가 존재함.
-            if (!subSpan.isSetSequence()) {
-                logger.warn("fist sequence number not exist {}", span);
-            }
-            return subSpan.getSequence();
-        } else {
-            return ++sequence;
-        }
-    }
 
     @Override
     public void insertSubSpan(final String applicationName, final SubSpan subSpan) {
@@ -97,13 +89,15 @@ public class HbaseTraceDao implements TracesDao {
     public void insertSubSpanList(String applicationName, SubSpanList subSpanList) {
         Put put = new Put(SpanUtils.getTraceId(subSpanList));
 
+        long acceptedTime = AcceptedTime.getAcceptedTime();
         List<SubSpan> subSpanList0 = subSpanList.getSubSpanList();
         for (SubSpan subSpan : subSpanList0) {
             SubSpanBo subSpanBo = new SubSpanBo(subSpanList, subSpan);
 
             byte[] value = subSpanBo.writeValue();
             byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
-            put.add(TRACES_CF_TERMINALSPAN, rowId, value);
+
+            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }
         hbaseTemplate.put(TRACES, put);
 

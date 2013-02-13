@@ -55,11 +55,11 @@ public class MultiplexedPacketHandler {
     public MultiplexedPacketHandler() {
     }
 
-    public void handlePacket(DatagramPacket packet, long acceptedTime) {
+    public void handlePacket(DatagramPacket packet) {
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         try {
             TBase<?, ?> tBase = deserializer.deserialize(locator, packet.getData());
-            dispatch(tBase, packet, acceptedTime);
+            dispatch(tBase, packet);
         } catch (TException e) {
             logger.warn("packet serialize error. SendSocketAddress:" + packet.getSocketAddress() + "Cause:" + e.getMessage(), e);
             logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
@@ -71,12 +71,12 @@ public class MultiplexedPacketHandler {
     }
 
 
-    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket, long acceptedTime) {
+    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
         Handler handler = getHandler(tBase);
         if (logger.isDebugEnabled()) {
             logger.debug("handler name:" + handler.getClass().getName());
         }
-        AcceptedTime.setAcceptedTime(acceptedTime);
+        AcceptedTime.setAcceptedTime(System.currentTimeMillis());
         handler.handler(tBase, datagramPacket);
     }
 

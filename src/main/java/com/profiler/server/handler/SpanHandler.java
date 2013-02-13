@@ -60,9 +60,6 @@ public class SpanHandler implements Handler {
             }
 
             traceDao.insert(applicationName, span);
-
-            // indexing non-terminal span
-            ServiceType serviceType = ServiceType.findServiceType(span.getServiceType());
             traceIndexDao.insert(span);
             applicationTraceIndexDao.insert(applicationName, span);
             businessTransactionStatistics.update(applicationName, span);
@@ -72,17 +69,16 @@ public class SpanHandler implements Handler {
                 logger.info("handle subSpan size:{}", subSpanList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : subSpanList) {
-                    ServiceType subSpanServiceType = ServiceType.findServiceType(subSpan.getServiceType());
-                    
-					// skip
-					if (subSpanServiceType == ServiceType.INTERNAL_METHOD) {
+                    ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
+					// skip 인터널 메소드의 경우 통계정보의 추출이 필요 없다.
+					if (serviceType == ServiceType.INTERNAL_METHOD) {
 						continue;
 					}
 					
                     // if terminal update statistics
 					int elapsed = subSpan.getEndElapsed();
                     boolean hasException = SubSpanUtils.hasException(subSpan);
-                    if (subSpanServiceType.isRpcClient()) {
+                    if (serviceType.isRpcClient()) {
                         terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, hasException);
                     } else {
                         terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, hasException);

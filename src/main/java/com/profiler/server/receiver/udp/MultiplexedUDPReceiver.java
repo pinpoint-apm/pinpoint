@@ -34,6 +34,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     private AtomicBoolean state = new AtomicBoolean(true);
 
     public MultiplexedUDPReceiver(GenericApplicationContext context) {
+
         this.context = context;
         this.socket = createSocket();
         this.multiplexedPacketHandler = this.context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
@@ -133,11 +134,9 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     }
 
     private class DispatchPacket implements Runnable {
-        private final long acceptedTime;
         private final DatagramPacket packet;
 
         private DispatchPacket(DatagramPacket packet) {
-            this.acceptedTime = System.currentTimeMillis();
             this.packet = packet;
         }
 
@@ -145,7 +144,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
         public void run() {
 
             try {
-                multiplexedPacketHandler.handlePacket(packet, acceptedTime);
+                multiplexedPacketHandler.handlePacket(packet);
                 // packet에 대한 캐쉬를 해야 될듯.
                 // packet.return(); 등등
             } finally {

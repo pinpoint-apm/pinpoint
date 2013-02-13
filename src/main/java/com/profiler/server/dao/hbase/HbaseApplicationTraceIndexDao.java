@@ -5,6 +5,7 @@ import static com.profiler.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_CF_T
 
 import java.util.List;
 
+import com.profiler.server.util.AcceptedTime;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,9 +34,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		BytesUtils.writeInt(elapsedTime, value, 0);
 		BytesUtils.writeInt(span.getErr(), value, 4);
 
-		// TODO 서버가 받은 시간으로 변경해야 될듯.
-		Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(applicationName, span), span.getStartTime());
-		put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), value);
+        long acceptedTime = AcceptedTime.getAcceptedTime();
+        Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(applicationName, span));
+		put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, value);
 
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
 	}
