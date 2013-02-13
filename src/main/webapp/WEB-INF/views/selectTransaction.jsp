@@ -32,8 +32,10 @@
     <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-tree.js"></script>
     
-    <script type="text/javascript" src="/common/js/springy/springy.js"></script>
-    <script type="text/javascript" src="/common/js/springy/springyui.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/springyui.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -341,7 +343,7 @@
 		<p id="tree"></p>
 	</div>
 	<div class="tab-pane" id="Graph">
-		<canvas id="springygraph" width="960" height="10" />
+		<div id="springygraph" style="width:1160px;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
 	</div>
 	<div class="tab-pane" id="Sankey">
 		HIPPO개발자를 위한 차트입니다.<br/>
