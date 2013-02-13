@@ -400,7 +400,7 @@ d3.chart.scatter._renderer = function(){
 					html.push("<a href='#' onclick='openTrace(\"");
 					html.push(data[i].traceId);
 					html.push("\");'>");
-					html.push(new Date(data[i].startTime).format("HH:MM:ss L"));
+					html.push(new Date(data[i].startTime).format("HH:MM:ss l"));
 					html.push("</a>");
 					html.push("</td>");
 
