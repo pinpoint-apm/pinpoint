@@ -42,10 +42,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)10);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)11);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
-  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)13);
-  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)14);
-  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)15);
-  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)16);
+  private static final org.apache.thrift.protocol.TField REMOTE_ADDR_FIELD_DESC = new org.apache.thrift.protocol.TField("remoteAddr", org.apache.thrift.protocol.TType.STRING, (short)13);
+  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
+  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)15);
+  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)16);
+  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)17);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -65,6 +66,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private String serviceName; // required
   private short serviceType; // required
   private String endPoint; // required
+  private String remoteAddr; // optional
   private List<Annotation> annotations; // required
   private short flag; // optional
   private int err; // optional
@@ -84,10 +86,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     SERVICE_NAME((short)10, "serviceName"),
     SERVICE_TYPE((short)11, "serviceType"),
     END_POINT((short)12, "endPoint"),
-    ANNOTATIONS((short)13, "annotations"),
-    FLAG((short)14, "flag"),
-    ERR((short)15, "err"),
-    SUB_SPAN_LIST((short)16, "subSpanList");
+    REMOTE_ADDR((short)13, "remoteAddr"),
+    ANNOTATIONS((short)14, "annotations"),
+    FLAG((short)15, "flag"),
+    ERR((short)16, "err"),
+    SUB_SPAN_LIST((short)17, "subSpanList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -126,13 +129,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           return SERVICE_TYPE;
         case 12: // END_POINT
           return END_POINT;
-        case 13: // ANNOTATIONS
+        case 13: // REMOTE_ADDR
+          return REMOTE_ADDR;
+        case 14: // ANNOTATIONS
           return ANNOTATIONS;
-        case 14: // FLAG
+        case 15: // FLAG
           return FLAG;
-        case 15: // ERR
+        case 16: // ERR
           return ERR;
-        case 16: // SUB_SPAN_LIST
+        case 17: // SUB_SPAN_LIST
           return SUB_SPAN_LIST;
         default:
           return null;
@@ -185,7 +190,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
+  private _Fields optionals[] = {_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -212,6 +217,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.REMOTE_ADDR, new org.apache.thrift.meta_data.FieldMetaData("remoteAddr", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
@@ -297,6 +304,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (other.isSetEndPoint()) {
       this.endPoint = other.endPoint;
     }
+    if (other.isSetRemoteAddr()) {
+      this.remoteAddr = other.remoteAddr;
+    }
     if (other.isSetAnnotations()) {
       List<Annotation> __this__annotations = new ArrayList<Annotation>();
       for (Annotation other_element : other.annotations) {
@@ -341,6 +351,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setServiceTypeIsSet(false);
     this.serviceType = 0;
     this.endPoint = null;
+    this.remoteAddr = null;
     this.annotations = null;
     this.flag = (short)0;
 
@@ -617,6 +628,29 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
+  public String getRemoteAddr() {
+    return this.remoteAddr;
+  }
+
+  public void setRemoteAddr(String remoteAddr) {
+    this.remoteAddr = remoteAddr;
+  }
+
+  public void unsetRemoteAddr() {
+    this.remoteAddr = null;
+  }
+
+  /** Returns true if field remoteAddr is set (has been assigned a value) and false otherwise */
+  public boolean isSetRemoteAddr() {
+    return this.remoteAddr != null;
+  }
+
+  public void setRemoteAddrIsSet(boolean value) {
+    if (!value) {
+      this.remoteAddr = null;
+    }
+  }
+
   public int getAnnotationsSize() {
     return (this.annotations == null) ? 0 : this.annotations.size();
   }
@@ -835,6 +869,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
+    case REMOTE_ADDR:
+      if (value == null) {
+        unsetRemoteAddr();
+      } else {
+        setRemoteAddr((String)value);
+      }
+      break;
+
     case ANNOTATIONS:
       if (value == null) {
         unsetAnnotations();
@@ -908,6 +950,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case END_POINT:
       return getEndPoint();
 
+    case REMOTE_ADDR:
+      return getRemoteAddr();
+
     case ANNOTATIONS:
       return getAnnotations();
 
@@ -955,6 +1000,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetServiceType();
     case END_POINT:
       return isSetEndPoint();
+    case REMOTE_ADDR:
+      return isSetRemoteAddr();
     case ANNOTATIONS:
       return isSetAnnotations();
     case FLAG:
@@ -1085,6 +1132,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (!(this_present_endPoint && that_present_endPoint))
         return false;
       if (!this.endPoint.equals(that.endPoint))
+        return false;
+    }
+
+    boolean this_present_remoteAddr = true && this.isSetRemoteAddr();
+    boolean that_present_remoteAddr = true && that.isSetRemoteAddr();
+    if (this_present_remoteAddr || that_present_remoteAddr) {
+      if (!(this_present_remoteAddr && that_present_remoteAddr))
+        return false;
+      if (!this.remoteAddr.equals(that.remoteAddr))
         return false;
     }
 
@@ -1260,6 +1316,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetRemoteAddr()).compareTo(typedOther.isSetRemoteAddr());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRemoteAddr()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.remoteAddr, typedOther.remoteAddr);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetAnnotations()).compareTo(typedOther.isSetAnnotations());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1383,6 +1449,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       sb.append(this.endPoint);
     }
     first = false;
+    if (isSetRemoteAddr()) {
+      if (!first) sb.append(", ");
+      sb.append("remoteAddr:");
+      if (this.remoteAddr == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.remoteAddr);
+      }
+      first = false;
+    }
     if (!first) sb.append(", ");
     sb.append("annotations:");
     if (this.annotations == null) {
@@ -1553,7 +1629,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // ANNOTATIONS
+          case 13: // REMOTE_ADDR
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.remoteAddr = iprot.readString();
+              struct.setRemoteAddrIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 14: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
@@ -1572,7 +1656,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 14: // FLAG
+          case 15: // FLAG
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.flag = iprot.readI16();
               struct.setFlagIsSet(true);
@@ -1580,7 +1664,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 15: // ERR
+          case 16: // ERR
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.err = iprot.readI32();
               struct.setErrIsSet(true);
@@ -1588,7 +1672,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 16: // SUB_SPAN_LIST
+          case 17: // SUB_SPAN_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
@@ -1663,6 +1747,13 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeFieldBegin(END_POINT_FIELD_DESC);
         oprot.writeString(struct.endPoint);
         oprot.writeFieldEnd();
+      }
+      if (struct.remoteAddr != null) {
+        if (struct.isSetRemoteAddr()) {
+          oprot.writeFieldBegin(REMOTE_ADDR_FIELD_DESC);
+          oprot.writeString(struct.remoteAddr);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.annotations != null) {
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
@@ -1754,19 +1845,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetEndPoint()) {
         optionals.set(11);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetRemoteAddr()) {
         optionals.set(12);
       }
-      if (struct.isSetFlag()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(13);
       }
-      if (struct.isSetErr()) {
+      if (struct.isSetFlag()) {
         optionals.set(14);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetErr()) {
         optionals.set(15);
       }
-      oprot.writeBitSet(optionals, 16);
+      if (struct.isSetSubSpanList()) {
+        optionals.set(16);
+      }
+      oprot.writeBitSet(optionals, 17);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1803,6 +1897,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetEndPoint()) {
         oprot.writeString(struct.endPoint);
       }
+      if (struct.isSetRemoteAddr()) {
+        oprot.writeString(struct.remoteAddr);
+      }
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
@@ -1832,7 +1929,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(16);
+      BitSet incoming = iprot.readBitSet(17);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -1882,6 +1979,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setEndPointIsSet(true);
       }
       if (incoming.get(12)) {
+        struct.remoteAddr = iprot.readString();
+        struct.setRemoteAddrIsSet(true);
+      }
+      if (incoming.get(13)) {
         {
           org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<Annotation>(_list18.size);
@@ -1895,15 +1996,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(13)) {
+      if (incoming.get(14)) {
         struct.flag = iprot.readI16();
         struct.setFlagIsSet(true);
       }
-      if (incoming.get(14)) {
+      if (incoming.get(15)) {
         struct.err = iprot.readI32();
         struct.setErrIsSet(true);
       }
-      if (incoming.get(15)) {
+      if (incoming.get(16)) {
         {
           org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.subSpanList = new ArrayList<SubSpan>(_list21.size);

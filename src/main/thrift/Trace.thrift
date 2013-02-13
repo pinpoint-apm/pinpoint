@@ -49,13 +49,14 @@ struct Span {
   10: string serviceName
   11: i16 serviceType
   12: string endPoint
+  13: optional string remoteAddr 
   
-  13: list<Annotation> annotations
-  14: optional i16 flag = 0
+  14: list<Annotation> annotations
+  15: optional i16 flag = 0
 
-  15: optional i32 err
+  16: optional i32 err
 
-  16: optional list<SubSpan> subSpanList
+  17: optional list<SubSpan> subSpanList
 }
 
 struct SubSpanList {

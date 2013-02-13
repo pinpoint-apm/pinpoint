@@ -55,6 +55,8 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     private long serverAcceptedTime;
 
+    
+    private String remoteAddr; // optional
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
@@ -76,6 +78,8 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.flag = span.getFlag();
 
         this.exception = span.getErr();
+        
+        this.remoteAddr = span.getRemoteAddr();
         
         setAnnotationList(span.getAnnotations());
     }
@@ -274,8 +278,16 @@ public class SpanBo implements com.profiler.common.bo.Span {
 	public void setException(int exception) {
 		this.exception = exception;
 	}
+	
+    public String getRemoteAddr() {
+		return remoteAddr;
+	}
 
-    public long getServerAcceptedTime() {
+	public void setRemoteAddr(String remoteAddr) {
+		this.remoteAddr = remoteAddr;
+	}
+
+	public long getServerAcceptedTime() {
         return serverAcceptedTime;
     }
 
@@ -283,10 +295,10 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serverAcceptedTime = serverAcceptedTime;
     }
 
-    private int getBufferLength(int a, int b, int c, int d) {
-        int size = a + b + c + d;
-        size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
-        // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
+    private int getBufferLength(int a, int b, int c, int d, int e) {
+	    int size = a + b + c + d + e;
+	    size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
+	    // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
         size += PARENTSPANID + SERVICETYPE + AGENTIDENTIFIER + EXCEPTION_SIZE;
         if (flag != 0) {
@@ -302,8 +314,9 @@ public class SpanBo implements com.profiler.common.bo.Span {
         byte[] rpcBytes = BytesUtils.getBytes(rpc);
         byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
         byte[] endPointBytes = BytesUtils.getBytes(endPoint);
+        byte[] remoteAddrBytes = BytesUtils.getBytes(remoteAddr);
 
-        int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length);
+        int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length, remoteAddrBytes.length);
 
         Buffer buffer = new FixedBuffer(bufferLength);
 
@@ -325,6 +338,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         buffer.put1PrefixedBytes(serviceNameBytes);
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
+        buffer.put1PrefixedBytes(remoteAddrBytes);
         
         buffer.put(exception);
         
@@ -357,6 +371,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.serviceName = buffer.read1UnsignedPrefixedString();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
+        this.remoteAddr = buffer.read1UnsignedPrefixedString();
         
         this.exception = buffer.readInt();
         
@@ -369,6 +384,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     @Override
     public String toString() {
-		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + ", serviceType=" + serviceType + ", subSpans=" + subSpanList + "}";
+		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + ", remoteAddr=" + remoteAddr + ", serviceType=" + serviceType + ", subSpans=" + subSpanList + "}";
     }
 }
