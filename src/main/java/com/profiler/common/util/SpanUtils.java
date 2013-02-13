@@ -8,14 +8,12 @@ import com.profiler.common.dto.thrift.SubSpanList;
 
 public class SpanUtils {
 
-	public static byte[] getTraceIndexRowKey(Span span) {
-		// TODO 서버가 받은 시간을 키로 사용해야 될듯 함???
-		return getTraceIndexRowKey(span.getAgentId(), span.getStartTime());
+	public static byte[] getAgentIdTraceIndexRowKey(String agentId, long acceptedTime) {
+		return getTraceIndexRowKey(agentId, acceptedTime);
 	}
 
-	public static byte[] getApplicationTraceIndexRowKey(String applicationName, Span span) {
-		// TODO 서버가 받은 시간을 키로 사용해야 될듯 함???
-		return getTraceIndexRowKey(applicationName, span.getStartTime());
+	public static byte[] getApplicationTraceIndexRowKey(String applicationName, long acceptedTime) {
+		return getTraceIndexRowKey(applicationName, acceptedTime);
 	}
 
 	public static byte[] getTraceIndexRowKey(byte[] agentId, long time) {

@@ -36,7 +36,7 @@ create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
 create 'TerminalStatistics', { NAME => 'Counter' , TTL => 259200  }, { NAME => 'ErrorCount' , TTL => 259200  }
 create 'SqlMetaData', { NAME => 'Sql' , TTL => 259200  }
 create 'ApiMetaData', { NAME => 'Api' , TTL => 259200  }
-create 'BusinessTransactionStatistics', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Err' , TTL => 259200  }
+create 'BusinessTransactionStatistics', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Error' , TTL => 259200  }
 
 list
 EOF

@@ -56,7 +56,7 @@ public class SpanUtilsTest {
         span.setAgentId(agentId0);
         span.setStartTime(l1);
 
-        byte[] traceIndexRowKey = SpanUtils.getTraceIndexRowKey(span);
+        byte[] traceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), span.getStartTime());
 
         String agentId = Bytes.toString(traceIndexRowKey, 0, 24).trim();
         Assert.assertEquals(agentId0, agentId);
