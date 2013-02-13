@@ -111,10 +111,10 @@ public enum ServiceType {
 
     public static void initializeLookupTable() {
         ServiceType[] values = ServiceType.values();
-        for (ServiceType servieceType : values) {
-            ServiceType check = CODE_LOOKUP_TABLE.put(servieceType.code, servieceType);
+        for (ServiceType serviceType : values) {
+            ServiceType check = CODE_LOOKUP_TABLE.put(serviceType.code, serviceType);
             if (check != null) {
-                throw new IllegalStateException("duplicated code found. code:" + servieceType.code);
+                throw new IllegalStateException("duplicated code found. code:" + serviceType.code);
             }
         }
     }

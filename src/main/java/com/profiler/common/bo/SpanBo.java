@@ -47,12 +47,14 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private String endPoint;
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
+    private int exception;
 
     private List<SubSpanBo> subSpanList;
 
     private int recursiveCallCount = 0;
 
-    private int exception;
+    private long serverAcceptedTime;
+
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
@@ -272,6 +274,14 @@ public class SpanBo implements com.profiler.common.bo.Span {
 	public void setException(int exception) {
 		this.exception = exception;
 	}
+
+    public long getServerAcceptedTime() {
+        return serverAcceptedTime;
+    }
+
+    public void setServerAcceptedTime(long serverAcceptedTime) {
+        this.serverAcceptedTime = serverAcceptedTime;
+    }
 
     private int getBufferLength(int a, int b, int c, int d) {
         int size = a + b + c + d;
