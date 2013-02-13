@@ -1,18 +1,18 @@
 package com.nhn.hippo.web.vo.scatter;
 
 public class Dot {
-	private final int exceptionCode;
-	private final int executionTime;
-	private final long timestamp;
-	private String traceId;
+    private String traceId;
+    private final long timestamp;
+    private final int executionTime;
+    private final int exceptionCode;
 
-	public Dot(int exceptionCode, int executionTime, long timestamp, String traceId) {
-		super();
-		this.exceptionCode = exceptionCode;
-		this.executionTime = executionTime;
-		this.timestamp = timestamp;
-		this.traceId = traceId;
-	}
+
+	public Dot(String traceId, long acceptedTime, int executionTime, int exceptionCode) {
+        this.traceId = traceId;
+        this.timestamp = acceptedTime;
+        this.executionTime = executionTime;
+        this.exceptionCode = exceptionCode;
+    }
 
 	public String getTraceId() {
 		return traceId;
@@ -36,6 +36,7 @@ public class Dot {
 
 	@Override
 	public String toString() {
+
 		return "Dot [exceptionCode=" + exceptionCode + ", executionTime=" + executionTime + ", timestamp=" + timestamp + ", traceId=" + traceId + "]";
 	}
 }

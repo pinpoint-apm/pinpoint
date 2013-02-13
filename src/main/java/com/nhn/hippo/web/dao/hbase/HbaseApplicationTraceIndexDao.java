@@ -80,7 +80,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 		scan.setStopRow(traceIndexEndKey);
 		scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
-		scan.setId("traceIndexScan");
+		scan.setId("ApplicationTraceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
 		logger.debug("create scan:{}", scan);
@@ -109,14 +109,17 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 					KeyValue[] raw = result.raw();
 					for (KeyValue kv : raw) {
 						byte[] v = kv.getValue();
-						
+
 						int elapsed = BytesUtils.bytesToInt(v, 0);
-						int resultCode = BytesUtils.bytesToInt(v, 4);
-						long timestamp = BytesUtils.bytesToLong(kv.getRow(), 24);
+						int exceptionCode = BytesUtils.bytesToInt(v, 4);
+
+						long acceptedTime = BytesUtils.bytesToLong(kv.getRow(), 24);
+
 						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
 						String traceId = new UUID(tid[0], tid[1]).toString();
 
-						list.add(new Dot(resultCode, elapsed, timestamp, traceId));
+                        Dot dot = new Dot(traceId, acceptedTime, elapsed, exceptionCode);
+                        list.add(dot);
 					}
 
 					if (list.size() >= limit) {

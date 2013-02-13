@@ -390,7 +390,7 @@ public class SpanServiceImpl implements SpanService {
         for (List<SpanBo> spans : selectedSpans) {
             for (SpanBo span : spans) {
                 // check UUID and time
-                if (query.isExists(span.getMostTraceId(), span.getLeastTraceId(), span.getStartTime(), span.getElapsed())) {
+                if (query.isExists(span.getMostTraceId(), span.getLeastTraceId(), span.getServerAcceptedTime(), span.getElapsed())) {
                     result.add(span);
                 }
             }

@@ -33,12 +33,14 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
 			int elapsed = BytesUtils.bytesToInt(v, 0);
 			int exceptionCode = BytesUtils.bytesToInt(v, 4);
-			long timestamp = BytesUtils.bytesToLong(kv.getRow(), 24);
+
+			long acceptedTime = BytesUtils.bytesToLong(kv.getRow(), 24);
 
 			long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
 			String traceId = new UUID(tid[0], tid[1]).toString();
 
-			list.add(new Dot(exceptionCode, elapsed, timestamp, traceId));
+             Dot dot = new Dot(traceId, acceptedTime, elapsed, exceptionCode);
+            list.add(dot);
 		}
 
 		return list;
