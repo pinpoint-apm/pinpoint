@@ -11,7 +11,8 @@
 			"application" : "${v.rpc}",
 			"agentId" : "${v.agentId}",
 			"endpoint" : "${v.endPoint}",
-			"exception" : ${v.exception}
+			"exception" : ${v.exception},
+			"remoteAddr" : "${v.remoteAddr}"
 		}
     	<c:if test="${!status.last}">,</c:if>
 		</c:forEach>

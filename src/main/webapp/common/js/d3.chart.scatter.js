@@ -380,21 +380,23 @@ d3.chart.scatter._renderer = function(){
 				
 				var html = [];
 				for (var i = 0; i < data.length; i++) {
+						
 					if(data[i].exception) {
-						html.push("<tr class='error' style='cursor:pointer'");
+						html.push("<tr class='error'>");
 					} else {
-						html.push("<tr style='cursor:pointer'");
+						html.push("<tr>");
 					}
-					html.push(" onclick='openTrace(\"");
-					html.push(data[i].traceId);
-					html.push("\");'>");
 
 					html.push("<td style='padding-right:5px;text-align:right'>");
 					html.push(i + 1);
 					html.push("</td>");
 
 					html.push("<td>");
+					html.push("<a href='#' onclick='openTrace(\"");
+					html.push(data[i].traceId);
+					html.push("\");'>");
 					html.push(new Date(data[i].startTime).format("HH:MM:ss L"));
+					html.push("</a>");
 					html.push("</td>");
 
 					html.push("<td style='padding-right:30px;text-align:right'>");
@@ -416,6 +418,9 @@ d3.chart.scatter._renderer = function(){
 					html.push("</td>");
 					
 					html.push("<td>");
+					html.push("<a href='#' onclick=\"alert('not implemented. ip정보 조회 페이지로 연결.');\">");
+					html.push(data[i].remoteAddr);
+					html.push("</a>");
 					html.push("</td>");
 
 					html.push("</tr>");
