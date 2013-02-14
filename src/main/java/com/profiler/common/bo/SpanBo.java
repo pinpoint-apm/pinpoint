@@ -53,7 +53,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     private int recursiveCallCount = 0;
 
-    private long serverAcceptedTime;
+    private long collectorAcceptTime;
 
     
     private String remoteAddr; // optional
@@ -287,12 +287,12 @@ public class SpanBo implements com.profiler.common.bo.Span {
 		this.remoteAddr = remoteAddr;
 	}
 
-	public long getServerAcceptedTime() {
-        return serverAcceptedTime;
+	public long getCollectorAcceptTime() {
+        return collectorAcceptTime;
     }
 
-    public void setServerAcceptedTime(long serverAcceptedTime) {
-        this.serverAcceptedTime = serverAcceptedTime;
+    public void setCollectorAcceptTime(long collectorAcceptTime) {
+        this.collectorAcceptTime = collectorAcceptTime;
     }
 
     private int getBufferLength(int a, int b, int c, int d, int e) {
