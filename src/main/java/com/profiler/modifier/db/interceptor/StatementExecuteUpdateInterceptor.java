@@ -48,7 +48,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
 
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-            trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+            trace.recordRpcName(databaseInfo.getExecuteQueryType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
             trace.recordApi(descriptor);
             if (args.length > 0) {

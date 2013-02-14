@@ -7,16 +7,18 @@ import com.profiler.common.ServiceType;
  */
 public class DatabaseInfo {
 
-	ServiceType type = ServiceType.UNKNOWN;
-	String databaseId;
+	private ServiceType type = ServiceType.UNKNOWN;
+    private ServiceType executeQueryType = ServiceType.UNKNOWN;
+    private String databaseId;
 	// 입력된 url을 보정하지 않은 값
-	String realUrl;
-	String normalizedUrl;
-	String host;
-	String port;
+    private String realUrl;
+    private String normalizedUrl;
+    private String host;
+    private String port;
 
-	public DatabaseInfo(ServiceType type, String realUrl, String normalizedUrl, String host, String port, String databaseId) {
+	public DatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, String host, String port, String databaseId) {
 		this.type = type;
+        this.executeQueryType = executeQueryType;
 		this.realUrl = realUrl;
 		this.normalizedUrl = normalizedUrl;
 		this.host = host;
@@ -52,8 +54,22 @@ public class DatabaseInfo {
 		return type;
 	}
 
-	@Override
-	public String toString() {
-		return "DatabaseInfo{" + "type=" + type + ", databaseId='" + databaseId + '\'' + ", realUrl='" + realUrl + '\'' + ", normalizedUrl='" + normalizedUrl + '\'' + ", host='" + host + '\'' + ", port='" + port + '\'' + '}';
-	}
+    public ServiceType getExecuteQueryType() {
+        return executeQueryType;
+    }
+
+    @Override
+    public String toString() {
+        return "DatabaseInfo{" +
+                "type=" + type +
+                ", executeQueryType=" + executeQueryType +
+                ", databaseId='" + databaseId + '\'' +
+                ", realUrl='" + realUrl + '\'' +
+                ", normalizedUrl='" + normalizedUrl + '\'' +
+                ", host='" + host + '\'' +
+                ", port='" + port + '\'' +
+                '}';
+    }
+
+
 }

@@ -50,7 +50,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         trace.markBeforeTime();
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-            trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+            trace.recordRpcName(databaseInfo.getExecuteQueryType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
             trace.recordEndPoint(databaseInfo.getUrl());
             ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
 

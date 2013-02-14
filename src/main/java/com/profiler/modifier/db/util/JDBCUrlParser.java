@@ -15,7 +15,7 @@ public class JDBCUrlParser {
             return parseOracle(url);
         }
 
-        return new DatabaseInfo(ServiceType.UNKNOWN, url, url, "error", "error", "error");
+        return new DatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, "error", "error", "error");
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -76,6 +76,6 @@ public class JDBCUrlParser {
         String port = maker.next().after(':').before('/').value();
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DatabaseInfo(ServiceType.MYSQL, url, normalizedUrl, host, port, databaseId);
+        return new DatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, host, port, databaseId);
     }
 }
