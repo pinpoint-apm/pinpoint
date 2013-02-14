@@ -10,3 +10,49 @@ function formatNumber(num) {
 
 	return n;
 }
+
+function sliceTimeSpan(start, end) {
+	console.log("Slice the time. " + new Date(start) + " (" + start + ") ~ " + new Date(end) + "(" + end + ")");
+	
+	var chunk = 10 * 60 * 1000;
+	
+	if (end - start < chunk) {
+		return [{
+			'start' : start,
+			'end' : end
+		}];
+	}
+	
+	var timeslot = [];
+	var s = start;
+	var e = s + chunk;
+	
+	timeslot.push({
+		'start' : s,
+		'end' : e
+	});
+	
+	while (true) {
+		if (e >= end) {
+			break;
+		}
+		
+		s = e + 1; // plus 1ms
+		e = s + chunk;
+
+		if (e > end) {
+			e = end;
+			timeslot.push({
+				'start' : s,
+				'end' : e
+			});
+			break;
+		} else {
+			timeslot.push({
+				'start' : s,
+				'end' : e
+			});
+		}
+	}
+	return $(timeslot);
+}

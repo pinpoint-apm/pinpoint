@@ -27,7 +27,7 @@ import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.bo.SpanBo;
 
 /**
- * retrieve data for drawing call tree.
+ * 각종 차트의 데이터를 조회한다.
  * 
  * @author netspider
  */
@@ -42,27 +42,22 @@ public class FlowChartController {
 	@Autowired
 	private SpanService spanService;
 
+	// Ajax UI개발 테스트를 위해 추가함. crossdomain문제 해결용도.
 	private void addResponseHeader(final HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*.*");
 	}
 
-	@Deprecated
-	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
-	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
-		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
-
-		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
-
-		model.addAttribute("nodes", callTree.getNodes());
-		model.addAttribute("links", callTree.getLinks());
-
-		logger.debug("callTree:{}", callTree);
-
-		return "flow";
+	/**
+	 * 항상 3초 전 데이터를 조회한다. 이것은 collector에서 지연되는 상황에 대한 처리.
+	 * 
+	 * @return
+	 */
+	private long getQueryEndTime() {
+		return System.currentTimeMillis() - 3000L;
 	}
 
-	@RequestMapping(value = "/servermap", method = RequestMethod.GET)
-	public String servermap(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
+	public String getServerMapData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TODO 제거 하거나, interceptor로 할것.
 		StopWatch watch = new StopWatch();
 		watch.start("scanTraceindex");
@@ -87,8 +82,25 @@ public class FlowChartController {
 		return "servermap";
 	}
 
-	@RequestMapping(value = "/businesstransactions", method = RequestMethod.GET)
-	public String businesstransactions(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
+	public String getLastServerMapData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period) {
+		long to = getQueryEndTime();
+		long from = to - period;
+		return getServerMapData(model, response, applicationName, from, to);
+	}
+
+	/**
+	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	@RequestMapping(value = "/getBusinessTransactionsData", method = RequestMethod.GET)
+	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 
 		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
@@ -101,24 +113,27 @@ public class FlowChartController {
 		return "businesstransactions";
 	}
 
-	@RequestMapping(value = "/scatter", method = RequestMethod.GET)
-	public String scatter(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
-		StopWatch watch = new StopWatch();
-		watch.start("selectScatterData");
-
-		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to);
-		watch.stop();
-
-		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-
-		model.addAttribute("scatter", scatterData);
-
-		addResponseHeader(response);
-		return "scatter";
+	@RequestMapping(value = "/getLastBusinessTransactionsData", method = RequestMethod.GET)
+	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period) {
+		long to = getQueryEndTime();
+		long from = to - period;
+		return getBusinessTransactionsData(model, response, applicationName, from, to);
 	}
-	
-	@RequestMapping(value = "/scatter2", method = RequestMethod.GET)
-	public String scatter2(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
+
+	/**
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param from
+	 * @param to
+	 * @param limit
+	 *            한번에 조회 할 데이터의 크기, 조회 결과가 이 크기를 넘어가면 limit개만 반환한다. 나머지는 다시 요청해서
+	 *            조회해야 한다.
+	 * @return
+	 */
+	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
+	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
@@ -132,7 +147,24 @@ public class FlowChartController {
 		addResponseHeader(response);
 		return "scatter";
 	}
-	
+
+	/**
+	 * NOW 버튼을 눌렀을 때 scatter 데이터 조회.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param from
+	 * @param limit
+	 * @return
+	 */
+	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
+	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit) {
+		long to = getQueryEndTime();
+		long from = to - period;
+		return getScatterData(model, response, applicationName, from, to, limit);
+	}
+
 	/**
 	 * scatter 실시간 갱신에서는 to 시간을 지정하지 않는다. server time을 사용하고 조회된 시간 범위를 반환해준다.
 	 * UI에서는 반환된 조회 범위를 참조해서 다음 쿼리를 요청한다.
@@ -145,34 +177,41 @@ public class FlowChartController {
 	 * @param limit
 	 * @return
 	 */
-	@RequestMapping(value = "/scatter2realtime", method = RequestMethod.GET)
-	public String scatter2realtime(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("limit") int limit) {
+	@RequestMapping(value = "/getRealtimeScatterData", method = RequestMethod.GET)
+	public String getRealtimeScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("limit") int limit) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		long to = System.currentTimeMillis() - 3000L;
-		
+		long to = getQueryEndTime();
+
 		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
 		watch.stop();
-		
+
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-		
+
 		model.addAttribute("scatter", scatterData);
 		model.addAttribute("queryFrom", from);
-		
+
 		if (scatterData.size() >= limit) {
 			model.addAttribute("queryTo", scatterData.get(scatterData.size() - 1).getTimestamp());
 		} else {
 			model.addAttribute("queryTo", to);
 		}
-		
+
 		model.addAttribute("limit", limit);
-		
+
 		addResponseHeader(response);
 		return "scatterRealtime";
 	}
 
-	// TODO UI에서 한꺼번에 많은 데이터를 조회하지 않도록 제한해야함.
+	/**
+	 * scatter에서 점 여러개를 선택했을 때 점에 대한 정보를 조회한다.
+	 * 
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = "/requestmetadata", method = RequestMethod.GET)
 	public String requestmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
 		String TRACEID = "tr";
@@ -205,8 +244,8 @@ public class FlowChartController {
 	}
 
 	@Deprecated
-	@RequestMapping(value = "/flow2", method = RequestMethod.GET)
-	public String flowbyHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/flowRpcbyHost", method = RequestMethod.GET)
+	public String flowRpcbyHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
 		Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
 
@@ -221,8 +260,8 @@ public class FlowChartController {
 	}
 
 	@Deprecated
-	@RequestMapping(value = "/flowserver2", method = RequestMethod.GET)
-	public String flowserverByHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
+	@RequestMapping(value = "/flowserverByHost", method = RequestMethod.GET)
+	public String flowServerByHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
 
 		// TODO 제거 하거나, interceptor로 할것.
@@ -246,5 +285,20 @@ public class FlowChartController {
 		logger.debug("callTree:{}", callTree);
 
 		return "flowserver";
+	}
+
+	@Deprecated
+	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
+	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+
+		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
+
+		model.addAttribute("nodes", callTree.getNodes());
+		model.addAttribute("links", callTree.getLinks());
+
+		logger.debug("callTree:{}", callTree);
+
+		return "flow";
 	}
 }

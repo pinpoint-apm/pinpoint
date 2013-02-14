@@ -239,30 +239,48 @@ function openTrace(uuid) {
 $(document).ready(function () {
 	function getServerMapData(begin, end, callback) {
 	    var application = $("#application").val();
-		d3.json("/servermap.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+		d3.json("/getServerMapData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getLastServerMapData(period, callback) {
+	    var application = $("#application").val();
+		d3.json("/getLastServerMapData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
 	}
 	
 	function getScatterData(begin, end, callback) {
 	    var application = $("#application").val();
-		d3.json("/scatter2.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
+		d3.json("/getScatterData.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
+	}
+	
+	function getLastScatterData(period, callback) {
+	    var application = $("#application").val();
+		d3.json("/getLastScatterData.hippo?application=" + application + "&period=" + period + "&limit=5000", function(d) { callback(d); });
 	}
 	
 	function getRealtimeScatterData(begin, callback) {
 	    var application = $("#application").val();
-		d3.json("/scatter2realtime.hippo?application=" + application + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
+		d3.json("/getRealtimeScatterData.hippo?application=" + application + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
 	}
 	
 	function getBusinessTransactionsData(begin, end, callback) {
 	    var application = $("#application").val();
-		d3.json("/businesstransactions.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+		d3.json("/getBusinessTransactionsData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
 	}
 	
-	function getStartTime() {
-		var period = $("#period").find("button.active").val().split(",") * 1000 * 60;
-		return getEndTime() - period;
+	function getLastBusinessTransactionsData(period, callback) {
+	    var application = $("#application").val();
+		d3.json("/getLastBusinessTransactionsData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
+	}
+	
+	function getQueryPeriod() {
+		return $("#period").find("button.active").val().split(",") * 1000 * 60;
+	}
+	
+	function getQueryStartTime() {
+		return getQueryEndTime() - getQueryPeriod();
 	}
 
-	function getEndTime() {
+	function getQueryEndTime() {
  		var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
 			now = new Date(),
 			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
@@ -273,7 +291,7 @@ $(document).ready(function () {
 		return input.getTime();
 	}
 	
-   	function now() {
+   	function setQueryDateToNow() {
 	   	var date = new Date();
 	   	var format_date = d3.time.format("%Y/%m/%d"),
 	   		format_time = d3.time.format("%H:%M:%S");
@@ -288,16 +306,20 @@ $(document).ready(function () {
 	function hideIndicator() {
 		$(".indicator").hide();
 	}
+	
+	function isQueryFromNow() {
+		return $(".btn#now.active").length > 0;
+	}
 
    	$('#date').datepicker().on('changeDate', function(ev){
-   		update();
+   		updateCharts();
 	});
 	
 	$('#time').bind('focus', function(e){
 		$(this).data("time", $(this).val());
 	}).bind('blur', function(e){
 		if ($(this).data("time") !== $(this).val()) {
-	   		update();
+	   		updateCharts();
 		}
 	});
 	
@@ -310,9 +332,9 @@ $(document).ready(function () {
    		if ($this.attr("id") === "now") {
    			$("#date").attr("disabled", "").val("");
    			$("#time").attr("disabled", "").val("");
-	   		update();
+	   		updateCharts();
    		} else {
-   			now();
+   			setQueryDateToNow();
    			$("#date").attr("disabled", null);
    			$("#time").attr("disabled", null);
    		}
@@ -323,7 +345,7 @@ $(document).ready(function () {
    		
    		$this.siblings(".btn-inverse").removeClass("btn-inverse active");
    		$this.addClass("btn-inverse active");
-   		update();
+   		updateCharts();
    		$("#auto_refresh").trigger("change");
    	});
    	
@@ -335,20 +357,20 @@ $(document).ready(function () {
 			console.log("[auto-refresh] started.")
 			
 			clearInterval(timer);
-	    	now();
-		    update();
+			setQueryDateToNow();
+		    updateCharts();
 		    
-		    var from = getStartTime();
+		    var from = getQueryStartTime();
 		    
 			timer = setInterval(function() {
-				now();
+				setQueryDateToNow();
 				console.log("[auto-refresh] fetching data from=" + from);
 				
 		        getRealtimeScatterData(from, function(data) {
 		        	console.log("[auto-refresh] data fetched. " + data.scatter.length);
-		        	console.log(getStartTime());
-		        	console.log(getEndTime());
-			        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+		        	console.log(getQueryStartTime());
+		        	console.log(getQueryEndTime());
+			        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
 		        	from = data.queryTo + 1;
 		        });
 			}, 3000);
@@ -372,53 +394,7 @@ $(document).ready(function () {
         $('#transactionTabs a:first').tab('show');		
 	}
 	
-	function sliceTimeSpan(start, end) {
-		console.log("Slice the time. " + new Date(start) + " (" + start + ") ~ " + new Date(end) + "(" + end + ")");
-		
-		var chunk = 10 * 60 * 1000;
-		
-		if (end - start < chunk) {
-			return [{
-				'start' : start,
-				'end' : end
-			}];
-		}
-		
-		var timeslot = [];
-		var s = start;
-		var e = s + chunk;
-		
-		timeslot.push({
-			'start' : s,
-			'end' : e
-		});
-		
-		while (true) {
-			if (e >= end) {
-				break;
-			}
-			
-			s = e + 1; // plus 1ms
-			e = s + chunk;
-
-			if (e > end) {
-				e = end;
-				timeslot.push({
-					'start' : s,
-					'end' : e
-				});
-				break;
-			} else {
-				timeslot.push({
-					'start' : s,
-					'end' : e
-				});
-			}
-		}
-		return $(timeslot);
-	}
-	
-    function update() {
+    function updateCharts() {
     	if($("#application").val() == "") {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;
@@ -426,32 +402,24 @@ $(document).ready(function () {
 
     	cleanup();
     	showIndicator();
-        
-    	// display chart
-        getServerMapData(getStartTime(), getEndTime(), function(data) {
+    	
+    	var serverMapCallback = function(data) {
         	if (data.graphdata.nodes.length == 0) {
 	        	hideIndicator();
         	}
-        	
 	        drawSpringy(data.graphdata, "#springygraph", 1100, 500);
 	        drawTree(data.graphdata, "#tree", 1100, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 1100, 500);
-	        
         	hideIndicator();
-        });
-        
-    	// display business transactions
-        getBusinessTransactionsData(getStartTime(), getEndTime(), function(data) {
-        	showTransactionList(data.businessTransactions);
-        });
-        
-    	// scatter 껍데기 먼저 그린다.
-        drawScatter(getStartTime(), getEndTime(), "#scatter");
-        getScatterData(getStartTime(), getEndTime(), function(data) {
-        	hideIndicator();
-        	
+        };
+    	
+    	var businessTransactionCallback = function(data) {
+           	showTransactionList(data.businessTransactions);
+    	};
+    	
+        var scatterCallback = function(data) {
         	// 처음 조회된 데이터를 그려준다.
-	        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+	        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
 	        
 	        if (data.scatter.length == 0) {
 	        	return;
@@ -459,30 +427,35 @@ $(document).ready(function () {
 	        
 	        // 데이터 조회가 추가로 필요한지 확인한다.
 	        var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
+	        
+	        if (lastTimeStamp >= getQueryEndTime()) {
+	        	return;
+	        }
+	        
 	        var queryNext = true;
 	        
 	        var fetch = function() {
         		console.log("fetch scatter data");
         		clearInterval(scatterFetchTimer);
         		
-				if(!queryNext || lastTimeStamp >= getEndTime()) {
+				if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
 			        scatter.hideProgressbar();
 					console.log("fetching scatter data finished.");
 					return;
 				}
 				
 	        	try {
-	        		scatter.showProgressbar(lastTimeStamp + 1, getEndTime());
+	        		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
 	        		console.log("fetching scatter data.");
 	        		
-		        	getScatterData(lastTimeStamp + 1, getEndTime(), function(data2) {
+		        	getScatterData(lastTimeStamp + 1, getQueryEndTime(), function(data2) {
 		        		console.log("fetched " + data2.scatter.length);
 		        		scatter.hideProgressbar();
 		    	        if (data2.scatter.length == 0) {
 		    	        	queryNext = false;
 		    	        	return;
 		    	        }
-				        updateScatter(getStartTime(), getEndTime(), data2.scatter, "#scatter");
+				        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
 		        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
 		        		scatterFetchTimer = setInterval(fetch, 200);
 		        	});
@@ -491,7 +464,19 @@ $(document).ready(function () {
 	        	}
 	        }
 	        var scatterFetchTimer = setInterval(fetch, 200);
-        });
+        };
+    	
+        if (isQueryFromNow()) {
+	        getLastServerMapData(getQueryPeriod(), serverMapCallback);
+	        getLastBusinessTransactionsData(getQueryPeriod(), businessTransactionCallback);
+	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getLastScatterData(getQueryPeriod(), scatterCallback);
+        } else {
+	        getServerMapData(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        getBusinessTransactionsData(getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getScatterData(getQueryStartTime(), getQueryEndTime(), scatterCallback);
+        }
     }
 	
     $("#application").select2({
