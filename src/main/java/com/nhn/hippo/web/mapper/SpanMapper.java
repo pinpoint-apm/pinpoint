@@ -54,7 +54,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 SpanBo spanBo = new SpanBo();
                 spanBo.setMostTraceId(most);
                 spanBo.setLeastTraceId(least);
-                spanBo.setServerAcceptedTime(kv.getTimestamp());
+                spanBo.setCollectorAcceptTime(kv.getTimestamp());
 
                 spanBo.setSpanID(Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset()));
                 spanBo.readValue(kv.getBuffer(), kv.getValueOffset());
