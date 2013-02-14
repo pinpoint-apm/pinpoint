@@ -1,36 +1,41 @@
 package com.profiler.common.util;
 
+import com.profiler.common.Histogram;
+import com.profiler.common.HistogramSlot;
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 import com.profiler.common.ServiceType;
 
+import java.util.List;
+
 public class TerminalSpanUtilsTest {
 
 	@Test
 	public void column() {
-		short t = ServiceType.ARCUS.getCode();
-		String a = "Hello, World.";
+		short arcusCode = ServiceType.ARCUS.getCode();
+		String name = "Hello, World.";
 
-		short[] slots = ServiceType.ARCUS.getHistogramSlots();
+		Histogram arcusHistogram = ServiceType.ARCUS.getHistogram();
+        List<HistogramSlot> histogramSlotList = arcusHistogram.getHistogramSlotList();
+        for (int i = 0; i < histogramSlotList.size(); i++) {
+			HistogramSlot slot = histogramSlotList.get(i);
+            short slotTime = (short) slot.getSlotTime();
 
-		for (int i = 0; i < slots.length; i++) {
-			short slot = slots[i];
+            byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, slotTime - 1);
 
-			byte[] columnName = TerminalSpanUtils.makeColumnName(t, a, slot - 1);
-
-			Assert.assertEquals(t, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
-			Assert.assertEquals(slot, TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
-			Assert.assertEquals(a, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
+			Assert.assertEquals(arcusCode, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
+			Assert.assertEquals(slot.getSlotTime(), TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
+			Assert.assertEquals(name, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
 		}
 
 		// check max value
-		byte[] columnName = TerminalSpanUtils.makeColumnName(t, a, 100000);
+		byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, 100000);
 
-		Assert.assertEquals(t, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
-		Assert.assertEquals(slots[slots.length - 1], TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
-		Assert.assertEquals(a, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
+		Assert.assertEquals(arcusCode, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
+		Assert.assertEquals(0, TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
+		Assert.assertEquals(name, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
 	}
 
 	@Test
