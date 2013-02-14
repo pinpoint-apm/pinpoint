@@ -70,11 +70,10 @@ public class SpanHandler implements Handler {
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : subSpanList) {
                     ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
-					// skip 인터널 메소드의 경우 통계정보의 추출이 필요 없다.
-					if (serviceType == ServiceType.INTERNAL_METHOD) {
-						continue;
-					}
-					
+					if(!serviceType.isRecordStatistics()) {
+                        continue;
+                    }
+
                     // if terminal update statistics
 					int elapsed = subSpan.getEndElapsed();
                     boolean hasException = SubSpanUtils.hasException(subSpan);
