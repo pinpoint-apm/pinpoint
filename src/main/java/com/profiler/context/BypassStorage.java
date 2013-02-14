@@ -8,6 +8,13 @@ import com.profiler.sender.DataSender;
 public class BypassStorage implements Storage {
     private DataSender dataSender;
 
+    public BypassStorage() {
+    }
+
+    public BypassStorage(DataSender dataSender) {
+        this.dataSender = dataSender;
+    }
+
     @Override
     public void setDataSender(DataSender dataSender) {
         this.dataSender = dataSender;

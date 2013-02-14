@@ -10,8 +10,8 @@ import java.util.logging.Logger;
  */
 public class LoggingDataSender implements DataSender {
 
-    private static Logger logger = Logger.getLogger(LoggingDataSender.class.getName());
-    public static DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
+    private static final Logger logger = Logger.getLogger(LoggingDataSender.class.getName());
+    public static final DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
 
     @Override
     public boolean send(TBase<?, ?> data) {

@@ -17,6 +17,7 @@ public class TraceTest {
     public void trace() {
         TraceID traceID = TraceID.newTraceId();
         Trace trace = new Trace(traceID);
+        trace.setStorage(new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
         // http server receive

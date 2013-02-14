@@ -35,6 +35,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
+        interceptor.setTraceContext(TraceContext.getTraceContext());
 
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
@@ -62,7 +63,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
-
+        interceptor.setTraceContext(TraceContext.getTraceContext());
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
 
@@ -89,6 +90,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
+        interceptor.setTraceContext(TraceContext.getTraceContext());
 
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());

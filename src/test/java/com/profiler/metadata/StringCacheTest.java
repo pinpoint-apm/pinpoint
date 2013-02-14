@@ -12,7 +12,7 @@ public class StringCacheTest {
     public void put() {
         StringCache cache = new StringCache();
         Result test = cache.put("test");
-        Assert.assertEquals(0, test.getId());
+        Assert.assertEquals(-1, test.getId());
 
         Result recheck = cache.put("test");
         Assert.assertEquals(test.getId(), recheck.getId());

@@ -3,10 +3,11 @@ package com.profiler.modifier.db.mysql;
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.Agent;
 import com.profiler.config.ProfilerConfig;
+import com.profiler.context.BypassStorageFactory;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.context.TraceID;
 import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.sender.LoggingDataSender;
 import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -63,6 +64,7 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("password", "testlucy");
 
         TraceContext traceContext = new TraceContext();
+        traceContext.setStorageFactory(new BypassStorageFactory(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         Trace trace = new Trace();
         traceContext.attachTraceObject(trace);
 
