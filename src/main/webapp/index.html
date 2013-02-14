@@ -247,6 +247,11 @@ $(document).ready(function () {
 		d3.json("/scatter2.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
 	}
 	
+	function getRealtimeScatterData(begin, callback) {
+	    var application = $("#application").val();
+		d3.json("/scatter2realtime.hippo?application=" + application + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
+	}
+	
 	function getBusinessTransactionsData(begin, end, callback) {
 	    var application = $("#application").val();
 		d3.json("/businesstransactions.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
@@ -333,23 +338,20 @@ $(document).ready(function () {
 	    	now();
 		    update();
 		    
-		    var lastBegin = getStartTime();
-		    var lastEnd = getEndTime();
+		    var from = getStartTime();
 		    
 			timer = setInterval(function() {
 				now();
-				from = getStartTime();
-				to = getEndTime();
+				console.log("[auto-refresh] fetching data from=" + from);
 				
-				console.log("[auto-refresh] fetching data. from=" + (lastEnd + 1) + ", to=" + to);
-				
-		        getScatterData(lastEnd + 1, to, function(data) {
-		        	lastBegin = lastEnd + 1;
-		        	lastEnd = to;
+		        getRealtimeScatterData(from, function(data) {
 		        	console.log("[auto-refresh] data fetched. " + data.scatter.length);
-			        updateScatter(from, to, data.scatter, "#scatter");
+		        	console.log(getStartTime());
+		        	console.log(getEndTime());
+			        updateScatter(getStartTime(), getEndTime(), data.scatter, "#scatter");
+		        	from = data.queryTo + 1;
 		        });
-			}, 2000);
+			}, 3000);
 		} else {
 			clearInterval(timer);
 			timer = null;

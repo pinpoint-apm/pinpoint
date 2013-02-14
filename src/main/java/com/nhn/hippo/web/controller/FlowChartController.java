@@ -1,6 +1,5 @@
 package com.nhn.hippo.web.controller;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -132,6 +131,45 @@ public class FlowChartController {
 
 		addResponseHeader(response);
 		return "scatter";
+	}
+	
+	/**
+	 * scatter 실시간 갱신에서는 to 시간을 지정하지 않는다. server time을 사용하고 조회된 시간 범위를 반환해준다.
+	 * UI에서는 반환된 조회 범위를 참조해서 다음 쿼리를 요청한다.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param from
+	 * @param to
+	 * @param limit
+	 * @return
+	 */
+	@RequestMapping(value = "/scatter2realtime", method = RequestMethod.GET)
+	public String scatter2realtime(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("limit") int limit) {
+		StopWatch watch = new StopWatch();
+		watch.start("selectScatterData");
+
+		long to = System.currentTimeMillis() - 3000L;
+		
+		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
+		watch.stop();
+		
+		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+		
+		model.addAttribute("scatter", scatterData);
+		model.addAttribute("queryFrom", from);
+		
+		if (scatterData.size() >= limit) {
+			model.addAttribute("queryTo", scatterData.get(scatterData.size() - 1).getTimestamp());
+		} else {
+			model.addAttribute("queryTo", to);
+		}
+		
+		model.addAttribute("limit", limit);
+		
+		addResponseHeader(response);
+		return "scatterRealtime";
 	}
 
 	// TODO UI에서 한꺼번에 많은 데이터를 조회하지 않도록 제한해야함.
