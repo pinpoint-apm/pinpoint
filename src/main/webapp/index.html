@@ -155,16 +155,16 @@
 			</ul>
 			
 			<div class="tab-content">
-				<div class="tab-pane" id="Graph">
+				<div class="tab-pane active" id="Graph">
 					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-					<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative"></div>
+					<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
 				</div>
-				<div class="tab-pane active" id="Tree" style="overflow:hidden;">
-					HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
+				<div class="tab-pane" id="Tree" style="overflow:hidden;">
+					Tree chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
 					<p id="tree"></p>
 				</div>
 				<div class="tab-pane" id="Sankey">
-					HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
+					Sankey chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
 					<p id="sankeygraph"></p>
 				</div>
 			</div>
@@ -393,7 +393,9 @@ $(document).ready(function () {
         $("#businessTransactionsDetail TBODY").empty();
         
         $('#chartTabs a:first').tab('show');
-        $('#transactionTabs a:first').tab('show');		
+        $('#transactionTabs a:first').tab('show');
+        
+        $("#springygraph").css("display", "none");
 	}
 	
     function updateCharts() {
@@ -413,6 +415,8 @@ $(document).ready(function () {
 	        drawTree(data.graphdata, "#tree", 1100, 500);
 	        drawSankeyChart(data.graphdata, "#sankeygraph", 1100, 500);
         	hideIndicator();
+        	
+        	$("#springygraph").css("display", "");
         };
     	
     	var businessTransactionCallback = function(data) {
@@ -498,6 +502,8 @@ $(document).ready(function () {
             target.append(html.join(''));
 		});
 	});
+	
+	cleanup();
 });
 </script>
 </body>
