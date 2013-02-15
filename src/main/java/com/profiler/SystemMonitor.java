@@ -55,13 +55,13 @@ public class SystemMonitor {
 	}
 
 	public void start() {
-		logger.info("Starting system monitor.");
-		executor.scheduleAtFixedRate(new Worker(dataSender, traceContext, profilerConfig), 5, 5, TimeUnit.SECONDS);
+//		logger.info("Starting system monitor.");
+//		executor.scheduleAtFixedRate(new Worker(dataSender, traceContext, profilerConfig), 5, 5, TimeUnit.SECONDS);
 	}
 
 	public void stop() {
-		logger.info("Stopping system monitor");
-		executor.shutdown();
+//		logger.info("Stopping system monitor");
+//		executor.shutdown();
 	}
 
 	private static class Worker implements Runnable {
