@@ -50,12 +50,12 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
-		final HttpUriRequest request = (HttpUriRequest) args[0];
 
-		// UUID format을 그대로.
+        final HttpUriRequest request = (HttpUriRequest) args[0];
+        // UUID format을 그대로.
 		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
-		request.addHeader(Header.HTTP_SPAN_ID.toString(), Long.toString(nextId.getSpanId()));
-		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Long.toString(nextId.getParentSpanId()));
+		request.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
+		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
