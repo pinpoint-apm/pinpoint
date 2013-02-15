@@ -188,12 +188,20 @@
 					<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
 				</c:if>
 
-				<c:if test="${record.title == 'Exception'}">
-                <tr class="error">
-				</c:if>                
-				<c:if test="${record.title != 'Exception'}">
-                <tr>
-				</c:if>                
+				<c:choose>
+					<c:when test="${record.title == 'Exception'}">
+	                	<tr class="error">
+					</c:when>
+					<c:when test="${!marked && recordset.beginTimestamp == record.begin}">
+						<c:set var="marked" value="${true}" />
+		                <tr class="info">
+					</c:when>
+					<c:otherwise>
+						<tr>
+					</c:otherwise>                
+				</c:choose>
+
+				                
                 	<c:if test="${record.method}">
                 	<c:set var="seq" scope="page" value="${seq + 1}"/>
                 	<td class="seq">${seq}</td>

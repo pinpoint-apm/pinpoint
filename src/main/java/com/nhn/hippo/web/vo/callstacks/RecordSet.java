@@ -15,98 +15,113 @@ import com.profiler.common.util.AnnotationUtils;
  * @author netspider
  */
 public class RecordSet {
-    private long startTime = -1;
-    private long endTime = -1;
+	private long startTime = -1;
+	private long endTime = -1;
 
-    private final List<Record> recordset;
-    private String applicationName;
-    
-    public RecordSet(List<SpanAlign> spanAligns) {
-        recordset = new ArrayList<Record>();
-        addSpanRecord(spanAligns);
-    }
+	private final List<Record> recordset;
+	private final long focusTimestamp;
+	private String applicationName;
+	private long beginTimestamp;
 
-    public Iterator<Record> getIterator() {
-        return recordset.iterator();
-    }
+	public RecordSet(List<SpanAlign> spanAligns, long focusTimestamp) {
+		this.recordset = new ArrayList<Record>();
+		this.focusTimestamp = focusTimestamp;
+		addSpanRecord(spanAligns);
+	}
 
-    public long getStartTime() {
-        return startTime;
-    }
+	public Iterator<Record> getIterator() {
+		return recordset.iterator();
+	}
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
+	public long getStartTime() {
+		return startTime;
+	}
 
-    public long getEndTime() {
-        return endTime;
-    }
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
+	public long getEndTime() {
+		return endTime;
+	}
 
-    public boolean isStartTimeSet() {
-        return startTime != -1;
-    }
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
 
-    public boolean isEndTimeSet() {
-        return endTime != -1;
-    }
-    
-    public String getApplicationName() {
+	public boolean isStartTimeSet() {
+		return startTime != -1;
+	}
+
+	public boolean isEndTimeSet() {
+		return endTime != -1;
+	}
+
+	public String getApplicationName() {
 		return applicationName;
 	}
 
+	public long getBeginTimestamp() {
+		return beginTimestamp;
+	}
+
 	private void addAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
-        for (AnnotationBo ann : annotationBoList) {
-            AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
-            if (annotation.isViewInRecordSet()) {
-                recordset.add(new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
-            }
-        }
-    }
+		for (AnnotationBo ann : annotationBoList) {
+			AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
+			if (annotation.isViewInRecordSet()) {
+				recordset.add(new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
+			}
+		}
+	}
 
-    private void addSpanRecord(List<SpanAlign> spanAligns) {
-        boolean marked = false;
+	private void addSpanRecord(List<SpanAlign> spanAligns) {
+		boolean marked = false;
 
-        for (SpanAlign sa : spanAligns) {
-            if (sa.isSpan()) {
-                SpanBo span = sa.getSpanBo();
-                AnnotationUtils.sortAnnotationListByKey(span);
-                String method = (String) AnnotationUtils.getDisplayMethod(span);
-                String arguments = (String) AnnotationUtils.getDisplayArgument(span);
+		for (SpanAlign sa : spanAligns) {
+			if (sa.isSpan()) {
+				SpanBo span = sa.getSpanBo();
+				AnnotationUtils.sortAnnotationListByKey(span);
+				String method = (String) AnnotationUtils.getDisplayMethod(span);
+				String arguments = (String) AnnotationUtils.getDisplayArgument(span);
 
-                long begin = span.getStartTime();
-                long elapsed = span.getElapsed();
+				long begin = span.getStartTime();
+				long elapsed = span.getElapsed();
 
-                if (!marked) {
-                    setStartTime(begin);
-                    setEndTime(begin + elapsed);
-                    applicationName = arguments;
-                    marked = true;
-                }
-                recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName(), span.getServiceType()));
-                addAnnotationRecord(sa.getDepth() + 1, span.getAnnotationBoList());
-            } else {
-                SubSpanBo subSpan = sa.getSubSpanBo();
+				if (!marked) {
+					setStartTime(begin);
+					setEndTime(begin + elapsed);
+					applicationName = arguments;
+					beginTimestamp = begin;
+					marked = true;
+				}
 
-                AnnotationUtils.sortAnnotationListByKey(subSpan);
-                String method = (String) AnnotationUtils.getDisplayMethod(subSpan);
-                Object arguments = AnnotationUtils.getDisplayArgument(subSpan);
+				// scatter에 local call에 대해서도 표시를 해주기 때문에 정확한 URL을 알려면 이렇게...
+				if (span.getCollectorAcceptTime() == focusTimestamp) {
+					applicationName = arguments;
+					beginTimestamp = begin;
+				}
 
-                long begin = sa.getSpanBo().getStartTime() + subSpan.getStartElapsed();
-                long elapsed = subSpan.getEndElapsed();
+				recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName(), span.getServiceType()));
+				addAnnotationRecord(sa.getDepth() + 1, span.getAnnotationBoList());
+			} else {
+				SubSpanBo subSpan = sa.getSubSpanBo();
 
-                if (!marked) {
-                    setStartTime(begin);
-                    setEndTime(begin + elapsed);
-                    marked = true;
-                }
+				AnnotationUtils.sortAnnotationListByKey(subSpan);
+				String method = (String) AnnotationUtils.getDisplayMethod(subSpan);
+				Object arguments = AnnotationUtils.getDisplayArgument(subSpan);
 
-                recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType()));
-                addAnnotationRecord(sa.getDepth() + 1, subSpan.getAnnotationBoList());
-            }
-        }
-    }
+				long begin = sa.getSpanBo().getStartTime() + subSpan.getStartElapsed();
+				long elapsed = subSpan.getEndElapsed();
+
+				if (!marked) {
+					setStartTime(begin);
+					setEndTime(begin + elapsed);
+					marked = true;
+				}
+
+				recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType()));
+				addAnnotationRecord(sa.getDepth() + 1, subSpan.getAnnotationBoList());
+			}
+		}
+	}
 }

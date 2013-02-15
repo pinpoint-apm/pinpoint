@@ -254,8 +254,8 @@
 <!-- END OF MENU -->
 
 <script type="text/javascript">
-function openTrace(uuid) {
-    window.open("/selectTransaction.hippo?traceId=" + uuid);
+function openTrace(uuid, timestamp) {
+    window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
 }
 
 $(document).ready(function () {

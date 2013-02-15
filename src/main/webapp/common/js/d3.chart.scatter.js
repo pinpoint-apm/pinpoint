@@ -299,7 +299,7 @@ d3.chart.scatter._renderer = function(){
 					})
 					.style("fill", COLOR_GREEN)
 					.on("click", function(d) {
-						self._openTrace(d.traceId);
+						self._openTrace(d.traceId, d.timestamp);
 					});
 
 				this.dot_red.selectAll(".dot")
@@ -316,7 +316,7 @@ d3.chart.scatter._renderer = function(){
 					})
 					.style("fill", COLOR_RED)
 					.on("click", function(d) {
-						self._openTrace(d.traceId);
+						self._openTrace(d.traceId, d.timestamp);
 					});
 			} else {
 				this.dot_green.append("text")
@@ -338,9 +338,9 @@ d3.chart.scatter._renderer = function(){
 			destroyObject(this);
 		},
 		
-		_openTrace : function(keys) {
+		_openTrace : function(keys, timestamp) {
 			console.log(keys);
-			openTrace(keys);
+			openTrace(keys, timestamp);
 		},
 		
 		_displaySelectedTraceIdList : function(traces) {
@@ -349,7 +349,7 @@ d3.chart.scatter._renderer = function(){
 			}
 			
 			if (traces.length === 1) {
-				self._openTrace(traces[0].traceId);
+				self._openTrace(traces[0].traceId, traces[0].timestamp);
 				return;
 			}
 			
@@ -397,16 +397,14 @@ d3.chart.scatter._renderer = function(){
 					html.push("</td>");
 
 					html.push("<td>");
-					html.push("<a href='#' onclick='openTrace(\"");
-					html.push(data[i].traceId);
-					html.push("\");'>");
 					html.push(new Date(data[i].startTime).format("HH:MM:ss l"));
-					html.push("</a>");
 					html.push("</td>");
 					
 					html.push("<td>");
 					html.push("<a href='#' onclick='openTrace(\"");
 					html.push(data[i].traceId);
+					html.push("\", \"");
+					html.push(data[i].collectorAcceptTime);
 					html.push("\");'>");
 					html.push(data[i].traceId);
 					html.push("</a>");
@@ -593,7 +591,7 @@ d3.chart.scatter._renderer = function(){
 				.attr("class", "dot green")
 				.attr("r", 3)
 				.on("click", function(d) {
-					self._openTrace(d.traceId);
+					self._openTrace(d.traceId, d.timestamp);
 				});
 			
 			this.dot_green.selectAll(".dot")
@@ -615,7 +613,7 @@ d3.chart.scatter._renderer = function(){
 				.attr("class", "dot red")
 				.attr("r", 3)
 				.on("click", function(d) {
-					self._openTrace(d.traceId);
+					self._openTrace(d.traceId, d.timestamp);
 				});
 			
 			this.dot_red.selectAll(".dot")

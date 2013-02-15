@@ -34,7 +34,7 @@ public class BusinessTransactionController {
 	private FlowChartService flow;
 
 	@RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
-	public ModelAndView flow(@RequestParam(value = "traceId") String traceId) {
+	public ModelAndView selectTransaction(@RequestParam("traceId") String traceId, @RequestParam("focusTimestamp") long focusTimestamp) {
 		logger.debug("traceId:{}", traceId);
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
@@ -60,17 +60,18 @@ public class BusinessTransactionController {
 			mv.addObject("links", callTree.getLinks());
 
 			// call stacks
-			RecordSet recordset = new RecordSet(spanAligns);
+			RecordSet recordset = new RecordSet(spanAligns, focusTimestamp);
+			mv.addObject("recordset", recordset);
+
 			mv.addObject("applicationName", recordset.getApplicationName());
 			mv.addObject("callstack", recordset.getIterator());
 			mv.addObject("timeline", recordset.getIterator());
 			mv.addObject("callstackStart", recordset.getStartTime());
 			mv.addObject("callstackEnd", recordset.getEndTime());
-
 		} catch (Exception e) {
 			logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
-//             아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
-//            throw e;
+			// TODO 아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
+			// throw e;
 		}
 
 		return mv;

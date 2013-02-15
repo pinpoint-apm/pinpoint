@@ -1,3 +1,6 @@
+/**
+ * DEPRECATED 
+ */
 
 function drawScatter(data, targetId) {
 	var selectedTraceIdSet = {};
