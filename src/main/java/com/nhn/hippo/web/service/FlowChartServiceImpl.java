@@ -154,10 +154,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 				continue;
 
 			for (SubSpanBo subTransaction : subSpanList) {
-				// skip internal method
-				if (subTransaction.getServiceType() == ServiceType.INTERNAL_METHOD) {
-					continue;
-				}
+                // 통계정보로 잡지 않을 데이터는 스킵한다.
+                if (!subTransaction.getServiceType().isRecordStatistics()) {
+                    continue;
+                }
 
 				// remove subspan of the rpc client
 				if (!endPoints.contains(subTransaction.getEndPoint())) {
