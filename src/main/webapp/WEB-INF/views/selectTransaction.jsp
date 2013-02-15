@@ -381,7 +381,7 @@
                     <c:if test="${!status2.last}">, </c:if>
                     </c:forEach>
                 ],
-                "serviceType":"${node.serviceType}",
+                "serviceType":"${node.serviceType.desc}",
                 "terminal":"${node.serviceType.terminal}"
             }
             <c:if test="${!status.last}">,
