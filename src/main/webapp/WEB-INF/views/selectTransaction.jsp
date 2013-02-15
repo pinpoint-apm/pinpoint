@@ -333,20 +333,21 @@
 
 
 <ul class="nav nav-tabs" id="chartTabs">
-	<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
 	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
+	<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
 	<li><a href="#Sankey" data-toggle="tab">Sankey Chart</a></li>
 </ul>
 
 <div class="tab-content">
-	<div class="tab-pane active" id="Tree" style="overflow:hidden;">
+	<div class="tab-pane active" id="Graph">
+		<div id="springygraph" style="width:99%;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
+	</div>
+	<div class="tab-pane" id="Tree" style="overflow:hidden;">
+		Tree chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
 		<p id="tree"></p>
 	</div>
-	<div class="tab-pane" id="Graph">
-		<div id="springygraph" style="width:1160px;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
-	</div>
 	<div class="tab-pane" id="Sankey">
-		HIPPO개발자를 위한 차트입니다.<br/>
+		Sankey chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
 		<p id="sankeygraph"></p>
 	</div>
 </div>

@@ -58,9 +58,9 @@
 			<a class="brand" href="/">HIPPO</a>
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
                     <li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
-                    <li><a href="#">Help</a></li>
+                    <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
+                    <li><a data-toggle="modal" href="#myHelpModal">Help</a></li>
                 </ul>
             </div>
         </div>
@@ -85,6 +85,22 @@
 </div>
 <!-- END OF MODAL -->
 
+<!-- HELP-MODAL -->
+<div class="modal hide fade" id="myHelpModal" style="width:1000px; margin-left:-500px">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Help</h3>
+    </div>
+    <div class="modal-body">
+    <br/>E-mail to us. <a href="mailto:!hippo@nhn.com">!hippo@nhn.com</a><br/>
+	<br/>Thank you.<br/><br/>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+</div>
+<!-- END OF HELP-MODAL -->
+
 <!-- MODAL -->
 <div class="modal hide fade" id="traceIdSelectModal" style="width:1200px; margin-left:-600px">
     <div class="modal-header">
@@ -107,7 +123,11 @@
 			</thead>
 			<tbody>
 			</tbody>
-       </table>
+		</table>
+		<ul id="selectedBusinessTransactionsDetailPager" class="pager">
+			<li><a href="#">Previous</a></li>
+			<li><a href="#">Next</a></li>
+		</ul>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -501,6 +521,10 @@ $(document).ready(function () {
             
             target.append(html.join(''));
 		});
+	});
+	
+	$("#selectedBusinessTransactionsDetailPager li").click(function() {
+		alert("[NOT IMPLEMENTED]\n\nNOTE : 한꺼번에 많은 점을 선택했을 때 다 보여주지 않고.. 페이징?? 스크롤 페이징을 사용해도 될 것 같기도 하고...");
 	});
 	
 	cleanup();
