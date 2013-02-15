@@ -403,6 +403,14 @@ d3.chart.scatter._renderer = function(){
 					html.push(new Date(data[i].startTime).format("HH:MM:ss l"));
 					html.push("</a>");
 					html.push("</td>");
+					
+					html.push("<td>");
+					html.push("<a href='#' onclick='openTrace(\"");
+					html.push(data[i].traceId);
+					html.push("\");'>");
+					html.push(data[i].traceId);
+					html.push("</a>");
+					html.push("</td>");
 
 					html.push("<td style='padding-right:30px;text-align:right'>");
 					html.push(formatNumber(data[i].elapsed));
