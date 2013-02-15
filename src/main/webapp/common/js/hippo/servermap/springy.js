@@ -49,6 +49,9 @@ var Edge = function(id, source, target, data) {
 	this.source = source;
 	this.target = target;
 	this.data = typeof(data) !== 'undefined' ? data : {};
+	this.hover = false;
+	this.sourcePos = {x:0, y:0};
+	this.targetPos = {x:0, y:0};
 };
 
 Graph.prototype.addNode = function(node) {
@@ -396,16 +399,16 @@ Layout.ForceDirected.prototype.start = function(render, done) {
 	Layout.requestAnimationFrame(function step() {
 		t.applyCoulombsLaw();
 		t.applyHookesLaw();
-		t.attractToCentre();
-		t.updateVelocity(0.01);
+		// /t.attractToCentre();
+		t.updateVelocity(0.05);
 		t.updatePosition(0.03);
 
-		if (typeof(render) !== 'undefined')
-			render();
+		if (typeof(render) !== 'undefined') { render();	}
 
 		// stop simulation when energy of the system goes below a threshold
 		if (t.totalEnergy() < 0.01) {
 			t._started = false;
+			
 			if (typeof(done) !== 'undefined') { done(); }
 		} else {
 			Layout.requestAnimationFrame(step);
@@ -445,7 +448,7 @@ Layout.ForceDirected.prototype.selectNode = function(pos) {
 };
 
 // Select the node by point to a particular position
-Layout.ForceDirected.prototype.hover = function(pos) {
+Layout.ForceDirected.prototype.nodeHover = function(pos) {
 	selectedNode = this.selectNode({x: pos.x, y: pos.y});	
 	this.graph.nodes.forEach(function(n){
 		n.hover = false;
@@ -455,6 +458,106 @@ Layout.ForceDirected.prototype.hover = function(pos) {
 	}
 
 	return selectedNode;
+};
+
+// Select the edge by point to a particular position
+Layout.ForceDirected.prototype.selectEdge = function(pos, weight) {
+	var select = {edge: null, point: null, distance: null};
+	var t = this;
+
+	var cnt =0;
+	this.graph.edges.forEach(function(e){
+		cnt++;
+		var p1 = {
+			x : Math.round(e.sourcePos.x),
+			y : Math.round(e.sourcePos.y)
+		};
+		var p2 = {
+			x : Math.round(e.targetPos.x),
+			y : Math.round(e.targetPos.y)
+		};
+		//if(cnt == t.graph.edges.length -1){
+			if(t.nearestEdge(p1, p2, pos, weight)){
+				select.edge = e;
+			}			
+		//}
+	});
+
+	return select;
+};
+
+Layout.ForceDirected.prototype.nearestEdge = function(p1, p2, p3, weight){
+		if(p1.x !== p2.x && p1.y !== p2.y){
+			var htP = this.changeDegree(p1, p2, p3);
+			p1 = htP.p1;
+			p2 = htP.p2;
+			p3 = htP.p3;
+		}
+		var nLeft, nTop, nWidth, nHeight;
+		if(p1.y > p2.y){
+			nLeft = p1.x - weight / 2;
+			nTop = p2.y;
+			nWidth = weight;
+			nHeight = Math.abs(p1.y - p2.y);			
+		}else{
+			nLeft = p2.x - weight / 2;
+			nTop = p1.y;
+			nWidth = weight;
+			nHeight = Math.abs(p2.y - p1.y);
+		}
+		
+		if(	p3.y >= nTop && p3.y <= (nTop+nHeight) 
+		 && p3.x >= nLeft && p3.x <= (nLeft+nWidth)){
+		 	return true;
+		}else{
+			return false;
+		}
+};
+
+Layout.ForceDirected.prototype.changeDegree = function(p1, p2, p3){
+	var slope = (p2.y - p1.y) / (p2.x - p1.x),
+		a = Math.atan(slope),
+		b = Math.PI/2 - a;
+	
+	var r1 = Math.sqrt(Math.pow(p1.x, 2) + Math.pow(p1.y, 2)),
+		r2 = Math.sqrt(Math.pow(p2.x, 2) + Math.pow(p2.y, 2)),
+		r3 = Math.sqrt(Math.pow(p3.x, 2) + Math.pow(p3.y, 2));
+	
+	var d1 = Math.atan(p1.y/p1.x),
+		d2 = Math.atan(p2.y/p2.x),
+		d3 = Math.atan(p3.y/p3.x);
+
+	var n1 = {
+		x : Math.round(r1 * Math.cos(d1 + b)),
+		y : Math.round(r1 * Math.sin(d1 + b))
+	};
+	var n2 = {
+		x : Math.round(r2 * Math.cos(d2 + b)),
+		y : Math.round(r2 * Math.sin(d2 + b))
+	};
+	var n3 = {
+		x : Math.round(r3 * Math.cos(d3 + b)),
+		y : Math.round(r3 * Math.sin(d3 + b))
+	};
+
+	return {
+		p1 : n1,
+		p2 : n2,
+		p3 : n3
+	}
+};
+
+// Select the edge by point to a particular position
+Layout.ForceDirected.prototype.edgeHover = function(pos, weight) {
+	selectedEdge = this.selectEdge({x: pos.x, y: pos.y}, weight);	
+	this.graph.edges.forEach(function(e){
+		e.hover = false;
+	});
+	if(selectedEdge.edge !== null){
+		selectedEdge.edge.hover = true;
+	}
+
+	return selectedEdge;
 };
 
 // returns [bottomleft, topright]
@@ -576,6 +679,18 @@ Renderer.prototype.start = function() {
 		t.layout.eachNode(function(node, point) {
 			t.drawNode(node, point.p);
 		});
+	});
+};
+Renderer.prototype.startOnce = function(){
+	var t = this;
+	t.clear();
+
+	t.layout.eachEdge(function(edge, spring) {
+		t.drawEdge(edge, spring.point1.p, spring.point2.p);
+	});
+
+	t.layout.eachNode(function(node, point) {
+		t.drawNode(node, point.p);
 	});
 };
 

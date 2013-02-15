@@ -6,25 +6,28 @@ jQuery.fn.hippoServerMap = function(params) {
 	var stiffness = params.stiffness || 400.0;
 	var repulsion = params.repulsion || 400.0;
 	var damping = params.damping || 0.5;
-	var nodeSelected = params.nodeSelected || null;
-	var sLinkColor = params.sLinkColor || '#8f8f8f',
-		sLinkInHoverColor = params.sLinkInHoverColor || '#f77128',
-		sLinkOutHoverColor = params.sLinkOutHoverColor || '#28a1f7',
-		sLinkBoxBorderColor = params.sLinkBoxColor || '#000000',
-		sLinkBoxBgColor = params.sLinkBoxBgColor || 'rgba(255, 255, 255, 0.5)',
-		sLinkBoxBgHoverColor = params.sLinkBoxBgHoverColor || 'rgba(255, 255, 255, 1)',
-		nLinkWeight = params.nLinkWeight || 1;
+	var sEdgeColor = params.sEdgeColor || '#8f8f8f',
+		sEdgeHoverColor = params.sEdgeHoverColor || '#770f73',
+		sEdgeInHoverColor = params.sEdgeInHoverColor || '#f77128',
+		sEdgeOutHoverColor = params.sEdgeOutHoverColor || '#28a1f7',
+		sEdgeBoxBorderColor = params.sEdgeBoxColor || '#000000',
+		sEdgeBoxBgColor = params.sEdgeBoxBgColor || 'rgba(255, 255, 255, 1)',
+		sEdgeBoxBgHoverColor = params.sEdgeBoxBgHoverColor || 'rgba(255, 255, 255, 1)',
+		nEdgeWeight = params.nEdgeWeight || 1,
+		nEdgeHoverWeight = params.nEdgeHoverWeight || 20;
 	var sNodeBorderColor = params.sNodeBorderColor || '#8f8f8f',
 		sNodeBorderHoverColor = params.sNodeBorderHoverColor || '#28a1f7',
 		sNodeBgColor = params.sNodeBgColor || 'rgba(255, 255, 255, 0.5)',
 		sNodeBgHoverColor = params.sNodeBgHoverColor || 'rgba(255, 255, 255, 1)';
+	var nZoomGap = params.nZoomGap || 100,
+		nZoomMaxGap = params.nZoomGap || 500;
 
 	//var canvas = this[0];
 	var nThisWidth = $(this).width(),
 		nThisHeight = $(this).height();
 	var canvas = document.createElement('canvas');
-	canvas.width = nThisWidth * (1 + params.graph.nodes.length / 100);
-	canvas.height = nThisHeight * (1 + params.graph.nodes.length / 100);
+	canvas.width = nThisWidth /** (1 + params.graph.nodes.length / 100)*/;
+	canvas.height = nThisHeight /** (1 + params.graph.nodes.length / 100)*/;
 	$(canvas).css({
 		'position' : 'absolute',
 		'top' : '0px',
@@ -76,11 +79,48 @@ jQuery.fn.hippoServerMap = function(params) {
 	var htLastPos = {pageX : 0, pageY : 0};
 	var htGapBetweenThisAndCanvas = {gapX : $(this).width()- $(canvas).width(), gapY : $(this).height() - $(canvas).height()};
 
+	jQuery(canvas).bind('mousewheel', function(e){
+		e.preventDefault();
+		if(e.wheelDelta > 0){// �뺣�
+			canvas.width = canvas.width + nZoomGap;
+			canvas.height = canvas.height + nZoomGap;
+		}else{// 異뺤냼
+			canvas.width = canvas.width - nZoomGap;
+			canvas.height = canvas.height - nZoomGap;
+		}
+		if(canvas.width < nThisWidth){
+			canvas.width = nThisWidth;
+		}
+		if(canvas.height < nThisHeight){
+			canvas.height = nThisHeight;
+		}
+		if(canvas.width > (nThisWidth + nZoomMaxGap)){
+			canvas.width = nThisWidth+ nZoomMaxGap;
+			canvas.height = nThisHeight + nZoomMaxGap;
+		}
+		htGapBetweenThisAndCanvas = {gapX : nThisWidth - canvas.width, gapY : nThisHeight - canvas.height};
+		if(htGapBetweenThisAndCanvas.gapX > parseInt(jQuery(this).css('left'), 10)){
+			jQuery(this).css('left', htGapBetweenThisAndCanvas.gapX + 'px');
+		}
+		if(htGapBetweenThisAndCanvas.gapY > parseInt(jQuery(this).css('top'), 10)){
+			jQuery(this).css('top', htGapBetweenThisAndCanvas.gapY + 'px');
+		}
+		renderer.startOnce();
+	});
+
 	jQuery(canvas).mousedown(function(e) {
 		var pos = jQuery(this).offset();
 		selectedNode = layout.selectNode({x: e.pageX - pos.left, y: e.pageY - pos.top});		
+		selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
 		if(selectedNode.node !== null){
 			selected = true;
+			if(typeof selectedNode.node.data.onMouseClick === 'function'){
+				selectedNode.node.data.onMouseClick.call(selectedNode.node, e);
+			}
+		}else if(selectedEdge.edge !== null){
+			if(typeof selectedEdge.edge.data.onMouseClick === 'function'){
+				selectedEdge.edge.data.onMouseClick.call(selectedEdge.edge, e);
+			}
 		}else{		
 			dragged = true;	
 			htLastPos.pageY = e.pageY;
@@ -88,7 +128,7 @@ jQuery.fn.hippoServerMap = function(params) {
 		}
 	});
 
-	var lastSelectedNodeId = null;
+	var lastSelectedNodeId = null, lastSelectedEdgeId = null;
 	jQuery(canvas).mousemove(function(e) {
 		if (dragged){
 			var pos = jQuery(this).offset();
@@ -114,38 +154,56 @@ jQuery.fn.hippoServerMap = function(params) {
 			
 			if (selectedNode.node !== null) {
 				selectedNode.point.p.x = p.x;
-				selectedNode.point.p.y = p.y;
+				selectedNode.point.p.y = p.y;				
 			}
 
-			renderer.start();
+			renderer.startOnce();
 		}else{
 			var pos = jQuery(this).offset();
-			selectedNode = layout.hover({x: e.pageX - pos.left, y: e.pageY - pos.top});	
-			//console.log('selectedNode != lastSelectedNode', (selectedNode.node.id != lastSelectedNode.node.id));
+			selectedNode = layout.nodeHover({x: e.pageX - pos.left, y: e.pageY - pos.top});	
 			
 			if (selectedNode.node !== null) {
 				if(selectedNode.node.id != lastSelectedNodeId){
 					lastSelectedNodeId = selectedNode.node.id;
-					renderer.start();
+					if(typeof selectedNode.node.data.onMouseOver === 'function'){
+						selectedNode.node.data.onMouseOver.call(selectedNode.node, e);
+					}
+					renderer.startOnce();
 				}
 			}else{
 				if(lastSelectedNodeId !== null){
-					renderer.start();
+					renderer.startOnce();
 				}
 				lastSelectedNodeId = null;
+			}
+
+			selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
+			if(selectedEdge.edge !== null){
+				if(selectedEdge.edge.id != lastSelectedEdgeId){
+					lastSelectedEdgeId = selectedEdge.edge.id;
+					if(typeof selectedEdge.edge.data.onMouseOver === 'function'){
+						selectedEdge.edge.data.onMouseOver.call(selectedEdge.edge, e);
+					}
+					renderer.startOnce();
+				}
+			}else{
+				if(lastSelectedEdgeId !== null){
+					renderer.startOnce();
+				}
+				lastSelectedEdgeId = null;
 			}
 		}
 	});
 
-	jQuery(window).bind('mouseup',function(e) {
+	jQuery(window).mouseup(function(e) {
 		dragged = null;
 		selected = null;
 	});
 
 	var self =this;
-	jQuery(window).bind('resize', function(e){
+	jQuery(window).resize(function(e){
 		self.trigger('windowResize');
-		renderer.start();
+		renderer.startOnce();
 	});
 
 	Node.prototype.getWidth = function() {
@@ -253,24 +311,29 @@ jQuery.fn.hippoServerMap = function(params) {
 			var sColor, sBoxBgColor, sBoxBorderColor;
 			if(edge.source.hover || edge.target.hover){
 				if(edge.source.hover){
-					sColor = sLinkOutHoverColor;
-					sBoxBorderColor = sLinkOutHoverColor;
+					sColor = sEdgeOutHoverColor;
+					sBoxBorderColor = sEdgeOutHoverColor;
 				}else{
-					sColor = sLinkInHoverColor;
-					sBoxBorderColor = sLinkInHoverColor;
+					sColor = sEdgeInHoverColor;
+					sBoxBorderColor = sEdgeInHoverColor;
 				}
-				sBoxBgColor = sLinkBoxBgHoverColor;
+				sBoxBgColor = sEdgeBoxBgHoverColor;
 			}else{
-				sColor = sLinkColor;
-				sBoxBgColor = sLinkBoxBgColor;
-				sBoxBorderColor = sLinkBoxBorderColor;
+				sColor = sEdgeColor;
+				sBoxBgColor = sEdgeBoxBgColor;
+				sBoxBorderColor = sEdgeBoxBorderColor;
+			}
+
+			if(edge.hover){
+				sColor = sEdgeHoverColor;
+				sBoxBorderColor = sEdgeOutHoverColor;
 			}
 
 			var arrowWidth;
 			var arrowLength;
 
 			//var weight = typeof(edge.data.weight) !== 'undefined' ? edge.data.weight : 1.0;
-			var weight = nLinkWeight;
+			var weight = nEdgeWeight;
 
 			ctx.lineWidth = Math.max(weight, 0.1);
 			arrowWidth = 4 + ctx.lineWidth;
@@ -286,6 +349,9 @@ jQuery.fn.hippoServerMap = function(params) {
 				lineEnd = s2;
 			}
 			var lineStart = intersect_line_box(s1, s2, {x: x1-boxWidth/2.0, y: y1-boxHeight/2.0}, boxWidth, boxHeight);
+			
+			edge.sourcePos = lineStart;
+			edge.targetPos = lineEnd;
 
 			ctx.strokeStyle = sColor;
 			ctx.beginPath();

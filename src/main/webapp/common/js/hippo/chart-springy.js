@@ -16,76 +16,55 @@ function drawSpringy(graphdata, targetId, width, height) {
 	var graph = new Graph();
 	
 	var aNodes = graphdata.nodes,
-		aLinks = graphdata.links,
-		aoNodes = [],
-		aColor = ['#00A0B0', '#6A4A3C', '#CC333F', '#EB6841', '#EDC951', 
-				  '#7DBE3C', '#00A0B0', '#6A4A3C', '#CC333F', '#EB6841'];
-	
+	aLinks = graphdata.links,
+	aoNodes = [],
+	aColor = ['#00A0B0', '#6A4A3C', '#CC333F', '#EB6841', '#EDC951', 
+			  '#7DBE3C', '#00A0B0', '#6A4A3C', '#CC333F', '#EB6841'];	
+
 	for(var i=0; i<aNodes.length; i++){
 		aoNodes[i] = graph.newNode({
 									label: aNodes[i].name, 
 									helth : aNodes[i].helth, 
 									serviceType : aNodes[i].serviceType,
 									width : 100,
-									height : 80
+									height : 80,
+									onMouseOver : function(e){
+										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
+									},
+									onMouseClick : function(e){
+										$('#console').val('Node onMouseClick : ' + this.id + '\r' + $('#console').val())
+									}
 									});
 	}
+	
 	for(var i=0; i<aLinks.length; i++){
 		graph.newEdge(aoNodes[aLinks[i]['source']], aoNodes[aLinks[i]['target']], {
-																					color: getRandomColor(), 
 																					value : aLinks[i]['value'],
 																					width : 100,
-																					height : 80
+																					height : 80,
+																					onMouseOver : function(e){
+																						$('#console').val('Edge onMouseOver : ' + this.id + '\r' + $('#console').val())
+																					},
+																					onMouseClick : function(e){
+																						$('#console').val('Edge onMouseClick : ' + this.id + '\r' + $('#console').val())
+																					}
 																				  });
 	}
-
+	
 	jQuery(function(){
 		function resize(){
-			$('#springydemo').attr({
-				'width' : width, // $(window).width(),
-				'height' : height // $(window).height()
+			$(targetId).attr({
+				'width' : $(window).width(),
+				'height' : $(window).height()
 			});
 		}
 		resize();
 		var springy = jQuery(targetId).hippoServerMap({
 			graph: graph,
-			sLinkColor : '#8f8f8f',
-			sLinkSelectedColor : '#28a1f7',
-			sLinkBoxColor : '#000000',
-			nLinkWeight : 1,
-			nodeSelected: function(node){
-				console.log('Node selected: ' + JSON.stringify(node.data));
-			}
+			sEdgeColor : '#8f8f8f',
+			sEdgeSelectedColor : '#28a1f7',
+			sEdgeBoxColor : '#000000',
+			nEdgeWeight : 1
 		});
 	});
-	
-	/*
-	var graph = new Graph();
-	var nodes = [];
-	
-	for(var i = 0; i < graphdata.nodes.length; i++) {
-		nodes[i] = graph.newNode({
-			label : graphdata.nodes[i].name,
-			serviceType : graphdata.nodes[i].serviceType
-		});
-	}
-	
-	for(var i = 0; i < graphdata.links.length; i++) {
-		var src = nodes[graphdata.links[i].source];
-		var target = nodes[graphdata.links[i].target];
-        graph.newEdge(src, target, {
-        	color : '#7DBE3C',
-        	label : graphdata.links[i].value
-		});
-	}
-	
-	jQuery(function(){
-		var springy = jQuery(targetId).springy({
-			graph: graph,
-			nodeSelected: function(node){
-				console.log('Node selected: ' + JSON.stringify(node.data));
-			}
-		});
-	});
-	*/
 }
