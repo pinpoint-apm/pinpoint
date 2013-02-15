@@ -62,9 +62,9 @@ public class SubSpanListHandler implements Handler {
                 for (SubSpan subSpan : ssList) {
                     ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
                     
-					if (serviceType.isInternalMethod()) {
-						continue;
-					}
+                    if(!serviceType.isRecordStatistics()) {
+                        continue;
+                    }
 					
                     // if terminal update statistics
 					int elapsed = subSpan.getEndElapsed();
