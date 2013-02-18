@@ -49,9 +49,7 @@ public class TerminalStatistics {
 
 	public TerminalStatistics mergeWith(TerminalStatistics terminalRequest) {
 		if (this.equals(terminalRequest)) {
-			// TODO merge histogram here.
-
-			// this.histogram.mergeWith(terminalRequest.getHistogram());
+			histogram.mergeWith(terminalRequest.getHistogram());
 			return this;
 		} else {
 			throw new IllegalArgumentException("Can't merge with different link.");

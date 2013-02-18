@@ -1,6 +1,5 @@
 package com.nhn.hippo.web.vo;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.profiler.common.Histogram;
@@ -79,6 +78,48 @@ public class ResponseHistogram {
 			total += v;
 		}
 		return total;
+	}
+
+	public void mergeWith(ResponseHistogram histogram) {
+		if (!this.equals(histogram)) {
+			throw new IllegalArgumentException();
+		}
+
+		long[] otherValues = histogram.values;
+		for (int i = 0; i < values.length; i++) {
+			values[i] += otherValues[i];
+		}
+
+		this.errorCount += histogram.errorCount;
+		this.slowCount += histogram.slowCount;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((histogram == null) ? 0 : histogram.hashCode());
+		result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ResponseHistogram other = (ResponseHistogram) obj;
+		if (histogram == null) {
+			if (other.histogram != null)
+				return false;
+		} else if (!histogram.equals(other.histogram))
+			return false;
+		if (serviceType != other.serviceType)
+			return false;
+		return true;
 	}
 
 	@Override
