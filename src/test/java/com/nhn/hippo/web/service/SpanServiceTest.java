@@ -137,7 +137,9 @@ public class SpanServiceTest {
 
         span.setParentSpanId(-1);
         List<Annotation> annotations = new ArrayList<Annotation>();
-        annotations.add(new Annotation(AnnotationKey.API.getCode(), 0));
+        Annotation annotation = new Annotation(AnnotationKey.API.getCode());
+        annotation.setStringValue("");
+        annotations.add(annotation);
         span.setAnnotations(annotations);
         return span;
     }
@@ -161,7 +163,9 @@ public class SpanServiceTest {
 
         sub.setParentSpanId(span.getSpanId());
         List<Annotation> annotations = new ArrayList<Annotation>();
-        annotations.add(new Annotation(AnnotationKey.API.getCode(), 0));
+        Annotation annotation = new Annotation(AnnotationKey.API.getCode());
+        annotation.setStringValue("");
+        annotations.add(annotation);
         sub.setAnnotations(annotations);
         return sub;
     }
