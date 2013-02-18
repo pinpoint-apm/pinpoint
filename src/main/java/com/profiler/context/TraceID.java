@@ -15,7 +15,7 @@ public class TraceID {
 	}
 
 	public TraceID getNextTraceId() {
-		return new TraceID(id, spanId, SpanID.nextSpanID(spanId), sampled, flags);
+		return new TraceID(id, spanId, SpanID.nextSpanID(spanId, parentSpanId), sampled, flags);
 	}
 
 	public TraceID(UUID id, int parentSpanId, int spanId, boolean sampled, short flags) {

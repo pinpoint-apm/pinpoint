@@ -6,7 +6,7 @@ public class SpanID {
 
     public static final int NULL = -1;
 
-    private static Random seed = new Random();
+    private static final Random seed = new Random();
 
     public static int newSpanID() {
         int id = seed.nextInt();
@@ -16,9 +16,9 @@ public class SpanID {
         return id;
     }
 
-    public static int nextSpanID(long parentId) {
+    public static int nextSpanID(int spanId, int parentSpanId) {
         int newId = newSpanID();
-        while (newId == parentId) {
+        while (newId == spanId || newId == parentSpanId) {
             newId = newSpanID();
         }
         return newId;
