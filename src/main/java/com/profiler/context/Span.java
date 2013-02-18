@@ -116,7 +116,7 @@ public class Span implements Thriftable {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(128);
 
         sb.append("{");
         sb.append("\n\t TraceID = ").append(traceID);
@@ -153,7 +153,10 @@ public class Span implements Thriftable {
         span.setServiceName(serviceName);
         span.setServiceType(serviceType.getCode());
         span.setSpanId(traceID.getSpanId());
-        span.setParentSpanId(traceID.getParentSpanId());
+        final int parentSpanId = traceID.getParentSpanId();
+        if (parentSpanId != SpanID.NULL) {
+            span.setParentSpanId(parentSpanId);
+        }
         span.setEndPoint(endPoint);
         span.setRemoteAddr(remoteAddr);
         if (exception != 0) {
