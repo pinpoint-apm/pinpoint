@@ -5,7 +5,6 @@ struct Annotation {
   2: optional string key2;
   3: i32 valueTypeCode,
   4: optional binary value,
-  5: optional i64 timestamp,
 }
 
 struct SubSpan {

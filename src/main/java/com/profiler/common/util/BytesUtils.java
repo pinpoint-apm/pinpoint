@@ -310,9 +310,6 @@ public class BytesUtils {
         return (n >>> 1) ^ -(n & 1);
     }
 
-    public static int decodeZigZagInt2(final int n) {
-        return (n >>> 1) ^ -(n & 1);
-    }
 
 
     public static long encodeZigZagLong(final long n) {

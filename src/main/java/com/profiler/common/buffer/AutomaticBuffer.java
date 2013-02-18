@@ -119,48 +119,5 @@ public class AutomaticBuffer extends FixedBuffer {
         super.put(v);
     }
 
-    @Override
-    public byte readByte() {
-        return super.readByte();
-    }
 
-    @Override
-    public int readUnsignedByte() {
-        return super.readUnsignedByte();
-    }
-
-    @Override
-    public boolean readBoolean() {
-        return super.readBoolean();
-    }
-
-    @Override
-    public int readInt() {
-        return super.readInt();
-    }
-
-    @Override
-    public short readShort() {
-        return super.readShort();
-    }
-
-    @Override
-    public long readLong() {
-        return super.readLong();
-    }
-
-    @Override
-    public byte[] readPrefixedBytes() {
-        return super.readPrefixedBytes();
-    }
-
-    @Override
-    public byte[] read1PrefixedBytes() {
-        return super.read1PrefixedBytes();
-    }
-
-    @Override
-    public byte[] read2PrefixedBytes() {
-        return super.read2PrefixedBytes();
-    }
 }
