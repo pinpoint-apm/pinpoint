@@ -59,7 +59,8 @@ public class Agent {
         this.priorityDataSender = createDataSender();
         this.dataSender = createDataSender();
         this.startTime = System.currentTimeMillis();
-        this.identifier = (short) IDENTIFIER_KEY.nextInt(16);
+
+        this.identifier = getShortIdentifier();
 
         initializeTraceContext();
 
@@ -70,6 +71,10 @@ public class Agent {
         ApiMappingTable.findApiId("test", null, null);
 
         SingletonHolder.INSTANCE = this;
+    }
+
+    private short getShortIdentifier() {
+        return (short) (IDENTIFIER_KEY.nextInt(65536) - 32768);
     }
 
     private void initializeTraceContext() {
