@@ -1,7 +1,5 @@
 package com.profiler.common;
 
-import org.apache.hadoop.hbase.util.Bytes;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +14,12 @@ public class Histogram {
     public static final Histogram NORMAL;
 
     static {
-        FAST = new Histogram();
+        FAST = new Histogram(1);
         FAST.addHistogramSlot(new HistogramSlot(100, ResponseCode.NORMAL));
         FAST.addHistogramSlot(new HistogramSlot(300, ResponseCode.NORMAL));
         FAST.addHistogramSlot(new HistogramSlot(500, ResponseCode.WARN));
 
-        NORMAL = new Histogram();
+        NORMAL = new Histogram(2);
         NORMAL.addHistogramSlot(new HistogramSlot(1000, ResponseCode.NORMAL));
         NORMAL.addHistogramSlot(new HistogramSlot(3000, ResponseCode.NORMAL));
         NORMAL.addHistogramSlot(new HistogramSlot(5000, ResponseCode.WARN));
@@ -29,9 +27,10 @@ public class Histogram {
     // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
     // 지금은 그냥 사람이 한다.
     private List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>();
+    private int typeCode;
 
-
-    public Histogram() {
+    public Histogram(int typeCode) {
+    	this.typeCode = typeCode;
     }
 
     public void addHistogramSlot(HistogramSlot slot) {
@@ -85,4 +84,26 @@ public class Histogram {
         }
         return -1;
     }
+    
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + typeCode;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Histogram other = (Histogram) obj;
+		if (typeCode != other.typeCode)
+			return false;
+		return true;
+	}
 }
