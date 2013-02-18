@@ -46,9 +46,18 @@ public final class TranscoderUtils {
 		return rv;
 	}
 
+    public byte[] encodeShort(int in) {
+        return encodeNum(in, 2);
+    }
+
 	public byte[] encodeInt(int in) {
 		return encodeNum(in, 4);
 	}
+
+    public short decodeShort(byte[] in) {
+        assert in.length <= 2 : "Too long to be an int (" + in.length + ") bytes";
+        return (short) decodeLong(in);
+    }
 
 	public int decodeInt(byte[] in) {
 		assert in.length <= 4 : "Too long to be an int (" + in.length + ") bytes";

@@ -3,10 +3,8 @@ package com.profiler.common.util;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TMessage;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TMemoryInputTransport;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  *
@@ -25,23 +24,67 @@ public class AnnotationTranscoderTest {
     @Test
     public void testDecode() throws Exception {
         typeCode("test");
+        typeCode("");
+        typeCode("adfesdfsesdfsdfserfsdfsdfe");
+
         typeCode(1);
+        typeCode(0);
+        typeCode(-1212);
+
+        typeCode((short) 4);
+        typeCode((short) -124);
+
         typeCode(2L);
+        typeCode(-22342342L);
+
         typeCode(3f);
+        typeCode(123.3f);
+
         typeCode(4D);
+        typeCode(-124D);
+
+        typeCode((byte) 4);
+        typeCode((byte) -14);
+
         typeCode(true);
+        typeCode(false);
+
+        typeCode(null);
+
+        typeUnsupportCode(new Date());
+
+        typeBinaryCode(new byte[]{12, 3, 4, 1, 23, 4, 1, 2, 3, 4, 4});
 
     }
+
     private void typeCode(Object value) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
-        AnnotationTranscoder.Encoded encoded = transcoder.encode(value);
 
-        int valueType = encoded.getValueType();
         int typeCode = transcoder.getTypeCode(value);
-        Assert.assertEquals(valueType, typeCode);
-
         byte[] bytes = transcoder.encode(value, typeCode);
-        Assert.assertArrayEquals(bytes, encoded.getBytes());
+        Object decode = transcoder.decode(typeCode, bytes);
+
+        Assert.assertEquals(value, decode);
+    }
+
+    private void typeUnsupportCode(Object value) {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+
+        int typeCode = transcoder.getTypeCode(value);
+        byte[] bytes = transcoder.encode(value, typeCode);
+        Object decode = transcoder.decode(typeCode, bytes);
+
+        Assert.assertEquals(value.toString(), decode.toString());
+    }
+
+    private void typeBinaryCode(byte[] value) {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+
+        int typeCode = transcoder.getTypeCode(value);
+        byte[] bytes = transcoder.encode(value, typeCode);
+        Object decode = transcoder.decode(typeCode, bytes);
+
+        Assert.assertArrayEquals(value, (byte[]) decode);
     }
 
     @Test
@@ -55,7 +98,6 @@ public class AnnotationTranscoderTest {
         write(10);
         write(512);
         write(256);
-
 
 
     }
