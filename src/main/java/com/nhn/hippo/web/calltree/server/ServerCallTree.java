@@ -163,7 +163,9 @@ public class ServerCallTree {
 			Server fromServer = servers.get(spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));
 
-			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.getServiceType()));
+			ResponseHistogram histogram = new ResponseHistogram(span.getServiceType());
+			histogram.addSample(span.getEndElapsed());
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, histogram);
 
 			if (serverRequests.containsKey(serverRequest.getId())) {
 				serverRequests.get(serverRequest.getId()).getHistogram().addSample(span.getEndElapsed());
