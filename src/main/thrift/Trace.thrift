@@ -39,7 +39,7 @@ struct Span {
   4: i64 leastTraceId
   
   5: i32 spanId
-  6: i32 parentSpanId
+  6: optional i32 parentSpanId = -1
   
   7: i64 startTime
   8: i32 elapsed

@@ -59,7 +59,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private long mostTraceId; // required
   private long leastTraceId; // required
   private int spanId; // required
-  private int parentSpanId; // required
+  private int parentSpanId; // optional
   private long startTime; // required
   private int elapsed; // required
   private String rpc; // required
@@ -190,7 +190,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -204,7 +204,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
@@ -235,6 +235,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   }
 
   public Span() {
+    this.parentSpanId = -1;
+
     this.flag = (short)0;
 
   }
@@ -245,7 +247,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     long mostTraceId,
     long leastTraceId,
     int spanId,
-    int parentSpanId,
     long startTime,
     int elapsed,
     String rpc,
@@ -264,8 +265,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setLeastTraceIdIsSet(true);
     this.spanId = spanId;
     setSpanIdIsSet(true);
-    this.parentSpanId = parentSpanId;
-    setParentSpanIdIsSet(true);
     this.startTime = startTime;
     setStartTimeIsSet(true);
     this.elapsed = elapsed;
@@ -340,8 +339,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.leastTraceId = 0;
     setSpanIdIsSet(false);
     this.spanId = 0;
-    setParentSpanIdIsSet(false);
-    this.parentSpanId = 0;
+    this.parentSpanId = -1;
+
     setStartTimeIsSet(false);
     this.startTime = 0;
     setElapsedIsSet(false);
@@ -1072,8 +1071,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_parentSpanId = true;
-    boolean that_present_parentSpanId = true;
+    boolean this_present_parentSpanId = true && this.isSetParentSpanId();
+    boolean that_present_parentSpanId = true && that.isSetParentSpanId();
     if (this_present_parentSpanId || that_present_parentSpanId) {
       if (!(this_present_parentSpanId && that_present_parentSpanId))
         return false;
@@ -1409,10 +1408,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     sb.append("spanId:");
     sb.append(this.spanId);
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("parentSpanId:");
-    sb.append(this.parentSpanId);
-    first = false;
+    if (isSetParentSpanId()) {
+      if (!first) sb.append(", ");
+      sb.append("parentSpanId:");
+      sb.append(this.parentSpanId);
+      first = false;
+    }
     if (!first) sb.append(", ");
     sb.append("startTime:");
     sb.append(this.startTime);
@@ -1721,9 +1722,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
       oprot.writeI32(struct.spanId);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
-      oprot.writeI32(struct.parentSpanId);
-      oprot.writeFieldEnd();
+      if (struct.isSetParentSpanId()) {
+        oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
+        oprot.writeI32(struct.parentSpanId);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
       oprot.writeFieldEnd();
