@@ -39,11 +39,7 @@ public class Annotation implements Thriftable {
     public com.profiler.common.dto.thrift.Annotation toThrift() {
         com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
         ann.setKey(key.getCode());
-
-        int typeCode = transcoder.getTypeCode(value);
-        byte[] encodeBytes = transcoder.encode(value, typeCode);
-        ann.setValueTypeCode(typeCode);
-        ann.setValue(encodeBytes);
+        transcoder.mappingValue(value, ann);
         return ann;
     }
 }
