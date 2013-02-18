@@ -33,8 +33,9 @@ public class AnnotationBo {
 
     public AnnotationBo(Annotation ano) {
         this.key = ano.getKey();
-        this.valueType = ano.getValueTypeCode();
-        this.byteValue = ano.getValue();
+        Object value = transcoder.getMappingValue(ano);
+        this.valueType = transcoder.getTypeCode(value);
+        this.byteValue = transcoder.encode(value, this.valueType);
     }
 
     public long getSpanId() {

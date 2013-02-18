@@ -1,31 +1,35 @@
 package com.profiler.common.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
+
+import com.profiler.common.dto.thrift.Annotation;
+
+import java.io.*;
 import java.util.Date;
 
 public class AnnotationTranscoder {
 
     private static final String DEFAULT_CHARSET = "UTF-8";
 
-    static final int SERIALIZED = 1;
+    public static final int CODE_STRING = 0;
+    static final int CODE_NULL = 1;
+    static final int CODE_INT = 2;
+    static final int CODE_LONG = 3;
 
-    // Special flags for specially handled types.
-    protected static final int SPECIAL_MASK = 0xff00;
-    static final int SPECIAL_BOOLEAN = (1 << 8);
-    static final int SPECIAL_INT = (2 << 8);
-    static final int SPECIAL_LONG = (3 << 8);
-    static final int SPECIAL_DATE = (4 << 8);
-    static final int SPECIAL_BYTE = (5 << 8);
-    static final int SPECIAL_FLOAT = (6 << 8);
-    static final int SPECIAL_DOUBLE = (7 << 8);
-    static final int SPECIAL_BYTEARRAY = (8 << 8);
+    static final int CODE_BOOLEAN_TRUE = 4;
+    static final int CODE_BOOLEAN_FALSE = 5;
+
+    static final int CODE_BYTEARRAY = 6;
+    static final int CODE_BYTE = 7;
+
+    static final int CODE_FLOAT = 8;
+    static final int CODE_DOUBLE = 9;
+
+    static final int CODE_DATE = 10;
 
     protected final TranscoderUtils tu = new TranscoderUtils(true);
+
+
+
 
     public static final class Encoded {
 
@@ -47,185 +51,206 @@ public class AnnotationTranscoder {
     }
 
     public Object decode(int dataType, byte[] data) {
-        Object rv = null;
+        switch (dataType) {
+            case CODE_STRING:
+                return decodeString(data);
+            case CODE_BOOLEAN_TRUE:
+                return Boolean.TRUE;
+            case CODE_BOOLEAN_FALSE:
+                return Boolean.FALSE;
+            case CODE_INT:
+                return new Integer(tu.decodeInt(data));
+            case CODE_LONG:
+                return new Long(tu.decodeLong(data));
+            case CODE_DATE:
+                return new Date(tu.decodeLong(data));
+            case CODE_BYTE:
+                return new Byte(tu.decodeByte(data));
+            case CODE_FLOAT:
+                return new Float(Float.intBitsToFloat(tu.decodeInt(data)));
+            case CODE_DOUBLE:
+                return new Double(Double.longBitsToDouble(tu.decodeLong(data)));
+            case CODE_BYTEARRAY:
+                return data;
+            case CODE_NULL:
+                return null;
 
-        int flags = dataType & SPECIAL_MASK;
 
-        if ((dataType & SERIALIZED) != 0 && data != null) {
-            rv = deserialize(data);
-        } else if (flags != 0 && data != null) {
-            switch (flags) {
-                case SPECIAL_BOOLEAN:
-                    rv = Boolean.valueOf(tu.decodeBoolean(data));
-                    break;
-                case SPECIAL_INT:
-                    rv = new Integer(tu.decodeInt(data));
-                    break;
-                case SPECIAL_LONG:
-                    rv = new Long(tu.decodeLong(data));
-                    break;
-                case SPECIAL_DATE:
-                    rv = new Date(tu.decodeLong(data));
-                    break;
-                case SPECIAL_BYTE:
-                    rv = new Byte(tu.decodeByte(data));
-                    break;
-                case SPECIAL_FLOAT:
-                    rv = new Float(Float.intBitsToFloat(tu.decodeInt(data)));
-                    break;
-                case SPECIAL_DOUBLE:
-                    rv = new Double(Double.longBitsToDouble(tu.decodeLong(data)));
-                    break;
-                case SPECIAL_BYTEARRAY:
-                    rv = data;
-                    break;
-                default:
+            default:
 //				LOG.warn("Undecodeable with flags %x", flags);
-            }
-        } else {
-            rv = decodeString(data);
         }
-        return rv;
+        return null;
     }
 
     public int getTypeCode(Object o) {
-        if (o instanceof String) {
-            return 0;
-        } else if (o instanceof Long) {
-            return SPECIAL_LONG;
-        } else if (o instanceof Integer) {
-            return SPECIAL_INT;
-        } else if (o instanceof Boolean) {
-            return SPECIAL_BOOLEAN;
-        } else if (o instanceof Date) {
-            return SPECIAL_DATE;
-        } else if (o instanceof Byte) {
-            return SPECIAL_BYTE;
-        } else if (o instanceof Float) {
-            return SPECIAL_FLOAT;
-        } else if (o instanceof Double) {
-            return SPECIAL_DOUBLE;
-        } else if (o instanceof byte[]) {
-            return SPECIAL_BYTEARRAY;
-        } else {
-            return SERIALIZED;
+        if (o == null) {
+            return CODE_NULL;
         }
+        if (o instanceof String) {
+            return CODE_STRING;
+        } else if (o instanceof Long) {
+            return CODE_LONG;
+        } else if (o instanceof Integer) {
+            return CODE_INT;
+        } else if (o instanceof Boolean) {
+            if (Boolean.TRUE.equals(o)) {
+                return CODE_BOOLEAN_TRUE;
+            }
+            return CODE_BOOLEAN_FALSE;
+        } else if (o instanceof Byte) {
+            return CODE_BYTE;
+        } else if (o instanceof Float) {
+            return CODE_FLOAT;
+        } else if (o instanceof Double) {
+            return CODE_DOUBLE;
+        } else if (o instanceof byte[]) {
+            return CODE_BYTEARRAY;
+        } else if (o instanceof Date) {
+            return CODE_DATE;
+        }
+        return 0;
     }
 
+    public Object getMappingValue(Annotation annotation) {
+        if (annotation.isSetStringValue()) {
+            return annotation.getStringValue();
+        } else if(annotation.isSetIntValue()) {
+            return annotation.getIntValue();
+        } else if(annotation.isSetLongValue()) {
+            return annotation.getLongValue();
+        } else if(annotation.isSetBoolValue()) {
+            return annotation.isBoolValue();
+        } else if(annotation.isSetByteValue()) {
+            return annotation.getByteValue();
+        } else if(annotation.isSetDoubleValue()) {
+            return annotation.getDoubleValue();
+        } else if(annotation.isSetBinaryValue()) {
+            return annotation.getBinaryValue();
+        }
+        return null;
+    }
+
+    public void mappingValue(Object o, Annotation annotation) {
+        if (o == null) {
+            return;
+        }
+        if (o instanceof String) {
+            annotation.setStringValue((String) o);
+            return;
+        } else if (o instanceof Integer) {
+            annotation.setIntValue((Integer) o);
+            return;
+        } else if (o instanceof Long) {
+            annotation.setLongValue((Long) o);
+            return;
+        } else if (o instanceof Boolean) {
+            annotation.setBoolValue((Boolean) o);
+            return;
+        } else if (o instanceof Byte) {
+            annotation.setByteValue((Byte) o);
+            return;
+        } else if (o instanceof Float) {
+            annotation.setDoubleValue((Float) o);
+            return;
+        } else if (o instanceof Double) {
+            annotation.setDoubleValue((Double) o);
+            return;
+        } else if (o instanceof byte[]) {
+            annotation.setBinaryValue((byte[]) o);
+            return;
+        } else if (o instanceof Short) {
+            annotation.setShortValue((Short) o);
+            return;
+        }
+        String str = o.toString();
+        annotation.setStringValue(str);
+        return;
+    }
 
     public byte[] encode(Object o, int typeCode) {
         switch (typeCode) {
-            case 0:
+            case CODE_STRING:
                 return encodeString((String) o);
-            case SPECIAL_INT:
+            case CODE_INT:
                 return tu.encodeInt((Integer) o);
-            case SPECIAL_BOOLEAN:
-                return tu.encodeBoolean((Boolean) o);
-            case SPECIAL_LONG:
+            case CODE_BOOLEAN_TRUE:
+                return null;
+            case CODE_BOOLEAN_FALSE:
+                return null;
+            case CODE_LONG:
                 return tu.encodeLong((Long) o);
-            case SPECIAL_DATE:
-                return tu.encodeLong(((Date) o).getTime());
-            case SPECIAL_BYTE:
+            case CODE_BYTE:
                 return tu.encodeByte((Byte) o);
-            case SPECIAL_FLOAT:
+            case CODE_FLOAT:
                 return tu.encodeInt(Float.floatToRawIntBits((Float) o));
-            case SPECIAL_DOUBLE:
+            case CODE_DOUBLE:
                 return tu.encodeLong(Double.doubleToRawLongBits((Double) o));
-            case SPECIAL_BYTEARRAY:
+            case CODE_BYTEARRAY:
                 return (byte[]) o;
+            case CODE_NULL:
+                return null;
+            case CODE_DATE:
+                return tu.encodeLong(((Date) o).getTime());
             default:
-                return serialize(o);
+                String str = o.toString();
+                return encodeString(str);
         }
     }
 
     Encoded encode(Object o) {
         byte[] b = null;
-        int flags = 0;
+        int type = 0;
         if (o instanceof String) {
             b = encodeString((String) o);
+            type = CODE_STRING;
         } else if (o instanceof Long) {
             b = tu.encodeLong((Long) o);
-            flags |= SPECIAL_LONG;
+            type = CODE_LONG;
         } else if (o instanceof Integer) {
             b = tu.encodeInt((Integer) o);
-            flags |= SPECIAL_INT;
+            type = CODE_INT;
         } else if (o instanceof Boolean) {
-            b = tu.encodeBoolean((Boolean) o);
-            flags |= SPECIAL_BOOLEAN;
-        } else if (o instanceof Date) {
-            b = tu.encodeLong(((Date) o).getTime());
-            flags |= SPECIAL_DATE;
+            if(Boolean.TRUE.equals(o)) {
+                type = CODE_BOOLEAN_TRUE;
+            } else {
+                type = CODE_BOOLEAN_FALSE;
+            }
         } else if (o instanceof Byte) {
             b = tu.encodeByte((Byte) o);
-            flags |= SPECIAL_BYTE;
+            type = CODE_BYTE;
         } else if (o instanceof Float) {
             b = tu.encodeInt(Float.floatToRawIntBits((Float) o));
-            flags |= SPECIAL_FLOAT;
+            type = CODE_FLOAT;
         } else if (o instanceof Double) {
             b = tu.encodeLong(Double.doubleToRawLongBits((Double) o));
-            flags |= SPECIAL_DOUBLE;
+            type = CODE_DOUBLE;
         } else if (o instanceof byte[]) {
             b = (byte[]) o;
-            flags |= SPECIAL_BYTEARRAY;
+            type = CODE_BYTEARRAY;
+        } else if (o instanceof Date) {
+            b = tu.encodeLong(((Date) o).getTime());
+            type = CODE_DATE;
         } else {
-            b = serialize(o);
-            flags |= SERIALIZED;
+            String str = o.toString();
+            b = encodeString(str);
+            type = CODE_STRING;
         }
 
-        assert b != null;
-
-        return new Encoded(flags, b);
-    }
-
-    protected byte[] serialize(Object o) {
-        if (o == null) {
-            throw new NullPointerException("Can't serialize null");
-        }
-        byte[] rv = null;
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bos);
-            os.writeObject(o);
-            os.close();
-            bos.close();
-            rv = bos.toByteArray();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Non-serializable object, cause=" + e.getMessage(), e);
-        }
-        return rv;
-    }
-
-    protected Object deserialize(byte[] in) {
-        Object rv = null;
-        try {
-            if (in != null) {
-                ByteArrayInputStream bis = new ByteArrayInputStream(in);
-                ObjectInputStream is = new ObjectInputStream(bis);
-                rv = is.readObject();
-                is.close();
-                bis.close();
-            }
-        } catch (IOException e) {
-//			LOG.error(e.getMessage(), e);
-        } catch (ClassNotFoundException e) {
-//			LOG.error(e.getMessage(), e);
-        }
-        return rv;
+        return new Encoded(type, b);
     }
 
     /**
      * Decode the string with the current character set.
      */
     protected String decodeString(byte[] data) {
-        String rv = null;
+        if(data == null) {
+            return null;
+        }
         try {
-            if (data != null) {
-                rv = new String(data, DEFAULT_CHARSET);
-            }
+            return new String(data, DEFAULT_CHARSET);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        return rv;
     }
 
     /**
