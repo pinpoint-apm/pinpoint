@@ -50,10 +50,10 @@ struct Span {
   7: i64 startTime
   8: i32 elapsed
   
-  9: string rpc
-  10: string serviceName
+  9: optional string rpc
+  10: optional string serviceName
   11: i16 serviceType
-  12: string endPoint
+  12: optional string endPoint
   13: optional string remoteAddr 
   
   14: list<Annotation> annotations

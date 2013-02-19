@@ -63,11 +63,11 @@ public class TerminalSpanUtils {
 	 */
 	public static byte[] makeRowKey(String applicationName, long time) {
 		byte[] slot = Bytes.toBytes(time);
-		byte[] n = Bytes.toBytes(applicationName);
+		byte[] applicationnameBytes = Bytes.toBytes(applicationName);
 
-		byte[] buf = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN + slot.length];
-		System.arraycopy(n, 0, buf, 0, n.length);
-		System.arraycopy(slot, 0, buf, HBaseTables.APPLICATION_NAME_MAX_LEN, slot.length);
+		byte[] buf = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN + 8];
+		System.arraycopy(applicationnameBytes, 0, buf, 0, applicationnameBytes.length);
+		System.arraycopy(slot, 0, buf, HBaseTables.APPLICATION_NAME_MAX_LEN, 8);
 
 		return buf;
 	}
