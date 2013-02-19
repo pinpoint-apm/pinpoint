@@ -4,6 +4,7 @@ import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATIST
 import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATISTICS_CF_ERROR;
 import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL;
 
+import com.profiler.server.util.AcceptedTime;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,8 +24,9 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
 
 	@Override
 	public void update(String applicationName, Span span) {
-		// TODO : collector가 데이터를 받은 시간으로 변경
-		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(System.currentTimeMillis());
+
+        final long acceptedTime = AcceptedTime.getAcceptedTime();
+        long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
 		
 		byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(applicationName, 24), Bytes.toBytes(rowTimeSlot));
 		byte[] cf;
