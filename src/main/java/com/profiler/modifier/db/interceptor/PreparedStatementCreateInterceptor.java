@@ -46,7 +46,11 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
         trace.markBeforeTime();
 
         DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-        trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+        trace.recordServiceType(databaseInfo.getType());
+        trace.recordServiceName(databaseInfo.getDatabaseId());
+        trace.recordRpcName(databaseInfo.getUrl());
+
         trace.recordEndPoint(databaseInfo.getUrl());
 
     }

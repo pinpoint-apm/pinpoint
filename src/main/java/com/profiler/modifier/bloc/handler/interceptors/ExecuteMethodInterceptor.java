@@ -66,7 +66,12 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             }
 
             trace.markBeforeTime();
-            trace.recordRpcName(ServiceType.BLOC, traceContext.getApplicationId(), requestURL);
+
+            trace.recordServiceType(ServiceType.BLOC);
+            trace.recordServiceName(traceContext.getApplicationId());
+            trace.recordRpcName(requestURL);
+
+
             trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
             trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
             if (parameters != null && parameters.length() > 0) {

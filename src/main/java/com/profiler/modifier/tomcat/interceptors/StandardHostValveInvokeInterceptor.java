@@ -65,7 +65,10 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             }
 
             trace.markBeforeTime();
-            trace.recordRpcName(ServiceType.TOMCAT, traceContext.getApplicationId(), requestURL);
+
+            trace.recordServiceType(ServiceType.TOMCAT);
+            trace.recordServiceName(traceContext.getApplicationId());
+            trace.recordRpcName(requestURL);
 
             int port = request.getServerPort();
             trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));

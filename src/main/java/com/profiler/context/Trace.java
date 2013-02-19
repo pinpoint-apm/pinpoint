@@ -277,18 +277,39 @@ public final class Trace {
     }
 
 
-    public void recordRpcName(final ServiceType serviceType, final String serviceName, final String rpc) {
+    public void recordServiceType(final ServiceType serviceType) {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceType(serviceType);
-            span.setServiceName(serviceName);
-            span.setRpc(rpc);
         } else {
             SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
             span.setServiceType(serviceType);
+        }
+
+    }
+    public void recordServiceName(final String serviceName) {
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceName(serviceName);
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
+            span.setServiceName(serviceName);
+        }
+
+    }
+
+    public void recordRpcName(final String rpc) {
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setRpc(rpc);
+        } else {
+            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
             span.setRpc(rpc);
         }
 

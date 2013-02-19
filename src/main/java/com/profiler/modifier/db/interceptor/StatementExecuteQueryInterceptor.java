@@ -47,7 +47,11 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
              * If method was not called by request handler, we skip tagging.
              */
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-            trace.recordRpcName(databaseInfo.getExecuteQueryType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+            trace.recordServiceType(databaseInfo.getExecuteQueryType());
+            trace.recordServiceName(databaseInfo.getDatabaseId());
+            trace.recordRpcName(databaseInfo.getUrl());
+
             trace.recordEndPoint(databaseInfo.getUrl());
 
 

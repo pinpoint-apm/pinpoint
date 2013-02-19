@@ -36,7 +36,8 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 		}
 
 		trace.traceBlockBegin();
-		trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
+        trace.recordServiceType(ServiceType.INTERNAL_METHOD);
+//        trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
 		trace.markBeforeTime();
 	}
 

@@ -21,7 +21,10 @@ public class TraceTest {
         trace.traceBlockBegin();
 
         // http server receive
-        trace.recordRpcName(ServiceType.UNKNOWN, "service_name", "http://");
+        trace.recordServiceType(ServiceType.UNKNOWN);
+        trace.recordServiceName("service_name");
+        trace.recordRpcName("http://");
+
         trace.recordEndPoint("http:localhost:8080");
         trace.recordAttribute(AnnotationKey.API, "VALUE");
 
@@ -76,7 +79,10 @@ public class TraceTest {
         trace.traceBlockBegin();
 
         // db server request
-        trace.recordRpcName(ServiceType.MYSQL, "mysql", "rpc");
+        trace.recordServiceType(ServiceType.MYSQL);
+        trace.recordServiceName("mysql");
+        trace.recordRpcName("rpc");
+
         trace.recordAttribute(AnnotationKey.SQL, "SELECT * FROM TABLE");
 
         // get a db response

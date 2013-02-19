@@ -61,9 +61,11 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
         request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-        
-		trace.recordRpcName(ServiceType.HTTP_CLIENT, request.getProtocolVersion().toString(), "CLIENT");
-		
+
+        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        trace.recordServiceName(request.getProtocolVersion().toString());
+        trace.recordRpcName("CLIENT");
+
 		int port = host.getPort();
 		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() +  ((port > 0) ? ":" + port : ""));
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());

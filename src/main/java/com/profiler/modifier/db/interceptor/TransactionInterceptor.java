@@ -1,7 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +12,6 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
 
@@ -79,7 +77,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.markBeforeTime();
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-        trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+        trace.recordServiceType(databaseInfo.getType());
+        trace.recordServiceName(databaseInfo.getDatabaseId());
+        trace.recordRpcName(databaseInfo.getUrl());
+
+
         trace.recordEndPoint(databaseInfo.getUrl());
     }
 
@@ -126,7 +129,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.markBeforeTime();
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-        trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+        trace.recordServiceType(databaseInfo.getType());
+        trace.recordServiceName(databaseInfo.getDatabaseId());
+        trace.recordRpcName(databaseInfo.getUrl());
+
         trace.recordEndPoint(databaseInfo.getUrl());
 //        trace.record(Annotation.ClientSend);
 
@@ -135,7 +142,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
     private void afterCommit(Trace trace, Connection target, Object result) {
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-            trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+            trace.recordServiceType(databaseInfo.getType());
+            trace.recordServiceName(databaseInfo.getDatabaseId());
+            trace.recordRpcName(databaseInfo.getUrl());
+
             trace.recordEndPoint(databaseInfo.getUrl());
 
             trace.recordApi(descriptor);
@@ -167,7 +178,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.markBeforeTime();
 
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-        trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+        trace.recordServiceType(databaseInfo.getType());
+        trace.recordServiceName(databaseInfo.getDatabaseId());
+        trace.recordRpcName(databaseInfo.getUrl());
+
         trace.recordEndPoint(databaseInfo.getUrl());
     }
 
@@ -175,7 +190,11 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         try {
 
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-            trace.recordRpcName(databaseInfo.getType(), databaseInfo.getDatabaseId(), databaseInfo.getUrl());
+
+            trace.recordServiceType(databaseInfo.getType());
+            trace.recordServiceName(databaseInfo.getDatabaseId());
+            trace.recordRpcName(databaseInfo.getUrl());
+
             trace.recordEndPoint(databaseInfo.getUrl());
 
             trace.recordApi(descriptor);
