@@ -3,7 +3,7 @@ disable 'AgentInfo'
 disable 'AgentIdApplicationIndex'
 disable 'ApplicationIndex'
 disable 'RootTraceIndex'
-disable 'TraceIndex'
+disable 'AgentTraceIndex'
 disable 'ApplicationTraceIndex'
 disable 'Traces'
 disable 'SystemInfo'
@@ -16,7 +16,7 @@ drop 'AgentInfo'
 drop 'AgentIdApplicationIndex'
 drop 'ApplicationIndex'
 drop 'RootTraceIndex'
-drop 'TraceIndex'
+drop 'AgentTraceIndex'
 drop 'ApplicationTraceIndex'
 drop 'Traces'
 drop 'SystemInfo'
@@ -29,7 +29,7 @@ create 'AgentInfo', { NAME => 'Info' , TTL => 259200 }
 create 'AgentIdApplicationIndex', { NAME => 'Application', TTL => 259200 }
 create 'ApplicationIndex', { NAME => 'Agents' , TTL => 259200 }
 create 'RootTraceIndex', { NAME => 'Trace' , TTL => 259200  }
-create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
+create 'AgentTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , TTL => 259200  }, { NAME => 'TerminalSpan' , TTL => 259200  }
 create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
