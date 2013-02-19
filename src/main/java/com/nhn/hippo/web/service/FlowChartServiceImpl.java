@@ -107,7 +107,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		for (List<SpanBo> transaction : traces) {
 			// List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(transaction);
+			// markRecursiveCall(transaction);
 			for (SpanBo eachTransaction : transaction) {
 				tree.addSpan(eachTransaction);
 			}
@@ -127,7 +127,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Set<String> endPoints = new HashSet<String>();
 
 		// List<SpanBo> processed = refine(transaction);
-		markRecursiveCall(transaction);
+		// markRecursiveCall(transaction);
 		for (SpanBo eachTransaction : transaction) {
 			tree.addSpan(eachTransaction);
 			endPoints.add(eachTransaction.getEndPoint());
@@ -180,7 +180,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 			totalNonTerminalSpansCount += transaction.size();
 
 			// List<SpanBo> processed = refine(transaction);
-			markRecursiveCall(transaction);
+			// markRecursiveCall(transaction);
 			for (SpanBo eachTransaction : transaction) {
 				tree.addSpan(eachTransaction);
 
@@ -265,7 +265,13 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return list;
 	}
 
+	/**
+	 * server map이 recursive call을 표현할 수 있게 되어 필요 없음.
+	 * @param list
+	 */
+	@Deprecated
 	private void markRecursiveCall(final List<SpanBo> list) {
+		/*
 		for (int i = 0; i < list.size(); i++) {
 			SpanBo a = list.get(i);
 			for (int j = 0; j < list.size(); j++) {
@@ -277,6 +283,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				}
 			}
 		}
+		*/
 	}
 
 	@Override

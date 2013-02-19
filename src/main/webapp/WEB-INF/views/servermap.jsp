@@ -7,7 +7,6 @@
 	<c:forEach items="${nodes}" var="node" varStatus="status">
 	    {
 		    "name" : "${node}",
-		    "recursiveCallCount" : "${node.recursiveCallCount}",
 		    "agentIds" : [
 		    <c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
 		        "${agentId}"

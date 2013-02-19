@@ -36,8 +36,10 @@
     <script type="text/javascript" src="/common/js/date.format.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
 
+    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/intersection.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/springyui.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
 </head>
@@ -511,6 +513,26 @@ $(document).ready(function () {
 	
 	cleanup();
 });
+</script>
+<script id="EdgeBox" type="text/x-jquery-tmpl">
+	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
+		<ul style="margin:0;padding:0 0 0 10px;">
+			<li>
+				Error : ${error}
+			</li>
+			<li>
+				Slow : ${slow}
+			</li>
+			<li>
+			Histogram
+				<ul>
+					<li>100ms : ${histogram['100']}</li>
+					<li>300ms : ${histogram['300']}</li>
+					<li>500ms : ${histogram['500']}</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
 </script>
 </body>
 </html>

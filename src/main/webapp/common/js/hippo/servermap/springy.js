@@ -401,7 +401,7 @@ Layout.ForceDirected.prototype.start = function(render, done) {
 		t.applyHookesLaw();
 		// /t.attractToCentre();
 		t.updateVelocity(0.05);
-		t.updatePosition(0.03);
+		t.updatePosition(0.01);
 
 		if (typeof(render) !== 'undefined') { render();	}
 
@@ -461,6 +461,19 @@ Layout.ForceDirected.prototype.nodeHover = function(pos) {
 };
 
 // Select the edge by point to a particular position
+Layout.ForceDirected.prototype.edgeHover = function(pos, weight) {
+	selectedEdge = this.selectEdge({x: pos.x, y: pos.y}, weight);	
+	this.graph.edges.forEach(function(e){
+		e.hover = false;
+	});
+	if(selectedEdge.edge !== null){
+		selectedEdge.edge.hover = true;
+	}
+
+	return selectedEdge;
+};
+
+// Select the edge by point to a particular position
 Layout.ForceDirected.prototype.selectEdge = function(pos, weight) {
 	var select = {edge: null, point: null, distance: null};
 	var t = this;
@@ -477,13 +490,28 @@ Layout.ForceDirected.prototype.selectEdge = function(pos, weight) {
 			y : Math.round(e.targetPos.y)
 		};
 		//if(cnt == t.graph.edges.length -1){
-			if(t.nearestEdge(p1, p2, pos, weight)){
-				select.edge = e;
-			}			
+			if(e.source.id === e.target.id){ // recursiveCall
+				if(t.nearestRecursiveEdge(e.recursivePos, e.recursiveRadius+5, new Point2D(pos.x, pos.y))){
+					select.edge = e;
+				}
+			}else{
+				if(t.nearestEdge(p1, p2, pos, weight)){
+					select.edge = e;
+				}			
+			}
 		//}
 	});
 
 	return select;
+};
+
+Layout.ForceDirected.prototype.nearestRecursiveEdge = function(c, r, pos){
+	var oIntersection = Intersection.intersectCircleLine(new Point2D(c.x, c.y), r, new Point2D(0,0), new Point2D(pos.x, pos.y));
+	if(oIntersection.points.length === 1){
+		return true;
+	}else{
+		return false;
+	}
 };
 
 Layout.ForceDirected.prototype.nearestEdge = function(p1, p2, p3, weight){
@@ -545,19 +573,6 @@ Layout.ForceDirected.prototype.changeDegree = function(p1, p2, p3){
 		p2 : n2,
 		p3 : n3
 	}
-};
-
-// Select the edge by point to a particular position
-Layout.ForceDirected.prototype.edgeHover = function(pos, weight) {
-	selectedEdge = this.selectEdge({x: pos.x, y: pos.y}, weight);	
-	this.graph.edges.forEach(function(e){
-		e.hover = false;
-	});
-	if(selectedEdge.edge !== null){
-		selectedEdge.edge.hover = true;
-	}
-
-	return selectedEdge;
 };
 
 // returns [bottomleft, topright]

@@ -25,8 +25,10 @@
     <script type="text/javascript" src="/common/js/hippo/chart-scatter.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
     
+    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/intersection.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/springyui.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
     <script type="text/javascript">
@@ -360,7 +362,6 @@
             <c:forEach items="${nodes}" var="node" varStatus="status">
             {
                 "name":"${node}",
-                "recursiveCallCount":"${node.recursiveCallCount}",
                 "agentIds":[
                     <c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
                     "${agentId}"

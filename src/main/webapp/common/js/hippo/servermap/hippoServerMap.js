@@ -14,9 +14,15 @@ jQuery.fn.hippoServerMap = function(params) {
 		sEdgeBoxBgColor = params.sEdgeBoxBgColor || 'rgba(255, 255, 255, 1)',
 		sEdgeBoxBgHoverColor = params.sEdgeBoxBgHoverColor || 'rgba(255, 255, 255, 1)',
 		nEdgeWeight = params.nEdgeWeight || 1,
-		nEdgeHoverWeight = params.nEdgeHoverWeight || 20;
+		nEdgeHoverWeight = params.nEdgeHoverWeight || 20,
+		nEdgeArrowLength = params.nEdgeArrowLength || 10,
+		nRecursiveEdgeRadius = params.nRecursiveEdgeRadius || 20;
 	var sNodeBorderColor = params.sNodeBorderColor || '#8f8f8f',
 		sNodeBorderHoverColor = params.sNodeBorderHoverColor || '#28a1f7',
+		sNodeBgHoverFromColor = params.sNodeBgHoverFromColor || 'rgba(255, 255, 255, 1)',
+		sNodeBorderFromHoverColor = params.sNodeBorderFromHoverColor || '#f77128',
+		sNodeBgHoverToColor = params.sNodeBgHoverToColor || 'rgba(255, 255, 255, 1)',
+		sNodeBorderToHoverColor = params.sNodeBorderToHoverColor || '#28a1f7',
 		sNodeBgColor = params.sNodeBgColor || 'rgba(255, 255, 255, 0.5)',
 		sNodeBgHoverColor = params.sNodeBgHoverColor || 'rgba(255, 255, 255, 1)';
 	var nZoomGap = params.nZoomGap || 100,
@@ -109,6 +115,7 @@ jQuery.fn.hippoServerMap = function(params) {
 	});
 
 	jQuery(canvas).mousedown(function(e) {
+		e.preventDefault();	
 		var pos = jQuery(this).offset();
 		selectedNode = layout.selectNode({x: e.pageX - pos.left, y: e.pageY - pos.top});		
 		selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
@@ -117,6 +124,7 @@ jQuery.fn.hippoServerMap = function(params) {
 			if(typeof selectedNode.node.data.onMouseClick === 'function'){
 				selectedNode.node.data.onMouseClick.call(selectedNode.node, e);
 			}
+			$(this).css('cursor','pointer');
 		}else if(selectedEdge.edge !== null){
 			if(typeof selectedEdge.edge.data.onMouseClick === 'function'){
 				selectedEdge.edge.data.onMouseClick.call(selectedEdge.edge, e);
@@ -128,8 +136,9 @@ jQuery.fn.hippoServerMap = function(params) {
 		}
 	});
 
-	var lastSelectedNodeId = null, lastSelectedEdgeId = null;
+	var lastSelectedNodeId = null, lastSelectedEdge = {edge : null};
 	jQuery(canvas).mousemove(function(e) {
+		e.preventDefault();	
 		if (dragged){
 			var pos = jQuery(this).offset();
 			var nTop = parseInt(jQuery(this).css('top'), 10),
@@ -158,6 +167,7 @@ jQuery.fn.hippoServerMap = function(params) {
 			}
 
 			renderer.startOnce();
+			$(this).css('cursor','pointer');
 		}else{
 			var pos = jQuery(this).offset();
 			selectedNode = layout.nodeHover({x: e.pageX - pos.left, y: e.pageY - pos.top});	
@@ -169,28 +179,34 @@ jQuery.fn.hippoServerMap = function(params) {
 						selectedNode.node.data.onMouseOver.call(selectedNode.node, e);
 					}
 					renderer.startOnce();
+					$(this).css('cursor','pointer');
 				}
 			}else{
 				if(lastSelectedNodeId !== null){
 					renderer.startOnce();
+					$(this).css('cursor','pointer');
 				}
 				lastSelectedNodeId = null;
+				$(this).css('cursor','auto');
 			}
 
 			selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
 			if(selectedEdge.edge !== null){
-				if(selectedEdge.edge.id != lastSelectedEdgeId){
-					lastSelectedEdgeId = selectedEdge.edge.id;
+				if(lastSelectedEdge.edge === null || selectedEdge.edge.id != lastSelectedEdge.edge.id){
+					lastSelectedEdge = selectedEdge;
 					if(typeof selectedEdge.edge.data.onMouseOver === 'function'){
 						selectedEdge.edge.data.onMouseOver.call(selectedEdge.edge, e);
 					}
 					renderer.startOnce();
 				}
 			}else{
-				if(lastSelectedEdgeId !== null){
+				if(lastSelectedEdge.edge !== null){
 					renderer.startOnce();
+					if(typeof lastSelectedEdge.edge.data.onMouseOut === 'function'){
+						lastSelectedEdge.edge.data.onMouseOut.call(lastSelectedEdge.edge, e);
+					}
 				}
-				lastSelectedEdgeId = null;
+				lastSelectedEdge = {edge : null};				
 			}
 		}
 	});
@@ -198,6 +214,7 @@ jQuery.fn.hippoServerMap = function(params) {
 	jQuery(window).mouseup(function(e) {
 		dragged = null;
 		selected = null;
+		$(this).css('cursor','auto');
 	});
 
 	var self =this;
@@ -271,145 +288,11 @@ jQuery.fn.hippoServerMap = function(params) {
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 		},
 		function drawEdge(edge, p1, p2) {
-			var x1 = toScreen(p1).x;
-			var y1 = toScreen(p1).y;
-			var x2 = toScreen(p2).x;
-			var y2 = toScreen(p2).y;
-
-			var direction = new Vector(x2-x1, y2-y1);
-			var normal = direction.normal().normalise();
-
-			var from = graph.getEdges(edge.source, edge.target);
-			var to = graph.getEdges(edge.target, edge.source);
-
-			var total = from.length + to.length;
-
-			// Figure out edge's position in relation to other edges between the same nodes
-			var n = 0;
-			for (var i=0; i<from.length; i++) {
-				if (from[i].id === edge.id) {
-					n = i;
-				}
-			}
-			var spacing = 20.0;
-
-			// Figure out how far off center the line should be drawn
-			var offset = normal.multiply(-((total - 1) * spacing)/2.0 + (n * spacing));
-
-			var s1 = toScreen(p1).add(offset);
-			var s2 = toScreen(p2).add(offset);
-			
-			var boxWidth = edge.target.getWidth();
-			var boxHeight = edge.target.getHeight();
-
-			var intersection = intersect_line_box(s1, s2, {x: x2-boxWidth/2.0, y: y2-boxHeight/2.0}, boxWidth, boxHeight);
-
-			if (!intersection) {
-				intersection = s2;
-			}
-
-			var sColor, sBoxBgColor, sBoxBorderColor;
-			if(edge.source.hover || edge.target.hover){
-				if(edge.source.hover){
-					sColor = sEdgeOutHoverColor;
-					sBoxBorderColor = sEdgeOutHoverColor;
-				}else{
-					sColor = sEdgeInHoverColor;
-					sBoxBorderColor = sEdgeInHoverColor;
-				}
-				sBoxBgColor = sEdgeBoxBgHoverColor;
+			if(edge.source.id === edge.target.id){
+				drawRecursiveLineWithArrow(edge, p1, p2);
 			}else{
-				sColor = sEdgeColor;
-				sBoxBgColor = sEdgeBoxBgColor;
-				sBoxBorderColor = sEdgeBoxBorderColor;
+				drawLineWithArrow(edge, p1, p2);
 			}
-
-			if(edge.hover){
-				sColor = sEdgeHoverColor;
-				sBoxBorderColor = sEdgeOutHoverColor;
-			}
-
-			var arrowWidth;
-			var arrowLength;
-
-			//var weight = typeof(edge.data.weight) !== 'undefined' ? edge.data.weight : 1.0;
-			var weight = nEdgeWeight;
-
-			ctx.lineWidth = Math.max(weight, 0.1);
-			arrowWidth = 4 + ctx.lineWidth;
-			arrowLength = 10;
-
-			var directional = typeof(edge.data.directional) !== 'undefined' ? edge.data.directional : true;
-
-			// line
-			var lineEnd;
-			if (directional) {
-				lineEnd = intersection.subtract(direction.normalise().multiply(arrowLength * 0.5));
-			} else {
-				lineEnd = s2;
-			}
-			var lineStart = intersect_line_box(s1, s2, {x: x1-boxWidth/2.0, y: y1-boxHeight/2.0}, boxWidth, boxHeight);
-			
-			edge.sourcePos = lineStart;
-			edge.targetPos = lineEnd;
-
-			ctx.strokeStyle = sColor;
-			ctx.beginPath();
-			ctx.moveTo(lineStart.x, lineStart.y);
-			ctx.lineTo(lineEnd.x, lineEnd.y);
-			ctx.stroke();
-
-			// arrow
-			if (directional) {
-				ctx.save();
-				ctx.fillStyle = sColor;
-				ctx.translate(intersection.x, intersection.y);
-				ctx.rotate(Math.atan2(y2 - y1, x2 - x1));
-				ctx.beginPath();
-				ctx.moveTo(-arrowLength, arrowWidth);
-				ctx.lineTo(0, 0);
-				ctx.lineTo(-arrowLength, -arrowWidth);
-				ctx.lineTo(-arrowLength * 0.8, -0);
-				ctx.closePath();
-				ctx.fill();
-				ctx.restore();
-
-				var nMiddleX = ((lineStart.x+lineEnd.x)/2),
-					nMiddleY = ((lineStart.y+lineEnd.y)/2);
-
-				var nMiddleOfMiddleX = (lineEnd.x+nMiddleX) / 2,
-					nMiddleOfMiddleY = (lineEnd.y+nMiddleY) / 2;
-
-				var nValueWidth = edge.getValueWidth(),
-					nValueHeight = 18;
-				ctx.save();
-				ctx.strokeStyle = sBoxBorderColor;
-				ctx.fillStyle = sBoxBgColor;
-				ctx.roundRect(
-					nMiddleOfMiddleX - nValueWidth/2, 
-					nMiddleOfMiddleY - nValueHeight/4, 
-					nValueWidth, nValueHeight, {upperLeft:0, upperRight:0, lowerLeft:0, lowerRight:0}, true, true);
-				
-				ctx.textAlign = 'center';
-				ctx.textBaseline = 'top';
-				ctx.font = '9px Helvetica, sans-serif';
-				ctx.fillStyle = '#000';
-				ctx.fillText(edge.data.value, nMiddleOfMiddleX, nMiddleOfMiddleY);
-				ctx.restore();
-			}
-
-			// label
-			if (typeof(edge.data.label) !== 'undefined') {
-				text = edge.data.label
-				ctx.save();
-				ctx.textAlign = "center";
-				ctx.textBaseline = "top";
-				ctx.font = "10px Helvetica, sans-serif";
-				ctx.fillStyle = "#5BA6EC";
-				ctx.fillText(text, (x1+x2)/2, (y1+y2)/2);
-				ctx.restore();
-			}
-
 		},
 		function drawNode(node, p) {
 			var s = toScreen(p);
@@ -438,6 +321,20 @@ jQuery.fn.hippoServerMap = function(params) {
 				ctx.strokeStyle = sNodeBorderColor;
 				ctx.fillStyle = sNodeBgColor;
 			}			
+
+			var edges = layout.graph.edges;
+			for(var i=0, nLen=edges.length; i<nLen; i++){
+				if(edges[i].hover === true){
+					if(edges[i].source.id === node.id){
+						ctx.strokeStyle = sNodeBorderFromHoverColor;
+						ctx.fillStyle = sNodeBgHoverFromColor;
+					}else if(edges[i].target.id === node.id){
+						ctx.strokeStyle = sNodeBorderToHoverColor;
+						ctx.fillStyle = sNodeBgHoverToColor;
+					}
+				}
+			}
+
 			node.top = s.y - boxHeight/2;
 			node.left = s.x - boxWidth/2;
 			ctx.roundRect(node.left, node.top, boxWidth, boxHeight, {upperLeft:10, upperRight:10, lowerLeft:10, lowerRight:10}, true, true);
@@ -447,7 +344,7 @@ jQuery.fn.hippoServerMap = function(params) {
 			//ctx.strokeRect(s.x - boxWidth/2, s.y - 20, boxWidth, 20);
 
 			var image = new Image();
-			image.src = "/common/images/hippo/ico_" + node.data.serviceType + ".gif";
+			image.src = "/images/servermap/ico_" + node.data.serviceType + ".png";
 			ctx.drawImage(image, s.x - image.width / 2, s.y - image.height / 1, image.width, image.height);
 
 			var textX = s.x - textWidth / 2 + 5;
@@ -465,6 +362,233 @@ jQuery.fn.hippoServerMap = function(params) {
 	);
 
 	renderer.start();
+
+	function getEdgeColors(edge){
+		if(edge.source.hover || edge.target.hover){
+			if(edge.source.hover){
+				sColor = sEdgeOutHoverColor;
+				sBoxBorderColor = sEdgeOutHoverColor;
+			}else{
+				sColor = sEdgeInHoverColor;
+				sBoxBorderColor = sEdgeInHoverColor;
+			}
+			sBoxBgColor = sEdgeBoxBgHoverColor;
+		}else{
+			sColor = sEdgeColor;
+			sBoxBgColor = sEdgeBoxBgColor;
+			sBoxBorderColor = sEdgeBoxBorderColor;
+		}
+		if(edge.hover){
+			sColor = sEdgeHoverColor;
+			sBoxBorderColor = sEdgeOutHoverColor;
+		}
+		return {
+			sColor : sColor,
+			sBoxBorderColor : sBoxBorderColor,
+			sBoxBgColor : sBoxBgColor
+		};
+	}
+
+	function getInfoForLine(edge, p1, p2){
+		var x1 = toScreen(p1).x,
+			y1 = toScreen(p1).y,
+			x2 = toScreen(p2).x,
+			y2 = toScreen(p2).y;
+
+		var direction = new Vector(x2-x1, y2-y1),
+			normal = direction.normal().normalise();
+
+		var from = graph.getEdges(edge.source, edge.target),
+			to = graph.getEdges(edge.target, edge.source)
+			total = from.length + to.length;
+
+		// Figure out edge's position in relation to other edges between the same nodes
+		var n = 0;
+		for (var i=0; i<from.length; i++) {
+			if (from[i].id === edge.id) {
+				n = i;
+			}
+		}
+		var spacing = 20.0;
+
+		// Figure out how far off center the line should be drawn
+		var offset = normal.multiply(-((total - 1) * spacing)/2.0 + (n * spacing));
+
+		var s1 = toScreen(p1).add(offset),
+			s2 = toScreen(p2).add(offset);	
+
+		var boxWidth = edge.target.getWidth(),
+			boxHeight = edge.target.getHeight();
+
+		var intersection = intersect_line_box(s1, s2, {x: x2-boxWidth/2.0, y: y2-boxHeight/2.0}, boxWidth, boxHeight);
+
+		if (!intersection) {
+			intersection = s2;
+		}		
+
+		var directional = typeof(edge.data.directional) !== 'undefined' ? edge.data.directional : true;
+
+		// line
+		var lineEnd;
+		if (directional) {
+			lineEnd = intersection.subtract(direction.normalise().multiply(nEdgeArrowLength * 0.5));
+		} else {
+			lineEnd = s2;
+		}
+
+		var lineStart = intersect_line_box(s1, s2, {x: x1-boxWidth/2.0, y: y1-boxHeight/2.0}, boxWidth, boxHeight);
+		var htColor = getEdgeColors(edge);
+
+		return {
+			x1 : x1,
+			y1 : y1,
+			x2 : x2,
+			y2 : y2,
+			direction : direction,
+			s1 : s1,
+			s2 : s2,
+			directional : directional,
+			intersection : intersection,
+			lineStart : lineStart,
+			lineEnd : lineEnd,
+			boxWidth : boxWidth,
+			boxHeight : boxHeight,
+			htColor : htColor
+		};
+	}
+
+	function drawRecursiveLineWithArrow(edge, p1, p2){
+		var htInfo = getInfoForLine(edge, p1, p2),
+			x1 = htInfo.x1,
+			y1 = htInfo.y1,
+			x2 = htInfo.x2,
+			y2 = htInfo.y2,
+			lineStart = htInfo.lineStart,
+			lineEnd = htInfo.lineEnd,
+			directional = htInfo.directional,
+			intersection = htInfo.intersection,
+			boxWidth = htInfo.boxWidth,
+			boxHeight = htInfo.boxHeight,
+			htColor = htInfo.htColor;
+
+		var htRightBottomPos = {
+			x : edge.source.left + boxWidth,
+			y : edge.source.top + boxHeight
+		};
+		var nRadius = nRecursiveEdgeRadius;
+		var nStartAngle = 1.5 * Math.PI;
+		var nEndAngle = 1 * Math.PI;
+		var bCounterClockwise = false;
+		edge.recursivePos = htRightBottomPos;
+		edge.recursiveRadius = nRadius;
+
+		ctx.beginPath();
+		ctx.arc(htRightBottomPos.x, htRightBottomPos.y, nRadius, nStartAngle, nEndAngle, bCounterClockwise);
+		ctx.lineWidth = nEdgeWeight;
+		ctx.strokeStyle = htColor.sColor;
+		ctx.stroke();
+
+		var htCenterBottomPos = {
+			x : edge.source.left + boxWidth - nRadius,
+			y : edge.source.top + boxHeight
+		};
+		var nDegree = 1.44 * Math.PI;
+		drawArrow(htCenterBottomPos, nDegree, htColor);
+
+		if(edge.data.value){
+			var nValueWidth = edge.getValueWidth(),
+				nValueHeight = 18;
+			var htValuePos = {
+				x : edge.source.left + boxWidth + nRadius,
+				y : edge.source.top + boxHeight
+			};
+			drawValueOnLine(htValuePos.x, htValuePos.y, nValueWidth, nValueHeight, edge.data.value, htColor);
+		}		
+	}
+
+	function drawLineWithArrow(edge, p1, p2, htColor){
+		var htInfo = getInfoForLine(edge, p1, p2),
+			x1 = htInfo.x1,
+			y1 = htInfo.y1,
+			x2 = htInfo.x2,
+			y2 = htInfo.y2,
+			lineStart = htInfo.lineStart,
+			lineEnd = htInfo.lineEnd,
+			directional = htInfo.directional,
+			intersection = htInfo.intersection,
+			boxWidth = htInfo.boxWidth,
+			boxHeight = htInfo.boxHeight,
+			htColor = htInfo.htColor;
+
+		edge.sourcePos = lineStart;
+		edge.targetPos = lineEnd;
+
+		var weight = nEdgeWeight;
+
+		ctx.strokeStyle = htColor.sColor;
+		ctx.beginPath();
+		ctx.lineWidth = Math.max(weight, 0.1);		
+		ctx.moveTo(lineStart.x, lineStart.y);
+		ctx.lineTo(lineEnd.x, lineEnd.y);
+		ctx.stroke();
+
+		// arrow
+		if (directional) {
+			var nDegree = Math.atan2((y2 - y1), (x2 - x1));
+			drawArrow(intersection, nDegree, htColor);
+		}
+
+		if(edge.data.value){
+			var nMiddleX = ((lineStart.x+lineEnd.x)/2),
+				nMiddleY = ((lineStart.y+lineEnd.y)/2);
+
+			var nMiddleOfMiddleX = (lineEnd.x+nMiddleX) / 2,
+				nMiddleOfMiddleY = (lineEnd.y+nMiddleY) / 2;		
+
+			var nValueWidth = edge.getValueWidth(),
+				nValueHeight = 18;
+
+			drawValueOnLine(nMiddleOfMiddleX, nMiddleOfMiddleY, nValueWidth, nValueHeight, edge.data.value, htColor);
+		}
+	}
+
+	function drawArrow(pos, degree, htColor){	
+		var arrowWidth;
+		//var weight = typeof(edge.data.weight) !== 'undefined' ? edge.data.weight : 1.0;
+		var weight = nEdgeWeight;
+		ctx.lineWidth = Math.max(weight, 0.1);
+		arrowWidth = 4 + ctx.lineWidth;
+
+		ctx.save();
+		ctx.fillStyle = htColor.sColor;
+		ctx.translate(pos.x, pos.y);
+		ctx.rotate(degree);
+		ctx.beginPath();
+		ctx.moveTo(-nEdgeArrowLength, arrowWidth);
+		ctx.lineTo(0, 0);
+		ctx.lineTo(-nEdgeArrowLength, -arrowWidth);
+		ctx.lineTo(-nEdgeArrowLength * 0.8, -0);
+		ctx.closePath();
+		ctx.fill();
+		ctx.restore();		
+	}
+
+	function drawValueOnLine(x, y, width, height, value, htColor){
+		ctx.save();
+		ctx.strokeStyle = htColor.sBoxBorderColor;
+		ctx.fillStyle = htColor.sBoxBgColor;
+		ctx.roundRect(
+			x - width/2, 
+			y - height/4, 
+			width, height, {upperLeft:0, upperRight:0, lowerLeft:0, lowerRight:0}, true, true);
+		
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.font = '9px Helvetica, sans-serif';
+		ctx.fillStyle = '#000';
+		ctx.fillText(value, x, y);
+		ctx.restore();		
+	}
 
 	// helpers for figuring out where to draw arrows
 	function intersect_line_line(p1, p2, p3, p4) {

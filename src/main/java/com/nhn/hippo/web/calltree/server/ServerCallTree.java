@@ -135,10 +135,13 @@ public class ServerCallTree {
 			}
 			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.getServiceType()));
 
+			/*
 			// TODO: local call인 경우 보여주지 않음.
+			// server map v5 부터는 recursive call을 지원함.
 			if (serverRequest.isSelfCalled()) {
 				continue;
 			}
+			*/
 
 			if (serverRequests.containsKey(serverRequest.getId())) {
 				serverRequests.get(serverRequest.getId()).getHistogram().addSample(span.getElapsed());
