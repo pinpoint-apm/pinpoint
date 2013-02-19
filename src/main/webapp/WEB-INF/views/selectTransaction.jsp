@@ -225,13 +225,13 @@
                     </c:if>
                     
                     	<c:if test="${record.tab > 1}">
-                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;</c:forEach>
+                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;&nbsp;</c:forEach>
                         </c:if>
                         <c:choose>
                         	<c:when test="${not record.method}"><i class="icon-info-sign"></i></c:when>
-                        	<c:otherwise><i class="icon-chevron-down"></i></c:otherwise>
+                        	<c:otherwise> </c:otherwise>
                         </c:choose>
-                        ${record.title}
+						${record.title}
                     </td>
                     
                     <td class="arguments">${record.arguments}</td>
