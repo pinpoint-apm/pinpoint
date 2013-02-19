@@ -200,7 +200,6 @@
 						<tr>
 					</c:otherwise>                
 				</c:choose>
-
 				                
                 	<c:if test="${record.method}">
                 	<c:set var="seq" scope="page" value="${seq + 1}"/>
@@ -213,6 +212,7 @@
                     <td class="gap">${gap}</td>
                     <td class="method">
                     </c:if>
+                    
                 	<c:if test="${not record.method}">
                 	<td class="seq info"></td>
                     <td class="exectime info">
@@ -223,11 +223,15 @@
                     <td class="gap info"></td>
                     <td class="method">
                     </c:if>
-                    	<c:if test="${record.tab > 0}">
-                        	<c:forEach begin="0" end="${record.tab}">&nbsp;</c:forEach>
+                    
+                    	<c:if test="${record.tab > 1}">
+                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;</c:forEach>
                         </c:if>
-                        <c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
-                        ${record.tab} | ${record.title}
+                        <c:choose>
+                        	<c:when test="${not record.method}"><i class="icon-info-sign"></i></c:when>
+                        	<c:otherwise><i class="icon-chevron-down"></i></c:otherwise>
+                        </c:choose>
+                        ${record.title}
                     </td>
                     
                     <td class="arguments">${record.arguments}</td>
