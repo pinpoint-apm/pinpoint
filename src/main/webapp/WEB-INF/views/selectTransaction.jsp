@@ -13,7 +13,6 @@
     <link href="/common/css/hippo/hippo.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -22,15 +21,9 @@
 
     <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/select2/select2.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
-    <script type="text/javascript" src="/common/js/sankey/sankey.js"></script>
     
-	<script type="text/javascript" src="/common/js/hippo/chart-sankey.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-scatter.js"></script>
     <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/chart-tree.js"></script>
     
     <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/springyui.js"></script>
@@ -346,24 +339,13 @@
 
 <ul class="nav nav-tabs" id="chartTabs">
 	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
-	<li><a href="#Tree" data-toggle="tab">Server Tree</a></li>
-	<li><a href="#Sankey" data-toggle="tab">Sankey Chart</a></li>
 </ul>
 
 <div class="tab-content">
 	<div class="tab-pane active" id="Graph">
 		<div id="springygraph" style="width:99%;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
 	</div>
-	<div class="tab-pane" id="Tree" style="overflow:hidden;">
-		Tree chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
-		<p id="tree"></p>
-	</div>
-	<div class="tab-pane" id="Sankey">
-		Sankey chart는 HIPPO개발자를 위한 차트입니다. (정식 버전에서 빠질 예정.)<br/>
-		<p id="sankeygraph"></p>
-	</div>
 </div>
-
 
 <br/>
 <br/>
@@ -410,9 +392,6 @@
 
     $(document).ready(function () {
         drawSpringy(data, "#springygraph", 960, 500);
-        drawTree(data, "#tree", 960, 500);
-        drawSankeyChart(data, "#sankeygraph", 960, 500);
-        
         $('#chartTabs a:first').tab('show');
         $('#traceTabs a:first').tab('show');
     });
