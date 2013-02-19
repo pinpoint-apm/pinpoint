@@ -4,6 +4,7 @@ import static com.profiler.common.hbase.HBaseTables.TERMINAL_STATISTICS;
 import static com.profiler.common.hbase.HBaseTables.TERMINAL_STATISTICS_CF_COUNTER;
 import static com.profiler.common.hbase.HBaseTables.TERMINAL_STATISTICS_CF_ERROR_COUNTER;
 
+import com.profiler.server.util.AcceptedTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 		byte[] columnName = TerminalSpanUtils.makeColumnName(destServiceType, destApplicationName, elapsed);
 
-		// TODO collector시간으로 변경
-		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(System.currentTimeMillis());
+        long acceptedTime = AcceptedTime.getAcceptedTime();
+        long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
 		final byte[] rowKey = TerminalSpanUtils.makeRowKey(sourceApplicationName, rowTimeSlot);
 
 		byte[] cf = (isError ? TERMINAL_STATISTICS_CF_ERROR_COUNTER : TERMINAL_STATISTICS_CF_COUNTER);
