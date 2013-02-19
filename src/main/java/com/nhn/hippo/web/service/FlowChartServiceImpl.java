@@ -3,7 +3,6 @@ package com.nhn.hippo.web.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.NodeIdGenerator;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
@@ -98,18 +96,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 			return result;
 		}
-	}
-
-	@Override
-	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds) {
-		final RPCCallTree tree = new RPCCallTree();
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
-		for (List<SpanBo> transaction : traces) {
-			for (SpanBo eachTransaction : transaction) {
-				tree.addSpan(eachTransaction);
-			}
-		}
-		return tree.build();
 	}
 
 	@Deprecated

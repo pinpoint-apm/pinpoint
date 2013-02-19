@@ -1,10 +1,8 @@
 package com.nhn.hippo.web.service;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
@@ -42,14 +40,6 @@ public interface FlowChartService {
 	 * @return
 	 */
 	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to);
-
-	/**
-	 * select call tree
-	 * 
-	 * @param traceIds
-	 * @return
-	 */
-	public RPCCallTree selectRPCCallTree(Set<TraceId> traceIds);
 
 	/**
 	 * select call tree

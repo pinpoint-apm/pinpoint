@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.hippo.web.calltree.rpc.RPCCallTree;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.service.SpanService;
@@ -244,22 +243,6 @@ public class FlowChartController {
 	}
 
 	@Deprecated
-	@RequestMapping(value = "/flowRpcbyHost", method = RequestMethod.GET)
-	public String flowRpcbyHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
-		String[] agentIds = flow.selectAgentIds(hosts);
-		Set<TraceId> traceIds = flow.selectTraceIdsFromTraceIndex(agentIds, from, to);
-
-		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
-
-		model.addAttribute("nodes", callTree.getNodes());
-		model.addAttribute("links", callTree.getLinks());
-
-		logger.debug("callTree:{}", callTree);
-
-		return "flow";
-	}
-
-	@Deprecated
 	@RequestMapping(value = "/flowserverByHost", method = RequestMethod.GET)
 	public String flowServerByHost(Model model, @RequestParam("host") String[] hosts, @RequestParam("from") long from, @RequestParam("to") long to) {
 		String[] agentIds = flow.selectAgentIds(hosts);
@@ -285,20 +268,5 @@ public class FlowChartController {
 		logger.debug("callTree:{}", callTree);
 
 		return "flowserver";
-	}
-
-	@Deprecated
-	@RequestMapping(value = "/flowrpc", method = RequestMethod.GET)
-	public String flowrpc(Model model, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
-		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
-
-		RPCCallTree callTree = flow.selectRPCCallTree(traceIds);
-
-		model.addAttribute("nodes", callTree.getNodes());
-		model.addAttribute("links", callTree.getLinks());
-
-		logger.debug("callTree:{}", callTree);
-
-		return "flow";
 	}
 }
