@@ -59,7 +59,7 @@ function openTransactionDetails(index, row) {
 
         html.push("<td><a href='#' onclick='openTrace(\"");
         html.push(traces[i].traceId);
-        html.push("\"); return false;' style='cursor:pointer;'>");
+        html.push("\", -1); return false;' style='cursor:pointer;'>");
         html.push(traces[i].traceId);
         html.push("</a></td>");
 
