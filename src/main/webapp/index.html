@@ -488,10 +488,6 @@ $(document).ready(function () {
 	        getScatterData(getQueryStartTime(), getQueryEndTime(), scatterCallback);
         }
     }
-	
-    $("#application").select2({
-		placeholder: "Select an application.",
-	});
     
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");
@@ -499,11 +495,20 @@ $(document).ready(function () {
             var html = [];
             html.push('<option value="');
             html.push(e);
-            html.push('">');
+            html.push('"');
+            if (json.length == 1) {
+           		html.push(' selected>');
+            } else {
+           		html.push('>');
+            }
             html.push(e);
             html.push('</option>');
             
             target.append(html.join(''));
+		});
+		
+	    $("#application").select2({
+			placeholder: "Select an application.",
 		});
 	});
 	
