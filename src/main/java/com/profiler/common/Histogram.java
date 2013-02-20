@@ -29,7 +29,8 @@ public class Histogram {
     private List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>();
     private int typeCode;
 
-    public Histogram(int typeCode) {
+    // 내부에서 생성한 FAST, NORMAL등의 참조만 사용할것
+    private Histogram(int typeCode) {
     	this.typeCode = typeCode;
     }
 

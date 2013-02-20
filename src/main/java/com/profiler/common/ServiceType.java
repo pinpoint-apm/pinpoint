@@ -31,6 +31,9 @@ public enum ServiceType {
     // TODO internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
     INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, Histogram.NORMAL),
 
+    SPRING((short) 5050, "SPRING", false, false, Histogram.NORMAL),
+    SPRING_MVC((short) 5051, "SPRING", false, false, Histogram.NORMAL),
+
     // memory cache  8000
     MEMCACHED((short) 8050, "MEMCACHED", true, true, Histogram.FAST),
     ARCUS((short) 8100, "ARCUS", true, true, Histogram.FAST),
