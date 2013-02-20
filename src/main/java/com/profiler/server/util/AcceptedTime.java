@@ -15,6 +15,10 @@ public class AcceptedTime {
 
 
     public static long getAcceptedTime() {
-        return local.get();
+        Long acceptedTime = local.get();
+        if (acceptedTime == null) {
+            return System.currentTimeMillis();
+        }
+        return acceptedTime;
     }
 }

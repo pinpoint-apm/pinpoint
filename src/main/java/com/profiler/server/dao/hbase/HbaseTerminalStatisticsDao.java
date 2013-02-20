@@ -25,6 +25,14 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
 
+    /**
+     *
+     * @param sourceApplicationName 조회해야 되는 applicationName. applicatioName을 기준으로 단말노드의 데이터를 읽어온다.
+     * @param destApplicationName
+     * @param destServiceType
+     * @param elapsed
+     * @param isError
+     */
 	@Override
 	public void update(String sourceApplicationName, String destApplicationName, short destServiceType, int elapsed, boolean isError) {
 		if (logger.isDebugEnabled()) {
