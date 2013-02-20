@@ -526,9 +526,9 @@ $(document).ready(function () {
 			<li>
 			Histogram
 				<ul>
-					<li>100ms : ${histogram['100']}</li>
-					<li>300ms : ${histogram['300']}</li>
-					<li>500ms : ${histogram['500']}</li>
+					{{each(key, value) histogram}}
+					<li>&lt; ${key}ms : ${value}</li>
+					{{/each}}
 				</ul>
 			</li>
 		</ul>
