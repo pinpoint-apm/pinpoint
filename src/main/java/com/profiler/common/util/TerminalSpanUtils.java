@@ -23,7 +23,9 @@ public class TerminalSpanUtils {
 	 * @return
 	 */
 	public static byte[] makeColumnName(short serviceType, String applicationName, int elapsed) {
+        // short
 		byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
+        // short
 		byte[] slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
 		byte[] applicationNameBytes = Bytes.toBytes(applicationName);
 
