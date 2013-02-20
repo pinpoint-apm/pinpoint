@@ -60,6 +60,12 @@ public class ServerCallTree {
 		spanIdToServerId.put(spanId, server.getId());
 	}
 
+    public void addSubSpanList(List<SubSpanBo> subSpanBoList) {
+        for (SubSpanBo subSpanBo : subSpanBoList) {
+            this.addSubSpan(subSpanBo);
+        }
+    }
+
 	public void addSubSpan(SubSpanBo span) {
 		Server server = new Server(span, idGenerator);
 
@@ -75,6 +81,12 @@ public class ServerCallTree {
 
 		subspans.add(span);
 	}
+
+    public void addSpanList(List<SpanBo> spanList) {
+        for (SpanBo spanBo : spanList) {
+            addSpan(spanBo);
+        }
+    }
 
 	public void addSpan(SpanBo span) {
 		Server server = new Server(span, idGenerator);
