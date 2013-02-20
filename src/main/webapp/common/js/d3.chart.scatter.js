@@ -375,13 +375,10 @@ d3.chart.scatter._renderer = function(){
 				query.push(traces[i].executionTime)
 			}
 			
-			// queryparameter를 POST로 보내야할 것 같음.
-			d3.json("/requestmetadata.hippo?" + query.join(""), function(d) {
+			$.post("/requestmetadata.hippo", query.join(""), function(d) {
 				$("#selectedBusinessTransactionsDetail TBODY").empty();
 				
-				console.log(d);
-				
-				var data = d.metadata;
+				var data = jQuery.parseJSON(d).metadata;
 				
 				var html = [];
 				for (var i = 0; i < data.length; i++) {

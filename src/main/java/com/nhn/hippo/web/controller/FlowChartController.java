@@ -211,7 +211,7 @@ public class FlowChartController {
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/requestmetadata", method = RequestMethod.GET)
+	@RequestMapping(value = "/requestmetadata", method = RequestMethod.POST)
 	public String requestmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
 		String TRACEID = "tr";
 		String TIME = "ti";
