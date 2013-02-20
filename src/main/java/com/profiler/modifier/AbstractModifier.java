@@ -3,6 +3,8 @@ package com.profiler.modifier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.ServiceType;
+import com.profiler.interceptor.ServiceTypeSupport;
 import javassist.ClassPool;
 
 import com.profiler.Agent;
@@ -38,6 +40,12 @@ public abstract class AbstractModifier implements Modifier {
         // TODO TraceContext를 인터셉터에 바인하는 방안의 추가 개선 필요.
         if (interceptor instanceof TraceContextSupport) {
             ((TraceContextSupport) interceptor).setTraceContext(agent.getTraceContext());
+        }
+    }
+
+    public void setServiceType(Interceptor interceptor, ServiceType serviceType) {
+        if (interceptor instanceof ServiceTypeSupport) {
+            ((ServiceTypeSupport) interceptor).setServiceType(serviceType);
         }
     }
 
