@@ -35,6 +35,8 @@
     
     <script type="text/javascript" src="/common/js/date.format.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    
+    <script type="text/javascript" src="/common/js/sorttable.js"></script>
 
     <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
@@ -198,27 +200,27 @@
 					<p id="scatter"></p>
 				</div>
 				<div class="tab-pane" id="BusinessTransactionList">
-		            <table id="businessTransactions" class="table table-bordered">
+		            <table id="businessTransactions" class="table table-bordered sortable">
 		                <thead>
 		                <tr>
 		                    <th>Name</th>
-		                    <th>Calls</th>
-		                    <th>Time(ms)</th>
-		                    <th>Min Time(ms)</th>
-		                    <th>Max Time(ms)</th>
+		                    <th class="sorttable_numeric">Calls</th>
+		                    <th class="sorttable_numeric">Time(ms)</th>
+		                    <th class="sorttable_numeric">Min Time(ms)</th>
+		                    <th class="sorttable_numeric">Max Time(ms)</th>
 		                </tr>
 		                </thead>
 		                <tbody>
 		                </tbody>
 		            </table>
 		            
-					<table id="businessTransactionsDetail" class="table table-bordered">
+					<table id="businessTransactionsDetail" class="table table-bordered sortable">
 		                <thead>
 		                <tr>
 		                    <th>#</th>
-		                    <th>Time</th>
+		                    <th class="sorttable_numeric">Time</th>
 		                    <th>TraceId</th>
-		                    <th>Response Time (ms)</th>
+		                    <th class="sorttable_numeric">Response Time (ms)</th>
 		                </tr>
 		                </thead>
 		                <tbody>

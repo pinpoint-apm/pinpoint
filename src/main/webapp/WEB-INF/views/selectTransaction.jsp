@@ -31,6 +31,8 @@
     <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
+    
+    <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -149,16 +151,16 @@
 <div class="tab-content">
 	<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
 		<!-- begin new call stack -->
-	    <table id="callStacks" class="table table-bordered table-hover">
+	    <table id="callStacks" class="table table-bordered table-hover sortable">
 	        <thead>
 	        <tr>
-	        	<th>Seq</th>
-	            <th>Exec Time</th>
-	            <th>Gap</th>
-	            <th>Method</th>
-	            <th>Argument</th>
-	            <th>Time[ms]</th>
-	            <th>Time[%]</th>
+	        	<th class="sorttable_numeric">Seq</th>
+	            <th class="sorttable_nosort">Exec Time</th>
+	            <th class="sorttable_nosort">Gap</th>
+	            <th class="sorttable_nosort">Method</th>
+	            <th class="sorttable_nosort">Argument</th>
+	            <th class="sorttable_numeric">Time[ms]</th>
+	            <th class="sorttable_nosort">Time[%]</th>
 	            <th>Service</th>
 	            <th>Agent</th>
 	        </tr>
@@ -198,7 +200,7 @@
 				                
                 	<c:if test="${record.method}">
                 	<c:set var="seq" scope="page" value="${seq + 1}"/>
-                	<td class="seq">${seq}</td>
+                	<td sorttable_customkey="${status.count}" class="seq">${seq}</td>
                     <td class="exectime">
                     	<c:if test="${record.method}">
                     		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
@@ -209,7 +211,7 @@
                     </c:if>
                     
                 	<c:if test="${not record.method}">
-                	<td class="seq info"></td>
+                	<td sorttable_customkey="${status.count}" class="seq info"></td>
                     <td class="exectime info">
                     	<c:if test="${record.method}">
                     		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
