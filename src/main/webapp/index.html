@@ -518,6 +518,10 @@ $(document).ready(function () {
 		alert("[NOT IMPLEMENTED]\n\nNOTE : 한꺼번에 많은 점을 선택했을 때 다 보여주지 않고.. 페이징?? 스크롤 페이징을 사용해도 될 것 같기도 하고...");
 	});
 	
+	$("#application").bind("change", function() {
+		updateCharts();
+	});
+	
 	cleanup();
 });
 </script>
