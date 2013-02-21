@@ -393,7 +393,9 @@ d3.chart.scatter._renderer = function(){
 					html.push(i + 1);
 					html.push("</td>");
 
-					html.push("<td>");
+					html.push("<td sorttable_customkey='");
+					html.push(data[i].startTime);
+					html.push("'>");
 					html.push(new Date(data[i].startTime).format("HH:MM:ss l"));
 					html.push("</td>");
 					

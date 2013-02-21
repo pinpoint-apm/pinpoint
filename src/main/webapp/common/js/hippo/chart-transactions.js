@@ -13,20 +13,20 @@ function showTransactionList(transactions) {
 	    html.push(transactions[i].name);
 	    html.push("</div></td>");
 	
-	    html.push("<td class='calls'>");
-	    html.push(transactions[i].calls);
+	    html.push("<td class='calls' sorttable_customkey='" + transactions[i].calls + "'>");
+	    html.push(formatNumber(transactions[i].calls));
 	    html.push("</td>");
 	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].avgTime);
+	    html.push("<td class='time' sorttable_customkey='" + transactions[i].avgTime + "'>");
+	    html.push(formatNumber(transactions[i].avgTime));
 	    html.push("</td>");
 	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].minTime);
+	    html.push("<td class='time' sorttable_customkey='" + transactions[i].minTime + "'>");
+	    html.push(formatNumber(transactions[i].minTime));
 	    html.push("</td>");
 	
-	    html.push("<td class='time'>");
-	    html.push(transactions[i].maxTime);
+	    html.push("<td class='time' sorttable_customkey='" + transactions[i].maxTime + "'>");
+	    html.push(formatNumber(transactions[i].maxTime));
 	    html.push("</td>");
 	
 	    html.push("</tr>");

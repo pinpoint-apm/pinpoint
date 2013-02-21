@@ -232,7 +232,7 @@
                     </td>
                     
                     <td class="arguments">${record.arguments}</td>
-                    <td class="time">
+                    <td class="time" sorttable_customkey="${record.elapsed}">
                     	<c:if test="${record.method}">
                     	<fmt:formatNumber type="number" value="${record.elapsed}"/>
                     	</c:if>
