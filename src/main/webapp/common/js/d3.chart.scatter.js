@@ -122,7 +122,7 @@ d3.chart.scatter._renderer = function(){
 				.style("fill-opacity", "0.5");
 			
 			this.greenCounter = this.desc.append("text")
-				.attr("x", chart_width - left_padding - 350)
+				.attr("x", chart_width - left_padding - 200)
 				.attr("y", top_padding - 5)
 				.attr("width", 100)
 				.attr("height", 50)
@@ -131,7 +131,7 @@ d3.chart.scatter._renderer = function(){
 				.style('font-family', 'tahoma');
 			
 			this.redCounter = this.desc.append("text")
-				.attr("x", chart_width - left_padding - 200)
+				.attr("x", chart_width - left_padding - 100)
 				.attr("y", top_padding - 5)
 				.attr("width", 100)
 				.attr("height", 50)
@@ -154,8 +154,8 @@ d3.chart.scatter._renderer = function(){
 		},
 		
 		showDataCount : function(count) {
-            this.greenCounter.text("SUCCESS : " + formatNumber($(".dot.green").length));
-            this.redCounter.text("FAILED : " + formatNumber($(".dot.red").length));
+			this.greenCounter.text($(".dot.green").length);
+			this.redCounter.text($(".dot.red").length);
 		},
 		
 		hideProgressbar : function() {
@@ -436,6 +436,9 @@ d3.chart.scatter._renderer = function(){
 
 				$("#selectedBusinessTransactionsDetail TBODY").append(html.join(''));
 				$('#traceIdSelectModal').modal({});
+			})
+			.fail(function() {
+				alert("Failed to fetching the request informations.");
 			});
 		},
 		
