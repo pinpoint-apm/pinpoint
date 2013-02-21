@@ -94,8 +94,12 @@ path.link {
 
 /* Sortable tables */
 table.sortable thead {
-    background-color:#eee;
-    color:#666666;
-    font-weight: bold;
-    cursor: default;
+	background-color:#eee;
+	color:#666666;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+table.sortable th.sorttable_nosort {
+	cursor:default;
 }
