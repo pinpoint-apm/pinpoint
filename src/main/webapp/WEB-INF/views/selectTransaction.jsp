@@ -33,6 +33,7 @@
     <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
     
     <script type="text/javascript" src="/common/js/sorttable.js"></script>
+    <script type="text/javascript" src="/common/js/resizable-table.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -151,7 +152,7 @@
 <div class="tab-content">
 	<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
 		<!-- begin new call stack -->
-	    <table id="callStacks" class="table table-bordered table-hover sortable">
+	    <table id="callStacks" class="table table-bordered table-hover sortable resizable">
 	        <thead>
 	        <tr>
 	        	<th class="sorttable_numeric">Seq</th>
