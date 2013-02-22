@@ -7,6 +7,7 @@ public enum ServiceType {
 
     UNKNOWN((short) 0, "UNKNOWN", false, true, Histogram.NORMAL),
     UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, Histogram.NORMAL),
+    CLIENT((short) 2, "CLIENT", false, false, Histogram.NORMAL),
 
     // WAS류 1000번 부터 시작
     TOMCAT((short) 1010, "TOMCAT", false, true, Histogram.NORMAL),
