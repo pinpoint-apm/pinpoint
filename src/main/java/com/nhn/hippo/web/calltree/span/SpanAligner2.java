@@ -47,8 +47,6 @@ public class SpanAligner2 {
 
 		populate(root, 0, list);
 
-		System.out.println(list);
-
 		return list;
 	}
 
