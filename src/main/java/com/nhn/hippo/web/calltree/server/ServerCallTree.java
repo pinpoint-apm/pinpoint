@@ -148,7 +148,7 @@ public class ServerCallTree {
 			String to = String.valueOf(span.getSpanId());
 
 			// span이 rootspan이면 client를 찾고 그렇지 않으면 서버를 찾는다.
-			Server fromServer = servers.get((from.equals("-1")) ? spanIdToClientId.get(to) : spanIdToServerId.get(from));
+			Server fromServer = servers.get((span.isRoot()) ? spanIdToClientId.get(to) : spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));
 
 //			if (fromServer == null) {
@@ -161,7 +161,8 @@ public class ServerCallTree {
 				continue;
 			}
 			
-			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram((from.equals("-1") ? ServiceType.CLIENT : span.getServiceType())));
+			// TODO 클라이언트 별로 histogram slot을 세분화 해야하나 일단 CLIENT하나로 퉁침.
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.isRoot() ? ServiceType.CLIENT : span.getServiceType()));
 
 			/*
 			// TODO: local call인 경우 보여주지 않음.
