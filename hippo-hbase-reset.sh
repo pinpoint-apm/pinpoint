@@ -4,7 +4,6 @@ disable 'AgentIdApplicationIndex'
 disable 'ApplicationIndex'
 disable 'SqlMetaData'
 disable 'ApiMetaData'
-disable 'RootTraceIndex'
 disable 'TraceIndex'
 disable 'ApplicationTraceIndex'
 disable 'Traces'
@@ -17,7 +16,6 @@ drop 'AgentIdApplicationIndex'
 drop 'ApplicationIndex'
 drop 'SqlMetaData'
 drop 'ApiMetaData'
-drop 'RootTraceIndex'
 drop 'TraceIndex'
 drop 'ApplicationTraceIndex'
 drop 'Traces'
@@ -30,7 +28,6 @@ create 'AgentIdApplicationIndex', { NAME => 'Application' }
 create 'ApplicationIndex', { NAME => 'Agents' }
 create 'SqlMetaData', { NAME => 'Sql' }
 create 'ApiMetaData', { NAME => 'Api' }
-create 'RootTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , TTL => 259200  }, { NAME => 'TerminalSpan' , TTL => 259200  }
