@@ -46,14 +46,15 @@ function drawSpringy(graphdata, targetId, width, height) {
 																					slow : aLinks[i]['slow'],
 																					histogram : aLinks[i]['histogram'],
 																					onMouseOver : function(e){
-																						var htOffset = $(targetId).offset();
-																						$('#EdgeBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
+																						$('#console').val('Edge onMouseOver : ' + this.id + '\r' + $('#console').val());
 																					},
 																					onMouseClick : function(e){
-																						$('#console').val('Edge onMouseClick : ' + this.id + '\r' + $('#console').val())
+																						var htOffset = $(targetId).offset();
+																						$('#console').val('Edge onMouseClick : ' + this.id + '\r' + $('#console').val());
+																						$('#EdgeBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
 																					},
 																					onMouseOut : function(e){
-																						$(targetId + ' .EdgeBox').remove();
+																						
 																					}
 																				  });
 	}

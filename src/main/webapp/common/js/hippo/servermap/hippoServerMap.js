@@ -28,6 +28,8 @@ jQuery.fn.hippoServerMap = function(params) {
 	var nZoomGap = params.nZoomGap || 100,
 		nZoomMaxGap = params.nZoomGap || 500;
 
+	var iconPath = params.iconPath || '/images/servermap';
+	
 	//var canvas = this[0];
 	var nThisWidth = $(this).width(),
 		nThisHeight = $(this).height();
@@ -87,7 +89,7 @@ jQuery.fn.hippoServerMap = function(params) {
 
 	jQuery(canvas).bind('mousewheel', function(e){
 		e.preventDefault();
-		if(e.wheelDelta > 0){// �뺣�
+		if(e.originalEvent.wheelDelta > 0){// �뺣�
 			canvas.width = canvas.width + nZoomGap;
 			canvas.height = canvas.height + nZoomGap;
 		}else{// 異뺤냼
@@ -344,7 +346,7 @@ jQuery.fn.hippoServerMap = function(params) {
 			//ctx.strokeRect(s.x - boxWidth/2, s.y - 20, boxWidth, 20);
 
 			var image = new Image();
-			image.src = "/images/servermap/ico_" + node.data.serviceType + ".png";
+			image.src = iconPath + "/ico_" + node.data.serviceType + ".png";
 			ctx.drawImage(image, s.x - image.width / 2, s.y - image.height / 1, image.width, image.height);
 
 			var textX = s.x - textWidth / 2 + 5;
