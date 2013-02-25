@@ -43,7 +43,7 @@ public class ResponseHistogram {
 
 	public void addSample(long elapsed) {
 
-        int histogramSlotIndex = histogram.getHistogramSlotIndex((int) elapsed);
+        int histogramSlotIndex = histogram.findHistogramSlotIndex((int) elapsed);
         if (histogramSlotIndex == -1) {
             slowCount++;
             return;

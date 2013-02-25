@@ -161,7 +161,7 @@ public class ServerCallTree {
 				continue;
 			}
 			
-			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram(span.getServiceType()));
+			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, new ResponseHistogram((from.equals("-1") ? ServiceType.CLIENT : span.getServiceType())));
 
 			/*
 			// TODO: local call인 경우 보여주지 않음.
