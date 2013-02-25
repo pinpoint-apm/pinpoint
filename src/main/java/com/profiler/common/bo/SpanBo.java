@@ -295,6 +295,10 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.collectorAcceptTime = collectorAcceptTime;
     }
 
+    public boolean isRoot() {
+    	return "-1".equals(parentSpanId);
+    }
+    
     private int getBufferLength(int a, int b, int c, int d, int e) {
 	    int size = a + b + c + d + e;
 	    size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
