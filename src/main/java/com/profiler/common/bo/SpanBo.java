@@ -296,7 +296,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     }
 
     public boolean isRoot() {
-    	return "-1".equals(parentSpanId);
+    	return -1 == parentSpanId;
     }
     
     private int getBufferLength(int a, int b, int c, int d, int e) {
