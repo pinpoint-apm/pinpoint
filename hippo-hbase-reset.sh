@@ -25,9 +25,9 @@ drop 'SqlMetaData'
 drop 'ApiMetaData'
 drop 'BusinessTransactionStatistics'
 
-create 'AgentInfo', { NAME => 'Info' , TTL => 259200 }
-create 'AgentIdApplicationIndex', { NAME => 'Application', TTL => 259200 }
-create 'ApplicationIndex', { NAME => 'Agents' , TTL => 259200 }
+create 'AgentInfo', { NAME => 'Info' }
+create 'AgentIdApplicationIndex', { NAME => 'Application' }
+create 'ApplicationIndex', { NAME => 'Agents' }
 create 'RootTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
