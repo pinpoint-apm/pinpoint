@@ -35,13 +35,13 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
-	@Qualifier("terminalRequestCountMapper")
-	private RowMapper<Map<String, TerminalStatistics>> terminalRequestCountMapper;
+	@Qualifier("terminalStatisticsMapper")
+	private RowMapper<Map<String, TerminalStatistics>> terminalStatisticsMapper;
 
 	@Override
 	public List<Map<String, TerminalStatistics>> selectTerminal(String applicationName, long from, long to) {
 		Scan scan = createScan(applicationName, from, to);
-        return hbaseOperations2.find(HBaseTables.TERMINAL_STATISTICS, scan, terminalRequestCountMapper);
+        return hbaseOperations2.find(HBaseTables.TERMINAL_STATISTICS, scan, terminalStatisticsMapper);
 	}
 
 	private Scan createScan(String applicationName, long from, long to) {
