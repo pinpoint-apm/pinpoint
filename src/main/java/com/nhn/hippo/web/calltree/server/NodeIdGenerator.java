@@ -26,7 +26,7 @@ public enum NodeIdGenerator {
 		if (this == BY_SERVER_INSTANCE) {
 			return span.getEndPoint();
 		} else if (this == BY_APPLICATION_NAME) {
-			return span.getServiceName();
+			return span.getDestinationId();
 		} else {
 			throw new IllegalArgumentException();
 		}

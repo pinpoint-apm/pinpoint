@@ -76,20 +76,21 @@ public class ServerCallTree {
         }
     }
 
-	public void addSubSpan(SubSpanBo span) {
-		Server server = new Server(span, idGenerator);
+	public void addSubSpan(SubSpanBo subSpan) {
+		Server server = new Server(subSpan, idGenerator);
 
 		if (server.getId() == null) {
 			return;
 		}
 
-		if (span.getServiceType().isRpcClient()) {
-			addServer(span.getEndPoint(), server);
-		} else {
-			addServer(span.getServiceName(), server);
-		}
+//		if (subSpan.getServiceType().isRpcClient()) {
+//			addServer(subSpan.getEndPoint(), server);
+//		} else {
+//			addServer(subSpan.getServiceName(), server);
+//		}
+        addServer(subSpan.getDestinationId(), server);
 
-		subspans.add(span);
+		subspans.add(subSpan);
 	}
 
     public void addSpanList(List<SpanBo> spanList) {
@@ -185,12 +186,13 @@ public class ServerCallTree {
 			String from = String.valueOf(span.getSpanId());
 			String to;
 
-			if (span.getServiceType().isRpcClient()) {
-				// this is unknown cloud
-				to = String.valueOf(span.getEndPoint());
-			} else {
-				to = String.valueOf(span.getServiceName());
-			}
+//			if (span.getServiceType().isRpcClient()) {
+//				// this is unknown cloud
+//				to = String.valueOf(span.getEndPoint());
+//			} else {
+//				to = String.valueOf(span.getServiceName());
+//			}
+            to = span.getDestinationId();
 
 			Server fromServer = servers.get(spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));

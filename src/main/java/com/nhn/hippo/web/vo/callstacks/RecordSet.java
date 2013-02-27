@@ -69,7 +69,8 @@ public class RecordSet {
 		for (AnnotationBo ann : annotationBoList) {
 			AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
 			if (annotation.isViewInRecordSet()) {
-				recordset.add(new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null));
+                Record record = new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null);
+                recordset.add(record);
 			}
 		}
 	}
@@ -77,15 +78,15 @@ public class RecordSet {
 	private void addSpanRecord(List<SpanAlign> spanAligns) {
 		boolean marked = false;
 
-		for (SpanAlign sa : spanAligns) {
-			if (sa.isSpan()) {
-				SpanBo span = sa.getSpanBo();
-				AnnotationUtils.sortAnnotationListByKey(span);
-				String method = (String) AnnotationUtils.getDisplayMethod(span);
-				String arguments = (String) AnnotationUtils.getDisplayArgument(span);
+		for (SpanAlign spanAlign : spanAligns) {
+			if (spanAlign.isSpan()) {
+				SpanBo spanBo = spanAlign.getSpanBo();
+				AnnotationUtils.sortAnnotationListByKey(spanBo);
+				String method = (String) AnnotationUtils.getDisplayMethod(spanBo);
+				String arguments = (String) AnnotationUtils.getDisplayArgument(spanBo);
 
-				long begin = span.getStartTime();
-				long elapsed = span.getElapsed();
+				long begin = spanBo.getStartTime();
+				long elapsed = spanBo.getElapsed();
 
 				if (!marked) {
 					setStartTime(begin);
@@ -96,21 +97,21 @@ public class RecordSet {
 				}
 
 				// scatter에 local call에 대해서도 표시를 해주기 때문에 정확한 URL을 알려면 이렇게...
-				if (span.getCollectorAcceptTime() == focusTimestamp) {
+				if (spanBo.getCollectorAcceptTime() == focusTimestamp) {
 					applicationName = arguments;
 					beginTimestamp = begin;
 				}
-
-				recordset.add(new Record(sa.getDepth(), true, method, arguments, begin, elapsed, span.getAgentId(), span.getServiceName(), span.getServiceType()));
-				addAnnotationRecord(sa.getDepth() + 1, span.getAnnotationBoList());
+                Record record = new Record(spanAlign.getDepth(), true, method, arguments, begin, elapsed, spanBo.getAgentId(), spanBo.getServiceName(), spanBo.getServiceType(), null);
+                recordset.add(record);
+				addAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
 			} else {
-				SubSpanBo subSpan = sa.getSubSpanBo();
+				SubSpanBo subSpan = spanAlign.getSubSpanBo();
 
 				AnnotationUtils.sortAnnotationListByKey(subSpan);
 				String method = (String) AnnotationUtils.getDisplayMethod(subSpan);
 				Object arguments = AnnotationUtils.getDisplayArgument(subSpan);
 
-				long begin = sa.getSpanBo().getStartTime() + subSpan.getStartElapsed();
+				long begin = spanAlign.getSpanBo().getStartTime() + subSpan.getStartElapsed();
 				long elapsed = subSpan.getEndElapsed();
 
 				if (!marked) {
@@ -118,9 +119,10 @@ public class RecordSet {
 					setEndTime(begin + elapsed);
 					marked = true;
 				}
-
-				recordset.add(new Record(sa.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType()));
-				addAnnotationRecord(sa.getDepth() + 1, subSpan.getAnnotationBoList());
+                String destinationId = subSpan.getDestinationId();
+//                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType(), destinationId));
+                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getDestinationId(), subSpan.getServiceType(), destinationId));
+				addAnnotationRecord(spanAlign.getDepth() + 1, subSpan.getAnnotationBoList());
 			}
 		}
 	}

@@ -116,28 +116,33 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	/**
+     * DetailView에서 사용함. 하나의 Span을 선택했을때 Draw되는 데이터를 생성하는 함수이다
 	 * makes call tree of transaction detail view
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(TraceId traceId) {
-		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_SERVER_INSTANCE);
+
 
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
-		Set<String> endPoints = new HashSet<String>();
+		Set<String> endPoints = createUniqueEndpoint(transaction);
+        ServerCallTree tree = createServerCallTree(transaction);
 
-		// List<SpanBo> processed = refine(transaction);
-		// markRecursiveCall(transaction);
-		for (SpanBo eachTransaction : transaction) {
-			tree.addSpan(eachTransaction);
-			endPoints.add(eachTransaction.getEndPoint());
-		}
+        // subSpan에서 record할 데이터만 골라낸다.
+        List<SubSpanBo> subSpanBoList = findRecordStatisticsSubSpanData(transaction, endPoints);
+        tree.addSubSpanList(subSpanBoList);
 
-		for (SpanBo eachTransaction : transaction) {
+        return tree.build();
+	}
+
+    private List<SubSpanBo> findRecordStatisticsSubSpanData(List<SpanBo> transaction, Set<String> endPoints) {
+        List<SubSpanBo> filterSubSpan = new ArrayList<SubSpanBo>();
+        for (SpanBo eachTransaction : transaction) {
 			List<SubSpanBo> subSpanList = eachTransaction.getSubSpanList();
 
-			if (subSpanList == null)
+			if (subSpanList == null) {
 				continue;
+            }
 
 			for (SubSpanBo subTransaction : subSpanList) {
                 // 통계정보로 잡지 않을 데이터는 스킵한다.
@@ -148,16 +153,41 @@ public class FlowChartServiceImpl implements FlowChartService {
 				// remove subspan of the rpc client
 				if (!endPoints.contains(subTransaction.getEndPoint())) {
 					// this is unknown cloud
-					tree.addSubSpan(subTransaction);
+                    filterSubSpan.add(subTransaction);
 				}
 			}
 		}
+        return filterSubSpan;
+    }
 
-		return tree.build();
-	}
+    /**
+     * ServerCallTree를 생성하고 low SpanBo데이터를 tree에 추가한다.
+     * @param transaction
+     * @return
+     */
+    private ServerCallTree createServerCallTree(List<SpanBo> transaction) {
+        ServerCallTree serverCallTree = new ServerCallTree(NodeIdGenerator.BY_SERVER_INSTANCE);
+        serverCallTree.addSpanList(transaction);
+        return serverCallTree;
+    }
 
-	/**
-	 * makes call tree of main view
+    /**
+     * Trace uuid를 구성하는 SpanBo의 집합에서 endpoint 값을 유니크한 값으로 뽑아온다.
+     * @param transaction
+     * @return
+     */
+    private Set<String> createUniqueEndpoint(List<SpanBo> transaction) {
+        // markRecursiveCall(transaction);
+        Set<String> endPointSet = new HashSet<String>();
+        for (SpanBo eachTransaction : transaction) {
+            endPointSet.add(eachTransaction.getEndPoint());
+        }
+        return endPointSet;
+    }
+
+    /**
+	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 전체 Span의 그래프를 Draw하는 함수이다.
+     * makes call tree of main view
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
@@ -208,15 +238,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 				for (Map<String, TerminalStatistics> terminal : terminals) {
 					for (Entry<String, TerminalStatistics> entry : terminal.entrySet()) {
 						// TODO 임시방편
-						TerminalStatistics t = entry.getValue();
+						TerminalStatistics terminalStatistics = entry.getValue();
 
-						if (!endPoints.contains(t.getTo())) {
+						if (!endPoints.contains(terminalStatistics.getTo())) {
 
-							if (ServiceType.findServiceType(t.getToServiceType()).isRpcClient()) {
-								t.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
+							if (ServiceType.findServiceType(terminalStatistics.getToServiceType()).isRpcClient()) {
+								terminalStatistics.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());
 							}
 
-							tree.addTerminalStatistics(t);
+							tree.addTerminalStatistics(terminalStatistics);
 						}
 					}
 				}
