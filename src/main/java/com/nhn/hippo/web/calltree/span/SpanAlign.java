@@ -45,27 +45,13 @@ public class SpanAlign {
 		return subSpanBo;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("SpanAlign={");
-		sb.append("depth=").append(depth);
-
-		if (subSpanBo != null) {
-			sb.append(",\torgDepth=").append(subSpanBo.getDepth());
-			sb.append(",\tseq=").append(subSpanBo.getSequence());
-			sb.append(",\tsubSpabBo=").append(subSpanBo.getServiceName());
-			sb.append(",\tserviceType=").append(subSpanBo.getServiceType());
-			sb.append(",\t\tstartElapsed=").append(subSpanBo.getStartElapsed());
-			sb.append(",\t\tendElapsed=").append(subSpanBo.getEndElapsed());
-		} else {
-			sb.append(", spabBo=").append(spanBo.getServiceName());
-		}
-
-		sb.append("}\n");
-
-		return sb.toString();
-	}
-
+    @Override
+    public String toString() {
+        return "SpanAlign{" +
+                "depth=" + depth +
+                ", spanBo=" + spanBo +
+                ", subSpanBo=" + subSpanBo +
+                ", span=" + span +
+                '}';
+    }
 }

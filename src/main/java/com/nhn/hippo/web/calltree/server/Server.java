@@ -35,7 +35,7 @@ public class Server implements Comparable<Server> {
 		} else {
 			this.id = nodeSelector.getServerId(span);
 			// this.id = span.getServiceName();
-			this.applicationName = span.getServiceName();
+			this.applicationName = span.getDestinationId();
 			this.serviceType = span.getServiceType();
 		}
 
