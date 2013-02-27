@@ -79,7 +79,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordServiceName(databaseInfo.getDatabaseId());
         trace.recordRpcName(databaseInfo.getUrl());
 
 
@@ -133,7 +132,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordServiceName(databaseInfo.getDatabaseId());
         trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
@@ -148,7 +146,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
             trace.recordServiceType(databaseInfo.getType());
-            trace.recordServiceName(databaseInfo.getDatabaseId());
             trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
@@ -186,7 +183,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordServiceName(databaseInfo.getDatabaseId());
         trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
@@ -200,7 +196,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
             trace.recordServiceType(databaseInfo.getType());
-            trace.recordServiceName(databaseInfo.getDatabaseId());
             trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());

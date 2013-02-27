@@ -89,7 +89,6 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
 
             trace.markBeforeTime();
             trace.recordServiceType(ServiceType.TOMCAT);
-            trace.recordServiceName(traceContext.getApplicationId());
             trace.recordRpcName(requestURL);
 
             int port = request.getServerPort();

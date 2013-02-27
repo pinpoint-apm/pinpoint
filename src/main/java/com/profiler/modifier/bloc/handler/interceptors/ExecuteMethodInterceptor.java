@@ -68,6 +68,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             trace.markBeforeTime();
 
             trace.recordServiceType(ServiceType.BLOC);
+            // EXECUTEMETHOD interceptor는 span만 적용된 가능성이 있어서 같아서 유지함. Span의 ApplicationName으로 들어가도록 추가 수정해야 됨.
             trace.recordServiceName(traceContext.getApplicationId());
             trace.recordRpcName(requestURL);
 

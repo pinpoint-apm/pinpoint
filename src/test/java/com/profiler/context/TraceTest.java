@@ -22,7 +22,6 @@ public class TraceTest {
 
         // http server receive
         trace.recordServiceType(ServiceType.UNKNOWN);
-        trace.recordServiceName("service_name");
         trace.recordRpcName("http://");
 
         trace.recordEndPoint("http:localhost:8080");
@@ -80,7 +79,6 @@ public class TraceTest {
 
         // db server request
         trace.recordServiceType(ServiceType.MYSQL);
-        trace.recordServiceName("mysql");
         trace.recordRpcName("rpc");
 
         trace.recordAttribute(AnnotationKey.SQL, "SELECT * FROM TABLE");
