@@ -44,7 +44,11 @@ public class SubSpanBo implements Span {
 	private String rpc;
 	private String serviceName;
 	private ServiceType serviceType;
+
+    private String destinationId;
+    private List<String> destinationAddress;
 	private String endPoint;
+
 	private List<AnnotationBo> annotationBoList;
 
 	private int depth = -1;
@@ -70,7 +74,11 @@ public class SubSpanBo implements Span {
 		this.serviceName = tSubSpan.getServiceName();
 		this.serviceType = ServiceType.findServiceType(tSubSpan.getServiceType());
 
-		this.endPoint = tSubSpan.getEndPoint();
+
+        this.destinationId = tSubSpan.getDestinationId();
+        this.destinationAddress = tSubSpan.getDestinationAddress();
+
+        this.endPoint = tSubSpan.getEndPoint();
 		
 		if (tSubSpan.isSetDepth()) {
 			this.depth = tSubSpan.getDepth();
@@ -100,7 +108,7 @@ public class SubSpanBo implements Span {
 		this.serviceName = subSpan.getServiceName();
 		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 
-		this.endPoint = subSpan.getEndPoint();
+//		this.endPoint = subSpan.getEndPoint();
 		
 		if (subSpan.isSetDepth()) {
 			this.depth = subSpan.getDepth();
@@ -131,6 +139,10 @@ public class SubSpanBo implements Span {
 		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 
 		this.endPoint = subSpan.getEndPoint();
+
+        this.destinationId = subSpan.getDestinationId();
+        this.destinationAddress = subSpan.getDestinationAddress();
+
 		
 		if (subSpan.isSetDepth()) {
 			this.depth = subSpan.getDepth();
@@ -247,7 +259,23 @@ public class SubSpanBo implements Span {
 		this.endPoint = endPoint;
 	}
 
-	public List<AnnotationBo> getAnnotationBoList() {
+    public String getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(String destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public List<String> getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public void setDestinationAddress(List<String> destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
+
+    public List<AnnotationBo> getAnnotationBoList() {
 		return annotationBoList;
 	}
 
@@ -275,9 +303,9 @@ public class SubSpanBo implements Span {
 		this.annotationBoList = boList;
 	}
 
-	private int getBufferLength(int a, int b, int c, int d) {
-		int size = a + b + c + d;
-		size += 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
+	private int getBufferLength(int a, int b, int c, int d, int f) {
+		int size = a + b + c + d + f;
+		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
 		// PARENTSPANID + FLAG + TERMINAL;
 		size += SERVICETYPE + AGENTIDENTIFIER;
@@ -292,8 +320,9 @@ public class SubSpanBo implements Span {
 		byte[] rpcBytes = BytesUtils.getBytes(rpc);
 		byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
 		byte[] endPointBytes = BytesUtils.getBytes(endPoint);
+        byte[] destinationIdBytes = BytesUtils.getBytes(this.destinationId);
 
-		int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length);
+		int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length, destinationIdBytes.length);
 		int annotationSize = getAnnotationBufferSize(annotationBoList);
 
 		Buffer buffer = new FixedBuffer(bufferLength + annotationSize);
@@ -315,6 +344,7 @@ public class SubSpanBo implements Span {
 		buffer.put1PrefixedBytes(serviceNameBytes);
 		buffer.put(serviceType.getCode());
 		buffer.put1PrefixedBytes(endPointBytes);
+        buffer.put1PrefixedBytes(destinationIdBytes);
 
 		buffer.put(depth);
 		buffer.put(nextSpanId);
@@ -361,6 +391,7 @@ public class SubSpanBo implements Span {
 		this.serviceName = buffer.read1UnsignedPrefixedString();
 		this.serviceType = ServiceType.findServiceType(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
+        this.destinationId = buffer.read1UnsignedPrefixedString();
 
 		this.depth = buffer.readInt();
 		this.nextSpanId = buffer.readInt();

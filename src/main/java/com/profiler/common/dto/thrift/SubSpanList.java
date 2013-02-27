@@ -743,14 +743,14 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
           case 6: // SUB_SPAN_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
-                struct.subSpanList = new ArrayList<SubSpan>(_list24.size);
-                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
+                org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
+                struct.subSpanList = new ArrayList<SubSpan>(_list40.size);
+                for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                 {
-                  SubSpan _elem26; // required
-                  _elem26 = new SubSpan();
-                  _elem26.read(iprot);
-                  struct.subSpanList.add(_elem26);
+                  SubSpan _elem42; // required
+                  _elem42 = new SubSpan();
+                  _elem42.read(iprot);
+                  struct.subSpanList.add(_elem42);
                 }
                 iprot.readListEnd();
               }
@@ -793,9 +793,9 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-          for (SubSpan _iter27 : struct.subSpanList)
+          for (SubSpan _iter43 : struct.subSpanList)
           {
-            _iter27.write(oprot);
+            _iter43.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -856,9 +856,9 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       if (struct.isSetSubSpanList()) {
         {
           oprot.writeI32(struct.subSpanList.size());
-          for (SubSpan _iter28 : struct.subSpanList)
+          for (SubSpan _iter44 : struct.subSpanList)
           {
-            _iter28.write(oprot);
+            _iter44.write(oprot);
           }
         }
       }
@@ -890,14 +890,14 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       }
       if (incoming.get(5)) {
         {
-          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.subSpanList = new ArrayList<SubSpan>(_list29.size);
-          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
+          org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.subSpanList = new ArrayList<SubSpan>(_list45.size);
+          for (int _i46 = 0; _i46 < _list45.size; ++_i46)
           {
-            SubSpan _elem31; // required
-            _elem31 = new SubSpan();
-            _elem31.read(iprot);
-            struct.subSpanList.add(_elem31);
+            SubSpan _elem47; // required
+            _elem47 = new SubSpan();
+            _elem47.read(iprot);
+            struct.subSpanList.add(_elem47);
           }
         }
         struct.setSubSpanListIsSet(true);

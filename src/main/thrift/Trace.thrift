@@ -13,6 +13,11 @@ struct Annotation {
   9: optional byte byteValue;
 }
 
+struct Destination {
+    1: optional string id
+    2: optional list<string> host
+}
+
 struct SubSpan {
   1: optional string agentId
   2: optional i16 agentIdentifier
@@ -28,8 +33,14 @@ struct SubSpan {
 
   9: optional string rpc
   10: optional string serviceName
-  11: optional i16 serviceType
+  11: i16 serviceType
   12: optional string endPoint
+
+  13: optional string destinationId
+  // address주소가 1개일 경우
+  17: optional list<string> destinationAddress;
+  // address주소가 2개이상일 경우
+  //18: optional list<string> destinationAddressList;
 
   14: list<Annotation> annotations
   
