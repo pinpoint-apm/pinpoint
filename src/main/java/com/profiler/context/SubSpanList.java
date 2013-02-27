@@ -58,6 +58,7 @@ public class SubSpanList implements Thriftable {
             tSubSpan.setServiceType(subSpan.getServiceType().getCode());
 
             tSubSpan.setEndPoint(subSpan.getEndPoint());
+            tSubSpan.setDestinationId(subSpan.getDestionationId());
 
             // 여기서 데이터 인코딩을 하자.
             List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(subSpan.getAnnotationSize());

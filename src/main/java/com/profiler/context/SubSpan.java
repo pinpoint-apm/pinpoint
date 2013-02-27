@@ -22,7 +22,11 @@ public class SubSpan implements Thriftable {
     private String serviceName;
     private String rpc;
     private ServiceType serviceType;
+
     private String endPoint;
+
+    private String destionationId;
+    private List<String> destinationAddress;
 
     private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
@@ -79,6 +83,22 @@ public class SubSpan implements Thriftable {
 
     public void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
+    }
+
+    public String getDestionationId() {
+        return destionationId;
+    }
+
+    public void setDestionationId(String destionationId) {
+        this.destionationId = destionationId;
+    }
+
+    public List<String> getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public void setDestinationAddress(List<String> destinationAddress) {
+        this.destinationAddress = destinationAddress;
     }
 
     public void setStartTime(long startTime) {
@@ -180,6 +200,7 @@ public class SubSpan implements Thriftable {
 		}
 		
         subSpan.setEndPoint(endPoint);
+        subSpan.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
@@ -197,5 +218,9 @@ public class SubSpan implements Thriftable {
 		}
         
         return subSpan;
+    }
+
+    public void setDestinationAddress() {
+        //To change body of created methods use File | Settings | File Templates.
     }
 }

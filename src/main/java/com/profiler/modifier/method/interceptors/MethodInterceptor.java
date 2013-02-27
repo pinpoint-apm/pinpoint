@@ -5,10 +5,7 @@ import java.util.logging.Logger;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.*;
 import com.profiler.logging.LoggingUtils;
 
 /**
@@ -16,13 +13,14 @@ import com.profiler.logging.LoggingUtils;
  * @author netspider
  * 
  */
-public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
 
 	private final Logger logger = Logger.getLogger(MethodInterceptor.class.getName());
     private final boolean isDebug = LoggingUtils.isDebug(logger);
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
+    private ServiceType serviceType = ServiceType.INTERNAL_METHOD;
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -36,7 +34,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 		}
 
 		trace.traceBlockBegin();
-        trace.recordServiceType(ServiceType.INTERNAL_METHOD);
+        trace.recordServiceType(serviceType);
 //        trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
 		trace.markBeforeTime();
 	}
@@ -58,7 +56,11 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 		trace.traceBlockEnd();
 	}
 
-	@Override
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    @Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
         TraceContext traceContext = TraceContext.getTraceContext();

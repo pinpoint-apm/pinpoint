@@ -72,8 +72,12 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
 				svcType = ServiceType.MEMCACHED;
 			}
-			
-			asyncTrace.recordRpcName(svcType, serviceCode, baseOperation.getClass().getSimpleName());
+
+            asyncTrace.recordServiceType(svcType);
+            asyncTrace.recordServiceName(serviceCode);
+			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
+
+            asyncTrace.recordDestinationId(serviceCode);
 
 			String cmd = getCommand(baseOperation);
 			asyncTrace.recordAttibute(AnnotationKey.ARCUS_COMMAND, cmd);

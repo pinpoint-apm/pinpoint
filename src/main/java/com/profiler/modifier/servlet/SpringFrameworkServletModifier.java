@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.common.ServiceType;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -37,14 +38,18 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 
 		try {
 			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
-			Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
+            setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
+            setTraceContext(doGetInterceptor);
 
-			setTraceContext(doGetInterceptor);
-			setTraceContext(doPostInterceptor);
+            Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
+            setServiceType(doPostInterceptor, ServiceType.SPRING_MVC);
+            setTraceContext(doPostInterceptor);
+
+
 
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
-
 			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
+
 			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doPostInterceptor);
 
 			return servlet.toBytecode();

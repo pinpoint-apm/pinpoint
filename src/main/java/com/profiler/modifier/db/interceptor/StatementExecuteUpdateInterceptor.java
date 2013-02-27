@@ -54,6 +54,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            trace.recordDestinationAddress(databaseInfo.getHost());
+
             trace.recordApi(descriptor);
             if (args.length > 0) {
                 Object arg = args[0];

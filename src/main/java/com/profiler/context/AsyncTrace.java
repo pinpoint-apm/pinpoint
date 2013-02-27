@@ -100,11 +100,22 @@ public class AsyncTrace {
         subSpan.addAnnotation(new Annotation(key, value));
     }
 
-
-    public void recordRpcName(final ServiceType serviceType, final String service, final String rpc) {
+    public void recordServiceType(final ServiceType serviceType) {
         this.subSpan.setServiceType(serviceType);
-        this.subSpan.setServiceName(service);
-        this.subSpan.setRpc(rpc);
+    }
+
+    public void recordServiceName(final String serviceName) {
+        this.subSpan.setServiceName(serviceName);
+    }
+
+    public void recordRpcName(final String rpcName) {
+        this.subSpan.setRpc(rpcName);
+
+    }
+
+
+    public void recordDestinationId(String destinationId) {
+        this.subSpan.setDestionationId(destinationId);
     }
 
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
@@ -150,4 +161,6 @@ public class AsyncTrace {
         }
         return false;
     }
+
+
 }

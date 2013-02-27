@@ -84,6 +84,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
 
         trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        trace.recordDestinationAddress(databaseInfo.getHost());
     }
 
     private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
@@ -135,6 +137,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        trace.recordDestinationAddress(databaseInfo.getHost());
 //        trace.record(Annotation.ClientSend);
 
     }
@@ -148,6 +152,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            trace.recordDestinationAddress(databaseInfo.getHost());
 
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);
@@ -184,6 +190,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        trace.recordDestinationAddress(databaseInfo.getHost());
     }
 
     private void afterRollback(Trace trace, Connection target, Object result) {
@@ -196,6 +204,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            trace.recordDestinationAddress(databaseInfo.getHost());
 
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);

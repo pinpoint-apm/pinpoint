@@ -6,6 +6,7 @@ import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.LoggingUtils;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -315,6 +316,28 @@ public final class Trace {
 
     }
 
+    public void recordDestinationId(final String destinationId) {
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof SubStackFrame) {
+            SubSpan subSpan = ((SubStackFrame) currentStackFrame).getSubSpan();
+            subSpan.setDestionationId(destinationId);
+        }
+    }
+
+    public void recordDestinationAddress(List<String> address) {
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = getCurrentStackFrame();
+        if (currentStackFrame instanceof SubStackFrame) {
+            SubSpan subSpan = ((SubStackFrame) currentStackFrame).getSubSpan();
+            subSpan.setDestinationAddress();
+        }
+    }
+
+    public void recordDestinationAddressList(List<String> addressList) {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
     public void recordEndPoint(final String endPoint) {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = getCurrentStackFrame();
@@ -363,5 +386,7 @@ public final class Trace {
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
+
+
 
 }

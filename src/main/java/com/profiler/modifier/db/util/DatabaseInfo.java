@@ -2,6 +2,8 @@ package com.profiler.modifier.db.util;
 
 import com.profiler.common.ServiceType;
 
+import java.util.List;
+
 /**
  *
  */
@@ -13,30 +15,23 @@ public class DatabaseInfo {
 	// 입력된 url을 보정하지 않은 값
     private String realUrl;
     private String normalizedUrl;
-    private String host;
-    private String port;
+    private List<String> host;
 
-	public DatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, String host, String port, String databaseId) {
+	public DatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
 		this.type = type;
         this.executeQueryType = executeQueryType;
 		this.realUrl = realUrl;
 		this.normalizedUrl = normalizedUrl;
 		this.host = host;
-		this.port = port;
 		this.databaseId = databaseId;
 	}
 
-	@Deprecated
-	public String getHost() {
+
+	public List<String> getHost() {
 		// host와 port의 경우 replication 설정등으로 n개가 될수 있어 애매하다.
 		return host;
 	}
 
-	@Deprecated
-	public String getPort() {
-		// host와 port의 경우 replication 설정등으로 n개가 될수 있어 애매하다.
-		return port;
-	}
 
 	public String getDatabaseId() {
 		return databaseId;
@@ -66,10 +61,7 @@ public class DatabaseInfo {
                 ", databaseId='" + databaseId + '\'' +
                 ", realUrl='" + realUrl + '\'' +
                 ", normalizedUrl='" + normalizedUrl + '\'' +
-                ", host='" + host + '\'' +
-                ", port='" + port + '\'' +
+                ", host=" + host +
                 '}';
     }
-
-
 }

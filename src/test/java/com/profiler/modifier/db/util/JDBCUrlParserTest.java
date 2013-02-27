@@ -43,8 +43,7 @@ public class JDBCUrlParserTest {
 
         DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
-        Assert.assertEquals(dbInfo.getHost(), "ip_address");
-        Assert.assertEquals(dbInfo.getPort(), "3306");
+        Assert.assertEquals(dbInfo.getHost().get(0), ("ip_address:3306"));
         Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://ip_address:3306/database_name");
     }
@@ -54,19 +53,20 @@ public class JDBCUrlParserTest {
 
         DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://10.98.133.22:3306/test_lucy_db");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
-        Assert.assertEquals(dbInfo.getHost(), "10.98.133.22");
-        Assert.assertEquals(dbInfo.getPort(), "3306");
+        Assert.assertEquals(dbInfo.getHost().get(0), "10.98.133.22:3306");
+
         Assert.assertEquals(dbInfo.getDatabaseId(), "test_lucy_db");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://10.98.133.22:3306/test_lucy_db");
+        logger.info(dbInfo.toString());
     }
 
     @Test
     public void mysqlParse3() {
         DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
-        Assert.assertEquals(dbInfo.getHost(), "61.74.71.31");
-        Assert.assertEquals(dbInfo.getPort(), "");
+        Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://61.74.71.31/log");
+        logger.info(dbInfo.toString());
     }
 }

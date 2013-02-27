@@ -73,6 +73,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 
 
             trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
+            trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
             trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);

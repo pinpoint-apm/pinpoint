@@ -2,6 +2,9 @@ package com.profiler.modifier.db.util;
 
 import com.profiler.common.ServiceType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  */
@@ -14,8 +17,9 @@ public class JDBCUrlParser {
         if (lowCaseURL.startsWith("jdbc:oracle")) {
             return parseOracle(url);
         }
-
-        return new DatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, "error", "error", "error");
+        List<String> list = new ArrayList<String>();
+        list.add("error");
+        return new DatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, list, "error");
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -72,10 +76,14 @@ public class JDBCUrlParser {
         //            jdbc:mysql://10.98.133.22:3306/test_lucy_db
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:mysql:");
-        String host = maker.after("//").before('/').before(':').value();
-        String port = maker.next().after(':').before('/').value();
+        // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
+        String host = maker.after("//").before('/').value();
+        List<String> hostList = new ArrayList<String>(1);
+        hostList.add(host);
+//        String port = maker.next().after(':').before('/').value();
+
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, host, port, databaseId);
+        return new DatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 }
