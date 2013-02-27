@@ -29,7 +29,7 @@ public class ServerCallTree {
 
 	private final Map<String, Server> servers = new HashMap<String, Server>();
 	private final Map<String, ServerRequest> serverRequests = new HashMap<String, ServerRequest>();
-	private final NodeIdGenerator idGenerator;
+	private final NodeSelector nodeSelector;
 	private boolean isBuilt = false;
 
 	// temporary variables
@@ -39,8 +39,8 @@ public class ServerCallTree {
 	private final Map<String, String> spanIdToClientId = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
 
-	public ServerCallTree(NodeIdGenerator idGenerator) {
-		this.idGenerator = idGenerator;
+	public ServerCallTree(NodeSelector nodeSelector) {
+		this.nodeSelector = nodeSelector;
 	}
 
 	public void addTerminalStatistics(TerminalStatistics terminal) {
@@ -77,7 +77,7 @@ public class ServerCallTree {
     }
 
 	public void addSubSpan(SubSpanBo subSpan) {
-		Server server = new Server(subSpan, idGenerator);
+		Server server = new Server(subSpan, nodeSelector);
 
 		if (server.getId() == null) {
 			return;
@@ -100,7 +100,7 @@ public class ServerCallTree {
     }
 
 	public void addSpan(SpanBo span) {
-		Server server = new Server(span, idGenerator);
+		Server server = new Server(span, nodeSelector);
 
 		if (server.getId() == null) {
 			return;

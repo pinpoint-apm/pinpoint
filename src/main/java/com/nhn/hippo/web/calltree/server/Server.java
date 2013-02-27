@@ -20,7 +20,7 @@ public class Server implements Comparable<Server> {
 
 	protected int recursiveCallCount;
 
-	public Server(SubSpanBo span, NodeIdGenerator idGenerator) {
+	public Server(SubSpanBo span, NodeSelector nodeSelector) {
 		if (span.getServiceType().isTerminal()) {
 			this.agentIds.add(span.getAgentId());
 		} else {
@@ -33,7 +33,7 @@ public class Server implements Comparable<Server> {
 			this.applicationName = span.getEndPoint();
 			this.serviceType = ServiceType.UNKNOWN_CLOUD;
 		} else {
-			this.id = idGenerator.makeServerId(span);
+			this.id = nodeSelector.getServerId(span);
 			// this.id = span.getServiceName();
 			this.applicationName = span.getServiceName();
 			this.serviceType = span.getServiceType();
@@ -43,9 +43,9 @@ public class Server implements Comparable<Server> {
 		this.recursiveCallCount = 0;
 	}
 
-	public Server(SpanBo span, NodeIdGenerator idGenerator) {
+	public Server(SpanBo span, NodeSelector nodeSelector) {
 		// this.id = span.getServiceName();
-		this.id = idGenerator.makeServerId(span);
+		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
 			this.agentIds.add(span.getAgentId());

@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
+import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import com.nhn.hippo.web.calltree.server.NodeIdGenerator;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
@@ -101,7 +102,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Deprecated
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds) {
-		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_APPLICATION_NAME);
+		final ServerCallTree tree = new ServerCallTree(new ApplicationIdNodeSelector());
 
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
@@ -166,7 +167,7 @@ public class FlowChartServiceImpl implements FlowChartService {
      * @return
      */
     private ServerCallTree createServerCallTree(List<SpanBo> transaction) {
-        ServerCallTree serverCallTree = new ServerCallTree(NodeIdGenerator.BY_SERVER_INSTANCE);
+        ServerCallTree serverCallTree = new ServerCallTree(new AgentIdNodeSelector());
         serverCallTree.addSpanList(transaction);
         return serverCallTree;
     }
@@ -192,7 +193,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
-		final ServerCallTree tree = new ServerCallTree(NodeIdGenerator.BY_APPLICATION_NAME);
+		final ServerCallTree tree = new ServerCallTree(new ApplicationIdNodeSelector());
 
 		StopWatch watch = new StopWatch();
 		watch.start("scanNonTerminalSpans");
