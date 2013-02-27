@@ -77,10 +77,11 @@ public class SpanHandler implements Handler {
                     // if terminal update statistics
 					int elapsed = subSpan.getEndElapsed();
                     boolean hasException = SubSpanUtils.hasException(subSpan);
+                    // 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
                     if (serviceType.isRpcClient()) {
-                        terminalStatistics.update(applicationName, subSpan.getEndPoint(), serviceType.getCode(), elapsed, hasException);
+                        terminalStatistics.update(applicationName, subSpan.getDestinationId(), serviceType.getCode(), elapsed, hasException);
                     } else {
-                        terminalStatistics.update(applicationName, subSpan.getServiceName(), serviceType.getCode(), elapsed, hasException);
+                        terminalStatistics.update(applicationName, subSpan.getDestinationId(), serviceType.getCode(), elapsed, hasException);
                     }
                 }
             }
