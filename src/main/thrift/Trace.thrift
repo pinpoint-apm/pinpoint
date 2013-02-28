@@ -75,7 +75,7 @@ struct Span {
   17: optional list<SubSpan> subSpanList
 }
 
-struct SubSpanList {
+struct SpanChunk {
   1: string agentId
   2: i16 agentIdentifier
 

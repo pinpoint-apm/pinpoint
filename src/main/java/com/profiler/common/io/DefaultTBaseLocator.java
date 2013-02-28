@@ -52,7 +52,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
             case SUBSPAN:
                 return new SubSpan();
             case SUBSPANLIST:
-                return new SubSpanList();
+                return new SpanChunk();
             case SQLMETADATA:
                 return new SqlMetaData();
             case APIMETADATA:
@@ -65,7 +65,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof Span) {
             return SPAN;
         }
-        if (tbase instanceof SubSpanList) {
+        if (tbase instanceof SpanChunk) {
             return SUBSPANLIST;
         }
         if (tbase instanceof SubSpan) {

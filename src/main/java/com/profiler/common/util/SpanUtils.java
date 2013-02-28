@@ -4,7 +4,7 @@ import static com.profiler.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SubSpan;
-import com.profiler.common.dto.thrift.SubSpanList;
+import com.profiler.common.dto.thrift.SpanChunk;
 
 public class SpanUtils {
 
@@ -36,7 +36,7 @@ public class SpanUtils {
 		return BytesUtils.longLongToBytes(subSpan.getMostTraceId(), subSpan.getLeastTraceId());
 	}
 
-	public static byte[] getTraceId(SubSpanList subSpanList) {
-		return BytesUtils.longLongToBytes(subSpanList.getMostTraceId(), subSpanList.getLeastTraceId());
+	public static byte[] getTraceId(SpanChunk spanChunk) {
+		return BytesUtils.longLongToBytes(spanChunk.getMostTraceId(), spanChunk.getLeastTraceId());
 	}
 }

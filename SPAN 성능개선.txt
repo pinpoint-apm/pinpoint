@@ -4,3 +4,11 @@ TraceID를
 
 annotation을 코드로 변경.
 2638
+
+Span에 있는 데이터를 좀더 정형화함.
+read size:2445
+로 줄음.
+대신 추가로 서버 정보를 더 넘기면 약간은 더 증가할듯하다.
+
+desinationId, destinationAddress로 더 fix하게되어
+jdbc url이 중복되고 있어 개선하면 데이터 사이즈가 상당히 줄듯함.

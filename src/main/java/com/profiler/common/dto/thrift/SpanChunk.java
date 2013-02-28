@@ -17,18 +17,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpanList._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SubSpanList");
+public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanChunk");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
@@ -146,19 +140,19 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpanList.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanChunk.class, metaDataMap);
   }
 
-  public SubSpanList() {
+  public SpanChunk() {
   }
 
-  public SubSpanList(
-    String agentId,
-    short agentIdentifier,
-    long mostTraceId,
-    long leastTraceId,
-    int spanId,
-    List<SubSpan> subSpanList)
+  public SpanChunk(
+          String agentId,
+          short agentIdentifier,
+          long mostTraceId,
+          long leastTraceId,
+          int spanId,
+          List<SubSpan> subSpanList)
   {
     this();
     this.agentId = agentId;
@@ -176,7 +170,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public SubSpanList(SubSpanList other) {
+  public SpanChunk(SpanChunk other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAgentId()) {
@@ -195,8 +189,8 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     }
   }
 
-  public SubSpanList deepCopy() {
-    return new SubSpanList(this);
+  public SpanChunk deepCopy() {
+    return new SpanChunk(this);
   }
 
   @Override
@@ -466,12 +460,12 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof SubSpanList)
-      return this.equals((SubSpanList)that);
+    if (that instanceof SpanChunk)
+      return this.equals((SpanChunk)that);
     return false;
   }
 
-  public boolean equals(SubSpanList that) {
+  public boolean equals(SpanChunk that) {
     if (that == null)
       return false;
 
@@ -537,13 +531,13 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     return 0;
   }
 
-  public int compareTo(SubSpanList other) {
+  public int compareTo(SpanChunk other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    SubSpanList typedOther = (SubSpanList)other;
+    SpanChunk typedOther = (SpanChunk)other;
 
     lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
@@ -622,7 +616,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SubSpanList(");
+    StringBuilder sb = new StringBuilder("SpanChunk(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -688,9 +682,9 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     }
   }
 
-  private static class SubSpanListStandardScheme extends StandardScheme<SubSpanList> {
+  private static class SubSpanListStandardScheme extends StandardScheme<SpanChunk> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, SubSpanList struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, SpanChunk struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -768,7 +762,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, SubSpanList struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, SpanChunk struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -813,10 +807,10 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     }
   }
 
-  private static class SubSpanListTupleScheme extends TupleScheme<SubSpanList> {
+  private static class SubSpanListTupleScheme extends TupleScheme<SpanChunk> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, SpanChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -865,7 +859,7 @@ public class SubSpanList implements org.apache.thrift.TBase<SubSpanList, SubSpan
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, SubSpanList struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, SpanChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {

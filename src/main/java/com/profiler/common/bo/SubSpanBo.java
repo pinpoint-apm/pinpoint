@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
@@ -91,14 +92,14 @@ public class SubSpanBo implements Span {
 		setAnnotationBoList(tSubSpan.getAnnotations());
 	}
 
-	public SubSpanBo(com.profiler.common.dto.thrift.SubSpanList subSpanList, SubSpan subSpan) {
-		this.agentId = subSpanList.getAgentId();
-        this.agentIdentifier = subSpanList.getAgentIdentifier();
+	public SubSpanBo(SpanChunk spanChunk, SubSpan subSpan) {
+		this.agentId = spanChunk.getAgentId();
+        this.agentIdentifier = spanChunk.getAgentIdentifier();
 
-		this.mostTraceId = subSpanList.getMostTraceId();
-		this.leastTraceId = subSpanList.getLeastTraceId();
+		this.mostTraceId = spanChunk.getMostTraceId();
+		this.leastTraceId = spanChunk.getLeastTraceId();
 
-		this.spanId = subSpanList.getSpanId();
+		this.spanId = spanChunk.getSpanId();
 		this.sequence = subSpan.getSequence();
 
 		this.startElapsed = subSpan.getStartElapsed();
