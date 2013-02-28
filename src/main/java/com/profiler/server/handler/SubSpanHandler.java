@@ -2,6 +2,7 @@ package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
 
+import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.util.SubSpanUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TracesDao;
@@ -33,7 +33,7 @@ public class SubSpanHandler implements Handler {
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         try {
-            SubSpan subSpan = (SubSpan) tbase;
+            Event subSpan = (Event) tbase;
 
             if (logger.isInfoEnabled()) {
                 logger.info("Received SubSPAN={}", subSpan);
@@ -66,7 +66,7 @@ public class SubSpanHandler implements Handler {
                 terminalStatistics.update(applicationName, subSpan.getDestinationId(), serviceType.getCode(), elapsed, hasException);
             }
         } catch (Exception e) {
-            logger.warn("SubSpan handle error " + e.getMessage(), e);
+            logger.warn("Event handle error " + e.getMessage(), e);
         }
     }
 }

@@ -90,7 +90,7 @@ public class MultiplexedPacketHandler {
         if (tBase instanceof AgentInfo) {
             return agentInfoHandler;
         }
-        if (tBase instanceof SubSpan) {
+        if (tBase instanceof Event) {
             return subSpanHandler;
         }
         if (tBase instanceof SpanChunk) {

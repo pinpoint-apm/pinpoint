@@ -4,8 +4,8 @@ import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SubSpanBo;
 import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.buffer.Buffer;
@@ -58,12 +58,12 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     private void addNestedSubSpan(Put put, Span span) {
-        List<SubSpan> subSpanList = span.getSubSpanList();
+        List<Event> subSpanList = span.getSubSpanList();
         if (subSpanList == null || subSpanList.size() == 0) {
             return;
         }
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        for (SubSpan subSpan : subSpanList) {
+        for (Event subSpan : subSpanList) {
             SubSpanBo subSpanBo = new SubSpanBo(span, subSpan);
             byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
             byte[] value = subSpanBo.writeValue();
@@ -73,7 +73,7 @@ public class HbaseTraceDao implements TracesDao {
 
 
     @Override
-    public void insertSubSpan(final String applicationName, final SubSpan subSpan) {
+    public void insertSubSpan(final String applicationName, final Event subSpan) {
         SubSpanBo subSpanBo = new SubSpanBo(subSpan);
         byte[] value = subSpanBo.writeValue();
         // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
@@ -90,8 +90,8 @@ public class HbaseTraceDao implements TracesDao {
         Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        List<SubSpan> subSpanList0 = spanChunk.getSubSpanList();
-        for (SubSpan subSpan : subSpanList0) {
+        List<Event> subSpanList0 = spanChunk.getSubSpanList();
+        for (Event subSpan : subSpanList0) {
             SubSpanBo subSpanBo = new SubSpanBo(spanChunk, subSpan);
 
             byte[] value = subSpanBo.writeValue();

@@ -3,6 +3,7 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
+import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.util.SubSpanUtils;
 import org.apache.thrift.TBase;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TracesDao;
@@ -55,11 +55,11 @@ public class SpanChunkHandler implements Handler {
 
             traceDao.insertSpanChunk(applicationName, spanChunk);
 
-            List<SubSpan> ssList = spanChunk.getSubSpanList();
+            List<Event> ssList = spanChunk.getSubSpanList();
             if (ssList != null) {
                 logger.debug("SpanChunk Size:{}", ssList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
-                for (SubSpan subSpan : ssList) {
+                for (Event subSpan : ssList) {
                     ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
                     
                     if(!serviceType.isRecordStatistics()) {

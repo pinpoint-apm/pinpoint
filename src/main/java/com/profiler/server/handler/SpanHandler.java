@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.dto.thrift.SubSpan;
+import com.profiler.common.dto.thrift.Event;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
 import com.profiler.server.dao.BusinessTransactionStatisticsDao;
@@ -64,11 +64,11 @@ public class SpanHandler implements Handler {
             applicationTraceIndexDao.insert(applicationName, span);
             businessTransactionStatistics.update(applicationName, span);
 
-            List<SubSpan> subSpanList = span.getSubSpanList();
+            List<Event> subSpanList = span.getSubSpanList();
             if (subSpanList != null) {
                 logger.info("handle subSpan size:{}", subSpanList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
-                for (SubSpan subSpan : subSpanList) {
+                for (Event subSpan : subSpanList) {
                     ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 					if(!serviceType.isRecordStatistics()) {
                         continue;
