@@ -71,7 +71,7 @@ public class TimeBaseStorage implements Storage {
                 }
             }
             if (flushData != null) {
-                dataSender.send(new SubSpanList(flushData));
+                dataSender.send(new SpanChunk(flushData));
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.profiler.context;
 
 import com.profiler.Agent;
-import com.profiler.common.dto.thrift.SpanChunk;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -11,17 +10,17 @@ import java.util.UUID;
 /**
  *
  */
-public class SubSpanList implements Thriftable {
+public class SpanChunk implements Thriftable {
 
     private List<SubSpan> subSpanList = new ArrayList<SubSpan>();
 
-    public SubSpanList(List<SubSpan> subSpanList) {
+    public SpanChunk(List<SubSpan> subSpanList) {
         this.subSpanList = subSpanList;
     }
 
     @Override
     public TBase toThrift() {
-        SpanChunk tSpanChunk = new SpanChunk();
+        com.profiler.common.dto.thrift.SpanChunk tSpanChunk = new com.profiler.common.dto.thrift.SpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
         SubSpan first = subSpanList.get(0);
         Span parentSpan = first.getParentSpan();
@@ -55,8 +54,9 @@ public class SubSpanList implements Thriftable {
             tSubSpan.setSequence(subSpan.getSequence());
 
             tSubSpan.setRpc(subSpan.getRpc());
-            tSubSpan.setServiceName(subSpan.getServiceName());
+//            tSubSpan.setServiceName(subSpan.getServiceName());
             tSubSpan.setServiceType(subSpan.getServiceType().getCode());
+            tSubSpan.setDestinationId(subSpan.getDestionationId());
 
             tSubSpan.setEndPoint(subSpan.getEndPoint());
             tSubSpan.setDestinationId(subSpan.getDestionationId());
