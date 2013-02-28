@@ -73,11 +73,11 @@ public class HbaseTraceDao implements TracesDao {
 
 
     @Override
-    public void insertSubSpan(final String applicationName, final Event subSpan) {
-        SubSpanBo subSpanBo = new SubSpanBo(subSpan);
+    public void insertEvent(final String applicationName, final Event event) {
+        SubSpanBo subSpanBo = new SubSpanBo(event);
         byte[] value = subSpanBo.writeValue();
         // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
-        Put put = new Put(SpanUtils.getTraceId(subSpan));
+        Put put = new Put(SpanUtils.getTraceId(event));
 
         byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
         put.add(TRACES_CF_TERMINALSPAN, rowId, value);

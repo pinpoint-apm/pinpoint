@@ -7,7 +7,7 @@ import com.profiler.common.dto.thrift.SpanChunk;
 public interface TracesDao {
     void insert(String applicationName, Span span);
 
-    void insertSubSpan(String applicationName, Event subSpan);
+    void insertEvent(String applicationName, Event event);
 
     void insertSpanChunk(String applicationName, SpanChunk spanChunk);
 }

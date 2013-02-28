@@ -17,7 +17,7 @@ import com.profiler.server.dao.TracesDao;
 /**
  * subspan represent terminal spans.
  */
-public class SubSpanHandler implements Handler {
+public class EventHandler implements Handler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -33,13 +33,13 @@ public class SubSpanHandler implements Handler {
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         try {
-            Event subSpan = (Event) tbase;
+            Event event = (Event) tbase;
 
             if (logger.isInfoEnabled()) {
-                logger.info("Received SubSPAN={}", subSpan);
+                logger.info("Received Event={}", event);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(subSpan.getAgentId());
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(event.getAgentId());
 
             if (applicationName == null) {
                 logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
@@ -48,22 +48,22 @@ public class SubSpanHandler implements Handler {
                 logger.info("Applicationname '{}' found. Write the log.", applicationName);
             }
 
-            traceDao.insertSubSpan(applicationName, subSpan);
+            traceDao.insertEvent(applicationName, event);
             
-            ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
+            ServiceType serviceType = ServiceType.findServiceType(event.getServiceType());
 
 			if (!serviceType.isRecordStatistics()) {
 				return;
 			}
             
             // if terminal update statistics
-            int elapsed = subSpan.getEndElapsed();
-            boolean hasException = SubSpanUtils.hasException(subSpan);
+            int elapsed = event.getEndElapsed();
+            boolean hasException = SubSpanUtils.hasException(event);
             // 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
             if (serviceType.isRpcClient()) {
-                terminalStatistics.update(applicationName, subSpan.getDestinationId(), serviceType.getCode(), elapsed, hasException);
+                terminalStatistics.update(applicationName, event.getDestinationId(), serviceType.getCode(), elapsed, hasException);
             } else {
-                terminalStatistics.update(applicationName, subSpan.getDestinationId(), serviceType.getCode(), elapsed, hasException);
+                terminalStatistics.update(applicationName, event.getDestinationId(), serviceType.getCode(), elapsed, hasException);
             }
         } catch (Exception e) {
             logger.warn("Event handle error " + e.getMessage(), e);
