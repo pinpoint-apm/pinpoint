@@ -100,7 +100,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
     private DatagramSocket createSocket() {
         try {
-            DatagramSocket so = new DatagramSocket(TomcatProfilerReceiverConfig.DEFUALT_PORT);
+            DatagramSocket so = new DatagramSocket(TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
             so.setSoTimeout(1000 * 10);
             return so;
         } catch (SocketException e) {
