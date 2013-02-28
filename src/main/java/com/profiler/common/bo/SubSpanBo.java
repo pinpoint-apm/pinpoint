@@ -109,6 +109,9 @@ public class SubSpanBo implements Span {
 		this.serviceName = subSpan.getServiceName();
 		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
 
+        this.destinationId = subSpan.getDestinationId();
+        this.destinationAddress = subSpan.getDestinationAddress();
+
 //		this.endPoint = subSpan.getEndPoint();
 		
 		if (subSpan.isSetDepth()) {

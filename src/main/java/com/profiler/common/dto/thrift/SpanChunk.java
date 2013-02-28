@@ -17,9 +17,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanChunk");
@@ -33,8 +39,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SubSpanListStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SubSpanListTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new SpanChunkStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new SpanChunkTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -147,12 +153,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   }
 
   public SpanChunk(
-          String agentId,
-          short agentIdentifier,
-          long mostTraceId,
-          long leastTraceId,
-          int spanId,
-          List<SubSpan> subSpanList)
+    String agentId,
+    short agentIdentifier,
+    long mostTraceId,
+    long leastTraceId,
+    int spanId,
+    List<SubSpan> subSpanList)
   {
     this();
     this.agentId = agentId;
@@ -676,13 +682,13 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     }
   }
 
-  private static class SubSpanListStandardSchemeFactory implements SchemeFactory {
-    public SubSpanListStandardScheme getScheme() {
-      return new SubSpanListStandardScheme();
+  private static class SpanChunkStandardSchemeFactory implements SchemeFactory {
+    public SpanChunkStandardScheme getScheme() {
+      return new SpanChunkStandardScheme();
     }
   }
 
-  private static class SubSpanListStandardScheme extends StandardScheme<SpanChunk> {
+  private static class SpanChunkStandardScheme extends StandardScheme<SpanChunk> {
 
     public void read(org.apache.thrift.protocol.TProtocol iprot, SpanChunk struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
@@ -801,13 +807,13 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
 
   }
 
-  private static class SubSpanListTupleSchemeFactory implements SchemeFactory {
-    public SubSpanListTupleScheme getScheme() {
-      return new SubSpanListTupleScheme();
+  private static class SpanChunkTupleSchemeFactory implements SchemeFactory {
+    public SpanChunkTupleScheme getScheme() {
+      return new SpanChunkTupleScheme();
     }
   }
 
-  private static class SubSpanListTupleScheme extends TupleScheme<SpanChunk> {
+  private static class SpanChunkTupleScheme extends TupleScheme<SpanChunk> {
 
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, SpanChunk struct) throws org.apache.thrift.TException {
