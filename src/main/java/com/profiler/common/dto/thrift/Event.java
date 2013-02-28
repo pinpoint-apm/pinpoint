@@ -17,18 +17,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SubSpan");
+public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Event");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
@@ -231,18 +225,18 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SubSpan.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Event.class, metaDataMap);
   }
 
-  public SubSpan() {
+  public Event() {
   }
 
-  public SubSpan(
-    short sequence,
-    int startElapsed,
-    int endElapsed,
-    short serviceType,
-    List<Annotation> annotations)
+  public Event(
+          short sequence,
+          int startElapsed,
+          int endElapsed,
+          short serviceType,
+          List<Annotation> annotations)
   {
     this();
     this.sequence = sequence;
@@ -259,7 +253,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public SubSpan(SubSpan other) {
+  public Event(Event other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAgentId()) {
@@ -303,8 +297,8 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     this.nextSpanId = other.nextSpanId;
   }
 
-  public SubSpan deepCopy() {
-    return new SubSpan(this);
+  public Event deepCopy() {
+    return new Event(this);
   }
 
   @Override
@@ -996,12 +990,12 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof SubSpan)
-      return this.equals((SubSpan)that);
+    if (that instanceof Event)
+      return this.equals((Event)that);
     return false;
   }
 
-  public boolean equals(SubSpan that) {
+  public boolean equals(Event that) {
     if (that == null)
       return false;
 
@@ -1166,13 +1160,13 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     return 0;
   }
 
-  public int compareTo(SubSpan other) {
+  public int compareTo(Event other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    SubSpan typedOther = (SubSpan)other;
+    Event typedOther = (Event)other;
 
     lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
@@ -1361,7 +1355,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SubSpan(");
+    StringBuilder sb = new StringBuilder("Event(");
     boolean first = true;
 
     if (isSetAgentId()) {
@@ -1515,9 +1509,9 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
   }
 
-  private static class SubSpanStandardScheme extends StandardScheme<SubSpan> {
+  private static class SubSpanStandardScheme extends StandardScheme<Event> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, SubSpan struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, Event struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1693,7 +1687,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, SubSpan struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, Event struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1812,10 +1806,10 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
   }
 
-  private static class SubSpanTupleScheme extends TupleScheme<SubSpan> {
+  private static class SubSpanTupleScheme extends TupleScheme<Event> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, SubSpan struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, Event struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1936,7 +1930,7 @@ public class SubSpan implements org.apache.thrift.TBase<SubSpan, SubSpan._Fields
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, SubSpan struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, Event struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(17);
       if (incoming.get(0)) {

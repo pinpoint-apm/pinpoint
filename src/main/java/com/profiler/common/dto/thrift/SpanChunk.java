@@ -17,15 +17,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanChunk");
@@ -48,7 +42,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private long mostTraceId; // required
   private long leastTraceId; // required
   private int spanId; // required
-  private List<SubSpan> subSpanList; // required
+  private List<Event> subSpanList; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -144,7 +138,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Event.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanChunk.class, metaDataMap);
   }
@@ -158,7 +152,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     long mostTraceId,
     long leastTraceId,
     int spanId,
-    List<SubSpan> subSpanList)
+    List<Event> subSpanList)
   {
     this();
     this.agentId = agentId;
@@ -187,11 +181,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.leastTraceId = other.leastTraceId;
     this.spanId = other.spanId;
     if (other.isSetSubSpanList()) {
-      List<SubSpan> __this__subSpanList = new ArrayList<SubSpan>();
-      for (SubSpan other_element : other.subSpanList) {
-        __this__subSpanList.add(new SubSpan(other_element));
+      List<Event> __this__eventList = new ArrayList<Event>();
+      for (Event other_element : other.subSpanList) {
+        __this__eventList.add(new Event(other_element));
       }
-      this.subSpanList = __this__subSpanList;
+      this.subSpanList = __this__eventList;
     }
   }
 
@@ -328,22 +322,22 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     return (this.subSpanList == null) ? 0 : this.subSpanList.size();
   }
 
-  public java.util.Iterator<SubSpan> getSubSpanListIterator() {
+  public java.util.Iterator<Event> getSubSpanListIterator() {
     return (this.subSpanList == null) ? null : this.subSpanList.iterator();
   }
 
-  public void addToSubSpanList(SubSpan elem) {
+  public void addToSubSpanList(Event elem) {
     if (this.subSpanList == null) {
-      this.subSpanList = new ArrayList<SubSpan>();
+      this.subSpanList = new ArrayList<Event>();
     }
     this.subSpanList.add(elem);
   }
 
-  public List<SubSpan> getSubSpanList() {
+  public List<Event> getSubSpanList() {
     return this.subSpanList;
   }
 
-  public void setSubSpanList(List<SubSpan> subSpanList) {
+  public void setSubSpanList(List<Event> subSpanList) {
     this.subSpanList = subSpanList;
   }
 
@@ -408,7 +402,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (value == null) {
         unsetSubSpanList();
       } else {
-        setSubSpanList((List<SubSpan>)value);
+        setSubSpanList((List<Event>)value);
       }
       break;
 
@@ -744,11 +738,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-                struct.subSpanList = new ArrayList<SubSpan>(_list40.size);
+                struct.subSpanList = new ArrayList<Event>(_list40.size);
                 for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                 {
-                  SubSpan _elem42; // required
-                  _elem42 = new SubSpan();
+                  Event _elem42; // required
+                  _elem42 = new Event();
                   _elem42.read(iprot);
                   struct.subSpanList.add(_elem42);
                 }
@@ -793,7 +787,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-          for (SubSpan _iter43 : struct.subSpanList)
+          for (Event _iter43 : struct.subSpanList)
           {
             _iter43.write(oprot);
           }
@@ -856,7 +850,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetSubSpanList()) {
         {
           oprot.writeI32(struct.subSpanList.size());
-          for (SubSpan _iter44 : struct.subSpanList)
+          for (Event _iter44 : struct.subSpanList)
           {
             _iter44.write(oprot);
           }
@@ -891,11 +885,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (incoming.get(5)) {
         {
           org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.subSpanList = new ArrayList<SubSpan>(_list45.size);
+          struct.subSpanList = new ArrayList<Event>(_list45.size);
           for (int _i46 = 0; _i46 < _list45.size; ++_i46)
           {
-            SubSpan _elem47; // required
-            _elem47 = new SubSpan();
+            Event _elem47; // required
+            _elem47 = new Event();
             _elem47.read(iprot);
             struct.subSpanList.add(_elem47);
           }

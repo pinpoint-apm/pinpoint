@@ -50,7 +50,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
             case AGENT_INFO:
                 return new AgentInfo();
             case SUBSPAN:
-                return new SubSpan();
+                return new Event();
             case SPANCHUNK:
                 return new SpanChunk();
             case SQLMETADATA:
@@ -68,7 +68,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof SpanChunk) {
             return SPANCHUNK;
         }
-        if (tbase instanceof SubSpan) {
+        if (tbase instanceof Event) {
             return SUBSPAN;
         }
         if (tbase instanceof JVMInfoThriftDTO) {

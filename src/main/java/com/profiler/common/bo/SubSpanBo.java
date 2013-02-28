@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.dto.thrift.SpanChunk;
-import com.profiler.common.dto.thrift.SubSpan;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;
@@ -58,7 +58,7 @@ public class SubSpanBo implements Span {
 	public SubSpanBo() {
 	}
 
-	public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, SubSpan tSubSpan) {
+	public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, Event tSubSpan) {
 		this.agentId = tSpan.getAgentId();
         this.agentIdentifier = tSpan.getAgentIdentifier();
 
@@ -92,7 +92,7 @@ public class SubSpanBo implements Span {
 		setAnnotationBoList(tSubSpan.getAnnotations());
 	}
 
-	public SubSpanBo(SpanChunk spanChunk, SubSpan subSpan) {
+	public SubSpanBo(SpanChunk spanChunk, Event subSpan) {
 		this.agentId = spanChunk.getAgentId();
         this.agentIdentifier = spanChunk.getAgentIdentifier();
 
@@ -125,7 +125,7 @@ public class SubSpanBo implements Span {
 		setAnnotationBoList(subSpan.getAnnotations());
 	}
 
-	public SubSpanBo(SubSpan subSpan) {
+	public SubSpanBo(Event subSpan) {
 		this.agentId = subSpan.getAgentId();
         this.agentIdentifier = subSpan.getAgentIdentifier();
 

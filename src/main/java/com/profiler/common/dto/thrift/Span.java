@@ -17,15 +17,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
@@ -70,7 +64,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private List<Annotation> annotations; // required
   private short flag; // optional
   private int err; // optional
-  private List<SubSpan> subSpanList; // optional
+  private List<Event> subSpanList; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -229,7 +223,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SubSpan.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Event.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
   }
@@ -310,11 +304,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.flag = other.flag;
     this.err = other.err;
     if (other.isSetSubSpanList()) {
-      List<SubSpan> __this__subSpanList = new ArrayList<SubSpan>();
-      for (SubSpan other_element : other.subSpanList) {
-        __this__subSpanList.add(new SubSpan(other_element));
+      List<Event> __this__eventList = new ArrayList<Event>();
+      for (Event other_element : other.subSpanList) {
+        __this__eventList.add(new Event(other_element));
       }
-      this.subSpanList = __this__subSpanList;
+      this.subSpanList = __this__eventList;
     }
   }
 
@@ -730,22 +724,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     return (this.subSpanList == null) ? 0 : this.subSpanList.size();
   }
 
-  public java.util.Iterator<SubSpan> getSubSpanListIterator() {
+  public java.util.Iterator<Event> getSubSpanListIterator() {
     return (this.subSpanList == null) ? null : this.subSpanList.iterator();
   }
 
-  public void addToSubSpanList(SubSpan elem) {
+  public void addToSubSpanList(Event elem) {
     if (this.subSpanList == null) {
-      this.subSpanList = new ArrayList<SubSpan>();
+      this.subSpanList = new ArrayList<Event>();
     }
     this.subSpanList.add(elem);
   }
 
-  public List<SubSpan> getSubSpanList() {
+  public List<Event> getSubSpanList() {
     return this.subSpanList;
   }
 
-  public void setSubSpanList(List<SubSpan> subSpanList) {
+  public void setSubSpanList(List<Event> subSpanList) {
     this.subSpanList = subSpanList;
   }
 
@@ -898,7 +892,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetSubSpanList();
       } else {
-        setSubSpanList((List<SubSpan>)value);
+        setSubSpanList((List<Event>)value);
       }
       break;
 
@@ -1677,11 +1671,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
-                struct.subSpanList = new ArrayList<SubSpan>(_list27.size);
+                struct.subSpanList = new ArrayList<Event>(_list27.size);
                 for (int _i28 = 0; _i28 < _list27.size; ++_i28)
                 {
-                  SubSpan _elem29; // required
-                  _elem29 = new SubSpan();
+                  Event _elem29; // required
+                  _elem29 = new Event();
                   _elem29.read(iprot);
                   struct.subSpanList.add(_elem29);
                 }
@@ -1791,7 +1785,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-            for (SubSpan _iter31 : struct.subSpanList)
+            for (Event _iter31 : struct.subSpanList)
             {
               _iter31.write(oprot);
             }
@@ -1927,7 +1921,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetSubSpanList()) {
         {
           oprot.writeI32(struct.subSpanList.size());
-          for (SubSpan _iter33 : struct.subSpanList)
+          for (Event _iter33 : struct.subSpanList)
           {
             _iter33.write(oprot);
           }
@@ -2016,11 +2010,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (incoming.get(16)) {
         {
           org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.subSpanList = new ArrayList<SubSpan>(_list37.size);
+          struct.subSpanList = new ArrayList<Event>(_list37.size);
           for (int _i38 = 0; _i38 < _list37.size; ++_i38)
           {
-            SubSpan _elem39; // required
-            _elem39 = new SubSpan();
+            Event _elem39; // required
+            _elem39 = new Event();
             _elem39.read(iprot);
             struct.subSpanList.add(_elem39);
           }
