@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.profiler.Agent;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.Event;
 
 /**
  * Span represent RPC
@@ -169,12 +170,12 @@ public class SubSpan implements Thriftable {
         return sb.toString();
     }
 
-    public com.profiler.common.dto.thrift.SubSpan toThrift() {
+    public Event toThrift() {
         return toThrift(false);
     }
 
-    public com.profiler.common.dto.thrift.SubSpan toThrift(boolean child) {
-        com.profiler.common.dto.thrift.SubSpan subSpan = new com.profiler.common.dto.thrift.SubSpan();
+    public Event toThrift(boolean child) {
+        Event subSpan = new Event();
 
         long parentSpanStartTime = parentSpan.getStartTime();
         subSpan.setStartElapsed((int) (startTime - parentSpanStartTime));

@@ -12,14 +12,14 @@ public interface Storage {
     DataSender getDataSender();
 
     /**
-     * store(SubSpan subSpan)와 store(Span span)간 동기화가 구현되어 있어야 한다.
+     * store(Event subSpan)와 store(Span span)간 동기화가 구현되어 있어야 한다.
      *
      * @param subSpan
      */
     void store(SubSpan subSpan);
 
     /**
-     * store(SubSpan subSpan)와 store(Span span)간 동기화가 구현되어 있어야 한다.
+     * store(Event subSpan)와 store(Span span)간 동기화가 구현되어 있어야 한다.
      *
      * @param span
      */

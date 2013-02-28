@@ -1,6 +1,7 @@
 package com.profiler.context;
 
 import com.profiler.Agent;
+import com.profiler.common.dto.thrift.Event;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -32,17 +33,17 @@ public class SpanChunk implements Thriftable {
         tSpanChunk.setLeastTraceId(id.getLeastSignificantBits());
         tSpanChunk.setSpanId(parentSpan.getTraceID().getSpanId());
 
-        List<com.profiler.common.dto.thrift.SubSpan> tSubSpan = createSubSpan(subSpanList);
+        List<Event> tSubSpan = createSubSpan(subSpanList);
 
         tSpanChunk.setSubSpanList(tSubSpan);
 
         return tSpanChunk;
     }
 
-    private List<com.profiler.common.dto.thrift.SubSpan> createSubSpan(List<SubSpan> subSpanList) {
-        List<com.profiler.common.dto.thrift.SubSpan> result = new ArrayList<com.profiler.common.dto.thrift.SubSpan>(subSpanList.size());
+    private List<Event> createSubSpan(List<SubSpan> subSpanList) {
+        List<Event> result = new ArrayList<Event>(subSpanList.size());
         for (SubSpan subSpan : subSpanList) {
-            com.profiler.common.dto.thrift.SubSpan tSubSpan = new com.profiler.common.dto.thrift.SubSpan();
+            Event tSubSpan = new Event();
 
             tSubSpan.setAgentId(Agent.getInstance().getAgentId());
             tSubSpan.setAgentIdentifier(Agent.getInstance().getIdentifier());

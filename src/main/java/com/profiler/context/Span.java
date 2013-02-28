@@ -2,6 +2,7 @@ package com.profiler.context;
 
 import com.profiler.Agent;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,9 +176,9 @@ public class Span implements Thriftable {
         List<SubSpan> subSpanList = this.getSubSpanList();
         if (subSpanList != null && subSpanList.size() != 0) {
 
-            List<com.profiler.common.dto.thrift.SubSpan> tSubSpanList = new ArrayList<com.profiler.common.dto.thrift.SubSpan>(subSpanList.size());
+            List<Event> tSubSpanList = new ArrayList<Event>(subSpanList.size());
             for (SubSpan subSpan : subSpanList) {
-                com.profiler.common.dto.thrift.SubSpan tSubSpan = subSpan.toThrift(true);
+                Event tSubSpan = subSpan.toThrift(true);
                 tSubSpanList.add(tSubSpan);
             }
             span.setSubSpanList(tSubSpanList);
