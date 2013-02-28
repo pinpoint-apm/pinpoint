@@ -33,7 +33,7 @@
     <bean id="SpanHandler" class="com.profiler.server.handler.SpanHandler"/>
     <bean id="AgentInfoHandler" class="com.profiler.server.handler.AgentInfoHandler"/>
     <bean id="SubSpanHandler" class="com.profiler.server.handler.SubSpanHandler"/>
-    <bean id="SubSpanListHandler" class="com.profiler.server.handler.SubSpanListHandler"/>
+    <bean id="SpanChunkHandler" class="com.profiler.server.handler.SpanChunkHandler"/>
     <bean id="SqlMetaDataHandler" class="com.profiler.server.handler.SqlMetaDataHandler"/>
     <bean id="ApiMetaDataHandler" class="com.profiler.server.handler.ApiMetaDataHandler"/>
 

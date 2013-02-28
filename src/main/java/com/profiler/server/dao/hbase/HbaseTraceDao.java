@@ -6,7 +6,7 @@ import com.profiler.common.bo.SubSpanBo;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SubSpan;
-import com.profiler.common.dto.thrift.SubSpanList;
+import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
@@ -86,13 +86,13 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     @Override
-    public void insertSubSpanList(String applicationName, SubSpanList subSpanList) {
-        Put put = new Put(SpanUtils.getTraceId(subSpanList));
+    public void insertSubSpanList(String applicationName, SpanChunk spanChunk) {
+        Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        List<SubSpan> subSpanList0 = subSpanList.getSubSpanList();
+        List<SubSpan> subSpanList0 = spanChunk.getSubSpanList();
         for (SubSpan subSpan : subSpanList0) {
-            SubSpanBo subSpanBo = new SubSpanBo(subSpanList, subSpan);
+            SubSpanBo subSpanBo = new SubSpanBo(spanChunk, subSpan);
 
             byte[] value = subSpanBo.writeValue();
             byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());

@@ -3,6 +3,7 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
+import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.util.SubSpanUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.SubSpan;
-import com.profiler.common.dto.thrift.SubSpanList;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TracesDao;
@@ -19,7 +19,7 @@ import com.profiler.server.dao.TracesDao;
 /**
  *
  */
-public class SubSpanListHandler implements Handler {
+public class SpanChunkHandler implements Handler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -37,13 +37,13 @@ public class SubSpanListHandler implements Handler {
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         try {
-            SubSpanList subSpanList = (SubSpanList) tbase;
+            SpanChunk spanChunk = (SpanChunk) tbase;
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Received SubSpanList={}", subSpanList);
+                logger.debug("Received SpanChunk={}", spanChunk);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(subSpanList.getAgentId());
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(spanChunk.getAgentId());
 
             if (applicationName == null) {
                 logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
@@ -53,11 +53,11 @@ public class SubSpanListHandler implements Handler {
             }
 
 
-            traceDao.insertSubSpanList(applicationName, subSpanList);
+            traceDao.insertSubSpanList(applicationName, spanChunk);
 
-            List<SubSpan> ssList = subSpanList.getSubSpanList();
+            List<SubSpan> ssList = spanChunk.getSubSpanList();
             if (ssList != null) {
-                logger.debug("SubSpanList Size:{}", ssList.size());
+                logger.debug("SpanChunk Size:{}", ssList.size());
                 // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
                 for (SubSpan subSpan : ssList) {
                     ServiceType serviceType = ServiceType.findServiceType(subSpan.getServiceType());
@@ -78,7 +78,7 @@ public class SubSpanListHandler implements Handler {
                 }
             }
         } catch (Exception e) {
-            logger.warn("SubSpanList handle error " + e.getMessage(), e);
+            logger.warn("SpanChunk handle error " + e.getMessage(), e);
         }
     }
 }
