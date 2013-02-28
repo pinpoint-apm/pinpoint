@@ -112,7 +112,7 @@ public class SubSpanBo implements Span {
         this.destinationId = subSpan.getDestinationId();
         this.destinationAddress = subSpan.getDestinationAddress();
 
-//		this.endPoint = subSpan.getEndPoint();
+		this.endPoint = subSpan.getEndPoint();
 		
 		if (subSpan.isSetDepth()) {
 			this.depth = subSpan.getDepth();
