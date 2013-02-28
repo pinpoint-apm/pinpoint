@@ -17,9 +17,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Event");
@@ -44,8 +50,8 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SubSpanStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SubSpanTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new EventStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new EventTupleSchemeFactory());
   }
 
   private String agentId; // optional
@@ -232,11 +238,11 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
   }
 
   public Event(
-          short sequence,
-          int startElapsed,
-          int endElapsed,
-          short serviceType,
-          List<Annotation> annotations)
+    short sequence,
+    int startElapsed,
+    int endElapsed,
+    short serviceType,
+    List<Annotation> annotations)
   {
     this();
     this.sequence = sequence;
@@ -1503,13 +1509,13 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     }
   }
 
-  private static class SubSpanStandardSchemeFactory implements SchemeFactory {
-    public SubSpanStandardScheme getScheme() {
-      return new SubSpanStandardScheme();
+  private static class EventStandardSchemeFactory implements SchemeFactory {
+    public EventStandardScheme getScheme() {
+      return new EventStandardScheme();
     }
   }
 
-  private static class SubSpanStandardScheme extends StandardScheme<Event> {
+  private static class EventStandardScheme extends StandardScheme<Event> {
 
     public void read(org.apache.thrift.protocol.TProtocol iprot, Event struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
@@ -1800,13 +1806,13 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
 
   }
 
-  private static class SubSpanTupleSchemeFactory implements SchemeFactory {
-    public SubSpanTupleScheme getScheme() {
-      return new SubSpanTupleScheme();
+  private static class EventTupleSchemeFactory implements SchemeFactory {
+    public EventTupleScheme getScheme() {
+      return new EventTupleScheme();
     }
   }
 
-  private static class SubSpanTupleScheme extends TupleScheme<Event> {
+  private static class EventTupleScheme extends TupleScheme<Event> {
 
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, Event struct) throws org.apache.thrift.TException {

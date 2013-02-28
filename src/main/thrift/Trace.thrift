@@ -18,7 +18,7 @@ struct Destination {
     2: optional list<string> host
 }
 
-struct SubSpan {
+struct Event {
   1: optional string agentId
   2: optional i16 agentIdentifier
 
@@ -72,7 +72,7 @@ struct Span {
 
   16: optional i32 err
 
-  17: optional list<SubSpan> subSpanList
+  17: optional list<Event> subSpanList
 }
 
 struct SpanChunk {
@@ -84,7 +84,7 @@ struct SpanChunk {
 
   5: i32 spanId
 
-  6: list<SubSpan> subSpanList
+  6: list<Event> subSpanList
 }
 
 struct SqlMetaData {

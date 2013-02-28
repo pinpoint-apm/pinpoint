@@ -17,9 +17,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanChunk");
@@ -181,11 +187,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.leastTraceId = other.leastTraceId;
     this.spanId = other.spanId;
     if (other.isSetSubSpanList()) {
-      List<Event> __this__eventList = new ArrayList<Event>();
+      List<Event> __this__subSpanList = new ArrayList<Event>();
       for (Event other_element : other.subSpanList) {
-        __this__eventList.add(new Event(other_element));
+        __this__subSpanList.add(new Event(other_element));
       }
-      this.subSpanList = __this__eventList;
+      this.subSpanList = __this__subSpanList;
     }
   }
 
