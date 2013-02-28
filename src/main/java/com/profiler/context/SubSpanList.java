@@ -1,6 +1,7 @@
 package com.profiler.context;
 
 import com.profiler.Agent;
+import com.profiler.common.dto.thrift.SpanChunk;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -20,23 +21,23 @@ public class SubSpanList implements Thriftable {
 
     @Override
     public TBase toThrift() {
-        com.profiler.common.dto.thrift.SubSpanList tSubSpanList = new com.profiler.common.dto.thrift.SubSpanList();
+        SpanChunk tSpanChunk = new SpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
         SubSpan first = subSpanList.get(0);
         Span parentSpan = first.getParentSpan();
-        tSubSpanList.setAgentId(Agent.getInstance().getAgentId());
-        tSubSpanList.setAgentIdentifier(Agent.getInstance().getIdentifier());
+        tSpanChunk.setAgentId(Agent.getInstance().getAgentId());
+        tSpanChunk.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
         UUID id = parentSpan.getTraceID().getId();
-        tSubSpanList.setMostTraceId(id.getMostSignificantBits());
-        tSubSpanList.setLeastTraceId(id.getLeastSignificantBits());
-        tSubSpanList.setSpanId(parentSpan.getTraceID().getSpanId());
+        tSpanChunk.setMostTraceId(id.getMostSignificantBits());
+        tSpanChunk.setLeastTraceId(id.getLeastSignificantBits());
+        tSpanChunk.setSpanId(parentSpan.getTraceID().getSpanId());
 
         List<com.profiler.common.dto.thrift.SubSpan> tSubSpan = createSubSpan(subSpanList);
 
-        tSubSpanList.setSubSpanList(tSubSpan);
+        tSpanChunk.setSubSpanList(tSubSpan);
 
-        return tSubSpanList;
+        return tSpanChunk;
     }
 
     private List<com.profiler.common.dto.thrift.SubSpan> createSubSpan(List<SubSpan> subSpanList) {
