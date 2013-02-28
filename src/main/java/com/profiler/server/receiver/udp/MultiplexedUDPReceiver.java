@@ -51,7 +51,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
 	public void receive() {
 		if (logger.isInfoEnabled()) {
-			logger.info("Waiting agent data.");
+			logger.info("Waiting agent data on {}", TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
 		}
 
 		startLatch.countDown();
