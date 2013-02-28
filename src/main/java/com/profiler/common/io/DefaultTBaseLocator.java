@@ -26,8 +26,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short SUBSPAN = 60;
     private static final Header SUBSPAN_HEADER = createHeader(SUBSPAN);
 
-    private static final short SUBSPANLIST = 70;
-    private static final Header SUBSPANLIST_HEADER = createHeader(SUBSPANLIST);
+    private static final short SPANCHUNK = 70;
+    private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
 
 
     private static final short SQLMETADATA = 300;
@@ -51,7 +51,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return new AgentInfo();
             case SUBSPAN:
                 return new SubSpan();
-            case SUBSPANLIST:
+            case SPANCHUNK:
                 return new SpanChunk();
             case SQLMETADATA:
                 return new SqlMetaData();
@@ -66,7 +66,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
             return SPAN;
         }
         if (tbase instanceof SpanChunk) {
-            return SUBSPANLIST;
+            return SPANCHUNK;
         }
         if (tbase instanceof SubSpan) {
             return SUBSPAN;
@@ -110,8 +110,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return AGENT_INFO_HEADER;
             case SUBSPAN:
                 return SUBSPAN_HEADER;
-            case SUBSPANLIST:
-                return SUBSPANLIST_HEADER;
+            case SPANCHUNK:
+                return SPANCHUNK_HEADER;
             case SQLMETADATA:
                 return SQLMETADATA_HEADER;
             case APIMETADATA:
