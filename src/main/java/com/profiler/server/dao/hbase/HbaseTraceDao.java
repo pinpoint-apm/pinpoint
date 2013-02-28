@@ -86,7 +86,7 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     @Override
-    public void insertSubSpanList(String applicationName, SpanChunk spanChunk) {
+    public void insertSpanChunk(String applicationName, SpanChunk spanChunk) {
         Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
         long acceptedTime = AcceptedTime.getAcceptedTime();

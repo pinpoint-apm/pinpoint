@@ -42,7 +42,7 @@ public class MultiplexedPacketHandler {
 
     @Autowired()
     @Qualifier("SpanChunkHandler")
-    private Handler subSpanListHandler;
+    private Handler spanChunkHandler;
 
     @Autowired()
     @Qualifier("SqlMetaDataHandler")
@@ -94,7 +94,7 @@ public class MultiplexedPacketHandler {
             return subSpanHandler;
         }
         if (tBase instanceof SpanChunk) {
-            return subSpanListHandler;
+            return spanChunkHandler;
         }
         if (tBase instanceof SqlMetaData) {
             return sqlMetaDataHandler;

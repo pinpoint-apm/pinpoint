@@ -9,5 +9,5 @@ public interface TracesDao {
 
     void insertSubSpan(String applicationName, SubSpan subSpan);
 
-    void insertSubSpanList(String applicationName, SpanChunk spanChunk);
+    void insertSpanChunk(String applicationName, SpanChunk spanChunk);
 }

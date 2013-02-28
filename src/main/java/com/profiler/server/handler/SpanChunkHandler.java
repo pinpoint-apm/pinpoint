@@ -53,7 +53,7 @@ public class SpanChunkHandler implements Handler {
             }
 
 
-            traceDao.insertSubSpanList(applicationName, spanChunk);
+            traceDao.insertSpanChunk(applicationName, spanChunk);
 
             List<SubSpan> ssList = spanChunk.getSubSpanList();
             if (ssList != null) {
