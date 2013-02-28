@@ -1,7 +1,9 @@
 package com.profiler.server.receiver.udp;
 
+import java.util.concurrent.Future;
+
 public interface DataReceiver {
-	void start();
+	Future<Boolean> start();
 
 	void shutdown();
 }

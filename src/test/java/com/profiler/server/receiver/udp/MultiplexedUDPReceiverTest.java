@@ -1,24 +1,29 @@
 package com.profiler.server.receiver.udp;
 
+import java.util.concurrent.Future;
+
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 
 import com.profiler.server.spring.ApplicationContextUtils;
 
 public class MultiplexedUDPReceiverTest {
+	@Test
+	public void startStop() {
+		try {
+			GenericApplicationContext context = ApplicationContextUtils.createContext();
+			DataReceiver receiver = new MultiplexedUDPReceiver(context);
+			Future<Boolean> startLatch = receiver.start();
 
-    @Test
-	public void startStop() throws Exception {
-        GenericApplicationContext context = ApplicationContextUtils.createContext();
-        DataReceiver receiver = new MultiplexedUDPReceiver(context);
-		receiver.start();
+			startLatch.get();
 
-		Thread.sleep(1000 * 2);
-
-        receiver.shutdown();
-        context.close();
-
+			receiver.shutdown();
+			context.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
 	}
-
-
 }

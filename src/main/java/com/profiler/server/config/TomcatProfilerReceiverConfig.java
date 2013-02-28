@@ -20,8 +20,8 @@ public class TomcatProfilerReceiverConfig {
 	}
 
 	public static void printConfig() {
-		logger.info("SERVER_TCP_LISTEN_PORT=" + SERVER_TCP_LISTEN_PORT);
-		logger.info("SERVER_UDP_LISTEN_PORT=" + SERVER_UDP_LISTEN_PORT);
+		logger.info("SERVER_TCP_LISTEN_PORT={}", SERVER_TCP_LISTEN_PORT);
+		logger.info("SERVER_UDP_LISTEN_PORT={}", SERVER_UDP_LISTEN_PORT);
 	}
 
 	public static void readConfigFile() {
@@ -35,14 +35,14 @@ public class TomcatProfilerReceiverConfig {
 				reader.close();
 				setPropertyValues(prop);
 			} catch (FileNotFoundException fnfe) {
-				logger.error("##### " + hippoConfigFileName + " file is not exists. Please check configuration.");
+				logger.error("File '{}' is not exists. Please check configuration.", hippoConfigFileName);
 				fnfe.printStackTrace();
 			} catch (Exception e) {
-				logger.error("##### " + hippoConfigFileName + " file is not exists. Please check configuration.");
+				logger.error("File '{}' is not exists. Please check configuration.", hippoConfigFileName);
 				e.printStackTrace();
 			}
 		} else {
-			logger.info("##### " + configFileName + " property is not set. Using default values #####");
+			logger.warn("Property is not set. Using default values. filename={}", configFileName);
 		}
 	}
 
@@ -55,6 +55,6 @@ public class TomcatProfilerReceiverConfig {
 		if ((temp = prop.get("SERVER_UDP_LISTEN_PORT")) != null)
 			SERVER_UDP_LISTEN_PORT = Integer.parseInt(temp.toString());
 
-		logger.info("##### Hippo Config Loaded successfully. #####");
+		logger.info("Hippo configuration successfully loaded.");
 	}
 }

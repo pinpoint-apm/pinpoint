@@ -1,39 +1,51 @@
 package com.profiler.server;
 
+import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
-import com.profiler.server.receiver.tcp.TCPReceiver;
 import com.profiler.server.receiver.udp.DataReceiver;
 import com.profiler.server.receiver.udp.MultiplexedUDPReceiver;
 
 public class Server {
+
+	private static final Logger logger = LoggerFactory.getLogger("com.profiler.server.Server");
+
 	public static void main(String[] args) {
 		new Server().start();
 	}
 
 	private DataReceiver mulplexDataReceiver;
-	private TCPReceiver tcpReceiver;
 	GenericApplicationContext context;
 
 	public void start() {
-
+		logger.info("Initializing server components.");
 		context = createContext();
-		System.out.println("Start MultiplexedUDPReceiver Receive UDP Thread");
 
+		boolean successfullyStarted = true;
+
+		logger.info("Starting MultiplexedUDPReceiver receive UDP Thread.");
 		mulplexDataReceiver = new MultiplexedUDPReceiver(context);
-		mulplexDataReceiver.start();
+		Future<Boolean> startFuture = mulplexDataReceiver.start();
 
-		System.out.println("Start Tomcat Agent Data Receive TDP Thread");
-		tcpReceiver = new TCPReceiver();
-		tcpReceiver.start();
+		try {
+			successfullyStarted &= startFuture.get();
+		} catch (Exception e) {
+			startFuture.cancel(true);
+			logger.error("Failed to start multiplexDataReceiver.");
+		}
+
+		if (successfullyStarted) {
+			logger.info("Server started successfully.");
+		} else {
+			logger.warn("Server started incompletely.");
+		}
 
 		addShutdownHook();
-		// System.out.println("***** Start Fetch data Thread                    ********");
-		// FetchTPSDataThread fetchRPS = new FetchTPSDataThread();
-		// fetchRPS.start();
-		// System.out.println("*********************************************************");
 	}
 
 	private GenericApplicationContext createContext() {
@@ -49,14 +61,13 @@ public class Server {
 
 	private void shutdown() {
 		if (mulplexDataReceiver != null) {
-			System.out.println("Shutdown MultiplexedUDPReceiver Receive UDP Thread");
+			logger.info("Shutdown MultiplexedUDPReceiver Receive UDP Thread.");
 			mulplexDataReceiver.shutdown();
-			System.out.println("Shutdown MultiplexedUDPReceiver complete");
+			logger.info("Shutdown MultiplexedUDPReceiver complete.");
 		}
 		if (context != null) {
 			context.close();
 		}
-
 	}
 
 	private void addShutdownHook() {
