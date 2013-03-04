@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.nhn.hippo</groupId>
             <artifactId>hippo-commons</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -214,7 +214,7 @@
         <dependency>
             <groupId>com.nhn.hippo</groupId>
             <artifactId>hippo-tomcat-profiler</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -481,7 +481,7 @@
         <dependency>
             <groupId>com.nhn.hippo</groupId>
             <artifactId>hippo-server</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>test</scope>
         </dependency>
 
