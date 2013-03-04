@@ -7,11 +7,10 @@ import java.util.Map.Entry;
 
 import com.profiler.common.bo.SpanBo;
 
-public final class BusinessTransactions {
+public class BusinessTransactions {
 
 	private final Map<String, BusinessTransaction> transactions = new HashMap<String, BusinessTransaction>();
 	private Iterator<Entry<String, BusinessTransaction>> iterator;
-	private Iterator<Entry<String, BusinessTransaction>> traceIterator;
 
 	public void add(SpanBo span) {
 		String rpc = span.getRpc();
@@ -43,25 +42,5 @@ public final class BusinessTransactions {
 		};
 	}
 
-	@Deprecated
-	public Iterator<BusinessTransaction> getTracesIterator() {
-		traceIterator = transactions.entrySet().iterator();
 
-		return new Iterator<BusinessTransaction>() {
-			@Override
-			public boolean hasNext() {
-				return traceIterator.hasNext();
-			}
-
-			@Override
-			public BusinessTransaction next() {
-				return traceIterator.next().getValue();
-			}
-
-			@Override
-			public void remove() {
-
-			}
-		};
-	}
 }

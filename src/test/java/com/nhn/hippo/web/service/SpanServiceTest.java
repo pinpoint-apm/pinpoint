@@ -126,12 +126,13 @@ public class SpanServiceTest {
         Span span = new Span();
 
         span.setAgentId("UnitTest");
+        span.setApplicationId("ApplicationId");
         span.setMostTraceId(uuid.getMostSignificantBits());
         span.setLeastTraceId(uuid.getLeastSignificantBits());
         span.setStartTime(time);
         span.setElapsed(5);
         span.setRpc("RPC");
-        span.setServiceName("SERVICENAME");
+
         span.setServiceType(ServiceType.UNKNOWN.getCode());
         span.setAnnotations(ano);
 
@@ -152,12 +153,12 @@ public class SpanServiceTest {
         Span sub = new Span();
 
         sub.setAgentId("UnitTest");
+        sub.setApplicationId("ApplicationId");
         sub.setMostTraceId(span.getMostTraceId());
         sub.setLeastTraceId(span.getLeastTraceId());
         sub.setStartTime(time);
         sub.setElapsed(5);
         sub.setRpc("RPC");
-        sub.setServiceName("SERVICENAME");
         sub.setServiceType(ServiceType.UNKNOWN.getCode());
         sub.setAnnotations(ano);
 

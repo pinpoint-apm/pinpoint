@@ -101,7 +101,7 @@ public class RecordSet {
 					applicationName = arguments;
 					beginTimestamp = begin;
 				}
-                Record record = new Record(spanAlign.getDepth(), true, method, arguments, begin, elapsed, spanBo.getAgentId(), spanBo.getServiceName(), spanBo.getServiceType(), null);
+                Record record = new Record(spanAlign.getDepth(), true, method, arguments, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
                 recordset.add(record);
 				addAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
 			} else {

@@ -216,7 +216,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				tree.addSpan(eachTransaction);
 
 				// make query param
-				terminalQueryParams.put(eachTransaction.getServiceName(), eachTransaction.getServiceType());
+				terminalQueryParams.put(eachTransaction.getApplicationId(), eachTransaction.getServiceType());
 
 				endPoints.add(eachTransaction.getEndPoint());
 			}
@@ -273,29 +273,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return null;
 	}
 
-	@Deprecated
-	private List<SpanBo> refine(final List<SpanBo> list) {
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo span = list.get(i);
-
-			if (span.getServiceType().isRpcClient()) {
-				SpanBo child = findChildSpan(list, span);
-
-				if (child != null) {
-					child.setParentSpanId(span.getParentSpanId());
-					child.getAnnotationBoList().addAll(span.getAnnotationBoList());
-					list.remove(i);
-					i--;
-					continue;
-				} else {
-					// using as a terminal node.
-					span.setServiceName(span.getEndPoint());
-					span.setServiceType(ServiceType.UNKNOWN_CLOUD);
-				}
-			}
-		}
-		return list;
-	}
 
 	/**
 	 * server map이 recursive call을 표현할 수 있게 되어 필요 없음.

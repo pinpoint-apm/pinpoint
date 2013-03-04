@@ -44,7 +44,7 @@ public class Server implements Comparable<Server> {
 	}
 
 	public Server(SpanBo span, NodeSelector nodeSelector) {
-		// this.id = spanEvent.getServiceName();
+
 		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
@@ -53,7 +53,7 @@ public class Server implements Comparable<Server> {
 			this.agentIds.add(span.getEndPoint());
 		}
 
-		this.applicationName = span.getServiceName();
+		this.applicationName = span.getApplicationId();
 		this.endPoint = span.getEndPoint();
 		this.recursiveCallCount = span.getRecursiveCallCount();
 		this.serviceType = span.getServiceType();

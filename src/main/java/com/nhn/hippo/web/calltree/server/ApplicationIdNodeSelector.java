@@ -9,7 +9,7 @@ import com.profiler.common.bo.SpanEvent;
 public class ApplicationIdNodeSelector implements NodeSelector {
     @Override
     public String getServerId(SpanBo span) {
-        return span.getServiceName();
+        return span.getApplicationId();
     }
 
     @Override
