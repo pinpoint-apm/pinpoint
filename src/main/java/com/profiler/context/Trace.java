@@ -290,18 +290,6 @@ public final class Trace {
         }
 
     }
-    public void recordServiceName(final String serviceName) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setServiceName(serviceName);
-        } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setServiceName(serviceName);
-        }
-
-    }
 
     public void recordRpcName(final String rpc) {
         // TODO API 단일화 필요.

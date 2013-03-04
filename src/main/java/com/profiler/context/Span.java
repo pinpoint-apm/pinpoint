@@ -16,10 +16,11 @@ public class Span implements Thriftable {
     private final TraceID traceID;
     private long startTime;
     private long endTime;
-    private String serviceName;
+
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
+
     private int exception;
     private String remoteAddr;
 
@@ -45,14 +46,6 @@ public class Span implements Thriftable {
 
     public String getEndPoint() {
         return this.endPoint;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
     }
 
     public String getRpc() {
@@ -123,7 +116,6 @@ public class Span implements Thriftable {
         sb.append(",\n\t StartTime = ").append(startTime);
         sb.append(", EndTime = ").append(endTime);
         sb.append(",\n\t Name = ").append(rpc);
-        sb.append(", ServiceName = ").append(serviceName);
         sb.append(", ServiceType = ").append(serviceType);
         sb.append(", EndPoint = ").append(endPoint);
         sb.append(", Exception = ").append(exception);
@@ -143,6 +135,7 @@ public class Span implements Thriftable {
         com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
         span.setAgentId(Agent.getInstance().getAgentId());
+        span.setApplicationId(Agent.getInstance().getApplicationName());
         span.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
         span.setStartTime(startTime);
@@ -150,7 +143,6 @@ public class Span implements Thriftable {
         span.setMostTraceId(traceID.getId().getMostSignificantBits());
         span.setLeastTraceId(traceID.getId().getLeastSignificantBits());
         span.setRpc(rpc);
-        span.setServiceName(serviceName);
         span.setServiceType(serviceType.getCode());
         span.setSpanId(traceID.getSpanId());
         final int parentSpanId = traceID.getParentSpanId();
