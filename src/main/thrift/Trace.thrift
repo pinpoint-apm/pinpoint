@@ -50,29 +50,30 @@ struct SpanEvent {
 
 struct Span {
   1: string agentId
-  2: i16 agentIdentifier
+  2: string applicationId
+  3: i16 agentIdentifier
   
-  3: i64 mostTraceId
-  4: i64 leastTraceId
+  4: i64 mostTraceId
+  5: i64 leastTraceId
   
-  5: i32 spanId
-  6: optional i32 parentSpanId = -1
+  6: i32 spanId
+  7: optional i32 parentSpanId = -1
   
-  7: i64 startTime
-  8: i32 elapsed
+  8: i64 startTime
+  9: i32 elapsed
   
-  9: optional string rpc
-  10: optional string serviceName
-  11: i16 serviceType
-  12: optional string endPoint
-  13: optional string remoteAddr 
+  10: optional string rpc
+//  11: optional string serviceName
+  12: i16 serviceType
+  13: optional string endPoint
+  14: optional string remoteAddr
   
-  14: list<Annotation> annotations
-  15: optional i16 flag = 0
+  15: list<Annotation> annotations
+  16: optional i16 flag = 0
 
-  16: optional i32 err
+  17: optional i32 err
 
-  17: optional list<SpanEvent> spanEventList
+  18: optional list<SpanEvent> spanEventList
 }
 
 struct SpanChunk {

@@ -238,14 +238,6 @@ public class SpanEvent implements Span {
 		this.rpc = rpc;
 	}
 
-	public String getServiceName() {
-		return serviceName;
-	}
-
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
-	}
-
 	public ServiceType getServiceType() {
 		return serviceType;
 	}

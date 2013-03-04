@@ -39,12 +39,12 @@ public class SpanBoTest {
     @Test
     public void serialize() {
         SpanBo spanBo = new SpanBo();
-        spanBo.setAgentId("agent");
+        spanBo.setAgentId("agentId");
+        spanBo.setApplicationId("applicationId");
         spanBo.setEndPoint("end");
         spanBo.setRpc("rpc");
-        spanBo.setServiceName("serviceName");
-        spanBo.setServiceType(ServiceType.BLOC);
 
+        spanBo.setServiceType(ServiceType.BLOC);
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);
 
@@ -58,12 +58,13 @@ public class SpanBoTest {
     public void serialize2() {
         SpanBo spanBo = new SpanBo();
         spanBo.setAgentId("agent");
+        String service = createString(5);
+        spanBo.setApplicationId(service);
         String endPoint = createString(127);
         spanBo.setEndPoint(endPoint);
         String rpc = createString(255);
         spanBo.setRpc(rpc);
-        String service = createString(5);
-        spanBo.setServiceName(service);
+
         spanBo.setServiceType(ServiceType.BLOC);
 
         byte[] bytes = spanBo.writeValue();

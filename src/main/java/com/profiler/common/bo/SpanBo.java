@@ -34,17 +34,21 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private static final int EXCEPTION_SIZE = 4;
 
     private String agentId;
+    private String applicationId;
     private short agentIdentifier;
+
     private long mostTraceId;
     private long leastTraceId;
     private int spanId;
     private int parentSpanId;
+
     private long startTime;
     private int elapsed;
+
     private String rpc;
-    private String serviceName;
     private ServiceType serviceType;
     private String endPoint;
+
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
     private int exception;
@@ -60,6 +64,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
+        this.applicationId = span.getApplicationId();
         this.agentIdentifier = span.getAgentIdentifier();
 
         this.mostTraceId = span.getMostTraceId();
@@ -72,7 +77,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.elapsed = span.getElapsed();
 
         this.rpc = span.getRpc();
-        this.serviceName = span.getServiceName();
+
         this.serviceType = ServiceType.findServiceType(span.getServiceType());
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
@@ -119,6 +124,14 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     public short getAgentIdentifier() {
@@ -175,13 +188,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.rpc = rpc;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
 
     public int getSpanId() {
         return spanId;
@@ -316,11 +322,11 @@ public class SpanBo implements com.profiler.common.bo.Span {
     public byte[] writeValue() {
         byte[] agentIDBytes = BytesUtils.getBytes(agentId);
         byte[] rpcBytes = BytesUtils.getBytes(rpc);
-        byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
+        byte[] applicationIdBytes = BytesUtils.getBytes(applicationId);
         byte[] endPointBytes = BytesUtils.getBytes(endPoint);
         byte[] remoteAddrBytes = BytesUtils.getBytes(remoteAddr);
 
-        int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length, remoteAddrBytes.length);
+        int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, applicationIdBytes.length, endPointBytes.length, remoteAddrBytes.length);
 
         Buffer buffer = new FixedBuffer(bufferLength);
 
@@ -339,7 +345,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         buffer.put(elapsed);
 
         buffer.put1PrefixedBytes(rpcBytes);
-        buffer.put1PrefixedBytes(serviceNameBytes);
+        buffer.put1PrefixedBytes(applicationIdBytes);
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
         buffer.put1PrefixedBytes(remoteAddrBytes);
@@ -372,7 +378,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.elapsed = buffer.readInt();
 
         this.rpc = buffer.read1UnsignedPrefixedString();
-        this.serviceName = buffer.read1UnsignedPrefixedString();
+        this.applicationId = buffer.read1UnsignedPrefixedString();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
         this.remoteAddr = buffer.read1UnsignedPrefixedString();
@@ -388,6 +394,27 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     @Override
     public String toString() {
-		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + ", remoteAddr=" + remoteAddr + ", serviceType=" + serviceType + ", spanEventBoList=" + spanEventBoList + "}";
+        return "SpanBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentIdentifier=" + agentIdentifier +
+                ", mostTraceId=" + mostTraceId +
+                ", leastTraceId=" + leastTraceId +
+                ", spanId=" + spanId +
+                ", parentSpanId=" + parentSpanId +
+                ", startTime=" + startTime +
+                ", elapsed=" + elapsed +
+                ", rpc='" + rpc + '\'' +
+                ", serviceType=" + serviceType +
+                ", endPoint='" + endPoint + '\'' +
+                ", annotationBoList=" + annotationBoList +
+                ", flag=" + flag +
+                ", exception=" + exception +
+                ", spanEventBoList=" + spanEventBoList +
+                ", recursiveCallCount=" + recursiveCallCount +
+                ", collectorAcceptTime=" + collectorAcceptTime +
+                ", remoteAddr='" + remoteAddr + '\'' +
+                '}';
     }
 }

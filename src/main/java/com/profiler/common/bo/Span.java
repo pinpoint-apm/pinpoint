@@ -9,8 +9,6 @@ public interface Span {
 
 	String getRpc();
 
-	String getServiceName();
-	
 	String getEndPoint();
 	
 	List<AnnotationBo> getAnnotationBoList();

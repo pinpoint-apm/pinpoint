@@ -31,22 +31,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
-  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I32, (short)6);
-  private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)7);
-  private static final org.apache.thrift.protocol.TField ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("elapsed", org.apache.thrift.protocol.TType.I32, (short)8);
-  private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)9);
-  private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)10);
-  private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)11);
-  private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
-  private static final org.apache.thrift.protocol.TField REMOTE_ADDR_FIELD_DESC = new org.apache.thrift.protocol.TField("remoteAddr", org.apache.thrift.protocol.TType.STRING, (short)13);
-  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
-  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)15);
-  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)16);
-  private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)17);
+  private static final org.apache.thrift.protocol.TField APPLICATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationId", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)3);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I32, (short)7);
+  private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)8);
+  private static final org.apache.thrift.protocol.TField ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("elapsed", org.apache.thrift.protocol.TType.I32, (short)9);
+  private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)10);
+  private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)12);
+  private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)13);
+  private static final org.apache.thrift.protocol.TField REMOTE_ADDR_FIELD_DESC = new org.apache.thrift.protocol.TField("remoteAddr", org.apache.thrift.protocol.TType.STRING, (short)14);
+  private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)15);
+  private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)16);
+  private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)17);
+  private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)18);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -55,6 +55,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   }
 
   private String agentId; // required
+  private String applicationId; // required
   private short agentIdentifier; // required
   private long mostTraceId; // required
   private long leastTraceId; // required
@@ -63,7 +64,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private long startTime; // required
   private int elapsed; // required
   private String rpc; // optional
-  private String serviceName; // optional
   private short serviceType; // required
   private String endPoint; // optional
   private String remoteAddr; // optional
@@ -75,22 +75,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
-    AGENT_IDENTIFIER((short)2, "agentIdentifier"),
-    MOST_TRACE_ID((short)3, "mostTraceId"),
-    LEAST_TRACE_ID((short)4, "leastTraceId"),
-    SPAN_ID((short)5, "spanId"),
-    PARENT_SPAN_ID((short)6, "parentSpanId"),
-    START_TIME((short)7, "startTime"),
-    ELAPSED((short)8, "elapsed"),
-    RPC((short)9, "rpc"),
-    SERVICE_NAME((short)10, "serviceName"),
-    SERVICE_TYPE((short)11, "serviceType"),
-    END_POINT((short)12, "endPoint"),
-    REMOTE_ADDR((short)13, "remoteAddr"),
-    ANNOTATIONS((short)14, "annotations"),
-    FLAG((short)15, "flag"),
-    ERR((short)16, "err"),
-    SPAN_EVENT_LIST((short)17, "spanEventList");
+    APPLICATION_ID((short)2, "applicationId"),
+    AGENT_IDENTIFIER((short)3, "agentIdentifier"),
+    MOST_TRACE_ID((short)4, "mostTraceId"),
+    LEAST_TRACE_ID((short)5, "leastTraceId"),
+    SPAN_ID((short)6, "spanId"),
+    PARENT_SPAN_ID((short)7, "parentSpanId"),
+    START_TIME((short)8, "startTime"),
+    ELAPSED((short)9, "elapsed"),
+    RPC((short)10, "rpc"),
+    SERVICE_TYPE((short)12, "serviceType"),
+    END_POINT((short)13, "endPoint"),
+    REMOTE_ADDR((short)14, "remoteAddr"),
+    ANNOTATIONS((short)15, "annotations"),
+    FLAG((short)16, "flag"),
+    ERR((short)17, "err"),
+    SPAN_EVENT_LIST((short)18, "spanEventList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -107,37 +107,37 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       switch(fieldId) {
         case 1: // AGENT_ID
           return AGENT_ID;
-        case 2: // AGENT_IDENTIFIER
+        case 2: // APPLICATION_ID
+          return APPLICATION_ID;
+        case 3: // AGENT_IDENTIFIER
           return AGENT_IDENTIFIER;
-        case 3: // MOST_TRACE_ID
+        case 4: // MOST_TRACE_ID
           return MOST_TRACE_ID;
-        case 4: // LEAST_TRACE_ID
+        case 5: // LEAST_TRACE_ID
           return LEAST_TRACE_ID;
-        case 5: // SPAN_ID
+        case 6: // SPAN_ID
           return SPAN_ID;
-        case 6: // PARENT_SPAN_ID
+        case 7: // PARENT_SPAN_ID
           return PARENT_SPAN_ID;
-        case 7: // START_TIME
+        case 8: // START_TIME
           return START_TIME;
-        case 8: // ELAPSED
+        case 9: // ELAPSED
           return ELAPSED;
-        case 9: // RPC
+        case 10: // RPC
           return RPC;
-        case 10: // SERVICE_NAME
-          return SERVICE_NAME;
-        case 11: // SERVICE_TYPE
+        case 12: // SERVICE_TYPE
           return SERVICE_TYPE;
-        case 12: // END_POINT
+        case 13: // END_POINT
           return END_POINT;
-        case 13: // REMOTE_ADDR
+        case 14: // REMOTE_ADDR
           return REMOTE_ADDR;
-        case 14: // ANNOTATIONS
+        case 15: // ANNOTATIONS
           return ANNOTATIONS;
-        case 15: // FLAG
+        case 16: // FLAG
           return FLAG;
-        case 16: // ERR
+        case 17: // ERR
           return ERR;
-        case 17: // SPAN_EVENT_LIST
+        case 18: // SPAN_EVENT_LIST
           return SPAN_EVENT_LIST;
         default:
           return null;
@@ -190,11 +190,13 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST};
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.APPLICATION_ID, new org.apache.thrift.meta_data.FieldMetaData("applicationId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_IDENTIFIER, new org.apache.thrift.meta_data.FieldMetaData("agentIdentifier", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
@@ -211,8 +213,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
@@ -243,6 +243,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   public Span(
     String agentId,
+    String applicationId,
     short agentIdentifier,
     long mostTraceId,
     long leastTraceId,
@@ -254,6 +255,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   {
     this();
     this.agentId = agentId;
+    this.applicationId = applicationId;
     this.agentIdentifier = agentIdentifier;
     setAgentIdentifierIsSet(true);
     this.mostTraceId = mostTraceId;
@@ -280,6 +282,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
+    if (other.isSetApplicationId()) {
+      this.applicationId = other.applicationId;
+    }
     this.agentIdentifier = other.agentIdentifier;
     this.mostTraceId = other.mostTraceId;
     this.leastTraceId = other.leastTraceId;
@@ -289,9 +294,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     this.elapsed = other.elapsed;
     if (other.isSetRpc()) {
       this.rpc = other.rpc;
-    }
-    if (other.isSetServiceName()) {
-      this.serviceName = other.serviceName;
     }
     this.serviceType = other.serviceType;
     if (other.isSetEndPoint()) {
@@ -325,6 +327,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   @Override
   public void clear() {
     this.agentId = null;
+    this.applicationId = null;
     setAgentIdentifierIsSet(false);
     this.agentIdentifier = 0;
     setMostTraceIdIsSet(false);
@@ -340,7 +343,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setElapsedIsSet(false);
     this.elapsed = 0;
     this.rpc = null;
-    this.serviceName = null;
     setServiceTypeIsSet(false);
     this.serviceType = 0;
     this.endPoint = null;
@@ -373,6 +375,29 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public void setAgentIdIsSet(boolean value) {
     if (!value) {
       this.agentId = null;
+    }
+  }
+
+  public String getApplicationId() {
+    return this.applicationId;
+  }
+
+  public void setApplicationId(String applicationId) {
+    this.applicationId = applicationId;
+  }
+
+  public void unsetApplicationId() {
+    this.applicationId = null;
+  }
+
+  /** Returns true if field applicationId is set (has been assigned a value) and false otherwise */
+  public boolean isSetApplicationId() {
+    return this.applicationId != null;
+  }
+
+  public void setApplicationIdIsSet(boolean value) {
+    if (!value) {
+      this.applicationId = null;
     }
   }
 
@@ -550,29 +575,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public void setRpcIsSet(boolean value) {
     if (!value) {
       this.rpc = null;
-    }
-  }
-
-  public String getServiceName() {
-    return this.serviceName;
-  }
-
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
-  }
-
-  public void unsetServiceName() {
-    this.serviceName = null;
-  }
-
-  /** Returns true if field serviceName is set (has been assigned a value) and false otherwise */
-  public boolean isSetServiceName() {
-    return this.serviceName != null;
-  }
-
-  public void setServiceNameIsSet(boolean value) {
-    if (!value) {
-      this.serviceName = null;
     }
   }
 
@@ -774,6 +776,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
+    case APPLICATION_ID:
+      if (value == null) {
+        unsetApplicationId();
+      } else {
+        setApplicationId((String)value);
+      }
+      break;
+
     case AGENT_IDENTIFIER:
       if (value == null) {
         unsetAgentIdentifier();
@@ -835,14 +845,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         unsetRpc();
       } else {
         setRpc((String)value);
-      }
-      break;
-
-    case SERVICE_NAME:
-      if (value == null) {
-        unsetServiceName();
-      } else {
-        setServiceName((String)value);
       }
       break;
 
@@ -910,6 +912,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case AGENT_ID:
       return getAgentId();
 
+    case APPLICATION_ID:
+      return getApplicationId();
+
     case AGENT_IDENTIFIER:
       return Short.valueOf(getAgentIdentifier());
 
@@ -933,9 +938,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
     case RPC:
       return getRpc();
-
-    case SERVICE_NAME:
-      return getServiceName();
 
     case SERVICE_TYPE:
       return Short.valueOf(getServiceType());
@@ -971,6 +973,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     switch (field) {
     case AGENT_ID:
       return isSetAgentId();
+    case APPLICATION_ID:
+      return isSetApplicationId();
     case AGENT_IDENTIFIER:
       return isSetAgentIdentifier();
     case MOST_TRACE_ID:
@@ -987,8 +991,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetElapsed();
     case RPC:
       return isSetRpc();
-    case SERVICE_NAME:
-      return isSetServiceName();
     case SERVICE_TYPE:
       return isSetServiceType();
     case END_POINT:
@@ -1026,6 +1028,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (!(this_present_agentId && that_present_agentId))
         return false;
       if (!this.agentId.equals(that.agentId))
+        return false;
+    }
+
+    boolean this_present_applicationId = true && this.isSetApplicationId();
+    boolean that_present_applicationId = true && that.isSetApplicationId();
+    if (this_present_applicationId || that_present_applicationId) {
+      if (!(this_present_applicationId && that_present_applicationId))
+        return false;
+      if (!this.applicationId.equals(that.applicationId))
         return false;
     }
 
@@ -1098,15 +1109,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (!(this_present_rpc && that_present_rpc))
         return false;
       if (!this.rpc.equals(that.rpc))
-        return false;
-    }
-
-    boolean this_present_serviceName = true && this.isSetServiceName();
-    boolean that_present_serviceName = true && that.isSetServiceName();
-    if (this_present_serviceName || that_present_serviceName) {
-      if (!(this_present_serviceName && that_present_serviceName))
-        return false;
-      if (!this.serviceName.equals(that.serviceName))
         return false;
     }
 
@@ -1199,6 +1201,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetApplicationId()).compareTo(typedOther.isSetApplicationId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApplicationId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.applicationId, typedOther.applicationId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetAgentIdentifier()).compareTo(typedOther.isSetAgentIdentifier());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1275,16 +1287,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
     if (isSetRpc()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rpc, typedOther.rpc);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetServiceName()).compareTo(typedOther.isSetServiceName());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetServiceName()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serviceName, typedOther.serviceName);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1387,6 +1389,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
     first = false;
     if (!first) sb.append(", ");
+    sb.append("applicationId:");
+    if (this.applicationId == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.applicationId);
+    }
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("agentIdentifier:");
     sb.append(this.agentIdentifier);
     first = false;
@@ -1423,16 +1433,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         sb.append("null");
       } else {
         sb.append(this.rpc);
-      }
-      first = false;
-    }
-    if (isSetServiceName()) {
-      if (!first) sb.append(", ");
-      sb.append("serviceName:");
-      if (this.serviceName == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.serviceName);
       }
       first = false;
     }
@@ -1542,7 +1542,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // AGENT_IDENTIFIER
+          case 2: // APPLICATION_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.applicationId = iprot.readString();
+              struct.setApplicationIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // AGENT_IDENTIFIER
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.agentIdentifier = iprot.readI16();
               struct.setAgentIdentifierIsSet(true);
@@ -1550,7 +1558,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // MOST_TRACE_ID
+          case 4: // MOST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.mostTraceId = iprot.readI64();
               struct.setMostTraceIdIsSet(true);
@@ -1558,7 +1566,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // LEAST_TRACE_ID
+          case 5: // LEAST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.leastTraceId = iprot.readI64();
               struct.setLeastTraceIdIsSet(true);
@@ -1566,7 +1574,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // SPAN_ID
+          case 6: // SPAN_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.spanId = iprot.readI32();
               struct.setSpanIdIsSet(true);
@@ -1574,7 +1582,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // PARENT_SPAN_ID
+          case 7: // PARENT_SPAN_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.parentSpanId = iprot.readI32();
               struct.setParentSpanIdIsSet(true);
@@ -1582,7 +1590,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // START_TIME
+          case 8: // START_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.startTime = iprot.readI64();
               struct.setStartTimeIsSet(true);
@@ -1590,7 +1598,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // ELAPSED
+          case 9: // ELAPSED
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.elapsed = iprot.readI32();
               struct.setElapsedIsSet(true);
@@ -1598,7 +1606,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 9: // RPC
+          case 10: // RPC
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.rpc = iprot.readString();
               struct.setRpcIsSet(true);
@@ -1606,15 +1614,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // SERVICE_NAME
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.serviceName = iprot.readString();
-              struct.setServiceNameIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 11: // SERVICE_TYPE
+          case 12: // SERVICE_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.serviceType = iprot.readI16();
               struct.setServiceTypeIsSet(true);
@@ -1622,7 +1622,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 12: // END_POINT
+          case 13: // END_POINT
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.endPoint = iprot.readString();
               struct.setEndPointIsSet(true);
@@ -1630,7 +1630,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // REMOTE_ADDR
+          case 14: // REMOTE_ADDR
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.remoteAddr = iprot.readString();
               struct.setRemoteAddrIsSet(true);
@@ -1638,7 +1638,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 14: // ANNOTATIONS
+          case 15: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
@@ -1657,7 +1657,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 15: // FLAG
+          case 16: // FLAG
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.flag = iprot.readI16();
               struct.setFlagIsSet(true);
@@ -1665,7 +1665,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 16: // ERR
+          case 17: // ERR
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.err = iprot.readI32();
               struct.setErrIsSet(true);
@@ -1673,7 +1673,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 17: // SPAN_EVENT_LIST
+          case 18: // SPAN_EVENT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
@@ -1710,6 +1710,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeString(struct.agentId);
         oprot.writeFieldEnd();
       }
+      if (struct.applicationId != null) {
+        oprot.writeFieldBegin(APPLICATION_ID_FIELD_DESC);
+        oprot.writeString(struct.applicationId);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(AGENT_IDENTIFIER_FIELD_DESC);
       oprot.writeI16(struct.agentIdentifier);
       oprot.writeFieldEnd();
@@ -1737,13 +1742,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         if (struct.isSetRpc()) {
           oprot.writeFieldBegin(RPC_FIELD_DESC);
           oprot.writeString(struct.rpc);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.serviceName != null) {
-        if (struct.isSetServiceName()) {
-          oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
-          oprot.writeString(struct.serviceName);
           oprot.writeFieldEnd();
         }
       }
@@ -1821,31 +1819,31 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetAgentId()) {
         optionals.set(0);
       }
-      if (struct.isSetAgentIdentifier()) {
+      if (struct.isSetApplicationId()) {
         optionals.set(1);
       }
-      if (struct.isSetMostTraceId()) {
+      if (struct.isSetAgentIdentifier()) {
         optionals.set(2);
       }
-      if (struct.isSetLeastTraceId()) {
+      if (struct.isSetMostTraceId()) {
         optionals.set(3);
       }
-      if (struct.isSetSpanId()) {
+      if (struct.isSetLeastTraceId()) {
         optionals.set(4);
       }
-      if (struct.isSetParentSpanId()) {
+      if (struct.isSetSpanId()) {
         optionals.set(5);
       }
-      if (struct.isSetStartTime()) {
+      if (struct.isSetParentSpanId()) {
         optionals.set(6);
       }
-      if (struct.isSetElapsed()) {
+      if (struct.isSetStartTime()) {
         optionals.set(7);
       }
-      if (struct.isSetRpc()) {
+      if (struct.isSetElapsed()) {
         optionals.set(8);
       }
-      if (struct.isSetServiceName()) {
+      if (struct.isSetRpc()) {
         optionals.set(9);
       }
       if (struct.isSetServiceType()) {
@@ -1873,6 +1871,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
+      if (struct.isSetApplicationId()) {
+        oprot.writeString(struct.applicationId);
+      }
       if (struct.isSetAgentIdentifier()) {
         oprot.writeI16(struct.agentIdentifier);
       }
@@ -1896,9 +1897,6 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       if (struct.isSetRpc()) {
         oprot.writeString(struct.rpc);
-      }
-      if (struct.isSetServiceName()) {
-        oprot.writeString(struct.serviceName);
       }
       if (struct.isSetServiceType()) {
         oprot.writeI16(struct.serviceType);
@@ -1944,40 +1942,40 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.applicationId = iprot.readString();
+        struct.setApplicationIdIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.agentIdentifier = iprot.readI16();
         struct.setAgentIdentifierIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.mostTraceId = iprot.readI64();
         struct.setMostTraceIdIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.leastTraceId = iprot.readI64();
         struct.setLeastTraceIdIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(6)) {
         struct.parentSpanId = iprot.readI32();
         struct.setParentSpanIdIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(7)) {
         struct.startTime = iprot.readI64();
         struct.setStartTimeIsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(8)) {
         struct.elapsed = iprot.readI32();
         struct.setElapsedIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(9)) {
         struct.rpc = iprot.readString();
         struct.setRpcIsSet(true);
-      }
-      if (incoming.get(9)) {
-        struct.serviceName = iprot.readString();
-        struct.setServiceNameIsSet(true);
       }
       if (incoming.get(10)) {
         struct.serviceType = iprot.readI16();
