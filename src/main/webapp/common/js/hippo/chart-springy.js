@@ -24,15 +24,19 @@ function drawSpringy(graphdata, targetId, width, height) {
 	for(var i=0; i<aNodes.length; i++){
 		aoNodes[i] = graph.newNode({
 									label: aNodes[i].name, 
-									helth : aNodes[i].helth, 
 									serviceType : aNodes[i].serviceType,
 									width : 100,
 									height : 80,
+									server : aNodes[i].agentIds,
 									onMouseOver : function(e){
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
 									onMouseClick : function(e){
-										$('#console').val('Node onMouseClick : ' + this.id + '\r' + $('#console').val())
+										// $('#console').val('Node onMouseClick : ' + this.id + '\r' + $('#console').val())
+										if (this.data.server.length > 0) {
+											var htOffset = $(targetId).offset();
+											$('#ServerBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
+										}
 									}
 									});
 	}

@@ -548,5 +548,19 @@ $(document).ready(function () {
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
+<script id="ServerBox" type="text/x-jquery-tmpl">
+	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
+		<ul style="margin:0;padding:0 0 0 10px;">
+			Hosts
+				<ul>
+					{{each(key, value) server}}
+					<li>${value}</li>
+					{{/each}}
+				</ul>
+			</li>
+		</ul>
+		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
+	</div>
+</script>
 </body>
 </html>
