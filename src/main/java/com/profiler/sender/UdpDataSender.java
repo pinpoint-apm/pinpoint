@@ -55,6 +55,8 @@ public class UdpDataSender implements DataSender, Runnable {
         this.ioThread = createIoThread();
 
         this.started.set(true);
+        
+        logger.info("UdpDataSender initialized. host=" + host + ", port=" + port);
     }
 
     private Thread createIoThread() {
