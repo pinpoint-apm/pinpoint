@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.nhn.hippo</groupId>
             <artifactId>hippo-commons</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
 
         <dependency>
