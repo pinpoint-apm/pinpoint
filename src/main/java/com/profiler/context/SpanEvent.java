@@ -5,14 +5,13 @@ import java.util.List;
 
 import com.profiler.Agent;
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Event;
 
 /**
  * Span represent RPC
  *
  * @author netspider
  */
-public class SubSpan implements Thriftable {
+public class SpanEvent implements Thriftable {
 
     private final Span parentSpan;
 
@@ -34,7 +33,7 @@ public class SubSpan implements Thriftable {
     private int nextSpanId = -1;
     private int depth = -1;
     
-    public SubSpan(Span parentSpan) {
+    public SpanEvent(Span parentSpan) {
         this.parentSpan = parentSpan;
     }
 
@@ -170,55 +169,55 @@ public class SubSpan implements Thriftable {
         return sb.toString();
     }
 
-    public Event toThrift() {
+    public com.profiler.common.dto.thrift.SpanEvent toThrift() {
         return toThrift(false);
     }
 
-    public Event toThrift(boolean child) {
-        Event subSpan = new Event();
+    public com.profiler.common.dto.thrift.SpanEvent toThrift(boolean child) {
+        com.profiler.common.dto.thrift.SpanEvent spanEvent = new com.profiler.common.dto.thrift.SpanEvent();
 
         long parentSpanStartTime = parentSpan.getStartTime();
-        subSpan.setStartElapsed((int) (startTime - parentSpanStartTime));
-        subSpan.setEndElapsed((int) (endTime - startTime));
+        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
+        spanEvent.setEndElapsed((int) (endTime - startTime));
 
-        subSpan.setSequence(sequence);
+        spanEvent.setSequence(sequence);
         // 다른 span의 sub로 들어가지 않을 경우
         if (!child) {
-            subSpan.setAgentId(Agent.getInstance().getAgentId());
-            subSpan.setAgentIdentifier(Agent.getInstance().getIdentifier());
+            spanEvent.setAgentId(Agent.getInstance().getAgentId());
+            spanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
             TraceID parentSpanTraceID = parentSpan.getTraceID();
-            subSpan.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
-            subSpan.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
-            subSpan.setSpanId(parentSpanTraceID.getSpanId());
+            spanEvent.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
+            spanEvent.setLeastTraceId(parentSpanTraceID.getId().getLeastSignificantBits());
+            spanEvent.setSpanId(parentSpanTraceID.getSpanId());
         }
 
-        subSpan.setRpc(rpc);
-        subSpan.setServiceName(serviceName);
+        spanEvent.setRpc(rpc);
+        spanEvent.setServiceName(serviceName);
         
 		if (serviceType != null) {
-			subSpan.setServiceType(serviceType.getCode());
+			spanEvent.setServiceType(serviceType.getCode());
 		}
 		
-        subSpan.setEndPoint(endPoint);
-        subSpan.setDestinationId(this.destionationId);
+        spanEvent.setEndPoint(endPoint);
+        spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
         for (Annotation a : annotations) {
             annotationList.add(a.toThrift());
         }
-        subSpan.setAnnotations(annotationList);
+        spanEvent.setAnnotations(annotationList);
 
 		if (depth != -1) {
-			subSpan.setDepth(depth);
+			spanEvent.setDepth(depth);
 		}
 
 		if (nextSpanId != -1) {
-			subSpan.setNextSpanId(nextSpanId);
+			spanEvent.setNextSpanId(nextSpanId);
 		}
         
-        return subSpan;
+        return spanEvent;
     }
 
     public void setDestinationAddress() {

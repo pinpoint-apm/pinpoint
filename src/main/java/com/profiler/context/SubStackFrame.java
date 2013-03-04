@@ -4,11 +4,11 @@ package com.profiler.context;
  *
  */
 public class SubStackFrame implements StackFrame {
-    private SubSpan subSpan;
+    private SpanEvent spanEvent;
     private int stackId;
 
-    public SubStackFrame(SubSpan subSpan) {
-        this.subSpan = subSpan;
+    public SubStackFrame(SpanEvent spanEvent) {
+        this.spanEvent = spanEvent;
     }
 
     @Override
@@ -23,30 +23,30 @@ public class SubStackFrame implements StackFrame {
 
     @Override
     public void markBeforeTime() {
-        subSpan.setStartTime(System.currentTimeMillis());
+        spanEvent.setStartTime(System.currentTimeMillis());
     }
 
     @Override
     public long getBeforeTime() {
-        return subSpan.getStartTime();
+        return spanEvent.getStartTime();
     }
 
     @Override
     public void markAfterTime() {
-        subSpan.setEndTime(System.currentTimeMillis());
+        spanEvent.setEndTime(System.currentTimeMillis());
     }
 
     @Override
     public long getAfterTime() {
-        return subSpan.getEndTime();
+        return spanEvent.getEndTime();
     }
 
     public void setSequence(short sequence) {
-        subSpan.setSequence(sequence);
+        spanEvent.setSequence(sequence);
     }
 
-    public SubSpan getSubSpan() {
-        return subSpan;
+    public SpanEvent getSpanEvent() {
+        return spanEvent;
     }
 
     @Override

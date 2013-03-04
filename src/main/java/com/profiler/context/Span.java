@@ -2,7 +2,6 @@ package com.profiler.context;
 
 import com.profiler.Agent;
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class Span implements Thriftable {
 
     private final List<Annotation> annotations = new ArrayList<Annotation>(5);
 
-    private List<SubSpan> subSpanList;
+    private List<SpanEvent> spanEventList;
     
     public Span(TraceID traceId) {
         this.traceID = traceId;
@@ -92,12 +91,12 @@ public class Span implements Thriftable {
         this.serviceType = serviceType;
     }
 
-    public List<SubSpan> getSubSpanList() {
-        return subSpanList;
+    public List<SpanEvent> getSpanEventList() {
+        return spanEventList;
     }
 
-    public void setSubSpanList(List<SubSpan> subSpanList) {
-        this.subSpanList = subSpanList;
+    public void setSpanEventList(List<SpanEvent> spanEventList) {
+        this.spanEventList = spanEventList;
     }
     
     public int getException() {
@@ -173,15 +172,15 @@ public class Span implements Thriftable {
 
         span.setFlag(traceID.getFlags());
 
-        List<SubSpan> subSpanList = this.getSubSpanList();
-        if (subSpanList != null && subSpanList.size() != 0) {
+        List<SpanEvent> spanEventList = this.getSpanEventList();
+        if (spanEventList != null && spanEventList.size() != 0) {
 
-            List<Event> tSubSpanList = new ArrayList<Event>(subSpanList.size());
-            for (SubSpan subSpan : subSpanList) {
-                Event tSubSpan = subSpan.toThrift(true);
-                tSubSpanList.add(tSubSpan);
+            List<com.profiler.common.dto.thrift.SpanEvent> tSpanEventList = new ArrayList<com.profiler.common.dto.thrift.SpanEvent>(spanEventList.size());
+            for (SpanEvent spanEvent : spanEventList) {
+                com.profiler.common.dto.thrift.SpanEvent tSpanEvent = spanEvent.toThrift(true);
+                tSpanEventList.add(tSpanEvent);
             }
-            span.setSubSpanList(tSubSpanList);
+            span.setSpanEventList(tSpanEventList);
         }
 
         return span;

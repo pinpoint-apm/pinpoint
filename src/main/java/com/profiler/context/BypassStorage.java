@@ -26,8 +26,8 @@ public class BypassStorage implements Storage {
     }
 
     @Override
-    public void store(SubSpan subSpan) {
-        dataSender.send(subSpan);
+    public void store(SpanEvent spanEvent) {
+        dataSender.send(spanEvent);
     }
 
     @Override

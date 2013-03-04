@@ -1,7 +1,6 @@
 package com.profiler.context;
 
 import com.profiler.Agent;
-import com.profiler.common.dto.thrift.Event;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -13,17 +12,17 @@ import java.util.UUID;
  */
 public class SpanChunk implements Thriftable {
 
-    private List<SubSpan> subSpanList = new ArrayList<SubSpan>();
+    private List<SpanEvent> spanEventList = new ArrayList<SpanEvent>();
 
-    public SpanChunk(List<SubSpan> subSpanList) {
-        this.subSpanList = subSpanList;
+    public SpanChunk(List<SpanEvent> spanEventList) {
+        this.spanEventList = spanEventList;
     }
 
     @Override
     public TBase toThrift() {
         com.profiler.common.dto.thrift.SpanChunk tSpanChunk = new com.profiler.common.dto.thrift.SpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
-        SubSpan first = subSpanList.get(0);
+        SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
         tSpanChunk.setAgentId(Agent.getInstance().getAgentId());
         tSpanChunk.setAgentIdentifier(Agent.getInstance().getIdentifier());
@@ -33,51 +32,51 @@ public class SpanChunk implements Thriftable {
         tSpanChunk.setLeastTraceId(id.getLeastSignificantBits());
         tSpanChunk.setSpanId(parentSpan.getTraceID().getSpanId());
 
-        List<Event> tSubSpan = createSubSpan(subSpanList);
+        List<com.profiler.common.dto.thrift.SpanEvent> tSpanEvent = createSpanEvent(spanEventList);
 
-        tSpanChunk.setSubSpanList(tSubSpan);
+        tSpanChunk.setSpanEventList(tSpanEvent);
 
         return tSpanChunk;
     }
 
-    private List<Event> createSubSpan(List<SubSpan> subSpanList) {
-        List<Event> result = new ArrayList<Event>(subSpanList.size());
-        for (SubSpan subSpan : subSpanList) {
-            Event tSubSpan = new Event();
+    private List<com.profiler.common.dto.thrift.SpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
+        List<com.profiler.common.dto.thrift.SpanEvent> result = new ArrayList<com.profiler.common.dto.thrift.SpanEvent>(spanEventList.size());
+        for (SpanEvent spanEvent : spanEventList) {
+            com.profiler.common.dto.thrift.SpanEvent tSpanEvent = new com.profiler.common.dto.thrift.SpanEvent();
 
-            tSubSpan.setAgentId(Agent.getInstance().getAgentId());
-            tSubSpan.setAgentIdentifier(Agent.getInstance().getIdentifier());
+            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
+            tSpanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
-            long parentSpanStartTime = subSpan.getParentSpan().getStartTime();
-            tSubSpan.setStartElapsed((int) (subSpan.getStartTime() - parentSpanStartTime));
-            tSubSpan.setEndElapsed((int) (subSpan.getEndTime() - subSpan.getStartTime()));
+            long parentSpanStartTime = spanEvent.getParentSpan().getStartTime();
+            tSpanEvent.setStartElapsed((int) (spanEvent.getStartTime() - parentSpanStartTime));
+            tSpanEvent.setEndElapsed((int) (spanEvent.getEndTime() - spanEvent.getStartTime()));
 
-            tSubSpan.setSequence(subSpan.getSequence());
+            tSpanEvent.setSequence(spanEvent.getSequence());
 
-            tSubSpan.setRpc(subSpan.getRpc());
-//            tSubSpan.setServiceName(subSpan.getServiceName());
-            tSubSpan.setServiceType(subSpan.getServiceType().getCode());
-            tSubSpan.setDestinationId(subSpan.getDestionationId());
+            tSpanEvent.setRpc(spanEvent.getRpc());
+//            tSpanEvent.setServiceName(spanEvent.getServiceName());
+            tSpanEvent.setServiceType(spanEvent.getServiceType().getCode());
+            tSpanEvent.setDestinationId(spanEvent.getDestionationId());
 
-            tSubSpan.setEndPoint(subSpan.getEndPoint());
-            tSubSpan.setDestinationId(subSpan.getDestionationId());
+            tSpanEvent.setEndPoint(spanEvent.getEndPoint());
+            tSpanEvent.setDestinationId(spanEvent.getDestionationId());
 
             // 여기서 데이터 인코딩을 하자.
-            List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(subSpan.getAnnotationSize());
-            for (Annotation a : subSpan.getAnnotations()) {
+            List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(spanEvent.getAnnotationSize());
+            for (Annotation a : spanEvent.getAnnotations()) {
                 annotationList.add(a.toThrift());
             }
             
-			if (subSpan.getDepth() != -1) {
-				tSubSpan.setDepth(subSpan.getDepth());
+			if (spanEvent.getDepth() != -1) {
+				tSpanEvent.setDepth(spanEvent.getDepth());
 			}
 
-			if (subSpan.getNextSpanId() != -1) {
-				tSubSpan.setNextSpanId(subSpan.getNextSpanId());
+			if (spanEvent.getNextSpanId() != -1) {
+				tSpanEvent.setNextSpanId(spanEvent.getNextSpanId());
 			}
             
-            tSubSpan.setAnnotations(annotationList);
-            result.add(tSubSpan);
+            tSpanEvent.setAnnotations(annotationList);
+            result.add(tSpanEvent);
         }
         return result;
     }

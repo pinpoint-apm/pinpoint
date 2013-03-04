@@ -69,17 +69,17 @@ public final class Trace {
 
     public AsyncTrace createAsyncTrace() {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
-        SubSpan subSpan = new SubSpan(callStack.getSpan());
-        subSpan.setSequence(getSequence());
-        AsyncTrace asyncTrace = new AsyncTrace(subSpan);
+        SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
+        spanEvent.setSequence(getSequence());
+        AsyncTrace asyncTrace = new AsyncTrace(spanEvent);
         // asyncTrace.setDataSender(this.getDataSender());
         asyncTrace.setStorage(this.storage);
         return asyncTrace;
     }
 
     private StackFrame createSubStackFrame(int stackId) {
-        SubSpan subSpan = new SubSpan(callStack.getSpan());
-        SubStackFrame stackFrame = new SubStackFrame(subSpan);
+        SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
+        SubStackFrame stackFrame = new SubStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSequence(getSequence());
         return stackFrame;
@@ -124,8 +124,8 @@ public final class Trace {
 
         if (latestStackIndex != currentStackIndex) {
             latestStackIndex = currentStackIndex;
-            SubSpan span = ((SubStackFrame) stackFrame).getSubSpan();
-            span.setDepth(latestStackIndex);
+            SpanEvent spanEvent = ((SubStackFrame) stackFrame).getSpanEvent();
+            spanEvent.setDepth(latestStackIndex);
         }
 
         callStack.setStackFrame(stackFrame);
@@ -152,7 +152,7 @@ public final class Trace {
         if (currentStackFrame instanceof RootStackFrame) {
             logSpan(((RootStackFrame) currentStackFrame).getSpan());
         } else {
-            logSpan(((SubStackFrame) currentStackFrame).getSubSpan());
+            logSpan(((SubStackFrame) currentStackFrame).getSpanEvent());
         }
         callStack.pop();
     }
@@ -178,12 +178,12 @@ public final class Trace {
         tracingEnabled = false;
     }
 
-    void logSpan(SubSpan subSpan) {
+    void logSpan(SpanEvent spanEvent) {
         if (isDebug) {
             Thread th = Thread.currentThread();
-            logger.fine("[WRITE SubSPAN]" + subSpan + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            logger.fine("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
-        this.storage.store(subSpan);
+        this.storage.store(spanEvent);
     }
 
     void logSpan(Span span) {
@@ -271,8 +271,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new Annotation(key, value));
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.addAnnotation(new Annotation(key, value));
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.addAnnotation(new Annotation(key, value));
         }
 
     }
@@ -285,8 +285,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceType(serviceType);
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.setServiceType(serviceType);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setServiceType(serviceType);
         }
 
     }
@@ -297,8 +297,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceName(serviceName);
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.setServiceName(serviceName);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setServiceName(serviceName);
         }
 
     }
@@ -310,8 +310,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setRpc(rpc);
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.setRpc(rpc);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setRpc(rpc);
         }
 
     }
@@ -320,8 +320,8 @@ public final class Trace {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof SubStackFrame) {
-            SubSpan subSpan = ((SubStackFrame) currentStackFrame).getSubSpan();
-            subSpan.setDestionationId(destinationId);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setDestionationId(destinationId);
         }
     }
 
@@ -329,8 +329,8 @@ public final class Trace {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof SubStackFrame) {
-            SubSpan subSpan = ((SubStackFrame) currentStackFrame).getSubSpan();
-            subSpan.setDestinationAddress();
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setDestinationAddress();
         }
     }
 
@@ -345,8 +345,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setEndPoint(endPoint);
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.setEndPoint(endPoint);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setEndPoint(endPoint);
         }
     }
     
@@ -366,8 +366,8 @@ public final class Trace {
         if (currentStackFrame instanceof RootStackFrame) {
             logger.log(Level.WARNING, "OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.setNextSpanId(spanId);
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.setNextSpanId(spanId);
         }
     }
 
@@ -377,8 +377,8 @@ public final class Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new Annotation(key));
         } else {
-            SubSpan span = ((SubStackFrame) currentStackFrame).getSubSpan();
-            span.addAnnotation(new Annotation(key));
+            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            spanEvent.addAnnotation(new Annotation(key));
         }
 
     }

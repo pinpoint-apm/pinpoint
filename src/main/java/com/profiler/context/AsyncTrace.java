@@ -28,13 +28,13 @@ public class AsyncTrace {
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
     private int asyncId = NON_REGIST;
-    private SubSpan subSpan;
+    private SpanEvent spanEvent;
 
     private Storage storage;
     private TimerTask timeoutTask;
 
-    public AsyncTrace(SubSpan subspan) {
-        this.subSpan = subspan;
+    public AsyncTrace(SpanEvent spanEvent) {
+        this.spanEvent = spanEvent;
     }
 
     public void setStorage(Storage storage) {
@@ -53,8 +53,8 @@ public class AsyncTrace {
         return asyncId;
     }
 
-    public SubSpan getSubSpan() {
-        return subSpan;
+    public SpanEvent getSpanEvent() {
+        return spanEvent;
     }
 
     private Object attachObject;
@@ -71,15 +71,15 @@ public class AsyncTrace {
     }
 
     public void markBeforeTime() {
-        subSpan.setStartTime(System.currentTimeMillis());
+        spanEvent.setStartTime(System.currentTimeMillis());
     }
 
     public long getBeforeTime() {
-        return subSpan.getStartTime();
+        return spanEvent.getStartTime();
     }
 
     public void traceBlockEnd() {
-        logSpan(this.subSpan);
+        logSpan(this.spanEvent);
 //        clearReference();
     }
 
@@ -88,7 +88,7 @@ public class AsyncTrace {
     }
 
     public void markAfterTime() {
-        subSpan.setEndTime(System.currentTimeMillis());
+        spanEvent.setEndTime(System.currentTimeMillis());
     }
 
 
@@ -97,44 +97,44 @@ public class AsyncTrace {
     }
 
     public void recordAttibute(final AnnotationKey key, final Object value) {
-        subSpan.addAnnotation(new Annotation(key, value));
+        spanEvent.addAnnotation(new Annotation(key, value));
     }
 
     public void recordServiceType(final ServiceType serviceType) {
-        this.subSpan.setServiceType(serviceType);
+        this.spanEvent.setServiceType(serviceType);
     }
 
     public void recordServiceName(final String serviceName) {
-        this.subSpan.setServiceName(serviceName);
+        this.spanEvent.setServiceName(serviceName);
     }
 
     public void recordRpcName(final String rpcName) {
-        this.subSpan.setRpc(rpcName);
+        this.spanEvent.setRpc(rpcName);
 
     }
 
 
     public void recordDestinationId(String destinationId) {
-        this.subSpan.setDestionationId(destinationId);
+        this.spanEvent.setDestionationId(destinationId);
     }
 
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
     public void recordEndPoint(final String endPoint) {
-        this.subSpan.setEndPoint(endPoint);
+        this.spanEvent.setEndPoint(endPoint);
     }
 
     private void annotate(final AnnotationKey key) {
-        this.subSpan.addAnnotation(new Annotation(key));
+        this.spanEvent.addAnnotation(new Annotation(key));
 
     }
 
-    void logSpan(SubSpan subSpan) {
+    void logSpan(SpanEvent spanEvent) {
         try {
             if (isDebug) {
                 Thread thread = Thread.currentThread();
-                logger.info("[WRITE SubSPAN]" + subSpan + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
+                logger.info("[WRITE SpanEvent]" + spanEvent + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
             }
-            this.storage.store(subSpan);
+            this.storage.store(spanEvent);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -146,7 +146,7 @@ public class AsyncTrace {
 
     public void timeout() {
         if (state.compareAndSet(STATE_INIT, STATE_TIMEOUT)) {
-            // TODO timeout subspan log 던지기.
+            // TODO timeout spanEvent log 던지기.
             // 뭘 어떤 내용을 던져야 되는지 아직 모르겠음????
         }
     }

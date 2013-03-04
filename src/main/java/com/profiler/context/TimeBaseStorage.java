@@ -19,7 +19,7 @@ public class TimeBaseStorage implements Storage {
     private long limitTime = 1000;
     private int bufferSize = 20;
 
-    private List<SubSpan> storage = new ArrayList<SubSpan>(bufferSize + RESERVE_BUFFER_SIZE);
+    private List<SpanEvent> storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
     private DataSender dataSender;
 
     public TimeBaseStorage() {
@@ -48,26 +48,26 @@ public class TimeBaseStorage implements Storage {
     }
 
     @Override
-    public void store(SubSpan subSpan) {
+    public void store(SpanEvent spanEvent) {
         // flush유무 확인
         if (!limit) {
             // 절대 시간만 체크한다. 1초 이내 라서 절대 데이터를 flush하지 않는다.
             synchronized (this) {
-                addSubSpan(subSpan);
+                addSpanEvent(spanEvent);
             }
-            limit = checkLimit(subSpan);
+            limit = checkLimit(spanEvent);
         } else {
             // 1초가 지났다면.
             // 데이터가 flushCount이상일 경우 먼저 flush한다.
-            List<SubSpan> flushData = null;
+            List<SpanEvent> flushData = null;
             synchronized (this) {
-                if (!addSubSpan(subSpan)) {
-                    dataSender.send(subSpan);
+                if (!addSpanEvent(spanEvent)) {
+                    dataSender.send(spanEvent);
                     return;
                 }
                 if (storage.size() >= bufferSize) {
                     flushData = storage;
-                    storage = new ArrayList<SubSpan>(bufferSize + RESERVE_BUFFER_SIZE);
+                    storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
                 }
             }
             if (flushData != null) {
@@ -76,19 +76,19 @@ public class TimeBaseStorage implements Storage {
         }
     }
 
-    private boolean addSubSpan(SubSpan subSpan) {
+    private boolean addSpanEvent(SpanEvent spanEvent) {
         if (storage == null) {
             Logger logger = Logger.getLogger(this.getClass().getName());
             logger.fine("storage is null. direct send");
             // 이미 span이 와서 flush된 상황임.
             return false;
         }
-        storage.add(subSpan);
+        storage.add(spanEvent);
         return true;
     }
 
-    private boolean checkLimit(SubSpan subSpan) {
-        return checkLimit(subSpan.getParentSpan());
+    private boolean checkLimit(SpanEvent spanEvent) {
+        return checkLimit(spanEvent.getParentSpan());
     }
 
     private boolean checkLimit(Span span) {
@@ -120,13 +120,13 @@ public class TimeBaseStorage implements Storage {
     }
 
     private void flushAll(Span span) {
-        List<SubSpan> subSpanList;
+        List<SpanEvent> spanEventList;
         synchronized (this) {
-            subSpanList = storage;
+            spanEventList = storage;
             this.storage = null;
         }
-        if (subSpanList != null && subSpanList.size() != 0) {
-            span.setSubSpanList(subSpanList);
+        if (spanEventList != null && spanEventList.size() != 0) {
+            span.setSpanEventList(spanEventList);
         }
         dataSender.send(span);
     }
