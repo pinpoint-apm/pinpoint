@@ -187,7 +187,7 @@ public class FlowChartServiceImpl implements FlowChartService {
     }
 
     /**
-	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 전체 Span의 그래프를 Draw하는 함수이다.
+	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
      * makes call tree of main view
 	 */
 	@Override
@@ -241,6 +241,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 						// TODO 임시방편
 						TerminalStatistics terminalStatistics = entry.getValue();
 
+						// 이 요청의 destination이 수집된 trace정보에 없으면 unknown cloud로 처리한다.
 						if (!endPoints.contains(terminalStatistics.getTo())) {
 
 							if (ServiceType.findServiceType(terminalStatistics.getToServiceType()).isRpcClient()) {
