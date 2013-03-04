@@ -2,9 +2,8 @@ package com.profiler.server.dao.hbase;
 
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.hbase.HbaseOperations2;
@@ -51,35 +50,35 @@ public class HbaseTraceDao implements TracesDao {
             put.add(TRACES_CF_ANNOTATION, spanId, bytes);
         }
 
-        addNestedSubSpan(put, span);
+        addNestedSpanEvent(put, span);
 
         hbaseTemplate.put(TRACES, put);
 
     }
 
-    private void addNestedSubSpan(Put put, Span span) {
-        List<Event> subSpanList = span.getSubSpanList();
-        if (subSpanList == null || subSpanList.size() == 0) {
+    private void addNestedSpanEvent(Put put, Span span) {
+        List<com.profiler.common.dto.thrift.SpanEvent> spanEventBoList = span.getSpanEventList();
+        if (spanEventBoList == null || spanEventBoList.size() == 0) {
             return;
         }
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        for (Event subSpan : subSpanList) {
-            SubSpanBo subSpanBo = new SubSpanBo(span, subSpan);
-            byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
-            byte[] value = subSpanBo.writeValue();
+        for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
+            SpanEvent spanEventBo = new SpanEvent(span, spanEvent);
+            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
+            byte[] value = spanEventBo.writeValue();
             put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }
     }
 
 
     @Override
-    public void insertEvent(final String applicationName, final Event event) {
-        SubSpanBo subSpanBo = new SubSpanBo(event);
-        byte[] value = subSpanBo.writeValue();
+    public void insertEvent(final String applicationName, final com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+        SpanEvent spanEventBo = new SpanEvent(spanEvent);
+        byte[] value = spanEventBo.writeValue();
         // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
-        Put put = new Put(SpanUtils.getTraceId(event));
+        Put put = new Put(SpanUtils.getTraceId(spanEvent));
 
-        byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
+        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
         put.add(TRACES_CF_TERMINALSPAN, rowId, value);
 
         hbaseTemplate.put(TRACES, put);
@@ -90,12 +89,12 @@ public class HbaseTraceDao implements TracesDao {
         Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        List<Event> subSpanList0 = spanChunk.getSubSpanList();
-        for (Event subSpan : subSpanList0) {
-            SubSpanBo subSpanBo = new SubSpanBo(spanChunk, subSpan);
+        List<com.profiler.common.dto.thrift.SpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
+            SpanEvent spanEventBo = new SpanEvent(spanChunk, spanEvent);
 
-            byte[] value = subSpanBo.writeValue();
-            byte[] rowId = BytesUtils.add(subSpanBo.getSpanId(), subSpanBo.getSequence());
+            byte[] value = spanEventBo.writeValue();
+            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
 
             put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }

@@ -37,8 +37,8 @@ public class MultiplexedPacketHandler {
     private Handler agentInfoHandler;
 
     @Autowired()
-    @Qualifier("SubSpanHandler")
-    private Handler subSpanHandler;
+    @Qualifier("SpanEventHandler")
+    private Handler spanEventHandler;
 
     @Autowired()
     @Qualifier("SpanChunkHandler")
@@ -90,8 +90,8 @@ public class MultiplexedPacketHandler {
         if (tBase instanceof AgentInfo) {
             return agentInfoHandler;
         }
-        if (tBase instanceof Event) {
-            return subSpanHandler;
+        if (tBase instanceof SpanEvent) {
+            return spanEventHandler;
         }
         if (tBase instanceof SpanChunk) {
             return spanChunkHandler;

@@ -2,8 +2,8 @@ package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
 
-import com.profiler.common.dto.thrift.Event;
-import com.profiler.common.util.SubSpanUtils;
+import com.profiler.common.dto.thrift.SpanEvent;
+import com.profiler.common.util.SpanEventUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import com.profiler.server.dao.TracesDao;
 /**
  * subspan represent terminal spans.
  */
-public class EventHandler implements Handler {
+public class SpanEventHandler implements Handler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -33,13 +33,13 @@ public class EventHandler implements Handler {
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
         try {
-            Event event = (Event) tbase;
+            SpanEvent spanEvent = (SpanEvent) tbase;
 
             if (logger.isInfoEnabled()) {
-                logger.info("Received Event={}", event);
+                logger.info("Received SpanEvent={}", spanEvent);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(event.getAgentId());
+            String applicationName = agentIdApplicationIndexDao.selectApplicationName(spanEvent.getAgentId());
 
             if (applicationName == null) {
                 logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
@@ -48,25 +48,25 @@ public class EventHandler implements Handler {
                 logger.info("Applicationname '{}' found. Write the log.", applicationName);
             }
 
-            traceDao.insertEvent(applicationName, event);
+            traceDao.insertEvent(applicationName, spanEvent);
             
-            ServiceType serviceType = ServiceType.findServiceType(event.getServiceType());
+            ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
 			if (!serviceType.isRecordStatistics()) {
 				return;
 			}
             
             // if terminal update statistics
-            int elapsed = event.getEndElapsed();
-            boolean hasException = SubSpanUtils.hasException(event);
+            int elapsed = spanEvent.getEndElapsed();
+            boolean hasException = SpanEventUtils.hasException(spanEvent);
             // 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
             if (serviceType.isRpcClient()) {
-                terminalStatistics.update(applicationName, event.getDestinationId(), serviceType.getCode(), elapsed, hasException);
+                terminalStatistics.update(applicationName, spanEvent.getDestinationId(), serviceType.getCode(), elapsed, hasException);
             } else {
-                terminalStatistics.update(applicationName, event.getDestinationId(), serviceType.getCode(), elapsed, hasException);
+                terminalStatistics.update(applicationName, spanEvent.getDestinationId(), serviceType.getCode(), elapsed, hasException);
             }
         } catch (Exception e) {
-            logger.warn("Event handle error " + e.getMessage(), e);
+            logger.warn("SpanEvent handle error " + e.getMessage(), e);
         }
     }
 }

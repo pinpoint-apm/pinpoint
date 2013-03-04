@@ -30,7 +30,7 @@
 
     <bean class="com.profiler.common.io.DefaultTBaseLocator"></bean>
 
-    <bean id="testTraceIndex" class="com.profiler.server.dao.hbase.HbaseTraceIndex">
+    <bean id="testTraceIndex" class="com.profiler.server.dao.hbase.HbaseTraceIndexDao">
         <property name="tableName" value="TestTraceIndex"/>
     </bean>
 
