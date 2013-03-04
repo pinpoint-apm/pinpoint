@@ -46,7 +46,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
   private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)15);
   private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)16);
-  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)17);
+  private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)17);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -70,7 +70,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private List<Annotation> annotations; // required
   private short flag; // optional
   private int err; // optional
-  private List<Event> subSpanList; // optional
+  private List<SpanEvent> spanEventList; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -90,7 +90,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     ANNOTATIONS((short)14, "annotations"),
     FLAG((short)15, "flag"),
     ERR((short)16, "err"),
-    SUB_SPAN_LIST((short)17, "subSpanList");
+    SPAN_EVENT_LIST((short)17, "spanEventList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -137,8 +137,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           return FLAG;
         case 16: // ERR
           return ERR;
-        case 17: // SUB_SPAN_LIST
-          return SUB_SPAN_LIST;
+        case 17: // SPAN_EVENT_LIST
+          return SPAN_EVENT_LIST;
         default:
           return null;
       }
@@ -190,7 +190,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SUB_SPAN_LIST};
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -227,9 +227,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Event.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SpanEvent.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
   }
@@ -309,12 +309,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
     this.flag = other.flag;
     this.err = other.err;
-    if (other.isSetSubSpanList()) {
-      List<Event> __this__subSpanList = new ArrayList<Event>();
-      for (Event other_element : other.subSpanList) {
-        __this__subSpanList.add(new Event(other_element));
+    if (other.isSetSpanEventList()) {
+      List<SpanEvent> __this__spanEventList = new ArrayList<SpanEvent>();
+      for (SpanEvent other_element : other.spanEventList) {
+        __this__spanEventList.add(new SpanEvent(other_element));
       }
-      this.subSpanList = __this__subSpanList;
+      this.spanEventList = __this__spanEventList;
     }
   }
 
@@ -350,7 +350,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
     setErrIsSet(false);
     this.err = 0;
-    this.subSpanList = null;
+    this.spanEventList = null;
   }
 
   public String getAgentId() {
@@ -726,41 +726,41 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     __isset_bit_vector.set(__ERR_ISSET_ID, value);
   }
 
-  public int getSubSpanListSize() {
-    return (this.subSpanList == null) ? 0 : this.subSpanList.size();
+  public int getSpanEventListSize() {
+    return (this.spanEventList == null) ? 0 : this.spanEventList.size();
   }
 
-  public java.util.Iterator<Event> getSubSpanListIterator() {
-    return (this.subSpanList == null) ? null : this.subSpanList.iterator();
+  public java.util.Iterator<SpanEvent> getSpanEventListIterator() {
+    return (this.spanEventList == null) ? null : this.spanEventList.iterator();
   }
 
-  public void addToSubSpanList(Event elem) {
-    if (this.subSpanList == null) {
-      this.subSpanList = new ArrayList<Event>();
+  public void addToSpanEventList(SpanEvent elem) {
+    if (this.spanEventList == null) {
+      this.spanEventList = new ArrayList<SpanEvent>();
     }
-    this.subSpanList.add(elem);
+    this.spanEventList.add(elem);
   }
 
-  public List<Event> getSubSpanList() {
-    return this.subSpanList;
+  public List<SpanEvent> getSpanEventList() {
+    return this.spanEventList;
   }
 
-  public void setSubSpanList(List<Event> subSpanList) {
-    this.subSpanList = subSpanList;
+  public void setSpanEventList(List<SpanEvent> spanEventList) {
+    this.spanEventList = spanEventList;
   }
 
-  public void unsetSubSpanList() {
-    this.subSpanList = null;
+  public void unsetSpanEventList() {
+    this.spanEventList = null;
   }
 
-  /** Returns true if field subSpanList is set (has been assigned a value) and false otherwise */
-  public boolean isSetSubSpanList() {
-    return this.subSpanList != null;
+  /** Returns true if field spanEventList is set (has been assigned a value) and false otherwise */
+  public boolean isSetSpanEventList() {
+    return this.spanEventList != null;
   }
 
-  public void setSubSpanListIsSet(boolean value) {
+  public void setSpanEventListIsSet(boolean value) {
     if (!value) {
-      this.subSpanList = null;
+      this.spanEventList = null;
     }
   }
 
@@ -894,11 +894,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
-    case SUB_SPAN_LIST:
+    case SPAN_EVENT_LIST:
       if (value == null) {
-        unsetSubSpanList();
+        unsetSpanEventList();
       } else {
-        setSubSpanList((List<Event>)value);
+        setSpanEventList((List<SpanEvent>)value);
       }
       break;
 
@@ -955,8 +955,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case ERR:
       return Integer.valueOf(getErr());
 
-    case SUB_SPAN_LIST:
-      return getSubSpanList();
+    case SPAN_EVENT_LIST:
+      return getSpanEventList();
 
     }
     throw new IllegalStateException();
@@ -1001,8 +1001,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetFlag();
     case ERR:
       return isSetErr();
-    case SUB_SPAN_LIST:
-      return isSetSubSpanList();
+    case SPAN_EVENT_LIST:
+      return isSetSpanEventList();
     }
     throw new IllegalStateException();
   }
@@ -1164,12 +1164,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return false;
     }
 
-    boolean this_present_subSpanList = true && this.isSetSubSpanList();
-    boolean that_present_subSpanList = true && that.isSetSubSpanList();
-    if (this_present_subSpanList || that_present_subSpanList) {
-      if (!(this_present_subSpanList && that_present_subSpanList))
+    boolean this_present_spanEventList = true && this.isSetSpanEventList();
+    boolean that_present_spanEventList = true && that.isSetSpanEventList();
+    if (this_present_spanEventList || that_present_spanEventList) {
+      if (!(this_present_spanEventList && that_present_spanEventList))
         return false;
-      if (!this.subSpanList.equals(that.subSpanList))
+      if (!this.spanEventList.equals(that.spanEventList))
         return false;
     }
 
@@ -1349,12 +1349,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetSubSpanList()).compareTo(typedOther.isSetSubSpanList());
+    lastComparison = Boolean.valueOf(isSetSpanEventList()).compareTo(typedOther.isSetSpanEventList());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetSubSpanList()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.subSpanList, typedOther.subSpanList);
+    if (isSetSpanEventList()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanEventList, typedOther.spanEventList);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1480,13 +1480,13 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       sb.append(this.err);
       first = false;
     }
-    if (isSetSubSpanList()) {
+    if (isSetSpanEventList()) {
       if (!first) sb.append(", ");
-      sb.append("subSpanList:");
-      if (this.subSpanList == null) {
+      sb.append("spanEventList:");
+      if (this.spanEventList == null) {
         sb.append("null");
       } else {
-        sb.append(this.subSpanList);
+        sb.append(this.spanEventList);
       }
       first = false;
     }
@@ -1673,21 +1673,21 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 17: // SUB_SPAN_LIST
+          case 17: // SPAN_EVENT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
-                struct.subSpanList = new ArrayList<Event>(_list27.size);
+                struct.spanEventList = new ArrayList<SpanEvent>(_list27.size);
                 for (int _i28 = 0; _i28 < _list27.size; ++_i28)
                 {
-                  Event _elem29; // required
-                  _elem29 = new Event();
+                  SpanEvent _elem29; // required
+                  _elem29 = new SpanEvent();
                   _elem29.read(iprot);
-                  struct.subSpanList.add(_elem29);
+                  struct.spanEventList.add(_elem29);
                 }
                 iprot.readListEnd();
               }
-              struct.setSubSpanListIsSet(true);
+              struct.setSpanEventListIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1786,12 +1786,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeI32(struct.err);
         oprot.writeFieldEnd();
       }
-      if (struct.subSpanList != null) {
-        if (struct.isSetSubSpanList()) {
-          oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
+      if (struct.spanEventList != null) {
+        if (struct.isSetSpanEventList()) {
+          oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
           {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-            for (Event _iter31 : struct.subSpanList)
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
+            for (SpanEvent _iter31 : struct.spanEventList)
             {
               _iter31.write(oprot);
             }
@@ -1866,7 +1866,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetErr()) {
         optionals.set(15);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetSpanEventList()) {
         optionals.set(16);
       }
       oprot.writeBitSet(optionals, 17);
@@ -1924,10 +1924,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetErr()) {
         oprot.writeI32(struct.err);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetSpanEventList()) {
         {
-          oprot.writeI32(struct.subSpanList.size());
-          for (Event _iter33 : struct.subSpanList)
+          oprot.writeI32(struct.spanEventList.size());
+          for (SpanEvent _iter33 : struct.spanEventList)
           {
             _iter33.write(oprot);
           }
@@ -2016,16 +2016,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (incoming.get(16)) {
         {
           org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.subSpanList = new ArrayList<Event>(_list37.size);
+          struct.spanEventList = new ArrayList<SpanEvent>(_list37.size);
           for (int _i38 = 0; _i38 < _list37.size; ++_i38)
           {
-            Event _elem39; // required
-            _elem39 = new Event();
+            SpanEvent _elem39; // required
+            _elem39 = new SpanEvent();
             _elem39.read(iprot);
-            struct.subSpanList.add(_elem39);
+            struct.spanEventList.add(_elem39);
           }
         }
-        struct.setSubSpanListIsSet(true);
+        struct.setSpanEventListIsSet(true);
       }
     }
   }

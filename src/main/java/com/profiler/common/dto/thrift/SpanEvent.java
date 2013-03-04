@@ -27,8 +27,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Event");
+public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanEvent");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
@@ -50,8 +50,8 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new EventStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new EventTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new SpanEventStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new SpanEventTupleSchemeFactory());
   }
 
   private String agentId; // optional
@@ -231,13 +231,13 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Event.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanEvent.class, metaDataMap);
   }
 
-  public Event() {
+  public SpanEvent() {
   }
 
-  public Event(
+  public SpanEvent(
     short sequence,
     int startElapsed,
     int endElapsed,
@@ -259,7 +259,7 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public Event(Event other) {
+  public SpanEvent(SpanEvent other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAgentId()) {
@@ -303,8 +303,8 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     this.nextSpanId = other.nextSpanId;
   }
 
-  public Event deepCopy() {
-    return new Event(this);
+  public SpanEvent deepCopy() {
+    return new SpanEvent(this);
   }
 
   @Override
@@ -996,12 +996,12 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof Event)
-      return this.equals((Event)that);
+    if (that instanceof SpanEvent)
+      return this.equals((SpanEvent)that);
     return false;
   }
 
-  public boolean equals(Event that) {
+  public boolean equals(SpanEvent that) {
     if (that == null)
       return false;
 
@@ -1166,13 +1166,13 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     return 0;
   }
 
-  public int compareTo(Event other) {
+  public int compareTo(SpanEvent other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    Event typedOther = (Event)other;
+    SpanEvent typedOther = (SpanEvent)other;
 
     lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
     if (lastComparison != 0) {
@@ -1361,7 +1361,7 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("Event(");
+    StringBuilder sb = new StringBuilder("SpanEvent(");
     boolean first = true;
 
     if (isSetAgentId()) {
@@ -1509,15 +1509,15 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     }
   }
 
-  private static class EventStandardSchemeFactory implements SchemeFactory {
-    public EventStandardScheme getScheme() {
-      return new EventStandardScheme();
+  private static class SpanEventStandardSchemeFactory implements SchemeFactory {
+    public SpanEventStandardScheme getScheme() {
+      return new SpanEventStandardScheme();
     }
   }
 
-  private static class EventStandardScheme extends StandardScheme<Event> {
+  private static class SpanEventStandardScheme extends StandardScheme<SpanEvent> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, Event struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, SpanEvent struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1693,7 +1693,7 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, Event struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, SpanEvent struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1806,16 +1806,16 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
 
   }
 
-  private static class EventTupleSchemeFactory implements SchemeFactory {
-    public EventTupleScheme getScheme() {
-      return new EventTupleScheme();
+  private static class SpanEventTupleSchemeFactory implements SchemeFactory {
+    public SpanEventTupleScheme getScheme() {
+      return new SpanEventTupleScheme();
     }
   }
 
-  private static class EventTupleScheme extends TupleScheme<Event> {
+  private static class SpanEventTupleScheme extends TupleScheme<SpanEvent> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, Event struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, SpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1936,7 +1936,7 @@ public class Event implements org.apache.thrift.TBase<Event, Event._Fields>, jav
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, Event struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, SpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(17);
       if (incoming.get(0)) {

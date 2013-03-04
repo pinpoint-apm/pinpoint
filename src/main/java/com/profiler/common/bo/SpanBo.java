@@ -49,7 +49,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private short flag; // optional
     private int exception;
 
-    private List<SubSpanBo> subSpanList;
+    private List<SpanEvent> spanEventBoList;
 
     private int recursiveCallCount = 0;
 
@@ -244,15 +244,15 @@ public class SpanBo implements com.profiler.common.bo.Span {
         }
     }
 
-    public void addSubSpan(SubSpanBo subSpan) {
-        if (subSpanList == null) {
-            subSpanList = new ArrayList<SubSpanBo>();
+    public void addSpanEvent(SpanEvent spanEvent) {
+        if (spanEventBoList == null) {
+            spanEventBoList = new ArrayList<SpanEvent>();
         }
-        subSpanList.add(subSpan);
+        spanEventBoList.add(spanEvent);
     }
 
-    public List<SubSpanBo> getSubSpanList() {
-        return subSpanList;
+    public List<SpanEvent> getSpanEventBoList() {
+        return spanEventBoList;
     }
 
     public int increaseRecursiveCallCount() {
@@ -388,6 +388,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     @Override
     public String toString() {
-		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + ", remoteAddr=" + remoteAddr + ", serviceType=" + serviceType + ", subSpans=" + subSpanList + "}";
+		return "SpanBo{" + "agentId='" + agentId + '\'' + ", startTime=" + startTime + ", elapsed=" + elapsed + ", mostTraceId=" + mostTraceId + ", leastTraceId=" + leastTraceId + ", rpc='" + rpc + '\'' + ", serviceName='" + serviceName + '\'' + ", spanID=" + spanId + ", parentSpanId=" + parentSpanId + ", flag=" + flag + ", endPoint='" + endPoint + ", remoteAddr=" + remoteAddr + ", serviceType=" + serviceType + ", spanEventBoList=" + spanEventBoList + "}";
     }
 }

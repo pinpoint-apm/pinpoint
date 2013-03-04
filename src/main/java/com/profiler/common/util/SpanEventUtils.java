@@ -2,17 +2,17 @@ package com.profiler.common.util;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Event;
+import com.profiler.common.dto.thrift.SpanEvent;
 
 import java.util.List;
 
 /**
  *
  */
-public class SubSpanUtils {
+public class SpanEventUtils {
 
-    public static boolean hasException(Event subSpan) {
-        final List<Annotation> annotations = subSpan.getAnnotations();
+    public static boolean hasException(SpanEvent spanEvent) {
+        final List<Annotation> annotations = spanEvent.getAnnotations();
         if (annotations == null) {
             return true;
         }

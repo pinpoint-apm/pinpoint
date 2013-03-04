@@ -35,7 +35,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField SUB_SPAN_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("subSpanList", org.apache.thrift.protocol.TType.LIST, (short)6);
+  private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,7 +48,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private long mostTraceId; // required
   private long leastTraceId; // required
   private int spanId; // required
-  private List<Event> subSpanList; // required
+  private List<SpanEvent> spanEventList; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -57,7 +57,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     MOST_TRACE_ID((short)3, "mostTraceId"),
     LEAST_TRACE_ID((short)4, "leastTraceId"),
     SPAN_ID((short)5, "spanId"),
-    SUB_SPAN_LIST((short)6, "subSpanList");
+    SPAN_EVENT_LIST((short)6, "spanEventList");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -82,8 +82,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
           return LEAST_TRACE_ID;
         case 5: // SPAN_ID
           return SPAN_ID;
-        case 6: // SUB_SPAN_LIST
-          return SUB_SPAN_LIST;
+        case 6: // SPAN_EVENT_LIST
+          return SPAN_EVENT_LIST;
         default:
           return null;
       }
@@ -142,9 +142,9 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.SUB_SPAN_LIST, new org.apache.thrift.meta_data.FieldMetaData("subSpanList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Event.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SpanEvent.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanChunk.class, metaDataMap);
   }
@@ -158,7 +158,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     long mostTraceId,
     long leastTraceId,
     int spanId,
-    List<Event> subSpanList)
+    List<SpanEvent> spanEventList)
   {
     this();
     this.agentId = agentId;
@@ -170,7 +170,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     setLeastTraceIdIsSet(true);
     this.spanId = spanId;
     setSpanIdIsSet(true);
-    this.subSpanList = subSpanList;
+    this.spanEventList = spanEventList;
   }
 
   /**
@@ -186,12 +186,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.mostTraceId = other.mostTraceId;
     this.leastTraceId = other.leastTraceId;
     this.spanId = other.spanId;
-    if (other.isSetSubSpanList()) {
-      List<Event> __this__subSpanList = new ArrayList<Event>();
-      for (Event other_element : other.subSpanList) {
-        __this__subSpanList.add(new Event(other_element));
+    if (other.isSetSpanEventList()) {
+      List<SpanEvent> __this__spanEventList = new ArrayList<SpanEvent>();
+      for (SpanEvent other_element : other.spanEventList) {
+        __this__spanEventList.add(new SpanEvent(other_element));
       }
-      this.subSpanList = __this__subSpanList;
+      this.spanEventList = __this__spanEventList;
     }
   }
 
@@ -210,7 +210,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.leastTraceId = 0;
     setSpanIdIsSet(false);
     this.spanId = 0;
-    this.subSpanList = null;
+    this.spanEventList = null;
   }
 
   public String getAgentId() {
@@ -324,41 +324,41 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     __isset_bit_vector.set(__SPANID_ISSET_ID, value);
   }
 
-  public int getSubSpanListSize() {
-    return (this.subSpanList == null) ? 0 : this.subSpanList.size();
+  public int getSpanEventListSize() {
+    return (this.spanEventList == null) ? 0 : this.spanEventList.size();
   }
 
-  public java.util.Iterator<Event> getSubSpanListIterator() {
-    return (this.subSpanList == null) ? null : this.subSpanList.iterator();
+  public java.util.Iterator<SpanEvent> getSpanEventListIterator() {
+    return (this.spanEventList == null) ? null : this.spanEventList.iterator();
   }
 
-  public void addToSubSpanList(Event elem) {
-    if (this.subSpanList == null) {
-      this.subSpanList = new ArrayList<Event>();
+  public void addToSpanEventList(SpanEvent elem) {
+    if (this.spanEventList == null) {
+      this.spanEventList = new ArrayList<SpanEvent>();
     }
-    this.subSpanList.add(elem);
+    this.spanEventList.add(elem);
   }
 
-  public List<Event> getSubSpanList() {
-    return this.subSpanList;
+  public List<SpanEvent> getSpanEventList() {
+    return this.spanEventList;
   }
 
-  public void setSubSpanList(List<Event> subSpanList) {
-    this.subSpanList = subSpanList;
+  public void setSpanEventList(List<SpanEvent> spanEventList) {
+    this.spanEventList = spanEventList;
   }
 
-  public void unsetSubSpanList() {
-    this.subSpanList = null;
+  public void unsetSpanEventList() {
+    this.spanEventList = null;
   }
 
-  /** Returns true if field subSpanList is set (has been assigned a value) and false otherwise */
-  public boolean isSetSubSpanList() {
-    return this.subSpanList != null;
+  /** Returns true if field spanEventList is set (has been assigned a value) and false otherwise */
+  public boolean isSetSpanEventList() {
+    return this.spanEventList != null;
   }
 
-  public void setSubSpanListIsSet(boolean value) {
+  public void setSpanEventListIsSet(boolean value) {
     if (!value) {
-      this.subSpanList = null;
+      this.spanEventList = null;
     }
   }
 
@@ -404,11 +404,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       }
       break;
 
-    case SUB_SPAN_LIST:
+    case SPAN_EVENT_LIST:
       if (value == null) {
-        unsetSubSpanList();
+        unsetSpanEventList();
       } else {
-        setSubSpanList((List<Event>)value);
+        setSpanEventList((List<SpanEvent>)value);
       }
       break;
 
@@ -432,8 +432,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     case SPAN_ID:
       return Integer.valueOf(getSpanId());
 
-    case SUB_SPAN_LIST:
-      return getSubSpanList();
+    case SPAN_EVENT_LIST:
+      return getSpanEventList();
 
     }
     throw new IllegalStateException();
@@ -456,8 +456,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       return isSetLeastTraceId();
     case SPAN_ID:
       return isSetSpanId();
-    case SUB_SPAN_LIST:
-      return isSetSubSpanList();
+    case SPAN_EVENT_LIST:
+      return isSetSpanEventList();
     }
     throw new IllegalStateException();
   }
@@ -520,12 +520,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         return false;
     }
 
-    boolean this_present_subSpanList = true && this.isSetSubSpanList();
-    boolean that_present_subSpanList = true && that.isSetSubSpanList();
-    if (this_present_subSpanList || that_present_subSpanList) {
-      if (!(this_present_subSpanList && that_present_subSpanList))
+    boolean this_present_spanEventList = true && this.isSetSpanEventList();
+    boolean that_present_spanEventList = true && that.isSetSpanEventList();
+    if (this_present_spanEventList || that_present_spanEventList) {
+      if (!(this_present_spanEventList && that_present_spanEventList))
         return false;
-      if (!this.subSpanList.equals(that.subSpanList))
+      if (!this.spanEventList.equals(that.spanEventList))
         return false;
     }
 
@@ -595,12 +595,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetSubSpanList()).compareTo(typedOther.isSetSubSpanList());
+    lastComparison = Boolean.valueOf(isSetSpanEventList()).compareTo(typedOther.isSetSpanEventList());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetSubSpanList()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.subSpanList, typedOther.subSpanList);
+    if (isSetSpanEventList()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.spanEventList, typedOther.spanEventList);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -649,11 +649,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     sb.append(this.spanId);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("subSpanList:");
-    if (this.subSpanList == null) {
+    sb.append("spanEventList:");
+    if (this.spanEventList == null) {
       sb.append("null");
     } else {
-      sb.append(this.subSpanList);
+      sb.append(this.spanEventList);
     }
     first = false;
     sb.append(")");
@@ -740,21 +740,21 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // SUB_SPAN_LIST
+          case 6: // SPAN_EVENT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-                struct.subSpanList = new ArrayList<Event>(_list40.size);
+                struct.spanEventList = new ArrayList<SpanEvent>(_list40.size);
                 for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                 {
-                  Event _elem42; // required
-                  _elem42 = new Event();
+                  SpanEvent _elem42; // required
+                  _elem42 = new SpanEvent();
                   _elem42.read(iprot);
-                  struct.subSpanList.add(_elem42);
+                  struct.spanEventList.add(_elem42);
                 }
                 iprot.readListEnd();
               }
-              struct.setSubSpanListIsSet(true);
+              struct.setSpanEventListIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -789,11 +789,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
       oprot.writeI32(struct.spanId);
       oprot.writeFieldEnd();
-      if (struct.subSpanList != null) {
-        oprot.writeFieldBegin(SUB_SPAN_LIST_FIELD_DESC);
+      if (struct.spanEventList != null) {
+        oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
         {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.subSpanList.size()));
-          for (Event _iter43 : struct.subSpanList)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
+          for (SpanEvent _iter43 : struct.spanEventList)
           {
             _iter43.write(oprot);
           }
@@ -834,7 +834,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetSpanId()) {
         optionals.set(4);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetSpanEventList()) {
         optionals.set(5);
       }
       oprot.writeBitSet(optionals, 6);
@@ -853,10 +853,10 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetSpanId()) {
         oprot.writeI32(struct.spanId);
       }
-      if (struct.isSetSubSpanList()) {
+      if (struct.isSetSpanEventList()) {
         {
-          oprot.writeI32(struct.subSpanList.size());
-          for (Event _iter44 : struct.subSpanList)
+          oprot.writeI32(struct.spanEventList.size());
+          for (SpanEvent _iter44 : struct.spanEventList)
           {
             _iter44.write(oprot);
           }
@@ -891,16 +891,16 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (incoming.get(5)) {
         {
           org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.subSpanList = new ArrayList<Event>(_list45.size);
+          struct.spanEventList = new ArrayList<SpanEvent>(_list45.size);
           for (int _i46 = 0; _i46 < _list45.size; ++_i46)
           {
-            Event _elem47; // required
-            _elem47 = new Event();
+            SpanEvent _elem47; // required
+            _elem47 = new SpanEvent();
             _elem47.read(iprot);
-            struct.subSpanList.add(_elem47);
+            struct.spanEventList.add(_elem47);
           }
         }
-        struct.setSubSpanListIsSet(true);
+        struct.setSpanEventListIsSet(true);
       }
     }
   }

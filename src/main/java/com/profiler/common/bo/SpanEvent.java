@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Event;
 import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
@@ -14,7 +13,7 @@ import com.profiler.common.buffer.FixedBuffer;
 /**
  *
  */
-public class SubSpanBo implements Span {
+public class SpanEvent implements Span {
 	private static final int VERSION_SIZE = 1;
 	// version 0 = prefix의 사이즈를 int로
 
@@ -55,10 +54,10 @@ public class SubSpanBo implements Span {
 	private int depth = -1;
 	private int nextSpanId = -1;
 
-	public SubSpanBo() {
+	public SpanEvent() {
 	}
 
-	public SubSpanBo(com.profiler.common.dto.thrift.Span tSpan, Event tSubSpan) {
+	public SpanEvent(com.profiler.common.dto.thrift.Span tSpan, com.profiler.common.dto.thrift.SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
         this.agentIdentifier = tSpan.getAgentIdentifier();
 
@@ -66,33 +65,33 @@ public class SubSpanBo implements Span {
 		this.leastTraceId = tSpan.getLeastTraceId();
 
 		this.spanId = tSpan.getSpanId();
-		this.sequence = tSubSpan.getSequence();
+		this.sequence = tSpanEvent.getSequence();
 
-		this.startElapsed = tSubSpan.getStartElapsed();
-		this.endElapsed = tSubSpan.getEndElapsed();
+		this.startElapsed = tSpanEvent.getStartElapsed();
+		this.endElapsed = tSpanEvent.getEndElapsed();
 
-		this.rpc = tSubSpan.getRpc();
-		this.serviceName = tSubSpan.getServiceName();
-		this.serviceType = ServiceType.findServiceType(tSubSpan.getServiceType());
+		this.rpc = tSpanEvent.getRpc();
+		this.serviceName = tSpanEvent.getServiceName();
+		this.serviceType = ServiceType.findServiceType(tSpanEvent.getServiceType());
 
 
-        this.destinationId = tSubSpan.getDestinationId();
-        this.destinationAddress = tSubSpan.getDestinationAddress();
+        this.destinationId = tSpanEvent.getDestinationId();
+        this.destinationAddress = tSpanEvent.getDestinationAddress();
 
-        this.endPoint = tSubSpan.getEndPoint();
+        this.endPoint = tSpanEvent.getEndPoint();
 		
-		if (tSubSpan.isSetDepth()) {
-			this.depth = tSubSpan.getDepth();
+		if (tSpanEvent.isSetDepth()) {
+			this.depth = tSpanEvent.getDepth();
 		}
         
-		if (tSubSpan.isSetNextSpanId()) {
-			this.nextSpanId = tSubSpan.getNextSpanId();
+		if (tSpanEvent.isSetNextSpanId()) {
+			this.nextSpanId = tSpanEvent.getNextSpanId();
 		}
         
-		setAnnotationBoList(tSubSpan.getAnnotations());
+		setAnnotationBoList(tSpanEvent.getAnnotations());
 	}
 
-	public SubSpanBo(SpanChunk spanChunk, Event subSpan) {
+	public SpanEvent(SpanChunk spanChunk, com.profiler.common.dto.thrift.SpanEvent spanEvent) {
 		this.agentId = spanChunk.getAgentId();
         this.agentIdentifier = spanChunk.getAgentIdentifier();
 
@@ -100,32 +99,32 @@ public class SubSpanBo implements Span {
 		this.leastTraceId = spanChunk.getLeastTraceId();
 
 		this.spanId = spanChunk.getSpanId();
-		this.sequence = subSpan.getSequence();
+		this.sequence = spanEvent.getSequence();
 
-		this.startElapsed = subSpan.getStartElapsed();
-		this.endElapsed = subSpan.getEndElapsed();
+		this.startElapsed = spanEvent.getStartElapsed();
+		this.endElapsed = spanEvent.getEndElapsed();
 
-		this.rpc = subSpan.getRpc();
-		this.serviceName = subSpan.getServiceName();
-		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
+		this.rpc = spanEvent.getRpc();
+		this.serviceName = spanEvent.getServiceName();
+		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
-        this.destinationId = subSpan.getDestinationId();
-        this.destinationAddress = subSpan.getDestinationAddress();
+        this.destinationId = spanEvent.getDestinationId();
+        this.destinationAddress = spanEvent.getDestinationAddress();
 
-		this.endPoint = subSpan.getEndPoint();
+		this.endPoint = spanEvent.getEndPoint();
 		
-		if (subSpan.isSetDepth()) {
-			this.depth = subSpan.getDepth();
+		if (spanEvent.isSetDepth()) {
+			this.depth = spanEvent.getDepth();
 		}
 
-		if (subSpan.isSetNextSpanId()) {
-			this.nextSpanId = subSpan.getNextSpanId();
+		if (spanEvent.isSetNextSpanId()) {
+			this.nextSpanId = spanEvent.getNextSpanId();
 		}
 		
-		setAnnotationBoList(subSpan.getAnnotations());
+		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
-	public SubSpanBo(Event subSpan) {
+	public SpanEvent(com.profiler.common.dto.thrift.SpanEvent subSpan) {
 		this.agentId = subSpan.getAgentId();
         this.agentIdentifier = subSpan.getAgentIdentifier();
 
