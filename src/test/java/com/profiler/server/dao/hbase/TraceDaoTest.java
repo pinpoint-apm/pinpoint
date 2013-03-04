@@ -100,12 +100,12 @@ public class TraceDaoTest {
         Span span = new Span();
         
         span.setAgentId("UnitTest");
+        span.setApplicationId("testApplication");
         span.setMostTraceId(uuid.getMostSignificantBits());
         span.setLeastTraceId(uuid.getLeastSignificantBits());
         span.setStartTime(l);
         span.setElapsed(5);
         span.setRpc("RPC");
-        span.setServiceName("SERVICENAME");
         span.setServiceType(ServiceType.UNKNOWN.getCode());
         span.setAnnotations(ano);
         
