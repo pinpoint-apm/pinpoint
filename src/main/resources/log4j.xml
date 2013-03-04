@@ -28,6 +28,12 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="com.nhn.hippo.web.mapper.ApiMetaDataMapper" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+
     <logger name="com.nhn.hippo.web.service" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>

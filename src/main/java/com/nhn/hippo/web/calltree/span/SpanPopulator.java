@@ -1,7 +1,7 @@
 package com.nhn.hippo.web.calltree.span;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +20,7 @@ public class SpanPopulator {
         this.list = list;
     }
 
-    public List<SpanAlign> populateSubSpan() {
+    public List<SpanAlign> populateSpanEvent() {
         if (list.size() == 0) {
             return Collections.emptyList();
         }
@@ -38,14 +38,14 @@ public class SpanPopulator {
         SpanBo span = spanAlign.getSpanBo();
         populatedList.add(spanAlign);
         long startTime = span.getStartTime();
-        List<SubSpanBo> subSpanBos = sortSubSpan(span);
-        for (SubSpanBo subSpanBo : subSpanBos) {
-            long subStartTime = startTime + subSpanBo.getStartElapsed();
+        List<SpanEvent> spanEventBoList = sortSpanEvent(span);
+        for (SpanEvent spanEventBo : spanEventBoList) {
+            long subStartTime = startTime + spanEventBo.getStartElapsed();
             long nextSpanStartTime = getNextSpanStartTime();
             if (subStartTime <= nextSpanStartTime) {
-                SpanAlign subSpanAlign = new SpanAlign(spanAlign.getDepth(), span, subSpanBo);
-                subSpanAlign.setSpan(false);
-                populatedList.add(subSpanAlign);
+                SpanAlign SpanEventAlign = new SpanAlign(spanAlign.getDepth(), span, spanEventBo);
+                SpanEventAlign.setSpan(false);
+                populatedList.add(SpanEventAlign);
             } else {
                 if (nextSpanStartTime == Long.MAX_VALUE) {
                     return;
@@ -65,14 +65,14 @@ public class SpanPopulator {
         return list.get(nextIndex).getSpanBo().getStartTime();
     }
 
-    private List<SubSpanBo> sortSubSpan(SpanBo span) {
-        List<SubSpanBo> subSpanList = span.getSubSpanList();
-        if (subSpanList == null) {
+    private List<SpanEvent> sortSpanEvent(SpanBo span) {
+        List<SpanEvent> spanEventBoList = span.getSpanEventBoList();
+        if (spanEventBoList == null) {
             return Collections.emptyList();
         }
-        Collections.sort(subSpanList, new Comparator<SubSpanBo>() {
+        Collections.sort(spanEventBoList, new Comparator<SpanEvent>() {
             @Override
-            public int compare(SubSpanBo o1, SubSpanBo o2) {
+            public int compare(SpanEvent o1, SpanEvent o2) {
                 long o1Timestamp = o1.getSequence();
                 long o2Timestamp = o2.getSequence();
                 if (o1Timestamp > o2Timestamp) {
@@ -84,6 +84,6 @@ public class SpanPopulator {
                 return -1;
             }
         });
-        return subSpanList;
+        return spanEventBoList;
     }
 }

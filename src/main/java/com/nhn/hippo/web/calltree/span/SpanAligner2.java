@@ -3,7 +3,7 @@ package com.nhn.hippo.web.calltree.span;
 import java.util.*;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 
 /**
  * 
@@ -56,20 +56,20 @@ public class SpanAligner2 {
 		SpanAlign element = new SpanAlign(depth, parentSpan);
 		container.add(element);
 
-		List<SubSpanBo> subSpanList = parentSpan.getSubSpanList();
-        if (subSpanList == null) {
+		List<SpanEvent> spanEventBoList = parentSpan.getSpanEventBoList();
+        if (spanEventBoList == null) {
             return;
         }
-		for (SubSpanBo subSpanBo : subSpanList) {
-			if (subSpanBo.getDepth() != -1) {
-				depth = spanDepth + subSpanBo.getDepth() + 1;
+		for (SpanEvent spanEventBo : spanEventBoList) {
+			if (spanEventBo.getDepth() != -1) {
+				depth = spanDepth + spanEventBo.getDepth() + 1;
 			}
 
-			SpanAlign sa = new SpanAlign(depth, parentSpan, subSpanBo);
+			SpanAlign sa = new SpanAlign(depth, parentSpan, spanEventBo);
 			container.add(sa);
 
-			// TODO subspan이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
-			int nextSpanId = subSpanBo.getNextSpanId();
+			// TODO spanEvent이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
+			int nextSpanId = spanEventBo.getNextSpanId();
 			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
 				populate(spanMap.get(nextSpanId), depth, container);
 			}

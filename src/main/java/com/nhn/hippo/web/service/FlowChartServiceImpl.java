@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
+import com.profiler.common.bo.SpanEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,6 @@ import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
 
 /**
  * @author netspider
@@ -130,35 +130,35 @@ public class FlowChartServiceImpl implements FlowChartService {
         ServerCallTree tree = createServerCallTree(transaction);
 
         // subSpan에서 record할 데이터만 골라낸다.
-        List<SubSpanBo> subSpanBoList = findRecordStatisticsSubSpanData(transaction, endPoints);
-        tree.addSubSpanList(subSpanBoList);
+        List<SpanEvent> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
+        tree.addSpanEventList(spanEventBoList);
 
         return tree.build();
 	}
 
-    private List<SubSpanBo> findRecordStatisticsSubSpanData(List<SpanBo> transaction, Set<String> endPoints) {
-        List<SubSpanBo> filterSubSpan = new ArrayList<SubSpanBo>();
+    private List<SpanEvent> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
+        List<SpanEvent> filterSpanEvent = new ArrayList<SpanEvent>();
         for (SpanBo eachTransaction : transaction) {
-			List<SubSpanBo> subSpanList = eachTransaction.getSubSpanList();
+			List<SpanEvent> spanEventBoList = eachTransaction.getSpanEventBoList();
 
-			if (subSpanList == null) {
+			if (spanEventBoList == null) {
 				continue;
             }
 
-			for (SubSpanBo subTransaction : subSpanList) {
+			for (SpanEvent spanEventBo : spanEventBoList) {
                 // 통계정보로 잡지 않을 데이터는 스킵한다.
-                if (!subTransaction.getServiceType().isRecordStatistics()) {
+                if (!spanEventBo.getServiceType().isRecordStatistics()) {
                     continue;
                 }
 
 				// remove subspan of the rpc client
-				if (!endPoints.contains(subTransaction.getEndPoint())) {
+				if (!endPoints.contains(spanEventBo.getEndPoint())) {
 					// this is unknown cloud
-                    filterSubSpan.add(subTransaction);
+                    filterSpanEvent.add(spanEventBo);
 				}
 			}
 		}
-        return filterSubSpan;
+        return filterSpanEvent;
     }
 
     /**

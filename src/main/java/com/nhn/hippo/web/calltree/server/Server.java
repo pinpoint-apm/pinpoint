@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 
 /**
  * @author netspider
@@ -20,31 +20,31 @@ public class Server implements Comparable<Server> {
 
 	protected int recursiveCallCount;
 
-	public Server(SubSpanBo span, NodeSelector nodeSelector) {
-		if (span.getServiceType().isTerminal()) {
-			this.agentIds.add(span.getAgentId());
+	public Server(SpanEvent spanEvent, NodeSelector nodeSelector) {
+		if (spanEvent.getServiceType().isTerminal()) {
+			this.agentIds.add(spanEvent.getAgentId());
 		} else {
-			this.agentIds.add(span.getEndPoint());
+			this.agentIds.add(spanEvent.getEndPoint());
 		}
 
-		if (span.getServiceType().isRpcClient()) {
-			// this is unknown cloud, there is not exists the child span.
-			this.id = span.getEndPoint();
-			this.applicationName = span.getEndPoint();
+		if (spanEvent.getServiceType().isRpcClient()) {
+			// this is unknown cloud, there is not exists the child spanEvent.
+			this.id = spanEvent.getEndPoint();
+			this.applicationName = spanEvent.getEndPoint();
 			this.serviceType = ServiceType.UNKNOWN_CLOUD;
 		} else {
-			this.id = nodeSelector.getServerId(span);
-			// this.id = span.getServiceName();
-			this.applicationName = span.getDestinationId();
-			this.serviceType = span.getServiceType();
+			this.id = nodeSelector.getServerId(spanEvent);
+			// this.id = spanEvent.getServiceName();
+			this.applicationName = spanEvent.getDestinationId();
+			this.serviceType = spanEvent.getServiceType();
 		}
 
-		this.endPoint = span.getEndPoint();
+		this.endPoint = spanEvent.getEndPoint();
 		this.recursiveCallCount = 0;
 	}
 
 	public Server(SpanBo span, NodeSelector nodeSelector) {
-		// this.id = span.getServiceName();
+		// this.id = spanEvent.getServiceName();
 		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {

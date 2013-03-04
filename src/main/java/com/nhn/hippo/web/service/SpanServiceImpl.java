@@ -78,7 +78,7 @@ public class SpanServiceImpl implements SpanService {
                 annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             } else {
-                annotationBoList = spanAlign.getSubSpanBo().getAnnotationBoList();
+                annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             }
         }
@@ -218,7 +218,7 @@ public class SpanServiceImpl implements SpanService {
         if (spanAlign.isSpan()) {
             return spanAlign.getSpanBo().getAgentId();
         } else {
-            return spanAlign.getSubSpanBo().getAgentId();
+            return spanAlign.getSpanEventBo().getAgentId();
         }
     }
 
@@ -226,7 +226,7 @@ public class SpanServiceImpl implements SpanService {
         if (spanAlign.isSpan()) {
             return spanAlign.getSpanBo().getAgentIdentifier();
         } else {
-            return spanAlign.getSubSpanBo().getAgentIdentifier();
+            return spanAlign.getSpanEventBo().getAgentIdentifier();
         }
     }
 
@@ -376,7 +376,7 @@ public class SpanServiceImpl implements SpanService {
         return spanAligner.sort();
 
         /*
-           * SpanAligner spanAligner = new SpanAligner(spans); List<SpanAlign> sort = spanAligner.sort(); if (sort.size() != spans.size()) { // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성? logger.warn("span node not complete! spans:{}, sort{}", spans, sort); } SpanPopulator spanPopulator = new SpanPopulator(sort); List<SpanAlign> populatedList = spanPopulator.populateSubSpan(); return populatedList;
+           * SpanAligner spanAligner = new SpanAligner(spans); List<SpanAlign> sort = spanAligner.sort(); if (sort.size() != spans.size()) { // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성? logger.warn("span node not complete! spans:{}, sort{}", spans, sort); } SpanPopulator spanPopulator = new SpanPopulator(sort); List<SpanAlign> populatedList = spanPopulator.populateSpanEvent(); return populatedList;
            */
     }
 

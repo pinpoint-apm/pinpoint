@@ -8,7 +8,7 @@ import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 import com.profiler.common.util.AnnotationUtils;
 
 /**
@@ -105,24 +105,24 @@ public class RecordSet {
                 recordset.add(record);
 				addAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
 			} else {
-				SubSpanBo subSpan = spanAlign.getSubSpanBo();
+				SpanEvent spanEvent = spanAlign.getSpanEventBo();
 
-				AnnotationUtils.sortAnnotationListByKey(subSpan);
-				String method = (String) AnnotationUtils.getDisplayMethod(subSpan);
-				Object arguments = AnnotationUtils.getDisplayArgument(subSpan);
+				AnnotationUtils.sortAnnotationListByKey(spanEvent);
+				String method = (String) AnnotationUtils.getDisplayMethod(spanEvent);
+				Object arguments = AnnotationUtils.getDisplayArgument(spanEvent);
 
-				long begin = spanAlign.getSpanBo().getStartTime() + subSpan.getStartElapsed();
-				long elapsed = subSpan.getEndElapsed();
+				long begin = spanAlign.getSpanBo().getStartTime() + spanEvent.getStartElapsed();
+				long elapsed = spanEvent.getEndElapsed();
 
 				if (!marked) {
 					setStartTime(begin);
 					setEndTime(begin + elapsed);
 					marked = true;
 				}
-                String destinationId = subSpan.getDestinationId();
-//                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getServiceName(), subSpan.getServiceType(), destinationId));
-                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, subSpan.getAgentId(), subSpan.getDestinationId(), subSpan.getServiceType(), destinationId));
-				addAnnotationRecord(spanAlign.getDepth() + 1, subSpan.getAnnotationBoList());
+                String destinationId = spanEvent.getDestinationId();
+//                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, spanEvent.getAgentId(), spanEvent.getServiceName(), spanEvent.getServiceType(), destinationId));
+                recordset.add(new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, spanEvent.getAgentId(), spanEvent.getDestinationId(), spanEvent.getServiceType(), destinationId));
+				addAnnotationRecord(spanAlign.getDepth() + 1, spanEvent.getAnnotationBoList());
 			}
 		}
 	}

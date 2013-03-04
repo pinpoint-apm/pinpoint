@@ -14,7 +14,7 @@ import com.nhn.hippo.web.vo.ResponseHistogram;
 import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SubSpanBo;
+import com.profiler.common.bo.SpanEvent;
 
 /**
  * Call Tree
@@ -34,7 +34,7 @@ public class ServerCallTree {
 
 	// temporary variables
 	private final List<SpanBo> spans = new ArrayList<SpanBo>();
-	private final List<SubSpanBo> subspans = new ArrayList<SubSpanBo>();
+	private final List<SpanEvent> subspans = new ArrayList<SpanEvent>();
 	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, String> spanIdToClientId = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
@@ -70,27 +70,27 @@ public class ServerCallTree {
 		spanIdToClientId.put(spanId, server.getId());
 	}
 
-    public void addSubSpanList(List<SubSpanBo> subSpanBoList) {
-        for (SubSpanBo subSpanBo : subSpanBoList) {
-            this.addSubSpan(subSpanBo);
+    public void addSpanEventList(List<SpanEvent> spanEventBoList) {
+        for (SpanEvent spanEventBo : spanEventBoList) {
+            this.addSubSpan(spanEventBo);
         }
     }
 
-	public void addSubSpan(SubSpanBo subSpan) {
-		Server server = new Server(subSpan, nodeSelector);
+	public void addSubSpan(SpanEvent spanEvent) {
+		Server server = new Server(spanEvent, nodeSelector);
 
 		if (server.getId() == null) {
 			return;
 		}
 
-//		if (subSpan.getServiceType().isRpcClient()) {
-//			addServer(subSpan.getEndPoint(), server);
+//		if (spanEvent.getServiceType().isRpcClient()) {
+//			addServer(spanEvent.getEndPoint(), server);
 //		} else {
-//			addServer(subSpan.getServiceName(), server);
+//			addServer(spanEvent.getServiceName(), server);
 //		}
-        addServer(subSpan.getDestinationId(), server);
+        addServer(spanEvent.getDestinationId(), server);
 
-		subspans.add(subSpan);
+		subspans.add(spanEvent);
 	}
 
     public void addSpanList(List<SpanBo> spanList) {
@@ -182,7 +182,7 @@ public class ServerCallTree {
 		}
 
 		// add terminal nodes
-		for (SubSpanBo span : subspans) {
+		for (SpanEvent span : subspans) {
 			String from = String.valueOf(span.getSpanId());
 			String to;
 

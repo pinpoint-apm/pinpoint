@@ -317,7 +317,7 @@
                    </tr>
                </c:if>
                <c:if test="${!span.span}">
-                   <c:set var="subSp" scope="page" value="${span.subSpanBo}"/>
+                   <c:set var="subSp" scope="page" value="${span.spanEventBo}"/>
                    <c:forEach items="${subSp.annotationBoList}" var="ano" varStatus="annoStatus">
                        <tr>
                            <td>${span.depth}</td>

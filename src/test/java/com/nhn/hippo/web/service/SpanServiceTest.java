@@ -56,19 +56,19 @@ public class SpanServiceTest {
         insert(span);
         deleteSpans.add(span);
 
-        Span subSpan1 = createSubSpan(span);
+        Span subSpan1 = createSpanEvent(span);
         insert(subSpan1);
         deleteSpans.add(subSpan1);
 
-        Span subSpan1_2 = createSubSpan(span);
+        Span subSpan1_2 = createSpanEvent(span);
         insert(subSpan1_2);
         deleteSpans.add(subSpan1_2);
 
-        Span subSpan2 = createSubSpan(subSpan1);
+        Span subSpan2 = createSpanEvent(subSpan1);
         insert(subSpan2);
         deleteSpans.add(subSpan2);
 
-        Span subSpan3 = createSubSpan(subSpan1);
+        Span subSpan3 = createSpanEvent(subSpan1);
         insert(subSpan3);
         deleteSpans.add(subSpan3);
 
@@ -144,7 +144,7 @@ public class SpanServiceTest {
         return span;
     }
 
-    private Span createSubSpan(Span span) {
+    private Span createSpanEvent(Span span) {
         List<Annotation> ano = Collections.emptyList();
         long time = System.currentTimeMillis();
         int andIncrement = id.getAndIncrement();
