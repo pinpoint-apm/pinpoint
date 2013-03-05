@@ -122,8 +122,8 @@ d3.chart.scatter._renderer = function(){
 				.style("fill-opacity", "0.5");
 			
 			this.greenCounter = this.desc.append("text")
-				.attr("x", chart_width - left_padding - 200)
-				.attr("y", top_padding - 5)
+				.attr("x", chart_width - left_padding - 300)
+				.attr("y", top_padding - 10)
 				.attr("width", 100)
 				.attr("height", 50)
 				.style("fill", COLOR_GREEN)
@@ -131,8 +131,8 @@ d3.chart.scatter._renderer = function(){
 				.style('font-family', 'tahoma');
 			
 			this.redCounter = this.desc.append("text")
-				.attr("x", chart_width - left_padding - 100)
-				.attr("y", top_padding - 5)
+				.attr("x", chart_width - left_padding - 150)
+				.attr("y", top_padding - 10)
 				.attr("width", 100)
 				.attr("height", 50)
 				.style("fill", COLOR_RED)
@@ -154,8 +154,8 @@ d3.chart.scatter._renderer = function(){
 		},
 		
 		showDataCount : function(count) {
-			this.greenCounter.text($(".dot.green").length);
-			this.redCounter.text($(".dot.red").length);
+			this.greenCounter.text("SUCCESS : " + formatNumber($(".dot.green").length));
+			this.redCounter.text("FAILED : " + formatNumber($(".dot.red").length));
 		},
 		
 		hideProgressbar : function() {
@@ -500,7 +500,7 @@ d3.chart.scatter._renderer = function(){
 						return yScale(d) + 4 + 0.5;
 					})
 					.text(function(d) {
-						return d;
+						return formatNumber(d);
 					});
 					
 				// h_subline
