@@ -139,8 +139,8 @@
 <!-- MENU -->
 <div class="container">
 	<form class="well well-small form-inline" id="search" onsubmit="return false;">
-		<select id="application">
-        	<option></option>
+		<select id="application" disabled>
+        	<option>Loading...</option>
         </select>
 		<div id="until" class="btn-group" data-toggle="buttons-radio">
 			<button id="now" type="button" class="btn btn-primary active">now</button>
@@ -496,6 +496,8 @@ $(document).ready(function () {
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");
 		$(json).each(function(i, e) {
+			$("#application").empty();
+			
             var html = [];
             html.push('<option value="');
             html.push(e);
@@ -509,10 +511,12 @@ $(document).ready(function () {
             html.push('</option>');
             
             target.append(html.join(''));
-		});
-		
-	    $("#application").select2({
-			placeholder: "Select an application.",
+            
+            $("#application").attr("disabled", null);
+            
+		    $("#application").select2({
+				placeholder: "Select an application.",
+			});
 		});
 	});
 	
