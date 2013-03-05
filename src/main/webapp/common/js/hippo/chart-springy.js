@@ -32,6 +32,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
 									onMouseClick : function(e){
+										// TODO 정보 layer가 중복으로 보이지 않도록 함.
 										if ($("DIV.nodeinfo" + i).length == 0 && this.data.hosts.length > 0) {
 											var htOffset = $(targetId).offset();
 											var box = $('#ServerBox')
@@ -56,6 +57,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 																						$('#console').val('Edge onMouseOver : ' + this.id + '\r' + $('#console').val());
 																					},
 																					onMouseClick : function(e){
+																						// TODO 정보 layer가 중복으로 보이지 않도록 함.
 																						if ($("DIV.linkinfo" + i).length > 0) {
 																							return;
 																						}

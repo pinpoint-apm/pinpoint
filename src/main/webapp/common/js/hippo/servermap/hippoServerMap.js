@@ -116,6 +116,9 @@ jQuery.fn.hippoServerMap = function(params) {
 		renderer.startOnce();
 	});
 
+	//
+	// TODO double click 할 때 정보를 보여주도록 수정함.
+	//
 	jQuery(canvas).mousedown(function(e) {
 		e.preventDefault();	
 		var pos = jQuery(this).offset();
@@ -123,19 +126,45 @@ jQuery.fn.hippoServerMap = function(params) {
 		selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
 		if(selectedNode.node !== null){
 			selected = true;
+//			if(typeof selectedNode.node.data.onMouseClick === 'function'){
+//				selectedNode.node.data.onMouseClick.call(selectedNode.node, e);
+//			}
+			$(this).css('cursor','pointer');
+		}else if(selectedEdge.edge !== null){
+//			if(typeof selectedEdge.edge.data.onMouseClick === 'function'){
+//				selectedEdge.edge.data.onMouseClick.call(selectedEdge.edge, e);
+//			}
+		}else{
+			// TODO 공백에서 드래그 했을 때 그래프가 사라지는 현상 방지.
+			if (selectedNode.node !== null) {
+				dragged = true;	
+				htLastPos.pageY = e.pageY;
+				htLastPos.pageX = e.pageX;
+			}
+		}
+	});
+	
+	jQuery(canvas).dblclick(function(e) {
+		e.preventDefault();	
+		var pos = jQuery(this).offset();
+		selectedNode = layout.selectNode({x: e.pageX - pos.left, y: e.pageY - pos.top});		
+		selectedEdge = layout.edgeHover({x: e.pageX - pos.left, y: e.pageY - pos.top}, nEdgeHoverWeight);
+		if(selectedNode.node !== null){
+//			selected = true;
 			if(typeof selectedNode.node.data.onMouseClick === 'function'){
 				selectedNode.node.data.onMouseClick.call(selectedNode.node, e);
 			}
-			$(this).css('cursor','pointer');
+//			$(this).css('cursor','pointer');
 		}else if(selectedEdge.edge !== null){
 			if(typeof selectedEdge.edge.data.onMouseClick === 'function'){
 				selectedEdge.edge.data.onMouseClick.call(selectedEdge.edge, e);
 			}
-		}else{		
-			dragged = true;	
-			htLastPos.pageY = e.pageY;
-			htLastPos.pageX = e.pageX;			
 		}
+//		else{		
+//			dragged = true;	
+//			htLastPos.pageY = e.pageY;
+//			htLastPos.pageX = e.pageX;			
+//		}
 	});
 
 	var lastSelectedNodeId = null, lastSelectedEdge = {edge : null};
