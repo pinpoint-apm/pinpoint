@@ -1,5 +1,8 @@
 package com.nhn.hippo.web.vo;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.profiler.common.ServiceType;
 
 /**
@@ -14,6 +17,7 @@ public class TerminalStatistics {
 	private final String to;
 	private short toServiceType;
 	private final ResponseHistogram histogram;
+	private final Set<String> hosts;
 
 	public TerminalStatistics(String from, String to, short toServiceType) {
 		this.id = from + to + toServiceType;
@@ -21,6 +25,7 @@ public class TerminalStatistics {
 		this.to = to;
 		this.toServiceType = toServiceType;
 		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
+		this.hosts = new HashSet<String>();
 	}
 
 	public String getId() {
@@ -56,9 +61,19 @@ public class TerminalStatistics {
 		}
 	}
 
+	public void addHosts(Set<String> hosts) {
+		if (hosts != null) {
+			this.hosts.addAll(hosts);
+		}
+	}
+
+	public Set<String> getHosts() {
+		return hosts;
+	}
+	
 	@Override
 	public String toString() {
-		return "{ From=" + from + ", To=" + to + ", ToSvcType=" + toServiceType + ", Histogram=" + histogram + " }";
+		return "{ From=" + from + ", To=" + to + ", ToSvcType=" + toServiceType + ", Histogram=" + histogram + ", Hosts=" + hosts + " }";
 	}
 
 	@Override

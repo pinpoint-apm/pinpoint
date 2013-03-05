@@ -113,7 +113,7 @@ public class ServerCallTree {
 		if (span.getParentSpanId() == -1) {
 			// TODO client endpoint별로 node가 모두 생기니까 일단 임시로 application name을 사용함.
 			// 여기에서 applicationname을 넣으면 여러 클라이언트를 보여줄 수 있지만 하나로 퉁친다...
-			addClient(spanId, new Server("CLIENT" /*:" + NodeIdGenerator.BY_APPLICATION_NAME.makeServerId(span)*/, "CLIENT", "", ServiceType.CLIENT));
+			addClient(spanId, new Server("CLIENT" /*:" + NodeIdGenerator.BY_APPLICATION_NAME.makeServerId(span)*/, "CLIENT", null, ServiceType.CLIENT));
 		}
 
 		spans.add(span);
@@ -126,7 +126,7 @@ public class ServerCallTree {
 		// add terminal to the servers
 		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
 			TerminalStatistics terminal = entry.getValue();
-			Server server = new Server(terminal.getTo(), terminal.getTo(), "UNKNOWN", ServiceType.findServiceType(terminal.getToServiceType()));
+			Server server = new Server(terminal.getTo(), terminal.getTo(), terminal.getHosts(), ServiceType.findServiceType(terminal.getToServiceType()));
 			servers.put(server.getId(), server);
 		}
 

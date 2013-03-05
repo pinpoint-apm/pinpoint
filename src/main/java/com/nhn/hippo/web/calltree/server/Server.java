@@ -13,18 +13,18 @@ import com.profiler.common.bo.SpanEvent;
 public class Server implements Comparable<Server> {
 	protected int sequence;
 	protected final String id;
-	protected final Set<String> agentIds = new HashSet<String>();
+	protected final Set<String> hosts = new HashSet<String>();
 	protected final String applicationName;
-	protected final String endPoint;
+//	protected final String endPoint;
 	protected final ServiceType serviceType;
 
 	protected int recursiveCallCount;
 
 	public Server(SpanEvent spanEvent, NodeSelector nodeSelector) {
 		if (spanEvent.getServiceType().isTerminal()) {
-			this.agentIds.add(spanEvent.getAgentId());
+			this.hosts.add(spanEvent.getAgentId());
 		} else {
-			this.agentIds.add(spanEvent.getEndPoint());
+			this.hosts.add(spanEvent.getEndPoint());
 		}
 
 		if (spanEvent.getServiceType().isRpcClient()) {
@@ -39,7 +39,7 @@ public class Server implements Comparable<Server> {
 			this.serviceType = spanEvent.getServiceType();
 		}
 
-		this.endPoint = spanEvent.getEndPoint();
+//		this.endPoint = spanEvent.getEndPoint();
 		this.recursiveCallCount = 0;
 	}
 
@@ -48,13 +48,13 @@ public class Server implements Comparable<Server> {
 		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
-			this.agentIds.add(span.getAgentId());
+			this.hosts.add(span.getAgentId());
 		} else {
-			this.agentIds.add(span.getEndPoint());
+			this.hosts.add(span.getEndPoint());
 		}
 
 		this.applicationName = span.getApplicationId();
-		this.endPoint = span.getEndPoint();
+//		this.endPoint = span.getEndPoint();
 		this.recursiveCallCount = span.getRecursiveCallCount();
 		this.serviceType = span.getServiceType();
 	}
@@ -67,10 +67,13 @@ public class Server implements Comparable<Server> {
 	 * @param endPoint
 	 * @param serviceType
 	 */
-	public Server(String id, String applicationName, String endPoint, ServiceType serviceType) {
+	public Server(String id, String applicationName, Set<String> hosts, /* String endPoint,*/ ServiceType serviceType) {
 		this.id = id;
 		this.applicationName = applicationName;
-		this.endPoint = endPoint;
+		if (hosts != null) {
+			this.hosts.addAll(hosts);
+		}
+//		this.endPoint = endPoint;
 		this.serviceType = serviceType;
 	}
 
@@ -86,13 +89,13 @@ public class Server implements Comparable<Server> {
 		return sequence;
 	}
 
-	public Set<String> getAgentIds() {
-		return agentIds;
+	public Set<String> getHosts() {
+		return hosts;
 	}
 
-	public String getEndPoint() {
-		return endPoint;
-	}
+//	public String getEndPoint() {
+//		return endPoint;
+//	}
 
 	public String getApplicationName() {
 		return applicationName;
@@ -104,7 +107,7 @@ public class Server implements Comparable<Server> {
 
 	public void mergeWith(Server server) {
 		this.recursiveCallCount += server.recursiveCallCount;
-		this.agentIds.addAll(server.getAgentIds());
+		this.hosts.addAll(server.getHosts());
 	}
 
 	public ServiceType getServiceType() {

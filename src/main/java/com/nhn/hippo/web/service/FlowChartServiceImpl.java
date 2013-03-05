@@ -204,7 +204,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		watch.stop();
 		int totalNonTerminalSpansCount = 0;
 
-		Set<String> endPoints = new HashSet<String>();
+		Set<String> nonTerminalEndPoints = new HashSet<String>();
 
 		// processing spans
 		for (List<SpanBo> transaction : traces) {
@@ -218,7 +218,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				// make query param
 				terminalQueryParams.put(eachTransaction.getApplicationId(), eachTransaction.getServiceType());
 
-				endPoints.add(eachTransaction.getEndPoint());
+				nonTerminalEndPoints.add(eachTransaction.getEndPoint());
 			}
 		}
 
@@ -242,7 +242,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 						TerminalStatistics terminalStatistics = entry.getValue();
 
 						// 이 요청의 destination이 수집된 trace정보에 없으면 unknown cloud로 처리한다.
-						if (!endPoints.contains(terminalStatistics.getTo())) {
+						if (!nonTerminalEndPoints.contains(terminalStatistics.getTo())) {
 
 							if (ServiceType.findServiceType(terminalStatistics.getToServiceType()).isRpcClient()) {
 								terminalStatistics.setToServiceType(ServiceType.UNKNOWN_CLOUD.getCode());

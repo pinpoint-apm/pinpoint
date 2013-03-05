@@ -27,13 +27,13 @@ function drawSpringy(graphdata, targetId, width, height) {
 									serviceType : aNodes[i].serviceType,
 									width : 100,
 									height : 80,
-									server : aNodes[i].agentIds,
+									hosts : aNodes[i].hosts,
 									onMouseOver : function(e){
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
 									onMouseClick : function(e){
 										// $('#console').val('Node onMouseClick : ' + this.id + '\r' + $('#console').val())
-										if (this.data.server.length > 0) {
+										if (this.data.hosts.length > 0) {
 											var htOffset = $(targetId).offset();
 											$('#ServerBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
 										}

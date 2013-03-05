@@ -60,7 +60,6 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);
 		scan.addFamily(HBaseTables.TERMINAL_STATISTICS_CF_COUNTER);
-		scan.addFamily(HBaseTables.TERMINAL_STATISTICS_CF_ERROR_COUNTER);
 		scan.setId("terminalStatisticsScan");
 
 		return scan;

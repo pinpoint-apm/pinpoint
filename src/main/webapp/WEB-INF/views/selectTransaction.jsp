@@ -370,9 +370,9 @@
             <c:forEach items="${nodes}" var="node" varStatus="status">
             {
                 "name":"${node}",
-                "agentIds":[
-                    <c:forEach items="${node.agentIds}" var="agentId" varStatus="status2">
-                    "${agentId}"
+                "hosts":[
+                    <c:forEach items="${node.hosts}" var="host" varStatus="status2">
+                    "${host}"
                     <c:if test="${!status2.last}">, </c:if>
                     </c:forEach>
                 ],
