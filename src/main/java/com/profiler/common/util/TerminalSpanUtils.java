@@ -1,59 +1,64 @@
 package com.profiler.common.util;
 
-import com.profiler.common.Histogram;
-import com.profiler.common.HistogramSlot;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.profiler.common.Histogram;
+import com.profiler.common.HistogramSlot;
 import com.profiler.common.ServiceType;
 import com.profiler.common.hbase.HBaseTables;
 
 /**
+ * <pre>
+ * columnName format = SERVICETYPE(2bytes) + SLOT(2bytes) + APPNAMELEN(2bytes) + APPLICATIONNAME(str) + HOST(str)
+ * </pre>
  * 
  * @author netspider
  * 
  */
 public class TerminalSpanUtils {
 
-	/**
-	 * columnName format = SERVICETYPE(2bytes) + SLOT(2bytes) + APPLICATIONNAME(str)
-	 * 
-	 * @param serviceType
-	 * @param applicationName
-	 * @param elapsed
-	 * @return
-	 */
-	public static byte[] makeColumnName(short serviceType, String applicationName, int elapsed) {
-        // short
+	public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, int elapsed, boolean isError) {
 		byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
-        // short
-		byte[] slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
+		byte[] slotNumber;
+		if (isError) {
+			slotNumber = HBaseTables.TERMINAL_STATISTICS_CQ_ERROR_SLOT;
+		} else {
+			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
+		}
 		byte[] applicationNameBytes = Bytes.toBytes(applicationName);
+		byte[] applicationNameLenBytes = Bytes.toBytes((short) applicationNameBytes.length);
+		byte[] destHostBytes = Bytes.toBytes(destHost);
 
-		byte[] buf = new byte[serviceTypeBytes.length + slotNumber.length + applicationNameBytes.length];
-		System.arraycopy(serviceTypeBytes, 0, buf, 0, serviceTypeBytes.length);
-		System.arraycopy(slotNumber, 0, buf, serviceTypeBytes.length, slotNumber.length);
-		System.arraycopy(applicationNameBytes, 0, buf, serviceTypeBytes.length + slotNumber.length, applicationNameBytes.length);
-
-		return buf;
+		return BytesUtils.concat(serviceTypeBytes, slotNumber, applicationNameLenBytes, applicationNameBytes, destHostBytes);
 	}
 
 	private static byte[] findResponseHistogramSlotNo(short serviceType, int elapsed) {
-        Histogram histogram = ServiceType.findServiceType(serviceType).getHistogram();
-        HistogramSlot histogramSlot = histogram.findHistogramSlot(elapsed);
-        short slotTime = (short) histogramSlot.getSlotTime();
-        return Bytes.toBytes(slotTime);
+		Histogram histogram = ServiceType.findServiceType(serviceType).getHistogram();
+		HistogramSlot histogramSlot = histogram.findHistogramSlot(elapsed);
+		short slotTime = (short) histogramSlot.getSlotTime();
+		return Bytes.toBytes(slotTime);
 	}
 
 	public static short getDestServiceTypeFromColumnName(byte[] bytes) {
-        return BytesUtils.bytesToShort(bytes, 0);
+		return BytesUtils.bytesToShort(bytes, 0);
 	}
 
 	public static short getHistogramSlotFromColumnName(byte[] bytes) {
-        return BytesUtils.bytesToShort(bytes, 2);
+		return BytesUtils.bytesToShort(bytes, 2);
 	}
 
 	public static String getDestApplicationNameFromColumnName(byte[] bytes) {
-		return new String(bytes, 4, bytes.length - 4);
+		return new String(bytes, 6, BytesUtils.bytesToShort(bytes, 4));
+	}
+
+	public static String getHost(byte[] bytes) {
+		int offset = 6 + BytesUtils.bytesToShort(bytes, 4);
+		
+		if (offset == bytes.length) {
+			return null;
+		}
+
+		return new String(bytes, offset, bytes.length - offset);
 	}
 
 	/**

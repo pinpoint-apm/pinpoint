@@ -16,26 +16,29 @@ public class TerminalSpanUtilsTest {
 	public void column() {
 		short arcusCode = ServiceType.ARCUS.getCode();
 		String name = "Hello, World.";
+		String host = "Host1";
 
 		Histogram arcusHistogram = ServiceType.ARCUS.getHistogram();
-        List<HistogramSlot> histogramSlotList = arcusHistogram.getHistogramSlotList();
-        for (int i = 0; i < histogramSlotList.size(); i++) {
+		List<HistogramSlot> histogramSlotList = arcusHistogram.getHistogramSlotList();
+		for (int i = 0; i < histogramSlotList.size(); i++) {
 			HistogramSlot slot = histogramSlotList.get(i);
-            short slotTime = (short) slot.getSlotTime();
+			short slotTime = (short) slot.getSlotTime();
 
-            byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, slotTime - 1);
+			byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, host, slotTime - 1, false);
 
 			Assert.assertEquals(arcusCode, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
 			Assert.assertEquals(slot.getSlotTime(), TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
 			Assert.assertEquals(name, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
+			Assert.assertEquals(host, TerminalSpanUtils.getHost(columnName));
 		}
 
 		// check max value
-		byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, 100000);
+		byte[] columnName = TerminalSpanUtils.makeColumnName(arcusCode, name, host, 100000, false);
 
 		Assert.assertEquals(arcusCode, TerminalSpanUtils.getDestServiceTypeFromColumnName(columnName));
 		Assert.assertEquals(0, TerminalSpanUtils.getHistogramSlotFromColumnName(columnName));
 		Assert.assertEquals(name, TerminalSpanUtils.getDestApplicationNameFromColumnName(columnName));
+		Assert.assertEquals(host, TerminalSpanUtils.getHost(columnName));
 	}
 
 	@Test
