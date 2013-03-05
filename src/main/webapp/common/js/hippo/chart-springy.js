@@ -32,10 +32,13 @@ function drawSpringy(graphdata, targetId, width, height) {
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
 									onMouseClick : function(e){
-										// $('#console').val('Node onMouseClick : ' + this.id + '\r' + $('#console').val())
-										if (this.data.hosts.length > 0) {
+										if ($("DIV.nodeinfo" + i).length == 0 && this.data.hosts.length > 0) {
 											var htOffset = $(targetId).offset();
-											$('#ServerBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
+											var box = $('#ServerBox')
+															.tmpl(this.data)
+															.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+															.attr('class', 'nodeinfo' + i);
+											box.appendTo(targetId);
 										}
 									}
 									});
@@ -53,9 +56,16 @@ function drawSpringy(graphdata, targetId, width, height) {
 																						$('#console').val('Edge onMouseOver : ' + this.id + '\r' + $('#console').val());
 																					},
 																					onMouseClick : function(e){
+																						if ($("DIV.linkinfo" + i).length > 0) {
+																							return;
+																						}
+																						
 																						var htOffset = $(targetId).offset();
-																						$('#console').val('Edge onMouseClick : ' + this.id + '\r' + $('#console').val());
-																						$('#EdgeBox').tmpl(this.data).css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left}).appendTo(targetId);
+																						var box = $('#EdgeBox')
+																									.tmpl(this.data)
+																									.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+																									.attr('class', 'linkinfo' + i);
+																						box.appendTo(targetId);
 																					},
 																					onMouseOut : function(e){
 																						
