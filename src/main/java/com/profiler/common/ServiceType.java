@@ -66,9 +66,8 @@ public enum ServiceType {
         return UNKNOWN;
     }
 
-
     public boolean isInternalMethod() {
-        return code == 2;
+    	return this == INTERNAL_METHOD;
     }
 
     public boolean isRpcClient() {
