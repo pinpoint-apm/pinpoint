@@ -309,7 +309,9 @@
                            <td><c:if test="${annoStatus.first}">${sp.endPoint}</c:if></td>
                            <td><c:if test="${annoStatus.first}">${sp.elapsed}</c:if></td>
                            <td></td>
-                           <td><c:if test="${annoStatus.first}">${sp.serviceName}</c:if></td>
+                           <td>
+                               <%--<c:if test="${annoStatus.first}">${sp.serviceName}</c:if>--%>
+                           </td>
                        </tr>
                    </c:forEach>
                    <tr>
@@ -325,7 +327,10 @@
                            <td>${ano.value}</td>
                            <td><c:if test="${annoStatus.first}">${subSp.endPoint}</c:if></td>
                            <td><c:if test="${annoStatus.first}">${subSp.endElapsed}</c:if></td>
-                           <td><c:if test="${annoStatus.first}">${subSp.serviceName}</c:if></td>
+                           <td></td>
+                           <td>
+                               <%--<c:if test="${annoStatus.first}">${subSp.serviceName}</c:if>--%>
+                           </td>
                        </tr>
                    </c:forEach>
                    <tr>
