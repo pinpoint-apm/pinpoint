@@ -18,6 +18,12 @@ import com.profiler.common.hbase.HBaseTables;
 public class TerminalSpanUtils {
 
 	public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, int elapsed, boolean isError) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (destHost == null) {
+            throw new NullPointerException("destHost must not be null");
+        }
 		byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
 		byte[] slotNumber;
 		if (isError) {
@@ -69,6 +75,9 @@ public class TerminalSpanUtils {
 	 * @return
 	 */
 	public static byte[] makeRowKey(String applicationName, long time) {
+        if(applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
 		byte[] slot = Bytes.toBytes(time);
 		byte[] applicationnameBytes = Bytes.toBytes(applicationName);
 

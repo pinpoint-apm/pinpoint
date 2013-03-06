@@ -5,7 +5,7 @@
 
 
     <target name="copy.common.deploy.dir" depends="mvn.build">
-        <copy file="${target.dir}/hippo-commons-0.0.1.jar" todir="${common.dir}">
+        <copy file="${target.dir}/hippo-commons-0.0.2.jar" todir="${common.dir}">
         </copy>
     </target>
 

@@ -31,7 +31,9 @@ public class SpanEvent implements Span {
     private static final int AGENTIDENTIFIER = 2;
 
 	private String agentId;
+    private String applicationId;
     private short agentIdentifier;
+
 	private long mostTraceId;
 	private long leastTraceId;
 
@@ -42,7 +44,6 @@ public class SpanEvent implements Span {
 	private int endElapsed;
 
 	private String rpc;
-	private String serviceName;
 	private ServiceType serviceType;
 
     private String destinationId;
@@ -59,6 +60,7 @@ public class SpanEvent implements Span {
 
 	public SpanEvent(com.profiler.common.dto.thrift.Span tSpan, com.profiler.common.dto.thrift.SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
+        this.applicationId = tSpan.getApplicationId();
         this.agentIdentifier = tSpan.getAgentIdentifier();
 
 		this.mostTraceId = tSpan.getMostTraceId();
@@ -71,7 +73,6 @@ public class SpanEvent implements Span {
 		this.endElapsed = tSpanEvent.getEndElapsed();
 
 		this.rpc = tSpanEvent.getRpc();
-		this.serviceName = tSpanEvent.getServiceName();
 		this.serviceType = ServiceType.findServiceType(tSpanEvent.getServiceType());
 
 
@@ -105,7 +106,6 @@ public class SpanEvent implements Span {
 		this.endElapsed = spanEvent.getEndElapsed();
 
 		this.rpc = spanEvent.getRpc();
-		this.serviceName = spanEvent.getServiceName();
 		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
         this.destinationId = spanEvent.getDestinationId();
@@ -124,38 +124,38 @@ public class SpanEvent implements Span {
 		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
-	public SpanEvent(com.profiler.common.dto.thrift.SpanEvent subSpan) {
-		this.agentId = subSpan.getAgentId();
-        this.agentIdentifier = subSpan.getAgentIdentifier();
+	public SpanEvent(com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+		this.agentId = spanEvent.getAgentId();
+        this.applicationId = spanEvent.getApplicationId();
+        this.agentIdentifier = spanEvent.getAgentIdentifier();
 
-		this.mostTraceId = subSpan.getMostTraceId();
-		this.leastTraceId = subSpan.getLeastTraceId();
+		this.mostTraceId = spanEvent.getMostTraceId();
+		this.leastTraceId = spanEvent.getLeastTraceId();
 
-		this.spanId = subSpan.getSpanId();
-		this.sequence = subSpan.getSequence();
+		this.spanId = spanEvent.getSpanId();
+		this.sequence = spanEvent.getSequence();
 
-		this.startElapsed = subSpan.getStartElapsed();
-		this.endElapsed = subSpan.getEndElapsed();
+		this.startElapsed = spanEvent.getStartElapsed();
+		this.endElapsed = spanEvent.getEndElapsed();
 
-		this.rpc = subSpan.getRpc();
-		this.serviceName = subSpan.getServiceName();
-		this.serviceType = ServiceType.findServiceType(subSpan.getServiceType());
+		this.rpc = spanEvent.getRpc();
+		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
-		this.endPoint = subSpan.getEndPoint();
+		this.endPoint = spanEvent.getEndPoint();
 
-        this.destinationId = subSpan.getDestinationId();
-        this.destinationAddress = subSpan.getDestinationAddress();
+        this.destinationId = spanEvent.getDestinationId();
+        this.destinationAddress = spanEvent.getDestinationAddress();
 
 		
-		if (subSpan.isSetDepth()) {
-			this.depth = subSpan.getDepth();
+		if (spanEvent.isSetDepth()) {
+			this.depth = spanEvent.getDepth();
 		}
 
-		if (subSpan.isSetNextSpanId()) {
-			this.nextSpanId = subSpan.getNextSpanId();
+		if (spanEvent.isSetNextSpanId()) {
+			this.nextSpanId = spanEvent.getNextSpanId();
 		}
 		
-		setAnnotationBoList(subSpan.getAnnotations());
+		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
 	public byte getVersion() {
@@ -312,12 +312,12 @@ public class SpanEvent implements Span {
 
 	public byte[] writeValue() {
 		byte[] agentIDBytes = BytesUtils.getBytes(agentId);
-		byte[] rpcBytes = BytesUtils.getBytes(rpc);
-		byte[] serviceNameBytes = BytesUtils.getBytes(serviceName);
+        byte[] applicationIdBytes = BytesUtils.getBytes(applicationId);
+        byte[] rpcBytes = BytesUtils.getBytes(rpc);
 		byte[] endPointBytes = BytesUtils.getBytes(endPoint);
         byte[] destinationIdBytes = BytesUtils.getBytes(this.destinationId);
 
-		int bufferLength = getBufferLength(agentIDBytes.length, rpcBytes.length, serviceNameBytes.length, endPointBytes.length, destinationIdBytes.length);
+		int bufferLength = getBufferLength(agentIDBytes.length, applicationIdBytes.length, rpcBytes.length, endPointBytes.length, destinationIdBytes.length);
 		int annotationSize = getAnnotationBufferSize(annotationBoList);
 
 		Buffer buffer = new FixedBuffer(bufferLength + annotationSize);
@@ -328,6 +328,7 @@ public class SpanEvent implements Span {
 		// buffer.put(leastTraceID);
 
 		buffer.put1PrefixedBytes(agentIDBytes);
+        buffer.put1PrefixedBytes(applicationIdBytes);
         buffer.put(agentIdentifier);
 
 		buffer.put(startElapsed);
@@ -336,7 +337,6 @@ public class SpanEvent implements Span {
 		// buffer.put(sequence);
 
 		buffer.put1PrefixedBytes(rpcBytes);
-		buffer.put1PrefixedBytes(serviceNameBytes);
 		buffer.put(serviceType.getCode());
 		buffer.put1PrefixedBytes(endPointBytes);
         buffer.put1PrefixedBytes(destinationIdBytes);
@@ -375,6 +375,7 @@ public class SpanEvent implements Span {
 		// this.leastTraceID = buffer.readLong();
 
 		this.agentId = buffer.read1PrefixedString();
+        this.applicationId = buffer.read1UnsignedPrefixedString();
         this.agentIdentifier = buffer.readShort();
 
 		this.startElapsed = buffer.readInt();
@@ -383,7 +384,6 @@ public class SpanEvent implements Span {
 		// this.sequence = buffer.readShort();
 
 		this.rpc = buffer.read1UnsignedPrefixedString();
-		this.serviceName = buffer.read1UnsignedPrefixedString();
 		this.serviceType = ServiceType.findServiceType(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
         this.destinationId = buffer.read1UnsignedPrefixedString();
@@ -411,11 +411,11 @@ public class SpanEvent implements Span {
 		StringBuilder sb = new StringBuilder(512);
 
 		sb.append(this.getClass().getName()).append("={");
-		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId);
+		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId).append(applicationId);
 		sb.append("\n\tmostTraceId=").append(mostTraceId).append(", leastTraceId=").append(leastTraceId);
 		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
 		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
-		sb.append("\n\trpc=").append(rpc).append(", serviceName=").append(serviceName).append(", endPoint=").append(endPoint);
+		sb.append("\n\trpc=").append(rpc).append(", endPoint=").append(endPoint);
 		sb.append("\n\tdepth=").append(depth);
 		sb.append("\n\tnextSpanId=").append(nextSpanId);
 		sb.append("\n\tannotations={");

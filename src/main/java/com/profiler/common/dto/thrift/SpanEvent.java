@@ -31,22 +31,22 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanEvent");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)2);
-  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("sequence", org.apache.thrift.protocol.TType.I16, (short)6);
-  private static final org.apache.thrift.protocol.TField START_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("startElapsed", org.apache.thrift.protocol.TType.I32, (short)7);
-  private static final org.apache.thrift.protocol.TField END_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("endElapsed", org.apache.thrift.protocol.TType.I32, (short)8);
-  private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)9);
-  private static final org.apache.thrift.protocol.TField SERVICE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceName", org.apache.thrift.protocol.TType.STRING, (short)10);
-  private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)11);
-  private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)12);
-  private static final org.apache.thrift.protocol.TField DESTINATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("destinationId", org.apache.thrift.protocol.TType.STRING, (short)13);
-  private static final org.apache.thrift.protocol.TField DESTINATION_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("destinationAddress", org.apache.thrift.protocol.TType.LIST, (short)17);
+  private static final org.apache.thrift.protocol.TField APPLICATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationId", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField AGENT_IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("agentIdentifier", org.apache.thrift.protocol.TType.I16, (short)3);
+  private static final org.apache.thrift.protocol.TField MOST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mostTraceId", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField LEAST_TRACE_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("leastTraceId", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("sequence", org.apache.thrift.protocol.TType.I16, (short)7);
+  private static final org.apache.thrift.protocol.TField START_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("startElapsed", org.apache.thrift.protocol.TType.I32, (short)8);
+  private static final org.apache.thrift.protocol.TField END_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("endElapsed", org.apache.thrift.protocol.TType.I32, (short)9);
+  private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)10);
+  private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)12);
+  private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)13);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
   private static final org.apache.thrift.protocol.TField DEPTH_FIELD_DESC = new org.apache.thrift.protocol.TField("depth", org.apache.thrift.protocol.TType.I32, (short)15);
   private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I32, (short)16);
+  private static final org.apache.thrift.protocol.TField DESTINATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("destinationId", org.apache.thrift.protocol.TType.STRING, (short)20);
+  private static final org.apache.thrift.protocol.TField DESTINATION_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("destinationAddress", org.apache.thrift.protocol.TType.LIST, (short)21);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -55,6 +55,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   }
 
   private String agentId; // optional
+  private String applicationId; // optional
   private short agentIdentifier; // optional
   private long mostTraceId; // optional
   private long leastTraceId; // optional
@@ -63,34 +64,33 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   private int startElapsed; // required
   private int endElapsed; // required
   private String rpc; // optional
-  private String serviceName; // optional
   private short serviceType; // required
   private String endPoint; // optional
-  private String destinationId; // optional
-  private List<String> destinationAddress; // optional
   private List<Annotation> annotations; // required
   private int depth; // optional
   private int nextSpanId; // optional
+  private String destinationId; // optional
+  private List<String> destinationAddress; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
-    AGENT_IDENTIFIER((short)2, "agentIdentifier"),
-    MOST_TRACE_ID((short)3, "mostTraceId"),
-    LEAST_TRACE_ID((short)4, "leastTraceId"),
-    SPAN_ID((short)5, "spanId"),
-    SEQUENCE((short)6, "sequence"),
-    START_ELAPSED((short)7, "startElapsed"),
-    END_ELAPSED((short)8, "endElapsed"),
-    RPC((short)9, "rpc"),
-    SERVICE_NAME((short)10, "serviceName"),
-    SERVICE_TYPE((short)11, "serviceType"),
-    END_POINT((short)12, "endPoint"),
-    DESTINATION_ID((short)13, "destinationId"),
-    DESTINATION_ADDRESS((short)17, "destinationAddress"),
+    APPLICATION_ID((short)2, "applicationId"),
+    AGENT_IDENTIFIER((short)3, "agentIdentifier"),
+    MOST_TRACE_ID((short)4, "mostTraceId"),
+    LEAST_TRACE_ID((short)5, "leastTraceId"),
+    SPAN_ID((short)6, "spanId"),
+    SEQUENCE((short)7, "sequence"),
+    START_ELAPSED((short)8, "startElapsed"),
+    END_ELAPSED((short)9, "endElapsed"),
+    RPC((short)10, "rpc"),
+    SERVICE_TYPE((short)12, "serviceType"),
+    END_POINT((short)13, "endPoint"),
     ANNOTATIONS((short)14, "annotations"),
     DEPTH((short)15, "depth"),
-    NEXT_SPAN_ID((short)16, "nextSpanId");
+    NEXT_SPAN_ID((short)16, "nextSpanId"),
+    DESTINATION_ID((short)20, "destinationId"),
+    DESTINATION_ADDRESS((short)21, "destinationAddress");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -107,38 +107,38 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       switch(fieldId) {
         case 1: // AGENT_ID
           return AGENT_ID;
-        case 2: // AGENT_IDENTIFIER
+        case 2: // APPLICATION_ID
+          return APPLICATION_ID;
+        case 3: // AGENT_IDENTIFIER
           return AGENT_IDENTIFIER;
-        case 3: // MOST_TRACE_ID
+        case 4: // MOST_TRACE_ID
           return MOST_TRACE_ID;
-        case 4: // LEAST_TRACE_ID
+        case 5: // LEAST_TRACE_ID
           return LEAST_TRACE_ID;
-        case 5: // SPAN_ID
+        case 6: // SPAN_ID
           return SPAN_ID;
-        case 6: // SEQUENCE
+        case 7: // SEQUENCE
           return SEQUENCE;
-        case 7: // START_ELAPSED
+        case 8: // START_ELAPSED
           return START_ELAPSED;
-        case 8: // END_ELAPSED
+        case 9: // END_ELAPSED
           return END_ELAPSED;
-        case 9: // RPC
+        case 10: // RPC
           return RPC;
-        case 10: // SERVICE_NAME
-          return SERVICE_NAME;
-        case 11: // SERVICE_TYPE
+        case 12: // SERVICE_TYPE
           return SERVICE_TYPE;
-        case 12: // END_POINT
+        case 13: // END_POINT
           return END_POINT;
-        case 13: // DESTINATION_ID
-          return DESTINATION_ID;
-        case 17: // DESTINATION_ADDRESS
-          return DESTINATION_ADDRESS;
         case 14: // ANNOTATIONS
           return ANNOTATIONS;
         case 15: // DEPTH
           return DEPTH;
         case 16: // NEXT_SPAN_ID
           return NEXT_SPAN_ID;
+        case 20: // DESTINATION_ID
+          return DESTINATION_ID;
+        case 21: // DESTINATION_ADDRESS
+          return DESTINATION_ADDRESS;
         default:
           return null;
       }
@@ -190,11 +190,13 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   private static final int __DEPTH_ISSET_ID = 8;
   private static final int __NEXTSPANID_ISSET_ID = 9;
   private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.AGENT_IDENTIFIER,_Fields.MOST_TRACE_ID,_Fields.LEAST_TRACE_ID,_Fields.SPAN_ID,_Fields.RPC,_Fields.SERVICE_NAME,_Fields.END_POINT,_Fields.DESTINATION_ID,_Fields.DESTINATION_ADDRESS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID};
+  private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.APPLICATION_ID,_Fields.AGENT_IDENTIFIER,_Fields.MOST_TRACE_ID,_Fields.LEAST_TRACE_ID,_Fields.SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.DESTINATION_ADDRESS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.APPLICATION_ID, new org.apache.thrift.meta_data.FieldMetaData("applicationId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_IDENTIFIER, new org.apache.thrift.meta_data.FieldMetaData("agentIdentifier", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
@@ -212,17 +214,10 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.SERVICE_NAME, new org.apache.thrift.meta_data.FieldMetaData("serviceName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.DESTINATION_ID, new org.apache.thrift.meta_data.FieldMetaData("destinationId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.DESTINATION_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("destinationAddress", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
@@ -230,6 +225,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.DESTINATION_ID, new org.apache.thrift.meta_data.FieldMetaData("destinationId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.DESTINATION_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("destinationAddress", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanEvent.class, metaDataMap);
   }
@@ -265,6 +265,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
+    if (other.isSetApplicationId()) {
+      this.applicationId = other.applicationId;
+    }
     this.agentIdentifier = other.agentIdentifier;
     this.mostTraceId = other.mostTraceId;
     this.leastTraceId = other.leastTraceId;
@@ -275,22 +278,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     if (other.isSetRpc()) {
       this.rpc = other.rpc;
     }
-    if (other.isSetServiceName()) {
-      this.serviceName = other.serviceName;
-    }
     this.serviceType = other.serviceType;
     if (other.isSetEndPoint()) {
       this.endPoint = other.endPoint;
-    }
-    if (other.isSetDestinationId()) {
-      this.destinationId = other.destinationId;
-    }
-    if (other.isSetDestinationAddress()) {
-      List<String> __this__destinationAddress = new ArrayList<String>();
-      for (String other_element : other.destinationAddress) {
-        __this__destinationAddress.add(other_element);
-      }
-      this.destinationAddress = __this__destinationAddress;
     }
     if (other.isSetAnnotations()) {
       List<Annotation> __this__annotations = new ArrayList<Annotation>();
@@ -301,6 +291,16 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
     this.depth = other.depth;
     this.nextSpanId = other.nextSpanId;
+    if (other.isSetDestinationId()) {
+      this.destinationId = other.destinationId;
+    }
+    if (other.isSetDestinationAddress()) {
+      List<String> __this__destinationAddress = new ArrayList<String>();
+      for (String other_element : other.destinationAddress) {
+        __this__destinationAddress.add(other_element);
+      }
+      this.destinationAddress = __this__destinationAddress;
+    }
   }
 
   public SpanEvent deepCopy() {
@@ -310,6 +310,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   @Override
   public void clear() {
     this.agentId = null;
+    this.applicationId = null;
     setAgentIdentifierIsSet(false);
     this.agentIdentifier = 0;
     setMostTraceIdIsSet(false);
@@ -325,17 +326,16 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     setEndElapsedIsSet(false);
     this.endElapsed = 0;
     this.rpc = null;
-    this.serviceName = null;
     setServiceTypeIsSet(false);
     this.serviceType = 0;
     this.endPoint = null;
-    this.destinationId = null;
-    this.destinationAddress = null;
     this.annotations = null;
     setDepthIsSet(false);
     this.depth = 0;
     setNextSpanIdIsSet(false);
     this.nextSpanId = 0;
+    this.destinationId = null;
+    this.destinationAddress = null;
   }
 
   public String getAgentId() {
@@ -358,6 +358,29 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   public void setAgentIdIsSet(boolean value) {
     if (!value) {
       this.agentId = null;
+    }
+  }
+
+  public String getApplicationId() {
+    return this.applicationId;
+  }
+
+  public void setApplicationId(String applicationId) {
+    this.applicationId = applicationId;
+  }
+
+  public void unsetApplicationId() {
+    this.applicationId = null;
+  }
+
+  /** Returns true if field applicationId is set (has been assigned a value) and false otherwise */
+  public boolean isSetApplicationId() {
+    return this.applicationId != null;
+  }
+
+  public void setApplicationIdIsSet(boolean value) {
+    if (!value) {
+      this.applicationId = null;
     }
   }
 
@@ -538,29 +561,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
   }
 
-  public String getServiceName() {
-    return this.serviceName;
-  }
-
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
-  }
-
-  public void unsetServiceName() {
-    this.serviceName = null;
-  }
-
-  /** Returns true if field serviceName is set (has been assigned a value) and false otherwise */
-  public boolean isSetServiceName() {
-    return this.serviceName != null;
-  }
-
-  public void setServiceNameIsSet(boolean value) {
-    if (!value) {
-      this.serviceName = null;
-    }
-  }
-
   public short getServiceType() {
     return this.serviceType;
   }
@@ -603,67 +603,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   public void setEndPointIsSet(boolean value) {
     if (!value) {
       this.endPoint = null;
-    }
-  }
-
-  public String getDestinationId() {
-    return this.destinationId;
-  }
-
-  public void setDestinationId(String destinationId) {
-    this.destinationId = destinationId;
-  }
-
-  public void unsetDestinationId() {
-    this.destinationId = null;
-  }
-
-  /** Returns true if field destinationId is set (has been assigned a value) and false otherwise */
-  public boolean isSetDestinationId() {
-    return this.destinationId != null;
-  }
-
-  public void setDestinationIdIsSet(boolean value) {
-    if (!value) {
-      this.destinationId = null;
-    }
-  }
-
-  public int getDestinationAddressSize() {
-    return (this.destinationAddress == null) ? 0 : this.destinationAddress.size();
-  }
-
-  public java.util.Iterator<String> getDestinationAddressIterator() {
-    return (this.destinationAddress == null) ? null : this.destinationAddress.iterator();
-  }
-
-  public void addToDestinationAddress(String elem) {
-    if (this.destinationAddress == null) {
-      this.destinationAddress = new ArrayList<String>();
-    }
-    this.destinationAddress.add(elem);
-  }
-
-  public List<String> getDestinationAddress() {
-    return this.destinationAddress;
-  }
-
-  public void setDestinationAddress(List<String> destinationAddress) {
-    this.destinationAddress = destinationAddress;
-  }
-
-  public void unsetDestinationAddress() {
-    this.destinationAddress = null;
-  }
-
-  /** Returns true if field destinationAddress is set (has been assigned a value) and false otherwise */
-  public boolean isSetDestinationAddress() {
-    return this.destinationAddress != null;
-  }
-
-  public void setDestinationAddressIsSet(boolean value) {
-    if (!value) {
-      this.destinationAddress = null;
     }
   }
 
@@ -749,6 +688,67 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     __isset_bit_vector.set(__NEXTSPANID_ISSET_ID, value);
   }
 
+  public String getDestinationId() {
+    return this.destinationId;
+  }
+
+  public void setDestinationId(String destinationId) {
+    this.destinationId = destinationId;
+  }
+
+  public void unsetDestinationId() {
+    this.destinationId = null;
+  }
+
+  /** Returns true if field destinationId is set (has been assigned a value) and false otherwise */
+  public boolean isSetDestinationId() {
+    return this.destinationId != null;
+  }
+
+  public void setDestinationIdIsSet(boolean value) {
+    if (!value) {
+      this.destinationId = null;
+    }
+  }
+
+  public int getDestinationAddressSize() {
+    return (this.destinationAddress == null) ? 0 : this.destinationAddress.size();
+  }
+
+  public java.util.Iterator<String> getDestinationAddressIterator() {
+    return (this.destinationAddress == null) ? null : this.destinationAddress.iterator();
+  }
+
+  public void addToDestinationAddress(String elem) {
+    if (this.destinationAddress == null) {
+      this.destinationAddress = new ArrayList<String>();
+    }
+    this.destinationAddress.add(elem);
+  }
+
+  public List<String> getDestinationAddress() {
+    return this.destinationAddress;
+  }
+
+  public void setDestinationAddress(List<String> destinationAddress) {
+    this.destinationAddress = destinationAddress;
+  }
+
+  public void unsetDestinationAddress() {
+    this.destinationAddress = null;
+  }
+
+  /** Returns true if field destinationAddress is set (has been assigned a value) and false otherwise */
+  public boolean isSetDestinationAddress() {
+    return this.destinationAddress != null;
+  }
+
+  public void setDestinationAddressIsSet(boolean value) {
+    if (!value) {
+      this.destinationAddress = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -756,6 +756,14 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         unsetAgentId();
       } else {
         setAgentId((String)value);
+      }
+      break;
+
+    case APPLICATION_ID:
+      if (value == null) {
+        unsetApplicationId();
+      } else {
+        setApplicationId((String)value);
       }
       break;
 
@@ -823,14 +831,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       break;
 
-    case SERVICE_NAME:
-      if (value == null) {
-        unsetServiceName();
-      } else {
-        setServiceName((String)value);
-      }
-      break;
-
     case SERVICE_TYPE:
       if (value == null) {
         unsetServiceType();
@@ -844,22 +844,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         unsetEndPoint();
       } else {
         setEndPoint((String)value);
-      }
-      break;
-
-    case DESTINATION_ID:
-      if (value == null) {
-        unsetDestinationId();
-      } else {
-        setDestinationId((String)value);
-      }
-      break;
-
-    case DESTINATION_ADDRESS:
-      if (value == null) {
-        unsetDestinationAddress();
-      } else {
-        setDestinationAddress((List<String>)value);
       }
       break;
 
@@ -887,6 +871,22 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       break;
 
+    case DESTINATION_ID:
+      if (value == null) {
+        unsetDestinationId();
+      } else {
+        setDestinationId((String)value);
+      }
+      break;
+
+    case DESTINATION_ADDRESS:
+      if (value == null) {
+        unsetDestinationAddress();
+      } else {
+        setDestinationAddress((List<String>)value);
+      }
+      break;
+
     }
   }
 
@@ -894,6 +894,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     switch (field) {
     case AGENT_ID:
       return getAgentId();
+
+    case APPLICATION_ID:
+      return getApplicationId();
 
     case AGENT_IDENTIFIER:
       return Short.valueOf(getAgentIdentifier());
@@ -919,20 +922,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     case RPC:
       return getRpc();
 
-    case SERVICE_NAME:
-      return getServiceName();
-
     case SERVICE_TYPE:
       return Short.valueOf(getServiceType());
 
     case END_POINT:
       return getEndPoint();
-
-    case DESTINATION_ID:
-      return getDestinationId();
-
-    case DESTINATION_ADDRESS:
-      return getDestinationAddress();
 
     case ANNOTATIONS:
       return getAnnotations();
@@ -942,6 +936,12 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
 
     case NEXT_SPAN_ID:
       return Integer.valueOf(getNextSpanId());
+
+    case DESTINATION_ID:
+      return getDestinationId();
+
+    case DESTINATION_ADDRESS:
+      return getDestinationAddress();
 
     }
     throw new IllegalStateException();
@@ -956,6 +956,8 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     switch (field) {
     case AGENT_ID:
       return isSetAgentId();
+    case APPLICATION_ID:
+      return isSetApplicationId();
     case AGENT_IDENTIFIER:
       return isSetAgentIdentifier();
     case MOST_TRACE_ID:
@@ -972,22 +974,20 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       return isSetEndElapsed();
     case RPC:
       return isSetRpc();
-    case SERVICE_NAME:
-      return isSetServiceName();
     case SERVICE_TYPE:
       return isSetServiceType();
     case END_POINT:
       return isSetEndPoint();
-    case DESTINATION_ID:
-      return isSetDestinationId();
-    case DESTINATION_ADDRESS:
-      return isSetDestinationAddress();
     case ANNOTATIONS:
       return isSetAnnotations();
     case DEPTH:
       return isSetDepth();
     case NEXT_SPAN_ID:
       return isSetNextSpanId();
+    case DESTINATION_ID:
+      return isSetDestinationId();
+    case DESTINATION_ADDRESS:
+      return isSetDestinationAddress();
     }
     throw new IllegalStateException();
   }
@@ -1011,6 +1011,15 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (!(this_present_agentId && that_present_agentId))
         return false;
       if (!this.agentId.equals(that.agentId))
+        return false;
+    }
+
+    boolean this_present_applicationId = true && this.isSetApplicationId();
+    boolean that_present_applicationId = true && that.isSetApplicationId();
+    if (this_present_applicationId || that_present_applicationId) {
+      if (!(this_present_applicationId && that_present_applicationId))
+        return false;
+      if (!this.applicationId.equals(that.applicationId))
         return false;
     }
 
@@ -1086,15 +1095,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         return false;
     }
 
-    boolean this_present_serviceName = true && this.isSetServiceName();
-    boolean that_present_serviceName = true && that.isSetServiceName();
-    if (this_present_serviceName || that_present_serviceName) {
-      if (!(this_present_serviceName && that_present_serviceName))
-        return false;
-      if (!this.serviceName.equals(that.serviceName))
-        return false;
-    }
-
     boolean this_present_serviceType = true;
     boolean that_present_serviceType = true;
     if (this_present_serviceType || that_present_serviceType) {
@@ -1110,24 +1110,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (!(this_present_endPoint && that_present_endPoint))
         return false;
       if (!this.endPoint.equals(that.endPoint))
-        return false;
-    }
-
-    boolean this_present_destinationId = true && this.isSetDestinationId();
-    boolean that_present_destinationId = true && that.isSetDestinationId();
-    if (this_present_destinationId || that_present_destinationId) {
-      if (!(this_present_destinationId && that_present_destinationId))
-        return false;
-      if (!this.destinationId.equals(that.destinationId))
-        return false;
-    }
-
-    boolean this_present_destinationAddress = true && this.isSetDestinationAddress();
-    boolean that_present_destinationAddress = true && that.isSetDestinationAddress();
-    if (this_present_destinationAddress || that_present_destinationAddress) {
-      if (!(this_present_destinationAddress && that_present_destinationAddress))
-        return false;
-      if (!this.destinationAddress.equals(that.destinationAddress))
         return false;
     }
 
@@ -1158,6 +1140,24 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         return false;
     }
 
+    boolean this_present_destinationId = true && this.isSetDestinationId();
+    boolean that_present_destinationId = true && that.isSetDestinationId();
+    if (this_present_destinationId || that_present_destinationId) {
+      if (!(this_present_destinationId && that_present_destinationId))
+        return false;
+      if (!this.destinationId.equals(that.destinationId))
+        return false;
+    }
+
+    boolean this_present_destinationAddress = true && this.isSetDestinationAddress();
+    boolean that_present_destinationAddress = true && that.isSetDestinationAddress();
+    if (this_present_destinationAddress || that_present_destinationAddress) {
+      if (!(this_present_destinationAddress && that_present_destinationAddress))
+        return false;
+      if (!this.destinationAddress.equals(that.destinationAddress))
+        return false;
+    }
+
     return true;
   }
 
@@ -1180,6 +1180,16 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
     if (isSetAgentId()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetApplicationId()).compareTo(typedOther.isSetApplicationId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApplicationId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.applicationId, typedOther.applicationId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1264,16 +1274,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetServiceName()).compareTo(typedOther.isSetServiceName());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetServiceName()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serviceName, typedOther.serviceName);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetServiceType()).compareTo(typedOther.isSetServiceType());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1290,26 +1290,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
     if (isSetEndPoint()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endPoint, typedOther.endPoint);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDestinationId()).compareTo(typedOther.isSetDestinationId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDestinationId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.destinationId, typedOther.destinationId);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDestinationAddress()).compareTo(typedOther.isSetDestinationAddress());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDestinationAddress()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.destinationAddress, typedOther.destinationAddress);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1344,6 +1324,26 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetDestinationId()).compareTo(typedOther.isSetDestinationId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDestinationId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.destinationId, typedOther.destinationId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetDestinationAddress()).compareTo(typedOther.isSetDestinationAddress());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDestinationAddress()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.destinationAddress, typedOther.destinationAddress);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1370,6 +1370,16 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         sb.append("null");
       } else {
         sb.append(this.agentId);
+      }
+      first = false;
+    }
+    if (isSetApplicationId()) {
+      if (!first) sb.append(", ");
+      sb.append("applicationId:");
+      if (this.applicationId == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.applicationId);
       }
       first = false;
     }
@@ -1419,16 +1429,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       first = false;
     }
-    if (isSetServiceName()) {
-      if (!first) sb.append(", ");
-      sb.append("serviceName:");
-      if (this.serviceName == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.serviceName);
-      }
-      first = false;
-    }
     if (!first) sb.append(", ");
     sb.append("serviceType:");
     sb.append(this.serviceType);
@@ -1440,26 +1440,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         sb.append("null");
       } else {
         sb.append(this.endPoint);
-      }
-      first = false;
-    }
-    if (isSetDestinationId()) {
-      if (!first) sb.append(", ");
-      sb.append("destinationId:");
-      if (this.destinationId == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.destinationId);
-      }
-      first = false;
-    }
-    if (isSetDestinationAddress()) {
-      if (!first) sb.append(", ");
-      sb.append("destinationAddress:");
-      if (this.destinationAddress == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.destinationAddress);
       }
       first = false;
     }
@@ -1481,6 +1461,26 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (!first) sb.append(", ");
       sb.append("nextSpanId:");
       sb.append(this.nextSpanId);
+      first = false;
+    }
+    if (isSetDestinationId()) {
+      if (!first) sb.append(", ");
+      sb.append("destinationId:");
+      if (this.destinationId == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.destinationId);
+      }
+      first = false;
+    }
+    if (isSetDestinationAddress()) {
+      if (!first) sb.append(", ");
+      sb.append("destinationAddress:");
+      if (this.destinationAddress == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.destinationAddress);
+      }
       first = false;
     }
     sb.append(")");
@@ -1535,7 +1535,15 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // AGENT_IDENTIFIER
+          case 2: // APPLICATION_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.applicationId = iprot.readString();
+              struct.setApplicationIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // AGENT_IDENTIFIER
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.agentIdentifier = iprot.readI16();
               struct.setAgentIdentifierIsSet(true);
@@ -1543,7 +1551,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // MOST_TRACE_ID
+          case 4: // MOST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.mostTraceId = iprot.readI64();
               struct.setMostTraceIdIsSet(true);
@@ -1551,7 +1559,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // LEAST_TRACE_ID
+          case 5: // LEAST_TRACE_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.leastTraceId = iprot.readI64();
               struct.setLeastTraceIdIsSet(true);
@@ -1559,7 +1567,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // SPAN_ID
+          case 6: // SPAN_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.spanId = iprot.readI32();
               struct.setSpanIdIsSet(true);
@@ -1567,7 +1575,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // SEQUENCE
+          case 7: // SEQUENCE
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.sequence = iprot.readI16();
               struct.setSequenceIsSet(true);
@@ -1575,7 +1583,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // START_ELAPSED
+          case 8: // START_ELAPSED
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.startElapsed = iprot.readI32();
               struct.setStartElapsedIsSet(true);
@@ -1583,7 +1591,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // END_ELAPSED
+          case 9: // END_ELAPSED
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.endElapsed = iprot.readI32();
               struct.setEndElapsedIsSet(true);
@@ -1591,7 +1599,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 9: // RPC
+          case 10: // RPC
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.rpc = iprot.readString();
               struct.setRpcIsSet(true);
@@ -1599,15 +1607,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // SERVICE_NAME
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.serviceName = iprot.readString();
-              struct.setServiceNameIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 11: // SERVICE_TYPE
+          case 12: // SERVICE_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.serviceType = iprot.readI16();
               struct.setServiceTypeIsSet(true);
@@ -1615,7 +1615,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 12: // END_POINT
+          case 13: // END_POINT
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.endPoint = iprot.readString();
               struct.setEndPointIsSet(true);
@@ -1623,43 +1623,17 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // DESTINATION_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.destinationId = iprot.readString();
-              struct.setDestinationIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 17: // DESTINATION_ADDRESS
-            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-              {
-                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                struct.destinationAddress = new ArrayList<String>(_list8.size);
-                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
-                {
-                  String _elem10; // required
-                  _elem10 = iprot.readString();
-                  struct.destinationAddress.add(_elem10);
-                }
-                iprot.readListEnd();
-              }
-              struct.setDestinationAddressIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 14: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list11.size);
-                for (int _i12 = 0; _i12 < _list11.size; ++_i12)
+                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                struct.annotations = new ArrayList<Annotation>(_list8.size);
+                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
-                  Annotation _elem13; // required
-                  _elem13 = new Annotation();
-                  _elem13.read(iprot);
-                  struct.annotations.add(_elem13);
+                  Annotation _elem10; // required
+                  _elem10 = new Annotation();
+                  _elem10.read(iprot);
+                  struct.annotations.add(_elem10);
                 }
                 iprot.readListEnd();
               }
@@ -1684,6 +1658,32 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 20: // DESTINATION_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.destinationId = iprot.readString();
+              struct.setDestinationIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 21: // DESTINATION_ADDRESS
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
+                struct.destinationAddress = new ArrayList<String>(_list11.size);
+                for (int _i12 = 0; _i12 < _list11.size; ++_i12)
+                {
+                  String _elem13; // required
+                  _elem13 = iprot.readString();
+                  struct.destinationAddress.add(_elem13);
+                }
+                iprot.readListEnd();
+              }
+              struct.setDestinationAddressIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1701,6 +1701,13 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         if (struct.isSetAgentId()) {
           oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
           oprot.writeString(struct.agentId);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.applicationId != null) {
+        if (struct.isSetApplicationId()) {
+          oprot.writeFieldBegin(APPLICATION_ID_FIELD_DESC);
+          oprot.writeString(struct.applicationId);
           oprot.writeFieldEnd();
         }
       }
@@ -1740,13 +1747,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
           oprot.writeFieldEnd();
         }
       }
-      if (struct.serviceName != null) {
-        if (struct.isSetServiceName()) {
-          oprot.writeFieldBegin(SERVICE_NAME_FIELD_DESC);
-          oprot.writeString(struct.serviceName);
-          oprot.writeFieldEnd();
-        }
-      }
       oprot.writeFieldBegin(SERVICE_TYPE_FIELD_DESC);
       oprot.writeI16(struct.serviceType);
       oprot.writeFieldEnd();
@@ -1754,13 +1754,6 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         if (struct.isSetEndPoint()) {
           oprot.writeFieldBegin(END_POINT_FIELD_DESC);
           oprot.writeString(struct.endPoint);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.destinationId != null) {
-        if (struct.isSetDestinationId()) {
-          oprot.writeFieldBegin(DESTINATION_ID_FIELD_DESC);
-          oprot.writeString(struct.destinationId);
           oprot.writeFieldEnd();
         }
       }
@@ -1785,6 +1778,13 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         oprot.writeFieldBegin(NEXT_SPAN_ID_FIELD_DESC);
         oprot.writeI32(struct.nextSpanId);
         oprot.writeFieldEnd();
+      }
+      if (struct.destinationId != null) {
+        if (struct.isSetDestinationId()) {
+          oprot.writeFieldBegin(DESTINATION_ID_FIELD_DESC);
+          oprot.writeString(struct.destinationId);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.destinationAddress != null) {
         if (struct.isSetDestinationAddress()) {
@@ -1821,31 +1821,31 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetAgentId()) {
         optionals.set(0);
       }
-      if (struct.isSetAgentIdentifier()) {
+      if (struct.isSetApplicationId()) {
         optionals.set(1);
       }
-      if (struct.isSetMostTraceId()) {
+      if (struct.isSetAgentIdentifier()) {
         optionals.set(2);
       }
-      if (struct.isSetLeastTraceId()) {
+      if (struct.isSetMostTraceId()) {
         optionals.set(3);
       }
-      if (struct.isSetSpanId()) {
+      if (struct.isSetLeastTraceId()) {
         optionals.set(4);
       }
-      if (struct.isSetSequence()) {
+      if (struct.isSetSpanId()) {
         optionals.set(5);
       }
-      if (struct.isSetStartElapsed()) {
+      if (struct.isSetSequence()) {
         optionals.set(6);
       }
-      if (struct.isSetEndElapsed()) {
+      if (struct.isSetStartElapsed()) {
         optionals.set(7);
       }
-      if (struct.isSetRpc()) {
+      if (struct.isSetEndElapsed()) {
         optionals.set(8);
       }
-      if (struct.isSetServiceName()) {
+      if (struct.isSetRpc()) {
         optionals.set(9);
       }
       if (struct.isSetServiceType()) {
@@ -1854,24 +1854,27 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetEndPoint()) {
         optionals.set(11);
       }
-      if (struct.isSetDestinationId()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(12);
       }
-      if (struct.isSetDestinationAddress()) {
+      if (struct.isSetDepth()) {
         optionals.set(13);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetNextSpanId()) {
         optionals.set(14);
       }
-      if (struct.isSetDepth()) {
+      if (struct.isSetDestinationId()) {
         optionals.set(15);
       }
-      if (struct.isSetNextSpanId()) {
+      if (struct.isSetDestinationAddress()) {
         optionals.set(16);
       }
       oprot.writeBitSet(optionals, 17);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
+      }
+      if (struct.isSetApplicationId()) {
+        oprot.writeString(struct.applicationId);
       }
       if (struct.isSetAgentIdentifier()) {
         oprot.writeI16(struct.agentIdentifier);
@@ -1897,33 +1900,18 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetRpc()) {
         oprot.writeString(struct.rpc);
       }
-      if (struct.isSetServiceName()) {
-        oprot.writeString(struct.serviceName);
-      }
       if (struct.isSetServiceType()) {
         oprot.writeI16(struct.serviceType);
       }
       if (struct.isSetEndPoint()) {
         oprot.writeString(struct.endPoint);
       }
-      if (struct.isSetDestinationId()) {
-        oprot.writeString(struct.destinationId);
-      }
-      if (struct.isSetDestinationAddress()) {
-        {
-          oprot.writeI32(struct.destinationAddress.size());
-          for (String _iter16 : struct.destinationAddress)
-          {
-            oprot.writeString(_iter16);
-          }
-        }
-      }
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter17 : struct.annotations)
+          for (Annotation _iter16 : struct.annotations)
           {
-            _iter17.write(oprot);
+            _iter16.write(oprot);
           }
         }
       }
@@ -1932,6 +1920,18 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       if (struct.isSetNextSpanId()) {
         oprot.writeI32(struct.nextSpanId);
+      }
+      if (struct.isSetDestinationId()) {
+        oprot.writeString(struct.destinationId);
+      }
+      if (struct.isSetDestinationAddress()) {
+        {
+          oprot.writeI32(struct.destinationAddress.size());
+          for (String _iter17 : struct.destinationAddress)
+          {
+            oprot.writeString(_iter17);
+          }
+        }
       }
     }
 
@@ -1944,40 +1944,40 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.applicationId = iprot.readString();
+        struct.setApplicationIdIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.agentIdentifier = iprot.readI16();
         struct.setAgentIdentifierIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.mostTraceId = iprot.readI64();
         struct.setMostTraceIdIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.leastTraceId = iprot.readI64();
         struct.setLeastTraceIdIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(6)) {
         struct.sequence = iprot.readI16();
         struct.setSequenceIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(7)) {
         struct.startElapsed = iprot.readI32();
         struct.setStartElapsedIsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(8)) {
         struct.endElapsed = iprot.readI32();
         struct.setEndElapsedIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(9)) {
         struct.rpc = iprot.readString();
         struct.setRpcIsSet(true);
-      }
-      if (incoming.get(9)) {
-        struct.serviceName = iprot.readString();
-        struct.setServiceNameIsSet(true);
       }
       if (incoming.get(10)) {
         struct.serviceType = iprot.readI16();
@@ -1988,43 +1988,43 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         struct.setEndPointIsSet(true);
       }
       if (incoming.get(12)) {
-        struct.destinationId = iprot.readString();
-        struct.setDestinationIdIsSet(true);
-      }
-      if (incoming.get(13)) {
         {
-          org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.destinationAddress = new ArrayList<String>(_list18.size);
+          org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.annotations = new ArrayList<Annotation>(_list18.size);
           for (int _i19 = 0; _i19 < _list18.size; ++_i19)
           {
-            String _elem20; // required
-            _elem20 = iprot.readString();
-            struct.destinationAddress.add(_elem20);
-          }
-        }
-        struct.setDestinationAddressIsSet(true);
-      }
-      if (incoming.get(14)) {
-        {
-          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list21.size);
-          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
-          {
-            Annotation _elem23; // required
-            _elem23 = new Annotation();
-            _elem23.read(iprot);
-            struct.annotations.add(_elem23);
+            Annotation _elem20; // required
+            _elem20 = new Annotation();
+            _elem20.read(iprot);
+            struct.annotations.add(_elem20);
           }
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(15)) {
+      if (incoming.get(13)) {
         struct.depth = iprot.readI32();
         struct.setDepthIsSet(true);
       }
-      if (incoming.get(16)) {
+      if (incoming.get(14)) {
         struct.nextSpanId = iprot.readI32();
         struct.setNextSpanIdIsSet(true);
+      }
+      if (incoming.get(15)) {
+        struct.destinationId = iprot.readString();
+        struct.setDestinationIdIsSet(true);
+      }
+      if (incoming.get(16)) {
+        {
+          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.destinationAddress = new ArrayList<String>(_list21.size);
+          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+          {
+            String _elem23; // required
+            _elem23 = iprot.readString();
+            struct.destinationAddress.add(_elem23);
+          }
+        }
+        struct.setDestinationAddressIsSet(true);
       }
     }
   }

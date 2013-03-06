@@ -20,32 +20,32 @@ struct Destination {
 
 struct SpanEvent {
   1: optional string agentId
-  2: optional i16 agentIdentifier
+  2: optional string applicationId
+  3: optional i16 agentIdentifier
 
-  3: optional i64 mostTraceId
-  4: optional i64 leastTraceId
+  4: optional i64 mostTraceId
+  5: optional i64 leastTraceId
 
-  5: optional i32 spanId
-  6: i16 sequence
+  6: optional i32 spanId
+  7: i16 sequence
 
-  7: i32 startElapsed
-  8: i32 endElapsed
+  8: i32 startElapsed
+  9: i32 endElapsed
 
-  9: optional string rpc
-  10: optional string serviceName
-  11: i16 serviceType
-  12: optional string endPoint
-
-  13: optional string destinationId
-  // address주소가 1개일 경우
-  17: optional list<string> destinationAddress;
-  // address주소가 2개이상일 경우
-  //18: optional list<string> destinationAddressList;
+  10: optional string rpc
+  12: i16 serviceType
+  13: optional string endPoint
 
   14: list<Annotation> annotations
   
   15: optional i32 depth
   16: optional i32 nextSpanId
+
+  20: optional string destinationId
+  // address주소가 1개일 경우
+  21: optional list<string> destinationAddress;
+  // address주소가 2개이상일 경우
+  //15: optional list<string> destinationAddressList;
 }
 
 struct Span {
@@ -78,14 +78,15 @@ struct Span {
 
 struct SpanChunk {
   1: string agentId
-  2: i16 agentIdentifier
+  2: string applicationId
+  3: i16 agentIdentifier
 
-  3: i64 mostTraceId
-  4: i64 leastTraceId
+  4: i64 mostTraceId
+  5: i64 leastTraceId
 
-  5: i32 spanId
+  6: i32 spanId
 
-  6: list<SpanEvent> spanEventList
+  7: list<SpanEvent> spanEventList
 }
 
 struct SqlMetaData {
