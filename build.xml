@@ -7,7 +7,7 @@
 
 
     <target name="copy.agent.deploy.dir" depends="mvn.build">
-        <copy file="${target.dir}/hippo-tomcat-profiler-0.0.1.jar" todir="${agent.dir}">
+        <copy file="${target.dir}/hippo-tomcat-profiler-0.0.2.jar" todir="${agent.dir}">
         </copy>
     </target>
 

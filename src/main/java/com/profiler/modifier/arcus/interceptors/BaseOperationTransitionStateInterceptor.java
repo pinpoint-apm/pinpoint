@@ -74,7 +74,6 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			}
 
             asyncTrace.recordServiceType(svcType);
-            asyncTrace.recordServiceName(serviceCode);
 			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
 
             asyncTrace.recordDestinationId(serviceCode);

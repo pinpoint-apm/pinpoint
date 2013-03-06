@@ -104,10 +104,6 @@ public class AsyncTrace {
         this.spanEvent.setServiceType(serviceType);
     }
 
-    public void recordServiceName(final String serviceName) {
-        this.spanEvent.setServiceName(serviceName);
-    }
-
     public void recordRpcName(final String rpcName) {
         this.spanEvent.setRpc(rpcName);
 

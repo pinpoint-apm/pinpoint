@@ -19,7 +19,6 @@ public class SpanEvent implements Thriftable {
 
     private long startTime;
     private long endTime;
-    private String serviceName;
     private String rpc;
     private ServiceType serviceType;
 
@@ -65,13 +64,6 @@ public class SpanEvent implements Thriftable {
         return this.endPoint;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
 
     public String getRpc() {
         return rpc;
@@ -154,7 +146,6 @@ public class SpanEvent implements Thriftable {
         sb.append(",\n\t StartTime=").append(startTime);
         sb.append(", EndTime=").append(endTime);
         sb.append(",\n\t Name=").append(rpc);
-        sb.append(", ServiceName=").append(serviceName);
         sb.append(", ServiceType=").append(serviceType);
         sb.append(", EndPoint=").append(endPoint);
         sb.append(", Seq=").append(sequence);
@@ -181,9 +172,10 @@ public class SpanEvent implements Thriftable {
         spanEvent.setEndElapsed((int) (endTime - startTime));
 
         spanEvent.setSequence(sequence);
-        // 다른 span의 sub로 들어가지 않을 경우
+        // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
             spanEvent.setAgentId(Agent.getInstance().getAgentId());
+            spanEvent.setAgentId(Agent.getInstance().getApplicationName());
             spanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
             TraceID parentSpanTraceID = parentSpan.getTraceID();
@@ -193,19 +185,15 @@ public class SpanEvent implements Thriftable {
         }
 
         spanEvent.setRpc(rpc);
-        spanEvent.setServiceName(serviceName);
-        
-		if (serviceType != null) {
-			spanEvent.setServiceType(serviceType.getCode());
-		}
-		
+		spanEvent.setServiceType(serviceType.getCode());
+
         spanEvent.setEndPoint(endPoint);
         spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
-        for (Annotation a : annotations) {
-            annotationList.add(a.toThrift());
+        for (Annotation annotation : annotations) {
+            annotationList.add(annotation.toThrift());
         }
         spanEvent.setAnnotations(annotationList);
 
