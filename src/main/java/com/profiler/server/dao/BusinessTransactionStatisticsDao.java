@@ -8,5 +8,5 @@ import com.profiler.common.dto.thrift.Span;
  * 
  */
 public interface BusinessTransactionStatisticsDao {
-	void update(String applicationName, Span span);
+	void update(Span span);
 }

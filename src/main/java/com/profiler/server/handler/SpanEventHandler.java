@@ -24,8 +24,6 @@ public class SpanEventHandler implements Handler {
     @Autowired
     private TracesDao traceDao;
 
-    @Autowired
-    private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
     @Autowired
     private TerminalStatisticsDao terminalStatistics;
@@ -39,16 +37,8 @@ public class SpanEventHandler implements Handler {
                 logger.info("Received SpanEvent={}", spanEvent);
             }
 
-            String applicationName = spanEvent.getApplicationId();
 
-            if (applicationName == null) {
-                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
-                return;
-            } else {
-                logger.info("Applicationname '{}' found. Write the log.", applicationName);
-            }
-
-            traceDao.insertEvent(applicationName, spanEvent);
+            traceDao.insertEvent(spanEvent);
             
             ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
@@ -62,7 +52,7 @@ public class SpanEventHandler implements Handler {
             
             // TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
         	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
-            terminalStatistics.update(applicationName, spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            terminalStatistics.update(spanEvent.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
         } catch (Exception e) {
             logger.warn("SpanEvent handle error " + e.getMessage(), e);
         }

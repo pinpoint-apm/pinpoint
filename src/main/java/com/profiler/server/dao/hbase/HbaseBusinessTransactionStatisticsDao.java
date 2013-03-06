@@ -23,12 +23,13 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
 	private HbaseOperations2 hbaseTemplate;
 
 	@Override
-	public void update(String applicationName, Span span) {
+	public void update(Span span) {
 
         final long acceptedTime = AcceptedTime.getAcceptedTime();
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
-		
-		byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(applicationName, 24), Bytes.toBytes(rowTimeSlot));
+        byte[] rowTimeSlotBytes = Bytes.toBytes(rowTimeSlot);
+
+        byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(span.getApplicationId(), 24), rowTimeSlotBytes);
 		byte[] cf;
         if (span.getErr() == 0) {
             // 에러 없음.

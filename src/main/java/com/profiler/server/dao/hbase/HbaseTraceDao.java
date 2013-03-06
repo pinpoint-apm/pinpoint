@@ -32,7 +32,7 @@ public class HbaseTraceDao implements TracesDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Override
-    public void insert(final String applicationName, final Span span) {
+    public void insert(final Span span) {
 
         SpanBo spanBo = new SpanBo(span);
 
@@ -72,7 +72,7 @@ public class HbaseTraceDao implements TracesDao {
 
 
     @Override
-    public void insertEvent(final String applicationName, final com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+    public void insertEvent(final com.profiler.common.dto.thrift.SpanEvent spanEvent) {
         SpanEvent spanEventBo = new SpanEvent(spanEvent);
         byte[] value = spanEventBo.writeValue();
         // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
@@ -85,7 +85,7 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     @Override
-    public void insertSpanChunk(String applicationName, SpanChunk spanChunk) {
+    public void insertSpanChunk(SpanChunk spanChunk) {
         Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
         long acceptedTime = AcceptedTime.getAcceptedTime();

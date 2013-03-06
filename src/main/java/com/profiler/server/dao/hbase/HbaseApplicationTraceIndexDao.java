@@ -24,14 +24,14 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	private HbaseOperations2 hbaseTemplate;
 
 	@Override
-	public void insert(String applicationName, final Span span) {
+	public void insert(final Span span) {
 		int elapsedTime = span.getElapsed();
 		byte[] value = new byte[8];
 		BytesUtils.writeInt(elapsedTime, value, 0);
 		BytesUtils.writeInt(span.getErr(), value, 4);
 
         long acceptedTime = AcceptedTime.getAcceptedTime();
-        Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(applicationName, acceptedTime));
+        Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime));
 		put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, value);
 
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
