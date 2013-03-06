@@ -51,13 +51,7 @@ public class SpanHandler implements Handler {
                 logger.info("Received SPAN={}", span);
             }
 
-            final String applicationName = agentIdApplicationIndexDao.selectApplicationName(span.getAgentId());
-            if (applicationName == null) {
-                logger.warn("ApplicationName '{}' not found. Drop the log.", applicationName);
-                return;
-            } else {
-                logger.debug("ApplicationName '{}' found. Write the log.", applicationName);
-            }
+            String applicationName = span.getApplicationId();
 
             traceDao.insert(applicationName, span);
             traceIndexDao.insert(span);

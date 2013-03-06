@@ -43,16 +43,7 @@ public class SpanChunkHandler implements Handler {
                 logger.debug("Received SpanChunk={}", spanChunk);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(spanChunk.getAgentId());
-
-            if (applicationName == null) {
-                logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
-                return;
-            } else {
-                logger.info("Applicationname '{}' found. Write the log.", applicationName);
-            }
-
-
+            String applicationName = spanChunk.getApplicationId();
             traceDao.insertSpanChunk(applicationName, spanChunk);
 
             List<SpanEvent> spanEventList = spanChunk.getSpanEventList();

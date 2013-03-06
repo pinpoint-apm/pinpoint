@@ -39,7 +39,7 @@ public class SpanEventHandler implements Handler {
                 logger.info("Received SpanEvent={}", spanEvent);
             }
 
-            String applicationName = agentIdApplicationIndexDao.selectApplicationName(spanEvent.getAgentId());
+            String applicationName = spanEvent.getApplicationId();
 
             if (applicationName == null) {
                 logger.warn("Applicationname '{}' not found. Drop the log.", applicationName);
