@@ -111,7 +111,7 @@ public class SpanServiceTest {
     }
 
     private void insert(Span span) throws TException {
-        traceDao.insert("JUNITApplicationName", span);
+        traceDao.insert(span);
     }
 
     AtomicInteger id = new AtomicInteger(0);
