@@ -1,6 +1,8 @@
 package com.nhn.hippo.testweb.controller;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -163,11 +165,18 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/remotecombination2")
 	public String remotecombination2(Model model) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:8080/combination2.hippo", new HashMap<String, Object>());
+		try {
+			URL url = new URL("http://localhost:8080/combination2.hippo");
+			
+			HttpURLConnection request = (HttpURLConnection) url.openConnection();
+			
+			request.setRequestMethod("GET");
+			request.setRequestProperty("Content-type", "text/xml; charset=UTF-8");
+			request.connect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -185,7 +194,7 @@ public class HelloWorldController implements DisposableBean {
 		memcached(model);
 
 		randomSlowMethod();
-		
+
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -201,7 +210,7 @@ public class HelloWorldController implements DisposableBean {
 		mysql(model);
 		arcus(model);
 		memcached(model);
-		
+
 		randomSlowMethod();
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
