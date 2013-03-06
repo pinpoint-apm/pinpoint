@@ -180,7 +180,7 @@ public class Agent {
 		agentInfo.setIsAlive(true);
 		agentInfo.setTimestamp(this.startTime);
 
-		logger.info("Send startup information to HIPPO server. agentInfo=" + agentInfo);
+		logger.info("Send startup information to HIPPO server via " + this.priorityDataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
 		send3(agentInfo);
 	}
 
