@@ -2,6 +2,7 @@ package com.profiler.server.handler;
 
 import java.net.DatagramPacket;
 
+import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.dto.thrift.SpanEvent;
 import com.profiler.common.util.SpanEventUtils;
 import org.apache.thrift.TBase;
@@ -30,6 +31,11 @@ public class SpanEventHandler implements Handler {
 
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+
+        if (!(tbase instanceof SpanEvent)) {
+            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+        }
+
         try {
             SpanEvent spanEvent = (SpanEvent) tbase;
 

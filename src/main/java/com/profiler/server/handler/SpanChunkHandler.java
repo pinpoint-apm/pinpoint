@@ -3,6 +3,7 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
+import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.common.dto.thrift.SpanEvent;
 import com.profiler.common.dto.thrift.SpanChunk;
 import com.profiler.common.util.SpanEventUtils;
@@ -36,6 +37,11 @@ public class SpanChunkHandler implements Handler {
 
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+
+        if (!(tbase instanceof SpanChunk)) {
+            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+        }
+
         try {
             SpanChunk spanChunk = (SpanChunk) tbase;
 
