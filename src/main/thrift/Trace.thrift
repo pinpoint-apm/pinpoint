@@ -13,11 +13,6 @@ struct Annotation {
   9: optional byte byteValue;
 }
 
-struct Destination {
-    1: optional string id
-    2: optional list<string> host
-}
-
 struct SpanEvent {
   1: optional string agentId
   2: optional string applicationId
