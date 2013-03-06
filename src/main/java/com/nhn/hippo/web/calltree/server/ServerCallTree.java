@@ -83,12 +83,7 @@ public class ServerCallTree {
 			return;
 		}
 
-//		if (spanEvent.getServiceType().isRpcClient()) {
-//			addServer(spanEvent.getEndPoint(), server);
-//		} else {
-//			addServer(spanEvent.getServiceName(), server);
-//		}
-        addServer(spanEvent.getDestinationId(), server);
+       addServer(spanEvent.getDestinationId(), server);
 
 		subspans.add(spanEvent);
 	}

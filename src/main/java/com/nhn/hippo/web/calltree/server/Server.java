@@ -34,7 +34,6 @@ public class Server implements Comparable<Server> {
 			this.serviceType = ServiceType.UNKNOWN_CLOUD;
 		} else {
 			this.id = nodeSelector.getServerId(spanEvent);
-			// this.id = spanEvent.getServiceName();
 			this.applicationName = spanEvent.getDestinationId();
 			this.serviceType = spanEvent.getServiceType();
 		}
