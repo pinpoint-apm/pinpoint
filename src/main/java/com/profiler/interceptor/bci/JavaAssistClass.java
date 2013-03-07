@@ -118,21 +118,29 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(null, args, interceptor, -1, Type.auto);
+        return addInterceptor0(null, args, interceptor, -1, Type.auto, false);
     }
 
+
+    @Override
+    public int addInterceptorFromContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
+        if (interceptor == null) {
+            throw new IllegalArgumentException("interceptor is null");
+        }
+        return addInterceptor0(methodName, args, interceptor, -1, Type.auto, true);
+    }
 
     @Override
     public int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, Type.auto);
+        return addInterceptor0(methodName, args, interceptor, -1, Type.auto, false);
     }
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
-        return addInterceptor0(methodName, args, null, interceptorId, Type.auto);
+        return addInterceptor0(methodName, args, null, interceptorId, Type.auto, false);
     }
 
     @Override
@@ -140,7 +148,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, type);
+        return addInterceptor0(methodName, args, interceptor, -1, type, false);
     }
 
     private CtBehavior getBehavior(String methodName, String[] args) throws NotFoundException {
@@ -150,7 +158,7 @@ public class JavaAssistClass implements InstrumentClass {
         return getMethod(methodName, args);
     }
 
-    private int addInterceptor0(String methodName, String[] args, Interceptor interceptor, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
+    private int addInterceptor0(String methodName, String[] args, Interceptor interceptor, int interceptorId, Type type, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
         CtBehavior behavior = null;
         try {
             behavior = getBehavior(methodName, args);
@@ -177,20 +185,20 @@ public class JavaAssistClass implements InstrumentClass {
 
             if (type == Type.auto) {
                 if (interceptor instanceof StaticAroundInterceptor) {
-                    addStaticAroundInterceptor(methodName, interceptorId, behavior);
+                    addStaticAroundInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
                 } else if (interceptor instanceof StaticBeforeInterceptor) {
-                    addStaticBeforeInterceptor(methodName, interceptorId, behavior);
+                    addStaticBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
                 } else if (interceptor instanceof StaticAfterInterceptor) {
-                    addStaticAfterInterceptor(methodName, interceptorId, behavior);
+                    addStaticAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
                 } else {
                     throw new IllegalArgumentException("unsupported");
                 }
             } else if (type == Type.around && interceptor instanceof StaticAroundInterceptor) {
-                addStaticAroundInterceptor(methodName, interceptorId, behavior);
+                addStaticAroundInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
             } else if (type == Type.before && interceptor instanceof StaticBeforeInterceptor) {
-                addStaticBeforeInterceptor(methodName, interceptorId, behavior);
+                addStaticBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
             } else if (type == Type.after && interceptor instanceof StaticAfterInterceptor) {
-                addStaticAfterInterceptor(methodName, interceptorId, behavior);
+                addStaticAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
             } else {
                 throw new IllegalArgumentException("unsupported");
             }
@@ -236,12 +244,12 @@ public class JavaAssistClass implements InstrumentClass {
         interceptor.setMethodDescriptor(methodDescriptor);
     }
 
-    private void addStaticAroundInterceptor(String methodName, int id, CtBehavior method) throws NotFoundException, CannotCompileException {
-        addStaticBeforeInterceptor(methodName, id, method);
-        addStaticAfterInterceptor(methodName, id, method);
+    private void addStaticAroundInterceptor(String methodName, int id, CtBehavior method, boolean useContextClassLoader) throws NotFoundException, CannotCompileException {
+        addStaticBeforeInterceptor(methodName, id, method, useContextClassLoader);
+        addStaticAfterInterceptor(methodName, id, method, useContextClassLoader);
     }
 
-    private void addStaticAfterInterceptor(String methodName, int id, CtBehavior behavior) throws NotFoundException, CannotCompileException {
+    private void addStaticAfterInterceptor(String methodName, int id, CtBehavior behavior, boolean useContextClassLoader) throws NotFoundException, CannotCompileException {
 
         String target = getTarget(behavior);
         String returnType = getReturnType(behavior);
@@ -249,10 +257,21 @@ public class JavaAssistClass implements InstrumentClass {
         String parameter = getParameter(behavior);
 
         CodeBuilder after = new CodeBuilder();
-        after.begin();
-        after.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-        after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s);", target, ctClass.getName(), methodName, parameterTypeString, parameter, returnType);
-        after.end();
+        if (useContextClassLoader) {
+            after.begin();
+            beginAddFindInterceptorCode(id, after);
+            after.format("  java.lang.Class[] methodArgsClassParams = new Class[]{java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class, java.lang.Object.class};");
+            after.format("  java.lang.reflect.Method method = interceptor.getClass().getMethod(\"%1$s\", methodArgsClassParams);", "after");
+            after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s };", target, ctClass.getName(), methodName, parameterTypeString, parameter, returnType);
+            after.format("  method.invoke(interceptor, methodParams);");
+            endAddFindInterceptorCode(after);
+            after.end();
+        } else {
+            after.begin();
+            after.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
+            after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s);", target, ctClass.getName(), methodName, parameterTypeString, parameter, returnType);
+            after.end();
+        }
         String buildAfter = after.toString();
         if (logger.isLoggable(Level.INFO)) {
             logger.info("addStaticAfterInterceptor after behavior:" + behavior.getLongName() + " code:" + buildAfter);
@@ -261,11 +280,23 @@ public class JavaAssistClass implements InstrumentClass {
 
 
         CodeBuilder catchCode = new CodeBuilder();
-        catchCode.begin();
-        catchCode.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
-        catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameter);
-        catchCode.append("  throw $e;");
-        catchCode.end();
+        if (useContextClassLoader) {
+            catchCode.begin();
+            beginAddFindInterceptorCode(id, catchCode);
+            catchCode.format("  java.lang.Class[] methodArgsClassParams = new Class[]{java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class, java.lang.Object.class};");
+            catchCode.format("  java.lang.reflect.Method method = interceptor.getClass().getMethod(\"%1$s\", methodArgsClassParams);", "after");
+            catchCode.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, (java.lang.Object) $e };", target, ctClass.getName(), methodName, parameterTypeString, parameter);
+            catchCode.format("  method.invoke(interceptor, methodParams);");
+            endAddFindInterceptorCode(catchCode);
+            catchCode.format("  throw $e;");
+            catchCode.end();
+        } else {
+            catchCode.begin();
+            catchCode.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAfterInterceptor.class.getName(), id);
+            catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameter);
+            catchCode.append("  throw $e;");
+            catchCode.end();
+        }
         String buildCatch = catchCode.toString();
         if (logger.isLoggable(Level.INFO)) {
             logger.info("addStaticAfterInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildCatch);
@@ -273,6 +304,19 @@ public class JavaAssistClass implements InstrumentClass {
         CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
         behavior.addCatch(buildCatch, th);
 
+    }
+
+    private void endAddFindInterceptorCode(CodeBuilder catchCode) {
+        catchCode.format("}");
+    }
+
+    private void beginAddFindInterceptorCode(int id, CodeBuilder after) {
+        after.format("java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();");
+        after.format("if (contextClassLoader != null) {");
+        after.format("  java.lang.Class interceptorRegistryClass = contextClassLoader.loadClass(\"com.profiler.interceptor.InterceptorRegistry\");");
+        after.format("  java.lang.reflect.Method getInterceptorMethod = interceptorRegistryClass.getMethod(\"getInterceptor\", new java.lang.Class[]{ int.class });");
+        after.format("  java.lang.Object[] interceptorParams = new java.lang.Object[] { java.lang.Integer.valueOf(%1$d) };", id);
+        after.format("  java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistryClass, interceptorParams);");
     }
 
     private String getTarget(CtBehavior behavior) {
@@ -295,17 +339,35 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
 
-    private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior) throws CannotCompileException, NotFoundException {
+    private void addStaticBeforeInterceptor(String methodName, int id, CtBehavior behavior, boolean useContextClassLoader) throws CannotCompileException, NotFoundException {
         String target = getTarget(behavior);
         // 인터셉터 호출시 최대한 연산량을 줄이기 위해서 정보는 가능한 정적 데이터로 생성한다.
         String parameterDescription = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
         String parameter = getParameter(behavior);
 
         CodeBuilder code = new CodeBuilder();
-        code.begin();
-        code.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticBeforeInterceptor.class.getName(), id);
-        code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameter);
-        code.end();
+        if (useContextClassLoader) {
+            code.begin();
+//            java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
+//            java.lang.Class<?> interceptorRegistryClass = contextClassLoader.loadClass("com.profiler.interceptor.InterceptorRegistry");
+//            java.lang.reflect.Method getInterceptorMethod = interceptorRegistryClass.getMethod("getInterceptor", int.class);
+//            java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistryClass, 1);
+//            java.lang.reflect.Method beforeMethod = interceptor.getClass().getMethod("before", java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class);
+//            beforeMethod.invoke(interceptor, null, null, null, null, null);
+//
+            beginAddFindInterceptorCode(id, code);
+            code.format("  java.lang.Class[] beforeMethodParams = new Class[]{java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class};");
+            code.format("  java.lang.reflect.Method beforeMethod = interceptor.getClass().getMethod(\"%1$s\", beforeMethodParams);", "before");
+            code.format("  java.lang.Object[] beforeParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s };", target, ctClass.getName(), methodName, parameterDescription, parameter);
+            code.format("  beforeMethod.invoke(interceptor, beforeParams);");
+            code.format("}");
+            code.end();
+        } else {
+            code.begin();
+            code.format("  %1$s interceptor = (%1$s) com.profiler.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticBeforeInterceptor.class.getName(), id);
+            code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameter);
+            code.end();
+        }
         String buildBefore = code.toString();
         if (logger.isLoggable(Level.INFO)) {
             logger.info("addStaticBeforeInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildBefore);
@@ -345,7 +407,7 @@ public class JavaAssistClass implements InstrumentClass {
 
                 // TODO method의 prameter type을 interceptor에 별도 추가해야 될것으로 보임.
                 String params = getParamsToString(method.getParameterTypes());
-                addStaticAroundInterceptor(methodName, id, method);
+                addStaticAroundInterceptor(methodName, id, method, false);
             }
             return true;
         } catch (Exception e) {
@@ -387,7 +449,7 @@ public class JavaAssistClass implements InstrumentClass {
                 // constructorName + " Constructor:Param=(" + params +
                 // ") is finished.\"); throw $e; }"
                 // , instrumentor.getClassPool().get("java.lang.Throwable"));
-                addStaticAroundInterceptor(constructorName, id, constructor);
+                addStaticAroundInterceptor(constructorName, id, constructor, false);
             }
             return true;
         } catch (Exception e) {
@@ -439,13 +501,12 @@ public class JavaAssistClass implements InstrumentClass {
         return null;
     }
 
-    public Class<?> toClass() {
+    public Class<?> toClass() throws InstrumentException {
         try {
             return ctClass.toClass();
         } catch (CannotCompileException e) {
-            logger.log(Level.INFO, "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            throw new InstrumentException( "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
         }
-        return null;
     }
     
 	public CtMethod[] getDeclaredMethods() {

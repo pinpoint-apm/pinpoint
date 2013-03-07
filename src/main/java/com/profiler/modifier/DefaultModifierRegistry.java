@@ -12,6 +12,7 @@ import com.profiler.modifier.arcus.CacheManagerModifier;
 import com.profiler.modifier.arcus.MemcachedClientModifier;
 import com.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.profiler.modifier.connector.HTTPClientModifier;
+import com.profiler.modifier.connector.HttpURLConnectionModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -90,6 +91,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
 		addModifier(cacheManagerModifier);
+
+        // jdk HTTPUrlConnector
+        HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
+        addModifier(httpURLConnectionModifier);
 	}
 
 	public void addBLOCModifier() {

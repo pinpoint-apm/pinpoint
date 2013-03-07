@@ -1,5 +1,6 @@
 package com.profiler.interceptor.bci;
 
+import javassist.CannotCompileException;
 import javassist.CtMethod;
 
 import com.profiler.interceptor.Interceptor;
@@ -17,6 +18,8 @@ public interface InstrumentClass {
 
 	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
+    int addInterceptorFromContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+
 	int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
 	boolean addDebugLogBeforeAfterMethod();
@@ -25,7 +28,7 @@ public interface InstrumentClass {
 
 	byte[] toBytecode() throws InstrumentException ;
 
-	Class<?> toClass() throws InstrumentException ;
+	Class<?> toClass() throws InstrumentException;
 
     void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
 
