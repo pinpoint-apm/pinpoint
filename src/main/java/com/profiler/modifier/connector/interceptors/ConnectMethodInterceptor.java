@@ -57,6 +57,7 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		String host = request.getURL().getHost();
 		int port = request.getURL().getPort();
 
+		// TODO protocol은 어떻게 표기하지???
 		trace.recordEndPoint("HTTP/1.1:" + host + ((port > 0) ? ":" + port : ""));
 		trace.recordDestinationId(host + ((port > 0) ? ":" + port : ""));
 
