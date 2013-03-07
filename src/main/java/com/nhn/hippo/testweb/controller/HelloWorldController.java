@@ -1,6 +1,12 @@
 package com.nhn.hippo.testweb.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -167,12 +173,19 @@ public class HelloWorldController implements DisposableBean {
 	public String remotecombination2(Model model) {
 		try {
 			URL url = new URL("http://localhost:8080/combination2.hippo");
-			
+
 			HttpURLConnection request = (HttpURLConnection) url.openConnection();
-			
+
 			request.setRequestMethod("GET");
 			request.setRequestProperty("Content-type", "text/xml; charset=UTF-8");
-			request.connect();
+			// request.connect();
+
+			InputStream is = request.getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+			System.out.println(reader.readLine());
+
+			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
