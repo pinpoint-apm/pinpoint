@@ -4,13 +4,12 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import javassist.bytecode.ClassFile;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
+
 
 public class JavaAssiastTest {
     private ClassPool pool;

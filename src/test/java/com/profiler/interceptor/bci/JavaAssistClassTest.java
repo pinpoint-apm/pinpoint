@@ -39,7 +39,31 @@ public class JavaAssistClassTest {
     }
 
     @Test
+    public void testBeforeAddInterceptorFormContextClassLoader() throws Exception {
+
+        ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestObjectContextClassLoader");
+
+        TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
+        String methodName = "callA";
+
+        aClass.addInterceptorFromContextClassLoader(methodName, null, interceptor);
+
+        Object testObject = aClass.toClass().newInstance();
+        Method callA = testObject.getClass().getMethod(methodName);
+        callA.invoke(testObject);
+
+        Assert.assertEquals(interceptor.call, 1);
+        Assert.assertEquals(interceptor.className, "com.profiler.interceptor.bci.TestObjectContextClassLoader");
+        Assert.assertEquals(interceptor.methodName, methodName);
+        Assert.assertEquals(interceptor.args, null);
+        Assert.assertEquals(interceptor.target, testObject);
+
+    }
+
+    @Test
     public void testAddAfterInterceptor() throws Exception {
+        // TODO aClass.addInterceptorFromContextClassLoader 코드의 테스트 케이스도 추가해야함.
 
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
         InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestObject2");
