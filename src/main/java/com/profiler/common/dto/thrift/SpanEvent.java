@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanEvent");
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanEventBo");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField APPLICATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationId", org.apache.thrift.protocol.TType.STRING, (short)2);
@@ -755,7 +755,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetAgentId();
       } else {
-        setAgentId((String)value);
+        setAgentId((String) value);
       }
       break;
 
@@ -763,7 +763,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetApplicationId();
       } else {
-        setApplicationId((String)value);
+        setApplicationId((String) value);
       }
       break;
 
@@ -771,7 +771,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetAgentIdentifier();
       } else {
-        setAgentIdentifier((Short)value);
+        setAgentIdentifier((Short) value);
       }
       break;
 
@@ -779,7 +779,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetMostTraceId();
       } else {
-        setMostTraceId((Long)value);
+        setMostTraceId((Long) value);
       }
       break;
 
@@ -787,7 +787,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetLeastTraceId();
       } else {
-        setLeastTraceId((Long)value);
+        setLeastTraceId((Long) value);
       }
       break;
 
@@ -795,7 +795,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Integer)value);
+        setSpanId((Integer) value);
       }
       break;
 
@@ -803,7 +803,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetSequence();
       } else {
-        setSequence((Short)value);
+        setSequence((Short) value);
       }
       break;
 
@@ -811,7 +811,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetStartElapsed();
       } else {
-        setStartElapsed((Integer)value);
+        setStartElapsed((Integer) value);
       }
       break;
 
@@ -819,7 +819,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetEndElapsed();
       } else {
-        setEndElapsed((Integer)value);
+        setEndElapsed((Integer) value);
       }
       break;
 
@@ -827,7 +827,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetRpc();
       } else {
-        setRpc((String)value);
+        setRpc((String) value);
       }
       break;
 
@@ -851,7 +851,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetAnnotations();
       } else {
-        setAnnotations((List<Annotation>)value);
+        setAnnotations((List<Annotation>) value);
       }
       break;
 
@@ -859,7 +859,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetDepth();
       } else {
-        setDepth((Integer)value);
+        setDepth((Integer) value);
       }
       break;
 
@@ -867,7 +867,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetNextSpanId();
       } else {
-        setNextSpanId((Integer)value);
+        setNextSpanId((Integer) value);
       }
       break;
 
@@ -875,7 +875,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetDestinationId();
       } else {
-        setDestinationId((String)value);
+        setDestinationId((String) value);
       }
       break;
 
@@ -883,7 +883,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetDestinationAddress();
       } else {
-        setDestinationAddress((List<String>)value);
+        setDestinationAddress((List<String>) value);
       }
       break;
 
@@ -1361,7 +1361,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SpanEvent(");
+    StringBuilder sb = new StringBuilder("SpanEventBo(");
     boolean first = true;
 
     if (isSetAgentId()) {

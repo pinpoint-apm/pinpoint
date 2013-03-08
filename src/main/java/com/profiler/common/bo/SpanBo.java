@@ -53,7 +53,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     private short flag; // optional
     private int exception;
 
-    private List<SpanEvent> spanEventBoList;
+    private List<SpanEventBo> spanEventBoList;
 
     private int recursiveCallCount = 0;
 
@@ -250,14 +250,14 @@ public class SpanBo implements com.profiler.common.bo.Span {
         }
     }
 
-    public void addSpanEvent(SpanEvent spanEvent) {
+    public void addSpanEvent(SpanEventBo spanEventBo) {
         if (spanEventBoList == null) {
-            spanEventBoList = new ArrayList<SpanEvent>();
+            spanEventBoList = new ArrayList<SpanEventBo>();
         }
-        spanEventBoList.add(spanEvent);
+        spanEventBoList.add(spanEventBo);
     }
 
-    public List<SpanEvent> getSpanEventBoList() {
+    public List<SpanEventBo> getSpanEventBoList() {
         return spanEventBoList;
     }
 

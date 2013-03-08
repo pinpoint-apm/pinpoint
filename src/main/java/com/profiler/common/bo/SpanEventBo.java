@@ -13,7 +13,7 @@ import com.profiler.common.buffer.FixedBuffer;
 /**
  *
  */
-public class SpanEvent implements Span {
+public class SpanEventBo implements Span {
 	private static final int VERSION_SIZE = 1;
 	// version 0 = prefix의 사이즈를 int로
 
@@ -55,10 +55,10 @@ public class SpanEvent implements Span {
 	private int depth = -1;
 	private int nextSpanId = -1;
 
-	public SpanEvent() {
+	public SpanEventBo() {
 	}
 
-	public SpanEvent(com.profiler.common.dto.thrift.Span tSpan, com.profiler.common.dto.thrift.SpanEvent tSpanEvent) {
+	public SpanEventBo(com.profiler.common.dto.thrift.Span tSpan, com.profiler.common.dto.thrift.SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
         this.applicationId = tSpan.getApplicationId();
         this.agentIdentifier = tSpan.getAgentIdentifier();
@@ -92,7 +92,7 @@ public class SpanEvent implements Span {
 		setAnnotationBoList(tSpanEvent.getAnnotations());
 	}
 
-	public SpanEvent(SpanChunk spanChunk, com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+	public SpanEventBo(SpanChunk spanChunk, com.profiler.common.dto.thrift.SpanEvent spanEvent) {
 		this.agentId = spanChunk.getAgentId();
         this.agentIdentifier = spanChunk.getAgentIdentifier();
 
@@ -124,7 +124,7 @@ public class SpanEvent implements Span {
 		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
-	public SpanEvent(com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+	public SpanEventBo(com.profiler.common.dto.thrift.SpanEvent spanEvent) {
 		this.agentId = spanEvent.getAgentId();
         this.applicationId = spanEvent.getApplicationId();
         this.agentIdentifier = spanEvent.getAgentIdentifier();
