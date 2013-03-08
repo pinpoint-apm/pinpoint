@@ -2,7 +2,7 @@ package com.profiler.server.dao.hbase;
 
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SpanChunk;
@@ -63,7 +63,7 @@ public class HbaseTraceDao implements TracesDao {
         }
         long acceptedTime = AcceptedTime.getAcceptedTime();
         for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
-            SpanEvent spanEventBo = new SpanEvent(span, spanEvent);
+            SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
             byte[] value = spanEventBo.writeValue();
             put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
@@ -73,7 +73,7 @@ public class HbaseTraceDao implements TracesDao {
 
     @Override
     public void insertEvent(final com.profiler.common.dto.thrift.SpanEvent spanEvent) {
-        SpanEvent spanEventBo = new SpanEvent(spanEvent);
+        SpanEventBo spanEventBo = new SpanEventBo(spanEvent);
         byte[] value = spanEventBo.writeValue();
         // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
         Put put = new Put(SpanUtils.getTraceId(spanEvent));
@@ -91,7 +91,7 @@ public class HbaseTraceDao implements TracesDao {
         long acceptedTime = AcceptedTime.getAcceptedTime();
         List<com.profiler.common.dto.thrift.SpanEvent> spanEventBoList = spanChunk.getSpanEventList();
         for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
-            SpanEvent spanEventBo = new SpanEvent(spanChunk, spanEvent);
+            SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
 
             byte[] value = spanEventBo.writeValue();
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
