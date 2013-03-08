@@ -1,7 +1,7 @@
 package com.nhn.hippo.web.calltree.span;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +38,8 @@ public class SpanPopulator {
         SpanBo span = spanAlign.getSpanBo();
         populatedList.add(spanAlign);
         long startTime = span.getStartTime();
-        List<SpanEvent> spanEventBoList = sortSpanEvent(span);
-        for (SpanEvent spanEventBo : spanEventBoList) {
+        List<SpanEventBo> spanEventBoList = sortSpanEvent(span);
+        for (SpanEventBo spanEventBo : spanEventBoList) {
             long subStartTime = startTime + spanEventBo.getStartElapsed();
             long nextSpanStartTime = getNextSpanStartTime();
             if (subStartTime <= nextSpanStartTime) {
@@ -65,14 +65,14 @@ public class SpanPopulator {
         return list.get(nextIndex).getSpanBo().getStartTime();
     }
 
-    private List<SpanEvent> sortSpanEvent(SpanBo span) {
-        List<SpanEvent> spanEventBoList = span.getSpanEventBoList();
+    private List<SpanEventBo> sortSpanEvent(SpanBo span) {
+        List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (spanEventBoList == null) {
             return Collections.emptyList();
         }
-        Collections.sort(spanEventBoList, new Comparator<SpanEvent>() {
+        Collections.sort(spanEventBoList, new Comparator<SpanEventBo>() {
             @Override
-            public int compare(SpanEvent o1, SpanEvent o2) {
+            public int compare(SpanEventBo o1, SpanEventBo o2) {
                 long o1Timestamp = o1.getSequence();
                 long o2Timestamp = o2.getSequence();
                 if (o1Timestamp > o2Timestamp) {

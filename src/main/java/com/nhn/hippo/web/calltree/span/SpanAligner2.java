@@ -3,7 +3,7 @@ package com.nhn.hippo.web.calltree.span;
 import java.util.*;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 
 /**
  * 
@@ -56,11 +56,11 @@ public class SpanAligner2 {
 		SpanAlign element = new SpanAlign(depth, parentSpan);
 		container.add(element);
 
-		List<SpanEvent> spanEventBoList = parentSpan.getSpanEventBoList();
+		List<SpanEventBo> spanEventBoList = parentSpan.getSpanEventBoList();
         if (spanEventBoList == null) {
             return;
         }
-		for (SpanEvent spanEventBo : spanEventBoList) {
+		for (SpanEventBo spanEventBo : spanEventBoList) {
 			if (spanEventBo.getDepth() != -1) {
 				depth = spanDepth + spanEventBo.getDepth() + 1;
 			}

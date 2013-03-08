@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,22 +130,22 @@ public class FlowChartServiceImpl implements FlowChartService {
         ServerCallTree tree = createServerCallTree(transaction);
 
         // subSpan에서 record할 데이터만 골라낸다.
-        List<SpanEvent> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
+        List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
         tree.addSpanEventList(spanEventBoList);
 
         return tree.build();
 	}
 
-    private List<SpanEvent> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
-        List<SpanEvent> filterSpanEvent = new ArrayList<SpanEvent>();
+    private List<SpanEventBo> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
+        List<SpanEventBo> filterSpanEventBo = new ArrayList<SpanEventBo>();
         for (SpanBo eachTransaction : transaction) {
-			List<SpanEvent> spanEventBoList = eachTransaction.getSpanEventBoList();
+			List<SpanEventBo> spanEventBoList = eachTransaction.getSpanEventBoList();
 
 			if (spanEventBoList == null) {
 				continue;
             }
 
-			for (SpanEvent spanEventBo : spanEventBoList) {
+			for (SpanEventBo spanEventBo : spanEventBoList) {
                 // 통계정보로 잡지 않을 데이터는 스킵한다.
                 if (!spanEventBo.getServiceType().isRecordStatistics()) {
                     continue;
@@ -154,11 +154,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 				// remove subspan of the rpc client
 				if (!endPoints.contains(spanEventBo.getEndPoint())) {
 					// this is unknown cloud
-                    filterSpanEvent.add(spanEventBo);
+                    filterSpanEventBo.add(spanEventBo);
 				}
 			}
 		}
-        return filterSpanEvent;
+        return filterSpanEventBo;
     }
 
     /**

@@ -77,10 +77,14 @@ public class Record {
                 // parameter일 경우 serviceType이 없음.
                 return "";
             }
-
             return serviceType.getDesc();
         }
-        return serviceType.getDesc() + "(" + destinationId + ")";
+        if (serviceType.isIncludeDestinationId()) {
+            return serviceType.getDesc() + "(" + destinationId + ")";
+        } else {
+            return serviceType.getDesc();
+        }
+
     }
 
     public boolean isExcludeFromTimeline() {

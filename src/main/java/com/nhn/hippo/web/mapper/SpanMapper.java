@@ -2,7 +2,7 @@ package com.nhn.hippo.web.mapper;
 
 import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
@@ -47,7 +47,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
         Map<Integer, SpanBo> spanMap = new HashMap<Integer, SpanBo>();
-        List<SpanEvent> spanEventBoList = new ArrayList<SpanEvent>();
+        List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
         for (KeyValue kv : keyList) {
             // family name "span"일때로만 한정.
             if (kv.getFamilyLength() == HBaseTables.TRACES_CF_SPAN.length) {
@@ -64,7 +64,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanList.add(spanBo);
                 spanMap.put(spanBo.getSpanId(), spanBo);
             } else if (kv.getFamilyLength() == HBaseTables.TRACES_CF_TERMINALSPAN.length) {
-                SpanEvent spanEventBo = new SpanEvent();
+                SpanEventBo spanEventBo = new SpanEventBo();
                 spanEventBo.setMostTraceId(most);
                 spanEventBo.setLeastTraceId(least);
 
@@ -82,7 +82,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBoList.add(spanEventBo);
             }
         }
-        for (SpanEvent spanEventBo : spanEventBoList) {
+        for (SpanEventBo spanEventBo : spanEventBoList) {
             SpanBo spanBo = spanMap.get(spanEventBo.getSpanId());
             if (spanBo != null) {
                 spanBo.addSpanEvent(spanEventBo);

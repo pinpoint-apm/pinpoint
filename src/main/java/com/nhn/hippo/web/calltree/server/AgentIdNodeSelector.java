@@ -1,7 +1,7 @@
 package com.nhn.hippo.web.calltree.server;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 
 /**
  *
@@ -14,8 +14,8 @@ public class AgentIdNodeSelector implements NodeSelector {
     }
 
     @Override
-    public String getServerId(SpanEvent spanEvent) {
-        return spanEvent.getEndPoint();
+    public String getServerId(SpanEventBo spanEventBo) {
+        return spanEventBo.getEndPoint();
     }
 
 }

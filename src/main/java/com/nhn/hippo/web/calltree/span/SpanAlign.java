@@ -1,7 +1,7 @@
 package com.nhn.hippo.web.calltree.span;
 
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
+import com.profiler.common.bo.SpanEventBo;
 
 /**
  *
@@ -9,7 +9,7 @@ import com.profiler.common.bo.SpanEvent;
 public class SpanAlign {
 	private int depth;
 	private SpanBo spanBo;
-	private SpanEvent spanEventBo;
+	private SpanEventBo spanEventBo;
 	private boolean span = true;
 
 	public SpanAlign(int depth, SpanBo spanBo) {
@@ -18,7 +18,7 @@ public class SpanAlign {
 		this.span = true;
 	}
 
-	public SpanAlign(int depth, SpanBo spanBo, SpanEvent spanEventBo) {
+	public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
 		this.depth = depth;
 		this.spanBo = spanBo;
 		this.spanEventBo = spanEventBo;
@@ -41,7 +41,7 @@ public class SpanAlign {
 		return spanBo;
 	}
 
-	public SpanEvent getSpanEventBo() {
+	public SpanEventBo getSpanEventBo() {
 		return spanEventBo;
 	}
 

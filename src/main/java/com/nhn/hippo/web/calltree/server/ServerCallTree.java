@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.profiler.common.bo.SpanEventBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,6 @@ import com.nhn.hippo.web.vo.ResponseHistogram;
 import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEvent;
 
 /**
  * Call Tree
@@ -34,7 +34,7 @@ public class ServerCallTree {
 
 	// temporary variables
 	private final List<SpanBo> spans = new ArrayList<SpanBo>();
-	private final List<SpanEvent> subspans = new ArrayList<SpanEvent>();
+	private final List<SpanEventBo> subspans = new ArrayList<SpanEventBo>();
 	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, String> spanIdToClientId = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
@@ -70,22 +70,22 @@ public class ServerCallTree {
 		spanIdToClientId.put(spanId, server.getId());
 	}
 
-    public void addSpanEventList(List<SpanEvent> spanEventBoList) {
-        for (SpanEvent spanEventBo : spanEventBoList) {
+    public void addSpanEventList(List<SpanEventBo> spanEventBoList) {
+        for (SpanEventBo spanEventBo : spanEventBoList) {
             this.addSubSpan(spanEventBo);
         }
     }
 
-	public void addSubSpan(SpanEvent spanEvent) {
-		Server server = new Server(spanEvent, nodeSelector);
+	public void addSubSpan(SpanEventBo spanEventBo) {
+		Server server = new Server(spanEventBo, nodeSelector);
 
 		if (server.getId() == null) {
 			return;
 		}
 
-       addServer(spanEvent.getDestinationId(), server);
+       addServer(spanEventBo.getDestinationId(), server);
 
-		subspans.add(spanEvent);
+		subspans.add(spanEventBo);
 	}
 
     public void addSpanList(List<SpanBo> spanList) {
@@ -177,8 +177,8 @@ public class ServerCallTree {
 		}
 
 		// add terminal nodes
-		for (SpanEvent span : subspans) {
-			String from = String.valueOf(span.getSpanId());
+		for (SpanEventBo spanEventBo : subspans) {
+			String from = String.valueOf(spanEventBo.getSpanId());
 			String to;
 
 //			if (span.getServiceType().isRpcClient()) {
@@ -187,17 +187,17 @@ public class ServerCallTree {
 //			} else {
 //				to = String.valueOf(span.getServiceName());
 //			}
-            to = span.getDestinationId();
+            to = spanEventBo.getDestinationId();
 
 			Server fromServer = servers.get(spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));
 
-			ResponseHistogram histogram = new ResponseHistogram(span.getServiceType());
-			histogram.addSample(span.getEndElapsed());
+			ResponseHistogram histogram = new ResponseHistogram(spanEventBo.getServiceType());
+			histogram.addSample(spanEventBo.getEndElapsed());
 			ServerRequest serverRequest = new ServerRequest(fromServer, toServer, histogram);
 
 			if (serverRequests.containsKey(serverRequest.getId())) {
-				serverRequests.get(serverRequest.getId()).getHistogram().addSample(span.getEndElapsed());
+				serverRequests.get(serverRequest.getId()).getHistogram().addSample(spanEventBo.getEndElapsed());
 			} else {
 				serverRequests.put(serverRequest.getId(), serverRequest);
 			}
