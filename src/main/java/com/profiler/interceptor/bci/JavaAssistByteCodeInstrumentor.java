@@ -160,7 +160,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         for (int i = 0; i < params.length; i++) {
             Object o = params[i];
             if (o == null) {
-                throw new InstrumentException("params is null ");
+                throw new InstrumentException("params[" + i + "] is null ");
             }
             paramClass[i] = o.getClass();
 
