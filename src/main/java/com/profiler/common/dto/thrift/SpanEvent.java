@@ -1626,14 +1626,14 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
           case 14: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list8.size);
-                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
+                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
+                struct.annotations = new ArrayList<Annotation>(_list0.size);
+                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
                 {
-                  Annotation _elem10; // required
-                  _elem10 = new Annotation();
-                  _elem10.read(iprot);
-                  struct.annotations.add(_elem10);
+                  Annotation _elem2; // required
+                  _elem2 = new Annotation();
+                  _elem2.read(iprot);
+                  struct.annotations.add(_elem2);
                 }
                 iprot.readListEnd();
               }
@@ -1669,13 +1669,13 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
           case 21: // DESTINATION_ADDRESS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
-                struct.destinationAddress = new ArrayList<String>(_list11.size);
-                for (int _i12 = 0; _i12 < _list11.size; ++_i12)
+                org.apache.thrift.protocol.TList _list3 = iprot.readListBegin();
+                struct.destinationAddress = new ArrayList<String>(_list3.size);
+                for (int _i4 = 0; _i4 < _list3.size; ++_i4)
                 {
-                  String _elem13; // required
-                  _elem13 = iprot.readString();
-                  struct.destinationAddress.add(_elem13);
+                  String _elem5; // required
+                  _elem5 = iprot.readString();
+                  struct.destinationAddress.add(_elem5);
                 }
                 iprot.readListEnd();
               }
@@ -1761,9 +1761,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-          for (Annotation _iter14 : struct.annotations)
+          for (Annotation _iter6 : struct.annotations)
           {
-            _iter14.write(oprot);
+            _iter6.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -1791,9 +1791,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
           oprot.writeFieldBegin(DESTINATION_ADDRESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.destinationAddress.size()));
-            for (String _iter15 : struct.destinationAddress)
+            for (String _iter7 : struct.destinationAddress)
             {
-              oprot.writeString(_iter15);
+              oprot.writeString(_iter7);
             }
             oprot.writeListEnd();
           }
@@ -1909,9 +1909,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter16 : struct.annotations)
+          for (Annotation _iter8 : struct.annotations)
           {
-            _iter16.write(oprot);
+            _iter8.write(oprot);
           }
         }
       }
@@ -1927,9 +1927,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetDestinationAddress()) {
         {
           oprot.writeI32(struct.destinationAddress.size());
-          for (String _iter17 : struct.destinationAddress)
+          for (String _iter9 : struct.destinationAddress)
           {
-            oprot.writeString(_iter17);
+            oprot.writeString(_iter9);
           }
         }
       }
@@ -1989,14 +1989,14 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       if (incoming.get(12)) {
         {
-          org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list18.size);
-          for (int _i19 = 0; _i19 < _list18.size; ++_i19)
+          org.apache.thrift.protocol.TList _list10 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.annotations = new ArrayList<Annotation>(_list10.size);
+          for (int _i11 = 0; _i11 < _list10.size; ++_i11)
           {
-            Annotation _elem20; // required
-            _elem20 = new Annotation();
-            _elem20.read(iprot);
-            struct.annotations.add(_elem20);
+            Annotation _elem12; // required
+            _elem12 = new Annotation();
+            _elem12.read(iprot);
+            struct.annotations.add(_elem12);
           }
         }
         struct.setAnnotationsIsSet(true);
@@ -2015,13 +2015,13 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       }
       if (incoming.get(16)) {
         {
-          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.destinationAddress = new ArrayList<String>(_list21.size);
-          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+          org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.destinationAddress = new ArrayList<String>(_list13.size);
+          for (int _i14 = 0; _i14 < _list13.size; ++_i14)
           {
-            String _elem23; // required
-            _elem23 = iprot.readString();
-            struct.destinationAddress.add(_elem23);
+            String _elem15; // required
+            _elem15 = iprot.readString();
+            struct.destinationAddress.add(_elem15);
           }
         }
         struct.setDestinationAddressIsSet(true);

@@ -827,14 +827,14 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
           case 7: // SPAN_EVENT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-                struct.spanEventList = new ArrayList<SpanEvent>(_list40.size);
-                for (int _i41 = 0; _i41 < _list40.size; ++_i41)
+                org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
+                struct.spanEventList = new ArrayList<SpanEvent>(_list32.size);
+                for (int _i33 = 0; _i33 < _list32.size; ++_i33)
                 {
-                  SpanEvent _elem42; // required
-                  _elem42 = new SpanEvent();
-                  _elem42.read(iprot);
-                  struct.spanEventList.add(_elem42);
+                  SpanEvent _elem34; // required
+                  _elem34 = new SpanEvent();
+                  _elem34.read(iprot);
+                  struct.spanEventList.add(_elem34);
                 }
                 iprot.readListEnd();
               }
@@ -882,9 +882,9 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
-          for (SpanEvent _iter43 : struct.spanEventList)
+          for (SpanEvent _iter35 : struct.spanEventList)
           {
-            _iter43.write(oprot);
+            _iter35.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -951,9 +951,9 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetSpanEventList()) {
         {
           oprot.writeI32(struct.spanEventList.size());
-          for (SpanEvent _iter44 : struct.spanEventList)
+          for (SpanEvent _iter36 : struct.spanEventList)
           {
-            _iter44.write(oprot);
+            _iter36.write(oprot);
           }
         }
       }
@@ -989,14 +989,14 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       }
       if (incoming.get(6)) {
         {
-          org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.spanEventList = new ArrayList<SpanEvent>(_list45.size);
-          for (int _i46 = 0; _i46 < _list45.size; ++_i46)
+          org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.spanEventList = new ArrayList<SpanEvent>(_list37.size);
+          for (int _i38 = 0; _i38 < _list37.size; ++_i38)
           {
-            SpanEvent _elem47; // required
-            _elem47 = new SpanEvent();
-            _elem47.read(iprot);
-            struct.spanEventList.add(_elem47);
+            SpanEvent _elem39; // required
+            _elem39 = new SpanEvent();
+            _elem39.read(iprot);
+            struct.spanEventList.add(_elem39);
           }
         }
         struct.setSpanEventListIsSet(true);

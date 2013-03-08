@@ -1641,14 +1641,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           case 15: // ANNOTATIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list24.size);
-                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
+                org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
+                struct.annotations = new ArrayList<Annotation>(_list16.size);
+                for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                 {
-                  Annotation _elem26; // required
-                  _elem26 = new Annotation();
-                  _elem26.read(iprot);
-                  struct.annotations.add(_elem26);
+                  Annotation _elem18; // required
+                  _elem18 = new Annotation();
+                  _elem18.read(iprot);
+                  struct.annotations.add(_elem18);
                 }
                 iprot.readListEnd();
               }
@@ -1676,14 +1676,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           case 18: // SPAN_EVENT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
-                struct.spanEventList = new ArrayList<SpanEvent>(_list27.size);
-                for (int _i28 = 0; _i28 < _list27.size; ++_i28)
+                org.apache.thrift.protocol.TList _list19 = iprot.readListBegin();
+                struct.spanEventList = new ArrayList<SpanEvent>(_list19.size);
+                for (int _i20 = 0; _i20 < _list19.size; ++_i20)
                 {
-                  SpanEvent _elem29; // required
-                  _elem29 = new SpanEvent();
-                  _elem29.read(iprot);
-                  struct.spanEventList.add(_elem29);
+                  SpanEvent _elem21; // required
+                  _elem21 = new SpanEvent();
+                  _elem21.read(iprot);
+                  struct.spanEventList.add(_elem21);
                 }
                 iprot.readListEnd();
               }
@@ -1766,9 +1766,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-          for (Annotation _iter30 : struct.annotations)
+          for (Annotation _iter22 : struct.annotations)
           {
-            _iter30.write(oprot);
+            _iter22.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -1789,9 +1789,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
-            for (SpanEvent _iter31 : struct.spanEventList)
+            for (SpanEvent _iter23 : struct.spanEventList)
             {
-              _iter31.write(oprot);
+              _iter23.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1910,9 +1910,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter32 : struct.annotations)
+          for (Annotation _iter24 : struct.annotations)
           {
-            _iter32.write(oprot);
+            _iter24.write(oprot);
           }
         }
       }
@@ -1925,9 +1925,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetSpanEventList()) {
         {
           oprot.writeI32(struct.spanEventList.size());
-          for (SpanEvent _iter33 : struct.spanEventList)
+          for (SpanEvent _iter25 : struct.spanEventList)
           {
-            _iter33.write(oprot);
+            _iter25.write(oprot);
           }
         }
       }
@@ -1991,14 +1991,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       if (incoming.get(13)) {
         {
-          org.apache.thrift.protocol.TList _list34 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list34.size);
-          for (int _i35 = 0; _i35 < _list34.size; ++_i35)
+          org.apache.thrift.protocol.TList _list26 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.annotations = new ArrayList<Annotation>(_list26.size);
+          for (int _i27 = 0; _i27 < _list26.size; ++_i27)
           {
-            Annotation _elem36; // required
-            _elem36 = new Annotation();
-            _elem36.read(iprot);
-            struct.annotations.add(_elem36);
+            Annotation _elem28; // required
+            _elem28 = new Annotation();
+            _elem28.read(iprot);
+            struct.annotations.add(_elem28);
           }
         }
         struct.setAnnotationsIsSet(true);
@@ -2013,14 +2013,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       if (incoming.get(16)) {
         {
-          org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.spanEventList = new ArrayList<SpanEvent>(_list37.size);
-          for (int _i38 = 0; _i38 < _list37.size; ++_i38)
+          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.spanEventList = new ArrayList<SpanEvent>(_list29.size);
+          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
           {
-            SpanEvent _elem39; // required
-            _elem39 = new SpanEvent();
-            _elem39.read(iprot);
-            struct.spanEventList.add(_elem39);
+            SpanEvent _elem31; // required
+            _elem31 = new SpanEvent();
+            _elem31.read(iprot);
+            struct.spanEventList.add(_elem31);
           }
         }
         struct.setSpanEventListIsSet(true);

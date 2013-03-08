@@ -75,7 +75,7 @@ public class TerminalSpanUtils {
 	 * @return
 	 */
 	public static byte[] makeRowKey(String applicationName, long time) {
-        if(applicationName == null) {
+        if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
 		byte[] slot = Bytes.toBytes(time);
