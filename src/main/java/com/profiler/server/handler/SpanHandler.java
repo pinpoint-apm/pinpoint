@@ -3,7 +3,6 @@ package com.profiler.server.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
-import com.profiler.common.util.SpanEventUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.profiler.common.ServiceType;
 import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SpanEvent;
+import com.profiler.common.util.SpanEventUtils;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
 import com.profiler.server.dao.BusinessTransactionStatisticsDao;
+import com.profiler.server.dao.ClientStatisticsDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TraceIndexDao;
 import com.profiler.server.dao.TracesDao;
@@ -41,6 +42,9 @@ public class SpanHandler implements Handler {
     @Autowired
     private BusinessTransactionStatisticsDao businessTransactionStatistics;
     
+    @Autowired
+    private ClientStatisticsDao clientStatisticsDao;
+    
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 
         if (!(tbase instanceof Span)) {
@@ -59,6 +63,11 @@ public class SpanHandler implements Handler {
             applicationTraceIndexDao.insert(span);
             businessTransactionStatistics.update(span);
 
+			if (span.getParentSpanId() == -1) {
+				// TODO error가 있으면 getErr값이 0보다 큰가??
+				clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
+			}
+            
             List<SpanEvent> spanEventList = span.getSpanEventList();
             if (spanEventList != null) {
                 logger.info("handle spanEvent size:{}", spanEventList.size());
