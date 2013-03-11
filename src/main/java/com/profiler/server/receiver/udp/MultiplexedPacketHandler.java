@@ -3,7 +3,7 @@ package com.profiler.server.receiver.udp;
 import java.net.DatagramPacket;
 
 import com.profiler.common.dto.thrift.*;
-import com.profiler.server.util.AcceptedTime;
+import com.profiler.server.util.AcceptedTimeService;
 import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -52,6 +52,9 @@ public class MultiplexedPacketHandler {
     @Qualifier("ApiMetaDataHandler")
     private Handler apiMetaDataHandler;
 
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
     public MultiplexedPacketHandler() {
     }
 
@@ -76,7 +79,8 @@ public class MultiplexedPacketHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("handler name:" + handler.getClass().getName());
         }
-        AcceptedTime.setAcceptedTime(System.currentTimeMillis());
+
+        acceptedTimeService.accept();
         handler.handler(tBase, datagramPacket);
     }
 

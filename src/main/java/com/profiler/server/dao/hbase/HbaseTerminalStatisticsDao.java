@@ -3,6 +3,7 @@ package com.profiler.server.dao.hbase;
 import static com.profiler.common.hbase.HBaseTables.*;
 import static com.profiler.common.hbase.HBaseTables.TERMINAL_STATISTICS_CF_COUNTER;
 
+import com.profiler.server.util.AcceptedTimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.TerminalSpanUtils;
 import com.profiler.common.util.TimeSlot;
 import com.profiler.server.dao.TerminalStatisticsDao;
-import com.profiler.server.util.AcceptedTime;
 
 /**
  * @author netspider
@@ -23,6 +23,9 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
 
 	/**
 	 * 
@@ -43,7 +46,7 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 		byte[] columnName = TerminalSpanUtils.makeColumnName(destServiceType, destApplicationName, destHost, elapsed, isError);
 
 		// make row key
-		long acceptedTime = AcceptedTime.getAcceptedTime();
+		long acceptedTime = acceptedTimeService.getAcceptedTime();
 		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
 		final byte[] rowKey = TerminalSpanUtils.makeRowKey(sourceApplicationName, rowTimeSlot);
 

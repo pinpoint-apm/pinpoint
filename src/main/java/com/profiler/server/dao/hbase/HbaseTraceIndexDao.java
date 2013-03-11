@@ -2,7 +2,7 @@ package com.profiler.server.dao.hbase;
 
 import static com.profiler.common.hbase.HBaseTables.TRACE_INDEX_CF_TRACE;
 
-import com.profiler.server.util.AcceptedTime;
+import com.profiler.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +19,9 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
 	public String getTableName() {
 		return tableName;
 	}
@@ -30,7 +33,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Override
 	public void insert(final Span span) {
 
-        long acceptedTime = AcceptedTime.getAcceptedTime();
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
         byte[] agentIdTraceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), acceptedTime);
 
         Put put = new Put(agentIdTraceIndexRowKey);

@@ -12,7 +12,7 @@ import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.TracesDao;
-import com.profiler.server.util.AcceptedTime;
+import com.profiler.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -31,6 +31,9 @@ public class HbaseTraceDao implements TracesDao {
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
     @Override
     public void insert(final Span span) {
 
@@ -41,7 +44,8 @@ public class HbaseTraceDao implements TracesDao {
         byte[] spanValue = spanBo.writeValue();
         // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
         byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
-        long acceptedTime = AcceptedTime.getAcceptedTime();
+
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
         put.add(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
 
         List<Annotation> annotations = span.getAnnotations();
@@ -61,12 +65,13 @@ public class HbaseTraceDao implements TracesDao {
         if (spanEventBoList == null || spanEventBoList.size() == 0) {
             return;
         }
-        long acceptedTime = AcceptedTime.getAcceptedTime();
+
+        long acceptedTime0 = acceptedTimeService.getAcceptedTime();
         for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
             SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
             byte[] value = spanEventBo.writeValue();
-            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
+            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime0, value);
         }
     }
 
@@ -88,7 +93,7 @@ public class HbaseTraceDao implements TracesDao {
     public void insertSpanChunk(SpanChunk spanChunk) {
         Put put = new Put(SpanUtils.getTraceId(spanChunk));
 
-        long acceptedTime = AcceptedTime.getAcceptedTime();
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
         List<com.profiler.common.dto.thrift.SpanEvent> spanEventBoList = spanChunk.getSpanEventList();
         for (com.profiler.common.dto.thrift.SpanEvent spanEvent : spanEventBoList) {
             SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);

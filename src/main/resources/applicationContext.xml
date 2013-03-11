@@ -53,4 +53,6 @@
 
 
     <bean id="applicationNameMapper" class="com.profiler.server.dao.mapper.ApplicationNameMapper"></bean>
+
+    <bean id="acceptedTimeService" class="com.profiler.server.util.ThreadLocalAcceptedTimeService"></bean>
 </beans>

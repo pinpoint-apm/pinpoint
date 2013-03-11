@@ -4,7 +4,7 @@ import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATIST
 import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATISTICS_CF_ERROR;
 import static com.profiler.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL;
 
-import com.profiler.server.util.AcceptedTime;
+import com.profiler.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,10 +22,14 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    private AcceptedTimeService acceptedTImeService ;
+
 	@Override
 	public void update(Span span) {
 
-        final long acceptedTime = AcceptedTime.getAcceptedTime();
+        final long acceptedTime = acceptedTImeService.getAcceptedTime();
+
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
         byte[] rowTimeSlotBytes = Bytes.toBytes(rowTimeSlot);
 
