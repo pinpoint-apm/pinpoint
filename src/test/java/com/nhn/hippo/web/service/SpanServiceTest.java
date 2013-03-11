@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.AnnotationKey;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
@@ -101,9 +102,9 @@ public class SpanServiceTest {
     }
 
     private void doRead(Span span) {
-        UUID uuid = new UUID(span.getMostTraceId(), span.getLeastTraceId());
+        TraceId traceId = new TraceId(span.getMostTraceId(), span.getLeastTraceId());
 
-        List<SpanAlign> sort = spanService.selectSpan(uuid.toString());
+        List<SpanAlign> sort = spanService.selectSpan(traceId);
         for (SpanAlign spanAlign : sort) {
             logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpanBo());
         }

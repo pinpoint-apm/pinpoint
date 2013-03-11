@@ -1,6 +1,6 @@
 package com.nhn.hippo.web.vo;
 
-import java.util.UUID;
+import com.profiler.common.util.TraceIdUtils;
 
 /**
  * UI로 이 객체 대신 SpanBO를 던진다.
@@ -17,7 +17,7 @@ public class RequestMetadata {
 	private final String application;
 
 	public RequestMetadata(long mostTraceId, long leastTraceId, long startTime, int elapsed, String application) {
-		this.traceId = new UUID(mostTraceId, leastTraceId).toString();
+		this.traceId = TraceIdUtils.formatString(mostTraceId, leastTraceId);
 		this.startTime = startTime;
 		this.elapsed = elapsed;
 		this.application = application;

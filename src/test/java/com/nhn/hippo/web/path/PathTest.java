@@ -7,7 +7,6 @@ import com.profiler.context.TraceID;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.UUID;
 
 /**
  *

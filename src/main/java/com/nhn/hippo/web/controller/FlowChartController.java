@@ -61,13 +61,13 @@ public class FlowChartController {
 		StopWatch watch = new StopWatch();
 		watch.start("scanTraceindex");
 
-		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TraceId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
 		watch.stop();
-		logger.info("Fetch traceIds elapsed : {}ms, {} traces", watch.getLastTaskTimeMillis(), traceIds.size());
+		logger.info("Fetch traceIdList elapsed : {}ms, {} traces", watch.getLastTaskTimeMillis(), traceIdList.size());
 		watch.start("selectServerCallTree");
 
-		ServerCallTree callTree = flow.selectServerCallTree(traceIds, applicationName, from, to);
+		ServerCallTree callTree = flow.selectServerCallTree(traceIdList, applicationName, from, to);
 
 		watch.stop();
 		logger.info("Fetch calltree time : {}ms", watch.getLastTaskTimeMillis());

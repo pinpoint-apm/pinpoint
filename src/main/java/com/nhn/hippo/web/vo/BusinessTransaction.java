@@ -2,9 +2,9 @@ package com.nhn.hippo.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.util.TraceIdUtils;
 
 public class BusinessTransaction {
 	private final List<Trace> traces = new ArrayList<Trace>();
@@ -21,7 +21,9 @@ public class BusinessTransaction {
 		long elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
 
-		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.getException()));
+        String traceIdString = TraceIdUtils.formatString(span.getMostTraceId(), span.getLeastTraceId());
+        Trace trace = new Trace(traceIdString, elapsed, span.getStartTime(), span.getException());
+        this.traces.add(trace);
 		calls++;
 	}
 
@@ -29,12 +31,16 @@ public class BusinessTransaction {
 		long elapsed = span.getElapsed();
 
 		totalTime += elapsed;
-		if (maxTime < elapsed)
+		if (maxTime < elapsed) {
 			maxTime = elapsed;
-		if (minTime > elapsed)
+        }
+		if (minTime > elapsed) {
 			minTime = elapsed;
+        }
 
-		this.traces.add(new Trace(new UUID(span.getMostTraceId(), span.getLeastTraceId()).toString(), elapsed, span.getStartTime(), span.getException()));
+        String traceIdString = TraceIdUtils.formatString(span.getMostTraceId(), span.getLeastTraceId());
+        Trace trace = new Trace(traceIdString, elapsed, span.getStartTime(), span.getException());
+		this.traces.add(trace);
 
 		//if (span.getParentSpanId() == -1) {
 			calls++;

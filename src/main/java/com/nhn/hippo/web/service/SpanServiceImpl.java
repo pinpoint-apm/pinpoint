@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
+import com.nhn.hippo.web.vo.TraceId;
 import com.profiler.common.AnnotationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +54,9 @@ public class SpanServiceImpl implements SpanService {
     private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
     @Override
-    public List<SpanAlign> selectSpan(String uuid) {
-        UUID id = UUID.fromString(uuid);
-        List<SpanBo> spans = traceDao.selectSpanAndAnnotation(id);
+    public List<SpanAlign> selectSpan(TraceId traceId) {
+
+        List<SpanBo> spans = traceDao.selectSpanAndAnnotation(traceId);
         if (spans == null || spans.isEmpty()) {
             return Collections.emptyList();
         }

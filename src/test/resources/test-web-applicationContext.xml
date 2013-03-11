@@ -46,4 +46,6 @@
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 
+    <bean class="com.profiler.server.util.ThreadLocalAcceptedTimeService"></bean>
+
 </beans>

@@ -1,7 +1,6 @@
 package com.nhn.hippo.web.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +33,13 @@ public class BusinessTransactionController {
 	private FlowChartService flow;
 
 	@RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
-	public ModelAndView selectTransaction(@RequestParam("traceId") String traceId, @RequestParam("focusTimestamp") long focusTimestamp) {
-		logger.debug("traceId:{}", traceId);
+	public ModelAndView selectTransaction(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
+		logger.debug("traceId:{}", traceIdParam);
+
+        final TraceId traceId = new TraceId(traceIdParam);
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
+
 
 		try {
 			// select spans
@@ -54,8 +56,9 @@ public class BusinessTransactionController {
 
 			mv.addObject("traceId", traceId);
 
+
 			// call tree
-			ServerCallTree callTree = flow.selectServerCallTree(new TraceId(UUID.fromString(traceId)));
+			ServerCallTree callTree = flow.selectServerCallTree(traceId);
 			mv.addObject("nodes", callTree.getNodes());
 			mv.addObject("links", callTree.getLinks());
 

@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.vo;
 
 import com.profiler.common.util.BytesUtils;
+import com.profiler.common.util.TraceIdUtils;
 
 import java.util.UUID;
 
@@ -25,11 +26,12 @@ public class TraceId {
         this.most = most;
     }
 
-    public TraceId(UUID uuid) {
-        if (uuid == null) {
-            throw new NullPointerException("uuid must not be null");
+    public TraceId(String traceId) {
+        if (traceId == null) {
+            throw new NullPointerException("traceId must not be null");
         }
-		this.most = uuid.getMostSignificantBits();
+        UUID uuid = UUID.fromString(traceId);
+        this.most = uuid.getMostSignificantBits();
 		this.least = uuid.getLeastSignificantBits();
 	}
 
@@ -59,7 +61,7 @@ public class TraceId {
 
     @Override
     public String toString() {
-        UUID uuid = new UUID(most, least);
-        return "TraceId [" + uuid + "]";
+        String traceId = TraceIdUtils.formatString(most, least);
+        return "TraceId [" + traceId + "]";
     }
 }

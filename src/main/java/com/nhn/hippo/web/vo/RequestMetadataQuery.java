@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 
@@ -23,7 +22,7 @@ public class RequestMetadataQuery {
 	}
 
 	public void addQueryCondition(String traceId, long time, int responseTime) {
-		QueryCondition condition = new QueryCondition(UUID.fromString(traceId), time, responseTime);
+		QueryCondition condition = new QueryCondition(new TraceId(traceId), time, responseTime);
 
 		if (queryConditions.containsKey(condition)) {
 			return;
@@ -33,15 +32,15 @@ public class RequestMetadataQuery {
 	}
 
 	public boolean isExists(long mostTraceId, long leastTraceId, long time, int responseTime) {
-		return queryConditions.containsKey(new QueryCondition(new UUID(mostTraceId, leastTraceId), time, responseTime));
+		return queryConditions.containsKey(new QueryCondition(new TraceId(mostTraceId, leastTraceId), time, responseTime));
 	}
 
-	public List<UUID> getTraceIds() {
-		Set<UUID> temp = new HashSet<UUID>(queryConditions.size());
+	public List<TraceId> getTraceIds() {
+		Set<TraceId> temp = new HashSet<TraceId>(queryConditions.size());
 		for (Entry<QueryCondition, Object> entry : queryConditions.entrySet()) {
 			temp.add(entry.getKey().getTraceId());
 		}
-		return new ArrayList<UUID>(temp);
+		return new ArrayList<TraceId>(temp);
 	}
 
 	public int size() {
@@ -54,17 +53,17 @@ public class RequestMetadataQuery {
 	}
 
 	public static class QueryCondition {
-		private final UUID traceId;
+		private final TraceId traceId;
 		private final long time;
 		private final int responseTime;
 
-		public QueryCondition(UUID traceId, long time, int responseTime) {
+		public QueryCondition(TraceId traceId, long time, int responseTime) {
 			this.traceId = traceId;
 			this.time = time;
 			this.responseTime = responseTime;
 		}
 
-		public UUID getTraceId() {
+		public TraceId getTraceId() {
 			return traceId;
 		}
 
