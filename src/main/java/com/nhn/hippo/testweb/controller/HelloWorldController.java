@@ -1,13 +1,11 @@
 package com.nhn.hippo.testweb.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -170,12 +168,11 @@ public class HelloWorldController implements DisposableBean {
 	}
 
 	@RequestMapping(value = "/remotecombination2")
-	public String remotecombination2(Model model) {
-		try {
-			URL url = new URL("http://localhost:8080/combination2.hippo");
-
-			HttpURLConnection request = (HttpURLConnection) url.openConnection();
-
+	public String remotecombination2(Model model) throws MalformedURLException {
+        URL url = new URL("http://localhost:8080/combination2.hippo");
+        HttpURLConnection request = null;
+        try {
+			request = (HttpURLConnection) url.openConnection();
 			request.setRequestMethod("GET");
 			request.setRequestProperty("Content-type", "text/xml; charset=UTF-8");
 			// request.connect();
@@ -186,9 +183,14 @@ public class HelloWorldController implements DisposableBean {
 			System.out.println(reader.readLine());
 
 			reader.close();
+
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            e.printStackTrace();
+		} finally {
+            if(request != null) {
+                request.disconnect();
+            }
+        }
 
 		return "remotecombination";
 	}
