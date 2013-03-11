@@ -10,6 +10,7 @@ disable 'Traces'
 disable 'SystemInfo'
 disable 'TerminalStatistics'
 disable 'BusinessTransactionStatistics'
+disable 'ClientStatistics'
 
 drop 'AgentInfo'
 drop 'AgentIdApplicationIndex'
@@ -22,6 +23,7 @@ drop 'Traces'
 drop 'SystemInfo'
 drop 'TerminalStatistics'
 drop 'BusinessTransactionStatistics'
+drop 'ClientStatistics'
 
 create 'AgentInfo', { NAME => 'Info' }
 create 'AgentIdApplicationIndex', { NAME => 'Application' }
@@ -34,6 +36,7 @@ create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , T
 create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
 create 'TerminalStatistics', { NAME => 'Counter' , TTL => 259200  }
 create 'BusinessTransactionStatistics', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Error' , TTL => 259200  }
+create 'ClientStatistics', { NAME => 'Counter' , TTL => 259200  }
 
 list
 EOF

@@ -42,6 +42,10 @@ public class HBaseTables {
     public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
 	public static final byte[] TERMINAL_STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
 
+	public static final String CLIENT_STATISTICS = "ClientStatistics";
+	public static final byte[] CLIENT_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
+	public static final byte[] CLIENT_STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
+
 	public static final String BUSINESS_TRANSACTION_STATISTICS = "BusinessTransactionStatistics";
 	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL = Bytes.toBytes("Normal");
 	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_SLOW = Bytes.toBytes("Slow");
