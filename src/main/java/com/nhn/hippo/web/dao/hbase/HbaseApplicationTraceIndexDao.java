@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.nhn.hippo.web.vo.TraceId;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -37,7 +38,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<List<byte[]>> traceIndexMapper;
+	private RowMapper<List<TraceId>> traceIndexMapper;
 
 	@Autowired
 	@Qualifier("traceIndexScatterMapper")
@@ -50,13 +51,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public List<List<byte[]>> scanTraceIndex(String applicationName, long start, long end) {
+	public List<List<TraceId>> scanTraceIndex(String applicationName, long start, long end) {
 		Scan scan = createScan(applicationName, start, end);
 		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIndexMapper);
 	}
 
 	@Override
-	public List<List<List<byte[]>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
+	public List<List<List<TraceId>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
 		final List<Scan> multiScan = new ArrayList<Scan>(applicationNames.length);
 		for (String agent : applicationNames) {
 			Scan scan = createScan(agent, start, end);
@@ -67,7 +68,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	private Scan createScan(String agent, long start, long end) {
 		Scan scan = new Scan();
-		// cache size를 지정해야 되는거 같음.??
 		scan.setCaching(this.scanCacheSize);
 
 		byte[] bAgent = Bytes.toBytes(agent);

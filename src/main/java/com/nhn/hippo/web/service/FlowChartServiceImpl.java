@@ -74,24 +74,23 @@ public class FlowChartServiceImpl implements FlowChartService {
 			if (logger.isTraceEnabled()) {
 				logger.trace("scan {}, {}, {}", new Object[] { agentIds[0], from, to });
 			}
-			List<List<byte[]>> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
+			List<List<TraceId>> bytes = this.traceIndexDao.scanTraceIndex(agentIds[0], from, to);
 			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<byte[]> list : bytes) {
-				for (byte[] traceId : list) {
-					TraceId tid = new TraceId(traceId);
-					result.add(tid);
-					logger.trace("traceid:{}", tid);
+			for (List<TraceId> list : bytes) {
+				for (TraceId traceId : list) {
+					result.add(traceId);
+					logger.trace("traceid:{}", traceId);
 				}
 			}
 			return result;
 		} else {
 			// multi scan 가능한 동일 open htable 에서 액세스함.
-			List<List<List<byte[]>>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
+			List<List<List<TraceId>>> multiScan = this.traceIndexDao.multiScanTraceIndex(agentIds, from, to);
 			Set<TraceId> result = new HashSet<TraceId>();
-			for (List<List<byte[]>> list : multiScan) {
-				for (List<byte[]> scan : list) {
-					for (byte[] traceId : scan) {
-						result.add(new TraceId(traceId));
+			for (List<List<TraceId>> list : multiScan) {
+				for (List<TraceId> scan : list) {
+					for (TraceId traceId : scan) {
+						result.add(traceId);
 					}
 				}
 			}
@@ -302,16 +301,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("scan {}, {}, {}", new Object[] { applicationName, from, to });
+			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", new Object[] { applicationName, from, to });
 		}
 
-		List<List<byte[]>> bytes = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+		List<List<TraceId>> traceIdList = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
 		Set<TraceId> result = new HashSet<TraceId>();
-		for (List<byte[]> list : bytes) {
-			for (byte[] traceId : list) {
-				TraceId tid = new TraceId(traceId);
-				result.add(tid);
-				logger.trace("traceid:{}", tid);
+		for (List<TraceId> list : traceIdList) {
+			for (TraceId traceId : list) {
+				result.add(traceId);
+				logger.trace("traceid:{}", traceId);
 			}
 		}
 		return result;
@@ -360,13 +358,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Override
 	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to) {
-		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
+		List<List<SpanBo>> traceList = this.traceDao.selectSpans(traceIds);
 
 		BusinessTransactions businessTransactions = new BusinessTransactions();
-
-		for (List<SpanBo> transaction : traces) {
-			for (SpanBo eachTransaction : transaction) {
-				businessTransactions.add(eachTransaction);
+		for (List<SpanBo> trace : traceList) {
+			for (SpanBo spanBo : trace ) {
+				businessTransactions.add(spanBo);
 			}
 		}
 

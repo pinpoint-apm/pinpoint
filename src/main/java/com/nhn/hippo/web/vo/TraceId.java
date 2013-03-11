@@ -6,30 +6,35 @@ import java.util.UUID;
 
 public class TraceId {
 
-    private final byte[] id;
     private final long most;
     private final long least;
 
     public TraceId(byte[] traceId) {
         if (traceId == null) {
-            throw new NullPointerException("traceId");
+            throw new NullPointerException("traceId must not be null");
         }
         if (traceId.length < 16) {
             throw new IllegalArgumentException("invalid traceId");
         }
-        this.id = traceId;
-        this.most = BytesUtils.bytesToFirstLong(id);
-        this.least = BytesUtils.bytesToSecondLong(id);
+        this.most = BytesUtils.bytesToFirstLong(traceId);
+        this.least = BytesUtils.bytesToSecondLong(traceId);
     }
-    
-	public TraceId(UUID uuid) {
+
+    public TraceId(long most, long least) {
+        this.least = least;
+        this.most = most;
+    }
+
+    public TraceId(UUID uuid) {
+        if (uuid == null) {
+            throw new NullPointerException("uuid must not be null");
+        }
 		this.most = uuid.getMostSignificantBits();
 		this.least = uuid.getLeastSignificantBits();
-		this.id = BytesUtils.longLongToBytes(most, least);
 	}
 
     public byte[] getBytes() {
-        return id;
+        return BytesUtils.longLongToBytes(most, least);
     }
 
     @Override

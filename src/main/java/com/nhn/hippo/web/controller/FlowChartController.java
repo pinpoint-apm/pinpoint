@@ -102,9 +102,9 @@ public class FlowChartController {
 	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 
-		Set<TraceId> traceIds = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TraceId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
-		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIds, applicationName, from, to);
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to);
 
 		model.addAttribute("businessTransactions", selectBusinessTransactions.getBusinessTransactionIterator());
 

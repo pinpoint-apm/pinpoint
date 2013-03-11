@@ -3,6 +3,7 @@ package com.nhn.hippo.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nhn.hippo.web.vo.TraceId;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<List<byte[]>> traceIndexMapper;
+	private RowMapper<List<TraceId>> traceIndexMapper;
 
 	private int scanCacheSize = 40;
 
@@ -39,13 +40,13 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	}
 
 	@Override
-	public List<List<byte[]>> scanTraceIndex(String agent, long start, long end) {
+	public List<List<TraceId>> scanTraceIndex(String agent, long start, long end) {
 		Scan scan = createScan(agent, start, end);
 		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIndexMapper);
 	}
 
 	@Override
-	public List<List<List<byte[]>>> multiScanTraceIndex(String[] agents, long start, long end) {
+	public List<List<List<TraceId>>> multiScanTraceIndex(String[] agents, long start, long end) {
 		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
 		for (String agent : agents) {
 			Scan scan = createScan(agent, start, end);
