@@ -65,7 +65,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
         trace.recordRpcName("CLIENT");
 
 		int port = host.getPort();
-		trace.recordEndPoint(request.getProtocolVersion() + ":" + host.getHostName() + ((port > 0) ? ":" + port : ""));
+		trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));
         trace.recordDestinationId(host.getHostName() + ((port > 0) ? ":" + port : ""));
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
 	}
