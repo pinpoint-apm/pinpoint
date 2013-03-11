@@ -36,7 +36,6 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-//			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(ClassLoader.getSystemClassLoader(), protectedDomain, "com.profiler.modifier.connector.interceptors.ConnectMethodInterceptor");
             ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
             aClass.addInterceptorFromContextClassLoader("connect", null, connectMethodInterceptor);
 

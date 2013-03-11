@@ -51,7 +51,7 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		request.setRequestProperty(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
-		trace.recordServiceType(ServiceType.HTTP_CLIENT);
+		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 		trace.recordRpcName("CLIENT");
 
 		String host = request.getURL().getHost();
