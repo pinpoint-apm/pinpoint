@@ -8,27 +8,29 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
-import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
-import com.profiler.common.bo.SpanEventBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
+import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
+import com.nhn.hippo.web.dao.ClientStatisticsDao;
 import com.nhn.hippo.web.dao.TerminalStatisticsDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
 import com.nhn.hippo.web.vo.BusinessTransactions;
+import com.nhn.hippo.web.vo.ClientStatistics;
 import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SpanEventBo;
 
 /**
  * @author netspider
@@ -52,6 +54,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Autowired
 	private TerminalStatisticsDao terminalStatisticsDao;
+
+	@Autowired
+	private ClientStatisticsDao clientStatisticsDao;
 
 	@Override
 	public List<String> selectAllApplicationNames() {
@@ -116,82 +121,96 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	/**
-     * DetailView에서 사용함. 하나의 Span을 선택했을때 Draw되는 데이터를 생성하는 함수이다
-	 * makes call tree of transaction detail view
+	 * DetailView에서 사용함. 하나의 Span을 선택했을때 Draw되는 데이터를 생성하는 함수이다 makes call tree
+	 * of transaction detail view
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(TraceId traceId) {
 
-
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
 		Set<String> endPoints = createUniqueEndpoint(transaction);
-        ServerCallTree tree = createServerCallTree(transaction);
+		ServerCallTree tree = createServerCallTree(transaction);
 
-        // subSpan에서 record할 데이터만 골라낸다.
-        List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
-        tree.addSpanEventList(spanEventBoList);
+		// subSpan에서 record할 데이터만 골라낸다.
+		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
+		tree.addSpanEventList(spanEventBoList);
 
-        return tree.build();
+		return tree.build();
 	}
 
-    private List<SpanEventBo> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
-        List<SpanEventBo> filterSpanEventBo = new ArrayList<SpanEventBo>();
-        for (SpanBo eachTransaction : transaction) {
+	private List<SpanEventBo> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
+		List<SpanEventBo> filterSpanEventBo = new ArrayList<SpanEventBo>();
+		for (SpanBo eachTransaction : transaction) {
 			List<SpanEventBo> spanEventBoList = eachTransaction.getSpanEventBoList();
 
 			if (spanEventBoList == null) {
 				continue;
-            }
+			}
 
 			for (SpanEventBo spanEventBo : spanEventBoList) {
-                // 통계정보로 잡지 않을 데이터는 스킵한다.
-                if (!spanEventBo.getServiceType().isRecordStatistics()) {
-                    continue;
-                }
+				// 통계정보로 잡지 않을 데이터는 스킵한다.
+				if (!spanEventBo.getServiceType().isRecordStatistics()) {
+					continue;
+				}
 
 				// remove subspan of the rpc client
 				if (!endPoints.contains(spanEventBo.getEndPoint())) {
 					// this is unknown cloud
-                    filterSpanEventBo.add(spanEventBo);
+					filterSpanEventBo.add(spanEventBo);
 				}
 			}
 		}
-        return filterSpanEventBo;
-    }
+		return filterSpanEventBo;
+	}
 
-    /**
-     * ServerCallTree를 생성하고 low SpanBo데이터를 tree에 추가한다.
-     * @param transaction
-     * @return
-     */
-    private ServerCallTree createServerCallTree(List<SpanBo> transaction) {
-        ServerCallTree serverCallTree = new ServerCallTree(new AgentIdNodeSelector());
-        serverCallTree.addSpanList(transaction);
-        return serverCallTree;
-    }
+	/**
+	 * ServerCallTree를 생성하고 low SpanBo데이터를 tree에 추가한다.
+	 * 
+	 * @param transaction
+	 * @return
+	 */
+	private ServerCallTree createServerCallTree(List<SpanBo> transaction) {
+		ServerCallTree serverCallTree = new ServerCallTree(new AgentIdNodeSelector());
+		serverCallTree.addSpanList(transaction);
 
-    /**
-     * Trace uuid를 구성하는 SpanBo의 집합에서 endpoint 값을 유니크한 값으로 뽑아온다.
-     * @param transaction
-     * @return
-     */
-    private Set<String> createUniqueEndpoint(List<SpanBo> transaction) {
-        // markRecursiveCall(transaction);
-        Set<String> endPointSet = new HashSet<String>();
-        for (SpanBo eachTransaction : transaction) {
-            endPointSet.add(eachTransaction.getEndPoint());
-        }
-        return endPointSet;
-    }
+		// TODO 이 메소드는 transaction하나만 조회하는 페이지에서 사용되기 때문에 이렇게 한다.
+		// 나중에 방식을 변경할 필요가 있을지도...
+		for (SpanBo span : transaction) {
+			if (!span.isRoot()) {
+				continue;
+			}
+			ClientStatistics stat = new ClientStatistics(span.getApplicationId(), span.getServiceType().getCode());
+			stat.getHistogram().addSample(span.getElapsed());
+			serverCallTree.addClientStatistics(stat);
+		}
 
-    /**
-	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
-     * makes call tree of main view
+		return serverCallTree;
+	}
+
+	/**
+	 * Trace uuid를 구성하는 SpanBo의 집합에서 endpoint 값을 유니크한 값으로 뽑아온다.
+	 * 
+	 * @param transaction
+	 * @return
+	 */
+	private Set<String> createUniqueEndpoint(List<SpanBo> transaction) {
+		// markRecursiveCall(transaction);
+		Set<String> endPointSet = new HashSet<String>();
+		for (SpanBo eachTransaction : transaction) {
+			endPointSet.add(eachTransaction.getEndPoint());
+		}
+		return endPointSet;
+	}
+
+	/**
+	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다. makes call tree of main
+	 * view
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
+		final Map<String, ServiceType> clientQueryParams = new HashMap<String, ServiceType>();
 		final ServerCallTree tree = new ServerCallTree(new ApplicationIdNodeSelector());
 
 		StopWatch watch = new StopWatch();
@@ -216,6 +235,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 				// make query param
 				terminalQueryParams.put(eachTransaction.getApplicationId(), eachTransaction.getServiceType());
+
+				// make client query param
+				if (eachTransaction.isRoot()) {
+					// TODO 여기에서 service type을 CLIENT로 지정해버려서 client유형별로 조회 불가능. 나중에 고쳐야함.
+					clientQueryParams.put(eachTransaction.getApplicationId(), ServiceType.CLIENT);
+				}
 
 				nonTerminalEndPoints.add(eachTransaction.getEndPoint());
 			}
@@ -254,6 +279,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
+		logger.debug("client query params=" + clientQueryParams);
+		
+		// fetch client info
+		for (Entry<String, ServiceType> param : clientQueryParams.entrySet()) {
+			List<Map<String, ClientStatistics>> clients = clientStatisticsDao.selectClient(param.getKey(), param.getValue().getCode(), from, to);
+
+			for (Map<String, ClientStatistics> client : clients) {
+				for (Entry<String, ClientStatistics> clientEntry : client.entrySet()) {
+					logger.debug("fetched client=" + clientEntry);
+					tree.addClientStatistics(clientEntry.getValue());
+				}
+			}
+		}
+
 		watch.stop();
 		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
 
@@ -272,26 +311,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return null;
 	}
 
-
 	/**
 	 * server map이 recursive call을 표현할 수 있게 되어 필요 없음.
+	 * 
 	 * @param list
 	 */
 	@Deprecated
 	private void markRecursiveCall(final List<SpanBo> list) {
 		/*
-		for (int i = 0; i < list.size(); i++) {
-			SpanBo a = list.get(i);
-			for (int j = 0; j < list.size(); j++) {
-				if (i == j)
-					continue;
-				SpanBo b = list.get(j);
-				if (a.getServiceName().equals(b.getServiceName()) && a.getSpanId() == b.getParentSpanId()) {
-					a.increaseRecursiveCallCount();
-				}
-			}
-		}
-		*/
+		 * for (int i = 0; i < list.size(); i++) { SpanBo a = list.get(i); for
+		 * (int j = 0; j < list.size(); j++) { if (i == j) continue; SpanBo b =
+		 * list.get(j); if (a.getServiceName().equals(b.getServiceName()) &&
+		 * a.getSpanId() == b.getParentSpanId()) {
+		 * a.increaseRecursiveCallCount(); } } }
+		 */
 	}
 
 	@Override
@@ -318,20 +351,21 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Deprecated
 	@Override
 	public String[] selectAgentIds(String[] hosts) {
-//		List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
-//		column.add(new HbaseColumn("Agents", "AgentID"));
-//
-//		HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX, null, null, column);
-//		Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
-//
-//		if (logger.isDebugEnabled()) {
-//			while (iterator.hasNext()) {
-//				logger.debug("selectedAgentId={}", iterator.next());
-//			}
-//			logger.debug("!!!==============WARNING==============!!!");
-//			logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
-//			logger.debug("!!!===================================!!!");
-//		}
+		// List<HbaseColumn> column = new ArrayList<HBaseQuery.HbaseColumn>();
+		// column.add(new HbaseColumn("Agents", "AgentID"));
+		//
+		// HBaseQuery query = new HBaseQuery(HBaseTables.APPLICATION_INDEX,
+		// null, null, column);
+		// Iterator<Map<String, byte[]>> iterator = client.getHBaseData(query);
+		//
+		// if (logger.isDebugEnabled()) {
+		// while (iterator.hasNext()) {
+		// logger.debug("selectedAgentId={}", iterator.next());
+		// }
+		// logger.debug("!!!==============WARNING==============!!!");
+		// logger.debug("!!! selectAgentIds IS NOT IMPLEMENTED !!!");
+		// logger.debug("!!!===================================!!!");
+		// }
 
 		return hosts;
 	}
@@ -350,7 +384,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		return list;
 	}
-	
+
 	@Override
 	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
 		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);

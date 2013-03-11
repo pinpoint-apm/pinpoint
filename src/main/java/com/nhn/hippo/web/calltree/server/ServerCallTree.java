@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.profiler.common.bo.SpanEventBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.hippo.web.vo.ClientStatistics;
 import com.nhn.hippo.web.vo.ResponseHistogram;
 import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
+import com.profiler.common.bo.SpanEventBo;
 
 /**
  * Call Tree
@@ -25,8 +26,6 @@ public class ServerCallTree {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// private final String PREFIX_CLIENT = "UNKNOWN-CLIENT:";
-
 	private final Map<String, Server> servers = new HashMap<String, Server>();
 	private final Map<String, ServerRequest> serverRequests = new HashMap<String, ServerRequest>();
 	private final NodeSelector nodeSelector;
@@ -36,13 +35,28 @@ public class ServerCallTree {
 	private final List<SpanBo> spans = new ArrayList<SpanBo>();
 	private final List<SpanEventBo> subspans = new ArrayList<SpanEventBo>();
 	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
-	private final Map<String, String> spanIdToClientId = new HashMap<String, String>();
+	private final Map<String, String> clientServerMap = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
+	private final Map<String, ClientStatistics> clientRequests = new HashMap<String, ClientStatistics>();
 
 	public ServerCallTree(NodeSelector nodeSelector) {
 		this.nodeSelector = nodeSelector;
 	}
 
+	public void addClientStatistics(ClientStatistics client) {
+		if (clientRequests.containsKey(client.getId())) {
+			ClientStatistics req = clientRequests.get(client.getId());
+			req.mergeWith(client);
+			logger.debug("merge client statistics " + client);
+		} else {
+			clientRequests.put(client.getId(), client);
+			logger.debug("create client statistics " + client);
+		}
+		
+		clientServerMap.put(client.getTo(), client.getId());
+		logger.debug("add clientservermap " + client.getTo() + " -> " + client.getId());
+	}
+	
 	public void addTerminalStatistics(TerminalStatistics terminal) {
 		if (terminalRequests.containsKey(terminal.getId())) {
 			TerminalStatistics req = terminalRequests.get(terminal.getId());
@@ -61,14 +75,14 @@ public class ServerCallTree {
 		spanIdToServerId.put(spanId, server.getId());
 	}
 	
-	private void addClient(String spanId, Server server) {
-		if (!servers.containsKey(server.getId())) {
-			servers.put(server.getId(), server);
-		} else {
-			servers.get(server.getId()).mergeWith(server);
-		}
-		spanIdToClientId.put(spanId, server.getId());
-	}
+//	private void addClient(String spanId, Server server) {
+//		if (!servers.containsKey(server.getId())) {
+//			servers.put(server.getId(), server);
+//		} else {
+//			servers.get(server.getId()).mergeWith(server);
+//		}
+//		spanIdToClientId.put(spanId, server.getId());
+//	}
 
     public void addSpanEventList(List<SpanEventBo> spanEventBoList) {
         for (SpanEventBo spanEventBo : spanEventBoList) {
@@ -94,6 +108,12 @@ public class ServerCallTree {
         }
     }
 
+//	public void addClientSpan(SpanBo span) {
+//		ClientStatistics stat = new ClientStatistics(nodeSelector.getServerId(span), span.getServiceType().getCode());
+//		stat.getHistogram().addSample(span.getElapsed());
+//		this.addClientStatistics(stat);
+//	}
+    
 	public void addSpan(SpanBo span) {
 		Server server = new Server(span, nodeSelector);
 
@@ -105,11 +125,11 @@ public class ServerCallTree {
 
 		addServer(spanId, server);
 
-		if (span.getParentSpanId() == -1) {
+//		if (span.getParentSpanId() == -1) {
 			// TODO client endpoint별로 node가 모두 생기니까 일단 임시로 application name을 사용함.
 			// 여기에서 applicationname을 넣으면 여러 클라이언트를 보여줄 수 있지만 하나로 퉁친다...
-			addClient(spanId, new Server("CLIENT" /*:" + NodeIdGenerator.BY_APPLICATION_NAME.makeServerId(span)*/, "CLIENT", null, ServiceType.CLIENT));
-		}
+//			addClient(spanId, new Server("CLIENT" /*:" + NodeIdGenerator.BY_APPLICATION_NAME.makeServerId(span)*/, "CLIENT", null, ServiceType.CLIENT));
+//		}
 
 		spans.add(span);
 	}
@@ -124,13 +144,20 @@ public class ServerCallTree {
 			Server server = new Server(terminal.getTo(), terminal.getTo(), terminal.getHosts(), ServiceType.findServiceType(terminal.getToServiceType()));
 			servers.put(server.getId(), server);
 		}
+		
+		// add client to servers
+		for (Entry<String, ClientStatistics> entry : clientRequests.entrySet()) {
+			ClientStatistics client = entry.getValue();
+			Server server = new Server(client.getId(), client.getTo(), null, ServiceType.findServiceType(client.getToServiceType()));
+			servers.put(server.getId(), server);
+		}
 
 		// indexing server
 		int i = 0;
 		for (Entry<String, Server> entry : servers.entrySet()) {
 			entry.getValue().setSequence(i++);
 		}
-
+		
 		// add terminal requests
 		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
 			TerminalStatistics terminal = entry.getValue();
@@ -143,8 +170,20 @@ public class ServerCallTree {
 			String from = String.valueOf(span.getParentSpanId());
 			String to = String.valueOf(span.getSpanId());
 
+			logger.debug("add non-terminal requests from=" + from + ", to=" + to);
+			
+//			System.out.println("---------------------");
+//			System.out.println(span.isRoot());
+//			System.out.println(span.getApplicationId());
+//			System.out.println(from);
+//			System.out.println(to);
+//			System.out.println(clientServerMap);
+//			System.out.println(spanIdToServerId);
+//			System.out.println(servers);
+//			System.out.println("---------------------");
+			
 			// span이 rootspan이면 client를 찾고 그렇지 않으면 서버를 찾는다.
-			Server fromServer = servers.get((span.isRoot()) ? spanIdToClientId.get(to) : spanIdToServerId.get(from));
+			Server fromServer = servers.get((span.isRoot()) ? clientServerMap.get(span.getApplicationId()) : spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));
 
 //			if (fromServer == null) {
@@ -153,7 +192,7 @@ public class ServerCallTree {
 
 			// TODO 없는 url에 대한 호출이 고려되어야 함. 일단 임시로 회피.
 			if (fromServer == null) {
-				logger.debug("invalid form server {}", from);
+				logger.debug("invalid fromServer {}", from);
 				continue;
 			}
 			
