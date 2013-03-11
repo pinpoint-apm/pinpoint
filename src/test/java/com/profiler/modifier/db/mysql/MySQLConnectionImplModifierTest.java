@@ -46,6 +46,8 @@ public class MySQLConnectionImplModifierTest {
         MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor(), agent);
         loader.addModifier(preparedStatementJDBC4Modifier);
 
+
+
         loader.initialize();
     }
 
@@ -63,7 +65,7 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
 
-        TraceContext traceContext = new TraceContext();
+        TraceContext traceContext = TraceContext.getTraceContext();
         traceContext.setStorageFactory(new BypassStorageFactory(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         Trace trace = new Trace();
         traceContext.attachTraceObject(trace);

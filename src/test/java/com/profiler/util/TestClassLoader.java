@@ -1,9 +1,13 @@
 package com.profiler.util;
 
+import com.mysql.jdbc.CachedResultSetMetaData;
+import com.profiler.Agent;
 import com.profiler.context.Trace;
+import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.Modifier;
 import com.profiler.util.bindvalue.BindValueConverter;
 import javassist.CannotCompileException;
@@ -48,6 +52,13 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(Trace.class.getName());
         this.delegateLoadingOf(MetaObject.class.getName());
         this.delegateLoadingOf(StringUtils.class.getName());
+        this.delegateLoadingOf(MethodDescriptor.class.getName());
+        this.delegateLoadingOf(ByteCodeMethodDescriptorSupport.class.getName());
+        this.delegateLoadingOf(LoggingUtils.class.getName());
+        this.delegateLoadingOf(Agent.class.getName());
+        this.delegateLoadingOf(TraceContext.class.getName());
+
+
 
         this.delegateLoadingOf(BindValueConverter.class.getPackage() + ".");
     }

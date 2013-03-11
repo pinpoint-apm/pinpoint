@@ -119,10 +119,11 @@ public class TraceContext {
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             ApiMetaData apiMetadata = new ApiMetaData();
-            apiMetadata.setAgentId(Agent.getInstance().getAgentId());
-            apiMetadata.setAgentIdentifier(Agent.getInstance().getIdentifier());
+            Agent agent = Agent.getInstance();
+            apiMetadata.setAgentId(agent.getAgentId());
+            apiMetadata.setAgentIdentifier(agent.getIdentifier());
 
-            apiMetadata.setStartTime(Agent.getInstance().getStartTime());
+            apiMetadata.setStartTime(agent.getStartTime());
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());

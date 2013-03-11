@@ -1,13 +1,12 @@
 package com.profiler.util;
 
 import com.profiler.modifier.Modifier;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.NotFoundException;
-import javassist.Translator;
+import javassist.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,6 +38,19 @@ public class InstrumentTranslator implements Translator {
         if(modifier == null) {
             return;
         }
-        modifier.modify(this.loader, classname, null, null);
+        logger.info("Modify loader:{}, name:{},  modifier{}", new Object[]{loader, classname, modifier});
+
+        final Thread thread = Thread.currentThread();
+        ClassLoader beforeClassLoader = thread.getContextClassLoader();
+        thread.setContextClassLoader(loader);
+        try {
+            byte[] modify = modifier.modify(this.loader, classname, null, null);
+            pool.makeClass(new ByteArrayInputStream(modify));
+        } catch (IOException ex) {
+            throw new NotFoundException(classname + " not found. Caused:" + ex.getMessage(), ex);
+        } finally {
+            thread.setContextClassLoader(beforeClassLoader);
+        }
+
     }
 }
