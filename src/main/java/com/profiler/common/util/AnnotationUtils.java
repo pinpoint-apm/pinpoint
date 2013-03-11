@@ -21,10 +21,6 @@ public class AnnotationUtils {
         return format.format(new Date(date));
     }
 
-    public static String longLongToUUID(long mostTraceId, long leastTraceId) {
-        return new UUID(mostTraceId, leastTraceId).toString();
-    }
-
     private static Comparator<AnnotationBo> annotationKeyComparator = new Comparator<AnnotationBo>() {
         @Override
         public int compare(AnnotationBo a1, AnnotationBo a2) {

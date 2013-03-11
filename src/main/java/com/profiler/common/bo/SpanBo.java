@@ -11,6 +11,7 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;
+import com.profiler.common.util.TraceIdUtils;
 
 /**
  *
@@ -115,7 +116,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
     }
 
 	public String getTraceId() {
-		return new UUID(mostTraceId, leastTraceId).toString();
+        return TraceIdUtils.formatString(mostTraceId, leastTraceId);
 	}
     
     public String getAgentId() {
