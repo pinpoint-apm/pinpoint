@@ -495,8 +495,8 @@ $(document).ready(function () {
     
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");
+		target.empty();
 		$(json).each(function(i, e) {
-			$("#application").empty();
 			
             var html = [];
             html.push('<option value="');
