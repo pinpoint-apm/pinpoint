@@ -46,13 +46,12 @@ public class Agent {
 		this.profilerConfig = profilerConfig;
 		this.serverInfo = new ServerInfo();
 
-		// this.agentId = getId("hippo.agentId", "UnkonwnAgentId");
-		// 일단 임시로 호환성을 위해 agentid에 머신name을넣도록 하자
+		// TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
+		// TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
 		String machineName = NetworkUtils.getMachineName();
-		this.agentId = getId("hippo.agentId", machineName);
-		// TODO node name의 string limit 제한을 해결해야 된다.
-		this.nodeName = getId("hippo.nodeName", machineName);
-		this.applicationName = getId("hippo.applicationName", "UnknownApplicationName");
+		this.agentId = getId("hippo.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
+		this.nodeName = System.getProperty("hippo.nodeName", machineName);
+		this.applicationName = getId("hippo.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
 
 		this.priorityDataSender = createDataSender();
 		this.dataSender = createDataSender();
@@ -96,16 +95,16 @@ public class Agent {
 		return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorServerPort());
 	}
 
-	private String getId(String key, String defaultValue) {
+	private String getId(String key, String defaultValue, int maxlen) {
 		String value = System.getProperty(key, defaultValue);
-		validateId(value, key);
+		validateId(value, key, maxlen);
 		return value;
 	}
 
-	private void validateId(String id, String idName) {
+	private void validateId(String id, String idName, int maxlen) {
 		try {
 			byte[] bytes = id.getBytes("UTF-8");
-			if (bytes.length > HBaseTables.AGENT_NAME_MAX_LEN) {
+			if (bytes.length > maxlen) {
 				logger.warning(idName + " is too long(1~24). value=" + id);
 			}
 			// validate = false;
@@ -154,6 +153,10 @@ public class Agent {
 
 	public TraceContext getTraceContext() {
 		return traceContext;
+	}
+
+	public String getNodeName() {
+		return nodeName;
 	}
 
 	/**
