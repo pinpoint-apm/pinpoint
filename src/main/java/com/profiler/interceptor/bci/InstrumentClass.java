@@ -1,6 +1,5 @@
 package com.profiler.interceptor.bci;
 
-import javassist.CannotCompileException;
 import javassist.CtMethod;
 
 import com.profiler.interceptor.Interceptor;

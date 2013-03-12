@@ -52,7 +52,6 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
 
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
-            trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
             trace.recordDestinationId(databaseInfo.getDatabaseId());

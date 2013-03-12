@@ -79,7 +79,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordRpcName(databaseInfo.getUrl());
 
 
         trace.recordEndPoint(databaseInfo.getUrl());
@@ -90,31 +89,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
     private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
         try {
             trace.recordApi(descriptor, arg);
-//            trace.recordApi(apiId, arg);
             trace.recordException(result);
-//            Boolean autocommit = (Boolean) arg;
-//            boolean success = InterceptorUtils.isSuccess(result);
-//            if (!autocommit) {
-//                // transaction start;
-//                if (success) {
-//                    trace.recordAttribute("Transaction", "begin");
-//                    trace.recordApi(descriptor, null);
-//                } else {
-//                    trace.recordAttribute("Transaction", "begin fail");
-//                    Throwable th = (Throwable) result;
-//                    trace.recordAttribute("Exception", th.getMessage());
-//                }
-//
-//            } else {
-//                if (success) {
-//                    trace.recordAttribute("Transaction", "autoCommit:false");
-//                } else {
-//                    trace.recordAttribute("Transaction", "autoCommit:false fail");
-//                    Throwable th = (Throwable) result;
-//                    trace.recordAttribute("Exception", th.getMessage());
-//                }
-//
-//            }
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -132,12 +108,10 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
         trace.recordDestinationAddress(databaseInfo.getHost());
-//        trace.record(Annotation.ClientSend);
 
     }
 
@@ -146,24 +120,13 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
             trace.recordServiceType(databaseInfo.getType());
-            trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
             trace.recordDestinationAddress(databaseInfo.getHost());
 
             trace.recordApi(descriptor);
-//            trace.recordApi(apiId);
             trace.recordException(result);
-
-//            boolean success = InterceptorUtils.isSuccess(result);
-//            if (success) {
-//                trace.recordAttribute("Transaction", "commit");
-//            } else {
-//                trace.recordAttribute("Transaction", "commit fail");
-//                Throwable th = (Throwable) result;
-//                trace.recordAttribute("Exception", th.getMessage());
-//            }
 
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
@@ -183,7 +146,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
         trace.recordServiceType(databaseInfo.getType());
-        trace.recordRpcName(databaseInfo.getUrl());
 
         trace.recordEndPoint(databaseInfo.getUrl());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
@@ -196,14 +158,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
             trace.recordServiceType(databaseInfo.getType());
-            trace.recordRpcName(databaseInfo.getUrl());
 
             trace.recordEndPoint(databaseInfo.getUrl());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
             trace.recordDestinationAddress(databaseInfo.getHost());
 
             trace.recordApi(descriptor);
-//            trace.recordApi(apiId);
             trace.recordException(result);
 //            boolean success = InterceptorUtils.isSuccess(result);
 //            if (success) {
