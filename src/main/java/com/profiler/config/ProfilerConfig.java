@@ -119,7 +119,7 @@ public class ProfilerConfig {
 	private void readPropertyValues(Properties prop) {
 		// TODO : use Properties defaultvalue instead of using temp variable.
 
-		this.profileEnable = readBoolean(prop, "PROFILE_ENABLE", true);
+		this.profileEnable = readBoolean(prop, "profile.enable", true);
 
 		this.collectorServerIp = readString(prop, "server.collector.ip", "127.0.0.1");
 		this.collectorServerPort = readInt(prop, "server.collector.udp.port", 9995);
