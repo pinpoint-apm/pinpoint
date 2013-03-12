@@ -12,3 +12,6 @@ read size:2445
 
 desinationId, destinationAddress로 더 fix하게되어
 jdbc url이 중복되고 있어 개선하면 데이터 사이즈가 상당히 줄듯함.
+
+jdbc에서 rpc name제거시.
+1865
