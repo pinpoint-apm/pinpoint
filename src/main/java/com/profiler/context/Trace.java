@@ -5,6 +5,7 @@ import com.profiler.common.ServiceType;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.LoggingUtils;
+import com.profiler.util.StringUtils;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -197,7 +198,8 @@ public final class Trace {
     public void recordException(Object result) {
         if (result instanceof Throwable) {
             Throwable th = (Throwable) result;
-            recordAttribute(AnnotationKey.EXCEPTION, th.getMessage());
+            String drop = StringUtils.drop(th.getMessage());
+            recordAttribute(AnnotationKey.EXCEPTION, drop);
 
             Span span = getCallStack().getSpan();
             if (span.getException() == 0) {

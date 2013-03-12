@@ -7,7 +7,9 @@ import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.LoggingUtils;
+import com.profiler.util.StringUtils;
 
 /**
  *
@@ -92,11 +94,38 @@ public class AsyncTrace {
     }
 
 
-    public void recordAttribute(final AnnotationKey key, final String value) {
-        recordAttibute(key, (Object) value);
+    public void recordApi(MethodDescriptor methodDescriptor) {
+        if (methodDescriptor == null) {
+            return;
+        }
+        if (methodDescriptor.getApiId() == 0) {
+            recordAttribute(AnnotationKey.API, methodDescriptor.getFullName());
+        } else {
+            recordAttribute(AnnotationKey.API_DID, methodDescriptor.getApiId());
+        }
     }
 
-    public void recordAttibute(final AnnotationKey key, final Object value) {
+    public void recordAttribute(final AnnotationKey key, final String value) {
+        recordAttribute(key, (Object) value);
+    }
+
+    public void recordException(Object result) {
+        if (result instanceof Throwable) {
+            Throwable th = (Throwable) result;
+            String drop = StringUtils.drop(th.getMessage());
+            recordAttribute(AnnotationKey.EXCEPTION, drop);
+
+//            TODO 비동기 api일 경우, span에 exception을 마크하기가 까다로움
+//            AnnotationKey span = getCallStack().getSpan();
+//            if (span.getException() == 0) {
+//                span.setException(1);
+//            }
+        }
+    }
+
+
+
+    public void recordAttribute(final AnnotationKey key, final Object value) {
         spanEvent.addAnnotation(new Annotation(key, value));
     }
 

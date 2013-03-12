@@ -8,6 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
+import com.profiler.context.TraceContext;
+import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
@@ -16,13 +19,12 @@ import net.spy.memcached.protocol.BaseOperationImpl;
 import com.profiler.common.ServiceType;
 import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
-import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 
 /**
  *
  */
-public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor {
+public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor, ByteCodeMethodDescriptorSupport {
 
 	private final Logger logger = Logger.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
     private final boolean isDebug = LoggingUtils.isDebug(logger);
@@ -32,7 +34,9 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 	private MetaObject getServiceCode = new MetaObject("__getServiceCode");
 
-	@Override
+    private MethodDescriptor methodDescriptor;
+
+    @Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
@@ -74,12 +78,13 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			}
 
             asyncTrace.recordServiceType(svcType);
-			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
+//			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
+            asyncTrace.recordApi(methodDescriptor);
 
             asyncTrace.recordDestinationId(serviceCode);
 
 			String cmd = getCommand(baseOperation);
-			asyncTrace.recordAttibute(AnnotationKey.ARCUS_COMMAND, cmd);
+			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
 
 			// TimeObject timeObject = (TimeObject)
 			// asyncTrace.getAttachObject();
@@ -99,9 +104,8 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 				return;
 			}
 			Exception exception = baseOperation.getException();
-			if (exception != null) {
-				asyncTrace.recordAttibute(AnnotationKey.EXCEPTION, InterceptorUtils.exceptionToString(exception));
-			}
+            asyncTrace.recordException(exception);
+
 			if (!baseOperation.isCancelled()) {
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
 				// asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
@@ -128,4 +132,10 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 		return new String(buffer.array(), UTF8);
 	}
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.methodDescriptor = descriptor;
+        TraceContext traceContext = TraceContext.getTraceContext();
+        traceContext.cacheApi(descriptor);
+    }
 }

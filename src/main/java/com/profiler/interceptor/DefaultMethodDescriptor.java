@@ -2,6 +2,8 @@ package com.profiler.interceptor;
 
 import com.profiler.common.mapping.ApiUtils;
 
+import java.util.Arrays;
+
 /**
  *
  */
@@ -21,7 +23,7 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
 
     private int lineNumber;
 
-    private int apiId = -1;
+    private int apiId = 0;
 
     private String fullName;
 
@@ -127,5 +129,21 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     @Override
     public int getApiId() {
         return apiId;
+    }
+
+
+    @Override
+    public String toString() {
+        return "DefaultMethodDescriptor{" +
+                "className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", parameterTypes=" + (parameterTypes == null ? null : Arrays.asList(parameterTypes)) +
+                ", parameterVariableName=" + (parameterVariableName == null ? null : Arrays.asList(parameterVariableName)) +
+                ", parameterDescriptor='" + parameterDescriptor + '\'' +
+                ", apiDescriptor='" + apiDescriptor + '\'' +
+                ", lineNumber=" + lineNumber +
+                ", apiId=" + apiId +
+                ", fullName='" + fullName + '\'' +
+                '}';
     }
 }
