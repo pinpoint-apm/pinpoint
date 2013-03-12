@@ -11,8 +11,8 @@ import com.profiler.modifier.arcus.BaseOperationModifier;
 import com.profiler.modifier.arcus.CacheManagerModifier;
 import com.profiler.modifier.arcus.MemcachedClientModifier;
 import com.profiler.modifier.bloc.handler.HTTPHandlerModifier;
-import com.profiler.modifier.connector.HTTPClientModifier;
-import com.profiler.modifier.connector.HttpURLConnectionModifier;
+import com.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
+import com.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -77,8 +77,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		FilterModifier filterModifier = new FilterModifier(byteCodeInstrumentor, agent);
 		addModifier(filterModifier);
 
-		HTTPClientModifier httpClientModifier = new HTTPClientModifier(byteCodeInstrumentor, agent);
-		addModifier(httpClientModifier);
+		HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
+		addModifier(httpClient4Modifier);
 
 		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
 		addModifier(memcachedClientModifier);

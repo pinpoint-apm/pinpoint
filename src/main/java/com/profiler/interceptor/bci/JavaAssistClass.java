@@ -123,7 +123,7 @@ public class JavaAssistClass implements InstrumentClass {
 
 
     @Override
-    public int addInterceptorFromContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
+    public int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }

@@ -1,4 +1,4 @@
-package com.profiler.modifier.connector;
+package com.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
@@ -9,7 +9,8 @@ import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.modifier.AbstractModifier;
-import com.profiler.modifier.connector.interceptors.ConnectMethodInterceptor;
+import com.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
+import com.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
 
 /**
  * TODO classloader문제 있음.
@@ -18,7 +19,7 @@ import com.profiler.modifier.connector.interceptors.ConnectMethodInterceptor;
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(HTTPClientModifier.class.getName());
+	private final Logger logger = Logger.getLogger(HttpClient4Modifier.class.getName());
 
 	public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -37,7 +38,7 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
             ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
-            aClass.addInterceptorFromContextClassLoader("connect", null, connectMethodInterceptor);
+            aClass.addInterceptorCallByContextClassLoader("connect", null, connectMethodInterceptor);
 
 			return aClass.toBytecode();
 		} catch (InstrumentException e) {

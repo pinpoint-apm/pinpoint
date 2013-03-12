@@ -1,4 +1,4 @@
-package com.profiler.modifier.connector.interceptors;
+package com.profiler.modifier.connector.httpclient4.interceptor;
 
 import java.net.URI;
 import java.util.logging.Logger;
@@ -62,7 +62,6 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		HttpHost host = extractHost(request.getURI());
 
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
-        trace.recordRpcName("CLIENT");
 
 		int port = host.getPort();
 		trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));

@@ -1,4 +1,4 @@
-package com.profiler.modifier.connector.interceptors;
+package com.profiler.modifier.connector.jdkhttpconnector.interceptor;
 
 import java.net.HttpURLConnection;
 import java.util.logging.Logger;
@@ -52,7 +52,6 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 
 		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
-		trace.recordRpcName("CLIENT");
 
 		String host = request.getURL().getHost();
 		int port = request.getURL().getPort();

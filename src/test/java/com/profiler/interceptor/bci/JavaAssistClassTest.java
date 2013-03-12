@@ -47,7 +47,7 @@ public class JavaAssistClassTest {
         TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
         String methodName = "callA";
 
-        aClass.addInterceptorFromContextClassLoader(methodName, null, interceptor);
+        aClass.addInterceptorCallByContextClassLoader(methodName, null, interceptor);
 
         Object testObject = aClass.toClass().newInstance();
         Method callA = testObject.getClass().getMethod(methodName);
@@ -63,7 +63,7 @@ public class JavaAssistClassTest {
 
     @Test
     public void testAddAfterInterceptor() throws Exception {
-        // TODO aClass.addInterceptorFromContextClassLoader 코드의 테스트 케이스도 추가해야함.
+        // TODO aClass.addInterceptorCallByContextClassLoader 코드의 테스트 케이스도 추가해야함.
 
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
         InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.profiler.interceptor.bci.TestObject2");
