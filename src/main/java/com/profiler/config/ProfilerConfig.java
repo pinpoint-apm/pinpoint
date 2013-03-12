@@ -15,7 +15,7 @@ public class ProfilerConfig {
 
 	private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
 
-	private boolean profileEnable = true;
+	private boolean profileEnable = false;
 
 	public String collectorServerIp = "127.0.0.1";
 	public int collectorServerPort = 9995;
