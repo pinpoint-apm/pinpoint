@@ -50,7 +50,7 @@ public class HelloWorldController implements DisposableBean {
 
 	private void randomSlowMethod() {
 		try {
-			Thread.sleep((new Random().nextInt(10)) * 1000L);
+			Thread.sleep((new Random().nextInt(5)) * 1000L);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
