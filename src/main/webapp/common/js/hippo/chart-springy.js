@@ -23,6 +23,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 
 	for(var i=0; i<aNodes.length; i++){
 		aoNodes[i] = graph.newNode({
+									id : i,
 									label: aNodes[i].name, 
 									serviceType : aNodes[i].serviceType,
 									width : 100,
@@ -33,12 +34,13 @@ function drawSpringy(graphdata, targetId, width, height) {
 									},
 									onMouseClick : function(e){
 										// TODO 정보 layer가 중복으로 보이지 않도록 함.
-										if ($("DIV.nodeinfo" + i).length == 0 && this.data.hosts.length > 0) {
+										console.log("DIV.nodeinfo" + this.data.id);
+										if ($("DIV.nodeinfo" + this.data.id).length == 0 && this.data.hosts.length > 0) {
 											var htOffset = $(targetId).offset();
 											var box = $('#ServerBox')
 															.tmpl(this.data)
 															.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
-															.attr('class', 'nodeinfo' + i);
+															.attr('class', 'nodeinfo' + this.data.id);
 											box.appendTo(targetId);
 										}
 									}
@@ -47,6 +49,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 	
 	for(var i=0; i<aLinks.length; i++){
 		graph.newEdge(aoNodes[aLinks[i]['source']], aoNodes[aLinks[i]['target']], {
+																					id : i,
 																					value : aLinks[i]['value'],
 																					width : 100,
 																					height : 80,
@@ -58,7 +61,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 																					},
 																					onMouseClick : function(e){
 																						// TODO 정보 layer가 중복으로 보이지 않도록 함.
-																						if ($("DIV.linkinfo" + i).length > 0) {
+																						if ($("DIV.linkinfo" + this.data.id).length > 0) {
 																							return;
 																						}
 																						
@@ -66,7 +69,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 																						var box = $('#EdgeBox')
 																									.tmpl(this.data)
 																									.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
-																									.attr('class', 'linkinfo' + i);
+																									.attr('class', 'linkinfo' + this.data.id);
 																						box.appendTo(targetId);
 																					},
 																					onMouseOut : function(e){
