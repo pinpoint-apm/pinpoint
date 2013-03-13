@@ -162,8 +162,9 @@
 	            <th class="sorttable_nosort">Argument</th>
 	            <th class="sorttable_numeric">Time[ms]</th>
 	            <th class="sorttable_nosort">Time[%]</th>
-	            <th>ApiType</th>
-	            <th>Agent</th>
+                <th class="sorttable_nosort">Class</th>
+	            <th class="sorttable_nosort">ApiType</th>
+	            <th class="sorttable_nosort">Agent</th>
 	        </tr>
 	        </thead>
 	        <tbody>
@@ -242,6 +243,7 @@
                         <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
                     	</c:if>
                     </td>
+                    <td class="simpleClassName">${record.simpleClassName}</td>
                     <td class="apiType">${record.apiType}</td>
                     <td class="agent">${record.agent}</td>
                 </tr>

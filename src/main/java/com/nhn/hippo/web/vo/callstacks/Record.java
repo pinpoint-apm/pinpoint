@@ -13,6 +13,9 @@ public class Record {
 	private final boolean method;
 
 	private final String title;
+    private String simpleClassName = "";
+    private String fullApiDescription = "";
+
 	private final String arguments;
 	private final long begin;
 	private final long elapsed;
@@ -93,6 +96,22 @@ public class Record {
 		return excludeFromTimeline;
 	}
 
+
+    public String getSimpleClassName() {
+        return simpleClassName;
+    }
+
+    public void setSimpleClassName(String simpleClassName) {
+        this.simpleClassName = simpleClassName;
+    }
+
+    public String getFullApiDescription() {
+        return fullApiDescription;
+    }
+
+    public void setFullApiDescription(String fullApiDescription) {
+        this.fullApiDescription = fullApiDescription;
+    }
 
     public boolean isFocused() {
         return focused;

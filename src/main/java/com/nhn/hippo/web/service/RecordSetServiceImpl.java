@@ -9,6 +9,8 @@ import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SpanEventBo;
 import com.profiler.common.util.AnnotationUtils;
+import com.profiler.common.util.ApiDescription;
+import com.profiler.common.util.ApiDescriptionParser;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Service
 public class RecordSetServiceImpl implements RecordSetService {
+
+    private ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
 
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
@@ -162,8 +166,11 @@ public class RecordSetServiceImpl implements RecordSetService {
 
                 long begin = spanBo.getStartTime();
                 long elapsed = spanBo.getElapsed();
+                ApiDescription apiDescription = apiDescriptionParser.parse(method);
+                Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), arguments, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                record.setSimpleClassName(apiDescription.getSimpleClassName());
+                record.setFullApiDescription(method);
 
-                Record record = new Record(spanAlign.getDepth(), true, method, arguments, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
                 recordList.add(record);
 
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
@@ -177,8 +184,12 @@ public class RecordSetServiceImpl implements RecordSetService {
                 long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                 long elapsed = spanEventBo.getEndElapsed();
 
+                ApiDescription apiDescription = apiDescriptionParser.parse(method);
                 String destinationId = spanEventBo.getDestinationId();
-                Record record = new Record(spanAlign.getDepth(), true, method, (arguments != null) ? arguments.toString() : "", begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), (arguments != null) ? arguments.toString() : "", begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                record.setSimpleClassName(apiDescription.getSimpleClassName());
+                record.setFullApiDescription(method);
+
                 recordList.add(record);
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanEventBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
