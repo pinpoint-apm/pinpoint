@@ -1,7 +1,5 @@
 package com.profiler.common.mapping;
 
-import com.profiler.common.mapping.code.JDBCRegister;
-import com.profiler.common.mapping.code.RpcClientRegister;
 import com.profiler.common.mapping.code.ServerRegister;
 
 import java.util.HashMap;
@@ -36,14 +34,8 @@ public class ApiMappingTable {
     }
 
     public void init() {
-        JDBCRegister jdbc = new JDBCRegister();
-        jdbc.register(this, 1000, 1999);
-
         ServerRegister server = new ServerRegister();
         server.register(this, 5000, 5999);
-
-        RpcClientRegister rpcClient = new RpcClientRegister();
-        rpcClient.register(this, 10000, 10999);
 
     }
 
