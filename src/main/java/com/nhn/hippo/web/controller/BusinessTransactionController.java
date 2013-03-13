@@ -2,6 +2,7 @@ package com.nhn.hippo.web.controller;
 
 import java.util.List;
 
+import com.nhn.hippo.web.service.RecordSetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class BusinessTransactionController {
 	@Autowired
 	private SpanService spanService;
 
+    @Autowired
+    private RecordSetService recordSetService;
+
 	@Autowired
 	private FlowChartService flow;
 
@@ -40,10 +44,9 @@ public class BusinessTransactionController {
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
 
-
 		try {
 			// select spans
-			List<SpanAlign> spanAligns = spanService.selectSpan(traceId);
+			List<SpanAlign> spanAligns = this.spanService.selectSpan(traceId);
 
 			if (spanAligns.isEmpty()) {
 				mv.addObject("errorCode", 9);
@@ -58,19 +61,19 @@ public class BusinessTransactionController {
 
 
 			// call tree
-			ServerCallTree callTree = flow.selectServerCallTree(traceId);
+			ServerCallTree callTree = this.flow.selectServerCallTree(traceId);
 			mv.addObject("nodes", callTree.getNodes());
 			mv.addObject("links", callTree.getLinks());
 
 			// call stacks
-			RecordSet recordset = new RecordSet(spanAligns, focusTimestamp);
-			mv.addObject("recordset", recordset);
+            RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
+			mv.addObject("recordset", recordSet);
 
-			mv.addObject("applicationName", recordset.getApplicationName());
-			mv.addObject("callstack", recordset.getIterator());
-			mv.addObject("timeline", recordset.getIterator());
-			mv.addObject("callstackStart", recordset.getStartTime());
-			mv.addObject("callstackEnd", recordset.getEndTime());
+			mv.addObject("applicationName", recordSet.getApplicationName());
+			mv.addObject("callstack", recordSet.getIterator());
+			mv.addObject("timeline", recordSet.getIterator());
+			mv.addObject("callstackStart", recordSet.getStartTime());
+			mv.addObject("callstackEnd", recordSet.getEndTime());
 		} catch (Exception e) {
 			logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
 			// TODO 아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.

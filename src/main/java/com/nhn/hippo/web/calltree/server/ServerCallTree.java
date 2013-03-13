@@ -32,8 +32,8 @@ public class ServerCallTree {
 	private boolean isBuilt = false;
 
 	// temporary variables
-	private final List<SpanBo> spans = new ArrayList<SpanBo>();
-	private final List<SpanEventBo> subspans = new ArrayList<SpanEventBo>();
+	private final List<SpanBo> spanList = new ArrayList<SpanBo>();
+	private final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 	private final Map<String, String> spanIdToServerId = new HashMap<String, String>();
 	private final Map<String, String> clientServerMap = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
@@ -99,7 +99,7 @@ public class ServerCallTree {
 
        addServer(spanEventBo.getDestinationId(), server);
 
-		subspans.add(spanEventBo);
+		spanEventBoList.add(spanEventBo);
 	}
 
     public void addSpanList(List<SpanBo> spanList) {
@@ -131,7 +131,7 @@ public class ServerCallTree {
 //			addClient(spanId, new Server("CLIENT" /*:" + NodeIdGenerator.BY_APPLICATION_NAME.makeServerId(span)*/, "CLIENT", null, ServiceType.CLIENT));
 //		}
 
-		spans.add(span);
+		spanList.add(span);
 	}
 
 	public ServerCallTree build() {
@@ -166,7 +166,7 @@ public class ServerCallTree {
 		}
 		
 		// add non-terminal requests (Span)
-		for (SpanBo span : spans) {
+		for (SpanBo span : spanList) {
 			String from = String.valueOf(span.getParentSpanId());
 			String to = String.valueOf(span.getSpanId());
 
@@ -216,7 +216,7 @@ public class ServerCallTree {
 		}
 
 		// add terminal nodes
-		for (SpanEventBo spanEventBo : subspans) {
+		for (SpanEventBo spanEventBo : spanEventBoList) {
 			String from = String.valueOf(spanEventBo.getSpanId());
 			String to;
 

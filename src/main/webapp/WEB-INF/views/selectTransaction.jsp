@@ -190,8 +190,7 @@
 					<c:when test="${record.title == 'Exception'}">
 	                	<tr class="error">
 					</c:when>
-					<c:when test="${!marked && recordset.beginTimestamp == record.begin}">
-						<c:set var="marked" value="${true}" />
+					<c:when test="${record.focused}">
 		                <tr class="info">
 					</c:when>
 					<c:otherwise>

@@ -22,6 +22,8 @@ public class Record {
     private final String destinationId;
 	private final boolean excludeFromTimeline;
 
+    private boolean focused;
+
 	public Record(int tab, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId) {
 		this.tab = tab;
 		this.method = method;
@@ -91,7 +93,16 @@ public class Record {
 		return excludeFromTimeline;
 	}
 
-	@Override
+
+    public boolean isFocused() {
+        return focused;
+    }
+
+    public void setFocused(boolean focused) {
+        this.focused = focused;
+    }
+
+    @Override
 	public String toString() {
 		return "Record [tab=" + tab + ", method=" + method + ", title=" + title + ", arguments=" + arguments + ", begin=" + begin + ", elapsed=" + elapsed + ", agent=" + agent + ", service=" + service + "]";
 	}

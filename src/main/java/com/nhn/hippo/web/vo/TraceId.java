@@ -3,8 +3,6 @@ package com.nhn.hippo.web.vo;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.util.TraceIdUtils;
 
-import java.util.UUID;
-
 public class TraceId {
 
     private final long most;
@@ -30,9 +28,9 @@ public class TraceId {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
-        UUID uuid = UUID.fromString(traceId);
-        this.most = uuid.getMostSignificantBits();
-		this.least = uuid.getLeastSignificantBits();
+        String[] parsedTraceId = TraceIdUtils.parseTraceId(traceId);
+        this.most = TraceIdUtils.parseMostId(parsedTraceId);
+		this.least = TraceIdUtils.parseLeastId(parsedTraceId);
 	}
 
     public byte[] getBytes() {
