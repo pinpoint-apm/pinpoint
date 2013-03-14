@@ -56,7 +56,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         markFocusRecord(recordList, beginTimeStamp);
         recordSet.setBeginTimestamp(beginTimeStamp);
 
-        recordSet.setRecordSet(recordList);
+        recordSet.setRecordList(recordList);
         return recordSet;
     }
 

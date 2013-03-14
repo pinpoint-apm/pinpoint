@@ -67,11 +67,11 @@ public class BusinessTransactionController {
 
 			// call stacks
             RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
-			mv.addObject("recordset", recordSet);
+			mv.addObject("recordSet", recordSet);
 
 			mv.addObject("applicationName", recordSet.getApplicationName());
-			mv.addObject("callstack", recordSet.getIterator());
-			mv.addObject("timeline", recordSet.getIterator());
+            mv.addObject("callstack", recordSet.getRecordList());
+			mv.addObject("timeline", recordSet.getRecordList());
 			mv.addObject("callstackStart", recordSet.getStartTime());
 			mv.addObject("callstackEnd", recordSet.getEndTime());
 		} catch (Exception e) {
@@ -82,4 +82,6 @@ public class BusinessTransactionController {
 
 		return mv;
 	}
+
+
 }
