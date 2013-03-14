@@ -1,10 +1,7 @@
 package com.profiler.server.receiver.udp;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,7 +35,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
 	public MultiplexedUDPReceiver(GenericApplicationContext context) {
 		this.context = context;
-		this.socket = createSocket();
+		this.socket = createSocket(TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
 		this.multiplexedPacketHandler = this.context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
 	}
 
@@ -50,8 +47,8 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 	};
 
 	public void receive() {
-		if (logger.isInfoEnabled()) {
-			logger.info("Waiting agent data on {}", TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
+        if (logger.isInfoEnabled()) {
+			logger.info("Waiting agent data on {}", this.socket.getLocalSocketAddress());
 		}
 
 		startLatch.countDown();
@@ -72,8 +69,10 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("DatagramPacket SocketAddress:" + packet.getSocketAddress() + " read size:" + packet.getLength());
-					// 데이터가 많을것이니 trace로
-					logger.trace("dump packet:" + PacketUtils.dumpDatagramPacket(packet));
+                    if (logger.isTraceEnabled()) {
+                        // dump packet은 데이터가 많을것이니 trace로
+                        logger.trace("dump packet:" + PacketUtils.dumpDatagramPacket(packet));
+                    }
 				}
 				success = true;
 			} catch (IOException e) {
@@ -103,13 +102,13 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 		}
 	}
 
-	private DatagramSocket createSocket() {
-		try {
-			DatagramSocket so = new DatagramSocket(TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
+	private DatagramSocket createSocket(int port) {
+        try {
+			DatagramSocket so = new DatagramSocket(port);
 			so.setSoTimeout(1000 * 10);
 			return so;
-		} catch (SocketException e) {
-			throw new RuntimeException("Socket create Fail. Caused:" + e.getMessage(), e);
+		} catch (SocketException ex) {
+			throw new RuntimeException("Socket create Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
 		}
 	}
 
