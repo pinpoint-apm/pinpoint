@@ -18,12 +18,10 @@ import com.profiler.sender.UdpDataSender;
 import com.profiler.util.Assert;
 import com.profiler.util.NetworkUtils;
 
-public class Agent {
+public class Agent implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(Agent.class.getName());
 	private static final Random IDENTIFIER_KEY = new Random();
-
-	private volatile boolean alive = false;
 
 	private final ProfilerConfig profilerConfig;
 	private final ServerInfo serverInfo;
@@ -40,7 +38,43 @@ public class Agent {
 	private final long startTime;
 	private final short identifier;
 
+	// agent info는 heartbeat에서 매번 사용한다.
+	private AgentInfo agentInfo;
+	
+	// agent의 상태, 
+	private AgentStatus agentStatus;
+	private Thread heartbeatThread;
+
+	/**
+	 * collector로 heartbeat을 보낸다. heartbeat의 내용은 agent info.
+	 */
+	@Override
+	public void run() {
+		try {
+			logger.info("Send startup information to HIPPO server via " + this.priorityDataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
+			this.priorityDataSender.send(agentInfo);
+			this.priorityDataSender.send(agentInfo);
+			this.priorityDataSender.send(agentInfo);
+
+			logger.info("Starting agent heartbeat.");
+			while (true) {
+				if (agentStatus == AgentStatus.RUNNING) {
+					logger.severe("Send heartbeat");
+					this.priorityDataSender.send(agentInfo);
+				} else if (agentStatus == AgentStatus.STOPPING || agentStatus == AgentStatus.STOPPED) {
+					break;
+				}
+				Thread.sleep(60 * 1 * 1000L);
+			}
+		} catch (InterruptedException e) {
+			logger.warning(e.getMessage());
+		}
+		logger.info(Thread.currentThread().getName() + " stopped.");
+	}
+
 	public Agent(ProfilerConfig profilerConfig) {
+		changeStatus(AgentStatus.INITIALIZING);
+		
 		Assert.notNull(profilerConfig, "profilerConfig must not be null");
 
 		this.profilerConfig = profilerConfig;
@@ -67,15 +101,51 @@ public class Agent {
 		// 매핑 테이블 초기화를 위해 엑세스
 		ApiMappingTable.findApiId("test", null, null);
 
+		this.agentInfo = createAgentInfo();
+		this.heartbeatThread = createHeartbeatThread();
+
 		SingletonHolder.INSTANCE = this;
 	}
 
+	private Thread createHeartbeatThread() {
+		Thread thread = new Thread(this);
+		thread.setName("HIPPO-Agent-Heartbeat-Thread");
+		thread.setDaemon(true);
+		return thread;
+	}
+
+	private AgentInfo createAgentInfo() {
+		String ip = getServerInfo().getHostip();
+		String ports = "";
+		for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
+			ports += " " + entry.getKey();
+		}
+
+		AgentInfo agentInfo = new AgentInfo();
+
+		agentInfo.setHostname(ip);
+		agentInfo.setPorts(ports);
+
+		agentInfo.setAgentId(getAgentId());
+		agentInfo.setIdentifier(this.identifier);
+		agentInfo.setApplicationName(getApplicationName());
+
+		agentInfo.setIsAlive(true);
+		agentInfo.setTimestamp(this.startTime);
+
+		return agentInfo;
+	}
+
+	private void changeStatus(AgentStatus status) {
+		this.agentStatus = status;
+		logger.severe("Agent status is changed. " + status);
+	}
+	
 	private short getShortIdentifier() {
 		return (short) (IDENTIFIER_KEY.nextInt(65536) - 32768);
 	}
 
 	private void initializeTraceContext() {
-
 		this.traceContext = TraceContext.getTraceContext();
 		// this.traceContext.setDataSender(this.dataSender);
 
@@ -118,17 +188,8 @@ public class Agent {
 		public static Agent INSTANCE;
 	}
 
-	@Deprecated
 	public static Agent getInstance() {
 		return SingletonHolder.INSTANCE;
-	}
-
-	public boolean isAlive() {
-		return alive;
-	}
-
-	public void setAlive(boolean alive) {
-		this.alive = alive;
 	}
 
 	public ServerInfo getServerInfo() {
@@ -159,70 +220,41 @@ public class Agent {
 		return nodeName;
 	}
 
-	/**
-	 * HIPPO 서버로 WAS정보를 전송한다.
-	 */
-	// TODO: life cycle을 체크하는 방법으로 바꿀까.. DEAD, STARTING, STARTED, STOPPING,
-	// STOPPED
-	public void sendStartupInfo() {
-		String ip = getServerInfo().getHostip();
-		String ports = "";
-		for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
-			ports += " " + entry.getKey();
-		}
-
-		AgentInfo agentInfo = new AgentInfo();
-
-		agentInfo.setHostname(ip);
-		agentInfo.setPorts(ports);
-
-		agentInfo.setAgentId(getAgentId());
-		agentInfo.setIdentifier(this.identifier);
-		agentInfo.setApplicationName(getApplicationName());
-
-		agentInfo.setIsAlive(true);
-		agentInfo.setTimestamp(this.startTime);
-
-		logger.info("Send startup information to HIPPO server via " + this.priorityDataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
-		send3(agentInfo);
+	public boolean isRunning() {
+		return agentStatus == AgentStatus.RUNNING;
 	}
 
-	private void send3(AgentInfo agentInfo) {
-		// 특정 collector가 죽더라도 나머지 collector가 받을수 있도록 일부러 중복해서 3번 보낸다.
-		this.priorityDataSender.send(agentInfo);
-		this.priorityDataSender.send(agentInfo);
-		this.priorityDataSender.send(agentInfo);
-	}
-
+	// TODO 필요없을것 같음 started를 start로 바꿔도 될 듯...
 	public void start() {
 		logger.info("Starting HIPPO Agent.");
 	}
 
+	/**
+	 * org/apache/catalina/startup/Catalina/await함수가 호출되기 전에 실행된다.
+	 * Tomcat이 구동되고 context가 모두 로드 된 다음 사용자의 요청을 처리할 수 있게 되었을 때 실행됨.
+	 */
+	public void started() {
+		changeStatus(AgentStatus.RUNNING);
+		this.heartbeatThread.start();
+	}
+
 	public void stop() {
 		logger.info("Stopping HIPPO Agent.");
+
+		changeStatus(AgentStatus.STOPPING);
 		systemMonitor.stop();
 
-		String ip = getServerInfo().getHostip();
-		String ports = "";
-		for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
-			ports += " " + entry.getKey();
-		}
-
-		AgentInfo agentInfo = new AgentInfo();
-
-		agentInfo.setHostname(ip);
-		agentInfo.setPorts(ports);
-
-		agentInfo.setAgentId(getAgentId());
-		agentInfo.setIdentifier(this.identifier);
-		agentInfo.setApplicationName(getApplicationName());
-
 		agentInfo.setIsAlive(false);
-		agentInfo.setTimestamp(this.startTime);
+		
+		// TODO 개선필요. 특정 collector가 죽더라도 나머지 collector가 받을수 있도록 일부러 중복해서 3번 보낸다.
+		this.priorityDataSender.send(agentInfo);
+		this.priorityDataSender.send(agentInfo);
+		this.priorityDataSender.send(agentInfo);
 
-		send3(agentInfo);
 		// 종료 처리 필요.
 		this.dataSender.stop();
 		this.priorityDataSender.stop();
+
+		changeStatus(AgentStatus.STOPPED);
 	}
 }

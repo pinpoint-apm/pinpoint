@@ -27,6 +27,7 @@ public class CatalinaAwaitInterceptor implements StaticBeforeInterceptor {
         if (isDebug) {
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
-        agent.sendStartupInfo();
+		agent.started();
+		// agent.sendStartupInfo();
     }
 }
