@@ -140,7 +140,8 @@
 <body>
 
 <h3>Application : ${applicationName}</h3>
-<h5>TraceId : ${traceId}</h5>
+<h5>TraceId : ${traceId.formatString}</h5>
+<h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
   	<br/>
 
 <ul class="nav nav-tabs" id="traceTabs">
@@ -221,9 +222,9 @@
                     <td class="gap info"></td>
                     <td class="method">
                     </c:if>
-                    
+
                     	<c:if test="${record.tab > 1}">
-                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;&nbsp;</c:forEach>
+                        	<c:forEach begin="2" end="${record.tab}">&nbsp;</c:forEach>
                         </c:if>
                         <c:choose>
                         	<c:when test="${not record.method}"><i class="icon-info-sign"></i></c:when>
