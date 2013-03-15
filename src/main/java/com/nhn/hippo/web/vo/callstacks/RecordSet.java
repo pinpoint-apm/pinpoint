@@ -14,6 +14,9 @@ public class RecordSet {
 	private String applicationName;
 	private long beginTimestamp;
 
+    private String agentId;
+    private String applicationId;
+
 	public RecordSet() {
 	}
 
@@ -66,5 +69,19 @@ public class RecordSet {
 	}
 
 
+    public String getAgentId() {
+        return agentId;
+    }
 
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
 }

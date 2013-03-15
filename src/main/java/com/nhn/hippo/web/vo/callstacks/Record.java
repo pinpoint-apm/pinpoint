@@ -47,6 +47,16 @@ public class Record {
 	public int getTab() {
 		return tab;
 	}
+    public String getTabspace() {
+        if(tab == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i< tab; i++) {
+            sb.append("&nbsp");
+        }
+        return sb.toString();
+    }
 
 	public boolean isMethod() {
 		return method;

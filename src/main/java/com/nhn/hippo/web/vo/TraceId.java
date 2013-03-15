@@ -30,8 +30,8 @@ public class TraceId {
         }
         String[] parsedTraceId = TraceIdUtils.parseTraceId(traceId);
         this.most = TraceIdUtils.parseMostId(parsedTraceId);
-		this.least = TraceIdUtils.parseLeastId(parsedTraceId);
-	}
+        this.least = TraceIdUtils.parseLeastId(parsedTraceId);
+    }
 
     public byte[] getBytes() {
         return BytesUtils.longLongToBytes(most, least);
@@ -61,5 +61,13 @@ public class TraceId {
     public String toString() {
         String traceId = TraceIdUtils.formatString(most, least);
         return "TraceId [" + traceId + "]";
+    }
+
+    public String getFormatString() {
+        return TraceIdUtils.formatString(most, least);
+    }
+
+    public String getFormatLong() {
+        return this.most + ":" + this.least;
     }
 }

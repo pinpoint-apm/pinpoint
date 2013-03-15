@@ -38,6 +38,8 @@ public class RecordSetServiceImpl implements RecordSetService {
         // 오류로 인해 foucs를 못찾을수 도있으므로, 없을 경우 별도 mark가 추가적으로 있어야 함.
         // TODO 잘못 될수 있는점 foucusTime은 실제로 2개 이상 나올수 잇음. 서버의 time을 사용하므로 오차로 인해 2개가 나올수도 있음.
         SpanBo focusTimeSpanBo = findFocusTimeSpanBo(spanAlignList, focusTimestamp);
+        recordSet.setAgentId(focusTimeSpanBo.getAgentId());
+        recordSet.setApplicationId(focusTimeSpanBo.getApplicationId());
 
         String applicationName = getRpcArgument(focusTimeSpanBo);
         recordSet.setApplicationName(applicationName);
@@ -148,6 +150,11 @@ public class RecordSetServiceImpl implements RecordSetService {
         return recordList;
     }
 
+    private Record createParameterRecord(int depth, String method, String argument) {
+       Record record = new Record(depth, false, method, argument, 0L, 0L, null, null, null, null);
+       return record;
+    }
+
     private SpanBo findFocusTimeSpanBo(List<SpanAlign> spanAlignList, long focusTimestamp) {
         SpanBo firstSpan = null;
         for (SpanAlign spanAlign : spanAlignList) {
@@ -186,6 +193,10 @@ public class RecordSetServiceImpl implements RecordSetService {
 
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
+                if(spanBo.getRemoteAddr() != null) {
+                    Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
+                    recordList.add(remoteAddress);
+                }
             } else {
                 SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
 
