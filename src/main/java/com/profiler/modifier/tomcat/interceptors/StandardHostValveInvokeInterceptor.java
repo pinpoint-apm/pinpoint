@@ -72,7 +72,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             int port = request.getServerPort();
             trace.recordEndPoint(request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordRemoteAddr(remoteAddr);
-            trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestURI());
+
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
