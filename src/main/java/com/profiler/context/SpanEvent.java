@@ -175,7 +175,7 @@ public class SpanEvent implements Thriftable {
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
             spanEvent.setAgentId(Agent.getInstance().getAgentId());
-            spanEvent.setAgentId(Agent.getInstance().getApplicationName());
+            spanEvent.setApplicationId(Agent.getInstance().getApplicationName());
             spanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
             TraceID parentSpanTraceID = parentSpan.getTraceID();
