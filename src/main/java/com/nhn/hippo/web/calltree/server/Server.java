@@ -27,14 +27,11 @@ public class Server implements Comparable<Server> {
 			this.hosts.add(spanEventBo.getEndPoint());
 		}
 
+        this.id = nodeSelector.getServerId(spanEventBo);
+        this.applicationName = spanEventBo.getDestinationId();
 		if (spanEventBo.getServiceType().isRpcClient()) {
-			// this is unknown cloud, there is not exists the child spanEvent.
-			this.id = spanEventBo.getEndPoint();
-			this.applicationName = spanEventBo.getEndPoint();
 			this.serviceType = ServiceType.UNKNOWN_CLOUD;
 		} else {
-			this.id = nodeSelector.getServerId(spanEventBo);
-			this.applicationName = spanEventBo.getDestinationId();
 			this.serviceType = spanEventBo.getServiceType();
 		}
 

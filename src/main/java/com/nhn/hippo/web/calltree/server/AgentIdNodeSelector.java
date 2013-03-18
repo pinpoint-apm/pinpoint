@@ -15,7 +15,12 @@ public class AgentIdNodeSelector implements NodeSelector {
 
     @Override
     public String getServerId(SpanEventBo spanEventBo) {
-        return spanEventBo.getEndPoint();
+        String endPoint = spanEventBo.getEndPoint();
+        if (endPoint == null || endPoint.length() == 0) {
+            // http client와 같은 경우는 destinationId()만 존재한다.
+            return spanEventBo.getDestinationId();
+        }
+        return endPoint +"/" + spanEventBo.getDestinationId();
     }
 
 }
