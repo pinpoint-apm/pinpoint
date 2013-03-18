@@ -174,6 +174,7 @@
 			
 			<div class="tab-content">
 				<div class="tab-pane active" id="Graph">
+					박스나 연결선을 더블클릭하여 drill down.
 					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 					<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
 				</div>
@@ -558,7 +559,11 @@ $(document).ready(function () {
 			Hosts
 				<ul>
 					{{each(key, value) hosts}}
-					<li><a href="http://nsight.nhncorp.com/dashboard_server/${value}" target="_blank">${value}</a></li>
+						{{if serviceType == "TOMCAT"}}
+						<li><a href="http://nsight.nhncorp.com/dashboard_server/${value}" target="_blank">${value}</a></li>
+						{{else}}
+						<li>${value}</li>
+						{{/if}}
 					{{/each}}
 				</ul>
 			</li>
