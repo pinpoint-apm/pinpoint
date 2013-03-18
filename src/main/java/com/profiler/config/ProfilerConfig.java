@@ -37,6 +37,8 @@ public class ProfilerConfig {
 	private Set<String> profileInclude = new HashSet<String>(4);
 	private Set<String> profileIncludeSub = new HashSet<String>(4);
 
+	private long heartbeatInterval = 5000L;
+	
 	public ProfilerConfig() {
 	}
 
@@ -115,6 +117,10 @@ public class ProfilerConfig {
 	public int getProfileJvmCollectInterval() {
 		return profileJvmCollectInterval;
 	}
+	
+	public long getHeartbeatInterval() {
+		return heartbeatInterval;
+	}
 
 	private void readPropertyValues(Properties prop) {
 		// TODO : use Properties defaultvalue instead of using temp variable.
@@ -141,6 +147,8 @@ public class ProfilerConfig {
 		// JVM
 		this.profileJvmCollectInterval = readInt(prop, "profile.jvm.collect.interval", 1000);
 
+		this.heartbeatInterval = readLong(prop, "agent.heartbeat.interval", 60000L);
+		
 		// profile package include
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
 		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
@@ -174,7 +182,7 @@ public class ProfilerConfig {
 		return result;
 	}
 
-	private long readLong(Properties prop, String propertyName, int defaultValue) {
+	private long readLong(Properties prop, String propertyName, long defaultValue) {
 		String value = prop.getProperty(propertyName);
 		long result = NumberUtils.parseLong(value, defaultValue);
 		if (logger.isLoggable(Level.INFO)) {

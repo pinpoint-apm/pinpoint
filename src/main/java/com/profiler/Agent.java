@@ -64,7 +64,8 @@ public class Agent implements Runnable {
 				} else if (agentStatus == AgentStatus.STOPPING || agentStatus == AgentStatus.STOPPED) {
 					break;
 				}
-				Thread.sleep(60 * 1 * 1000L);
+				// TODO 정밀한 시간계산 없이 일단 그냥 interval 단위로 보냄.
+				Thread.sleep(profilerConfig.getHeartbeatInterval());
 			}
 		} catch (InterruptedException e) {
 			logger.warning(e.getMessage());
