@@ -32,6 +32,7 @@ public class Agent implements Runnable {
 	private DataSender priorityDataSender;
 	private DataSender dataSender;
 
+	private final String machineName;
 	private final String agentId;
 	private final String nodeName;
 	private final String applicationName;
@@ -83,7 +84,7 @@ public class Agent implements Runnable {
 
 		// TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
 		// TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
-		String machineName = NetworkUtils.getMachineName();
+		this.machineName = NetworkUtils.getMachineName();
 		this.agentId = getId("hippo.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
 		this.nodeName = System.getProperty("hippo.nodeName", machineName);
 		this.applicationName = getId("hippo.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
@@ -124,7 +125,8 @@ public class Agent implements Runnable {
 
 		AgentInfo agentInfo = new AgentInfo();
 
-		agentInfo.setHostname(ip);
+		agentInfo.setIp(ip);
+		agentInfo.setHostname(this.machineName);
 		agentInfo.setPorts(ports);
 
 		agentInfo.setAgentId(getAgentId());
