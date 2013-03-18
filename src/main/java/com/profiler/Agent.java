@@ -60,7 +60,7 @@ public class Agent implements Runnable {
 			logger.info("Starting agent heartbeat.");
 			while (true) {
 				if (agentStatus == AgentStatus.RUNNING) {
-					logger.severe("Send heartbeat");
+					logger.fine("Send heartbeat");
 					this.priorityDataSender.send(agentInfo);
 				} else if (agentStatus == AgentStatus.STOPPING || agentStatus == AgentStatus.STOPPED) {
 					break;
