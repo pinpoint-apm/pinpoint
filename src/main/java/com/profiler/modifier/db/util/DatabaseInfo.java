@@ -16,6 +16,7 @@ public class DatabaseInfo {
     private String realUrl;
     private String normalizedUrl;
     private List<String> host;
+    private String multipleHost;
 
 	public DatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
 		this.type = type;
@@ -23,17 +24,35 @@ public class DatabaseInfo {
 		this.realUrl = realUrl;
 		this.normalizedUrl = normalizedUrl;
 		this.host = host;
+        this.multipleHost = merge(host);
 		this.databaseId = databaseId;
 	}
 
+    private String merge(List<java.lang.String> host) {
+        if (host.size() == 0) {
+            return "";
+        }
+        String single = host.get(0);
+        StringBuilder sb = new StringBuilder();
+        sb.append(single);
+        for(int i =1; i<host.size(); i++) {
+            sb.append(',');
+            sb.append(host.get(i));
+        }
+        return sb.toString();
+    }
 
-	public List<String> getHost() {
+
+    public List<String> getHost() {
 		// host와 port의 경우 replication 설정등으로 n개가 될수 있어 애매하다.
 		return host;
 	}
 
+    public String getMultipleHost() {
+        return multipleHost;
+    }
 
-	public String getDatabaseId() {
+    public String getDatabaseId() {
 		return databaseId;
 	}
 

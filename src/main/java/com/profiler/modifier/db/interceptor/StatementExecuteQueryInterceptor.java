@@ -50,7 +50,7 @@ public class StatementExecuteQueryInterceptor implements StaticAroundInterceptor
 
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
-            trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
             trace.recordDestinationAddress(databaseInfo.getHost());
 

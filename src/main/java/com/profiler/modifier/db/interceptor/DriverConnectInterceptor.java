@@ -75,7 +75,7 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
 
         trace.recordServiceType(databaseInfo.getType());
 
-        trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
         trace.recordDestinationAddress(databaseInfo.getHost());
 

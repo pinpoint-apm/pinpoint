@@ -58,6 +58,7 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getDatabaseId(), "test_lucy_db");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://10.98.133.22:3306/test_lucy_db");
         logger.info(dbInfo.toString());
+        logger.info(dbInfo.getMultipleHost());
     }
 
     @Test

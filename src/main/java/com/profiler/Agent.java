@@ -141,7 +141,9 @@ public class Agent implements Runnable {
 
 	private void changeStatus(AgentStatus status) {
 		this.agentStatus = status;
-		logger.severe("Agent status is changed. " + status);
+        if (logger.isLoggable(Level.FINE)) {
+		    logger.fine("Agent status is changed. " + status);
+        }
 	}
 	
 	private short getShortIdentifier() {

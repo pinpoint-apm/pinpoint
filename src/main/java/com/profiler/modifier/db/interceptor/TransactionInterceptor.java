@@ -81,7 +81,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         trace.recordServiceType(databaseInfo.getType());
 
 
-        trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
         trace.recordDestinationAddress(databaseInfo.getHost());
     }
@@ -109,7 +109,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
         trace.recordServiceType(databaseInfo.getType());
 
-        trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
         trace.recordDestinationAddress(databaseInfo.getHost());
 
@@ -121,7 +121,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
             trace.recordServiceType(databaseInfo.getType());
 
-            trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
             trace.recordDestinationAddress(databaseInfo.getHost());
 
@@ -147,7 +147,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
         trace.recordServiceType(databaseInfo.getType());
 
-        trace.recordEndPoint(databaseInfo.getUrl());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
         trace.recordDestinationAddress(databaseInfo.getHost());
     }
@@ -159,7 +159,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 
             trace.recordServiceType(databaseInfo.getType());
 
-            trace.recordEndPoint(databaseInfo.getUrl());
+            trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
             trace.recordDestinationAddress(databaseInfo.getHost());
 

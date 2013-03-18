@@ -62,7 +62,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			SocketAddress socketAddress = handlingNode.getSocketAddress();
 			if (socketAddress instanceof InetSocketAddress) {
 				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				asyncTrace.recordEndPoint("ARCUS:" + address.getHostName() + ":" + address.getPort());
+				asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
 			}
 
 			String serviceCode = (String) getServiceCode.invoke(target);
