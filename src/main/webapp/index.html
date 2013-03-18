@@ -571,7 +571,7 @@ $(document).ready(function () {
 						<li>
 							${value}
 							{{if serviceType == "TOMCAT"}}
-							<a href="http://nsight.nhncorp.com/dashboard_server/${value}" target="_blank">(info)</a>
+							<a href="http://nsight.nhncorp.com/dashboard_server/${value.replace('.nhnsystem.com','')}" target="_blank">(NSight)</a>
 							{{/if}}
 						</li>
 					{{/each}}
