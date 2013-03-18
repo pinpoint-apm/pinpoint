@@ -535,14 +535,18 @@ $(document).ready(function () {
 <script id="EdgeBox" type="text/x-jquery-tmpl">
 	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
 		<ul style="margin:0;padding:0 0 0 10px;">
+			<br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<hr/>
+			
 			<li>
-				Error : ${error}
+				Failed Transaction : ${error}
 			</li>
 			<li>
-				Slow : ${slow}
+				Slow Transaction : ${slow}
 			</li>
 			<li>
-			Histogram
+			Response time histogram
 				<ul>
 					{{each(key, value) histogram}}
 					<li>&lt; ${key}ms : ${value}</li>
@@ -556,14 +560,20 @@ $(document).ready(function () {
 <script id="ServerBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
 		<ul style="margin:0;padding:0 0 0 10px;">
+			<br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<br/>
+			Application Type : ${serviceType}
+			<br/>
 			Hosts
 				<ul>
 					{{each(key, value) hosts}}
-						{{if serviceType == "TOMCAT"}}
-						<li><a href="http://nsight.nhncorp.com/dashboard_server/${value}" target="_blank">${value}</a></li>
-						{{else}}
-						<li>${value}</li>
-						{{/if}}
+						<li>
+							${value}
+							{{if serviceType == "TOMCAT"}}
+							<a href="http://nsight.nhncorp.com/dashboard_server/${value}" target="_blank">(info)</a>
+							{{/if}}
+						</li>
 					{{/each}}
 				</ul>
 			</li>
