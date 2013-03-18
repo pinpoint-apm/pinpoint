@@ -33,7 +33,7 @@ public class HBaseTables {
 
     public static final String AGENTINFO = "AgentInfo";
     public static final byte[] AGENTINFO_CF_INFO = Bytes.toBytes("Info");
-    public static final byte[] AGENTINFO_CF_INFO__IDENTIFIER = Bytes.toBytes("i");
+    public static final byte[] AGENTINFO_CF_INFO_IDENTIFIER = Bytes.toBytes("i");
 
     public static final String AGENTID_APPLICATION_INDEX = "AgentIdApplicationIndex";
     public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");

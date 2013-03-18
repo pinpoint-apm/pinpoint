@@ -9,6 +9,7 @@ import com.profiler.common.dto.thrift.AgentInfo;
  *
  */
 public class AgentInfoBo {
+	private String ip;
     private String hostname;
     private String ports;
     private String agentId;
@@ -18,6 +19,7 @@ public class AgentInfoBo {
     private short identifier;
 
     public AgentInfoBo(AgentInfo agentInfo) {
+    	this.ip = agentInfo.getIp();
         this.hostname = agentInfo.getHostname();
         this.ports = agentInfo.getPorts();
         this.agentId = agentInfo.getAgentId();
@@ -29,8 +31,16 @@ public class AgentInfoBo {
 
     public AgentInfoBo() {
     }
+    
+    public String getIp() {
+		return ip;
+	}
 
-    public String getHostname() {
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public String getHostname() {
         return hostname;
     }
 
@@ -88,6 +98,7 @@ public class AgentInfoBo {
 
     public byte[] writeValue() {
         Buffer buffer = new AutomaticBuffer();
+        buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getHostname());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
@@ -98,6 +109,7 @@ public class AgentInfoBo {
 
     public int readValue(byte[] value) {
         Buffer buffer = new FixedBuffer(value);
+		this.ip = buffer.readPrefixedString();
         this.hostname = buffer.readPrefixedString();
         this.ports = buffer.readPrefixedString();
         this.applicationName = buffer.readPrefixedString();
@@ -109,6 +121,7 @@ public class AgentInfoBo {
     @Override
     public String toString() {
         return "AgentInfoBo{" +
+        		"ip='" + ip + '\'' +
                 "hostname='" + hostname + '\'' +
                 ", ports='" + ports + '\'' +
                 ", agentId='" + agentId + '\'' +

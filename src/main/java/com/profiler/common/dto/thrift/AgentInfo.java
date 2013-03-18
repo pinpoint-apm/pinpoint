@@ -31,12 +31,13 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AgentInfo");
 
   private static final org.apache.thrift.protocol.TField HOSTNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("hostname", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField PORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("ports", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField IS_ALIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("isAlive", org.apache.thrift.protocol.TType.BOOL, (short)5);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)6);
-  private static final org.apache.thrift.protocol.TField IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("identifier", org.apache.thrift.protocol.TType.I16, (short)7);
+  private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField PORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("ports", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField IS_ALIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("isAlive", org.apache.thrift.protocol.TType.BOOL, (short)6);
+  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)7);
+  private static final org.apache.thrift.protocol.TField IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("identifier", org.apache.thrift.protocol.TType.I16, (short)8);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -45,6 +46,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   }
 
   private String hostname; // required
+  private String ip; // required
   private String ports; // required
   private String agentId; // required
   private String applicationName; // required
@@ -55,12 +57,13 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     HOSTNAME((short)1, "hostname"),
-    PORTS((short)2, "ports"),
-    AGENT_ID((short)3, "agentId"),
-    APPLICATION_NAME((short)4, "applicationName"),
-    IS_ALIVE((short)5, "isAlive"),
-    TIMESTAMP((short)6, "timestamp"),
-    IDENTIFIER((short)7, "identifier");
+    IP((short)2, "ip"),
+    PORTS((short)3, "ports"),
+    AGENT_ID((short)4, "agentId"),
+    APPLICATION_NAME((short)5, "applicationName"),
+    IS_ALIVE((short)6, "isAlive"),
+    TIMESTAMP((short)7, "timestamp"),
+    IDENTIFIER((short)8, "identifier");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,17 +80,19 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       switch(fieldId) {
         case 1: // HOSTNAME
           return HOSTNAME;
-        case 2: // PORTS
+        case 2: // IP
+          return IP;
+        case 3: // PORTS
           return PORTS;
-        case 3: // AGENT_ID
+        case 4: // AGENT_ID
           return AGENT_ID;
-        case 4: // APPLICATION_NAME
+        case 5: // APPLICATION_NAME
           return APPLICATION_NAME;
-        case 5: // IS_ALIVE
+        case 6: // IS_ALIVE
           return IS_ALIVE;
-        case 6: // TIMESTAMP
+        case 7: // TIMESTAMP
           return TIMESTAMP;
-        case 7: // IDENTIFIER
+        case 8: // IDENTIFIER
           return IDENTIFIER;
         default:
           return null;
@@ -138,6 +143,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.HOSTNAME, new org.apache.thrift.meta_data.FieldMetaData("hostname", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.IP, new org.apache.thrift.meta_data.FieldMetaData("ip", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PORTS, new org.apache.thrift.meta_data.FieldMetaData("ports", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -159,6 +166,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
 
   public AgentInfo(
     String hostname,
+    String ip,
     String ports,
     String agentId,
     String applicationName,
@@ -168,6 +176,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   {
     this();
     this.hostname = hostname;
+    this.ip = ip;
     this.ports = ports;
     this.agentId = agentId;
     this.applicationName = applicationName;
@@ -187,6 +196,9 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetHostname()) {
       this.hostname = other.hostname;
+    }
+    if (other.isSetIp()) {
+      this.ip = other.ip;
     }
     if (other.isSetPorts()) {
       this.ports = other.ports;
@@ -209,6 +221,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   @Override
   public void clear() {
     this.hostname = null;
+    this.ip = null;
     this.ports = null;
     this.agentId = null;
     this.applicationName = null;
@@ -240,6 +253,29 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   public void setHostnameIsSet(boolean value) {
     if (!value) {
       this.hostname = null;
+    }
+  }
+
+  public String getIp() {
+    return this.ip;
+  }
+
+  public void setIp(String ip) {
+    this.ip = ip;
+  }
+
+  public void unsetIp() {
+    this.ip = null;
+  }
+
+  /** Returns true if field ip is set (has been assigned a value) and false otherwise */
+  public boolean isSetIp() {
+    return this.ip != null;
+  }
+
+  public void setIpIsSet(boolean value) {
+    if (!value) {
+      this.ip = null;
     }
   }
 
@@ -388,6 +424,14 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       }
       break;
 
+    case IP:
+      if (value == null) {
+        unsetIp();
+      } else {
+        setIp((String)value);
+      }
+      break;
+
     case PORTS:
       if (value == null) {
         unsetPorts();
@@ -444,6 +488,9 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     case HOSTNAME:
       return getHostname();
 
+    case IP:
+      return getIp();
+
     case PORTS:
       return getPorts();
 
@@ -475,6 +522,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     switch (field) {
     case HOSTNAME:
       return isSetHostname();
+    case IP:
+      return isSetIp();
     case PORTS:
       return isSetPorts();
     case AGENT_ID:
@@ -510,6 +559,15 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (!(this_present_hostname && that_present_hostname))
         return false;
       if (!this.hostname.equals(that.hostname))
+        return false;
+    }
+
+    boolean this_present_ip = true && this.isSetIp();
+    boolean that_present_ip = true && that.isSetIp();
+    if (this_present_ip || that_present_ip) {
+      if (!(this_present_ip && that_present_ip))
+        return false;
+      if (!this.ip.equals(that.ip))
         return false;
     }
 
@@ -589,6 +647,16 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     }
     if (isSetHostname()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hostname, typedOther.hostname);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetIp()).compareTo(typedOther.isSetIp());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetIp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ip, typedOther.ip);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -681,6 +749,14 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     }
     first = false;
     if (!first) sb.append(", ");
+    sb.append("ip:");
+    if (this.ip == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.ip);
+    }
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("ports:");
     if (this.ports == null) {
       sb.append("null");
@@ -768,7 +844,15 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // PORTS
+          case 2: // IP
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.ip = iprot.readString();
+              struct.setIpIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // PORTS
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.ports = iprot.readString();
               struct.setPortsIsSet(true);
@@ -776,7 +860,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // AGENT_ID
+          case 4: // AGENT_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.agentId = iprot.readString();
               struct.setAgentIdIsSet(true);
@@ -784,7 +868,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // APPLICATION_NAME
+          case 5: // APPLICATION_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.applicationName = iprot.readString();
               struct.setApplicationNameIsSet(true);
@@ -792,7 +876,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // IS_ALIVE
+          case 6: // IS_ALIVE
             if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
               struct.isAlive = iprot.readBool();
               struct.setIsAliveIsSet(true);
@@ -800,7 +884,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // TIMESTAMP
+          case 7: // TIMESTAMP
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.timestamp = iprot.readI64();
               struct.setTimestampIsSet(true);
@@ -808,7 +892,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // IDENTIFIER
+          case 8: // IDENTIFIER
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.identifier = iprot.readI16();
               struct.setIdentifierIsSet(true);
@@ -832,6 +916,11 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (struct.hostname != null) {
         oprot.writeFieldBegin(HOSTNAME_FIELD_DESC);
         oprot.writeString(struct.hostname);
+        oprot.writeFieldEnd();
+      }
+      if (struct.ip != null) {
+        oprot.writeFieldBegin(IP_FIELD_DESC);
+        oprot.writeString(struct.ip);
         oprot.writeFieldEnd();
       }
       if (struct.ports != null) {
@@ -879,27 +968,33 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (struct.isSetHostname()) {
         optionals.set(0);
       }
-      if (struct.isSetPorts()) {
+      if (struct.isSetIp()) {
         optionals.set(1);
       }
-      if (struct.isSetAgentId()) {
+      if (struct.isSetPorts()) {
         optionals.set(2);
       }
-      if (struct.isSetApplicationName()) {
+      if (struct.isSetAgentId()) {
         optionals.set(3);
       }
-      if (struct.isSetIsAlive()) {
+      if (struct.isSetApplicationName()) {
         optionals.set(4);
       }
-      if (struct.isSetTimestamp()) {
+      if (struct.isSetIsAlive()) {
         optionals.set(5);
       }
-      if (struct.isSetIdentifier()) {
+      if (struct.isSetTimestamp()) {
         optionals.set(6);
       }
-      oprot.writeBitSet(optionals, 7);
+      if (struct.isSetIdentifier()) {
+        optionals.set(7);
+      }
+      oprot.writeBitSet(optionals, 8);
       if (struct.isSetHostname()) {
         oprot.writeString(struct.hostname);
+      }
+      if (struct.isSetIp()) {
+        oprot.writeString(struct.ip);
       }
       if (struct.isSetPorts()) {
         oprot.writeString(struct.ports);
@@ -924,32 +1019,36 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, AgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(7);
+      BitSet incoming = iprot.readBitSet(8);
       if (incoming.get(0)) {
         struct.hostname = iprot.readString();
         struct.setHostnameIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.ip = iprot.readString();
+        struct.setIpIsSet(true);
+      }
+      if (incoming.get(2)) {
         struct.ports = iprot.readString();
         struct.setPortsIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.applicationName = iprot.readString();
         struct.setApplicationNameIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         struct.isAlive = iprot.readBool();
         struct.setIsAliveIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(6)) {
         struct.timestamp = iprot.readI64();
         struct.setTimestampIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(7)) {
         struct.identifier = iprot.readI16();
         struct.setIdentifierIsSet(true);
       }

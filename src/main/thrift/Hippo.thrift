@@ -2,12 +2,13 @@ namespace java com.profiler.common.dto.thrift
 
 struct AgentInfo {
 	1: string	hostname
-	2: string	ports
-	3: string	agentId
-	4: string	applicationName
-	5: bool	isAlive
-	6: i64	timestamp
-	7: i16  identifier
+	2: string	ip
+	3: string	ports
+	4: string	agentId
+	5: string	applicationName
+	6: bool	isAlive
+	7: i64	timestamp
+	8: i16  identifier
 }
 
 struct JVMInfoThriftDTO {
