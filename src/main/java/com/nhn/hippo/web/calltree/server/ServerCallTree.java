@@ -3,9 +3,11 @@ package com.nhn.hippo.web.calltree.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,8 @@ public class ServerCallTree {
 	private final Map<String, String> clientServerMap = new HashMap<String, String>();
 	private final Map<String, TerminalStatistics> terminalRequests = new HashMap<String, TerminalStatistics>();
 	private final Map<String, ClientStatistics> clientRequests = new HashMap<String, ClientStatistics>();
-
+	private final Map<String, Set<String>> applicationHosts = new HashMap<String, Set<String>>();
+	
 	public ServerCallTree(NodeSelector nodeSelector) {
 		this.nodeSelector = nodeSelector;
 	}
@@ -133,11 +136,21 @@ public class ServerCallTree {
 
 		spanList.add(span);
 	}
+	
+	public void addApplicationHosts(String applicationId, Set<String> hosts) {
+		applicationHosts.put(applicationId, hosts);
+	}
 
 	public ServerCallTree build() {
 		if (isBuilt)
 			return this;
 
+		// fill WAS hostnames.
+		for (Entry<String, Server> entry : servers.entrySet()) {
+			Server server = entry.getValue();
+			server.setHosts(applicationHosts.get(server.getApplicationName()));
+		}
+		
 		// add terminal to the servers
 		for (Entry<String, TerminalStatistics> entry : terminalRequests.entrySet()) {
 			TerminalStatistics terminal = entry.getValue();

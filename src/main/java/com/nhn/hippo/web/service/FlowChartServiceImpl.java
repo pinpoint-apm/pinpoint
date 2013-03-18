@@ -17,6 +17,7 @@ import org.springframework.util.StopWatch;
 import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.dao.AgentInfoDao;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
 import com.nhn.hippo.web.dao.ClientStatisticsDao;
@@ -29,6 +30,7 @@ import com.nhn.hippo.web.vo.TerminalStatistics;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.ServiceType;
+import com.profiler.common.bo.AgentInfoBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SpanEventBo;
 
@@ -58,6 +60,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Autowired
 	private ClientStatisticsDao clientStatisticsDao;
 
+	@Autowired
+	private AgentInfoDao agentInfoDao;
+	
 	@Override
 	public List<String> selectAllApplicationNames() {
 		return applicationIndexDao.selectAllApplicationNames();
@@ -203,6 +208,20 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return endPointSet;
 	}
 
+	private Set<String> selectApplicationHosts(String applicationId) {
+		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
+
+		Set<String> hostnames = new HashSet<String>();
+
+		for (String agentId : agentIds) {
+			// TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
+			AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
+			hostnames.add(info.getHostname());
+		}
+
+		return hostnames;
+	}
+	
 	/**
 	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다. makes call tree of main
 	 * view
@@ -211,6 +230,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
 		final Map<String, ServiceType> clientQueryParams = new HashMap<String, ServiceType>();
+		final Set<String> hostnameQueryParams = new HashSet<String>();
+		
 		final ServerCallTree tree = new ServerCallTree(new ApplicationIdNodeSelector());
 
 		StopWatch watch = new StopWatch();
@@ -232,6 +253,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 			// markRecursiveCall(transaction);
 			for (SpanBo eachTransaction : transaction) {
 				tree.addSpan(eachTransaction);
+				
+				// make hostname query params
+				hostnameQueryParams.add(eachTransaction.getApplicationId());
 
 				// make query param
 				terminalQueryParams.put(eachTransaction.getApplicationId(), eachTransaction.getServiceType());
@@ -279,6 +303,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
+		watch.stop();
+		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
+
 		logger.debug("client query params=" + clientQueryParams);
 		
 		// fetch client info
@@ -292,9 +319,13 @@ public class FlowChartServiceImpl implements FlowChartService {
 				}
 			}
 		}
+		
+		logger.debug("hostname query params=" + hostnameQueryParams);
 
-		watch.stop();
-		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
+		// fetch hostnames
+		for (String applicationId : hostnameQueryParams) {
+			tree.addApplicationHosts(applicationId, selectApplicationHosts(applicationId));
+		}
 
 		return tree.build();
 	}

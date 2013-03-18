@@ -48,7 +48,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     logger.debug("agent:{} startTime value {}", agentId, startTime);
                     // 바로 전 시작 시간을 찾아야 한다.
                     if (startTime < currentTime) {
-                        byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO__IDENTIFIER);
+                        byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                         AgentInfoBo agentInfoBo = new AgentInfoBo();
                         agentInfoBo.setAgentId(agentId);
                         agentInfoBo.setTimestamp(startTime);

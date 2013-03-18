@@ -46,13 +46,14 @@ public class Server implements Comparable<Server> {
 		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
+			// TODO 이 함수는 terminal span이 들어올리가 없음.
 			this.hosts.add(span.getAgentId());
 		} else {
-			this.hosts.add(span.getEndPoint());
+			
+			// this.hosts.add(span.getEndPoint());
 		}
 
 		this.applicationName = span.getApplicationId();
-
 		this.recursiveCallCount = span.getRecursiveCallCount();
 		this.serviceType = span.getServiceType();
 	}
@@ -91,6 +92,12 @@ public class Server implements Comparable<Server> {
 		return hosts;
 	}
 
+	public void setHosts(Set<String> hosts) {
+		if (hosts != null) {
+			this.hosts.addAll(hosts);
+		}
+	}
+	
 //	public String getEndPoint() {
 //		return endPoint;
 //	}
