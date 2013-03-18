@@ -198,7 +198,7 @@ public final class Trace {
     public void recordException(Object result) {
         if (result instanceof Throwable) {
             Throwable th = (Throwable) result;
-            String drop = StringUtils.drop(th.getMessage());
+            String drop = StringUtils.drop(th.getMessage(), 256);
             recordAttribute(AnnotationKey.EXCEPTION, drop);
 
             Span span = getCallStack().getSpan();
