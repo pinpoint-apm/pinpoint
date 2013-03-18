@@ -36,8 +36,13 @@ public class AgentInfoHandler implements Handler {
 
 			logger.debug("Received AgentInfo={}", agentInfo);
 
+			// agent info
 			agentInfoDao.insert(agentInfo);
+			
+			// applicationname으로 agentid를 조회하기위한 용도.
 			applicationIndexDao.insert(agentInfo);
+			
+			// agentid로 applicationname을 조회하기 위한 용도
 			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
 		} catch (Exception e) {
 			logger.warn("Span handle error " + e.getMessage(), e);
