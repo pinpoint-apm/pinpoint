@@ -184,12 +184,23 @@ public class RecordSetServiceImpl implements RecordSetService {
 
                 long begin = spanBo.getStartTime();
                 long elapsed = spanBo.getElapsed();
-                ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
-                record.setSimpleClassName(apiDescription.getSimpleClassName());
-                record.setFullApiDescription(method);
 
-                recordList.add(record);
+                ApiDescription apiDescription = null;
+                if (method.startsWith("API-DID not found.")) {
+                    apiDescription = apiDescriptionParser.parse(method);
+
+                    Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    record.setSimpleClassName(apiDescription.getSimpleClassName());
+                    record.setFullApiDescription(method);
+                    recordList.add(record);
+                } else {
+                    Record record = new Record(spanAlign.getDepth(), true, "API-DID not found.", argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    record.setSimpleClassName("API-DID not found.");
+                    record.setFullApiDescription("API-DID not found.");
+                    recordList.add(record);
+                }
+
+
 
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
