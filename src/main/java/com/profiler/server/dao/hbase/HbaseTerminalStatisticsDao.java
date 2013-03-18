@@ -42,7 +42,10 @@ public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 		if (logger.isDebugEnabled()) {
 			logger.debug("[UpdatingTerminalStatistics] " + sourceApplicationName + " -> " + destApplicationName + " (" + ServiceType.findServiceType(destServiceType) + ")");
 		}
-
+        if (destHost == null) {
+//            httpclient와 같은 경우는 endpoint가 없을수 있다.
+            destHost = "";
+        }
 		byte[] columnName = TerminalSpanUtils.makeColumnName(destServiceType, destApplicationName, destHost, elapsed, isError);
 
 		// make row key
