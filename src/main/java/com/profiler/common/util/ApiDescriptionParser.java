@@ -1,13 +1,12 @@
 package com.profiler.common.util;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
  * MethodDescriptor 과 비슷한데. 문자열을 기반으로 parsing하여 생성하므로 따로 만들었음.
- * */
+ */
 public class ApiDescriptionParser {
-
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final char DOT = '.';
     private static final char METHOD_PARAM_START = '(';
     private static final char METHOD_PARAM_END = ')';
@@ -20,8 +19,19 @@ public class ApiDescriptionParser {
     // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
     public ApiDescription parse(String apiDescriptionString) {
         final int methodStart = apiDescriptionString.lastIndexOf(METHOD_PARAM_START);
+        if (methodStart == -1) {
+            throw new IllegalArgumentException("'(' not found. invalid apiDescriptionString:" + apiDescriptionString);
+        }
+
         final int methodEnd = apiDescriptionString.lastIndexOf(METHOD_PARAM_END);
+        if (methodEnd == -1) {
+            throw new IllegalArgumentException("')' not found. invalid apiDescriptionString:" + apiDescriptionString);
+        }
+
         final int classIndex = apiDescriptionString.lastIndexOf(DOT, methodStart);
+        if (classIndex == -1) {
+            throw new IllegalArgumentException("'.' not found. invalid apiDescriptionString:" + apiDescriptionString);
+        }
 
         String className = parseClassName(apiDescriptionString, classIndex);
         ApiDescription api = new ApiDescription();
@@ -38,19 +48,33 @@ public class ApiDescriptionParser {
     }
 
     private String[] parseSimpleParameter(String[] parameterList) {
+        if (parameterList == null || parameterList.length == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
         String[] simple = new String[parameterList.length];
-        for(int i = 0; i<parameterList.length; i++) {
+        for (int i = 0; i < parameterList.length; i++) {
             simple[i] = simepleParameter(parameterList[i]);
         }
         return simple;
     }
 
     private String simepleParameter(String parameter) {
-        int className = parameter.lastIndexOf(DOT) + 1;
-        return parameter.substring(className, parameter.length());
+        int packageIndex = parameter.lastIndexOf(DOT);
+        if (packageIndex == -1) {
+            // 없을 경우 아래 로직가 동일하나 추후 뭔가 변경사항이 생길수 있어 명시적으로 체크하는 로직으로 구현.
+            packageIndex = 0;
+        } else {
+            packageIndex += 1;
+        }
+
+
+        return parameter.substring(packageIndex, parameter.length());
     }
 
     private String[] parseParameter(String parameterDescriptor) {
+        if (parameterDescriptor == null || parameterDescriptor.length() == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
         return PARAMETER_REGEX.split(parameterDescriptor);
 
     }

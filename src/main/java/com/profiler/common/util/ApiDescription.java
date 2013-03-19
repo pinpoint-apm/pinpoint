@@ -26,6 +26,9 @@ public class ApiDescription {
 
     public String getPackageNameName() {
         int packageNameIndex = className.lastIndexOf('.');
+        if (packageNameIndex == -1) {
+            return "";
+        }
         return className.substring(0, packageNameIndex);
     }
 
@@ -48,7 +51,7 @@ public class ApiDescription {
 
     public String getSimpleMethodDescription() {
         String simpleParameterDescription = concateLine(simpleParameter, ", ");
-        return methodName + "(" + simpleParameterDescription + ")";
+        return methodName + simpleParameterDescription;
     }
 
     public String concateLine(String[] stringList, String separator) {
@@ -58,11 +61,13 @@ public class ApiDescription {
 
         StringBuilder sb = new StringBuilder();
         if (stringList.length > 0) {
+            sb.append('(');
             sb.append(stringList[0]);
             for (int i = 1; i < stringList.length; i++) {
                 sb.append(separator);
                 sb.append(stringList[i]);
             }
+            sb.append(')');
         }
         return sb.toString();
     }
