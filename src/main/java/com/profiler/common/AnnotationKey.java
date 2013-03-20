@@ -7,12 +7,25 @@ import java.util.Map;
  * @author netspider
  */
 public enum AnnotationKey {
-
-
+    // 가변 인코딩을 사용하므로, 작은 숫자는 패킷에 전송 되는 데이터로 위주로 사용하고 내부 사용 코드는 숫자를 크게 잡아야 한다.
+//    2147483647
+//    -2147483648
     API_DID(10, "API-DID"),
     API_ID(11, "API-ID"),
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
+
+    // 정확한 에러 원인을 모를 경우.
+    ERROR_API_METADATA_ERROR(10000010, "API-METADATA-ERROR"),
+    // agentInfo를 못찾앗을 경우
+    ERROR_API_METADATA_AGENT_INFO_NOT_FOUND(10000011, "API-METADATA-AGENT-INFO-NOT-FOUND"),
+    // agentInfo를 찾았으나 체크섬이 맞지 않는경우
+    ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR(10000012, "API-METADATA-IDENTIFIER-CHECK_ERROR"),
+    // meta data자체를 못찾은 경우.
+    ERROR_API_METADATA_NOT_FOUND(10000013, "API-METADATA-NOT-FOUND"),
+    // meta data의 동일 hashid가 존재할 경우
+    ERROR_API_METADATA_DID_COLLSION(10000014, "API-METADATA-DID-COLLSION"),
+    // ERROR code 처리가 애매한데 ERROR_API_META_DATA_을 검색해서 ApiMetaDataError로 처리하였음.
     // 자동 id
 
     SQL_ID(20, "SQL-ID"),

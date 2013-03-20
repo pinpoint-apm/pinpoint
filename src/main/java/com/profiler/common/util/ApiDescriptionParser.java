@@ -18,6 +18,10 @@ public class ApiDescriptionParser {
 
     // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
     public ApiDescription parse(String apiDescriptionString) {
+        if (apiDescriptionString == null) {
+            throw new NullPointerException("apiDescriptionString must not be null");
+        }
+
         final int methodStart = apiDescriptionString.lastIndexOf(METHOD_PARAM_START);
         if (methodStart == -1) {
             throw new IllegalArgumentException("'(' not found. invalid apiDescriptionString:" + apiDescriptionString);

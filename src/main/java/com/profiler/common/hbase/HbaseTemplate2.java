@@ -2,6 +2,8 @@ package com.profiler.common.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
@@ -17,6 +19,8 @@ import java.util.List;
  *
  */
 public class HbaseTemplate2 implements HbaseOperations2, InitializingBean, DisposableBean {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private boolean autoFlush = true;
     private Charset charset = Charset.forName("UTF-8");
@@ -59,6 +63,7 @@ public class HbaseTemplate2 implements HbaseOperations2, InitializingBean, Dispo
 
     @Override
     public void destroy() throws Exception {
+        logger.info("hTablePool.close()");
         this.hTablePool.close();
     }
 

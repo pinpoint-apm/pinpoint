@@ -1,11 +1,7 @@
 package com.profiler.common.util;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
@@ -21,56 +17,80 @@ public class AnnotationUtils {
         return format.format(new Date(date));
     }
 
-    private static Comparator<AnnotationBo> annotationKeyComparator = new Comparator<AnnotationBo>() {
-        @Override
-        public int compare(AnnotationBo a1, AnnotationBo a2) {
-            return a1.getKey() - a2.getKey();
+    public static String findApiAnnotation(List<AnnotationBo> list) {
+        AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API);
+        if (annotationBo != null) {
+            return (String) annotationBo.getValue();
         }
-    };
-
-    public static void sortAnnotationListByKey(Span span) {
-        List<AnnotationBo> list = span.getAnnotationBoList();
-        Collections.sort(list, annotationKeyComparator);
+        return null;
     }
 
-    public static Object getDisplayMethod(Span span) {
-        List<AnnotationBo> list = span.getAnnotationBoList();
-        int index = Collections.binarySearch(list, AnnotationKey.API, AnnotationBo.AnnotationBoComparator);
-
-        if (index > -1) {
-            return list.get(index).getValue();
+    public static AnnotationBo findAnnotationBo(List<AnnotationBo> annotationBoList, AnnotationKey annotationKey) {
+        for (AnnotationBo annotation : annotationBoList) {
+            int key = annotation.getKey();
+            if (annotationKey.getCode() == key) {
+                return annotation;
+            }
         }
-
-        if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
-            return span.getRpc(); // return OperationImpl
-        }
-
         return null;
     }
 
     public static Object getDisplayArgument(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
-        int index = -1;
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
-            index = Collections.binarySearch(list, AnnotationKey.ARCUS_COMMAND, AnnotationBo.AnnotationBoComparator);
+            return findAnnotationBo(list, AnnotationKey.ARCUS_COMMAND);
         }
 
         if (span.getServiceType() == ServiceType.HTTP_CLIENT) {
-            index = Collections.binarySearch(list, AnnotationKey.HTTP_URL, AnnotationBo.AnnotationBoComparator);
+            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
         }
 
-        if (span.getServiceType() == ServiceType.TOMCAT) {
-            index = Collections.binarySearch(list, AnnotationKey.HTTP_URL, AnnotationBo.AnnotationBoComparator);
-        }
-        
+
+//        span에 해당하는 Tomcat의 경우 Span에 포함된 rpc 필드를 사용하므로 annotation에서 찾을필요가 없음.
+//        if (span.getServiceType() == ServiceType.TOMCAT) {
+//            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
+//        }
+//
+
         if (span.getServiceType() == ServiceType.MYSQL) {
-        	index = Collections.binarySearch(list, AnnotationKey.ARGS0, AnnotationBo.AnnotationBoComparator);
+            return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
-
-        if (index > -1) {
-            return list.get(index).getValue();
-        }
-
         return null;
     }
+
+    private static  List<AnnotationKey> API_META_DATA_ERROR;
+    static {
+        API_META_DATA_ERROR = loadApiMetaDataError();
+    }
+
+    static List<AnnotationKey> loadApiMetaDataError() {
+        List<AnnotationKey> apiMetaData = new ArrayList<AnnotationKey>();
+        for (AnnotationKey annotationKey : AnnotationKey.values()) {
+            if (annotationKey.name().startsWith("ERROR_API_METADATA_")) {
+                apiMetaData.add(annotationKey);
+            }
+        }
+         return apiMetaData;
+    }
+
+    public static AnnotationKey getApiMetaDataError(List<AnnotationBo> annotationBoList) {
+        for (AnnotationBo bo : annotationBoList) {
+            AnnotationKey apiErrorCode = findApiErrorCode(bo);
+            if (apiErrorCode != null) {
+                return apiErrorCode;
+            }
+        }
+        // 정확한 에러 코드를 못찾음. 퉁쳐서 에러 처리
+        return AnnotationKey.ERROR_API_METADATA_ERROR;
+    }
+
+    private static AnnotationKey findApiErrorCode(AnnotationBo bo) {
+        for (AnnotationKey annotationKey : API_META_DATA_ERROR) {
+            if (bo.getKey() == annotationKey.getCode()) {
+                return annotationKey;
+            }
+        }
+        return null;
+    }
+
 }
