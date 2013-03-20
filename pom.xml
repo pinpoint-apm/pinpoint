@@ -235,26 +235,26 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>arcus</groupId>
-            <artifactId>arcus-spring</artifactId>
-            <version>0.3.5</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>arcus-client</artifactId>
-                    <groupId>arcus</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-context</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>arcus</groupId>
-            <artifactId>arcus-client</artifactId>
-            <version>1.6.2.1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>arcus</groupId>-->
+            <!--<artifactId>arcus-spring</artifactId>-->
+            <!--<version>0.3.5</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<artifactId>arcus-client</artifactId>-->
+                    <!--<groupId>arcus</groupId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<artifactId>spring-context</artifactId>-->
+                    <!--<groupId>org.springframework</groupId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>arcus</groupId>-->
+            <!--<artifactId>arcus-client</artifactId>-->
+            <!--<version>1.6.2.1</version>-->
+        <!--</dependency>-->
 
 
         <dependency>

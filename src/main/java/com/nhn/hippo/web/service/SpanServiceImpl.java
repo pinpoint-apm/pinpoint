@@ -245,7 +245,7 @@ public class SpanServiceImpl implements SpanService {
                     logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
                 } catch (AgentIdNotFoundException ex) {
                     AnnotationBo agentInfoNotFound = new AnnotationBo();
-                    agentInfoNotFound.setKey(AnnotationKey.API.getCode());
+                    agentInfoNotFound.setKey(AnnotationKey.ERROR_API_METADATA_AGENT_INFO_NOT_FOUND.getCode());
                     agentInfoNotFound.setValue("API-DynamicID not found. Cause:agentInfo not found. agentId:" + ex.getAgentId() + " startTime:" + ex.getStartTime());
                     annotationBoList.add(agentInfoNotFound);
                     return;
@@ -256,8 +256,8 @@ public class SpanServiceImpl implements SpanService {
                 int size = apiMetaDataList.size();
                 if (size == 0) {
                     AnnotationBo api = new AnnotationBo();
-                    api.setKey(AnnotationKey.API.getCode());
-                    api.setValue("API-DID not found. api:" + apiId);
+                    api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
+                    api.setValue("API-DynamicID not found. api:" + apiId);
                     annotationBoList.add(api);
                 } else if (size == 1) {
                     ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(0);
@@ -281,7 +281,7 @@ public class SpanServiceImpl implements SpanService {
                     annotationBoList.add(apiAnnotation);
                 } else {
                     AnnotationBo apiAnnotation = new AnnotationBo();
-                    apiAnnotation.setKey(AnnotationKey.API.getCode());
+                    apiAnnotation.setKey(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode());
                     String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
                     apiAnnotation.setValue(collisonMessage);
                     annotationBoList.add(apiAnnotation);
@@ -298,7 +298,7 @@ public class SpanServiceImpl implements SpanService {
                     return null;
                 }
                 AnnotationBo identifierCheckFail = new AnnotationBo();
-                identifierCheckFail.setKey(AnnotationKey.API.getCode());
+                identifierCheckFail.setKey(AnnotationKey.ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR.getCode());
                 identifierCheckFail.setValue("invalid ApiMetaInfo:" + apiMetaDataBo);
                 return identifierCheckFail;
             }
@@ -375,9 +375,6 @@ public class SpanServiceImpl implements SpanService {
         SpanAligner2 spanAligner = new SpanAligner2(spans);
         return spanAligner.sort();
 
-        /*
-           * SpanAligner spanAligner = new SpanAligner(spans); List<SpanAlign> sort = spanAligner.sort(); if (sort.size() != spans.size()) { // TODO 중간 노드 데이터 분실 ? 혹은 잘못된 데이터 생성? logger.warn("span node not complete! spans:{}, sort{}", spans, sort); } SpanPopulator spanPopulator = new SpanPopulator(sort); List<SpanAlign> populatedList = spanPopulator.populateSpanEvent(); return populatedList;
-           */
     }
 
     @Override

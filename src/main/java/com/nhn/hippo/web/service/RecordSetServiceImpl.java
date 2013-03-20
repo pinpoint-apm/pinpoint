@@ -28,9 +28,6 @@ public class RecordSetServiceImpl implements RecordSetService {
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
 
-        // 이쪽의 sort로직을 spanAlign을 생성하는 부분에 넣어야 되나?
-        sortSpanAlignAnnotation(spanAlignList);
-
         RecordSet recordSet = new RecordSet();
 
         // focusTimeStamp 를 찾아서 마크한다.
@@ -103,22 +100,6 @@ public class RecordSetServiceImpl implements RecordSetService {
         }
     }
 
-    /**
-     * 복사본을 생성하지 않고 원본을 그냥 소트함.
-     *
-     * @param spanAlignList
-     */
-    private void sortSpanAlignAnnotation(List<SpanAlign> spanAlignList) {
-        for (SpanAlign spanAlign : spanAlignList) {
-            if (spanAlign.isSpan()) {
-                SpanBo spanBo = spanAlign.getSpanBo();
-                AnnotationUtils.sortAnnotationListByKey(spanBo);
-            } else {
-                SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
-                AnnotationUtils.sortAnnotationListByKey(spanEventBo);
-            }
-        }
-    }
 
     private String getRpcArgument(SpanBo spanBo) {
         String rpc = spanBo.getRpc();
@@ -178,52 +159,66 @@ public class RecordSetServiceImpl implements RecordSetService {
         for (SpanAlign spanAlign : spanAlignList) {
             if (spanAlign.isSpan()) {
                 SpanBo spanBo = spanAlign.getSpanBo();
-                String method = (String) AnnotationUtils.getDisplayMethod(spanBo);
 
                 String argument = getRpcArgument(spanBo);
 
                 long begin = spanBo.getStartTime();
                 long elapsed = spanBo.getElapsed();
 
-                ApiDescription apiDescription = null;
-                if (method.startsWith("API-DID not found.")) {
-                    apiDescription = apiDescriptionParser.parse(method);
-
+                String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
+                if (method !=  null) {
+                    ApiDescription apiDescription = apiDescriptionParser.parse(method);
                     Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
                     record.setSimpleClassName(apiDescription.getSimpleClassName());
                     record.setFullApiDescription(method);
                     recordList.add(record);
                 } else {
-                    Record record = new Record(spanAlign.getDepth(), true, "API-DID not found.", argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
-                    record.setSimpleClassName("API-DID not found.");
-                    record.setFullApiDescription("API-DID not found.");
+                    AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
+                    Record record = new Record(spanAlign.getDepth(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    record.setSimpleClassName("");
+                    record.setFullApiDescription("");
                     recordList.add(record);
                 }
 
-
-
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
-                if(spanBo.getRemoteAddr() != null) {
+                if (spanBo.getRemoteAddr() != null) {
                     Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
                     recordList.add(remoteAddress);
                 }
             } else {
                 SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
 
-                String method = (String) AnnotationUtils.getDisplayMethod(spanEventBo);
+
                 String argument = getDisplayArgument(spanEventBo);
 
-                long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                long elapsed = spanEventBo.getEndElapsed();
+                final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
+                if (method != null) {
+                    ApiDescription apiDescription = apiDescriptionParser.parse(method);
+                    String destinationId = spanEventBo.getDestinationId();
 
-                ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                String destinationId = spanEventBo.getDestinationId();
-                Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
-                record.setSimpleClassName(apiDescription.getSimpleClassName());
-                record.setFullApiDescription(method);
+                    long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
+                    long elapsed = spanEventBo.getEndElapsed();
 
-                recordList.add(record);
+                    Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    record.setSimpleClassName(apiDescription.getSimpleClassName());
+                    record.setFullApiDescription(method);
+
+                    recordList.add(record);
+                } else {
+                    AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanEventBo.getAnnotationBoList());
+                    String destinationId = spanEventBo.getDestinationId();
+
+                    long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
+                    long elapsed = spanEventBo.getEndElapsed();
+
+                    Record record = new Record(spanAlign.getDepth(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    record.setSimpleClassName("");
+                    record.setFullApiDescription(method);
+
+                    recordList.add(record);
+                }
+
                 List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanEventBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
             }
