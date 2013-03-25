@@ -12,20 +12,32 @@ import java.util.regex.Pattern;
  */
 public class ClassPathResolver {
 //    Pattern.compile("hippo-tomcat-profiler-([0-9]+\\){2}.jar");
-    private static final Pattern agentPattern = Pattern.compile("hippo-tomcat-profiler-[0-9]+\\.[0-9]+\\.[0-9]+\\.jar");
+    private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("hippo-tomcat-profiler-[0-9]+\\.[0-9]+\\.[0-9]+\\.jar");
 
     private String classPath;
 
     private String agentJarName;
     private String agentJarFullPath;
     private String agentDirPath;
+    private Pattern agentPattern;
+
 
     public ClassPathResolver(String classPath) {
         this.classPath = classPath;
+        this.agentPattern = DEFAULT_AGENT_PATTERN;
+    }
+
+    public ClassPathResolver(String classPath, String agentPattern) {
+        this.classPath = classPath;
+        this.agentPattern = Pattern.compile(agentPattern);
     }
 
     public void setClassPath(String classPath) {
         this.classPath = classPath;
+    }
+
+    public void setClassPathFromSystemProperty() {
+        this.classPath = getClassPathFromSystemProperty();
     }
 
     public String getClassPathFromSystemProperty() {
@@ -96,4 +108,5 @@ public class ClassPathResolver {
     public String getAgentDirPath() {
         return agentDirPath;
     }
+
 }
