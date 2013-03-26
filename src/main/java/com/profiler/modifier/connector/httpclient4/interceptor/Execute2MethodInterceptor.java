@@ -3,10 +3,10 @@ package com.profiler.modifier.connector.httpclient4.interceptor;
 import java.net.URI;
 import java.util.logging.Logger;
 
-import com.profiler.common.AnnotationKey;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.context.Header;
 import com.profiler.context.Trace;
@@ -58,6 +58,8 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 		request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+		request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
+		request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
 
 		HttpHost host = extractHost(request.getURI());
 

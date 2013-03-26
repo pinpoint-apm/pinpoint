@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.common.ServiceType;
 import com.profiler.common.util.PropertyUtils;
 import com.profiler.util.NumberUtils;
 
@@ -38,6 +39,8 @@ public class ProfilerConfig {
 	private Set<String> profileIncludeSub = new HashSet<String>(4);
 
 	private long heartbeatInterval = 5*60*1000L;
+	
+	private ServiceType serviceType;
 	
 	public ProfilerConfig() {
 	}
@@ -121,6 +124,10 @@ public class ProfilerConfig {
 	public long getHeartbeatInterval() {
 		return heartbeatInterval;
 	}
+	
+	public ServiceType getServiceType() {
+		return serviceType;
+	}
 
 	private void readPropertyValues(Properties prop) {
 		// TODO : use Properties defaultvalue instead of using temp variable.
@@ -148,6 +155,9 @@ public class ProfilerConfig {
 		this.profileJvmCollectInterval = readInt(prop, "profile.jvm.collect.interval", 1000);
 
 		this.heartbeatInterval = readLong(prop, "agent.heartbeat.interval", 60000L);
+		
+		// service type
+		this.serviceType = readServiceType(prop, "agent.servicetype", ServiceType.TOMCAT);
 		
 		// profile package include
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
@@ -189,6 +199,23 @@ public class ProfilerConfig {
 			logger.info(propertyName + "=" + result);
 		}
 		return result;
+	}
+	
+	private ServiceType readServiceType(Properties prop, String propertyName, ServiceType defaultValue) {
+		String value = prop.getProperty(propertyName);
+		ServiceType svcType;
+
+		if (value == null) {
+			svcType = defaultValue;
+		} else {
+			svcType = ServiceType.valueOf(value);
+		}
+
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info(propertyName + "=" + svcType);
+		}
+
+		return svcType;
 	}
 
 	private boolean readBoolean(Properties prop, String propertyName, boolean defaultValue) {

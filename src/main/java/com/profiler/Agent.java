@@ -99,6 +99,7 @@ public class Agent {
         agentInfo.setAgentId(getAgentId());
         agentInfo.setIdentifier(this.identifier);
         agentInfo.setApplicationName(getApplicationName());
+		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
         agentInfo.setIsAlive(true);
         agentInfo.setTimestamp(this.startTime);

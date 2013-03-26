@@ -28,6 +28,11 @@ public class Span implements Thriftable {
 
     private List<SpanEvent> spanEventList;
     
+    // 아래 두 개 변수는 서버맵을 통계 데이터로 그리기 위한 용도.
+    private String parentApplicationName = null;
+    private short parentApplicationType = -1;
+    private String acceptorHost = null;
+    
     public Span(TraceID traceId) {
         this.traceID = traceId;
     }
@@ -108,6 +113,30 @@ public class Span implements Thriftable {
 		this.remoteAddr = remoteAddr;
 	}
 
+	public String getParentApplicationName() {
+		return parentApplicationName;
+	}
+
+	public void setParentApplicationName(String parentApplicationName) {
+		this.parentApplicationName = parentApplicationName;
+	}
+	
+	public String getAcceptorHost() {
+		return acceptorHost;
+	}
+
+	public void setAcceptorHost(String acceptorHost) {
+		this.acceptorHost = acceptorHost;
+	}
+	
+	public short getParentApplicationType() {
+		return parentApplicationType;
+	}
+
+	public void setParentApplicationType(short parentApplicationType) {
+		this.parentApplicationType = parentApplicationType;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder(128);
 
@@ -120,6 +149,9 @@ public class Span implements Thriftable {
         sb.append(", EndPoint = ").append(endPoint);
         sb.append(", Exception = ").append(exception);
         sb.append(", RemoteAddr = ").append(remoteAddr);
+        sb.append(", ParentApplication = ").append(parentApplicationName);
+        sb.append(", ParentApplicationType = ").append(ServiceType.findServiceType(parentApplicationType));
+        sb.append(", AcceptorHost = ").append(acceptorHost);
         sb.append(",\n\t Annotations = {");
         for (Annotation a : annotations) {
             sb.append("\n\t\t").append(a);
@@ -155,6 +187,15 @@ public class Span implements Thriftable {
             span.setErr(exception);
         }
 
+        if (parentApplicationName != null) {
+        	span.setParentApplicationName(parentApplicationName);
+        	span.setParentApplicationType(parentApplicationType);
+        }
+        
+        if (acceptorHost != null) {
+        	span.setAcceptorHost(acceptorHost);
+        }
+        
         // 여기서 데이터 인코딩을 하자.
         List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
         for (Annotation a : annotations) {

@@ -15,7 +15,6 @@ import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.LoggingUtils;
 
 /**
- * TODO classloader문제 있음.
  * @author netspider
  * 
  */
@@ -50,6 +49,8 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 		request.setRequestProperty(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
+		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
 
 		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 

@@ -61,6 +61,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
         request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+		request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
+		request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
 
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 

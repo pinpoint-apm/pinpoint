@@ -377,6 +377,26 @@ public final class Trace {
         this.traceContext = traceContext;
     }
 
-
-
+    public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
+    	StackFrame currentStackFrame = getCurrentStackFrame();
+    	if (currentStackFrame instanceof RootStackFrame) {
+    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
+    		span.setParentApplicationName(parentApplicationName);
+    		span.setParentApplicationType(parentApplicationType);
+			logger.log(Level.FINE, "ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
+    	} else {
+    		// do nothing.
+    	}
+    }
+    
+    public void recordAcceptorHost(String host) {
+    	StackFrame currentStackFrame = getCurrentStackFrame();
+    	if (currentStackFrame instanceof RootStackFrame) {
+    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
+    		span.setAcceptorHost(host); // me
+    		logger.log(Level.FINE, "Acceptor host received. host={}", host);
+    	} else {
+    		// do nothing.
+    	}
+    }
 }

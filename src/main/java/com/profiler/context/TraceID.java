@@ -105,6 +105,10 @@ public class TraceID {
 	public void setFlags(short flags) {
 		this.flags = flags;
 	}
+	
+	public boolean isRoot() {
+		return this.parentSpanId == SpanID.NULL;
+	}
 
 	@Override
 	public String toString() {

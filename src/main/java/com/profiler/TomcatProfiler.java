@@ -1,12 +1,5 @@
 package com.profiler;
 
-import com.profiler.config.ProfilerConfig;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.profiler.modifier.DefaultModifierRegistry;
-import com.profiler.modifier.Modifier;
-import com.profiler.modifier.ModifierRegistry;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -15,6 +8,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.profiler.common.ServiceType;
+import com.profiler.config.ProfilerConfig;
+import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.profiler.modifier.DefaultModifierRegistry;
+import com.profiler.modifier.Modifier;
+import com.profiler.modifier.ModifierRegistry;
 
 public class TomcatProfiler implements ClassFileTransformer {
 
@@ -89,14 +90,11 @@ public class TomcatProfiler implements ClassFileTransformer {
             logger.info("CATALINA_HOME=" + catalinaHome);
         }
 
-        // TODO This is draft. How can we support both Tomcat and BLOC without this configuration?
-        String type = System.getProperty("hippo.servertype", "tomcat");
-
-        if (type.equals("bloc")) {
-            return new String[]{catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar"};
-        } else {
-            return new String[]{catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar"};
-        }
+		if (profilerConfig.getServiceType() == ServiceType.BLOC) {
+			return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
+		} else {
+			return new String[] { catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar" };
+		}
     }
 
     private ModifierRegistry createModifierRegistry() {

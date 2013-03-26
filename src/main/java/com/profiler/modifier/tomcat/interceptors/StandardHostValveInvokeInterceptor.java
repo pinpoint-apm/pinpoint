@@ -19,6 +19,7 @@ import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggingUtils;
+import com.profiler.util.NetworkUtils;
 import com.profiler.util.NumberUtils;
 
 public class StandardHostValveInvokeInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
@@ -27,7 +28,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     private final boolean isDebug = LoggingUtils.isDebug(logger);
 
     private MethodDescriptor descriptor;
-//    private int apiId;
+	// private int apiId;
     private TraceContext traceContext;
 
     @Override
@@ -70,7 +71,18 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             int port = request.getServerPort();
             trace.recordEndPoint(request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordRemoteAddr(remoteAddr);
-
+            
+            // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
+            if (traceId != null && !traceId.isRoot()) {
+            	String parentApplicationName = populateParentApplicationNameFromRequest(request);
+            	short parentApplicationType = populateParentApplicationTypeFromRequest(request);
+            	if (parentApplicationName != null) {
+            		trace.recordParentApplication(parentApplicationName, parentApplicationType);
+            		trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
+            	}
+            } else {
+            	// TODO 여기에서 client 정보를 수집할 수 있다.
+            }
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
@@ -104,7 +116,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         }
 
         trace.recordApi(descriptor);
-//        trace.recordApi(this.apiId);
+		// trace.recordApi(this.apiId);
 
         trace.recordException(result);
 
@@ -137,6 +149,18 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         }
     }
 
+	private String populateParentApplicationNameFromRequest(HttpServletRequest request) {
+		return request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
+	}
+	
+	private short populateParentApplicationTypeFromRequest(HttpServletRequest request) {
+		String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+		if (type != null) {
+			return Short.valueOf(type);
+		}
+		return ServiceType.UNDEFINED.getCode();
+	}
+    
     private String getRequestParameter(HttpServletRequest request) {
         Enumeration<?> attrs = request.getParameterNames();
         StringBuilder params = new StringBuilder();
@@ -166,9 +190,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         this.descriptor = descriptor;
         TraceContext traceContext = TraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
-
     }
-
 
     @Override
     public void setTraceContext(TraceContext traceContext) {
