@@ -277,6 +277,13 @@ public class HelloWorldController implements DisposableBean {
 		return "timeout";
 	}
 
+	@RequestMapping(value = "/remotesimple")
+	public String remotesimple(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://macpro:8080/mysql.hippo", new HashMap<String, Object>());
+		return "remotecombination";
+	}
+	
 	@Override
 	public void destroy() throws Exception {
 		arcus.shutdown();
