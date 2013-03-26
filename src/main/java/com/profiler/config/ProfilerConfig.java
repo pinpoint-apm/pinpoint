@@ -45,15 +45,8 @@ public class ProfilerConfig {
 	public ProfilerConfig() {
 	}
 
-	public void readConfigFile() throws IOException {
-		String hippoConfigFileName = System.getProperty("hippo.config");
-		if (hippoConfigFileName == null) {
-			logger.info("hippo.config property is not set. Using default value:" + this);
-			return;
-		}
-
+	public void readConfigFile(String hippoConfigFileName) throws IOException {
 		try {
-			// TODO file path를 찾는 부분을 수정해야됨 현재 제대로 안찾아짐. 설정파일이 classpath 에 걸려 있지않으므로 파일위치를 못찾음.
 			Properties properties = PropertyUtils.readProperties(hippoConfigFileName);
 			readPropertyValues(properties);
 		} catch (FileNotFoundException fe) {

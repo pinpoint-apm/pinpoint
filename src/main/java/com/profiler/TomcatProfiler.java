@@ -1,9 +1,12 @@
 package com.profiler;
 
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.security.ProtectionDomain;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -38,11 +41,19 @@ public class TomcatProfiler implements ClassFileTransformer {
         if (agentArgs != null) {
             logger.info("HIPPO agentArgs:" + agentArgs);
         }
-        dumpSystemProperties();
+//        dumpSystemProperties();
+
+        ClassPathResolver classPathResolver = new ClassPathResolver();
+        boolean agentJarNotFound = classPathResolver.findAgentJar();
+        if (!agentJarNotFound) {
+            logger.severe("hippo-tomcat-profiler-x.x.x.jar not found.");
+            return;
+        }
+        // 이게 로드할 lib List임.
+        List<URL> libUrlList = resolveLib(classPathResolver);
 
         try {
-            ProfilerConfig profilerConfig = new ProfilerConfig();
-            profilerConfig.readConfigFile();
+            ProfilerConfig profilerConfig = readConfig(classPathResolver);
             if (!profilerConfig.isProfileEnable()) {
                 logger.warning("Profiler Agent not started. profile.enable=" + profilerConfig.isProfileEnable());
                 return;
@@ -52,6 +63,35 @@ public class TomcatProfiler implements ClassFileTransformer {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Profiler Agent start fail. Cause:" + e.getMessage(), e);
         }
+    }
+
+    private static ProfilerConfig readConfig(ClassPathResolver classPathResolver) throws IOException {
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        String hippoConfigFormSystemProperty = findHippoConfigFormSystemProeprty();
+        if (hippoConfigFormSystemProperty != null) {
+            profilerConfig.readConfigFile(hippoConfigFormSystemProperty);
+        } else {
+            String agentConfigPath = classPathResolver.getAgentConfigPath();
+            profilerConfig.readConfigFile(agentConfigPath);
+        }
+        return profilerConfig;
+    }
+
+    private static List<URL> resolveLib(ClassPathResolver classPathResolver) {
+        String agentJarFullPath = classPathResolver.getAgentJarFullPath();
+        logger.info("agentJarPath:" + agentJarFullPath);
+
+        String agentLibPath = classPathResolver.getAgentLibPath();
+        logger.info("agentLibPath:" + agentLibPath);
+
+        List<URL> urlList = classPathResolver.resolveLib();
+        logger.info("agent lib list:" + urlList);
+
+        String agentConfigPath = classPathResolver.getAgentConfigPath();
+        logger.info("agent config:" + agentConfigPath);
+
+        return urlList;
     }
 
     private static void dumpSystemProperties() {
@@ -76,6 +116,15 @@ public class TomcatProfiler implements ClassFileTransformer {
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths);
 
         this.modifierRepository = createModifierRegistry();
+    }
+
+    public static String findHippoConfigFormSystemProeprty() {
+        String hippoConfigFileName = System.getProperty("hippo.config");
+		if (hippoConfigFileName == null) {
+            return null;
+        }
+        logger.info("hippo.config property found. " + hippoConfigFileName);
+        return hippoConfigFileName;
     }
 
     private String[] getTomcatlibPath() {
