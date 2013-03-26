@@ -24,6 +24,7 @@ import com.nhn.hippo.web.dao.ClientStatisticsDao;
 import com.nhn.hippo.web.dao.TerminalStatisticsDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.dao.TraceIndexDao;
+import com.nhn.hippo.web.vo.Application;
 import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.ClientStatistics;
 import com.nhn.hippo.web.vo.TerminalStatistics;
@@ -64,7 +65,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	private AgentInfoDao agentInfoDao;
 	
 	@Override
-	public List<String> selectAllApplicationNames() {
+	public List<Application> selectAllApplicationNames() {
 		return applicationIndexDao.selectAllApplicationNames();
 	}
 

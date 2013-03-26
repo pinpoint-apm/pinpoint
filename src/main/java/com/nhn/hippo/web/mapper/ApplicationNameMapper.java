@@ -5,14 +5,17 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
+import com.nhn.hippo.web.vo.Application;
+
 /**
  *
  */
 @Component
-public class ApplicationNameMapper implements RowMapper<String> {
-
+public class ApplicationNameMapper implements RowMapper<Application> {
 	@Override
-	public String mapRow(Result result, int rowNum) throws Exception {
-		return Bytes.toString(result.getRow());
+	public Application mapRow(Result result, int rowNum) throws Exception {
+		String applicationName = Bytes.toString(result.getRow());
+		short serviceType = Bytes.toShort(result.value());
+		return new Application(applicationName, serviceType);
 	}
 }

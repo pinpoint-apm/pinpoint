@@ -11,6 +11,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
+import com.nhn.hippo.web.vo.Application;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 
@@ -25,14 +26,14 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
 	@Autowired
 	@Qualifier("applicationNameMapper")
-	private RowMapper<String> applicationNameMapper;
+	private RowMapper<Application> applicationNameMapper;
 
 	@Autowired
 	@Qualifier("agentIdMapper")
 	private RowMapper<String[]> agentIdMapper;
 
 	@Override
-	public List<String> selectAllApplicationNames() {
+	public List<Application> selectAllApplicationNames() {
 		Scan scan = new Scan();
 		scan.setCaching(30);
 		return hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);

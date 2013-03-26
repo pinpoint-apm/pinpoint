@@ -63,7 +63,7 @@ function openTransactionDetails(index, row) {
         html.push(traces[i].traceId);
         html.push("</a></td>");
 
-        html.push("<td>");
+        html.push("<td sorttable_customkey='" + traces[i].executionTime + "'>");
         html.push(traces[i].executionTime);
         html.push("</td>");
 

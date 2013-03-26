@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.vo.Application;
 import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.scatter.Dot;
@@ -64,7 +65,7 @@ public interface FlowChartService {
 	 * 
 	 * @return all of application names
 	 */
-	public List<String> selectAllApplicationNames();
+	public List<Application> selectAllApplicationNames();
 
 	public String[] selectAgentIds(String[] hosts);
 	

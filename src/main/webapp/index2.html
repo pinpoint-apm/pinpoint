@@ -138,7 +138,6 @@
 
 <!-- MENU -->
 <div class="container">
-	@DEPRECATED
 	<form class="well well-small form-inline" id="search" onsubmit="return false;">
 		<select id="application" disabled>
         	<option>Loading...</option>
@@ -493,14 +492,14 @@ $(document).ready(function () {
         };
     	
         if (isQueryFromNow()) {
-	        // getLastServerMapData2(getQueryPeriod(), serverMapCallback);
-	        getLastServerMapData(getQueryPeriod(), serverMapCallback);
+	        getLastServerMapData2(getQueryPeriod(), serverMapCallback);
+	        // getLastServerMapData(getQueryPeriod(), serverMapCallback);
 	        getLastBusinessTransactionsData(getQueryPeriod(), businessTransactionCallback);
 	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
 	        getLastScatterData(getQueryPeriod(), scatterCallback);
         } else {
-	        // getServerMapData2(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
-	        getServerMapData(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        getServerMapData2(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        // getServerMapData(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
 	        getBusinessTransactionsData(getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
 	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
 	        getScatterData(getQueryStartTime(), getQueryEndTime(), scatterCallback);

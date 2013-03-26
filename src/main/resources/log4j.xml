@@ -24,6 +24,11 @@
     </logger>
 
     <logger name="com.nhn.hippo.web.mapper" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.hippo.web.dao" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>

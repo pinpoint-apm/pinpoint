@@ -4,6 +4,7 @@
 <%@ taglib prefix="hippo" uri="http://hippo.nhncorp.com/hippo" %>
 [
 	<c:forEach items="${applications}" var="application" varStatus="status">
-		"${application}"<c:if test="${!status.last}">,</c:if>
+		{ "applicationName" : "${application.applicationName}", "serviceType" : "${application.serviceType}", "code" : "${application.serviceType.code}" } 
+		<c:if test="${!status.last}">,</c:if>
 	</c:forEach>
 ]
