@@ -29,8 +29,10 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public void insert(final AgentInfo agentInfo) {
         Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()), agentInfo.getTimestamp());
         byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-        put.add(APPLICATION_INDEX_CF_AGENTS, agentId, agentId);
-
+        byte[] serviceType = Bytes.toBytes(agentInfo.getServiceType());
+        
+        put.add(APPLICATION_INDEX_CF_AGENTS, agentId, serviceType);
+        
         hbaseTemplate.put(APPLICATION_INDEX, put);
 
         logger.debug("Insert agentInfo. {}", agentInfo);

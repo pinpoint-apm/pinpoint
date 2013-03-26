@@ -13,9 +13,12 @@ import com.profiler.common.dto.thrift.Span;
 import com.profiler.common.dto.thrift.SpanEvent;
 import com.profiler.common.util.SpanEventUtils;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
+import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;
+import com.profiler.server.dao.ApplicationMapStatisticsCallerDao;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
 import com.profiler.server.dao.BusinessTransactionStatisticsDao;
 import com.profiler.server.dao.ClientStatisticsDao;
+import com.profiler.server.dao.HostApplicationMapDao;
 import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TraceIndexDao;
 import com.profiler.server.dao.TracesDao;
@@ -45,6 +48,15 @@ public class SpanHandler implements Handler {
     @Autowired
     private ClientStatisticsDao clientStatisticsDao;
     
+    @Autowired
+    private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+    
+    @Autowired
+    private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+    
+    @Autowired
+    private HostApplicationMapDao hostApplicationMapDao;
+    
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
 
         if (!(tbase instanceof Span)) {
@@ -66,8 +78,25 @@ public class SpanHandler implements Handler {
 			if (span.getParentSpanId() == -1) {
 				// TODO error가 있으면 getErr값이 0보다 큰가??
 				clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
+				applicationMapStatisticsCalleeDao.update(span.getApplicationId(), span.getServiceType(), span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+				applicationMapStatisticsCallerDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getApplicationId(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 			}
-            
+
+			// parentApplicationContext가 있으면 statistics정보를 저장한다.
+			// 통계정보에 기반한 서버 맵을 그릴 때 WAS1 -> WAS2요청에서 WAS2를 호출한 application의 이름 즉, WAS1을 알아야한다. 
+			if (span.getParentApplicationName() != null) {
+				logger.debug("Received parent application name. " + span.getParentApplicationName());
+				// TODO 원래는 부모의 serviceType을 알아야 한다.
+				// 여기에서는 그냥 부모는 모두 TOMCAT이라 가정하고 테스트.
+				applicationMapStatisticsCallerDao.update(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationId(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+			}
+			
+			// host application map 저장.
+			// root span이 아닌 경우에만 profiler에서 acceptor host를 채워주게 되어있다.
+			if (span.getAcceptorHost() != null) {
+				hostApplicationMapDao.insert(span.getAcceptorHost(), span.getApplicationId(), span.getServiceType());
+			}
+			
             List<SpanEvent> spanEventList = span.getSpanEventList();
             if (spanEventList != null) {
                 logger.info("handle spanEvent size:{}", spanEventList.size());
@@ -82,6 +111,15 @@ public class SpanHandler implements Handler {
 					int elapsed = spanEvent.getEndElapsed();
                     boolean hasException = SpanEventUtils.hasException(spanEvent);
                     
+                    System.out.println("I am SpanHandler");
+                    
+                    // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
+                    // 내가 호출한 정보 저장. (span이 호출한 spanevent)
+					applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(), span.getApplicationId(), span.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+
+					// 나를 호출한 정보 저장 (spanevent를 호출한 span)
+					applicationMapStatisticsCallerDao.update(span.getApplicationId(), span.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getEndPoint(), elapsed, hasException);
+					
                     // TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
                 	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
                     terminalStatistics.update(span.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
