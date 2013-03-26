@@ -5,6 +5,8 @@ import java.util.Map;
 
 public enum ServiceType {
 
+	UNDEFINED((short) -1, "UNDEFINED", true, false, false, Histogram.NORMAL),
+	
     UNKNOWN((short) 0, "UNKNOWN", false, true, false, Histogram.NORMAL),
     UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, Histogram.NORMAL),
     CLIENT((short) 2, "CLIENT", false, false, false, Histogram.NORMAL),
@@ -110,7 +112,10 @@ public enum ServiceType {
         return histogram;
     }
 
-
+	public boolean isWas() {
+		return code >= 1000 && code < 2000;
+	}
+    
     @Override
     public String toString() {
         return desc;

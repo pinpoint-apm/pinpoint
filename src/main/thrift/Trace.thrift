@@ -69,6 +69,10 @@ struct Span {
   17: optional i32 err
 
   18: optional list<SpanEvent> spanEventList
+  
+  19: optional string parentApplicationName
+  20: optional i16 parentApplicationType
+  21: optional string acceptorHost
 }
 
 struct SpanChunk {

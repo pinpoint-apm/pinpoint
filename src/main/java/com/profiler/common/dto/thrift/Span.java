@@ -47,6 +47,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final org.apache.thrift.protocol.TField FLAG_FIELD_DESC = new org.apache.thrift.protocol.TField("flag", org.apache.thrift.protocol.TType.I16, (short)16);
   private static final org.apache.thrift.protocol.TField ERR_FIELD_DESC = new org.apache.thrift.protocol.TField("err", org.apache.thrift.protocol.TType.I32, (short)17);
   private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)18);
+  private static final org.apache.thrift.protocol.TField PARENT_APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("parentApplicationName", org.apache.thrift.protocol.TType.STRING, (short)19);
+  private static final org.apache.thrift.protocol.TField PARENT_APPLICATION_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parentApplicationType", org.apache.thrift.protocol.TType.I16, (short)20);
+  private static final org.apache.thrift.protocol.TField ACCEPTOR_HOST_FIELD_DESC = new org.apache.thrift.protocol.TField("acceptorHost", org.apache.thrift.protocol.TType.STRING, (short)21);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -71,6 +74,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private short flag; // optional
   private int err; // optional
   private List<SpanEvent> spanEventList; // optional
+  private String parentApplicationName; // optional
+  private short parentApplicationType; // optional
+  private String acceptorHost; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -90,7 +96,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     ANNOTATIONS((short)15, "annotations"),
     FLAG((short)16, "flag"),
     ERR((short)17, "err"),
-    SPAN_EVENT_LIST((short)18, "spanEventList");
+    SPAN_EVENT_LIST((short)18, "spanEventList"),
+    PARENT_APPLICATION_NAME((short)19, "parentApplicationName"),
+    PARENT_APPLICATION_TYPE((short)20, "parentApplicationType"),
+    ACCEPTOR_HOST((short)21, "acceptorHost");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -139,6 +148,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           return ERR;
         case 18: // SPAN_EVENT_LIST
           return SPAN_EVENT_LIST;
+        case 19: // PARENT_APPLICATION_NAME
+          return PARENT_APPLICATION_NAME;
+        case 20: // PARENT_APPLICATION_TYPE
+          return PARENT_APPLICATION_TYPE;
+        case 21: // ACCEPTOR_HOST
+          return ACCEPTOR_HOST;
         default:
           return null;
       }
@@ -189,8 +204,9 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private static final int __SERVICETYPE_ISSET_ID = 7;
   private static final int __FLAG_ISSET_ID = 8;
   private static final int __ERR_ISSET_ID = 9;
-  private BitSet __isset_bit_vector = new BitSet(10);
-  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST};
+  private static final int __PARENTAPPLICATIONTYPE_ISSET_ID = 10;
+  private BitSet __isset_bit_vector = new BitSet(11);
+  private _Fields optionals[] = {_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST,_Fields.PARENT_APPLICATION_NAME,_Fields.PARENT_APPLICATION_TYPE,_Fields.ACCEPTOR_HOST};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -230,6 +246,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SpanEvent.class))));
+    tmpMap.put(_Fields.PARENT_APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("parentApplicationName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.PARENT_APPLICATION_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parentApplicationType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
+    tmpMap.put(_Fields.ACCEPTOR_HOST, new org.apache.thrift.meta_data.FieldMetaData("acceptorHost", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
   }
@@ -318,6 +340,13 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       this.spanEventList = __this__spanEventList;
     }
+    if (other.isSetParentApplicationName()) {
+      this.parentApplicationName = other.parentApplicationName;
+    }
+    this.parentApplicationType = other.parentApplicationType;
+    if (other.isSetAcceptorHost()) {
+      this.acceptorHost = other.acceptorHost;
+    }
   }
 
   public Span deepCopy() {
@@ -353,6 +382,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     setErrIsSet(false);
     this.err = 0;
     this.spanEventList = null;
+    this.parentApplicationName = null;
+    setParentApplicationTypeIsSet(false);
+    this.parentApplicationType = 0;
+    this.acceptorHost = null;
   }
 
   public String getAgentId() {
@@ -766,6 +799,74 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
+  public String getParentApplicationName() {
+    return this.parentApplicationName;
+  }
+
+  public void setParentApplicationName(String parentApplicationName) {
+    this.parentApplicationName = parentApplicationName;
+  }
+
+  public void unsetParentApplicationName() {
+    this.parentApplicationName = null;
+  }
+
+  /** Returns true if field parentApplicationName is set (has been assigned a value) and false otherwise */
+  public boolean isSetParentApplicationName() {
+    return this.parentApplicationName != null;
+  }
+
+  public void setParentApplicationNameIsSet(boolean value) {
+    if (!value) {
+      this.parentApplicationName = null;
+    }
+  }
+
+  public short getParentApplicationType() {
+    return this.parentApplicationType;
+  }
+
+  public void setParentApplicationType(short parentApplicationType) {
+    this.parentApplicationType = parentApplicationType;
+    setParentApplicationTypeIsSet(true);
+  }
+
+  public void unsetParentApplicationType() {
+    __isset_bit_vector.clear(__PARENTAPPLICATIONTYPE_ISSET_ID);
+  }
+
+  /** Returns true if field parentApplicationType is set (has been assigned a value) and false otherwise */
+  public boolean isSetParentApplicationType() {
+    return __isset_bit_vector.get(__PARENTAPPLICATIONTYPE_ISSET_ID);
+  }
+
+  public void setParentApplicationTypeIsSet(boolean value) {
+    __isset_bit_vector.set(__PARENTAPPLICATIONTYPE_ISSET_ID, value);
+  }
+
+  public String getAcceptorHost() {
+    return this.acceptorHost;
+  }
+
+  public void setAcceptorHost(String acceptorHost) {
+    this.acceptorHost = acceptorHost;
+  }
+
+  public void unsetAcceptorHost() {
+    this.acceptorHost = null;
+  }
+
+  /** Returns true if field acceptorHost is set (has been assigned a value) and false otherwise */
+  public boolean isSetAcceptorHost() {
+    return this.acceptorHost != null;
+  }
+
+  public void setAcceptorHostIsSet(boolean value) {
+    if (!value) {
+      this.acceptorHost = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -904,6 +1005,30 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       }
       break;
 
+    case PARENT_APPLICATION_NAME:
+      if (value == null) {
+        unsetParentApplicationName();
+      } else {
+        setParentApplicationName((String)value);
+      }
+      break;
+
+    case PARENT_APPLICATION_TYPE:
+      if (value == null) {
+        unsetParentApplicationType();
+      } else {
+        setParentApplicationType((Short)value);
+      }
+      break;
+
+    case ACCEPTOR_HOST:
+      if (value == null) {
+        unsetAcceptorHost();
+      } else {
+        setAcceptorHost((String)value);
+      }
+      break;
+
     }
   }
 
@@ -960,6 +1085,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     case SPAN_EVENT_LIST:
       return getSpanEventList();
 
+    case PARENT_APPLICATION_NAME:
+      return getParentApplicationName();
+
+    case PARENT_APPLICATION_TYPE:
+      return Short.valueOf(getParentApplicationType());
+
+    case ACCEPTOR_HOST:
+      return getAcceptorHost();
+
     }
     throw new IllegalStateException();
   }
@@ -1005,6 +1139,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       return isSetErr();
     case SPAN_EVENT_LIST:
       return isSetSpanEventList();
+    case PARENT_APPLICATION_NAME:
+      return isSetParentApplicationName();
+    case PARENT_APPLICATION_TYPE:
+      return isSetParentApplicationType();
+    case ACCEPTOR_HOST:
+      return isSetAcceptorHost();
     }
     throw new IllegalStateException();
   }
@@ -1172,6 +1312,33 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (!(this_present_spanEventList && that_present_spanEventList))
         return false;
       if (!this.spanEventList.equals(that.spanEventList))
+        return false;
+    }
+
+    boolean this_present_parentApplicationName = true && this.isSetParentApplicationName();
+    boolean that_present_parentApplicationName = true && that.isSetParentApplicationName();
+    if (this_present_parentApplicationName || that_present_parentApplicationName) {
+      if (!(this_present_parentApplicationName && that_present_parentApplicationName))
+        return false;
+      if (!this.parentApplicationName.equals(that.parentApplicationName))
+        return false;
+    }
+
+    boolean this_present_parentApplicationType = true && this.isSetParentApplicationType();
+    boolean that_present_parentApplicationType = true && that.isSetParentApplicationType();
+    if (this_present_parentApplicationType || that_present_parentApplicationType) {
+      if (!(this_present_parentApplicationType && that_present_parentApplicationType))
+        return false;
+      if (this.parentApplicationType != that.parentApplicationType)
+        return false;
+    }
+
+    boolean this_present_acceptorHost = true && this.isSetAcceptorHost();
+    boolean that_present_acceptorHost = true && that.isSetAcceptorHost();
+    if (this_present_acceptorHost || that_present_acceptorHost) {
+      if (!(this_present_acceptorHost && that_present_acceptorHost))
+        return false;
+      if (!this.acceptorHost.equals(that.acceptorHost))
         return false;
     }
 
@@ -1361,6 +1528,36 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetParentApplicationName()).compareTo(typedOther.isSetParentApplicationName());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetParentApplicationName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentApplicationName, typedOther.parentApplicationName);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetParentApplicationType()).compareTo(typedOther.isSetParentApplicationType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetParentApplicationType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentApplicationType, typedOther.parentApplicationType);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAcceptorHost()).compareTo(typedOther.isSetAcceptorHost());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAcceptorHost()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.acceptorHost, typedOther.acceptorHost);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1487,6 +1684,32 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         sb.append("null");
       } else {
         sb.append(this.spanEventList);
+      }
+      first = false;
+    }
+    if (isSetParentApplicationName()) {
+      if (!first) sb.append(", ");
+      sb.append("parentApplicationName:");
+      if (this.parentApplicationName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.parentApplicationName);
+      }
+      first = false;
+    }
+    if (isSetParentApplicationType()) {
+      if (!first) sb.append(", ");
+      sb.append("parentApplicationType:");
+      sb.append(this.parentApplicationType);
+      first = false;
+    }
+    if (isSetAcceptorHost()) {
+      if (!first) sb.append(", ");
+      sb.append("acceptorHost:");
+      if (this.acceptorHost == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.acceptorHost);
       }
       first = false;
     }
@@ -1692,6 +1915,30 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 19: // PARENT_APPLICATION_NAME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.parentApplicationName = iprot.readString();
+              struct.setParentApplicationNameIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 20: // PARENT_APPLICATION_TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.parentApplicationType = iprot.readI16();
+              struct.setParentApplicationTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 21: // ACCEPTOR_HOST
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.acceptorHost = iprot.readString();
+              struct.setAcceptorHostIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1798,6 +2045,25 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           oprot.writeFieldEnd();
         }
       }
+      if (struct.parentApplicationName != null) {
+        if (struct.isSetParentApplicationName()) {
+          oprot.writeFieldBegin(PARENT_APPLICATION_NAME_FIELD_DESC);
+          oprot.writeString(struct.parentApplicationName);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.isSetParentApplicationType()) {
+        oprot.writeFieldBegin(PARENT_APPLICATION_TYPE_FIELD_DESC);
+        oprot.writeI16(struct.parentApplicationType);
+        oprot.writeFieldEnd();
+      }
+      if (struct.acceptorHost != null) {
+        if (struct.isSetAcceptorHost()) {
+          oprot.writeFieldBegin(ACCEPTOR_HOST_FIELD_DESC);
+          oprot.writeString(struct.acceptorHost);
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1867,7 +2133,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetSpanEventList()) {
         optionals.set(16);
       }
-      oprot.writeBitSet(optionals, 17);
+      if (struct.isSetParentApplicationName()) {
+        optionals.set(17);
+      }
+      if (struct.isSetParentApplicationType()) {
+        optionals.set(18);
+      }
+      if (struct.isSetAcceptorHost()) {
+        optionals.set(19);
+      }
+      oprot.writeBitSet(optionals, 20);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1931,12 +2206,21 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           }
         }
       }
+      if (struct.isSetParentApplicationName()) {
+        oprot.writeString(struct.parentApplicationName);
+      }
+      if (struct.isSetParentApplicationType()) {
+        oprot.writeI16(struct.parentApplicationType);
+      }
+      if (struct.isSetAcceptorHost()) {
+        oprot.writeString(struct.acceptorHost);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(17);
+      BitSet incoming = iprot.readBitSet(20);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -2024,6 +2308,18 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           }
         }
         struct.setSpanEventListIsSet(true);
+      }
+      if (incoming.get(17)) {
+        struct.parentApplicationName = iprot.readString();
+        struct.setParentApplicationNameIsSet(true);
+      }
+      if (incoming.get(18)) {
+        struct.parentApplicationType = iprot.readI16();
+        struct.setParentApplicationTypeIsSet(true);
+      }
+      if (incoming.get(19)) {
+        struct.acceptorHost = iprot.readString();
+        struct.setAcceptorHostIsSet(true);
       }
     }
   }

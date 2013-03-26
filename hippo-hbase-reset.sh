@@ -11,6 +11,9 @@ disable 'SystemInfo'
 disable 'TerminalStatistics'
 disable 'BusinessTransactionStatistics'
 disable 'ClientStatistics'
+disable 'ApplicationMapStatisticsCaller'
+disable 'ApplicationMapStatisticsCallee'
+disable 'HostApplicationMap'
 
 drop 'AgentInfo'
 drop 'AgentIdApplicationIndex'
@@ -24,6 +27,9 @@ drop 'SystemInfo'
 drop 'TerminalStatistics'
 drop 'BusinessTransactionStatistics'
 drop 'ClientStatistics'
+drop 'ApplicationMapStatisticsCaller'
+drop 'ApplicationMapStatisticsCallee'
+drop 'HostApplicationMap'
 
 create 'AgentInfo', { NAME => 'Info' }
 create 'AgentIdApplicationIndex', { NAME => 'Application' }
@@ -37,6 +43,9 @@ create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
 create 'TerminalStatistics', { NAME => 'Counter' , TTL => 259200  }
 create 'BusinessTransactionStatistics', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Error' , TTL => 259200  }
 create 'ClientStatistics', { NAME => 'Counter' , TTL => 259200  }
+create 'ApplicationMapStatisticsCaller', { NAME => 'Counter' }
+create 'ApplicationMapStatisticsCallee', { NAME => 'Counter' }
+create 'HostApplicationMap', { NAME => 'Map' }
 
 list
 EOF

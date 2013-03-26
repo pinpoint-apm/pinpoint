@@ -6,9 +6,10 @@ struct AgentInfo {
 	3: string	ports
 	4: string	agentId
 	5: string	applicationName
-	6: bool	isAlive
-	7: i64	timestamp
-	8: i16  identifier
+	6: i16	serviceType
+	7: bool	isAlive
+	8: i64	timestamp
+	9: i16  identifier
 }
 
 struct JVMInfoThriftDTO {

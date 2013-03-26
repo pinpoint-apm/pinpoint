@@ -35,9 +35,10 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   private static final org.apache.thrift.protocol.TField PORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("ports", org.apache.thrift.protocol.TType.STRING, (short)3);
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)5);
-  private static final org.apache.thrift.protocol.TField IS_ALIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("isAlive", org.apache.thrift.protocol.TType.BOOL, (short)6);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)7);
-  private static final org.apache.thrift.protocol.TField IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("identifier", org.apache.thrift.protocol.TType.I16, (short)8);
+  private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)6);
+  private static final org.apache.thrift.protocol.TField IS_ALIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("isAlive", org.apache.thrift.protocol.TType.BOOL, (short)7);
+  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)8);
+  private static final org.apache.thrift.protocol.TField IDENTIFIER_FIELD_DESC = new org.apache.thrift.protocol.TField("identifier", org.apache.thrift.protocol.TType.I16, (short)9);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -50,6 +51,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   private String ports; // required
   private String agentId; // required
   private String applicationName; // required
+  private short serviceType; // required
   private boolean isAlive; // required
   private long timestamp; // required
   private short identifier; // required
@@ -61,9 +63,10 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     PORTS((short)3, "ports"),
     AGENT_ID((short)4, "agentId"),
     APPLICATION_NAME((short)5, "applicationName"),
-    IS_ALIVE((short)6, "isAlive"),
-    TIMESTAMP((short)7, "timestamp"),
-    IDENTIFIER((short)8, "identifier");
+    SERVICE_TYPE((short)6, "serviceType"),
+    IS_ALIVE((short)7, "isAlive"),
+    TIMESTAMP((short)8, "timestamp"),
+    IDENTIFIER((short)9, "identifier");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -88,11 +91,13 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
           return AGENT_ID;
         case 5: // APPLICATION_NAME
           return APPLICATION_NAME;
-        case 6: // IS_ALIVE
+        case 6: // SERVICE_TYPE
+          return SERVICE_TYPE;
+        case 7: // IS_ALIVE
           return IS_ALIVE;
-        case 7: // TIMESTAMP
+        case 8: // TIMESTAMP
           return TIMESTAMP;
-        case 8: // IDENTIFIER
+        case 9: // IDENTIFIER
           return IDENTIFIER;
         default:
           return null;
@@ -134,10 +139,11 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   }
 
   // isset id assignments
-  private static final int __ISALIVE_ISSET_ID = 0;
-  private static final int __TIMESTAMP_ISSET_ID = 1;
-  private static final int __IDENTIFIER_ISSET_ID = 2;
-  private BitSet __isset_bit_vector = new BitSet(3);
+  private static final int __SERVICETYPE_ISSET_ID = 0;
+  private static final int __ISALIVE_ISSET_ID = 1;
+  private static final int __TIMESTAMP_ISSET_ID = 2;
+  private static final int __IDENTIFIER_ISSET_ID = 3;
+  private BitSet __isset_bit_vector = new BitSet(4);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -151,6 +157,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("applicationName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.IS_ALIVE, new org.apache.thrift.meta_data.FieldMetaData("isAlive", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -170,6 +178,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     String ports,
     String agentId,
     String applicationName,
+    short serviceType,
     boolean isAlive,
     long timestamp,
     short identifier)
@@ -180,6 +189,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     this.ports = ports;
     this.agentId = agentId;
     this.applicationName = applicationName;
+    this.serviceType = serviceType;
+    setServiceTypeIsSet(true);
     this.isAlive = isAlive;
     setIsAliveIsSet(true);
     this.timestamp = timestamp;
@@ -209,6 +220,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     if (other.isSetApplicationName()) {
       this.applicationName = other.applicationName;
     }
+    this.serviceType = other.serviceType;
     this.isAlive = other.isAlive;
     this.timestamp = other.timestamp;
     this.identifier = other.identifier;
@@ -225,6 +237,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     this.ports = null;
     this.agentId = null;
     this.applicationName = null;
+    setServiceTypeIsSet(false);
+    this.serviceType = 0;
     setIsAliveIsSet(false);
     this.isAlive = false;
     setTimestampIsSet(false);
@@ -348,6 +362,28 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     }
   }
 
+  public short getServiceType() {
+    return this.serviceType;
+  }
+
+  public void setServiceType(short serviceType) {
+    this.serviceType = serviceType;
+    setServiceTypeIsSet(true);
+  }
+
+  public void unsetServiceType() {
+    __isset_bit_vector.clear(__SERVICETYPE_ISSET_ID);
+  }
+
+  /** Returns true if field serviceType is set (has been assigned a value) and false otherwise */
+  public boolean isSetServiceType() {
+    return __isset_bit_vector.get(__SERVICETYPE_ISSET_ID);
+  }
+
+  public void setServiceTypeIsSet(boolean value) {
+    __isset_bit_vector.set(__SERVICETYPE_ISSET_ID, value);
+  }
+
   public boolean isIsAlive() {
     return this.isAlive;
   }
@@ -456,6 +492,14 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       }
       break;
 
+    case SERVICE_TYPE:
+      if (value == null) {
+        unsetServiceType();
+      } else {
+        setServiceType((Short)value);
+      }
+      break;
+
     case IS_ALIVE:
       if (value == null) {
         unsetIsAlive();
@@ -500,6 +544,9 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     case APPLICATION_NAME:
       return getApplicationName();
 
+    case SERVICE_TYPE:
+      return Short.valueOf(getServiceType());
+
     case IS_ALIVE:
       return Boolean.valueOf(isIsAlive());
 
@@ -530,6 +577,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       return isSetAgentId();
     case APPLICATION_NAME:
       return isSetApplicationName();
+    case SERVICE_TYPE:
+      return isSetServiceType();
     case IS_ALIVE:
       return isSetIsAlive();
     case TIMESTAMP:
@@ -595,6 +644,15 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (!(this_present_applicationName && that_present_applicationName))
         return false;
       if (!this.applicationName.equals(that.applicationName))
+        return false;
+    }
+
+    boolean this_present_serviceType = true;
+    boolean that_present_serviceType = true;
+    if (this_present_serviceType || that_present_serviceType) {
+      if (!(this_present_serviceType && that_present_serviceType))
+        return false;
+      if (this.serviceType != that.serviceType)
         return false;
     }
 
@@ -691,6 +749,16 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetServiceType()).compareTo(typedOther.isSetServiceType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetServiceType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serviceType, typedOther.serviceType);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetIsAlive()).compareTo(typedOther.isSetIsAlive());
     if (lastComparison != 0) {
       return lastComparison;
@@ -779,6 +847,10 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     } else {
       sb.append(this.applicationName);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("serviceType:");
+    sb.append(this.serviceType);
     first = false;
     if (!first) sb.append(", ");
     sb.append("isAlive:");
@@ -876,7 +948,15 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // IS_ALIVE
+          case 6: // SERVICE_TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.serviceType = iprot.readI16();
+              struct.setServiceTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 7: // IS_ALIVE
             if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
               struct.isAlive = iprot.readBool();
               struct.setIsAliveIsSet(true);
@@ -884,7 +964,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // TIMESTAMP
+          case 8: // TIMESTAMP
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.timestamp = iprot.readI64();
               struct.setTimestampIsSet(true);
@@ -892,7 +972,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // IDENTIFIER
+          case 9: // IDENTIFIER
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.identifier = iprot.readI16();
               struct.setIdentifierIsSet(true);
@@ -938,6 +1018,9 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
         oprot.writeString(struct.applicationName);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(SERVICE_TYPE_FIELD_DESC);
+      oprot.writeI16(struct.serviceType);
+      oprot.writeFieldEnd();
       oprot.writeFieldBegin(IS_ALIVE_FIELD_DESC);
       oprot.writeBool(struct.isAlive);
       oprot.writeFieldEnd();
@@ -980,16 +1063,19 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (struct.isSetApplicationName()) {
         optionals.set(4);
       }
-      if (struct.isSetIsAlive()) {
+      if (struct.isSetServiceType()) {
         optionals.set(5);
       }
-      if (struct.isSetTimestamp()) {
+      if (struct.isSetIsAlive()) {
         optionals.set(6);
       }
-      if (struct.isSetIdentifier()) {
+      if (struct.isSetTimestamp()) {
         optionals.set(7);
       }
-      oprot.writeBitSet(optionals, 8);
+      if (struct.isSetIdentifier()) {
+        optionals.set(8);
+      }
+      oprot.writeBitSet(optionals, 9);
       if (struct.isSetHostname()) {
         oprot.writeString(struct.hostname);
       }
@@ -1005,6 +1091,9 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       if (struct.isSetApplicationName()) {
         oprot.writeString(struct.applicationName);
       }
+      if (struct.isSetServiceType()) {
+        oprot.writeI16(struct.serviceType);
+      }
       if (struct.isSetIsAlive()) {
         oprot.writeBool(struct.isAlive);
       }
@@ -1019,7 +1108,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, AgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(8);
+      BitSet incoming = iprot.readBitSet(9);
       if (incoming.get(0)) {
         struct.hostname = iprot.readString();
         struct.setHostnameIsSet(true);
@@ -1041,14 +1130,18 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
         struct.setApplicationNameIsSet(true);
       }
       if (incoming.get(5)) {
+        struct.serviceType = iprot.readI16();
+        struct.setServiceTypeIsSet(true);
+      }
+      if (incoming.get(6)) {
         struct.isAlive = iprot.readBool();
         struct.setIsAliveIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(7)) {
         struct.timestamp = iprot.readI64();
         struct.setTimestampIsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(8)) {
         struct.identifier = iprot.readI16();
         struct.setIdentifierIsSet(true);
       }
