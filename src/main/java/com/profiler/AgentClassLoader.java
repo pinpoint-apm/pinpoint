@@ -8,15 +8,14 @@ import java.net.URLClassLoader;
 /**
  *
  */
-public class AgentURLClassLoader {
+public class AgentClassLoader {
 
-    private ClassPathResolver classPathResolver = new ClassPathResolver(null);
     private URLClassLoader classLoader;
     private String bootClass = "com.profiler.AgentBootStrap";
     private String bootMethod = "boot";
 
-    public AgentURLClassLoader(URL[] urls) {
-        ClassLoader classLoader = AgentURLClassLoader.class.getClassLoader();
+    public AgentClassLoader(URL[] urls) {
+        ClassLoader classLoader = AgentClassLoader.class.getClassLoader();
         this.classLoader = new URLClassLoader(urls, classLoader);
     }
 

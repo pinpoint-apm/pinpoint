@@ -44,42 +44,8 @@ public class Agent {
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
-    private Thread heartbeatThread;
+    private HeartBitChecker heartBitChecker;
 
-    /**
-     * collector로 heartbeat을 보낸다. heartbeat의 내용은 agent info.
-     */
-    private Runnable heartBitCommand = new Runnable() {
-        @Override
-        public void run() {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("Send startup information to HIPPO server via " + priorityDataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
-            }
-            priorityDataSender.send(agentInfo);
-            priorityDataSender.send(agentInfo);
-            priorityDataSender.send(agentInfo);
-
-            long heartbeatInterval = profilerConfig.getHeartbeatInterval();
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("Starting agent heartbeat. heartbeatInterval:" + heartbeatInterval);
-            }
-            while (true) {
-                if (agentStatus == AgentStatus.RUNNING) {
-                    logger.fine("Send heartbeat");
-                    priorityDataSender.send(agentInfo);
-                } else if (agentStatus == AgentStatus.STOPPING || agentStatus == AgentStatus.STOPPED) {
-                    break;
-                }
-                // TODO 정밀한 시간계산 없이 일단 그냥 interval 단위로 보냄.
-                try {
-                    Thread.sleep(heartbeatInterval);
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-            logger.info(Thread.currentThread().getName() + " stopped.");
-        }
-    };
 
     public Agent(ProfilerConfig profilerConfig) {
         changeStatus(AgentStatus.INITIALIZING);
@@ -111,16 +77,10 @@ public class Agent {
         ApiMappingTable.findApiId("test", null, null);
 
         this.agentInfo = createAgentInfo();
-        this.heartbeatThread = createHeartbeatThread();
+        this.heartBitChecker = new HeartBitChecker(priorityDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
+
 
         SingletonHolder.INSTANCE = this;
-    }
-
-    private Thread createHeartbeatThread() {
-        Thread thread = new Thread(heartBitCommand);
-        thread.setName("HIPPO-Agent-Heartbeat-Thread");
-        thread.setDaemon(true);
-        return thread;
     }
 
     private AgentInfo createAgentInfo() {
@@ -247,14 +207,15 @@ public class Agent {
      */
     public void started() {
         changeStatus(AgentStatus.RUNNING);
-        this.heartbeatThread.start();
+        this.heartBitChecker.start();
     }
 
     public void stop() {
         logger.info("Stopping HIPPO Agent.");
 
         changeStatus(AgentStatus.STOPPING);
-        heartbeatThread.interrupt();
+        this.heartBitChecker.close();
+
 
         systemMonitor.stop();
 

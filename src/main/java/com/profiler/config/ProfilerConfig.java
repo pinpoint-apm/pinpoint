@@ -37,7 +37,7 @@ public class ProfilerConfig {
 	private Set<String> profileInclude = new HashSet<String>(4);
 	private Set<String> profileIncludeSub = new HashSet<String>(4);
 
-	private long heartbeatInterval = 5000L;
+	private long heartbeatInterval = 5*60*1000L;
 	
 	public ProfilerConfig() {
 	}

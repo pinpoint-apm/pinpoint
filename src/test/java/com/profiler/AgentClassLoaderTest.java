@@ -15,7 +15,7 @@ import java.security.ProtectionDomain;
 /**
  *
  */
-public class AgentURLClassLoaderTest {
+public class AgentClassLoaderTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,14 +32,14 @@ public class AgentURLClassLoaderTest {
         logger.info("load testlib:" + testJarPath);
         File file = new File(testJarPath);
         Assert.assertTrue(file.exists());
-        AgentURLClassLoader agentURLClassLoader = new AgentURLClassLoader(new URL[]{file.toURI().toURL()});
-        agentURLClassLoader.setBootClass("com.profiler.boot.BootClassTest");
-        agentURLClassLoader.boot();
+        AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[]{file.toURI().toURL()});
+        agentClassLoader.setBootClass("com.profiler.boot.BootClassTest");
+        agentClassLoader.boot();
 
     }
 
     private String getProjectLibDir() {
-        ProtectionDomain protectionDomain = AgentURLClassLoader.class.getProtectionDomain();
+        ProtectionDomain protectionDomain = AgentClassLoader.class.getProtectionDomain();
         CodeSource codeSource = protectionDomain.getCodeSource();
         URL location = codeSource.getLocation();
 
