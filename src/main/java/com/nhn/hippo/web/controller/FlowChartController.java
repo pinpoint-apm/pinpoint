@@ -66,8 +66,6 @@ public class FlowChartController {
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
-
-		logger.debug("map : {}", map);
 		
 		return "applicationmap";
 	}
@@ -98,8 +96,6 @@ public class FlowChartController {
 
 		model.addAttribute("nodes", callTree.getNodes());
 		model.addAttribute("links", callTree.getLinks());
-
-		logger.debug("callTree:{}", callTree);
 
 		addResponseHeader(response);
 		

@@ -54,8 +54,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                         agentInfoBo.setTimestamp(startTime);
                         agentInfoBo.readValue(value);
 
-                        logger.info("agent:{} startTime find {}", agentId, startTime);
-
+                        logger.debug("agent:{} startTime find {}", agentId, startTime);
 
                         return agentInfoBo;
                     }

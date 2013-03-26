@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import com.nhn.hippo.web.applicationmap.ApplicationMap;
 import com.nhn.hippo.web.applicationmap.ApplicationStatistics;
@@ -22,6 +23,8 @@ import com.profiler.common.ServiceType;
 import com.profiler.common.bo.AgentInfoBo;
 
 /**
+ * TODO recursive call 처리 필요.
+ * 
  * @author netspider
  */
 @Service
@@ -207,6 +210,9 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to) {
 		logger.debug("SelectApplicationMap");
 
+		StopWatch watch = new StopWatch("applicationMapWatch");
+		watch.start();
+
 		// 무한 탐색을 방지하기 위한 용도.
 		final Set<String> callerFoundApplications = new HashSet<String>();
 		final Set<String> calleeFoundApplications = new HashSet<String>();
@@ -218,6 +224,11 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		data.addAll(callee);
 		data.addAll(caller);
 
-		return new ApplicationMap(data).build();
+		ApplicationMap map = new ApplicationMap(data).build();
+
+		watch.stop();
+		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
+		
+		return map;
 	}
 }

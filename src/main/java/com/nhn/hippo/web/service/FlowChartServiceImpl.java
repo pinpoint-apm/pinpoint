@@ -132,6 +132,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(TraceId traceId) {
+		StopWatch watch = new StopWatch();
+		watch.start();
 
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
@@ -142,7 +144,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
 		tree.addSpanEventList(spanEventBoList);
 
-		return tree.build();
+		tree.build();
+		
+		watch.stop();
+		logger.info("Fetch single transaction serverCallTree elapsed. {}ms", watch.getLastTaskTimeMillis());
+
+		return tree;
 	}
 
 	private List<SpanEventBo> findRecordStatisticsSpanEventData(List<SpanBo> transaction, Set<String> endPoints) {
@@ -229,19 +236,17 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 */
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIds, String applicationName, long from, long to) {
+		StopWatch watch = new StopWatch();
+		watch.start();
+		
 		final Map<String, ServiceType> terminalQueryParams = new HashMap<String, ServiceType>();
 		final Map<String, ServiceType> clientQueryParams = new HashMap<String, ServiceType>();
 		final Set<String> hostnameQueryParams = new HashSet<String>();
-		
 		final ServerCallTree tree = new ServerCallTree(new ApplicationIdNodeSelector());
-
-		StopWatch watch = new StopWatch();
-		watch.start("scanNonTerminalSpans");
 
 		// fetch non-terminal spans
 		List<List<SpanBo>> traces = this.traceDao.selectSpans(traceIds);
 
-		watch.stop();
 		int totalNonTerminalSpansCount = 0;
 
 		Set<String> nonTerminalEndPoints = new HashSet<String>();
@@ -271,12 +276,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
-		if (logger.isInfoEnabled()) {
-			logger.info("Fetch non-terminal spans elapsed : {}ms, {} traces, {} spans", new Object[] { watch.getLastTaskTimeMillis(), traces.size(), totalNonTerminalSpansCount });
-		}
-
-		watch.start("scanTerminalStatistics");
-
 		// fetch terminal info
 		for (Entry<String, ServiceType> param : terminalQueryParams.entrySet()) {
 			ServiceType svcType = param.getValue();
@@ -304,9 +303,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
-		watch.stop();
-		logger.info("Fetch terminal statistics elapsed : {}ms", watch.getLastTaskTimeMillis());
-
 		logger.debug("client query params=" + clientQueryParams);
 		
 		// fetch client info
@@ -328,7 +324,12 @@ public class FlowChartServiceImpl implements FlowChartService {
 			tree.addApplicationHosts(applicationId, selectApplicationHosts(applicationId));
 		}
 
-		return tree.build();
+		tree.build();
+		
+		watch.stop();
+		logger.info("Fetch serverCallTree elapsed. {}ms", watch.getLastTaskTimeMillis());
+		
+		return tree;
 	}
 
 	@Deprecated
