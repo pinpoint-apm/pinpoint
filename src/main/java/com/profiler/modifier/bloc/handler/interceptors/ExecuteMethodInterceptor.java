@@ -7,11 +7,7 @@ import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
-import com.profiler.context.Header;
-import com.profiler.context.SpanID;
-import com.profiler.context.Trace;
-import com.profiler.context.TraceContext;
-import com.profiler.context.TraceID;
+import com.profiler.context.*;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -45,7 +41,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             String parameters = getRequestParameter(request);
 
             TraceID traceId = populateTraceIdFromRequest(request);
-            Trace trace;
+            DefaultTrace trace;
             if (traceId != null) {
                 // TraceID nextTraceId = traceId.getNextTraceId();
                 if (logger.isLoggable(Level.INFO)) {
@@ -54,10 +50,10 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
                 // trace = new Trace(nextTraceId);
-                trace = new Trace(traceId);
+                trace = new DefaultTrace(traceId);
                 traceContext.attachTraceObject(trace);
             } else {
-                trace = new Trace();
+                trace = new DefaultTrace();
                 if (logger.isLoggable(Level.INFO)) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
@@ -98,7 +94,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             return;
         }
         traceContext.detachTraceObject();
-        if (trace.getCurrentStackFrame().getStackFrameId() != 0) {
+        if (trace.getStackFrameId() != 0) {
             logger.warning("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }

@@ -63,7 +63,7 @@ public class TraceContext {
         return threadLocal.get();
     }
 
-    public void attachTraceObject(Trace trace) {
+    public void attachTraceObject(DefaultTrace trace) {
         Trace old = this.threadLocal.get();
         if (old != null) {
             // 잘못된 상황의 old를 덤프할것.

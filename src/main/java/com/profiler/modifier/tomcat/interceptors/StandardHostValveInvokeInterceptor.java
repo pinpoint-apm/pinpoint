@@ -9,11 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
-import com.profiler.context.Header;
-import com.profiler.context.SpanID;
-import com.profiler.context.Trace;
-import com.profiler.context.TraceContext;
-import com.profiler.context.TraceID;
+import com.profiler.context.*;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -45,17 +41,17 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             String remoteAddr = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
-            Trace trace;
+            DefaultTrace trace;
             if (traceId != null) {
                 if (logger.isLoggable(Level.INFO)) {
                     logger.info("TraceID exist. continue trace. " + traceId);
                     logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
                 }
                 // trace = new Trace(nextTraceId);
-                trace = new Trace(traceId);
+                trace = new DefaultTrace(traceId);
                 traceContext.attachTraceObject(trace);
             } else {
-                trace = new Trace();
+                trace = new DefaultTrace();
                 if (logger.isLoggable(Level.INFO)) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
                     logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
@@ -110,7 +106,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         }
 
 
-        if (trace.getCurrentStackFrame().getStackFrameId() != 0) {
+        if (trace.getStackFrameId() != 0) {
             logger.warning("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }

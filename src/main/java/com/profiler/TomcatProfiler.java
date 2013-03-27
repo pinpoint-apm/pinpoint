@@ -51,6 +51,14 @@ public class TomcatProfiler implements ClassFileTransformer {
         }
         // 이게 로드할 lib List임.
         List<URL> libUrlList = resolveLib(classPathResolver);
+        AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
+        agentClassLoader.setBootClass("com.profiler.boot.BootClassTest");
+        try {
+            agentClassLoader.boot();
+        } catch (Exception e) {
+            logger.info("test error");
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         try {
             ProfilerConfig profilerConfig = readConfig(classPathResolver);
