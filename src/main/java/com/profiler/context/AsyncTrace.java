@@ -82,11 +82,6 @@ public class AsyncTrace {
 
     public void traceBlockEnd() {
         logSpan(this.spanEvent);
-//        clearReference();
-    }
-
-    private void clearReference() {
-        this.storage = null;
     }
 
     public void markAfterTime() {
@@ -126,7 +121,7 @@ public class AsyncTrace {
 
 
     public void recordAttribute(final AnnotationKey key, final Object value) {
-        spanEvent.addAnnotation(new Annotation(key, value));
+        spanEvent.addAnnotation(new TraceAnnotation(key, value));
     }
 
     public void recordServiceType(final ServiceType serviceType) {
@@ -149,7 +144,7 @@ public class AsyncTrace {
     }
 
     private void annotate(final AnnotationKey key) {
-        this.spanEvent.addAnnotation(new Annotation(key));
+        this.spanEvent.addAnnotation(new TraceAnnotation(key));
 
     }
 

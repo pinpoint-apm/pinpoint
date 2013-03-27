@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
@@ -7,10 +8,8 @@ import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class StatementCreateInterceptor implements StaticAfterInterceptor {
@@ -35,7 +34,7 @@ public class StatementCreateInterceptor implements StaticAfterInterceptor {
         if (!InterceptorUtils.isSuccess(result)) {
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;

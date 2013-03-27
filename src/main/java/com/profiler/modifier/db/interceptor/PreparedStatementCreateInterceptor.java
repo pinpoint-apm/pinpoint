@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.common.util.ParsingResult;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
@@ -8,10 +9,8 @@ import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
@@ -37,7 +36,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             logger.fine("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -68,7 +67,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             return;
             // TODO traceBlockEnd() 호출 해야함.
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -96,7 +95,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

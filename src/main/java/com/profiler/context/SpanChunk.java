@@ -64,8 +64,8 @@ public class SpanChunk implements Thriftable {
 
             // 여기서 데이터 인코딩을 하자.
             List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(spanEvent.getAnnotationSize());
-            for (Annotation a : spanEvent.getAnnotations()) {
-                annotationList.add(a.toThrift());
+            for (TraceAnnotation traceAnnotation : spanEvent.getTraceAnnotationList()) {
+                annotationList.add(traceAnnotation.toThrift());
             }
             
 			if (spanEvent.getDepth() != -1) {

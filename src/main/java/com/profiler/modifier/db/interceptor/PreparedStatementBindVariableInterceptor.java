@@ -1,15 +1,13 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.NumberUtils;
-import com.profiler.util.StringUtils;
 import com.profiler.util.bindvalue.BindValueConverter;
-
-import java.util.Arrays;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,7 +30,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
             return;
         }
 
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;

@@ -1,6 +1,7 @@
 package com.profiler;
 
 import com.profiler.config.ProfilerConfig;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.LoggingDataSender;
@@ -17,7 +18,7 @@ public class SystemMonitorTest {
     @Test
     public void testStart() throws Exception {
         DataSender loggingDataSender = new LoggingDataSender();
-        TraceContext traceContext = new TraceContext();
+        TraceContext traceContext = new DefaultTraceContext();
         ProfilerConfig profilerConfig = new ProfilerConfig();
         
         SystemMonitor systemMonitor = new SystemMonitor(traceContext, profilerConfig);

@@ -5,10 +5,7 @@ import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
-import com.profiler.context.Header;
-import com.profiler.context.Trace;
-import com.profiler.context.TraceContext;
-import com.profiler.context.TraceID;
+import com.profiler.context.*;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
@@ -30,7 +27,7 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		if (isDebug) {
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
-		TraceContext traceContext = TraceContext.getTraceContext();
+		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
@@ -71,7 +68,7 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 			LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		TraceContext traceContext = TraceContext.getTraceContext();
+		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
@@ -86,7 +83,7 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 	@Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-		TraceContext traceContext = TraceContext.getTraceContext();
+		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		traceContext.cacheApi(descriptor);
 	}
 }

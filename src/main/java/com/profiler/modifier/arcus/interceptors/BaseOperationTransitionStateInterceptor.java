@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
@@ -91,7 +92,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			// timeObject.markSendTime();
 
 			// long createTime = asyncTrace.getBeforeTime();
-			// asyncTrace.record(Annotation.ClientSend,
+			// asyncTrace.record(TraceAnnotation.ClientSend,
 			// System.currentTimeMillis() - createTime);
 			asyncTrace.markAfterTime();
 //			asyncTrace.traceBlockEnd();
@@ -108,13 +109,13 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
 			if (!baseOperation.isCancelled()) {
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
+				// asyncTrace.record(TraceAnnotation.ClientRecv, timeObject.getSendTime());
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			} else {
 				asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
+				// asyncTrace.record(TraceAnnotation.ClientRecv, timeObject.getCancelTime());
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			}
@@ -135,7 +136,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.methodDescriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 }

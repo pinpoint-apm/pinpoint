@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.util.ParsingResult;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -40,7 +41,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             logger.fine("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
 
         if (trace == null) {
@@ -104,7 +105,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         if (JDBCScope.isInternal()) {
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -126,7 +127,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

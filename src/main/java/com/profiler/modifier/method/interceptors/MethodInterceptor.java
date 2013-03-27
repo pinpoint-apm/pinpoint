@@ -3,6 +3,7 @@ package com.profiler.modifier.method.interceptors;
 import java.util.logging.Logger;
 
 import com.profiler.common.ServiceType;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
@@ -28,7 +29,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		Trace trace = TraceContext.getTraceContext().currentTraceObject();
+		Trace trace = DefaultTraceContext.getTraceContext().currentTraceObject();
 		if (trace == null) {
 			return;
 		}
@@ -45,7 +46,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		Trace trace = TraceContext.getTraceContext().currentTraceObject();
+		Trace trace = DefaultTraceContext.getTraceContext().currentTraceObject();
 		if (trace == null) {
 			return;
 		}
@@ -63,7 +64,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
     @Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

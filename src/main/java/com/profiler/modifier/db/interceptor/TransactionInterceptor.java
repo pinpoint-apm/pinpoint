@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -30,7 +31,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -55,7 +56,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         if (JDBCScope.isInternal()) {
             return;
         }
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -185,7 +186,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

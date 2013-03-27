@@ -5,6 +5,7 @@ import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.mapping.ApiMappingTable;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.BypassStorageFactory;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.TimeBaseStorageFactory;
 import com.profiler.context.TraceContext;
 import com.profiler.sender.DataSender;
@@ -27,7 +28,7 @@ public class Agent {
     private final ServerInfo serverInfo;
     private final SystemMonitor systemMonitor;
 
-    private TraceContext traceContext;
+    private DefaultTraceContext traceContext;
 
     private DataSender priorityDataSender;
     private DataSender dataSender;
@@ -119,7 +120,7 @@ public class Agent {
     }
 
     private void initializeTraceContext() {
-        this.traceContext = TraceContext.getTraceContext();
+        this.traceContext = DefaultTraceContext.getTraceContext();
         // this.traceContext.setDataSender(this.dataSender);
 
         this.traceContext.setAgentId(this.agentId);

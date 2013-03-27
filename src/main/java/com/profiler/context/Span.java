@@ -24,7 +24,7 @@ public class Span implements Thriftable {
     private int exception;
     private String remoteAddr;
 
-    private final List<Annotation> annotations = new ArrayList<Annotation>(5);
+    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(5);
 
     private List<SpanEvent> spanEventList;
     
@@ -41,12 +41,12 @@ public class Span implements Thriftable {
         return traceID;
     }
 
-    public boolean addAnnotation(Annotation annotation) {
-        return annotations.add(annotation);
+    public boolean addAnnotation(TraceAnnotation traceAnnotation) {
+        return traceAnnotationList.add(traceAnnotation);
     }
 
     public int getAnnotationSize() {
-        return annotations.size();
+        return traceAnnotationList.size();
     }
 
     public String getEndPoint() {
@@ -153,7 +153,7 @@ public class Span implements Thriftable {
         sb.append(", ParentApplicationType = ").append(ServiceType.findServiceType(parentApplicationType));
         sb.append(", AcceptorHost = ").append(acceptorHost);
         sb.append(",\n\t Annotations = {");
-        for (Annotation a : annotations) {
+        for (TraceAnnotation a : traceAnnotationList) {
             sb.append("\n\t\t").append(a);
         }
         sb.append("\n\t}");
@@ -197,9 +197,9 @@ public class Span implements Thriftable {
         }
         
         // 여기서 데이터 인코딩을 하자.
-        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
-        for (Annotation a : annotations) {
-            annotationList.add(a.toThrift());
+        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(traceAnnotationList.size());
+        for (TraceAnnotation traceAnnotation : traceAnnotationList) {
+            annotationList.add(traceAnnotation.toThrift());
         }
         span.setAnnotations(annotationList);
 

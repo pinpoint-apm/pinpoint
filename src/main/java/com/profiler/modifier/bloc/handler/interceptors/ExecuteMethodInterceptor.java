@@ -32,7 +32,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         }
 
         try {
-            TraceContext traceContext = TraceContext.getTraceContext();
+            TraceContext traceContext = DefaultTraceContext.getTraceContext();
             traceContext.getActiveThreadCounter().start();
 
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
@@ -87,7 +87,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 
-        TraceContext traceContext = TraceContext.getTraceContext();
+        DefaultTraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.getActiveThreadCounter().end();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -156,7 +156,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

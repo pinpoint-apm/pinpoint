@@ -184,7 +184,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = TraceContext.getTraceContext();
+        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 

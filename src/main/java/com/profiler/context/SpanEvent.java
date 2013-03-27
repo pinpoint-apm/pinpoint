@@ -27,7 +27,7 @@ public class SpanEvent implements Thriftable {
     private String destionationId;
     private List<String> destinationAddress;
 
-    private final List<Annotation> annotations = new ArrayList<Annotation>(5);
+    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(5);
 
     private int nextSpanId = -1;
     private int depth = -1;
@@ -48,16 +48,16 @@ public class SpanEvent implements Thriftable {
         this.sequence = sequence;
     }
 
-    public boolean addAnnotation(Annotation annotation) {
-        return annotations.add(annotation);
+    public boolean addAnnotation(TraceAnnotation traceAnnotation) {
+        return traceAnnotationList.add(traceAnnotation);
     }
 
-    public List<Annotation> getAnnotations() {
-        return annotations;
+    public List<TraceAnnotation> getTraceAnnotationList() {
+        return traceAnnotationList;
     }
 
     public int getAnnotationSize() {
-        return annotations.size();
+        return traceAnnotationList.size();
     }
 
     public String getEndPoint() {
@@ -150,7 +150,7 @@ public class SpanEvent implements Thriftable {
         sb.append(", EndPoint=").append(endPoint);
         sb.append(", Seq=").append(sequence);
         sb.append(",\n\t Annotations = {");
-        for (Annotation a : annotations) {
+        for (TraceAnnotation a : traceAnnotationList) {
             sb.append("\n\t\t").append(a);
         }
         sb.append("\n\t}");
@@ -191,9 +191,9 @@ public class SpanEvent implements Thriftable {
         spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
-        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(annotations.size());
-        for (Annotation annotation : annotations) {
-            annotationList.add(annotation.toThrift());
+        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(traceAnnotationList.size());
+        for (TraceAnnotation traceAnnotation : traceAnnotationList) {
+            annotationList.add(traceAnnotation.toThrift());
         }
         spanEvent.setAnnotations(annotationList);
 

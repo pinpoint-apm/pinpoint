@@ -14,7 +14,7 @@ public class StringUtils {
     }
 
     public static String drop(final String str) {
-        return drop(str, 30);
+        return drop(str, 64);
     }
 
     public static String getDropString(final String str) {

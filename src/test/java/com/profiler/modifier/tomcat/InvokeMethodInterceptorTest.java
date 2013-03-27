@@ -9,7 +9,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.profiler.context.TraceContext;
+import com.profiler.context.DefaultTraceContext;
 import org.junit.Test;
 
 import com.profiler.context.Header;
@@ -19,7 +19,7 @@ public class InvokeMethodInterceptorTest {
 
     @Test
     public void testHeaderNOTExists() {
-        TraceContext.initialize();
+        DefaultTraceContext.initialize();
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -35,7 +35,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
-        interceptor.setTraceContext(TraceContext.getTraceContext());
+        interceptor.setTraceContext(DefaultTraceContext.getTraceContext());
 
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
@@ -46,7 +46,7 @@ public class InvokeMethodInterceptorTest {
 
     @Test
     public void testInvalidHeaderExists() {
-        TraceContext.initialize();
+        DefaultTraceContext.initialize();
         // TODO 결과값 검증 필요.
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -63,7 +63,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
-        interceptor.setTraceContext(TraceContext.getTraceContext());
+        interceptor.setTraceContext(DefaultTraceContext.getTraceContext());
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
 
@@ -73,7 +73,7 @@ public class InvokeMethodInterceptorTest {
 
     @Test
     public void testValidHeaderExists() {
-        TraceContext.initialize();
+        DefaultTraceContext.initialize();
         // TODO 결과값 검증 필요.
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -90,7 +90,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
-        interceptor.setTraceContext(TraceContext.getTraceContext());
+        interceptor.setTraceContext(DefaultTraceContext.getTraceContext());
 
         interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
         interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());

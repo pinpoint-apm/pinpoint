@@ -3,6 +3,7 @@ package com.profiler.modifier.arcus.interceptors;
 import java.util.logging.Logger;
 
 import com.profiler.context.AsyncTrace;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
@@ -25,7 +26,7 @@ public class BaseOperationConstructInterceptor implements StaticAfterInterceptor
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
 		}
 		
-		TraceContext traceContext = TraceContext.getTraceContext();
+		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
 		
 		if (trace == null) {
