@@ -110,12 +110,18 @@ public class RecordSetServiceImpl implements RecordSetService {
     }
 
     private String getDisplayArgument(SpanBo spanBo) {
-        Object displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
-        return ObjectUtils.toString(displayArgument);
+        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
+        if (displayArgument == null) {
+            return "";
+        }
+        return ObjectUtils.toString(displayArgument.getValue());
     }
     private String getDisplayArgument(SpanEventBo spanEventBo) {
-        Object displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
-        return ObjectUtils.toString(displayArgument);
+        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
+        if (displayArgument == null) {
+            return "";
+        }
+        return ObjectUtils.toString(displayArgument.getValue());
     }
 
     private List<Record> createAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
