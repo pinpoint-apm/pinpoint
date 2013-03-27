@@ -4,7 +4,8 @@ import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.Agent;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.BypassStorageFactory;
-import com.profiler.context.Trace;
+import com.profiler.context.DefaultTrace;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.TraceContext;
 import com.profiler.modifier.db.util.DatabaseInfo;
 import com.profiler.sender.LoggingDataSender;
@@ -65,9 +66,9 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
 
-        TraceContext traceContext = TraceContext.getTraceContext();
+        DefaultTraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.setStorageFactory(new BypassStorageFactory(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
-        Trace trace = new Trace();
+        DefaultTrace trace = new DefaultTrace();
         traceContext.attachTraceObject(trace);
 
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
@@ -137,7 +138,7 @@ public class MySQLConnectionImplModifierTest {
 //        setNClob(int parameterIndex, NClob value)
         JDBC4PreparedStatement.class.getDeclaredMethod("setNClob", new Class[]{int.class, NClob.class});
 //        JDBC4PreparedStatement.class.getDeclaredMethod("addBatch", null);
-        JDBC4PreparedStatement.class.getMethod("addBatch", null);
+        JDBC4PreparedStatement.class.getMethod("addBatch");
 
     }
 }

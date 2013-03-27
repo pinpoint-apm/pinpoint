@@ -24,7 +24,7 @@ public class AgentTest {
 
     private void checkIdentifier() throws IOException {
         ProfilerConfig config = new ProfilerConfig();
-        config.readConfigFile();
+//        config.readConfigFile();
         Agent agent = new Agent(config);
 
         short identifier = agent.getIdentifier();

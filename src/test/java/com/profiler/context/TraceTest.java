@@ -16,7 +16,7 @@ public class TraceTest {
     @Test
     public void trace() {
         TraceID traceID = TraceID.newTraceId();
-        Trace trace = new Trace(traceID);
+        DefaultTrace trace = new DefaultTrace(traceID);
         trace.setStorage(new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
@@ -39,7 +39,7 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         TraceID traceID = TraceID.newTraceId();
-        Trace trace = new Trace(traceID);
+        DefaultTrace trace = new DefaultTrace(traceID);
         TestDataSender dataSender = new TestDataSender();
         BypassStorage bypassStorage = new BypassStorage();
         bypassStorage.setDataSender(new LoggingDataSender());

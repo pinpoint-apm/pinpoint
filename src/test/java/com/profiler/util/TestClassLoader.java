@@ -1,7 +1,8 @@
 package com.profiler.util;
 
-import com.mysql.jdbc.CachedResultSetMetaData;
 import com.profiler.Agent;
+import com.profiler.context.DefaultTrace;
+import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
@@ -15,7 +16,6 @@ import javassist.Loader;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import java.util.logging.Logger;
 
 public class TestClassLoader extends Loader {
     private final Logger logger = LoggerFactory.getLogger(TestClassLoader.class.getName());
@@ -50,6 +50,7 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(StaticAfterInterceptor.class.getName());
         this.delegateLoadingOf(InterceptorRegistry.class.getName());
         this.delegateLoadingOf(Trace.class.getName());
+        this.delegateLoadingOf(DefaultTrace.class.getName());
         this.delegateLoadingOf(MetaObject.class.getName());
         this.delegateLoadingOf(StringUtils.class.getName());
         this.delegateLoadingOf(MethodDescriptor.class.getName());
@@ -57,6 +58,7 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(LoggingUtils.class.getName());
         this.delegateLoadingOf(Agent.class.getName());
         this.delegateLoadingOf(TraceContext.class.getName());
+        this.delegateLoadingOf(DefaultTraceContext.class.getName());
 
 
 
@@ -82,7 +84,7 @@ public class TestClassLoader extends Loader {
         Class c = loadClass(className);
         Object o = c.newInstance();
         try {
-            c.getDeclaredMethod(methodName, null).invoke(o, null);
+            c.getDeclaredMethod(methodName).invoke(o);
         } catch (java.lang.reflect.InvocationTargetException e) {
             throw e.getTargetException();
         }
