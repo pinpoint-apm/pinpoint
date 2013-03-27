@@ -35,7 +35,7 @@ public class AnnotationUtils {
         return null;
     }
 
-    public static Object getDisplayArgument(Span span) {
+    public static AnnotationBo getDisplayArgument(Span span) {
         List<AnnotationBo> list = span.getAnnotationBoList();
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
             return findAnnotationBo(list, AnnotationKey.ARCUS_COMMAND);
