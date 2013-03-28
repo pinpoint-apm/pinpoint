@@ -49,6 +49,9 @@ public class FlowChartController {
 	// Ajax UI개발 테스트를 위해 추가함. crossdomain문제 해결용도.
 	private void addResponseHeader(final HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*.*");
+		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+		response.setHeader("Expires",  "0");
 	}
 
 	/**
