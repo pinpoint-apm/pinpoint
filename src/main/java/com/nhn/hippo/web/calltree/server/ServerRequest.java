@@ -24,10 +24,6 @@ public class ServerRequest {
 		this.histogram = histogram;
 	}
 
-	public boolean isSelfCalled() {
-		return from.getSequence() == to.getSequence();
-	}
-
 	public String getId() {
 		return id;
 	}

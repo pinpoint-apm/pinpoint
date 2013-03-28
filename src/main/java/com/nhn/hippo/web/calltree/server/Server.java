@@ -15,10 +15,7 @@ public class Server implements Comparable<Server> {
 	protected final String id;
 	protected final Set<String> hosts = new HashSet<String>();
 	protected final String applicationName;
-//	protected final String endPoint;
 	protected final ServiceType serviceType;
-
-	protected int recursiveCallCount;
 
 	public Server(SpanEventBo spanEventBo, NodeSelector nodeSelector) {
 		if (spanEventBo.getServiceType().isTerminal()) {
@@ -34,12 +31,9 @@ public class Server implements Comparable<Server> {
 		} else {
 			this.serviceType = spanEventBo.getServiceType();
 		}
-
-		this.recursiveCallCount = 0;
 	}
 
 	public Server(SpanBo span, NodeSelector nodeSelector) {
-
 		this.id = nodeSelector.getServerId(span);
 
 		if (span.getServiceType().isTerminal()) {
@@ -51,7 +45,6 @@ public class Server implements Comparable<Server> {
 		}
 
 		this.applicationName = span.getApplicationId();
-		this.recursiveCallCount = span.getRecursiveCallCount();
 		this.serviceType = span.getServiceType();
 	}
 
@@ -69,7 +62,6 @@ public class Server implements Comparable<Server> {
 		if (hosts != null) {
 			this.hosts.addAll(hosts);
 		}
-//		this.endPoint = endPoint;
 		this.serviceType = serviceType;
 	}
 
@@ -95,20 +87,11 @@ public class Server implements Comparable<Server> {
 		}
 	}
 	
-//	public String getEndPoint() {
-//		return endPoint;
-//	}
-
 	public String getApplicationName() {
 		return applicationName;
 	}
 
-	public int getRecursiveCallCount() {
-		return recursiveCallCount;
-	}
-
 	public void mergeWith(Server server) {
-		this.recursiveCallCount += server.recursiveCallCount;
 		this.hosts.addAll(server.getHosts());
 	}
 

@@ -117,13 +117,6 @@ public class ApplicationMap {
 	}
 
 	private void addRelation(ApplicationRelation relation) {
-		if (relation.isSelfCalled()) {
-			Application app = findApplication(relation.getFrom().getApplicationName(), relation.getFrom().getServiceType());
-			app.mergeWith(relation.getFrom());
-			app.incrRecursiveCallCount(relation.getHistogram().getTotalCount());
-			return;
-		}
-
 		if (relations.containsKey(relation.getId())) {
 			logger.debug("Merge relation. {}", relation);
 			relations.get(relation.getId()).mergeWith(relation);
