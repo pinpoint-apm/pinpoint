@@ -245,95 +245,7 @@
 <!-- END OF MENU -->
 
 <script type="text/javascript">
-function openTrace(uuid, timestamp) {
-    window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
-}
-
 $(document).ready(function () {
-	function getServerMapData2(begin, end, callback) {
-	    var application = $("#application").val().split("@");
-		d3.json("/getServerMapData2.hippo?application=" + application[0] + "&serviceType=" + application[1] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-	}
-	
-	function getLastServerMapData2(period, callback) {
-	    var application = $("#application").val().split("@");
-		d3.json("/getLastServerMapData2.hippo?application=" + application[0] + "&serviceType=" + application[1] + "&period=" + period, function(d) { callback(d); });
-	}
-	
-	function getServerMapData(begin, end, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getServerMapData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-	}
-	
-	function getLastServerMapData(period, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getLastServerMapData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
-	}
-	
-	function getScatterData(begin, end, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getScatterData.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
-	}
-	
-	function getLastScatterData(period, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getLastScatterData.hippo?application=" + application + "&period=" + period + "&limit=5000", function(d) { callback(d); });
-	}
-	
-	function getRealtimeScatterData(begin, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getRealtimeScatterData.hippo?application=" + application + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
-	}
-	
-	function getBusinessTransactionsData(begin, end, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getBusinessTransactionsData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-	}
-	
-	function getLastBusinessTransactionsData(period, callback) {
-		var application = $("#application").val().split("@")[0];
-		d3.json("/getLastBusinessTransactionsData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
-	}
-	
-	function getQueryPeriod() {
-		return $("#period").find("button.active").val().split(",") * 1000 * 60;
-	}
-	
-	function getQueryStartTime() {
-		return getQueryEndTime() - getQueryPeriod();
-	}
-
-	function getQueryEndTime() {
- 		var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
-			now = new Date(),
-			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
-		
-		if (input.getTime() > now.getTime()) {
-			input = now;
-		}
-		return input.getTime();
-	}
-	
-   	function setQueryDateToNow() {
-	   	var date = new Date();
-	   	var format_date = d3.time.format("%Y/%m/%d"),
-	   		format_time = d3.time.format("%H:%M:%S");
-	   	$('#date').val(format_date(date));
-	   	$('#time').val(format_time(date));
-   	}
-	
-	function showIndicator() {
-		$(".indicator").show();
-	}
-	
-	function hideIndicator() {
-		$(".indicator").hide();
-	}
-	
-	function isQueryFromNow() {
-		return $(".btn#now.active").length > 0;
-	}
-
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();
 	});
@@ -473,7 +385,7 @@ $(document).ready(function () {
 	        		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
 	        		console.log("fetching scatter data.");
 	        		
-		        	getScatterData(lastTimeStamp + 1, getQueryEndTime(), function(data2) {
+		        	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
 		        		console.log("fetched " + data2.scatter.length);
 		        		scatter.hideProgressbar();
 		    	        if (data2.scatter.length == 0) {
@@ -492,17 +404,19 @@ $(document).ready(function () {
         };
     	
         if (isQueryFromNow()) {
-	        getLastServerMapData2(getQueryPeriod(), serverMapCallback);
-	        // getLastServerMapData(getQueryPeriod(), serverMapCallback);
-	        getLastBusinessTransactionsData(getQueryPeriod(), businessTransactionCallback);
-	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        getLastScatterData(getQueryPeriod(), scatterCallback);
+	        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
+	        // getLastServerMapData($("#application").val(), getQueryPeriod(), serverMapCallback);
+	        //getLastBusinessTransactionsData($("#application").val(), getQueryPeriod(), businessTransactionCallback);
+	        
+	        //drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        //getLastScatterData($("#application").val(), getQueryPeriod(), scatterCallback);
         } else {
-	        getServerMapData2(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
-	        // getServerMapData(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
-	        getBusinessTransactionsData(getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
-	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        getScatterData(getQueryStartTime(), getQueryEndTime(), scatterCallback);
+	        getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        // getServerMapData($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        //getBusinessTransactionsData($("#application").val(), getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+	        
+	        //drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        //getScatterData($("#application").val(), getQueryStartTime(), getQueryEndTime(), scatterCallback);
         }
     }
     
@@ -521,15 +435,27 @@ $(document).ready(function () {
             } else {
            		html.push('>');
             }
-            html.push(e.applicationName + " [" + e.serviceType + "]");
+            html.push(e.applicationName + "@" + e.serviceType);
             html.push('</option>');
             
             target.append(html.join(''));
             
             $("#application").attr("disabled", null);
             
+            function format(state) {
+            	var chunk = state.text.split("@");
+            	if (chunk.length > 1) {
+            		console.log(chunk);
+                	return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
+            	} else {
+            		return state;
+            	}
+            }
+            
 		    $("#application").select2({
 				placeholder: "Select an application.",
+				formatResult: format,
+				formatSelection: format
 			});
 		});
 	});
@@ -548,36 +474,31 @@ $(document).ready(function () {
 <script id="EdgeBox" type="text/x-jquery-tmpl">
 	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
 		<ul style="margin:0;padding:0 0 0 10px;">
-			<br/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Business transactions</a>
 			<hr/>
-			
-			<li>
-				Failed Transaction : ${error}
-			</li>
-			<li>
-				Slow Transaction : ${slow}
-			</li>
-			<li>
-			Response time histogram
-				<ul>
-					{{each(key, value) histogram}}
-					<li>&lt; ${key}ms : ${value}</li>
-					{{/each}}
-				</ul>
-			</li>
-		</ul>
+			Response statistics
+			<ul>
+				{{each(key, value) histogram}}
+				<li>&lt; ${key}ms : ${value}</li>
+				{{/each}}
+				<li>Slow : ${slow}</li>
+				<li>Failed : ${error}</li>
+			</ul>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
 <script id="ServerBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
 		<ul style="margin:0;padding:0 0 0 10px;">
-			<br/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<br/>
-			Application Type : ${serviceType}
-			<br/>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Response scatter chart</a>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Business transactions</a>
+			<hr/>
+			Application Type
+				<ul>
+					<li>${serviceType}</li>
+				</ul>
 			Hosts
 				<ul>
 					{{each(key, value) hosts}}
@@ -589,7 +510,10 @@ $(document).ready(function () {
 						</li>
 					{{/each}}
 				</ul>
-			</li>
+			Server instances
+				<ul>
+					<li>Not implemented.</li>
+				</ul>
 		</ul>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
