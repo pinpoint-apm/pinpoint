@@ -168,17 +168,8 @@
 
     <div class="row">
         <div class="span12">
-			<ul class="nav nav-tabs" id="chartTabs">
-				<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
-			</ul>
-			
-			<div class="tab-content">
-				<div class="tab-pane active" id="Graph">
-					박스나 연결선을 더블클릭하여 drill down.
-					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-					<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
-				</div>
-			</div>
+			<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
+			<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
 		</div>
     </div>
 
@@ -445,7 +436,6 @@ $(document).ready(function () {
             function format(state) {
             	var chunk = state.text.split("@");
             	if (chunk.length > 1) {
-            		console.log(chunk);
                 	return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
             	} else {
             		return state;
