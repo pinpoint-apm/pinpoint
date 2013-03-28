@@ -33,15 +33,24 @@ function drawSpringy(graphdata, targetId, width, height) {
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
 									onMouseClick : function(e){
-										// TODO 정보 layer가 중복으로 보이지 않도록 함.
-										console.log("DIV.nodeinfo" + this.data.id);
-										if ($("DIV.nodeinfo" + this.data.id).length == 0 && this.data.hosts.length > 0) {
-											var htOffset = $(targetId).offset();
-											var box = $('#ServerBox')
-															.tmpl(this.data)
-															.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
-															.attr('class', 'nodeinfo' + this.data.id);
-											box.appendTo(targetId);
+										if (this.data.serviceType == "CLIENT") {
+											if ($("DIV.nodeinfo" + this.data.id).length == 0) {
+												var htOffset = $(targetId).offset();
+												var box = $('#ClientBox')
+																.tmpl(this.data)
+																.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+																.attr('class', 'nodeinfo' + this.data.id);
+												box.appendTo(targetId);
+											}	
+										} else {
+											if ($("DIV.nodeinfo" + this.data.id).length == 0) {
+												var htOffset = $(targetId).offset();
+												var box = $('#ServerBox')
+												.tmpl(this.data)
+												.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+												.attr('class', 'nodeinfo' + this.data.id);
+												box.appendTo(targetId);
+											}
 										}
 									}
 									});
