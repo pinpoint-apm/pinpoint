@@ -29,15 +29,25 @@ public class ClassPathResolver {
     private String agentJarFullPath;
     private String agentDirPath;
     private Pattern agentPattern;
+    private List<String> fileExtensionList;
 
     public ClassPathResolver() {
-        this.classPath = getClassPathFromSystemProperty();
-        this.agentPattern = DEFAULT_AGENT_PATTERN;
+        this(getClassPathFromSystemProperty());
     }
+
 
     public ClassPathResolver(String classPath) {
         this.classPath = classPath;
         this.agentPattern = DEFAULT_AGENT_PATTERN;
+        this.fileExtensionList = getDefaultFileExtensionList();
+    }
+
+    public List<String> getDefaultFileExtensionList() {
+        List<String> extensionList = new ArrayList<String>();
+        extensionList.add("jar");
+        extensionList.add("xml");
+        extensionList.add("properties");
+        return extensionList;
     }
 
     public ClassPathResolver(String classPath, String agentPattern) {
@@ -53,7 +63,7 @@ public class ClassPathResolver {
         this.classPath = getClassPathFromSystemProperty();
     }
 
-    public String getClassPathFromSystemProperty() {
+    public static String getClassPathFromSystemProperty() {
         return System.getProperty("java.class.path");
     }
 
@@ -119,6 +129,9 @@ public class ClassPathResolver {
                 jarURLList.add(url);
             }
         }
+        // agentDir 패스도 넣어야 xml을 찾을 때 해당 패스에서 찾음.
+        URL agentDirUri = toURI(new File(agentLibPath));
+        jarURLList.add(agentDirUri);
 
         return jarURLList;
     }
@@ -136,7 +149,13 @@ public class ClassPathResolver {
         return libDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.getName().lastIndexOf(".jar") != -1;
+                String path = pathname.getName();
+                for (String extension : fileExtensionList) {
+                    if (path.lastIndexOf("." + extension) != -1) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
     }

@@ -7,7 +7,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,7 +44,6 @@ public class UdpDataSender implements DataSender, Runnable {
 	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
 	private AtomicBoolean allowInput = new AtomicBoolean();
-	private CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	public UdpDataSender(String host, int port) {
 		Assert.notNull(host, "host must not be null");
@@ -115,8 +113,9 @@ public class UdpDataSender implements DataSender, Runnable {
 		}
 		
 		try {
-			shutdownLatch.await(5, TimeUnit.SECONDS);
+            ioThread.join(5000);
 		} catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
 			logger.info("UdpDataSender stopped incompletely.");
 		}
 		
@@ -132,7 +131,6 @@ public class UdpDataSender implements DataSender, Runnable {
 		drain: while (true) {
 			try {
 				if (!allowInput.get() && isEmpty()) {
-					shutdownLatch.countDown();
 					break;
 				}
 
@@ -144,7 +142,6 @@ public class UdpDataSender implements DataSender, Runnable {
 
 				while (true) {
 					if (!allowInput.get() && isEmpty()) {
-						shutdownLatch.countDown();
 						break;
 					}
 
@@ -155,7 +152,7 @@ public class UdpDataSender implements DataSender, Runnable {
 					}
 				}
 			} catch (Throwable th) {
-				logger.log(Level.WARNING, "Unexpected Error Cause:" + th.getMessage(), th);
+				logger.log(Level.WARNING, "Unexpected Error. Cause:" + th.getMessage(), th);
 			}
 		}
 	}
@@ -165,7 +162,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			try {
 				sendPacket(dto);
 			} catch (Throwable th) {
-				logger.log(Level.WARNING, "Unexpected Error Cause:" + th.getMessage(), th);
+				logger.log(Level.WARNING, "Unexpected Error. Cause:" + th.getMessage(), th);
 			}
 		}
 	}

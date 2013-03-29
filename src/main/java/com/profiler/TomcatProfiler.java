@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 import com.profiler.common.ServiceType;
 import com.profiler.config.ProfilerConfig;
+import com.profiler.logging.LoggerBinder;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.profiler.modifier.DefaultModifierRegistry;
@@ -53,11 +55,16 @@ public class TomcatProfiler implements ClassFileTransformer {
         List<URL> libUrlList = resolveLib(classPathResolver);
         AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
         agentClassLoader.setBootClass("com.profiler.boot.BootClassTest");
+//        agentClassLoader.test();
         try {
             agentClassLoader.boot();
+            LoggerBinder loggerBinder = agentClassLoader.initializeLoggerBinder();
+            loggerBinder.getLogger("LoggerFactory initialize start");
+            LoggerFactory.initialize(loggerBinder);
+            com.profiler.logging.Logger tomcatLogger = LoggerFactory.getLogger(TomcatProfiler.class);
+            tomcatLogger.info("LoggerFactory initialize end");
         } catch (Exception e) {
-            logger.info("test error");
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.log(Level.INFO, "boot class not found", e);
         }
 
         try {
@@ -86,7 +93,7 @@ public class TomcatProfiler implements ClassFileTransformer {
         return profilerConfig;
     }
 
-    private static List<URL> resolveLib(ClassPathResolver classPathResolver) {
+    private static List<URL> resolveLib(ClassPathResolver classPathResolver)  {
         String agentJarFullPath = classPathResolver.getAgentJarFullPath();
         logger.info("agentJarPath:" + agentJarFullPath);
 
