@@ -208,7 +208,7 @@ public class HelloWorldController implements DisposableBean {
 		arcus(model);
 		memcached(model);
 
-		randomSlowMethod();
+//		randomSlowMethod();
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
