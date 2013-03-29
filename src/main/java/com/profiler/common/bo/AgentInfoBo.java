@@ -117,8 +117,46 @@ public class AgentInfoBo {
         this.identifier = buffer.readShort();
         return buffer.getOffset();
     }
-
+    
     @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AgentInfoBo other = (AgentInfoBo) obj;
+		if (agentId == null) {
+			if (other.agentId != null)
+				return false;
+		} else if (!agentId.equals(other.agentId))
+			return false;
+		return true;
+	}
+
+	public String getJson() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("{");
+		sb.append("\t\"ip\" : \"").append(ip).append("\",");
+		sb.append("\t\"ports\" : \"").append(ports).append("\",");
+		sb.append("\t\"agentId\" : \"").append(agentId).append("\",");
+		sb.append("\t\"uptime\" : \"").append(timestamp).append("\"");
+		sb.append("}");
+		
+		return sb.toString();
+	}
+	
+	@Override
     public String toString() {
         return "AgentInfoBo{" +
         		"ip='" + ip + '\'' +
