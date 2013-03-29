@@ -14,7 +14,13 @@
 		    </c:forEach>
 		    ],
 		    "serviceType" : "${node.serviceType.desc}",
-		    "terminal" : "${node.serviceType.terminal}"
+		    "terminal" : "${node.serviceType.terminal}",
+		    "agents" : [
+		    <c:forEach items="${node.agents}" var="agent" varStatus="status3">
+		        ${agent.json}
+		        <c:if test="${!status3.last}">,</c:if>
+		    </c:forEach>
+		    ]
 	    } <c:if test="${!status.last}">,</c:if>
 	</c:forEach>
 	],

@@ -1,12 +1,15 @@
 package com.nhn.hippo.web.controller;
 
 import java.util.List;
+import java.util.Set;
 
-import com.nhn.hippo.web.service.RecordSetService;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
 import com.nhn.hippo.web.service.FlowChartService;
+import com.nhn.hippo.web.service.RecordSetService;
 import com.nhn.hippo.web.service.SpanService;
+import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.callstacks.RecordSet;
 
@@ -23,24 +28,55 @@ import com.nhn.hippo.web.vo.callstacks.RecordSet;
  *
  */
 @Controller
-public class BusinessTransactionController {
+public class BusinessTransactionController extends BaseController {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SpanService spanService;
 
-    @Autowired
-    private RecordSetService recordSetService;
+	@Autowired
+	private RecordSetService recordSetService;
 
 	@Autowired
 	private FlowChartService flow;
+
+	/**
+	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	@RequestMapping(value = "/getBusinessTransactionsData", method = RequestMethod.GET)
+	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
+
+		Set<TraceId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to);
+
+		model.addAttribute("businessTransactions", selectBusinessTransactions.getBusinessTransactionIterator());
+
+		addResponseHeader(response);
+		return "businesstransactions";
+	}
+
+	@RequestMapping(value = "/getLastBusinessTransactionsData", method = RequestMethod.GET)
+	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period) {
+		long to = getQueryEndTime();
+		long from = to - period;
+		return getBusinessTransactionsData(model, response, applicationName, from, to);
+	}
 
 	@RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
 	public ModelAndView selectTransaction(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
 		logger.debug("traceId:{}", traceIdParam);
 
-        final TraceId traceId = new TraceId(traceIdParam);
+		final TraceId traceId = new TraceId(traceIdParam);
 
 		ModelAndView mv = new ModelAndView("selectTransaction");
 
@@ -59,18 +95,17 @@ public class BusinessTransactionController {
 
 			mv.addObject("traceId", traceId);
 
-
 			// call tree
 			ServerCallTree callTree = this.flow.selectServerCallTree(traceId);
 			mv.addObject("nodes", callTree.getNodes());
 			mv.addObject("links", callTree.getLinks());
 
 			// call stacks
-            RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
+			RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
 			mv.addObject("recordSet", recordSet);
 
 			mv.addObject("applicationName", recordSet.getApplicationName());
-            mv.addObject("callstack", recordSet.getRecordList());
+			mv.addObject("callstack", recordSet.getRecordList());
 			mv.addObject("timeline", recordSet.getRecordList());
 			mv.addObject("callstackStart", recordSet.getStartTime());
 			mv.addObject("callstackEnd", recordSet.getEndTime());
@@ -82,6 +117,4 @@ public class BusinessTransactionController {
 
 		return mv;
 	}
-
-
 }

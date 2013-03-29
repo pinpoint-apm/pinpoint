@@ -53,13 +53,13 @@ public class ApplicationMap {
 		// extract application
 		for (ApplicationStatistics stat : data) {
 			if (!stat.getFromServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null));
+				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null, null));
 			}
 			if (!stat.getToServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts(), stat.getToAgents()));
 			}
 			if (!applicationNames.contains(stat.getTo())) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts(), stat.getToAgents()));
 			}
 		}
 

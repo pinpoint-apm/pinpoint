@@ -45,25 +45,16 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
-
-	/**
-	 * Application에 속하는 hostname을 조회한다.
-	 * 
-	 * @param applicationId
-	 * @return
-	 */
-	private Set<String> selectApplicationHosts(String applicationId) {
+	
+	private Set<AgentInfoBo> selectAgents(String applicationId) {
 		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
-
-		Set<String> hostnames = new HashSet<String>();
-
+		Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 		for (String agentId : agentIds) {
 			// TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
 			AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
-			hostnames.add(info.getHostname());
+			agentSet.add(info);
 		}
-
-		return hostnames;
+		return agentSet;
 	}
 
 	/**
@@ -96,7 +87,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
 			if (!replaced) {
-				replaceHosts(entry.getValue(), from, to);
+				fillAdditionalInfo(entry.getValue(), from, to);
 				calleeSet.add(entry.getValue());
 			}
 
@@ -146,7 +137,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		logger.debug("     Found Caller. callee=" + calleeApplicationName + " (" + caller.size() + ")");
 
 		for (Entry<String, ApplicationStatistics> entry : caller.entrySet()) {
-			replaceHosts(entry.getValue(), from, to);
+			fillAdditionalInfo(entry.getValue(), from, to);
 			callerSet.add(entry.getValue());
 
 			ApplicationStatistics stat = entry.getValue();
@@ -185,21 +176,24 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return false;
 	}
 
-	private void replaceHosts(ApplicationStatistics stat, long from, long to) {
+	private void fillAdditionalInfo(ApplicationStatistics stat, long from, long to) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
-
-		Set<String> hosts = selectApplicationHosts(stat.getTo());
-
-		if (hosts.isEmpty()) {
+		
+		Set<AgentInfoBo> agentSet = selectAgents(stat.getTo());
+		
+		if (agentSet.isEmpty()) {
 			return;
 		}
-
+		
+		stat.addToAgents(agentSet);
 		stat.clearHosts();
-		stat.addToHosts(hosts);
-
-		logger.debug("replace host. {}, {}", stat.getTo(), hosts);
+		for (AgentInfoBo agentInfo : agentSet) {
+			stat.addToHost(agentInfo.getHostname());
+		}
+		
+		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
 	}
 
 	/**

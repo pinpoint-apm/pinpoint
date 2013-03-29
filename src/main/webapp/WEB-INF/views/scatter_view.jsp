@@ -47,193 +47,8 @@
 </head>
 <body>
 
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-			<a class="brand" href="/">HIPPO</a>
-            <form class="navbar-form pull-left">
-         		<select id="application" disabled>
-		        	<option>Loading...</option>
-		        </select>
-				<div id="until" class="btn-group" data-toggle="buttons-radio">
-					<button id="now" type="button" class="btn btn-primary active">now</button>
-					<button id="specific" type="button" class="btn">select</button>
-				</div>
-				<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
-				<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
-				
-				<div id="period" class="btn-group" data-toggle="buttons-radio">
-					<button type="button" value="5" class="btn btn-mini">5m</button>
-					<button type="button" value="20" class="btn btn-mini btn-inverse active">20m</button>
-					<button type="button" value="60" class="btn btn-mini">1h</button>
-					<button type="button" value="360" class="btn btn-mini">6h</button>
-					<button type="button" value="1440" class="btn btn-mini">1d</button>
-					<button type="button" value="2880" class="btn btn-mini">2d</button>
-				</div>
-            </form>
-            <!-- 
-			<div class="nav-collapse">
-                <ul class="nav">
-                    <li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
-                    <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
-                    <li><a data-toggle="modal" href="#myHelpModal">Help</a></li>
-                </ul>
-            </div>
-            -->
-        </div>
-    </div>
-</div>
+<p id="scatter"></p>
 
-<!-- MODAL -->
-<div class="modal hide fade" id="myModal" style="width:1000px; margin-left:-500px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Configuration</h3>
-    </div>
-    <div class="modal-body">
-	Configuration.
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-        <!-- 
-        <a href="#" class="btn btn-primary" onclick="saveNewChart();">Add to dashboard</a>
-		-->
-    </div>
-</div>
-<!-- END OF MODAL -->
-
-<!-- HELP-MODAL -->
-<div class="modal hide fade" id="myHelpModal" style="width:1000px; margin-left:-500px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Help</h3>
-    </div>
-    <div class="modal-body">
-    <br/>E-mail to us. <a href="mailto:!hippo@nhn.com">!hippo@nhn.com</a><br/>
-	<br/>Thank you.<br/><br/>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF HELP-MODAL -->
-
-<!-- MODAL -->
-<div class="modal hide fade" id="traceIdSelectModal" style="width:1200px; margin-left:-600px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Selected Traces</h3>
-    </div>
-    <div class="modal-body">
-		<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-hover sortable">
-			<thead>
-			<tr>
-			    <th class="sorttable_numeric">#</th>
-			    <th class="sorttable_numeric">Time</th>
-			    <th>TraceId</th>
-			    <th class="sorttable_numeric">Res. Time (ms)</th>
-			    <th>Exception</th>
-			    <th>Application</th>
-			    <th>AgentId</th>
-			    <th>ClientIP</th>
-			</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-		<ul id="selectedBusinessTransactionsDetailPager" class="pager">
-			<li><a href="#">Previous</a></li>
-			<li><a href="#">Next</a></li>
-		</ul>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF MODAL -->
-
-
-<!-- MENU -->
-<div class="container-fluid">
-<!-- 
-	<form class="well well-small form-inline" id="search" onsubmit="return false;">
-		<select id="application" disabled>
-        	<option>Loading...</option>
-        </select>
-		<div id="until" class="btn-group" data-toggle="buttons-radio">
-			<button id="now" type="button" class="btn btn-primary active">now</button>
-			<button id="specific" type="button" class="btn">select</button>
-		</div>
-		<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
-		<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
-		
-		<div id="period" class="btn-group" data-toggle="buttons-radio">
-			<button type="button" value="5" class="btn btn-mini">5m</button>
-			<button type="button" value="20" class="btn btn-mini btn-inverse active">20m</button>
-			<button type="button" value="60" class="btn btn-mini">1h</button>
-			<button type="button" value="360" class="btn btn-mini">6h</button>
-			<button type="button" value="1440" class="btn btn-mini">1d</button>
-			<button type="button" value="2880" class="btn btn-mini">2d</button>
-		</div>
-		
-		<div class="pull-right">
-			<label class="checkbox" style="margin:5px">
-		    	<input id="auto_refresh" type="checkbox" style="margin-top:6px"> auto-refresh
-		    </label>
-	    </div>
-	</form>
--->
-
-    <div class="row-fluid">
-        <div class="span9">
-			<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-			<div id="springygraph" style="width:1250px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
-		</div>
-        <div class="span3">
-			<ul class="nav nav-tabs" id="transactionTabs">
-				<li><a href="#ScatterChart" data-toggle="tab">Scatter Plot</a></li>
-				<li><a href="#BusinessTransactionList" data-toggle="tab">Business Transactions</a></li>
-			</ul>
-			
-			<div class="tab-content" style="min-height:550px;">
-				<div class="tab-pane active" id="ScatterChart">
-					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-					<p id="scatter"></p>
-				</div>
-				<div class="tab-pane" id="BusinessTransactionList">
-		            <table id="businessTransactions" class="table table-bordered sortable">
-		                <thead>
-		                <tr>
-		                    <th>Name</th>
-		                    <th class="sorttable_numeric">Calls</th>
-		                    <th class="sorttable_numeric">Time(ms)</th>
-		                    <th class="sorttable_numeric">Min Time(ms)</th>
-		                    <th class="sorttable_numeric">Max Time(ms)</th>
-		                </tr>
-		                </thead>
-		                <tbody>
-		                </tbody>
-		            </table>
-		            
-					<table id="businessTransactionsDetail" class="table table-bordered sortable">
-		                <thead>
-		                <tr>
-		                    <th>#</th>
-		                    <th class="sorttable_numeric">Time</th>
-		                    <th>TraceId</th>
-		                    <th class="sorttable_numeric">Response Time (ms)</th>
-		                </tr>
-		                </thead>
-		                <tbody>
-		                </tbody>
-		            </table>
-				</div>
-			</div>
-		</div>
-    </div>
-    
-</div>
-<!-- END OF MENU -->
 
 <script type="text/javascript">
 $(document).ready(function () {
@@ -447,9 +262,6 @@ $(document).ready(function () {
 				formatResult: format,
 				formatSelection: format
 			});
-		    
-		    // 임시.
-		    $(".select2-container").css("top", "4px");
 		});
 	});
 	
@@ -503,9 +315,7 @@ $(document).ready(function () {
 				</ul>
 			Server instances
 				<ul>
-					{{each(key, value) agents}}
-					<li>${value.agentId}</li>
-					{{/each}}
+					<li>Not implemented.</li>
 				</ul>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>

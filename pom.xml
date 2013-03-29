@@ -382,11 +382,12 @@
         </dependency>
 
         <!-- Caching dependecies -->
-        <dependency>
-            <artifactId>com.springsource.net.sf.ehcache</artifactId>
-            <groupId>net.sourceforge.ehcache</groupId>
-            <version>1.6.2</version>
+		<dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>2.5.0</version>
         </dependency>
+        
         <!-- DBMS dependecies -->
         <dependency>
             <artifactId>com.springsource.javax.persistence</artifactId>

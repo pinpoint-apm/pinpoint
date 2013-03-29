@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.bo.AgentInfoBo;
 
 /**
  * application map에서 application을 나타낸다.
@@ -15,10 +16,12 @@ public class Application implements Comparable<Application> {
 	protected final String id;
 
 	protected final Set<String> hosts = new HashSet<String>();
+	// TODO 여기에서 agentinfobo를 사용하는게 옳은건가??
+	protected final Set<AgentInfoBo> agents = new HashSet<AgentInfoBo>();
 	protected final String applicationName;
 	protected final ServiceType serviceType;
 
-	public Application(String id, String applicationName, ServiceType serviceType, Set<String> hosts) {
+	public Application(String id, String applicationName, ServiceType serviceType, Set<String> hosts, Set<AgentInfoBo> agents) {
 		this.id = id;
 		if (serviceType == ServiceType.CLIENT) {
 			this.applicationName = "CLIENT";
@@ -27,6 +30,9 @@ public class Application implements Comparable<Application> {
 		}
 		if (hosts != null) {
 			this.hosts.addAll(hosts);
+		}
+		if (agents != null) {
+			this.agents.addAll(agents);
 		}
 		this.serviceType = serviceType;
 	}
@@ -46,6 +52,10 @@ public class Application implements Comparable<Application> {
 	public Set<String> getHosts() {
 		return hosts;
 	}
+	
+	public Set<AgentInfoBo> getAgents() {
+		return agents;
+	}
 
 	public void setHosts(Set<String> hosts) {
 		if (hosts != null) {
@@ -59,6 +69,7 @@ public class Application implements Comparable<Application> {
 
 	public void mergeWith(Application application) {
 		this.hosts.addAll(application.getHosts());
+		this.agents.addAll(application.getAgents());
 	}
 
 	public ServiceType getServiceType() {

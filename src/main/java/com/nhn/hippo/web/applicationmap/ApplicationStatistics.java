@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.bo.AgentInfoBo;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -20,6 +21,7 @@ public class ApplicationStatistics {
 	private ServiceType toServiceType;
 	private final ResponseHistogram histogram;
 	private final Set<String> toHosts;
+	private final Set<AgentInfoBo> toAgents;
 
 	public ApplicationStatistics(String from, short fromServiceType, String to, short toServiceType) {
 		this.from = from;
@@ -28,6 +30,7 @@ public class ApplicationStatistics {
 		this.toServiceType = ServiceType.findServiceType(toServiceType);
 		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
 		this.toHosts = new HashSet<String>();
+		this.toAgents = new HashSet<AgentInfoBo>();
 		pack();
 	}
 
@@ -93,11 +96,27 @@ public class ApplicationStatistics {
 			this.toHosts.addAll(hosts);
 		}
 	}
+	
+	public void addToHost(String host) {
+		if (host != null) {
+			this.toHosts.add(host);
+		}
+	}
 
 	public Set<String> getToHosts() {
 		return toHosts;
 	}
 
+	public void addToAgents(Set<AgentInfoBo> agentInfo) {
+		if (agentInfo != null) {
+			this.toAgents.addAll(agentInfo);
+		}
+	}
+	
+	public Set<AgentInfoBo> getToAgents() {
+		return toAgents;
+	}
+	
 	@Override
 	public String toString() {
 		return "ApplicationStatistics [id=" + id + ", from=" + from + ", fromServiceType=" + fromServiceType + ", to=" + to + ", toServiceType=" + toServiceType + ", histogram=" + histogram + ", toHosts=" + toHosts + "]";

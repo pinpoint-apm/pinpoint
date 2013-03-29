@@ -29,6 +29,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 									width : 100,
 									height : 80,
 									hosts : aNodes[i].hosts,
+									agents : aNodes[i].agents,
 									onMouseOver : function(e){
 										$('#console').val('Node onMouseOver : ' + this.id + '\r' + $('#console').val())
 									},
