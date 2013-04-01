@@ -14,37 +14,37 @@ function getLastServerMapData2(application, period, callback) {
 
 function getServerMapData(application, begin, end, callback) {
     var app = application.split("@");
-	d3.json("/getServerMapData.hippo?application=" + app + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	d3.json("/getServerMapData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
 }
 
 function getLastServerMapData(application, period, callback) {
     var app = application.split("@");
-	d3.json("/getLastServerMapData.hippo?application=" + app + "&period=" + period, function(d) { callback(d); });
+	d3.json("/getLastServerMapData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
 }
 
 function getScatterData(application, begin, end, callback) {
     var app = application.split("@");
-	d3.json("/getScatterData.hippo?application=" + app + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
+	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
 }
 
 function getLastScatterData(application, period, callback) {
     var app = application.split("@");
-	d3.json("/getLastScatterData.hippo?application=" + app + "&period=" + period + "&limit=5000", function(d) { callback(d); });
+	d3.json("/getLastScatterData.hippo?application=" + app[0] + "&period=" + period + "&limit=5000", function(d) { callback(d); });
 }
 
 function getRealtimeScatterData(application, begin, callback) {
     var app = application.split("@");
-	d3.json("/getRealtimeScatterData.hippo?application=" + app + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
+	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
 }
 
 function getBusinessTransactionsData(application, begin, end, callback) {
 	var application = $("#application").val().split("@")[0];
-	d3.json("/getBusinessTransactionsData.hippo?application=" + app + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	d3.json("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
 }
 
 function getLastBusinessTransactionsData(application, period, callback) {
     var app = application.split("@");
-	d3.json("/getLastBusinessTransactionsData.hippo?application=" + app + "&period=" + period, function(d) { callback(d); });
+	d3.json("/getLastBusinessTransactionsData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
 }
 
 function getQueryPeriod() {

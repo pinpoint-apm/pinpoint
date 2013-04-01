@@ -184,33 +184,34 @@
 -->
 
     <div class="row-fluid">
-        <div class="span9">
+        <div class="span8">
 			<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-			<!-- 
-			<div id="springygraph" style="width:1250px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
-			-->
 			<div id="springygraph" style="height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
 		</div>
-        <div class="span3">
+        <div class="span4">
 			<ul class="nav nav-tabs" id="transactionTabs">
-				<li>
+				<li class="active">
 					<a href="#ScatterChart" data-toggle="tab">Response scatter <i class="hippo-help icon-question-sign" onclick="help(2001);"></i></a>
 				</li>
-				<li>
-					<a href="#BusinessTransactionList" data-toggle="tab">Requests <i class="hippo-help icon-question-sign" onclick="help(2002);"></i></a>
-				</li>
 			</ul>
-			
-			<div class="tab-content" style="min-height:550px;">
+			<div class="tab-content" style="min-height:400px;">
 				<div class="tab-pane active" id="ScatterChart">
 					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 					<p id="scatter"></p>
 				</div>
-				<div class="tab-pane" id="BusinessTransactionList">
+			</div>
+			
+			<ul class="nav nav-tabs" id="transactionTabs">
+				<li class="active">
+					<a href="#BusinessTransactionList" data-toggle="tab">Requests <i class="hippo-help icon-question-sign" onclick="help(2002);"></i></a>
+				</li>
+			</ul>
+			<div class="tab-content" style="min-height:550px;">
+				<div class="tab-pane active" id="BusinessTransactionList">
 		            <table id="businessTransactions" class="table table-bordered sortable">
 		                <thead>
 		                <tr>
-		                    <th>Name</th>
+		                    <th>URL</th>
 		                    <th class="sorttable_numeric">Calls</th>
 		                    <th class="sorttable_numeric">Time(ms)</th>
 		                    <th class="sorttable_numeric">Min Time(ms)</th>
@@ -328,10 +329,10 @@ $(document).ready(function () {
         $("#businessTransactions TBODY").empty();
         $("#businessTransactionsDetail TBODY").empty();
         
-        $('#chartTabs a:first').tab('show');
-        $('#transactionTabs a:first').tab('show');
+        // $('#chartTabs a:first').tab('show');
+        // $('#transactionTabs a:first').tab('show');
         
-        $("#springygraph").css("display", "none");
+        // $("#springygraph").css("display", "none");
 	}
 	
 	// TODO 조회 버튼을 두 번 연속 눌렀을 때 앞서 수행되던 결과는 취소시켜야 함.
@@ -355,24 +356,22 @@ $(document).ready(function () {
         	$("#springygraph").css("display", "");
         };
     	
-    	var businessTransactionCallback = function(data) {
-           	showTransactionList(data.businessTransactions);
-    	};
-    	
         if (isQueryFromNow()) {
 	        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
 	        // getLastServerMapData($("#application").val(), getQueryPeriod(), serverMapCallback);
-	        //getLastBusinessTransactionsData($("#application").val(), getQueryPeriod(), businessTransactionCallback);
-	        
-	        //drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        //getLastScatterData($("#application").val(), getQueryPeriod(), scatterCallback);
+
+			// 개발 편의상 모두 표시.
+	        getLastBusinessTransactionsData($("#application").val(), getQueryPeriod(), businessTransactionCallback);
+	        drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getLastScatterData($("#application").val(), getQueryPeriod(), scatterCallback);
         } else {
 	        getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
 	        // getServerMapData($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
-	        //getBusinessTransactionsData($("#application").val(), getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
 	        
-	        //drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        //getScatterData($("#application").val(), getQueryStartTime(), getQueryEndTime(), scatterCallback);
+	        // 개발 편의상 모두 표시.
+	        getBusinessTransactionsData($("#application").val(), getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+	        drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getScatterData($("#application").val(), getQueryStartTime(), getQueryEndTime(), scatterCallback);
         }
     }
     
@@ -480,6 +479,10 @@ var scatterCallback = function(data) {
     var scatterFetchTimer = setInterval(fetch, 200);
 };
 
+var businessTransactionCallback = function(data) {
+   	showTransactionList(data.businessTransactions);
+};
+
 function showResponseScatter(applicationName) {
     if (isQueryFromNow()) {
 		drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
@@ -487,6 +490,14 @@ function showResponseScatter(applicationName) {
     } else {
         drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
         getScatterData(applicationName, getQueryStartTime(), getQueryEndTime(), scatterCallback);
+    }
+}
+
+function showRequests(applicationName) {
+    if (isQueryFromNow()) {
+        getLastBusinessTransactionsData(applicationName, getQueryPeriod(), businessTransactionCallback);
+    } else {
+        getBusinessTransactionsData(applicationName, getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
     }
 }
 </script>
@@ -547,7 +558,7 @@ function showResponseScatter(applicationName) {
 			<i class="hippo-help icon-question-sign" onclick="help(1001);"></i>
 			<br/><a href="#" onclick="showResponseScatter('${label}');">Response scatter chart</a>
 			<i class="hippo-help icon-question-sign" onclick="help(1003);"></i>
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
+			<br/><a href="#" onclick="showRequests('${label}');">Show Requests</a>
 			<i class="hippo-help icon-question-sign" onclick="help(1002);"></i>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
