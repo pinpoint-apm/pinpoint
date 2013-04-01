@@ -103,3 +103,7 @@ table.sortable thead {
 table.sortable th.sorttable_nosort {
 	cursor:default;
 }
+
+.hippo-help {
+	cursor:pointer;
+}
