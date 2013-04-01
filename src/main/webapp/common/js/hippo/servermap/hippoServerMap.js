@@ -87,6 +87,7 @@ jQuery.fn.hippoServerMap = function(params) {
 	var htLastPos = {pageX : 0, pageY : 0};
 	var htGapBetweenThisAndCanvas = {gapX : $(this).width()- $(canvas).width(), gapY : $(this).height() - $(canvas).height()};
 
+	/*
 	jQuery(canvas).bind('mousewheel', function(e){
 		e.preventDefault();
 		if(e.originalEvent.wheelDelta > 0){// �뺣�
@@ -115,6 +116,7 @@ jQuery.fn.hippoServerMap = function(params) {
 		}
 		renderer.startOnce();
 	});
+	*/
 
 	//
 	// TODO double click 할 때 정보를 보여주도록 수정함.
