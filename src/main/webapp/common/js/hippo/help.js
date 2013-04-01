@@ -5,6 +5,8 @@ var helptext = {
 		1002 : "응답시간에 대한 scatter chart를 조회합니다.",
 		// Show Requests
 		1003 : "선택한 구간이나 리소스를 통과하는 요청들의 목록을 조회합니다.",
+		// response statistics 
+		1004 : "선택한 구간을 지나는 요청의 응답시간 분포입니다.",
 		
 		// scatter chart란?
 		2001 : "",
