@@ -27,8 +27,8 @@ public class MethodRenameInterceptorTest {
             }
             Class aClass = clas.toClass();
             Object o = aClass.newInstance();
-            Method method = o.getClass().getMethod(methodName, null);
-            Object invoke = method.invoke(o, null);
+            Method method = o.getClass().getMethod(methodName);
+            Object invoke = method.invoke(o);
         } catch (CannotCompileException ex) {
             ex.printStackTrace();
         } catch (NotFoundException ex) {
