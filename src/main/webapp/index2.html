@@ -72,15 +72,13 @@
 					<button type="button" value="2880" class="btn btn-mini">2d</button>
 				</div>
             </form>
-            <!-- 
-			<div class="nav-collapse">
+			<div class="nav-collapse pull-right">
                 <ul class="nav">
                     <li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
                     <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
                     <li><a data-toggle="modal" href="#myHelpModal">Help</a></li>
                 </ul>
             </div>
-            -->
         </div>
     </div>
 </div>
@@ -527,6 +525,7 @@ function showResponseScatter(applicationName) {
 				<ul>
 					{{each(key, value) hosts}}
 						<li>
+							<span class="label label-success">OK</span>
 							${value}
 							<a href="http://nsight.nhncorp.com/dashboard_server/${value.split(':')[0].replace('.nhnsystem.com','')}" target="_blank">(NSight)</a>
 						</li>
@@ -536,8 +535,10 @@ function showResponseScatter(applicationName) {
 				<ul>
 					{{each(key, value) agents}}
 					<li>
+						<span class="label label-success">OK</span>
 						${value.agentId}
 						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
 					</li>
 					{{/each}}
 				</ul>
@@ -553,8 +554,13 @@ function showResponseScatter(applicationName) {
 </script>
 <script id="ClientBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
-			<br/>Calls : Not implemented.
+			Clients
+			Calls
+				<ul>
+					<li>Sorry. Not implemented.</li>
+				</ul>
+			<hr/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
