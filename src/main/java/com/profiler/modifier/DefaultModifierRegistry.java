@@ -144,7 +144,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		}
 
 		if (profilerConfig.isJdbcProfileDbcp()) {
-			addDbcpDriver();
+//			addDbcpDriver();
 		}
 	}
 
