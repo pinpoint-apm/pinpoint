@@ -34,7 +34,7 @@ public class CubridResultSetModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateNextMethod(cc);
             updateCloseMethod(cc);

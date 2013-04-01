@@ -34,7 +34,7 @@ public class CubridUStatementModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateBindValueMethod(cc);
 
@@ -51,9 +51,9 @@ public class CubridUStatementModifier extends AbstractModifier {
 
     private void updateBindValueMethod(CtClass cc) throws Exception {
         CtClass[] params1 = new CtClass[3];
-        params1[0] = classPool.getCtClass("int");
-        params1[1] = classPool.getCtClass("byte");
-        params1[2] = classPool.getCtClass("java.lang.Object");
+        params1[0] = null;
+        params1[1] = null;
+        params1[2] = null;
         CtMethod method = cc.getDeclaredMethod("bindValue", params1);
 
         method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$3); }");

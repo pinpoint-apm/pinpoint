@@ -16,7 +16,6 @@ public abstract class AbstractModifier implements Modifier {
 
     private final Logger logger = Logger.getLogger(AbstractModifier.class.getName());
 
-    protected final ClassPool classPool;
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
 
@@ -27,7 +26,6 @@ public abstract class AbstractModifier implements Modifier {
     public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.agent = agent;
-        this.classPool = byteCodeInstrumentor.getClassPool();
     }
 
     public void printClassConvertComplete(String javassistClassName) {

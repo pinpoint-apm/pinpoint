@@ -35,8 +35,7 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
-
+            CtClass cc = null;
             updateSetInternalMethod(cc);
             updateExecuteMethod(cc);
             updateConstructor(cc);
@@ -54,8 +53,8 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
 
     private void updateSetInternalMethod(CtClass cc) throws Exception {
         CtClass[] params1 = new CtClass[2];
-        params1[0] = classPool.getCtClass("int");
-        params1[1] = classPool.getCtClass("java.lang.String");
+        params1[0] = null;
+        params1[1] = null;
         CtMethod serviceMethod1 = cc.getDeclaredMethod("setStringInternal", params1);
 
         serviceMethod1.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2); }");

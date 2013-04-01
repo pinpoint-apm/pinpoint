@@ -54,7 +54,7 @@ public class CubridStatementModifier extends AbstractModifier {
             InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
             aClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
             printClassConvertComplete(javassistClassName);
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateExecuteQueryMethod(cc);
 
@@ -70,7 +70,7 @@ public class CubridStatementModifier extends AbstractModifier {
 
     private void updateExecuteQueryMethod(CtClass cc) throws Exception {
         CtClass[] params = new CtClass[1];
-        params[0] = classPool.getCtClass("java.lang.String");
+        params[0] = null;
         CtMethod method = cc.getDeclaredMethod("executeQuery", params);
 
         StringBuilder sb = new StringBuilder();

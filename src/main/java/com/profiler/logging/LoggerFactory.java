@@ -9,9 +9,12 @@ public final class LoggerFactory {
 
     public static void initialize(LoggerBinder loggerBinder) {
         if (LoggerFactory.loggerBinder == null) {
-            System.out.println("set logger binder-------------");
             LoggerFactory.loggerBinder = loggerBinder;
         }
+    }
+
+    static void unregister() {
+        LoggerFactory.loggerBinder = null;
     }
 
     public static Logger getLogger(String name) {

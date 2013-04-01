@@ -4,7 +4,7 @@ package com.profiler.util;
 public class ArrayUtils {
 
     public static String dropToString(byte[] bytes) {
-        return dropToString(bytes, 10);
+        return dropToString(bytes, 32);
     }
 
     public static String dropToString(byte[] bytes, int limit) {

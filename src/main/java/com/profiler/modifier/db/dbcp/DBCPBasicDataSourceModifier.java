@@ -34,7 +34,7 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateGetConnectionMethod(cc);
 

@@ -22,9 +22,6 @@ public class JavaAssistClass implements InstrumentClass {
         this.ctClass = ctClass;
     }
 
-    public CtClass getCtClass() {
-        return ctClass;
-    }
 
     @Override
     public boolean insertCodeBeforeConstructor(String[] args, String code) {

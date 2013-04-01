@@ -33,13 +33,13 @@ public class MSSQLStatementModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateExecuteQueryMethod(cc);
 
             printClassConvertComplete(javassistClassName);
 
-            return cc.toBytecode();
+            return null;
         } catch (Exception e) {
             if (logger.isLoggable(Level.WARNING)) {
                 logger.log(Level.WARNING, e.getMessage(), e);
@@ -50,7 +50,7 @@ public class MSSQLStatementModifier extends AbstractModifier {
 
     private void updateExecuteQueryMethod(CtClass cc) throws Exception {
         CtClass[] params = new CtClass[1];
-        params[0] = classPool.getCtClass("java.lang.String");
+        params[0] = null;
         CtMethod serviceMethod = cc.getDeclaredMethod("executeQuery", params);
 
         StringBuilder sb = new StringBuilder();

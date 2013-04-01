@@ -33,7 +33,7 @@ public class OracleStatementModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateExecuteQueryMethod(cc);
 
@@ -50,7 +50,7 @@ public class OracleStatementModifier extends AbstractModifier {
 
     private void updateExecuteQueryMethod(CtClass cc) throws Exception {
         CtClass[] params = new CtClass[1];
-        params[0] = classPool.getCtClass("java.lang.String");
+        params[0] = null;
         // CtMethod serviceMethod=cc.getDeclaredMethod("executeQuery", params);
         CtMethod serviceMethod = cc.getDeclaredMethod("execute", params);
 

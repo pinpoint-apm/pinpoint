@@ -34,7 +34,7 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 
     private byte[] changeMethods(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateCreateStatementMethod(cc);
             updateCloseMethod(cc);
@@ -52,8 +52,8 @@ public class MSSQLConnectionModifier extends AbstractModifier {
 
     private void updateCreateStatementMethod(CtClass cc) throws Exception {
         CtClass[] params = new CtClass[2];
-        params[0] = classPool.getCtClass("int");
-        params[1] = classPool.getCtClass("int");
+        params[0] = null;
+        params[1] = null;
         CtMethod method = cc.getDeclaredMethod("createStatement", params);
 
         method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CREATE_STATEMENT + "); }");

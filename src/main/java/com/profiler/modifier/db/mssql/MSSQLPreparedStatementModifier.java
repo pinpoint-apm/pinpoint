@@ -35,7 +35,7 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = null;
 
             updateSetParameterMethod(cc);
             updateExecuteQueryMethod(cc);
@@ -54,11 +54,11 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
     private void updateSetParameterMethod(CtClass cc) throws Exception {
         CtClass[] params1 = new CtClass[5];
-        params1[0] = classPool.getCtClass("int");
-        params1[1] = classPool.getCtClass("java.lang.Object");
-        params1[2] = classPool.getCtClass("int");
-        params1[3] = classPool.getCtClass("int");
-        params1[4] = classPool.getCtClass("int");
+        params1[0] = null;
+        params1[1] = null;
+        params1[2] = null;
+        params1[3] = null;
+        params1[4] = null;
         CtMethod method = cc.getDeclaredMethod("setParameter", params1);
 
         method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2);} ");

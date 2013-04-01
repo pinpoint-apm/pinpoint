@@ -34,8 +34,7 @@ public class DBCPPoolModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = classPool.get(javassistClassName);
-
+            CtClass cc = null;
             updateCloseMethod(cc);
 
             printClassConvertComplete(javassistClassName);
