@@ -31,7 +31,7 @@ jQuery.fn.hippoServerMap = function(params) {
 	var iconPath = params.iconPath || '/images/servermap';
 	
 	//var canvas = this[0];
-	var nThisWidth = $(this).width(),
+	var nThisWidth = $(this).parent().width(), // $(this).width(),
 		nThisHeight = $(this).height();
 	var canvas = document.createElement('canvas');
 	canvas.width = nThisWidth /** (1 + params.graph.nodes.length / 100)*/;

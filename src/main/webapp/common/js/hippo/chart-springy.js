@@ -10,8 +10,8 @@ function getRandom(M, N){
 }
 
 function drawSpringy(graphdata, targetId, width, height) {
-	$(targetId).attr("width", width);
-	$(targetId).attr("height", height);
+	// $(targetId).attr("width", width);
+	// $(targetId).attr("height", height);
 
 	var graph = new Graph();
 	
@@ -95,7 +95,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 				'height' : $(window).height()
 			});
 		}
-		resize();
+		// resize();
 		var springy = jQuery(targetId).hippoServerMap({
 			graph: graph,
 			sEdgeColor : '#8f8f8f',
