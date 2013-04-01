@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class OutputParameterParser {
 
-    public static final char SEPARATOR = ParsingResult.SEPARATOR;
+    public static final char SEPARATOR = DefaultParsingResult.SEPARATOR;
 
     public List<String> parseOutputParameter(String outputParams) {
         // 추가적으로 parsing result를 알수 있어야 될거 같음.

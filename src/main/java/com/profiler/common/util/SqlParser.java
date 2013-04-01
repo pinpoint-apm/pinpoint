@@ -10,7 +10,7 @@ public class SqlParser {
     public static final char SYMBOL_REPLACE = '$';
     public static final char NUMBER_REPLACE = '#';
 
-    private static final ParsingResult NULL = new ParsingResult("", new StringBuilder());
+    private static final ParsingResult NULL = new DefaultParsingResult("", new StringBuilder());
     private static final int NEXT_TOKEN_NOT_EXIST = -1;
 
 
@@ -22,7 +22,7 @@ public class SqlParser {
             return NULL;
         }
 
-        ParsingResult parsingResult = new ParsingResult();
+        DefaultParsingResult parsingResult = new DefaultParsingResult();
         final int length = sql.length();
         final StringBuilder normalized = new StringBuilder(length + 16);
         boolean change = false;
