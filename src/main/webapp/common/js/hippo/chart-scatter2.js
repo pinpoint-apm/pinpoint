@@ -27,8 +27,8 @@ function drawScatter(start, end, targetId) {
 		target : document.getElementById("scatter"),
 		data : [],
 		chart : {
-			width : 1100,
-			height : 500,
+			width : 400,
+			height : 400,
 			padding : [ 50, 50, 50, 50 ],
 			margin : [ 0, 0, 0, 0 ],
 			x : {

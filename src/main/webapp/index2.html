@@ -353,55 +353,6 @@ $(document).ready(function () {
            	showTransactionList(data.businessTransactions);
     	};
     	
-        var scatterCallback = function(data) {
-        	// 처음 조회된 데이터를 그려준다.
-	        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
-	        
-	        if (data.scatter.length == 0) {
-	        	return;
-	        }
-	        
-	        // 데이터 조회가 추가로 필요한지 확인한다.
-	        var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
-	        
-	        if (lastTimeStamp >= getQueryEndTime()) {
-	        	return;
-	        }
-	        
-	        var queryNext = true;
-	        
-	        var fetch = function() {
-        		console.log("fetch scatter data");
-        		clearInterval(scatterFetchTimer);
-        		
-				if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
-			        scatter.hideProgressbar();
-					console.log("fetching scatter data finished.");
-					return;
-				}
-				
-	        	try {
-	        		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
-	        		console.log("fetching scatter data.");
-	        		
-		        	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
-		        		console.log("fetched " + data2.scatter.length);
-		        		scatter.hideProgressbar();
-		    	        if (data2.scatter.length == 0) {
-		    	        	queryNext = false;
-		    	        	return;
-		    	        }
-				        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
-		        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
-		        		scatterFetchTimer = setInterval(fetch, 200);
-		        	});
-	        	} catch(e) {
-	        		console.log(e);
-	        	}
-	        }
-	        var scatterFetchTimer = setInterval(fetch, 200);
-        };
-    	
         if (isQueryFromNow()) {
 	        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
 	        // getLastServerMapData($("#application").val(), getQueryPeriod(), serverMapCallback);
@@ -471,6 +422,67 @@ $(document).ready(function () {
 	
 	cleanup();
 });
+
+// TODO 지금은 함수와 변수가 전부 global로 나와있는데 나중에 object로 만들어야 할 듯.
+
+var scatterCallback = function(data) {
+	// 처음 조회된 데이터를 그려준다.
+    updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
+    
+    if (data.scatter.length == 0) {
+    	return;
+    }
+    
+    // 데이터 조회가 추가로 필요한지 확인한다.
+    var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
+    
+    if (lastTimeStamp >= getQueryEndTime()) {
+    	return;
+    }
+    
+    var queryNext = true;
+    
+    var fetch = function() {
+		console.log("fetch scatter data");
+		clearInterval(scatterFetchTimer);
+		
+		if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
+	        scatter.hideProgressbar();
+			console.log("fetching scatter data finished.");
+			return;
+		}
+		
+    	try {
+    		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
+    		console.log("fetching scatter data.");
+    		
+        	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
+        		console.log("fetched " + data2.scatter.length);
+        		scatter.hideProgressbar();
+    	        if (data2.scatter.length == 0) {
+    	        	queryNext = false;
+    	        	return;
+    	        }
+		        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
+        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
+        		scatterFetchTimer = setInterval(fetch, 200);
+        	});
+    	} catch(e) {
+    		console.log(e);
+    	}
+    }
+    var scatterFetchTimer = setInterval(fetch, 200);
+};
+
+function showResponseScatter(applicationName) {
+    if (isQueryFromNow()) {
+		drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
+		getLastScatterData(applicationName, getQueryPeriod(), scatterCallback);
+    } else {
+        drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
+        getScatterData(applicationName, getQueryStartTime(), getQueryEndTime(), scatterCallback);
+    }
+}
 </script>
 <script id="EdgeBox" type="text/x-jquery-tmpl">
 	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
@@ -492,9 +504,10 @@ $(document).ready(function () {
 </script>
 <script id="ServerBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
+			${label}
 			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-help icon-question-sign" onclick="help(1001);"></i>
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Response scatter chart</a>
+			<br/><a href="#" onclick="showResponseScatter('${label}');">Response scatter chart</a>
 			<i class="hippo-help icon-question-sign" onclick="help(1003);"></i>
 			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
 			<i class="hippo-help icon-question-sign" onclick="help(1002);"></i>
