@@ -7,5 +7,5 @@ import com.profiler.common.bo.AgentInfoBo;
  */
 public interface AgentInfoDao {
 
-    AgentInfoBo findAgentInfoBeforeStartTime(String agentInfo, long currentTime);
+    AgentInfoBo findAgentInfoBeforeStartTime(String agentId, long currentTime);
 }
