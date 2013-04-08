@@ -430,7 +430,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 		BusinessTransactions businessTransactions = new BusinessTransactions();
 		for (List<SpanBo> trace : traceList) {
 			for (SpanBo spanBo : trace ) {
-				businessTransactions.add(spanBo);
+				// 해당 application으로 인입된 요청만 보여준다.
+				if (applicationName.equals(spanBo.getApplicationId())) {
+					businessTransactions.add(spanBo);
+				}
 			}
 		}
 
