@@ -83,20 +83,23 @@ public class ApplicationMapStatisticsUtils {
 		}
 
 		byte[] applicationnameBytes = Bytes.toBytes(applicationName);
-		byte[] offset = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN - applicationnameBytes.length];
+		byte[] applicationnameBytesLength = Bytes.toBytes((short) applicationnameBytes.length);
+		// byte[] offset = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN - applicationnameBytes.length];
 		byte[] applicationtypeBytes = Bytes.toBytes(applicationType);
 		byte[] slot = Bytes.toBytes(time);
 
-		return BytesUtils.concat(applicationnameBytes, offset, applicationtypeBytes, slot);
+		return BytesUtils.concat(applicationnameBytesLength, applicationnameBytes, applicationtypeBytes, slot);
 	}
 
 	public static String getApplicationNameFromRowKey(byte[] bytes) {
-		byte[] temp = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN];
-		System.arraycopy(bytes, 0, temp, 0, bytes.length - 2 - 8);
-		return new String(temp).trim();
+		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+		byte[] temp = new byte[applicationNameLength];
+		System.arraycopy(bytes, 2, temp, 0, applicationNameLength);
+		return new String(temp); //.trim();
 	}
 
 	public static short getApplicationTypeFromRowKey(byte[] bytes) {
-		return BytesUtils.bytesToShort(bytes, HBaseTables.APPLICATION_NAME_MAX_LEN);
+		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+		return BytesUtils.bytesToShort(bytes, applicationNameLength + 2);
 	}
 }
