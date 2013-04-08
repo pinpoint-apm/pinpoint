@@ -15,5 +15,10 @@ var helptext = {
 }
 
 function help(id) {
-	alert(helptext[id]);
+	var msg = helptext[id];
+	if(msg) {
+		alert("\n\n" + helptext[id] + "\n\n");
+	} else {
+		alert("\n\n죄송합니다. 도움말을 찾을 수 없습니다.\n\n")
+	}
 }

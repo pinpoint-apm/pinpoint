@@ -1,0 +1,25 @@
+.bigscatterchart-placeholder {
+	display:inline-block;
+	border:1px solid #369;
+	background:#def;
+	width:50px;
+	padding:0;
+	margin:0 10px;
+	opacity: 0.3;
+}
+
+div.jquery-drag-to-select {
+	background: #def;
+
+	display: block;
+
+	opacity: .3;
+	filter: alpha(opacity=30);
+	z-index: 10;
+
+	border: 1px solid #369;
+}
+
+div.jquery-drag-to-select.active {
+	display: block;
+}

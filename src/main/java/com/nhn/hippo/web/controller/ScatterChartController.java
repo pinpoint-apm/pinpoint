@@ -72,7 +72,7 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
+	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value="_callback", required=false) String jsonpCallback) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
@@ -84,7 +84,13 @@ public class ScatterChartController extends BaseController {
 		model.addAttribute("scatter", scatterData);
 
 		addResponseHeader(response);
-		return "scatter_json";
+		
+		if (jsonpCallback == null) {
+			return "scatter_json";
+		} else {
+			model.addAttribute("callback", jsonpCallback);
+			return "scatter_jsonp";
+		}
 	}
 
 	/**
@@ -98,10 +104,10 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit) {
+	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value="_callback", required=false) String jsonpCallback) {
 		long to = getQueryEndTime();
 		long from = to - period;
-		return getScatterData(model, response, applicationName, from, to, limit);
+		return getScatterData(model, response, applicationName, from, to, limit, jsonpCallback);
 	}
 
 	/**

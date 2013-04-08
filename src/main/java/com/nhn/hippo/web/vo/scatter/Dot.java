@@ -6,7 +6,13 @@ public class Dot {
     private final int executionTime;
     private final int exceptionCode;
 
-
+    /**
+     * 
+     * @param traceId
+     * @param acceptedTime
+     * @param executionTime
+     * @param exceptionCode 0 : 정상, 1 : error
+     */
 	public Dot(String traceId, long acceptedTime, int executionTime, int exceptionCode) {
         this.traceId = traceId;
         this.timestamp = acceptedTime;

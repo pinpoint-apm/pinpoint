@@ -9,6 +9,26 @@ function getRandom(M, N){
 	return Math.floor(M + (1+N-M)*Math.random());
 }
 
+function showServerMap(applicationName) {
+    $("#springygraph").empty();
+
+	var serverMapCallback = function(data) {
+    	if (data.graphdata.nodes.length == 0) {
+        	hideIndicator();
+    	}
+        drawSpringy(data.graphdata, "#springygraph", 1100, 500);
+    	hideIndicator();
+    	
+    	$("#springygraph").css("display", "");
+    };
+
+    if (isQueryFromNow()) {
+        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
+    } else {
+        getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+    }
+}
+
 function drawSpringy(graphdata, targetId, width, height) {
 	// $(targetId).attr("width", width);
 	// $(targetId).attr("height", height);

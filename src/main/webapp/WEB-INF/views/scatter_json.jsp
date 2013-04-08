@@ -12,5 +12,17 @@
 		}
 	    <c:if test="${!status.last}">,</c:if>
 	</c:forEach>
+	],
+	"scatter2" : [
+	<c:forEach items="${scatter}" var="dot" varStatus="status">
+		{
+			"x" : ${dot.timestamp},
+			"y" : ${dot.executionTime},
+			"r" : 3,
+			"traceId" : "${dot.traceId}",
+			"type" : <c:choose><c:when test="${dot.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
+		}
+	    <c:if test="${!status.last}">,</c:if>
+	</c:forEach>
 	]
 }

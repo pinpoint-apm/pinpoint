@@ -42,6 +42,7 @@ public class ApplicationMapController extends BaseController {
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
 
+		addResponseHeader(response);
 		return "applicationmap";
 	}
 

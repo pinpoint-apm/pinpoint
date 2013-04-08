@@ -2,6 +2,8 @@ package com.nhn.hippo.web.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ import com.profiler.common.bo.AgentInfoBo;
  * @author netspider
  */
 @Controller
-public class MainController {
+public class MainController extends BaseController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,17 +34,18 @@ public class MainController {
 	private MonitorService monitor;
 
 	@RequestMapping(value = "/applications", method = RequestMethod.GET)
-	public String flow(Model model) {
+	public String flow(Model model, HttpServletResponse response) {
 		List<Application> applications = flow.selectAllApplicationNames();
 		model.addAttribute("applications", applications);
 
 		logger.debug("Applications, {}", applications);
 
+		addResponseHeader(response);
 		return "applications";
 	}
 
 	@RequestMapping(value = "/agentStatus", method = RequestMethod.GET)
-	public String agentStatus(Model model, @RequestParam("agentId") String agentId) {
+	public String agentStatus(Model model, HttpServletResponse response, @RequestParam("agentId") String agentId) {
 		AgentInfoBo agentInfo = monitor.getAgentInfo(agentId);
 
 		long gap = System.currentTimeMillis() - agentInfo.getTimestamp();
@@ -50,6 +53,7 @@ public class MainController {
 		model.addAttribute("gap", gap);
 		model.addAttribute("agentinfo", agentInfo);
 
+		addResponseHeader(response);
 		return "agentstatus";
 	}
 }

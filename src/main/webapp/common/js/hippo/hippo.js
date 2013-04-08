@@ -1,3 +1,7 @@
+function expandToNewWindow() {
+	alert("새 창으로 확대.\n\nSorry. Not implemented.");
+}
+
 function openTrace(uuid, timestamp) {
     window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
 }
@@ -55,10 +59,32 @@ function getQueryStartTime() {
 	return getQueryEndTime() - getQueryPeriod();
 }
 
+function formatDate(date) {
+	var padZero = function(i) {
+	    return (i < 10) ? "0" + i : "" + i;
+	}
+	
+	var dateStr = [];
+	
+	dateStr.push(date.getFullYear());
+	dateStr.push("-");
+	dateStr.push(padZero(date.getMonth())); 
+	dateStr.push("-");
+	dateStr.push(padZero(date.getDate()));
+	dateStr.push(" ");
+	dateStr.push(padZero(date.getHours())); 
+	dateStr.push(":");
+	dateStr.push(padZero(date.getMinutes()));
+	dateStr.push(":");
+	dateStr.push(padZero(date.getSeconds()));
+					
+    return dateStr.join('');
+}
+
 function getQueryEndTime() {
-		var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
-		now = new Date(),
-		input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
+	var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
+	now = new Date(),
+	input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
 	
 	if (input.getTime() > now.getTime()) {
 		input = now;
@@ -66,13 +92,14 @@ function getQueryEndTime() {
 	return input.getTime();
 }
 
-	function setQueryDateToNow() {
+function setQueryDateToNow() {
    	var date = new Date();
    	var format_date = d3.time.format("%Y/%m/%d"),
    		format_time = d3.time.format("%H:%M:%S");
+   	
    	$('#date').val(format_date(date));
    	$('#time').val(format_time(date));
-	}
+}
 
 function showIndicator() {
 	$(".indicator").show();

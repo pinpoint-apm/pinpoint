@@ -44,35 +44,19 @@
     <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/help.js"></script>
 </head>
 <body>
 
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+            </a>
 			<a class="brand" href="/">HIPPO</a>
-            <form class="navbar-form pull-left">
-         		<select id="application" disabled>
-		        	<option>Loading...</option>
-		        </select>
-				<div id="until" class="btn-group" data-toggle="buttons-radio">
-					<button id="now" type="button" class="btn btn-primary active">now</button>
-					<button id="specific" type="button" class="btn">select</button>
-				</div>
-				<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
-				<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
-				
-				<div id="period" class="btn-group" data-toggle="buttons-radio">
-					<button type="button" value="5" class="btn btn-mini">5m</button>
-					<button type="button" value="20" class="btn btn-mini btn-inverse active">20m</button>
-					<button type="button" value="60" class="btn btn-mini">1h</button>
-					<button type="button" value="360" class="btn btn-mini">6h</button>
-					<button type="button" value="1440" class="btn btn-mini">1d</button>
-					<button type="button" value="2880" class="btn btn-mini">2d</button>
-				</div>
-            </form>
-			<div class="nav-collapse pull-right">
+            <div class="nav-collapse">
                 <ul class="nav">
                     <li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
                     <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
@@ -153,8 +137,8 @@
 
 
 <!-- MENU -->
-<div class="container-fluid">
-<!-- 
+<div class="container">
+	THIS UI IS DEPRECATED. <a href="/index2.html">MOVE TO THE NEW UI Ver2.</a>
 	<form class="well well-small form-inline" id="search" onsubmit="return false;">
 		<select id="application" disabled>
         	<option>Loading...</option>
@@ -181,38 +165,47 @@
 		    </label>
 	    </div>
 	</form>
--->
 
-    <div class="row-fluid">
-        <div class="span8">
-        	THIS UI IS DEPRECATED. <a href="/index.html">MOVE TO THE NEW UI Ver3.</a>
-			<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-			<div id="springygraph" style="height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
-		</div>
-        <div class="span4">
-			<ul class="nav nav-tabs" id="transactionTabs">
-				<li class="active">
-					<a href="#ScatterChart" data-toggle="tab">Response scatter <i class="hippo-help icon-question-sign" onclick="help(2001);"></i></a>
-				</li>
+
+    <div class="row">
+        <div class="span12">
+			<ul class="nav nav-tabs" id="chartTabs">
+				<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
 			</ul>
-			<div class="tab-content" style="min-height:400px;">
+			
+			<div class="tab-content">
+				<div class="tab-pane active" id="Graph">
+					박스나 연결선을 더블클릭하여 drill down.
+					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
+					<div id="springygraph" style="width:1167px;height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
+				</div>
+			</div>
+		</div>
+    </div>
+
+    <div class="row">
+        <div class="span12">
+        	<br/><br/><br/>
+        </div>
+	</div>
+
+    <div class="row">
+        <div class="span12">
+			<ul class="nav nav-tabs" id="transactionTabs">
+				<li><a href="#ScatterChart" data-toggle="tab">Scatter Plot</a></li>
+				<li><a href="#BusinessTransactionList" data-toggle="tab">Business Transactions</a></li>
+			</ul>
+			
+			<div class="tab-content" style="min-height:550px;">
 				<div class="tab-pane active" id="ScatterChart">
 					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 					<p id="scatter"></p>
 				</div>
-			</div>
-			
-			<ul class="nav nav-tabs" id="transactionTabs">
-				<li class="active">
-					<a href="#BusinessTransactionList" data-toggle="tab">Requests <i class="hippo-help icon-question-sign" onclick="help(2002);"></i></a>
-				</li>
-			</ul>
-			<div class="tab-content" style="min-height:550px;">
-				<div class="tab-pane active" id="BusinessTransactionList">
+				<div class="tab-pane" id="BusinessTransactionList">
 		            <table id="businessTransactions" class="table table-bordered sortable">
 		                <thead>
 		                <tr>
-		                    <th>URL</th>
+		                    <th>Name</th>
 		                    <th class="sorttable_numeric">Calls</th>
 		                    <th class="sorttable_numeric">Time(ms)</th>
 		                    <th class="sorttable_numeric">Min Time(ms)</th>
@@ -240,19 +233,108 @@
 		</div>
     </div>
     
+    
+	<div class="row">
+		<div class="span12">
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+		</div>
+	</div>
 </div>
 <!-- END OF MENU -->
 
 <script type="text/javascript">
-$.extend($.tmpl.tag, {
-    "var": {
-        open: "var $1;"
-    }
-});
-
-$.extend($.tmpl.tag, { "eval": { open: "$1;"} });
+function openTrace(uuid, timestamp) {
+    window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
+}
 
 $(document).ready(function () {
+	function getServerMapData2(begin, end, callback) {
+	    var application = $("#application").val().split("@");
+		d3.json("/getServerMapData2.hippo?application=" + application[0] + "&serviceType=" + application[1] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getLastServerMapData2(period, callback) {
+	    var application = $("#application").val().split("@");
+		d3.json("/getLastServerMapData2.hippo?application=" + application[0] + "&serviceType=" + application[1] + "&period=" + period, function(d) { callback(d); });
+	}
+	
+	function getServerMapData(begin, end, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getServerMapData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getLastServerMapData(period, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getLastServerMapData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
+	}
+	
+	function getScatterData(begin, end, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getScatterData.hippo?application=" + application + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
+	}
+	
+	function getLastScatterData(period, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getLastScatterData.hippo?application=" + application + "&period=" + period + "&limit=5000", function(d) { callback(d); });
+	}
+	
+	function getRealtimeScatterData(begin, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getRealtimeScatterData.hippo?application=" + application + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
+	}
+	
+	function getBusinessTransactionsData(begin, end, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getBusinessTransactionsData.hippo?application=" + application + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+	}
+	
+	function getLastBusinessTransactionsData(period, callback) {
+		var application = $("#application").val().split("@")[0];
+		d3.json("/getLastBusinessTransactionsData.hippo?application=" + application + "&period=" + period, function(d) { callback(d); });
+	}
+	
+	function getQueryPeriod() {
+		return $("#period").find("button.active").val().split(",") * 1000 * 60;
+	}
+	
+	function getQueryStartTime() {
+		return getQueryEndTime() - getQueryPeriod();
+	}
+
+	function getQueryEndTime() {
+ 		var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
+			now = new Date(),
+			input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
+		
+		if (input.getTime() > now.getTime()) {
+			input = now;
+		}
+		return input.getTime();
+	}
+	
+   	function setQueryDateToNow() {
+	   	var date = new Date();
+	   	var format_date = d3.time.format("%Y/%m/%d"),
+	   		format_time = d3.time.format("%H:%M:%S");
+	   	$('#date').val(format_date(date));
+	   	$('#time').val(format_time(date));
+   	}
+	
+	function showIndicator() {
+		$(".indicator").show();
+	}
+	
+	function hideIndicator() {
+		$(".indicator").hide();
+	}
+	
+	function isQueryFromNow() {
+		return $(".btn#now.active").length > 0;
+	}
+
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();
 	});
@@ -330,10 +412,10 @@ $(document).ready(function () {
         $("#businessTransactions TBODY").empty();
         $("#businessTransactionsDetail TBODY").empty();
         
-        // $('#chartTabs a:first').tab('show');
-        // $('#transactionTabs a:first').tab('show');
+        $('#chartTabs a:first').tab('show');
+        $('#transactionTabs a:first').tab('show');
         
-        // $("#springygraph").css("display", "none");
+        $("#springygraph").css("display", "none");
 	}
 	
 	// TODO 조회 버튼을 두 번 연속 눌렀을 때 앞서 수행되던 결과는 취소시켜야 함.
@@ -357,22 +439,71 @@ $(document).ready(function () {
         	$("#springygraph").css("display", "");
         };
     	
-        if (isQueryFromNow()) {
-	        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
-	        // getLastServerMapData($("#application").val(), getQueryPeriod(), serverMapCallback);
-
-			// 개발 편의상 모두 표시.
-	        getLastBusinessTransactionsData($("#application").val(), getQueryPeriod(), businessTransactionCallback);
-	        drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        getLastScatterData($("#application").val(), getQueryPeriod(), scatterCallback);
-        } else {
-	        getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
-	        // getServerMapData($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+    	var businessTransactionCallback = function(data) {
+           	showTransactionList(data.businessTransactions);
+    	};
+    	
+        var scatterCallback = function(data) {
+        	// 처음 조회된 데이터를 그려준다.
+	        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
 	        
-	        // 개발 편의상 모두 표시.
-	        getBusinessTransactionsData($("#application").val(), getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
-	        drawScatter($("#application").val(), getQueryStartTime(), getQueryEndTime(), "#scatter");
-	        getScatterData($("#application").val(), getQueryStartTime(), getQueryEndTime(), scatterCallback);
+	        if (data.scatter.length == 0) {
+	        	return;
+	        }
+	        
+	        // 데이터 조회가 추가로 필요한지 확인한다.
+	        var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
+	        
+	        if (lastTimeStamp >= getQueryEndTime()) {
+	        	return;
+	        }
+	        
+	        var queryNext = true;
+	        
+	        var fetch = function() {
+        		console.log("fetch scatter data");
+        		clearInterval(scatterFetchTimer);
+        		
+				if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
+			        scatter.hideProgressbar();
+					console.log("fetching scatter data finished.");
+					return;
+				}
+				
+	        	try {
+	        		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
+	        		console.log("fetching scatter data.");
+	        		
+		        	getScatterData(lastTimeStamp + 1, getQueryEndTime(), function(data2) {
+		        		console.log("fetched " + data2.scatter.length);
+		        		scatter.hideProgressbar();
+		    	        if (data2.scatter.length == 0) {
+		    	        	queryNext = false;
+		    	        	return;
+		    	        }
+				        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
+		        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
+		        		scatterFetchTimer = setInterval(fetch, 200);
+		        	});
+	        	} catch(e) {
+	        		console.log(e);
+	        	}
+	        }
+	        var scatterFetchTimer = setInterval(fetch, 200);
+        };
+    	
+        if (isQueryFromNow()) {
+	        // getLastServerMapData2(getQueryPeriod(), serverMapCallback);
+	        getLastServerMapData(getQueryPeriod(), serverMapCallback);
+	        getLastBusinessTransactionsData(getQueryPeriod(), businessTransactionCallback);
+	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getLastScatterData(getQueryPeriod(), scatterCallback);
+        } else {
+	        // getServerMapData2(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        getServerMapData(getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+	        getBusinessTransactionsData(getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+	        drawScatter(getQueryStartTime(), getQueryEndTime(), "#scatter");
+	        getScatterData(getQueryStartTime(), getQueryEndTime(), scatterCallback);
         }
     }
     
@@ -391,30 +522,16 @@ $(document).ready(function () {
             } else {
            		html.push('>');
             }
-            html.push(e.applicationName + "@" + e.serviceType);
+            html.push(e.applicationName + " [" + e.serviceType + "]");
             html.push('</option>');
             
             target.append(html.join(''));
             
             $("#application").attr("disabled", null);
             
-            function format(state) {
-            	var chunk = state.text.split("@");
-            	if (chunk.length > 1) {
-                	return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
-            	} else {
-            		return state;
-            	}
-            }
-            
 		    $("#application").select2({
 				placeholder: "Select an application.",
-				formatResult: format,
-				formatSelection: format
 			});
-		    
-		    // 임시.
-		    $(".select2-container").css("top", "4px");
 		});
 	});
 	
@@ -428,151 +545,53 @@ $(document).ready(function () {
 	
 	cleanup();
 });
-
-// TODO 지금은 함수와 변수가 전부 global로 나와있는데 나중에 object로 만들어야 할 듯.
-
-var scatterCallback = function(data) {
-	// 처음 조회된 데이터를 그려준다.
-    updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
-    
-    if (data.scatter.length == 0) {
-    	return;
-    }
-    
-    // 데이터 조회가 추가로 필요한지 확인한다.
-    var lastTimeStamp = data.scatter[data.scatter.length - 1].timestamp;
-    
-    if (lastTimeStamp >= getQueryEndTime()) {
-    	return;
-    }
-    
-    var queryNext = true;
-    
-    var fetch = function() {
-		console.log("fetch scatter data");
-		clearInterval(scatterFetchTimer);
-		
-		if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
-	        scatter.hideProgressbar();
-			console.log("fetching scatter data finished.");
-			return;
-		}
-		
-    	try {
-    		scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
-    		console.log("fetching scatter data.");
-    		
-        	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
-        		console.log("fetched " + data2.scatter.length);
-        		scatter.hideProgressbar();
-    	        if (data2.scatter.length == 0) {
-    	        	queryNext = false;
-    	        	return;
-    	        }
-		        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
-        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].timestamp;
-        		scatterFetchTimer = setInterval(fetch, 200);
-        	});
-    	} catch(e) {
-    		console.log(e);
-    	}
-    }
-    var scatterFetchTimer = setInterval(fetch, 200);
-};
-
-var businessTransactionCallback = function(data) {
-   	showTransactionList(data.businessTransactions);
-};
-
-function showResponseScatter(applicationName) {
-    if (isQueryFromNow()) {
-		drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
-		getLastScatterData(applicationName, getQueryPeriod(), scatterCallback);
-    } else {
-        drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "#scatter");
-        getScatterData(applicationName, getQueryStartTime(), getQueryEndTime(), scatterCallback);
-    }
-}
-
-function showRequests(applicationName) {
-    if (isQueryFromNow()) {
-        getLastBusinessTransactionsData(applicationName, getQueryPeriod(), businessTransactionCallback);
-    } else {
-        getBusinessTransactionsData(applicationName, getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
-    }
-}
 </script>
 <script id="EdgeBox" type="text/x-jquery-tmpl">
 	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
-			Response statistics
-			<i class="hippo-help icon-question-sign" onclick="help(1004);"></i>
-			<ul>
-				{{var lastKey=''}}
-				{{each(key, value) histogram}}
-				<li>&lt;= ${key}ms : ${value}</li>
-				{{eval lastKey=key}}
-				{{/each}}
-				<li>&gt; ${lastKey}ms : ${slow}</li>
-				<li>Failed : ${error}</li>
-			</ul>
-			<hr/>
+		<ul style="margin:0;padding:0 0 0 10px;">
+			<br/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-help icon-question-sign" onclick="help(1001);"></i>
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
-			<i class="hippo-help icon-question-sign" onclick="help(1003);"></i>
+			<hr/>
+			
+			<li>
+				Failed Transaction : ${error}
+			</li>
+			<li>
+				Slow Transaction : ${slow}
+			</li>
+			<li>
+			Response time histogram
+				<ul>
+					{{each(key, value) histogram}}
+					<li>&lt; ${key}ms : ${value}</li>
+					{{/each}}
+				</ul>
+			</li>
+		</ul>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
 <script id="ServerBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
-			Application Name
-				<ul>
-					<li>${label}</li>
-				</ul>
-			Application Type
-				<ul>
-					<li>${serviceType}</li>
-				</ul>
+		<ul style="margin:0;padding:0 0 0 10px;">
+			<br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<br/>
+			Application Type : ${serviceType}
+			<br/>
 			Hosts
 				<ul>
 					{{each(key, value) hosts}}
 						<li>
-							<span class="label label-success">OK</span>
 							${value}
-							<a href="http://nsight.nhncorp.com/dashboard_server/${value.split(':')[0].replace('.nhnsystem.com','')}" target="_blank">(NSight)</a>
+							{{if serviceType == "TOMCAT"}}
+							<a href="http://nsight.nhncorp.com/dashboard_server/${value.replace('.nhnsystem.com','')}" target="_blank">(NSight)</a>
+							{{/if}}
 						</li>
 					{{/each}}
 				</ul>
-			Server instances
-				<ul>
-					{{each(key, value) agents}}
-					<li>
-						<span class="label label-success">OK</span>
-						${value.agentId}
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
-					</li>
-					{{/each}}
-				</ul>
-			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-help icon-question-sign" onclick="help(1001);"></i>
-			<br/><a href="#" onclick="showResponseScatter('${label}');">Response scatter chart</a>
-			<i class="hippo-help icon-question-sign" onclick="help(1003);"></i>
-			<br/><a href="#" onclick="showRequests('${label}');">Show Requests</a>
-			<i class="hippo-help icon-question-sign" onclick="help(1002);"></i>
-		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
-	</div>
-</script>
-<script id="ClientBox" type="text/x-jquery-tmpl">
-	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
-			Clients
-			Calls
-				<ul>
-					<li>Sorry. Not implemented.</li>
-				</ul>
-			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
+			</li>
+		</ul>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>

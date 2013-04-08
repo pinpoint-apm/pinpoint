@@ -1,3 +1,18 @@
+function showRequests(applicationName) {
+    $("#businessTransactions TBODY").empty();
+    $("#businessTransactionsDetail TBODY").empty();
+    
+    var businessTransactionCallback = function(data) {
+    	showTransactionList(data.businessTransactions);
+    };
+    
+    if (isQueryFromNow()) {
+        getLastBusinessTransactionsData(applicationName, getQueryPeriod(), businessTransactionCallback);
+    } else {
+        getBusinessTransactionsData(applicationName, getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+    }
+}
+
 var transactionsCache;
 var prevDetaildRow;
 
@@ -53,15 +68,19 @@ function openTransactionDetails(index, row) {
         html.push(i + 1);
         html.push("</td>");
         
-        html.push("<td>");
-        html.push(new Date(traces[i].timestamp));
-        html.push("</td>");
+        html.push("<td><a href='#' onclick='openTrace(\"");
+        html.push(traces[i].traceId);
+        html.push("\", -1); return false;' style='cursor:pointer;'>");
+        html.push(formatDate(new Date(traces[i].timestamp)));
+        html.push("</a></td>");
 
+        /*
         html.push("<td><a href='#' onclick='openTrace(\"");
         html.push(traces[i].traceId);
         html.push("\", -1); return false;' style='cursor:pointer;'>");
         html.push(traces[i].traceId);
         html.push("</a></td>");
+        */
 
         html.push("<td sorttable_customkey='" + traces[i].executionTime + "'>");
         html.push(traces[i].executionTime);

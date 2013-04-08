@@ -1,3 +1,6 @@
+/**
+ * Deprecated.
+ */
 var scatter;
 
 function updateScatter(start, end, scatter_data, targetId, limit) {

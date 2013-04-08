@@ -1,0 +1,853 @@
+var BigScatterChart = $.Class({
+	$init : function(htOption){
+		this.option({
+			'sContainerId' : '',
+			'nWidth': 600,
+			'nHeight': 400,
+			'nXMin': 0, 'nXMax': 100,
+			'nYMin': 0, 'nYMax': 100,
+			'nZMin': 0, 'nZMax': 1,
+			'nXSteps': 5,
+			'nYSteps': 5,
+			'nXLabel': null,
+			'nYLabel': null,
+			'nBubbleSize': 10,
+			'nPaddingTop' : 40,
+			'nPaddingRight' : 40,
+			'nPaddingBottom' : 30,
+			'nPaddingLeft' : 50,
+			'sLineColor' : '#000',			
+			'htTypeAndColor' : {
+				'Success' : '#2ca02c', // type name : color
+				'Failed' : '#d62728' // the order is asc, 
+			},
+			'sPrefix' : 'bigscatterchart-',
+			'nZIndexForCanvas' : 0,
+			'fXAxisFormat' : function(nXStep, i){
+				var nMilliseconds = (nXStep * i + this._nXMin),
+					sDate = new Date(nMilliseconds).toString("HH:mm");
+				return sDate; 
+			},
+			'fYAxisFormat' : function(nYStep, i){
+				return this._addComma((this._nYMax + this._nYMin) - ((nYStep*i) + this._nYMin));
+			}
+		});
+		this.option(htOption);
+			
+		this._initVariables();
+		this._initElements();
+		this._initEvents();
+		this._drawXYAxis();
+		this.updateXYAxis();
+	},
+
+	_initVariables : function(){		
+		this._aBubbles = [];
+		this._aBubbleStep = [];
+		
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nBubbleSize = this.option('nBubbleSize'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight');
+
+		this.option('nXSteps', this.option('nXSteps') - 1);
+		this.option('nYSteps', this.option('nYSteps') - 1);
+
+		if (this.option('nYLabel')) this._paddingLeft += 30;
+		if (this.option('nXLabel')) this._paddingBottom += 20;
+
+		this._nXWork = (nWidth - (nPaddingLeft + nPaddingRight)) - nBubbleSize * 2;
+		this._nYWork = (nHeight - (nPaddingTop + nPaddingBottom)) - nBubbleSize * 2;		
+		
+		this._nXMax = this.option('nXMax');
+		this._nXMin = this.option('nXMin');
+				
+		this._nYMax = this.option('nYMax');
+		this._nYMin = this.option('nYMin');
+		
+		this._nZMax = this.option('nZMax');
+		this._nZMin = this.option('nZMin');
+		
+		this._nXNumbers = [];
+		this._nYNumbers = [];		
+
+		this._htTypeCount = {};
+	},
+
+	_initElements : function(){
+		var self = this,
+			nXStep = this._nXWork / this.option('nXSteps'),
+			nYStep = this._nYWork / this.option('nYSteps'),
+			nHeight = this.option('nHeight'),
+			nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nBubbleSize = this.option('nBubbleSize'),
+			sLineColor = this.option('sLineColor'),
+			htType = this.option('htTypeAndColor'),
+			sPrefix = this.option('sPrefix'),
+			nZIndexForCanvas = this.option('nZIndexForCanvas');
+
+		// container
+		this._welContainer = $('#' + this.option('sContainerId'));					
+		this._welContainer.css({
+			'position' : 'relative',
+			'width' : this.option('nWidth'),
+			'height' : this.option('nHeight'),
+		});
+
+		// guide
+		this._welGuideCanvas = $('<canvas>')
+			.attr({
+				'width' : this.option('nWidth'),
+				'height' : this.option('nHeight')
+			}).css({
+				'position' : 'absolute',
+				'top' : 0
+			}).append($('<div>')
+				.width(this.option('nWidth'))
+				.height(this.option('nHeight'))
+				.text('Your browser does not support the canvas element, get a better one!')
+				.css({
+					'text-align': 'center',
+					'background-color': '#8b2e19',
+					'color': '#fff'
+				})
+			);
+		this._welGuideCanvas.appendTo(this._welContainer);
+		this._oGuideCtx = this._welGuideCanvas.get(0).getContext('2d');
+
+		// plot chart for bubbles
+		this._htwelChartCanvas = {};
+		this._htBubbleCtx = {};		
+		_.each(htType, function(sVal, sKey){
+			this._htwelChartCanvas[sKey] = $('<canvas>')
+				.addClass(sPrefix+sKey)
+				.attr({
+					'width' : this.option('nWidth'),
+					'height' : this.option('nHeight')
+				}).css({
+					'position' : 'absolute',
+					'top' : 0,
+					'z-index' : nZIndexForCanvas++
+				}).appendTo(this._welContainer);
+			this._htBubbleCtx[sKey] = this._htwelChartCanvas[sKey].get(0).getContext('2d');
+		}, this);
+
+		// overlay for all the labels
+		this._welOverlay = $('<div>').css({
+			'position': 'absolute',
+			'width': this.option('nWidth'),
+			'height': this.option('nHeight'),
+			'top': 0,
+			'font-family': 'Helvetica, Arial, sans-serif',
+			'z-index': 240
+		});
+		this._welOverlay.appendTo(this._welContainer);
+
+		// x axis
+		for(var i=0; i<=this.option('nXSteps'); i++){
+			this._nXNumbers.push($('<div>')
+				.text(' ')
+				.css({
+					'position': 'absolute',
+					'font-size': '10px',
+					'line-height': '20px',
+					'height': '20px',
+					'width': nXStep + 'px',
+					'text-align': 'center',
+					'top': (nHeight - nPaddingBottom + 10) + 'px',
+					'left': (nPaddingLeft + nBubbleSize) - (nXStep / 2) + i * nXStep + 'px',
+					'color': sLineColor
+				})
+			);
+		}
+
+		// y axis
+		for(var i=0; i<=this.option('nYSteps'); i++){
+			this._nYNumbers.push($('<div>')
+				.text(' ')
+				.css({
+					'position': 'absolute',
+					'font-size': '10px',
+					'line-height': '20px',
+					'height': '20px',
+					'vertical-align': 'middle',
+					'width': (nPaddingLeft - 15) + 'px',
+					'text-align': 'right',
+					'top': (nBubbleSize + (i * nYStep) + nPaddingTop - 10) + 'px',
+					'left': '0px',
+					'color': '#000'
+				})
+			);
+		}
+		this._welOverlay.append(this._nXNumbers);
+		this._welOverlay.append(this._nYNumbers);	
+		
+		// count per type to show up
+		this._welTypeUl = $('<ul>')
+			.css({
+				'float' : 'right',
+				'top' : '5px',
+				'right' : nPaddingRight,
+				'list-style' : 'none',
+				'font-size' : '12px'
+			});
+		this._htwelTypeLi = {};
+		this._htwelTypeSpan = {};
+		_.each(htType, function(sVal, sKey){
+			this._welTypeUl.append(
+				this._htwelTypeLi[sKey] = $('<li>')
+				.css({
+					'display' : 'inline-block',
+					'margin' : '0 10px',
+					'padding' : '0',
+					'color' : htType[sKey]
+				})
+				.text(sKey + ' : ')
+				.append(
+					this._htwelTypeSpan[sKey] = $('<span>')
+					.text('0')
+				)
+			);
+		}, this);
+		this._welTypeUl.appendTo(this._welOverlay);
+
+		var aChartCanvas = [];
+		_.each(this._htwelChartCanvas, function(welChartCanvas, sKey){
+			aChartCanvas.push(welChartCanvas);
+		});
+		this._welTypeUl.mousedown(function(event){
+			event.stopPropagation();
+		});
+		this._welTypeUl.sortable({
+			axis: 'x',
+			containment: "document",
+    		placeholder: sPrefix + 'placeholder',
+			start : function(event, ui){
+				$('.bigscatterchart-placeholder').append('<span>&nbsp;</span>');
+				ui.item.startIndex = ui.item.index();
+			},
+			stop : function(event,ui){
+				var nZIndexForCanvas = self.option('nZIndexForCanvas');
+        		var nStart = ui.item.startIndex,
+        			nStop = ui.item.index();
+
+        		var welStart = aChartCanvas[nStart];
+        		aChartCanvas.splice(nStart, 1); 
+        		aChartCanvas.splice(nStop, 0, welStart);
+        		
+        		for(var i=0, nLen=aChartCanvas.length; i<nLen; i++){
+        			aChartCanvas[i].css('z-index', nZIndexForCanvas+i);
+        		}
+			}
+		});
+
+		this._resetTypeCount();
+	},
+
+	_initEvents : function(){
+		var self = this;
+		_.each(this._htwelTypeLi, function(welTypeLi, sKey){
+			welTypeLi.css( 'cursor', 'pointer')
+				.click(function(){
+					this._htwelChartCanvas[sKey].toggle();
+					if(!welTypeLi.hasClass('strike')){
+						welTypeLi.addClass('strike')
+						welTypeLi.css('text-decoration', 'line-through');					
+					}else{
+						welTypeLi.removeClass('strike')
+						welTypeLi.css('text-decoration', 'none');
+					};
+				}.bind(this));
+		}, this);
+
+		this._welContainer.dragToSelect({
+		    onHide: function (welSelectBox) {
+		    	var htPosition = self._adjustSelectBoxForChart(welSelectBox),
+		        	htXY = self._parseCoordinatesToXY(htPosition);
+
+		        self._welSelectBox = welSelectBox;
+
+				var fOnSelect = self.option('fOnSelect');
+				if(_.isFunction(fOnSelect)){
+					fOnSelect.call(self, htPosition, htXY);
+				}
+		    }
+		});
+	},
+
+
+	_moveSelectBox : function(nXGap){
+		if(!this._welSelectBox) return;
+		if(this._welSelectBox.width() < 2) return;
+
+		var nPositionXGap = (nXGap / (this._nXMax - this._nXMin)) * this._nXWork;
+		
+		var nLeft = parseInt(this._welSelectBox.css('left'), 10),
+			nWidth = this._welSelectBox.width(),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nBubbleSize = this.option('nBubbleSize'),
+			nXMin = nPaddingLeft + nBubbleSize;
+
+		var nNewLeft = nLeft - nPositionXGap;
+
+		if(nLeft > nXMin){
+			if(nNewLeft > nXMin){
+				this._welSelectBox.css('left', nNewLeft);
+			}else{
+				this._welSelectBox.css('left', nXMin);
+				this._welSelectBox.width(nWidth + nNewLeft);
+			}
+		}else{
+			this._welSelectBox.width(nWidth - nPositionXGap);
+		}
+
+		if(nLeft - nPositionXGap > nPaddingLeft + nBubbleSize){
+			this._welSelectBox.css('left', nLeft - nPositionXGap);
+		}else{
+			
+		}
+	},
+
+	_adjustSelectBoxForChart : function(welSelectBox){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight'),
+			nBubbleSize = this.option('nBubbleSize');
+
+		var nMinLeft = nPaddingLeft + nBubbleSize,
+			nMaxRight = nWidth - nPaddingRight - nBubbleSize,
+			nMinTop = nPaddingTop + nBubbleSize,
+			nMaxBottom = nHeight - nPaddingBottom - nBubbleSize;
+
+    	var nLeft = parseInt(welSelectBox.css('left'), 10),
+    		nRight = nLeft + welSelectBox.width(),
+    		nTop = parseInt(welSelectBox.css('top'), 10),
+    		nBottom = nTop + welSelectBox.height();
+
+    	if(nLeft < nMinLeft) { nLeft = nMinLeft; }
+    	if(nRight > nMaxRight) { nRight = nMaxRight; }
+    	if(nTop < nMinTop) { nTop = nMinTop; }
+    	if(nBottom > nMaxBottom) { nBottom = nMaxBottom; }
+
+    	welSelectBox.animate({
+    		'left' : nLeft,
+    		'width' : nRight - nLeft,
+    		'top' : nTop,
+    		'height' : nBottom - nTop
+    	}, 200);
+    	var htPosition = {
+    		'nLeft' : nLeft,
+    		'nWidth' : nRight - nLeft,
+    		'nTop' : nTop,
+    		'nHeight' : nBottom - nTop
+    	}
+    	return htPosition;
+	},
+
+	_parseCoordinatesToXY : function(htPosition){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight'),
+			nBubbleSize = this.option('nBubbleSize');
+
+		var htXY = {
+			'nXFrom' : htPosition.nLeft - nPaddingLeft - nBubbleSize,
+			'nXTo' : htPosition.nLeft + htPosition.nWidth - nPaddingLeft - nBubbleSize,
+			'nYFrom' : (nHeight - (nPaddingBottom + nBubbleSize)) - (htPosition.nTop + htPosition.nHeight),
+			'nYTo' : (nHeight - (nPaddingBottom + nBubbleSize)) - (htPosition.nTop)
+		};	
+
+		htXY.nXFrom = this._parseMouseXToXData(htXY.nXFrom);
+		htXY.nXTo = this._parseMouseXToXData(htXY.nXTo);
+		htXY.nYFrom = this._parseMouseYToYData(htXY.nYFrom);
+		htXY.nYTo = this._parseMouseYToYData(htXY.nYTo);
+		return htXY;
+	},
+
+	_drawXYAxis : function(){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nBubbleSize = this.option('nBubbleSize'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight'),
+			sLineColor = this.option('sLineColor');
+
+		this._oGuideCtx.lineWidth = 2;
+		this._oGuideCtx.lineCap = 'round';
+	  	this._oGuideCtx.strokeStyle = sLineColor;
+	  	this._oGuideCtx.beginPath();
+	  	this._oGuideCtx.moveTo(nPaddingLeft, nPaddingTop);
+		this._oGuideCtx.lineTo(nPaddingLeft, nHeight - nPaddingBottom);
+		this._oGuideCtx.lineTo(nWidth - nPaddingRight, nHeight - nPaddingBottom);
+	  	this._oGuideCtx.stroke();
+
+		var nXStep = this._nXWork / this.option('nXSteps');
+		var nYStep = this._nYWork / this.option('nYSteps');
+
+		for(var i=0; i<=this.option('nXSteps'); i++){
+			var mov = nPaddingLeft + nBubbleSize + nXStep * i;
+			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.setLineDash([0]);
+			this._oGuideCtx.globalAlpha = 1;
+	  		this._oGuideCtx.beginPath();
+			this._oGuideCtx.moveTo(mov, nHeight - nPaddingBottom);
+			this._oGuideCtx.lineTo(mov, nHeight - nPaddingBottom + 10);
+			this._oGuideCtx.stroke();
+
+			// x 축 가이드라인
+			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.setLineDash([2,5]);
+			this._oGuideCtx.globalAlpha = 0.2;
+			this._oGuideCtx.beginPath();
+			this._oGuideCtx.moveTo(mov, nPaddingTop);
+			this._oGuideCtx.lineTo(mov, nHeight - nPaddingBottom);
+			this._oGuideCtx.stroke();
+		}
+
+		for(var i=0; i<=this.option('nYSteps'); i++){
+			var mov = nHeight - (nPaddingBottom + nBubbleSize + nYStep * i);
+			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.setLineDash([0]);
+			this._oGuideCtx.globalAlpha = 1;			
+			this._oGuideCtx.beginPath();
+		  	this._oGuideCtx.moveTo(nPaddingLeft, mov);
+			this._oGuideCtx.lineTo(nPaddingLeft - 10, mov);
+			this._oGuideCtx.stroke();
+
+			// y 축 가이드라인
+			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.setLineDash([2,5]);
+			this._oGuideCtx.globalAlpha = 0.2;
+			this._oGuideCtx.beginPath();
+			this._oGuideCtx.moveTo(nPaddingLeft, mov);
+			this._oGuideCtx.lineTo(nWidth - nPaddingRight, mov);			
+			this._oGuideCtx.stroke();
+		}
+	},
+
+	updateXYAxis: function(nXMin, nXMax, nYMin, nYMax) {
+		if(_.isNumber(nXMin)){ this._nXMin = this.option('nXMin', nXMin); }
+		if(_.isNumber(nXMax)){ this._nXMax = this.option('nXMin', nXMax); }
+		if(_.isNumber(nYMin)){ this._nYMin = this.option('nYMin', nYMin); }
+		if(_.isNumber(nYMin)){ this._nYMax = this.option('nYMax', nYMax); }
+		
+		var fXAxisFormat = this.option('fXAxisFormat'),
+			nXStep = (this._nXMax - this._nXMin) / this.option('nXSteps');
+		_.each(this._nXNumbers, function(el, i){
+			if(_.isFunction(fXAxisFormat)){
+				el.text(fXAxisFormat.call(this, nXStep, i));
+			}else{
+				el.text((xstep * i + this._nXMin).round());
+			}
+		}, this);
+		
+		var fYAxisFormat = this.option('fYAxisFormat'),
+			nYStep = (this._nYMax - this._nYMin) / this.option('nYSteps');
+		_.each(this._nYNumbers, function(el, i){
+			if(_.isFunction(fXAxisFormat)){
+				el.text(fYAxisFormat.call(this, nYStep, i));
+			}else{
+				el.text(this._addComma((this._nYMax + this._nYMin) - ((nYStep*i) + this._nYMin)));
+			}
+		}, this)
+	},	
+
+	setBubbles : function(aBubbles){
+		this._aBubbles = [];
+		this._aBubbleStep = [];
+
+		this.addBubbles(aBubbles);
+	},
+
+	addBubbles : function(aBubbles, htTypeCount){
+		if(_.isArray(this._aBubbles) === false) return;
+		this._aBubbles.push(aBubbles);
+		var htTypeCount = htTypeCount || this._countPerType(aBubbles);
+		var htBubble = {
+			'nXMin' : aBubbles[0].x,
+			'nXMax' : aBubbles[aBubbles.length - 1].x,
+			'nYMin' : (_.min(aBubbles, function(a){ return a.y; })).y,
+			'nYMax' : (_.max(aBubbles, function(a){ return a.y; })).y,
+			'nLength' : aBubbles.length,
+			'htTypeCount' : {}
+		};
+		var htType = this.option('htTypeAndColor');
+		_.each(htType, function(sVal, sKey){
+			htBubble.htTypeCount[sKey] = htTypeCount[sKey];
+		}, this);		
+
+		this._aBubbleStep.push(htBubble);
+	},
+
+	_countPerType : function(aBubbles){
+		var aBubbles = aBubbles,
+			htTypeCount = {};		
+
+		if(_.isArray(aBubbles) && aBubbles.length > 0){
+			for(var i=0, nLen=aBubbles.length; i<nLen; i++){
+				if(_.isNumber(htTypeCount[aBubbles[i].type]) === false){
+					htTypeCount[aBubbles[i].type] = 0;
+				}
+				htTypeCount[aBubbles[i].type] += 1;
+			}
+		}
+		_.each(htTypeCount, function(sVal, sKey){
+			this._htTypeCount[sKey] += htTypeCount[sKey];
+		}, this);
+		return htTypeCount;
+	},
+
+	_resetTypeCount : function(){
+		this._htTypeCount = {};
+		var htType = this.option('htTypeAndColor');
+		_.each(htType, function(sVal, sKey){
+			this._htTypeCount[sKey] = 0;
+		}, this);
+	},
+
+	_recountAllPerType : function(){
+		var aBubbles = this._aBubbles;
+
+		this._resetTypeCount();
+
+		for(var i=0, nLen=aBubbles.length; i<nLen; i++){
+			for(var j=0, nLen2=aBubbles[i].length; j<nLen2; j++){
+				this._htTypeCount[aBubbles[i][j].type] += 1;
+			}
+		}
+		return this._htTypeCount;
+	},
+
+	_showTypeCount : function(){
+		_.each(this._htTypeCount, function(sVal, sKey){
+			this._htwelTypeSpan[sKey].text(this._addComma(sVal));
+		}, this);	
+	},
+
+	_addComma : function(nNumber){
+		var sNumber = nNumber + '';
+		var sPattern = /(-?[0-9]+)([0-9]{3})/;
+		while(sPattern.test(sNumber)) {
+			sNumber = sNumber.replace(sPattern,"$1,$2");
+		}
+		return sNumber;
+	},
+
+	_removeComma : function(sNumber){
+		return parseInt(sNumber.replace(/\,/g, ''), 10);
+	},
+
+	redrawBubbles : function() {	
+		this._recountAllPerType();
+		this._showTypeCount();		
+		this.updateXYAxis();
+
+		for(var i=0, nLen = this._aBubbles.length; i<nLen; i++){
+			this._drawBubbules(this._aBubbles[i]);
+		}
+	},	
+
+	clear : function(){
+		var nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight'),
+			htType = this.option('htTypeAndColor');
+
+		_.each(htType, function(sVal, sKey){
+			this._htBubbleCtx[sKey].clearRect(nPaddingLeft + 2, 0, nWidth, nHeight - (nPaddingBottom + 2));
+		}, this);		
+		this._resetTypeCount();
+		this._aBubbles = [];
+		this._aBubbleStep = [];
+	},
+
+	addBubbleAndDraw : function(aBubbles){
+		if(_.isArray(aBubbles) === false || aBubbles.length === 0){
+			return;
+		}
+
+		this.addBubbles(aBubbles);
+		this._showTypeCount();	
+		this._drawBubbules(aBubbles);
+	},
+
+	_drawBubbules : function(aBubbles){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),
+			nBubbleSize = this.option('nBubbleSize'),
+			htTypeAndColor = this.option('htTypeAndColor');
+
+		//this._oChartCtx.lineWidth = 1;
+		for(var i = 0, nLen = aBubbles.length; i < nLen; i++) {
+			var x = this._parseXDataToXChart(aBubbles[i].x),
+				y = this._parseYDataToYChart(aBubbles[i].y),
+				r = this._parseZDataToZChart(aBubbles[i].r),
+				a = aBubbles[i].y / this._nYMax * 0.7,
+				sThisType = aBubbles[i].type;
+		
+			this._htBubbleCtx[sThisType].beginPath();
+			// this._htBubbleCtx[sThisType].globalAlpha = 0.8;
+			this._htBubbleCtx[sThisType].fillStyle = htTypeAndColor[sThisType];
+			this._htBubbleCtx[sThisType].strokeStyle = htTypeAndColor[sThisType];
+			this._htBubbleCtx[sThisType].arc(x, y, r, 0, Math.PI * 2, true);
+			this._htBubbleCtx[sThisType].globalAlpha = 0.3 + a;			
+			//this._htBubbleCtx[sThisType].stroke();
+			this._htBubbleCtx[sThisType].fill();
+			
+			aBubbles[i].realx = x; aBubbles[i].realy = y; aBubbles[i].realz = r;
+		}		
+	},
+
+	_parseXDataToXChart : function(nX){
+		var nPaddingLeft = this.option('nPaddingLeft'),
+			nBubbleSize = this.option('nBubbleSize');
+		return Math.round(((nX - this._nXMin) / (this._nXMax - this._nXMin)) * this._nXWork) + nPaddingLeft + nBubbleSize;
+	},
+ 
+	_parseMouseXToXData : function(nX){
+		return Math.round((nX / this._nXWork) * (this._nXMax - this._nXMin)) + this._nXMin;
+	},
+
+	_parseYDataToYChart : function(nY){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nBubbleSize = this.option('nBubbleSize');
+		return Math.round(this._nYWork - (((nY - this._nYMin) / (this._nYMax - this._nYMin)) * this._nYWork)) + nPaddingTop + nBubbleSize;
+	},
+
+	_parseMouseYToYData : function(nY){
+		return Math.round((nY / this._nYWork) * (this._nYMax - this._nYMin));
+	},
+
+	_parseZDataToZChart : function(nZ){
+		var nBubbleSize = this.option('nBubbleSize');		
+		return Math.round(((nZ - this._nZMin) / (this._nZMax - this._nZMin)) * (nBubbleSize));
+	},
+
+	addBubbleAndMoveAndDraw : function(aBubbles, nXMax){
+		var nPaddingTop = this.option('nPaddingTop'),
+			nPaddingLeft = this.option('nPaddingLeft'),
+			nPaddingBottom = this.option('nPaddingBottom'),
+			nPaddingRight = this.option('nPaddingRight'),r
+			nBubbleSize = this.option('nBubbleSize'),
+			nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight');
+
+		if(_.isArray(aBubbles) === false || aBubbles.length === 0){
+			return;
+		}
+		if(nXMax > this._nXMax){
+			var nXGap = nXMax - this._nXMax;
+			var nX = nXGap + this._nXMin;
+			var nXWidth = Math.round(((nX - this._nXMin) / (this._nXMax - this._nXMin)) * this._nXWork);
+			this._moveSelectBox(nXGap);
+			this._moveChartLeftwardly(nPaddingLeft + nBubbleSize + nXWidth, 0, nWidth-nXWidth, nHeight - (nPaddingBottom + nBubbleSize), nXWidth);
+			this._nXMax = nXMax;
+			this._nXMin += nXGap;
+			this._removeOldDataLessThan(this._nXMin);
+		}		
+		this.addBubbles(aBubbles);
+		this._showTypeCount();
+		this._drawBubbules(aBubbles); // 평균 33 ~ 45 ms 걸림
+		//this.redrawBubbles(); // 평균 2629 ~ 3526 ms 걸림, 90~100배 차이
+		this.updateXYAxis();
+
+		// _drawBubbules: 35.000ms 
+		// _drawBubbules: 44.000ms 
+		// _drawBubbules: 43.000ms 
+		// _drawBubbules: 43.000ms 
+		// _drawBubbules: 45.000ms 
+		// _drawBubbules: 36.000ms 
+		// _drawBubbules: 37.000ms 
+		// _drawBubbules: 36.000ms 
+		// _drawBubbules: 33.000ms 
+		// 
+		// redrawBubbles: 3468.000ms 
+		// redrawBubbles: 3526.000ms 
+		// redrawBubbles: 3481.000ms 
+		// redrawBubbles: 3446.000ms 
+		// redrawBubbles: 3478.000ms 
+		// redrawBubbles: 3425.000ms 
+		// redrawBubbles: 2784.000ms 
+		// redrawBubbles: 2685.000ms 
+		// redrawBubbles: 2629.000ms 
+	},
+
+	_removeOldDataLessThan : function(nX){
+		// 여기서 조금 느려질 수 있다.
+		// 하지만 그리는데 지장이 없기에 괜찮을 것 같다.
+		// 워커를 사용하였지만, 전체 배열을 주고 받는 시간도 오래걸린다 
+		var aBubbles = this._aBubbles || [],
+			aIndexToBeRemoved = [],
+			htType = this.option('htTypeAndColor');
+
+		outerLoop:
+		for(var i = 0, nLen = aBubbles.length; i < nLen; i++) {
+			var htTypeCountToBeRemoved = {};			
+			_.each(htType, function(sVal, sKey){
+				htTypeCountToBeRemoved[sKey] = 0;
+			}, this);
+
+			if(this._aBubbleStep[i].nXMin <= nX){
+				for(var j=0, nLen2 = aBubbles[i].length; j<nLen2; j++){
+					htTypeCountToBeRemoved[aBubbles[i][j].type] += 1;
+					if(aBubbles[i][j].x > nX || j === nLen2-1){
+						aBubbles[i].splice(0, j+1);
+						this._aBubbleStep[i].nXMin = nX;
+						this._aBubbleStep[i].nLength = aBubbles[i].length;
+
+						_.each(htTypeCountToBeRemoved, function(sVal, sKey){
+							this._aBubbleStep[i]['htTypeCount'][sKey] -= sVal;
+							this._htTypeCount[sKey] -= sVal;
+						}, this);
+
+						if(aBubbles[i].length === 0){
+							aIndexToBeRemoved.push(i);							
+						}
+						break outerLoop;
+					}
+				}
+			}
+		}
+		for(var i=0, nLen=aIndexToBeRemoved.length; i<nLen; i++){
+			aBubbles.splice(aIndexToBeRemoved[i], 1);
+			this._aBubbleStep.splice(aIndexToBeRemoved[i], 1);							
+		}
+		return;
+	},
+
+	_moveChartLeftwardly : function(x, y, width, height){
+		var nPaddingLeft = this.option('nPaddingLeft'),
+			nBubbleSize = this.option('nBubbleSize'),
+			htType = this.option('htTypeAndColor');
+
+		_.each(htType, function(sVal, sKey){
+			var aImgData = this._htBubbleCtx[sKey].getImageData(x, y, width, height);
+			this._htBubbleCtx[sKey].putImageData(aImgData, nPaddingLeft+nBubbleSize, 0);
+		}, this);		
+	},
+
+	getDataByXY : function(nXFrom, nXTo, nYFrom, nYTo){
+		var aBubbleStep = this._aBubbleStep,
+			aBubbles = this._aBubbles,
+			aData = [],
+			bStarted = false;
+
+		var aVisibleType = [];
+		_.each(this._htwelTypeLi, function(welTypeLi, sKey){
+			if(welTypeLi.css( 'text-decoration') == 'none'){
+				aVisibleType.push(sKey);
+			}
+		}, this);
+
+		// console.time('getDataByXY');
+		// 열심히 성능 개선하려 시도하였지만, 그닥 빨라지지 않는다, 오히려 약간 오래 걸림 -_-;;
+		for(var i=0, nLen=aBubbleStep.length; i<nLen; i++){
+			if(nXFrom <= aBubbleStep[i].nXMin && nXTo >= aBubbleStep[i].nXMax
+				&& nYFrom <= aBubbleStep[i].nYMin && nYTo >= aBubbleStep[i].nYMax){ // xFrom -- min ======= max ---- nTo
+				aData = aData.concat(aBubbles[i]);
+			// }else if(nXFrom >= aBubbleStep[i].nXMin && nXFrom <= aBubbleStep[i].nXMax){ // min ----- xFrom ====== max
+			// 	for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
+			// 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo){ // 같은 시간대가 여러개 나올 수 있지만 처음꺼 기준.
+			// 			//aData = aData.concat(aBubbles[i].slice(j));
+			// 			//break;
+			// 			if(nYFrom <= aBubbles[i][j].y && nYTo >= aBubbles[i][j].y){
+			// 				console.log('a', i, j);
+			// 				aData.push(aBubbles[i][j]);
+			// 			}
+			// 		}
+			// 	}
+			// }else if(nXTo >= aBubbleStep[i].nXMin && nXTo <= aBubbleStep[i].nXMax){ // min ====== xTo ---- max
+			// 	for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
+			// 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo){
+			// 			//aData = aData.concat(aBubbles[i].slice(0, j-1)); // 같은 시간대가 여러개 있을 수 있으므로 마지막 기준.
+			// 			//break;
+			// 			if(nYFrom <= aBubbles[i][j].y && nYTo >= aBubbles[i][j].y){
+			// 				console.log('b', i, j);
+			// 				aData.push(aBubbles[i][j]);
+			// 			}
+			// 		}
+			// 	}
+			// }else if(nXFrom >= aBubbleStep[i].nXMin || nXTo <= aBubbleStep[i].nXMax){
+			// 	console.log('i', i, aBubbleStep[i].nXMin, aBubbleStep[i].nXMax);
+			// 	for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
+			// 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
+			// 			&& aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo){
+			// 			console.log('b', i, j);
+			// 			aData.push(aBubbles[i][j]);
+			// 		}
+			// 	}
+			// }else if((nXFrom >= aBubbleStep[i].nXMin && nXFrom <= aBubbleStep[i].nXMax) || bStarted){
+			// 	bStarted = true;
+			// 	if(nXTo >= aBubbleStep[i].nXMin){
+			// 		console.log('i', i);
+			// 		for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
+			// 			if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
+			// 				&& aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo){
+			// 				//console.log('c', i, j);
+			// 				aData.push(aBubbles[i][j]);
+			// 			}
+			// 		}	
+			// 	}else{
+			// 		break;
+			// 	}
+			}else{
+				for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
+					if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
+						&& aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo
+						&& _.indexOf(aVisibleType, aBubbles[i][j].type) >= 0){
+						aData.push(aBubbles[i][j]);
+					}
+				}	
+			}
+		}
+		// console.timeEnd('getDataByXY');
+		return aData;
+	},
+
+	destroy : function(){
+		this._welContainer.empty();
+		delete this._welTypeUl;
+		delete this._aBubbles;
+		delete this._aBubbleStep;
+		delete this._htBubbleCtx;
+		delete this._htTypeCount;
+		delete this._htwelChartCanvas;
+		delete this._htwelTypeLi;
+		delete this._htwelTypeSpan;
+		delete this._nXMax;
+		delete this._nXMin;
+		delete this._nXNumbers;
+		delete this._nXWork;
+		delete this._nYMax;
+		delete this._nYMin;
+		delete this._nYNumbers;
+		delete this._nYWork;
+		delete this._nZMax;
+		delete this._nZMin;
+		delete this._oGuideCtx;
+		delete this._welContainer;
+		delete this._welGuideCanvas;
+		delete this._welOverlay;
+		delete this._welTypeUlv
+		// delete this.htOption;
+		// delete this.__proto__;
+		// delete this;
+	}
+});
