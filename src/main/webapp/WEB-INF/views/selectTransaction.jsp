@@ -402,7 +402,7 @@
     };
 
     $(document).ready(function () {
-        drawSpringy(data, "#springygraph", 960, 500);
+        drawSpringy("", data, "#springygraph", 960, 500);
         $('#chartTabs a:first').tab('show');
         $('#traceTabs a:first').tab('show');
     });
