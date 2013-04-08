@@ -164,6 +164,7 @@ public class HelloWorldController implements DisposableBean {
 
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.executeToBloc("http://very.very.very.long.long.url/", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
