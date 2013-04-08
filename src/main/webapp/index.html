@@ -377,6 +377,7 @@ $(document).ready(function () {
 				<ul>
 					<li>${serviceType}</li>
 				</ul>
+			{{if hosts.length > 0}}
 			Hosts
 				<ul>
 					{{each(key, value) hosts}}
@@ -387,6 +388,8 @@ $(document).ready(function () {
 						</li>
 					{{/each}}
 				</ul>
+			{{/if}}
+			{{if agents.length > 0}}
 			Server instances
 				<ul>
 					{{each(key, value) agents}}
@@ -398,6 +401,7 @@ $(document).ready(function () {
 					</li>
 					{{/each}}
 				</ul>
+			{{/if}}
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1001);"></i>
