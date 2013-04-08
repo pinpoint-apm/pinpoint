@@ -24,7 +24,8 @@ jQuery.fn.hippoServerMap = function(params) {
 		sNodeBgHoverToColor = params.sNodeBgHoverToColor || 'rgba(255, 255, 255, 1)',
 		sNodeBorderToHoverColor = params.sNodeBorderToHoverColor || '#28a1f7',
 		sNodeBgColor = params.sNodeBgColor || 'rgba(255, 255, 255, 0.5)',
-		sNodeBgHoverColor = params.sNodeBgHoverColor || 'rgba(255, 255, 255, 1)';
+		sNodeBgHoverColor = params.sNodeBgHoverColor || 'rgba(255, 255, 255, 1)',
+		sNodeBgKeyColor = params.sNodeBgKeyColor || 'rgba(255, 255, 255, 1)';
 	var nZoomGap = params.nZoomGap || 100,
 		nZoomMaxGap = params.nZoomGap || 500;
 
@@ -381,12 +382,16 @@ jQuery.fn.hippoServerMap = function(params) {
 			ctx.drawImage(image, s.x - image.width / 2, s.y - image.height / 1, image.width, image.height);
 
 			var textX = s.x - textWidth / 2 + 5;
-			var textY = s.y + image.height/3;			
+			var textY = s.y + image.height / 3;			
 
-			ctx.textAlign = "left";
+			// ctx.textAlign = "left";
 			ctx.textBaseline = "top";
-			ctx.fillStyle = "#000000";
-			ctx.font = "14px Verdana, sans-serif";
+			ctx.fillStyle = "#222222";
+			if(node.data.key) {
+				ctx.font = "14px bold Verdana, sans-serif";
+			} else {
+				ctx.font = "12px Verdana, sans-serif";
+			}
 			var text = typeof(node.data.label) !== 'undefined' ? node.data.label : node.id;
 			ctx.fillText(text, textX, textY);
 

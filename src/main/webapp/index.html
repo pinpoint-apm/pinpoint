@@ -284,7 +284,7 @@ $(document).ready(function () {
 	// TODO 조회 버튼을 두 번 연속 눌렀을 때 앞서 수행되던 결과는 취소시켜야 함.
 	// 예를 들어 1일치 조회하다가 모두 조회 되기 전에 30분 데이터 조회할 때...
     function updateCharts() {
-		var applicationName = $("#application").val();
+		var applicationName = $("#application").val().split("@")[0];
     	if(applicationName == "") {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;

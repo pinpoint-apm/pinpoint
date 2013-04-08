@@ -16,7 +16,7 @@ function showServerMap(applicationName) {
     	if (data.graphdata.nodes.length == 0) {
         	hideIndicator();
     	}
-        drawSpringy(data.graphdata, "#springygraph", 1100, 500);
+        drawSpringy(applicationName, data.graphdata, "#springygraph", 1100, 500);
     	hideIndicator();
     	
     	$("#springygraph").css("display", "");
@@ -29,7 +29,7 @@ function showServerMap(applicationName) {
     }
 }
 
-function drawSpringy(graphdata, targetId, width, height) {
+function drawSpringy(applicationName, graphdata, targetId, width, height) {
 	// $(targetId).attr("width", width);
 	// $(targetId).attr("height", height);
 
@@ -43,6 +43,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 
 	for(var i=0; i<aNodes.length; i++){
 		aoNodes[i] = graph.newNode({
+									key : (aNodes[i].name == applicationName) ? true : false,
 									id : i,
 									label: aNodes[i].name, 
 									serviceType : aNodes[i].serviceType,
@@ -121,6 +122,7 @@ function drawSpringy(graphdata, targetId, width, height) {
 			sEdgeColor : '#8f8f8f',
 			sEdgeSelectedColor : '#28a1f7',
 			sEdgeBoxColor : '#000000',
+			sNodeBgKeyColor : '#FFCCCC',
 			nEdgeWeight : 1
 		});
 	});
