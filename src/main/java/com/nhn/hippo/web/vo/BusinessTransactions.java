@@ -10,7 +10,6 @@ import com.profiler.common.bo.SpanBo;
 public class BusinessTransactions {
 
 	private final Map<String, BusinessTransaction> transactions = new HashMap<String, BusinessTransaction>();
-	private Iterator<Entry<String, BusinessTransaction>> iterator;
 
 	public void add(SpanBo span) {
 		String rpc = span.getRpc();
@@ -22,7 +21,7 @@ public class BusinessTransactions {
 	}
 
 	public Iterator<BusinessTransaction> getBusinessTransactionIterator() {
-		iterator = transactions.entrySet().iterator();
+		final Iterator<Entry<String, BusinessTransaction>> iterator = transactions.entrySet().iterator();
 
 		return new Iterator<BusinessTransaction>() {
 			@Override
@@ -41,6 +40,4 @@ public class BusinessTransactions {
 			}
 		};
 	}
-
-
 }

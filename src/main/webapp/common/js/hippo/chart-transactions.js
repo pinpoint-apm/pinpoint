@@ -1,18 +1,16 @@
 function showRequests(applicationName) {
-    $("#businessTransactions TBODY").empty();
-    $("#businessTransactionsDetail TBODY").empty();
-    
-    var businessTransactionCallback = function(data) {
-    	showTransactionList(data.businessTransactions);
-    };
-    
+	var app = applicationName.split("@");
     if (isQueryFromNow()) {
-        getLastBusinessTransactionsData(applicationName, getQueryPeriod(), businessTransactionCallback);
+    	var begin = getQueryStartTime();
+    	var end = getQueryEndTime();
+    	window.open("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end);
     } else {
-        getBusinessTransactionsData(applicationName, getQueryStartTime(), getQueryEndTime(), businessTransactionCallback);
+    	var period = getQueryPeriod();
+    	window.open("/getLastBusinessTransactionsData.hippo?application=" + app[0] + "&period=" + period);
     }
 }
 
+/*
 var transactionsCache;
 var prevDetaildRow;
 
@@ -74,13 +72,11 @@ function openTransactionDetails(index, row) {
         html.push(formatDate(new Date(traces[i].timestamp)));
         html.push("</a></td>");
 
-        /*
         html.push("<td><a href='#' onclick='openTrace(\"");
         html.push(traces[i].traceId);
         html.push("\", -1); return false;' style='cursor:pointer;'>");
         html.push(traces[i].traceId);
         html.push("</a></td>");
-        */
 
         html.push("<td sorttable_customkey='" + traces[i].executionTime + "'>");
         html.push(traces[i].executionTime);
@@ -90,3 +86,4 @@ function openTransactionDetails(index, row) {
     }
     $("#businessTransactionsDetail TBODY").append(html.join(''));
 }
+*/

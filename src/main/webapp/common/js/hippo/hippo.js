@@ -41,16 +41,6 @@ function getRealtimeScatterData(application, begin, callback) {
 	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
 }
 
-function getBusinessTransactionsData(application, begin, end, callback) {
-	var application = $("#application").val().split("@")[0];
-	d3.json("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-}
-
-function getLastBusinessTransactionsData(application, period, callback) {
-    var app = application.split("@");
-	d3.json("/getLastBusinessTransactionsData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
-}
-
 function getQueryPeriod() {
 	return $("#period").find("button.active").val().split(",") * 1000 * 60;
 }

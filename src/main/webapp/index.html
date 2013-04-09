@@ -9,6 +9,7 @@
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
+    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
@@ -191,6 +192,7 @@
 				</div>
 			</div>
 			
+			<!-- 
 			<ul class="nav nav-tabs" id="transactionTabs">
 				<li class="active">
 					<a href="#BusinessTransactionList" data-toggle="tab">Requests <i class="hippo-action-icon icon-resize-full" onclick="expandToNewWindow();"></i> <i class="hippo-action-icon icon-question-sign" onclick="help(2002);"></i></a>
@@ -217,9 +219,7 @@
 		                <tr>
 		                    <th>#</th>
 		                    <th class="sorttable_numeric">Time</th>
-		                    <!-- 
 		                    <th>TraceId</th>
-		                    -->
 		                    <th class="sorttable_numeric">Response Time (ms)</th>
 		                </tr>
 		                </thead>
@@ -228,6 +228,7 @@
 		            </table>
 				</div>
 			</div>
+			-->
 		</div>
     </div>
     
@@ -291,7 +292,6 @@ $(document).ready(function () {
     	}
     	
     	showServerMap(applicationName);
-    	showRequests(applicationName);
     	showResponseScatter(applicationName);
     }
     

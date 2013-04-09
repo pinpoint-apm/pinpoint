@@ -11,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="/common/css/hippo/hippo.css" rel="stylesheet">
+    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
 

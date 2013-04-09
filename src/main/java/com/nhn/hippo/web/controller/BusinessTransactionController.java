@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -59,8 +60,12 @@ public class BusinessTransactionController extends BaseController {
 
 		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to);
 
-		model.addAttribute("businessTransactions", selectBusinessTransactions.getBusinessTransactionIterator());
-
+		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
+		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
+		model.addAttribute("applicationName", applicationName);
+		model.addAttribute("from", new Date(from));
+		model.addAttribute("to", new Date(to));
+		
 		addResponseHeader(response);
 		return "businesstransactions";
 	}
