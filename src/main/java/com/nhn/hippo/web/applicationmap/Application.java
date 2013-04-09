@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.applicationmap;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.profiler.common.ServiceType;
@@ -76,6 +77,27 @@ public class Application implements Comparable<Application> {
 		return serviceType;
 	}
 
+	public String getJson() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("{ ");
+		sb.append("\"sequence\" : ").append(sequence).append(",");
+		sb.append("\"applicationName\" : \"").append(applicationName).append("\",");
+		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
+		sb.append("\"agents\" : [ ");
+		Iterator<AgentInfoBo> iterator = agents.iterator();
+		while (iterator.hasNext()) {
+			sb.append(iterator.next().getJson());
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
+		sb.append(" ]");
+		sb.append(" }");
+
+		return sb.toString();
+	}
+	
 	@Override
 	public int compareTo(Application server) {
 		return id.compareTo(server.id);

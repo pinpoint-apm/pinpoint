@@ -46,9 +46,10 @@ function drawSpringy(applicationName, graphdata, targetId, width, height) {
 									key : (aNodes[i].name == applicationName) ? true : false,
 									id : i,
 									label: aNodes[i].name, 
-									serviceType : aNodes[i].serviceType,
 									width : 100,
 									height : 80,
+									rawdata : aNodes[i],
+									serviceType : aNodes[i].serviceType,
 									hosts : aNodes[i].hosts,
 									agents : aNodes[i].agents,
 									onMouseOver : function(e){
@@ -87,6 +88,7 @@ function drawSpringy(applicationName, graphdata, targetId, width, height) {
 																					error : aLinks[i]['error'],
 																					slow : aLinks[i]['slow'],
 																					histogram : aLinks[i]['histogram'],
+																					rawdata : aLinks[i],
 																					onMouseOver : function(e){
 																						$('#console').val('Edge onMouseOver : ' + this.id + '\r' + $('#console').val());
 																					},

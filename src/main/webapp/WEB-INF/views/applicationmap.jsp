@@ -29,6 +29,8 @@
 	    {
 			"source" : ${link.from.sequence},
 			"target" : ${link.to.sequence},
+			"sourceinfo" : ${link.from.json},
+			"targetinfo" : ${link.to.json},
 			"value" : ${link.histogram.totalCount},
 			"error" : ${link.histogram.errorCount},
 			"slow" : ${link.histogram.slowCount},
