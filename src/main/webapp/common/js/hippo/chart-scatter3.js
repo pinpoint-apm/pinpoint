@@ -1,4 +1,9 @@
 function showResponseScatter(applicationName) {
+	if (oScatterChart) {
+		oScatterChart.clear();
+	}
+	$("#scattercharttitle").text("'" + applicationName + "' response scatter")
+	$("#scattercharttitle").show();
 	drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "scatterchart");
     if (isQueryFromNow()) {
 		getLastScatterData(applicationName, getQueryPeriod(), scatterFetchDataCallback);
@@ -175,9 +180,6 @@ $("#auto_refresh").bind("change", function(){
 			console.log("[auto-refresh] fetching data from=" + from);
 			
 	        getRealtimeScatterData(from, function(data) {
-	        	console.log("[auto-refresh] data fetched. " + data.scatter2.length);
-	        	console.log(getQueryStartTime());
-	        	console.log(getQueryEndTime());
 		        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter2, "#scatter");
 	        	from = data.queryTo + 1;
 	        });

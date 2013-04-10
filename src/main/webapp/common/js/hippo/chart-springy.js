@@ -13,12 +13,13 @@ function showServerMap(applicationName) {
     $("#springygraph").empty();
 
 	var serverMapCallback = function(data) {
-    	if (data.graphdata.nodes.length == 0) {
-        	hideIndicator();
-    	}
+		if (data.graphdata.nodes.length == 0) {
+			warning("NO DATA", "");
+		} else {
+			clearAllWarnings();
+		}
+		
         drawSpringy(applicationName, data.graphdata, "#springygraph", 1100, 500);
-    	hideIndicator();
-    	
     	$("#springygraph").css("display", "");
     };
 

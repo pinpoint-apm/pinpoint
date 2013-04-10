@@ -63,6 +63,7 @@
     
     <!-- help -->
     <script type="text/javascript" src="/common/js/hippo/help.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/message.js"></script>
 </head>
 <body>
 
@@ -170,65 +171,17 @@
 </div>
 <!-- END OF MODAL -->
 
+<div class="container" id="warningMessage"></div>
 
 <!-- MENU -->
 <div class="container-fluid">
     <div style="position:relative;">
         <div style="margin-right:530px;">
-			<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
 			<div id="springygraph" style="height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
 		</div>
         <div style="position:absolute;top:0;right:0;width:510px;">
-			<ul class="nav nav-tabs" id="transactionTabs">
-				<li class="active">
-					<a href="#ScatterChart" data-toggle="tab">Response scatter <i class="hippo-action-icon icon-resize-full" onclick="expandToNewWindow();"></i> <i class="hippo-action-icon icon-question-sign" onclick="help(2001);"></i></a>
-				</li>
-			</ul>
-			<div class="tab-content" style="min-height:400px;">
-				<div class="tab-pane active" id="ScatterChart">
-					<div class="indicator"><img src="/common/images/ajaxloader.gif"/></div>
-					<div id="scatterchart"></div>
-					<br/>
-				</div>
-			</div>
-			
-			<!-- 
-			<ul class="nav nav-tabs" id="transactionTabs">
-				<li class="active">
-					<a href="#BusinessTransactionList" data-toggle="tab">Requests <i class="hippo-action-icon icon-resize-full" onclick="expandToNewWindow();"></i> <i class="hippo-action-icon icon-question-sign" onclick="help(2002);"></i></a>
-				</li>
-			</ul>
-			<div class="tab-content" style="min-height:550px;">
-				<div class="tab-pane active" id="BusinessTransactionList">
-		            <table id="businessTransactions" class="table table-bordered sortable">
-		                <thead>
-		                <tr>
-		                    <th>URL</th>
-		                    <th class="sorttable_numeric">Calls</th>
-		                    <th class="sorttable_numeric">AVG</th>
-		                    <th class="sorttable_numeric">MIN</th>
-		                    <th class="sorttable_numeric">MAX</th>
-		                </tr>
-		                </thead>
-		                <tbody>
-		                </tbody>
-		            </table>
-		            
-					<table id="businessTransactionsDetail" class="table table-bordered sortable">
-		                <thead>
-		                <tr>
-		                    <th>#</th>
-		                    <th class="sorttable_numeric">Time</th>
-		                    <th>TraceId</th>
-		                    <th class="sorttable_numeric">Response Time (ms)</th>
-		                </tr>
-		                </thead>
-		                <tbody>
-		                </tbody>
-		            </table>
-				</div>
-			</div>
-			-->
+        	<h5 style="display:none;" id="scattercharttitle">Response scatter</h5>
+			<div id="scatterchart"></div>
 		</div>
     </div>
     

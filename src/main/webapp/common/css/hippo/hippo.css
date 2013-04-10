@@ -84,14 +84,6 @@ path.link {
 	text-align:right;	
 }
 
-/*
- * indicator
- */
-.indicator {
-	text-align:center;
-	display:none; 
-}
-
 .hippo-action-icon {
 	cursor:pointer;
 }

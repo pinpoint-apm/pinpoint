@@ -91,14 +91,6 @@ function setQueryDateToNow() {
    	$('#time').val(format_time(date));
 }
 
-function showIndicator() {
-	$(".indicator").show();
-}
-
-function hideIndicator() {
-	$(".indicator").hide();
-}
-
 function isQueryFromNow() {
 	return $(".btn#now.active").length > 0;
 }
