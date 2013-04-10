@@ -56,6 +56,8 @@
 
 <h4>Application : ${applicationName}</h4>
 <h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
+<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
+<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
 
     <div style="position:relative;">
         <div style="margin-right:530px;overflow:scroll;height:600px;width:600px;">

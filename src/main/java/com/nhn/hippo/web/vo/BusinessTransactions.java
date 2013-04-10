@@ -11,7 +11,11 @@ public class BusinessTransactions {
 
 	private final Map<String, BusinessTransaction> transactions = new HashMap<String, BusinessTransaction>();
 
+	private int totalCallCount;
+	
 	public void add(SpanBo span) {
+		totalCallCount++;
+		
 		String rpc = span.getRpc();
 		if (transactions.containsKey(rpc)) {
 			transactions.get(rpc).add(span);
@@ -39,5 +43,13 @@ public class BusinessTransactions {
 
 			}
 		};
+	}
+	
+	public int getTotalCallCount() {
+		return totalCallCount;
+	}
+	
+	public int getURLCount() {
+		return transactions.size();
 	}
 }

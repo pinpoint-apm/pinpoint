@@ -65,6 +65,8 @@ public class BusinessTransactionController extends BaseController {
 		model.addAttribute("applicationName", applicationName);
 		model.addAttribute("from", new Date(from));
 		model.addAttribute("to", new Date(to));
+		model.addAttribute("urlCount", selectBusinessTransactions.getURLCount());
+		model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
 		
 		addResponseHeader(response);
 		return "businesstransactions";
