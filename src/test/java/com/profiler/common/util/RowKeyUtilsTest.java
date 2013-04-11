@@ -1,7 +1,6 @@
 package com.profiler.common.util;
 
 import com.profiler.common.bo.SqlMetaDataBo;
-import com.profiler.common.dto.thrift.SqlMetaData;
 import junit.framework.Assert;
 import org.junit.Test;
 

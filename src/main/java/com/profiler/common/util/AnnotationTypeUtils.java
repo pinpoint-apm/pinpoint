@@ -1,6 +1,6 @@
 package com.profiler.common.util;
 
-import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto2.thrift.Annotation;
 
 /**
  *

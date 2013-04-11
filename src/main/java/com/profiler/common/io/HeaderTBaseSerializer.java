@@ -11,7 +11,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
 
-import com.profiler.common.dto.Header;
+import com.profiler.common.dto2.Header;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java

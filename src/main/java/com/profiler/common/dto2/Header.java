@@ -1,4 +1,4 @@
-package com.profiler.common.dto;
+package com.profiler.common.dto2;
 
 public class Header {
 

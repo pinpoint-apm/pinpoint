@@ -1,6 +1,6 @@
 package com.profiler.common.util;
 
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto2.thrift.Span;
 import com.profiler.common.hbase.HBaseTables;
 
 import junit.framework.Assert;

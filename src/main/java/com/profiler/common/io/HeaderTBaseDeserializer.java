@@ -1,6 +1,6 @@
 package com.profiler.common.io;
 
-import com.profiler.common.dto.Header;
+import com.profiler.common.dto2.Header;
 
 import com.profiler.common.util.BytesUtils;
 import org.apache.thrift.TBase;

@@ -1,6 +1,6 @@
 package com.profiler.common.io;
 
-import com.profiler.common.dto.Header;
+import com.profiler.common.dto2.Header;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 

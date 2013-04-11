@@ -3,11 +3,10 @@ package com.profiler.common.bo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto2.thrift.Annotation;
+import com.profiler.common.dto2.thrift.Span;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;

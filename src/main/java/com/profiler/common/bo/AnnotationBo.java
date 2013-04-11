@@ -1,7 +1,7 @@
 package com.profiler.common.bo;
 
 import com.profiler.common.AnnotationKey;
-import com.profiler.common.dto.thrift.Annotation;
+import com.profiler.common.dto2.thrift.Annotation;
 import com.profiler.common.util.AnnotationTranscoder;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.buffer.FixedBuffer;

@@ -3,7 +3,7 @@ package com.profiler.common.bo;
 import com.profiler.common.buffer.AutomaticBuffer;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.buffer.FixedBuffer;
-import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.common.dto2.thrift.AgentInfo;
 
 /**
  *

@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.SpanChunk;
+import com.profiler.common.dto2.thrift.Annotation;
+import com.profiler.common.dto2.thrift.SpanChunk;
 import com.profiler.common.buffer.Buffer;
+import com.profiler.common.dto2.thrift.SpanEvent;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.buffer.FixedBuffer;
 
@@ -58,7 +59,7 @@ public class SpanEventBo implements Span {
 	public SpanEventBo() {
 	}
 
-	public SpanEventBo(com.profiler.common.dto.thrift.Span tSpan, com.profiler.common.dto.thrift.SpanEvent tSpanEvent) {
+	public SpanEventBo(com.profiler.common.dto2.thrift.Span tSpan, SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
         this.applicationId = tSpan.getApplicationId();
         this.agentIdentifier = tSpan.getAgentIdentifier();
@@ -92,7 +93,7 @@ public class SpanEventBo implements Span {
 		setAnnotationBoList(tSpanEvent.getAnnotations());
 	}
 
-	public SpanEventBo(SpanChunk spanChunk, com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+	public SpanEventBo(SpanChunk spanChunk, SpanEvent spanEvent) {
 		this.agentId = spanChunk.getAgentId();
         this.agentIdentifier = spanChunk.getAgentIdentifier();
 
@@ -124,7 +125,7 @@ public class SpanEventBo implements Span {
 		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
-	public SpanEventBo(com.profiler.common.dto.thrift.SpanEvent spanEvent) {
+	public SpanEventBo(SpanEvent spanEvent) {
 		this.agentId = spanEvent.getAgentId();
         this.applicationId = spanEvent.getApplicationId();
         this.agentIdentifier = spanEvent.getAgentIdentifier();
