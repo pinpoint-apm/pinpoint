@@ -1,5 +1,6 @@
 package com.profiler.modifier.arcus.interceptors;
 
+import com.profiler.context.AsyncTrace;
 import com.profiler.logging.Logger;
 
 import com.profiler.context.DefaultAsyncTrace;
@@ -26,7 +27,7 @@ public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		DefaultAsyncTrace asyncTrace = (DefaultAsyncTrace) getAsyncTrace.invoke(target);
+		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
 		if (asyncTrace == null) {
 			logger.debug("asyncTrace not found ");
 			return;
