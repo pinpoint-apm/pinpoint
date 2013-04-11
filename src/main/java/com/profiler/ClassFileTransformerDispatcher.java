@@ -1,6 +1,8 @@
 package com.profiler;
 
 import com.profiler.config.ProfilerConfig;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.DefaultModifierRegistry;
 import com.profiler.modifier.Modifier;
 import com.profiler.modifier.ModifierRegistry;
@@ -8,16 +10,16 @@ import com.profiler.modifier.ModifierRegistry;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
-    private Logger logger = Logger.getLogger(this.getClass().getName());
-    private boolean isFine = logger.isLoggable(Level.FINE);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final boolean isFine = logger.isDebugEnabled();
+
+    private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
 
     private ModifierRegistry modifierRegistry;
 
@@ -43,6 +45,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
                 return classFileBuffer;
             }
         }
+        if (classLoader == agentClassLoader) {
+            // agent의 clssLoader에 로드된 클래스는 스킵한다.
+            return null;
+        }
+
         Modifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {
             // TODO : 디버그 용도로 추가함
@@ -56,7 +63,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
 
         if (isFine) {
-            logger.fine("[transform] cl" + classLoader + " className:" + className + " Modifier:" + findModifier.getClass().getName());
+            logger.debug("[transform] cl" + classLoader + " className:" + className + " Modifier:" + findModifier.getClass().getName());
         }
         String javassistClassName = className.replace('/', '.');
 
@@ -64,7 +71,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
 
         } catch (Throwable e) {
-            logger.log(Level.SEVERE, "Modifier:" + findModifier.getTargetClass() + " modify fail. Cause:" + e.getMessage(), e);
+            logger.error("Modifier:" + findModifier.getTargetClass() + " modify fail. Cause:" + e.getMessage(), e);
             return null;
         }
     }

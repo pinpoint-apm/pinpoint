@@ -2,7 +2,6 @@ package com.profiler.modifier.tomcat.interceptors;
 
 import java.util.Enumeration;
 import java.util.UUID;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
