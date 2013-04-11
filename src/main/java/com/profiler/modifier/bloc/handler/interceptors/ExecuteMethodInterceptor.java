@@ -3,7 +3,7 @@ package com.profiler.modifier.bloc.handler.interceptors;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
@@ -11,19 +11,21 @@ import com.profiler.context.*;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.NumberUtils;
 
 /**
  * @author netspider
  */
-public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(ExecuteMethodInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
-//    private int apiId;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -32,33 +34,27 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         }
 
         try {
-            TraceContext traceContext = DefaultTraceContext.getTraceContext();
-            traceContext.getActiveThreadCounter().start();
-
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
             String requestURL = request.requestURI().toString();
             String clientIP = request.remoteAddr().toString();
             String parameters = getRequestParameter(request);
 
-            TraceID traceId = populateTraceIdFromRequest(request);
-            DefaultTrace trace;
+            DefaultTraceID traceId = populateTraceIdFromRequest(request);
+            Trace trace;
             if (traceId != null) {
-                // TraceID nextTraceId = traceId.getNextTraceId();
-                if (logger.isLoggable(Level.INFO)) {
-                    // logger.info("TraceID exist. continue trace. " + nextTraceId);
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
+                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
-                // trace = new Trace(nextTraceId);
-                trace = new DefaultTrace(traceId);
-                traceContext.attachTraceObject(trace);
+
+                trace = traceContext.continueTraceObject(traceId);
             } else {
                 trace = new DefaultTrace();
-                if (logger.isLoggable(Level.INFO)) {
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
+                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
                 }
-                traceContext.attachTraceObject(trace);
+                trace = traceContext.newTraceObject();
             }
 
             trace.markBeforeTime();
@@ -75,8 +71,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             }
 
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn( "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
         }
     }
@@ -87,15 +83,14 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 
-        DefaultTraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.getActiveThreadCounter().end();
+//        traceContext.getActiveThreadCounter().end();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
         if (trace.getStackFrameId() != 0) {
-            logger.warning("Corrupted CallStack found. StackId not Root(0)");
+            logger.warn("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
 
@@ -113,7 +108,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
      * @param request
      * @return
      */
-    private TraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
+    private DefaultTraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
         String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (strUUID != null) {
             UUID uuid = UUID.fromString(strUUID);
@@ -122,8 +117,8 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
-            if (logger.isLoggable(Level.INFO)) {
+            DefaultTraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+            if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }
             return id;
@@ -156,9 +151,12 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

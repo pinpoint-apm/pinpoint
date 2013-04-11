@@ -3,7 +3,8 @@ package com.profiler.modifier.tomcat.interceptors;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,8 +21,8 @@ import com.profiler.util.NumberUtils;
 
 public class StandardHostValveInvokeInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(StandardHostValveInvokeInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class.getName());
+    private final boolean isDebug = logger.isInfoEnabled();
 
     private MethodDescriptor descriptor;
 	// private int apiId;
@@ -34,29 +35,27 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
         }
 
         try {
-            traceContext.getActiveThreadCounter().start();
+//            traceContext.getActiveThreadCounter().start();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
             String requestURL = request.getRequestURI();
             String remoteAddr = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
-            DefaultTrace trace;
+            Trace trace;
             if (traceId != null) {
-                if (logger.isLoggable(Level.INFO)) {
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
+                    logger.debug("requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
                 }
-                // trace = new Trace(nextTraceId);
-                trace = new DefaultTrace(traceId);
-                traceContext.attachTraceObject(trace);
+
+                trace = traceContext.continueTraceObject(traceId);
             } else {
-                trace = new DefaultTrace();
-                if (logger.isLoggable(Level.INFO)) {
+                trace = traceContext.newTraceObject();
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
+                    logger.debug("requestUrl:" + requestURL + ", remoteAddr:" + remoteAddr);
                 }
-                traceContext.attachTraceObject(trace);
             }
 
             trace.markBeforeTime();
@@ -80,8 +79,8 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             	// TODO 여기에서 client 정보를 수집할 수 있다.
             }
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
         }
     }
@@ -92,7 +91,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 
-        traceContext.getActiveThreadCounter().end();
+//        traceContext.getActiveThreadCounter().end();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -107,7 +106,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
 
         if (trace.getStackFrameId() != 0) {
-            logger.warning("Corrupted CallStack found. StackId not Root(0)");
+            logger.warn("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
 
@@ -126,7 +125,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
      * @param request
      * @return
      */
-    private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
+    private DefaultTraceID populateTraceIdFromRequest(HttpServletRequest request) {
         String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (strUUID != null) {
             UUID uuid = UUID.fromString(strUUID);
@@ -135,8 +134,8 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
-            if (logger.isLoggable(Level.INFO)) {
+            DefaultTraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+            if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }
             return id;
@@ -184,8 +183,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.cacheApi(descriptor);
+        this.traceContext.cacheApi(descriptor);
     }
 
     @Override

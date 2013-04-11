@@ -1,20 +1,21 @@
 package com.profiler.modifier;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
+import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
 import com.profiler.interceptor.ServiceTypeSupport;
-import javassist.ClassPool;
 
 import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.profiler.logging.LoggerFactory;
 
 public abstract class AbstractModifier implements Modifier {
 
-    private final Logger logger = Logger.getLogger(AbstractModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(AbstractModifier.class.getName());
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
@@ -29,17 +30,17 @@ public abstract class AbstractModifier implements Modifier {
     }
 
     public void printClassConvertComplete(String javassistClassName) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(javassistClassName + " class is converted.");
         }
     }
 
-    public void setTraceContext(Interceptor interceptor) {
-        // TODO TraceContext를 인터셉터에 바인하는 방안의 추가 개선 필요.
-        if (interceptor instanceof TraceContextSupport) {
-            ((TraceContextSupport) interceptor).setTraceContext(agent.getTraceContext());
-        }
-    }
+//    public void setTraceContext(Interceptor interceptor) {
+//        // TODO TraceContext를 인터셉터에 바인하는 방안의 추가 개선 필요.
+//        if (interceptor instanceof TraceContextSupport) {
+//            ((TraceContextSupport) interceptor).setTraceContext(agent.getTraceContext());
+//        }
+//    }
 
     public void setServiceType(Interceptor interceptor, ServiceType serviceType) {
         if (interceptor instanceof ServiceTypeSupport) {

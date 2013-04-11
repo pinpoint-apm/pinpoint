@@ -1,7 +1,8 @@
 package com.profiler.context;
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.Annotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,9 +167,9 @@ public class Span implements Thriftable {
     public com.profiler.common.dto.thrift.Span toThrift() {
         com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
-        span.setAgentId(Agent.getInstance().getAgentId());
-        span.setApplicationId(Agent.getInstance().getApplicationName());
-        span.setAgentIdentifier(Agent.getInstance().getIdentifier());
+        span.setAgentId(DefaultAgent.getInstance().getAgentId());
+        span.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+        span.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
         span.setStartTime(startTime);
         span.setElapsed((int) (endTime - startTime));
@@ -197,7 +198,7 @@ public class Span implements Thriftable {
         }
         
         // 여기서 데이터 인코딩을 하자.
-        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(traceAnnotationList.size());
+        List<Annotation> annotationList = new ArrayList<Annotation>(traceAnnotationList.size());
         for (TraceAnnotation traceAnnotation : traceAnnotationList) {
             annotationList.add(traceAnnotation.toThrift());
         }

@@ -13,7 +13,7 @@ public class CallStackTest {
 
     @Test
     public void testPush() throws Exception {
-        TraceID traceID = TraceID.newTraceId();
+        DefaultTraceID traceID = DefaultTraceID.newTraceId();
         CallStack callStack = new CallStack(traceID);
         int stackIndex = callStack.getStackFrameIndex();
         logger.info(String.valueOf(stackIndex));

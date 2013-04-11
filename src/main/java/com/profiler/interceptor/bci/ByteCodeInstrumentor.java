@@ -3,7 +3,6 @@ package com.profiler.interceptor.bci;
 import java.security.ProtectionDomain;
 
 import com.profiler.interceptor.Interceptor;
-import javassist.ClassPool;
 
 public interface ByteCodeInstrumentor {
 
@@ -16,5 +15,7 @@ public interface ByteCodeInstrumentor {
 
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) throws InstrumentException;
 
-    Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException;
+//    Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException;
+
+    Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
 }

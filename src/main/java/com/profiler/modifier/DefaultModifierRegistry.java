@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.arcus.ArcusClientModifier;
@@ -27,7 +28,6 @@ import com.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
 import com.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
 import com.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
 import com.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
-import com.profiler.modifier.db.mysql.MySQLResultSetModifier;
 import com.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.profiler.modifier.db.oracle.OracleResultSetModifier;
@@ -50,10 +50,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	private final ProfilerConfig profilerConfig;
 	private final Agent agent;
 
-	public DefaultModifierRegistry(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ProfilerConfig profilerConfig) {
-		this.byteCodeInstrumentor = byteCodeInstrumentor;
+	public DefaultModifierRegistry(Agent agent) {
 		this.agent = agent;
-		this.profilerConfig = profilerConfig;
+        // classLoader계층 구조 때문에 직접 type을 넣기가 애매하여 그냥 casting
+        this.byteCodeInstrumentor = (ByteCodeInstrumentor) agent.getByteCodeInstrumentor();
+        this.profilerConfig = agent.getProfilerConfig();
 	}
 
 	@Override
@@ -167,8 +168,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
 		addModifier(myqlPreparedStatementJDBC4Modifier);
 
-		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
-		addModifier(mysqlResultSetModifier);
+//		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
+//		addModifier(mysqlResultSetModifier);
 	}
 
 	private void addMsSqlDriver() {

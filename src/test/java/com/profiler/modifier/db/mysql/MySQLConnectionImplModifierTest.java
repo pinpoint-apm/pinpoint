@@ -1,13 +1,13 @@
 package com.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
+import com.profiler.DummyInstrumentation;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.BypassStorageFactory;
-import com.profiler.context.DefaultTrace;
 import com.profiler.context.DefaultTraceContext;
-import com.profiler.context.TraceContext;
-import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.context.Trace;
+import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.sender.LoggingDataSender;
 import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
@@ -31,7 +31,7 @@ public class MySQLConnectionImplModifierTest {
         loader = new TestClassLoader();
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
-        Agent agent = new Agent(profilerConfig);
+        DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);
         MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
         loader.addModifier(driverModifier);
 
@@ -68,8 +68,8 @@ public class MySQLConnectionImplModifierTest {
 
         DefaultTraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.setStorageFactory(new BypassStorageFactory(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
-        DefaultTrace trace = new DefaultTrace();
-        traceContext.attachTraceObject(trace);
+
+        Trace trace = traceContext.newTraceObject();
 
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 

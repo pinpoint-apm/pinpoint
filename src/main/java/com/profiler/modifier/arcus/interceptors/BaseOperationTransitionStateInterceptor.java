@@ -5,30 +5,31 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
-import com.profiler.context.DefaultTraceContext;
+import com.profiler.context.AsyncTrace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 import com.profiler.common.ServiceType;
-import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.MetaObject;
 
 /**
  *
  */
-public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor, ByteCodeMethodDescriptorSupport {
+public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final Logger logger = Logger.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+	private final Logger logger = LoggerFactory.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -36,6 +37,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 	private MetaObject getServiceCode = new MetaObject("__getServiceCode");
 
     private MethodDescriptor methodDescriptor;
+    private TraceContext traceContext;
 
     @Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -45,7 +47,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
 		if (asyncTrace == null) {
-			logger.fine("asyncTrace not found");
+			logger.debug("asyncTrace not found");
 			return;
 		}
 
@@ -53,8 +55,8 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 
 		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
 		if (newState == OperationState.READING) {
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
+			if (logger.isDebugEnabled()) {
+				logger.debug("event:" + newState + " asyncTrace:" + asyncTrace);
 			}
 			if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
 				return;
@@ -97,8 +99,8 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 			asyncTrace.markAfterTime();
 //			asyncTrace.traceBlockEnd();
 		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine("event:" + newState + " asyncTrace:" + asyncTrace);
+			if (logger.isDebugEnabled()) {
+				logger.debug("event:" + newState + " asyncTrace:" + asyncTrace);
 			}
 			boolean fire = asyncTrace.fire();
 			if (!fire) {
@@ -136,7 +138,11 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.methodDescriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.cacheApi(descriptor);
+        this.traceContext.cacheApi(descriptor);
+    }
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 }

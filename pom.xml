@@ -7,6 +7,11 @@
     <name>hippo tomcat profiler</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <thrift.executable>${thrift.executable.property}</thrift.executable>
+        <spring.version>3.1.2.RELEASE</spring.version>
+    </properties>
+
     <distributionManagement>
         <repository>
             <id>nhn.release.repository</id>
@@ -69,6 +74,13 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nhn.hippo</groupId>
+            <artifactId>hippo-profiler-bootstrap</artifactId>
+            <version>0.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- [Start] Compile Interceptors -->
@@ -194,7 +206,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.6.6</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <!-- commons-logging-adapter -->
         <dependency>
@@ -207,13 +219,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.6</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.16</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -263,7 +275,7 @@
                     <debug>true</debug>
                     <optimize>true</optimize>
                     <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
+                    <!--<showDeprecation>true</showDeprecation>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -282,7 +294,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
+                <version>2.14</version>
                 <configuration>
                     <excludes>
                         <exclude>**/Mock*</exclude>
@@ -292,6 +304,75 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>thrift.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
+
     </build>
+
+    <profiles>
+        <profile>
+            <id>withThrift</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-sources</id>
+                                <phase>generate-sources</phase>
+                                <configuration>
+                                    <tasks>
+                                        <mkdir dir="${basedir}/generated-sources/thrift"/>
+                                        <delete>
+                                            <fileset dir="${basedir}/generated-sources/thrift" includes="**/*"/>
+                                        </delete>
+                                        <mkdir dir="${basedir}/generated-sources/thrift"/>
+                                        <exec executable="${thrift.executable}" failonerror="true">
+                                            <arg value="--gen"/>
+                                            <arg value="java:beans"/>
+                                            <arg value="-o"/>
+                                            <arg value="${basedir}/generated-sources/thrift"/>
+                                            <arg value="${basedir}/src/main/thrift/Hippo.thrift"/>
+                                        </exec>
+                                        <exec executable="${thrift.executable}" failonerror="true">
+                                            <arg value="--gen"/>
+                                            <arg value="java:beans"/>
+                                            <arg value="-o"/>
+                                            <arg value="${basedir}/generated-sources/thrift"/>
+                                            <arg value="${basedir}/src/main/thrift/Trace.thrift"/>
+                                        </exec>
+                                        <copy todir="src/main/java" overwrite="true">
+                                            <fileset dir="${basedir}/generated-sources/thrift/gen-javabean"/>
+                                        </copy>
+                                        <delete dir="${basedir}/generated-sources"/>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

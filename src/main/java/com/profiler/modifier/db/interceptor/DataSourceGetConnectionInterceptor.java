@@ -1,21 +1,20 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.InterceptorUtils;
-import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.Arrays;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
  */
 public class DataSourceGetConnectionInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = Logger.getLogger(DataSourceGetConnectionInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(DataSourceGetConnectionInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {

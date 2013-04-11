@@ -1,9 +1,11 @@
 package com.profiler.modifier.connector.httpclient4.interceptor;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.context.*;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.logging.LoggerFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
@@ -26,20 +28,21 @@ import com.profiler.logging.LoggingUtils;
  *            throws IOException, ClientProtocolException {
  * </pre>
  */
-public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(ExecuteMethodInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(ExecuteMethodInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
-//    private int apiId;
+    private TraceContext traceContext;
+    //    private int apiId;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
+        System.out.println("-------------------------");
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -64,7 +67,6 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
 		int port = host.getPort();
-//		trace.recordEndPoint(host.getHostName() +  ((port > 0) ? ":" + port : ""));
         trace.recordDestinationId(host.getHostName() +  ((port > 0) ? ":" + port : ""));
 
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
@@ -77,7 +79,6 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
         }
 
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -93,8 +94,11 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

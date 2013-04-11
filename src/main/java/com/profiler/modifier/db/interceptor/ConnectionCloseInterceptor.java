@@ -1,18 +1,18 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.interceptor.StaticBeforeInterceptor;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
-import com.profiler.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.Arrays;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 public class ConnectionCloseInterceptor implements StaticBeforeInterceptor {
 
-    private final Logger logger = Logger.getLogger(ConnectionCloseInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(ConnectionCloseInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Object[] EMPTY = new Object[]{null};
 

@@ -4,7 +4,6 @@ import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.util.StringUtils;
 
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.logging.Logger;
 public final class DefaultTrace implements Trace {
 
     private static final Logger logger = Logger.getLogger(DefaultTrace.class.getName());
-    private static final boolean isDebug = LoggingUtils.isDebug(logger);
+    private static final boolean isDebug = logger.isLoggable(Level.FINE);
 
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
@@ -36,16 +35,16 @@ public final class DefaultTrace implements Trace {
     private int latestStackIndex = -1;
 
     public DefaultTrace() {
-        TraceID traceId = TraceID.newTraceId();
+        DefaultTraceID traceId = DefaultTraceID.newTraceId();
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
     }
 
-    public DefaultTrace(TraceID continueRoot) {
+    public DefaultTrace(TraceID continueTraceID) {
         // this.root = continueRoot;
-        this.callStack = new CallStack(continueRoot);
+        this.callStack = new CallStack(continueTraceID);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
@@ -69,7 +68,7 @@ public final class DefaultTrace implements Trace {
         // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
         spanEvent.setSequence(getSequence());
-        AsyncTrace asyncTrace = new AsyncTrace(spanEvent);
+        DefaultAsyncTrace asyncTrace = new DefaultAsyncTrace(spanEvent);
         // asyncTrace.setDataSender(this.getDataSender());
         asyncTrace.setStorage(this.storage);
         return asyncTrace;

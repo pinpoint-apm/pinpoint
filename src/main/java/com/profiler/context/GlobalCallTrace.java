@@ -35,7 +35,7 @@ public class GlobalCallTrace {
 
     private int put(AsyncTrace asyncTrace) {
         int id = idGenerator.getAndIncrement();
-        trace.put(id, asyncTrace);
+        trace.put(id, (DefaultAsyncTrace)asyncTrace);
         return id;
     }
 
@@ -46,7 +46,7 @@ public class GlobalCallTrace {
     public AsyncTrace removeTraceObject(int asyncId) {
         AsyncTrace asyncTrace = trace.remove(asyncId);
         if (asyncTrace != null) {
-            boolean result = asyncTrace.fire();
+            boolean result = ((DefaultAsyncTrace)asyncTrace).fire();
             if (!result) {
                 // 이미 timeout된 asyncTrace임.
                 return null;
@@ -68,7 +68,7 @@ public class GlobalCallTrace {
 
         @Override
         public void run() {
-            AsyncTrace asyncTrace = trace.remove(id);
+            DefaultAsyncTrace asyncTrace = (DefaultAsyncTrace) trace.remove(id);
             if (asyncTrace != null) {
                 asyncTrace.timeout();
             }

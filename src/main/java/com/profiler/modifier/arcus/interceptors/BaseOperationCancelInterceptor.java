@@ -1,10 +1,11 @@
 package com.profiler.modifier.arcus.interceptors;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
+import com.profiler.context.DefaultAsyncTrace;
+import com.profiler.logging.LoggerFactory;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
-import com.profiler.context.AsyncTrace;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
@@ -14,8 +15,8 @@ import com.profiler.util.MetaObject;
  */
 public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 
-	private final Logger logger = Logger.getLogger(BaseOperationCancelInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+	private final Logger logger = LoggerFactory.getLogger(BaseOperationCancelInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 
@@ -25,13 +26,13 @@ public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
+		DefaultAsyncTrace asyncTrace = (DefaultAsyncTrace) getAsyncTrace.invoke(target);
 		if (asyncTrace == null) {
-			logger.fine("asyncTrace not found ");
+			logger.debug("asyncTrace not found ");
 			return;
 		}
 
-		if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
+		if (asyncTrace.getState() != DefaultAsyncTrace.STATE_INIT) {
 			// 이미 동작 완료된 상태임.
 			return;
 		}

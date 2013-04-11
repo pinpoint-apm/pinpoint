@@ -3,7 +3,8 @@ package com.profiler.modifier.servlet.interceptors;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,8 +20,8 @@ import com.profiler.util.NumberUtils;
 
 public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(DoXXXInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(DoXXXInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -56,31 +57,26 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
         }
 
         try {
-            traceContext.getActiveThreadCounter().start();
+//            traceContext.getActiveThreadCounter().start();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
             String requestURL = request.getRequestURI();
             String clientIP = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
-            DefaultTrace trace;
+            Trace trace;
             if (traceId != null) {
-                // TraceID nextTraceId = traceId.getNextTraceId();
-                if (logger.isLoggable(Level.INFO)) {
-                	// logger.info("TraceID exist. continue trace. " + nextTraceId);
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP);
                 }
-                // trace = new Trace(nextTraceId);
-                trace = new DefaultTrace(traceId);
-                traceContext.attachTraceObject(trace);
+                trace = traceContext.continueTraceObject(traceId);
             } else {
-                trace = new DefaultTrace();
-                if (logger.isLoggable(Level.INFO)) {
+                trace = traceContext.newTraceObject();
+                if (logger.isInfoEnabled()) {
                     logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.log(Level.FINE, "requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP);
                 }
-                traceContext.attachTraceObject(trace);
             }
 
             trace.markBeforeTime();
@@ -92,8 +88,8 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             trace.recordDestinationId(request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestURI());
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
         }
     }
@@ -104,7 +100,6 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
 
-        traceContext.getActiveThreadCounter().end();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -119,7 +114,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
 
 
         if (trace.getStackFrameId() != 0) {
-            logger.warning("Corrupted CallStack found. StackId not Root(0)");
+            logger.warn("Corrupted CallStack found. StackId not Root(0)");
             // 문제 있는 callstack을 dump하면 도움이 될듯.
         }
 
@@ -147,8 +142,8 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = new TraceID(uuid, parentSpanID, spanID, sampled, flags);
-            if (logger.isLoggable(Level.INFO)) {
+            TraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+            if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }
             return id;
@@ -184,8 +179,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.cacheApi(descriptor);
+        this.traceContext.cacheApi(descriptor);
     }
 
 

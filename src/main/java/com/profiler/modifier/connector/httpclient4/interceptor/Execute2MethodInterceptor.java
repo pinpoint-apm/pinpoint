@@ -1,9 +1,11 @@
 package com.profiler.modifier.connector.httpclient4.interceptor;
 
 import java.net.URI;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.context.*;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.logging.LoggerFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -24,19 +26,19 @@ import com.profiler.logging.LoggingUtils;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  */
-public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final Logger logger = Logger.getLogger(Execute2MethodInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+	private final Logger logger = LoggerFactory.getLogger(Execute2MethodInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;
+    private TraceContext traceContext;
 
-	@Override
+    @Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
-		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
@@ -75,7 +77,6 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		TraceContext traceContext = DefaultTraceContext.getTraceContext();
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
@@ -90,7 +91,6 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 	@Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
@@ -147,4 +147,9 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 		}
 		return target;
 	}
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

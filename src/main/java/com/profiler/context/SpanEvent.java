@@ -3,8 +3,9 @@ package com.profiler.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.Annotation;
 
 /**
  * Span represent RPC
@@ -174,9 +175,9 @@ public class SpanEvent implements Thriftable {
         spanEvent.setSequence(sequence);
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
-            spanEvent.setAgentId(Agent.getInstance().getAgentId());
-            spanEvent.setApplicationId(Agent.getInstance().getApplicationName());
-            spanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
+            spanEvent.setAgentId(DefaultAgent.getInstance().getAgentId());
+            spanEvent.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+            spanEvent.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
             TraceID parentSpanTraceID = parentSpan.getTraceID();
             spanEvent.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
@@ -191,7 +192,7 @@ public class SpanEvent implements Thriftable {
         spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
-        List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(traceAnnotationList.size());
+        List<Annotation> annotationList = new ArrayList<Annotation>(traceAnnotationList.size());
         for (TraceAnnotation traceAnnotation : traceAnnotationList) {
             annotationList.add(traceAnnotation.toThrift());
         }

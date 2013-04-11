@@ -4,11 +4,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.common.dto.thrift.RequestDataListThriftDTO;
 import com.profiler.common.dto.thrift.RequestThriftDTO;
 import com.profiler.config.ProfilerConstant;
-import com.profiler.util.SystemUtils;
 
 @Deprecated
 public class RequestTracer {
@@ -29,7 +28,7 @@ public class RequestTracer {
         currentRequestHash.set(tempRequestHashCode);
         requestSet.add(tempRequestID);
 
-        RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentId(), tempRequestHashCode, ProfilerConstant.DATA_TYPE_REQUEST, requestTime, cpuUserTime[0], cpuUserTime[1]);
+        RequestThriftDTO dto = new RequestThriftDTO(DefaultAgent.getInstance().getAgentId(), tempRequestHashCode, ProfilerConstant.DATA_TYPE_REQUEST, requestTime, cpuUserTime[0], cpuUserTime[1]);
         dto.setClientIP(clientIP);
         dto.setRequestURL(requestURL);
 
@@ -48,7 +47,7 @@ public class RequestTracer {
     public static void endTransaction() {
         long cpuUserTime[] = null;
 //        long cpuUserTime[] = SystemUtils.getThreadTime();
-        RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_RESPONSE, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
+        RequestThriftDTO dto = new RequestThriftDTO(DefaultAgent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_RESPONSE, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
         finishTransaction(dto);
     }
@@ -61,7 +60,7 @@ public class RequestTracer {
     public static void exceptionTransaction(Throwable throwable) {
 //        long cpuUserTime[] = SystemUtils.getThreadTime();
         long cpuUserTime[] = null;
-        RequestThriftDTO dto = new RequestThriftDTO(Agent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_UNCAUGHT_EXCEPTION, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
+        RequestThriftDTO dto = new RequestThriftDTO(DefaultAgent.getInstance().getAgentId(), currentRequestHash.get(), ProfilerConstant.DATA_TYPE_UNCAUGHT_EXCEPTION, System.currentTimeMillis(), cpuUserTime[0], cpuUserTime[1]);
 
         dto.setExtraData1(throwable.getMessage());
 

@@ -1,6 +1,8 @@
 package com.profiler;
 
 
+import com.profiler.bootstrap.AgentClassLoader;
+import com.profiler.config.ProfilerConfig;
 import com.profiler.logging.LoggerBinder;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,10 +43,10 @@ public class AgentClassLoaderTest {
 
         AgentClassLoader agentClassLoader = new AgentClassLoader(lib);
         agentClassLoader.setBootClass("com.profiler.boot.BootClassTest");
-        agentClassLoader.boot();
+        agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig());
 
 
-        LoggerBinder loggerBinder = agentClassLoader.initializeLoggerBinder();
+        LoggerBinder loggerBinder = (LoggerBinder) agentClassLoader.initializeLoggerBinder();
         com.profiler.logging.Logger test = loggerBinder.getLogger("test");
         test.info("slf4j logger test");
 
