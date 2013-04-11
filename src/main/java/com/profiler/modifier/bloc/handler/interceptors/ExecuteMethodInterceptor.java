@@ -39,7 +39,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             String clientIP = request.remoteAddr().toString();
             String parameters = getRequestParameter(request);
 
-            DefaultTraceID traceId = populateTraceIdFromRequest(request);
+            TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
                 if (logger.isInfoEnabled()) {
@@ -108,7 +108,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
      * @param request
      * @return
      */
-    private DefaultTraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
+    private TraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
         String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (strUUID != null) {
             UUID uuid = UUID.fromString(strUUID);
@@ -117,7 +117,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            DefaultTraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, sampled, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }

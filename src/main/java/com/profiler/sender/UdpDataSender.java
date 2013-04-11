@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -28,7 +29,7 @@ import com.profiler.util.Assert;
  */
 public class UdpDataSender implements DataSender, Runnable {
 
-	private final Logger logger = Logger.getLogger(UdpDataSender.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(UdpDataSender.class.getName());
 
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
@@ -89,7 +90,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private boolean putQueue(Object data) {
 		if (data == null) {
-			logger.warning("putQueue(). data is null");
+			logger.warn("putQueue(). data is null");
 			return false;
 		}
 		if (!allowInput.get()) {
@@ -97,8 +98,8 @@ public class UdpDataSender implements DataSender, Runnable {
 		}
 		boolean offer = queue.offer(data);
 		if (!offer) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.warning("Drop data. queue is full. size:" + queue.size());
+			if (logger.isWarnEnabled()) {
+				logger.warn("Drop data. queue is full. size:{}", queue.size());
 			}
 		}
 		return offer;
@@ -109,7 +110,7 @@ public class UdpDataSender implements DataSender, Runnable {
 		allowInput.set(false);
 		
 		if (!isEmpty()) {
-			logger.info("Wait 5 seconds. Flushing queued data." + queue.size());
+			logger.info("Wait 5 seconds. Flushing queued data.");
 		}
 		
 		try {
@@ -123,16 +124,17 @@ public class UdpDataSender implements DataSender, Runnable {
 	}
 
 	public void run() {
-		logger.info(Thread.currentThread().getName() + "(" + Thread.currentThread().getId() + ") started.");
+        Thread thread = Thread.currentThread();
+        logger.info("{}(\"{}\") started.", thread.getName(), thread.getId());
 		doSend();
 	}
-
 	private void doSend() {
-		drain: while (true) {
+        drain: while (true) {
 			try {
 				if (!allowInput.get() && isEmpty()) {
 					break;
 				}
+
 
 				List<Object> dtoList = takeN();
 				if (dtoList != null) {
@@ -152,7 +154,7 @@ public class UdpDataSender implements DataSender, Runnable {
 					}
 				}
 			} catch (Throwable th) {
-				logger.log(Level.WARNING, "Unexpected Error. Cause:" + th.getMessage(), th);
+				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
 			}
 		}
 	}
@@ -162,7 +164,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			try {
 				sendPacket(dto);
 			} catch (Throwable th) {
-				logger.log(Level.WARNING, "Unexpected Error. Cause:" + th.getMessage(), th);
+				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
 			}
 		}
 	}
@@ -174,23 +176,23 @@ public class UdpDataSender implements DataSender, Runnable {
 		} else if (dto instanceof Thriftable) {
 			tBase = ((Thriftable) dto).toThrift();
 		} else {
-			logger.warning("sendPacket fail. invalid type:" + dto.getClass());
+			logger.warn("sendPacket fail. invalid type:" + dto.getClass());
 			return;
 		}
         // TODO single thread이므로 데이터 array를 nocopy해서 보낼수 있음.
 		byte[] sendData = serialize(tBase);
 		if (sendData == null) {
-			logger.warning("sendData is null");
+			logger.warn("sendData is null");
 			return;
 		}
 		DatagramPacket packet = new DatagramPacket(sendData, sendData.length);
 		try {
 			udpSocket.send(packet);
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine("Data sent. " + dto);
+			if (logger.isInfoEnabled()) {
+				logger.info("Data sent. " + dto);
 			}
 		} catch (IOException e) {
-			logger.log(Level.WARNING, "packet send error " + dto, e);
+			logger.warn("packet send error " + dto, e);
 		}
 	}
 
@@ -220,8 +222,8 @@ public class UdpDataSender implements DataSender, Runnable {
 			Header header = headerLookup(dto);
 			return serializer.serialize(header, dto);
 		} catch (TException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, "Serialize fail:" + dto + " Caused:" + e.getMessage(), e);
+			if (logger.isWarnEnabled()) {
+				logger.warn("Serialize fail:" + dto + " Caused:" + e.getMessage(), e);
 			}
 			return null;
 		}

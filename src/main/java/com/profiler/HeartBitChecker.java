@@ -1,16 +1,17 @@
 package com.profiler;
 
 import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.sender.DataSender;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  */
 public class HeartBitChecker {
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private long heartBitInterVal;
     private DataSender dataSender;
@@ -27,7 +28,7 @@ public class HeartBitChecker {
 
 
     public void start() {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Send startup information to HIPPO server via " + dataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
         }
         dataSender.send(agentInfo);
@@ -44,7 +45,7 @@ public class HeartBitChecker {
         @Override
         public void run() {
 
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Starting agent heartbeat. heartbeatInterval:" + heartBitInterVal);
             }
             while (true) {

@@ -14,6 +14,7 @@ import com.profiler.sender.DataSender;
 import com.profiler.util.Assert;
 import com.profiler.util.NamedThreadLocal;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -157,6 +158,10 @@ public class DefaultTraceContext implements TraceContext {
         return result.getId();
     }
 
+    @Override
+    public TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, boolean sampled, short flags) {
+        return new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+    }
 
 
     @Override

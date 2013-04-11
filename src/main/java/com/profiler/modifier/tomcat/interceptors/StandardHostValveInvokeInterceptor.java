@@ -78,7 +78,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             } else {
             	// TODO 여기에서 client 정보를 수집할 수 있다.
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
@@ -125,7 +125,7 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
      * @param request
      * @return
      */
-    private DefaultTraceID populateTraceIdFromRequest(HttpServletRequest request) {
+    private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
         String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (strUUID != null) {
             UUID uuid = UUID.fromString(strUUID);
@@ -134,7 +134,8 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            DefaultTraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, sampled, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }

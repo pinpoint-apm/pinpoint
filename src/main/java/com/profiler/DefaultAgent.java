@@ -12,23 +12,21 @@ import com.profiler.context.TraceContext;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.profiler.logger.Slf4jLoggerBinder;
+import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerBinder;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.UdpDataSender;
-import com.profiler.util.Assert;
 import com.profiler.util.NetworkUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DefaultAgent implements Agent {
 
-    private static final Logger logger = Logger.getLogger(DefaultAgent.class.getName());
+    private Logger logger;
     private static final Random IDENTIFIER_KEY = new Random();
 
 
@@ -62,6 +60,7 @@ public class DefaultAgent implements Agent {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
+
         initializeLogger();
         changeStatus(AgentStatus.INITIALIZING);
 
@@ -117,8 +116,8 @@ public class DefaultAgent implements Agent {
             return new String[0];
         }
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("CATALINA_HOME=" + catalinaHome);
+        if (logger.isInfoEnabled()) {
+            logger.info("CATALINA_HOME={}", catalinaHome);
         }
 
         if (profilerConfig.getServiceType() == ServiceType.BLOC) {
@@ -155,16 +154,21 @@ public class DefaultAgent implements Agent {
 
     private void changeStatus(AgentStatus status) {
         this.agentStatus = status;
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine("Agent status is changed. " + status);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Agent status is changed. {}", status);
         }
     }
 
     public LoggerBinder initializeLogger() {
         Slf4jLoggerBinder binder = new Slf4jLoggerBinder();
+        logger = binder.getLogger(DefaultAgent.class.getName());
         com.profiler.logging.Logger logger = binder.getLogger(Slf4jLoggerBinder.class.getName());
         logger.info("slf4jLoggerBinder initialized");
+
+        // static LoggerFactory에 binder를 붙임.
         LoggerFactory.initialize(binder);
+
+
         return binder;
     }
 
@@ -201,12 +205,12 @@ public class DefaultAgent implements Agent {
         try {
             byte[] bytes = id.getBytes("UTF-8");
             if (bytes.length > maxlen) {
-                logger.warning(idName + " is too long(1~24). value=" + id);
+                logger.warn("{} is too long(1~24). value={}", idName, id);
             }
             // validate = false;
             // TODO 이제 그냥 exception을 던지면 됨 agent 생성 타이밍이 최초 vm스타트와 동일하다.
         } catch (UnsupportedEncodingException e) {
-            logger.log(Level.WARNING, "invalid agentId. Cause:" + e.getMessage(), e);
+            logger.warn("invalid agentId. Cause:" + e.getMessage(), e);
         }
     }
 

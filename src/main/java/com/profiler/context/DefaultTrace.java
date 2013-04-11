@@ -4,19 +4,20 @@ import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.util.StringUtils;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * @author netspider
  */
 public final class DefaultTrace implements Trace {
 
-    private static final Logger logger = Logger.getLogger(DefaultTrace.class.getName());
-    private static final boolean isDebug = logger.isLoggable(Level.FINE);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
@@ -151,8 +152,8 @@ public final class DefaultTrace implements Trace {
         int stackFrameId = currentStackFrame.getStackFrameId();
         if (stackFrameId != stackId) {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.warning("Corrupted CallStack found. StackId not matched. expected:" + stackId + " current:" + stackFrameId);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Corrupted CallStack found. StackId not matched. expected:" + stackId + " current:" + stackFrameId);
             }
         }
         if (currentStackFrame instanceof RootStackFrame) {
@@ -190,7 +191,7 @@ public final class DefaultTrace implements Trace {
     void logSpan(SpanEvent spanEvent) {
         if (isDebug) {
             Thread th = Thread.currentThread();
-            logger.fine("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            logger.debug("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
         this.storage.store(spanEvent);
     }
@@ -198,7 +199,7 @@ public final class DefaultTrace implements Trace {
     void logSpan(Span span) {
         if (isDebug) {
             Thread th = Thread.currentThread();
-            logger.info("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            logger.debug("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
         this.storage.store(span);
     }
@@ -379,7 +380,7 @@ public final class DefaultTrace implements Trace {
     public void recordNextSpanId(int spanId) {
         StackFrame currentStackFrame = getCurrentStackFrame();
         if (currentStackFrame instanceof RootStackFrame) {
-            logger.log(Level.WARNING, "OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
+            logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
         } else {
             SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setNextSpanId(spanId);
@@ -410,7 +411,9 @@ public final class DefaultTrace implements Trace {
     		Span span = ((RootStackFrame) currentStackFrame).getSpan();
     		span.setParentApplicationName(parentApplicationName);
     		span.setParentApplicationType(parentApplicationType);
-			logger.log(Level.FINE, "ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
+            if (isDebug) {
+			    logger.debug("ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
+            }
     	} else {
     		// do nothing.
     	}
@@ -422,7 +425,9 @@ public final class DefaultTrace implements Trace {
     	if (currentStackFrame instanceof RootStackFrame) {
     		Span span = ((RootStackFrame) currentStackFrame).getSpan();
     		span.setAcceptorHost(host); // me
-    		logger.log(Level.FINE, "Acceptor host received. host={}", host);
+            if (isDebug) {
+    		    logger.debug("Acceptor host received. host={}", host);
+            }
     	} else {
     		// do nothing.
     	}

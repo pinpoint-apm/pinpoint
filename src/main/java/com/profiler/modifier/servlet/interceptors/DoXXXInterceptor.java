@@ -142,7 +142,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, sampled, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }
