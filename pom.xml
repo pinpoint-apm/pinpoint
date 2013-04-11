@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>hippo-profiler-bootstrap</groupId>
+    <groupId>com.nhn.hippo</groupId>
     <artifactId>hippo-profiler-bootstrap</artifactId>
     <version>0.0.2</version>
     <name>hippo profiler bootstrap</name>
@@ -50,12 +50,29 @@
     </repositories>
 
     <dependencies>
-
-
-        <!-- [Start] Compile Interceptors -->
-
-
-        <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 컴파일해 줄듯 하니 기둘리자.-->
+        <dependency>
+            <groupId>com.nhn.hippo</groupId>
+            <artifactId>hippo-commons</artifactId>
+            <version>0.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hbase</groupId>
+                    <artifactId>hbase</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 
 
@@ -158,17 +175,38 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>com.profiler.TomcatProfiler</Premain-Class>
+                            <Premain-Class>com.profiler.bootstrap.TomcatBootStrap</Premain-Class>
                         </manifestEntries>
                     </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
