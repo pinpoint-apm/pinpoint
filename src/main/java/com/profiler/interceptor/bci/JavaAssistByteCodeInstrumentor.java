@@ -5,12 +5,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -18,7 +18,7 @@ import javassist.NotFoundException;
 
 public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private ClassPool classPool;
 
@@ -60,8 +60,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         try {
             classPool.appendClassPath(pathName);
         } catch (NotFoundException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "appendClassPath fail. lib not found. " + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("appendClassPath fail. lib not found. " + e.getMessage(), e);
             }
         }
     }
@@ -87,8 +87,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("defineClass class:" + defineClass + " cl:" + classLoader);
+        if (logger.isInfoEnabled()) {
+            logger.warn("defineClass class:" + defineClass + " cl:" + classLoader);
         }
         try {
 //            아래 classLoaderChecker가 생겼으니 classLoader 를 같이 락으로 잡아야 되지 않는가?
@@ -117,7 +117,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         for (CtClass nested : nestedClasses) {
             // 재귀하면서 최하위부터 로드
             defineNestedClass(nested, classLoader, protectedDomain);
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("defineNestedClass class:" + nested.getName() + " cl:" + classLoader);
             }
             nested.toClass(classLoader, protectedDomain);
@@ -189,12 +189,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 try {
                     classPool.appendClassPath(filePath);
                     // 만약 한개만 로딩해도 된다면. return true 할것
-                    if (logger.isLoggable(Level.INFO)) {
+                    if (logger.isInfoEnabled()) {
                         logger.info("Loaded " + filePath + " library.");
                     }
                 } catch (NotFoundException e) {
-                    if (logger.isLoggable(Level.WARNING)) {
-                        logger.log(Level.WARNING, "lib load fail. path:" + filePath + " cl:" + classLoader + " Cause:" + e.getMessage(), e);
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("lib load fail. path:" + filePath + " cl:" + classLoader + " Cause:" + e.getMessage(), e);
                     }
                 }
             }

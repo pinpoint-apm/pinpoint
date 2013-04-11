@@ -1,18 +1,17 @@
 package com.profiler.interceptor.bci;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.profiler.common.mapping.ApiMappingTable;
 import com.profiler.common.mapping.ApiUtils;
 import com.profiler.interceptor.*;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.util.JavaAssistUtils;
 import javassist.*;
 
 public class JavaAssistClass implements InstrumentClass {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final com.profiler.logging.Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private JavaAssistByteCodeInstrumentor instrumentor;
     private CtClass ctClass;
@@ -30,8 +29,8 @@ public class JavaAssistClass implements InstrumentClass {
             constructor.insertBefore(code);
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
             return false;
         }
@@ -44,8 +43,8 @@ public class JavaAssistClass implements InstrumentClass {
             constructor.insertAfter(code);
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
             return false;
         }
@@ -58,8 +57,8 @@ public class JavaAssistClass implements InstrumentClass {
             method.insertBefore(code);
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
             return false;
         }
@@ -72,8 +71,8 @@ public class JavaAssistClass implements InstrumentClass {
             method.insertAfter(code);
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
             return false;
         }
@@ -274,7 +273,7 @@ public class JavaAssistClass implements InstrumentClass {
             after.end();
         }
         String buildAfter = after.toString();
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("addStaticAfterInterceptor after behavior:" + behavior.getLongName() + " code:" + buildAfter);
         }
         behavior.insertAfter(buildAfter);
@@ -299,7 +298,7 @@ public class JavaAssistClass implements InstrumentClass {
             catchCode.end();
         }
         String buildCatch = catchCode.toString();
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("addStaticAfterInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildCatch);
         }
         CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
@@ -370,7 +369,7 @@ public class JavaAssistClass implements InstrumentClass {
             code.end();
         }
         String buildBefore = code.toString();
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("addStaticBeforeInterceptor catch behavior:" + behavior.getLongName() + " code:" + buildBefore);
         }
 
@@ -399,8 +398,8 @@ public class JavaAssistClass implements InstrumentClass {
 
             for (CtMethod method : methods) {
                 if (method.isEmpty()) {
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.fine(method.getLongName() + " is empty.");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("{} is empty.", method.getLongName());
                     }
                     continue;
                 }
@@ -412,8 +411,8 @@ public class JavaAssistClass implements InstrumentClass {
             }
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         }
         return false;
@@ -435,8 +434,8 @@ public class JavaAssistClass implements InstrumentClass {
 
             for (CtConstructor constructor : constructors) {
                 if (constructor.isEmpty()) {
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.fine(constructor.getLongName() + " is empty.");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(constructor.getLongName() + " is empty.");
                     }
                     continue;
                 }
@@ -454,8 +453,8 @@ public class JavaAssistClass implements InstrumentClass {
             }
             return true;
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         }
         return false;
@@ -470,8 +469,8 @@ public class JavaAssistClass implements InstrumentClass {
             }
         }
         String paramsStr = sb.toString();
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine("params type:" + paramsStr);
+        if (logger.isDebugEnabled()) {
+            logger.debug("params type:{}");
         }
         return paramsStr;
     }
@@ -495,9 +494,9 @@ public class JavaAssistClass implements InstrumentClass {
             ctClass.detach();
             return bytes;
         } catch (IOException e) {
-            logger.log(Level.INFO, "IoException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            logger.info("IoException class:" + ctClass.getName() + " " + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            logger.log(Level.INFO, "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            logger.info("CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
         }
         return null;
     }
