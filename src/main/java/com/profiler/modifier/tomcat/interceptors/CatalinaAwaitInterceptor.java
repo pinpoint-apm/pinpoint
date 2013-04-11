@@ -1,8 +1,10 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.Assert;
@@ -12,8 +14,8 @@ import com.profiler.util.Assert;
  */
 public class CatalinaAwaitInterceptor implements StaticBeforeInterceptor {
 
-    private Logger logger = Logger.getLogger(this.getClass().getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private Agent agent;
 

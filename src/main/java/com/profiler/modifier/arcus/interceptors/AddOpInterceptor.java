@@ -1,7 +1,8 @@
 package com.profiler.modifier.arcus.interceptors;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
+import com.profiler.logging.LoggerFactory;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.ops.Operation;
 
@@ -16,8 +17,8 @@ import com.profiler.util.MetaObject;
  */
 public class AddOpInterceptor implements StaticBeforeInterceptor {
 
-	private final Logger logger = Logger.getLogger(AddOpInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+	private final Logger logger = LoggerFactory.getLogger(AddOpInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");
 	private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);

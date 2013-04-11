@@ -2,9 +2,11 @@ package com.profiler.modifier.servlet;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -19,7 +21,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class SpringFrameworkServletModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(SpringFrameworkServletModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(SpringFrameworkServletModifier.class.getName());
 
 	public SpringFrameworkServletModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -30,7 +32,7 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. " + javassistClassName);
 		}
 
@@ -39,11 +41,11 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 		try {
 			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
             setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
-            setTraceContext(doGetInterceptor);
+//            setTraceContext(doGetInterceptor);
 
             Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
             setServiceType(doPostInterceptor, ServiceType.SPRING_MVC);
-            setTraceContext(doPostInterceptor);
+//            setTraceContext(doPostInterceptor);
 
 
 
@@ -54,7 +56,7 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 
 			return servlet.toBytecode();
 		} catch (InstrumentException e) {
-			logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+			logger.warn("modify fail. Cause:" + e.getMessage(), e);
 			return null;
 		}
 	}

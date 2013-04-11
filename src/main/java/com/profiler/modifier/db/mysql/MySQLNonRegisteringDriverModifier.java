@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.mysql;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -10,14 +11,15 @@ import com.profiler.modifier.db.interceptor.*;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 /**
  *
  */
 public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(MySQLConnectionImplModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class.getName());
 
     public MySQLNonRegisteringDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -28,7 +30,7 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
@@ -46,8 +48,8 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
             return mysqlConnection.toBytecode();
         } catch (InstrumentException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
             return null;
         }

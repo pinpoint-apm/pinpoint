@@ -2,9 +2,11 @@ package com.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.modifier.AbstractModifier;
@@ -17,7 +19,7 @@ import com.profiler.modifier.tomcat.interceptors.CatalinaAwaitInterceptor;
  */
 public class CatalinaModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(CatalinaModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(CatalinaModifier.class.getName());
 
     public CatalinaModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -28,7 +30,7 @@ public class CatalinaModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
         return changeMethod(javassistClassName, classFileBuffer);
@@ -48,8 +50,8 @@ public class CatalinaModifier extends AbstractModifier {
 
             return aClass.toBytecode();
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         }
         return null;

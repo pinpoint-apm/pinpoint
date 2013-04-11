@@ -1,6 +1,6 @@
 package com.profiler.util;
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.context.DefaultTrace;
 import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
@@ -56,7 +56,7 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf(MethodDescriptor.class.getName());
         this.delegateLoadingOf(ByteCodeMethodDescriptorSupport.class.getName());
         this.delegateLoadingOf(LoggingUtils.class.getName());
-        this.delegateLoadingOf(Agent.class.getName());
+        this.delegateLoadingOf(DefaultAgent.class.getName());
         this.delegateLoadingOf(TraceContext.class.getName());
         this.delegateLoadingOf(DefaultTraceContext.class.getName());
 

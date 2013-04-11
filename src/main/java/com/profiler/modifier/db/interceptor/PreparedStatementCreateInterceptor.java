@@ -1,22 +1,23 @@
 package com.profiler.modifier.db.interceptor;
 
 import com.profiler.common.util.ParsingResult;
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 
 import java.sql.Connection;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
-public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(PreparedStatementCreateInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(PreparedStatementCreateInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
 
@@ -26,6 +27,7 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
 
     private final MetaObject setSql = new MetaObject("__setSql", Object.class);
     private int apiId;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -33,10 +35,9 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
         if (JDBCScope.isInternal()) {
-            logger.fine("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -60,14 +61,13 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
         if (JDBCScope.isInternal()) {
-            logger.fine("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
         if (!InterceptorUtils.isSuccess(result)) {
             return;
             // TODO traceBlockEnd() 호출 해야함.
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -95,8 +95,11 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

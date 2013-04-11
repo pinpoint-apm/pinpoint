@@ -25,7 +25,7 @@ public class AgentTest {
     private void checkIdentifier() throws IOException {
         ProfilerConfig config = new ProfilerConfig();
 //        config.readConfigFile();
-        Agent agent = new Agent(config);
+        DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), config);
 
         short identifier = agent.getIdentifier();
         logger.info("{}", identifier);

@@ -2,9 +2,11 @@ package com.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.InstrumentException;
 import com.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
@@ -15,7 +17,7 @@ import com.profiler.modifier.AbstractModifier;
 
 public class MySQLStatementModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(MySQLStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLStatementModifier.class.getName());
 
     public MySQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -26,7 +28,7 @@ public class MySQLStatementModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
 
@@ -51,8 +53,8 @@ public class MySQLStatementModifier extends AbstractModifier {
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
             return statementClass.toBytecode();
         } catch (InstrumentException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
             return null;
         }

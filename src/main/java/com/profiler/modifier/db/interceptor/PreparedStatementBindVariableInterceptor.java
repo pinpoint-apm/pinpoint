@@ -1,9 +1,11 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.NumberUtils;
@@ -11,14 +13,15 @@ import com.profiler.util.bindvalue.BindValueConverter;
 
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
-public class PreparedStatementBindVariableInterceptor implements StaticAfterInterceptor {
+public class PreparedStatementBindVariableInterceptor implements StaticAfterInterceptor, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(PreparedStatementBindVariableInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(PreparedStatementBindVariableInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
+    private TraceContext traceContext;
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
@@ -26,11 +29,10 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
         }
         if (JDBCScope.isInternal()) {
-            logger.fine("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
 
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -38,8 +40,8 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
 
         Map bindList = getBindValue.invoke(target);
         if (bindList == null) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, "bindValue is null");
+            if (logger.isWarnEnabled()) {
+                logger.warn("bindValue is null");
             }
             return;
         }
@@ -51,5 +53,10 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
         String value = BindValueConverter.convert(methodName, args);
         bindList.put(index, value);
 
+    }
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 }

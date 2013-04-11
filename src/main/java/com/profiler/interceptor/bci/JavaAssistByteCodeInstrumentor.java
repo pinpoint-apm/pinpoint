@@ -8,6 +8,8 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -20,14 +22,22 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private ClassPool classPool;
 
+    private Agent agent;
+
     private ClassLoadChecker classLoadChecker = new ClassLoadChecker();
 
     public JavaAssistByteCodeInstrumentor() {
         this.classPool = createClassPool(null);
     }
 
-    public JavaAssistByteCodeInstrumentor(String[] pathNames) {
+    public JavaAssistByteCodeInstrumentor(String[] pathNames, Agent agent) {
         this.classPool = createClassPool(pathNames);
+        this.agent = agent;
+        checkLibrary(this.getClass().getClassLoader(), this.getClass().getName());
+    }
+
+    public Agent getAgent() {
+        return agent;
     }
 
     public ClassPool getClassPool() {
@@ -137,11 +147,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException {
+    public Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException {
         Class<?> aClass = this.defineClass(classLoader, interceptorFQCN, protectedDomain);
         try {
-            Class<?>[] paramClass = getParamClass(params);
-            Constructor<?> constructor = aClass.getConstructor(paramClass);
+//            Class<?>[] paramClass = getParamClass(params);
+            Constructor<?> constructor = aClass.getConstructor(paramClazz);
             return (Interceptor) constructor.newInstance(params);
         } catch (InstantiationException e) {
             throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);

@@ -2,25 +2,28 @@ package com.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.MetaObject;
 
-public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(TransactionInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(TransactionInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private MethodDescriptor descriptor;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -31,7 +34,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             logger.info("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -56,7 +58,6 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         if (JDBCScope.isInternal()) {
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -93,8 +94,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordException(result);
 
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         } finally {
             trace.markAfterTime();
@@ -130,8 +131,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordException(result);
 
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         } finally {
             trace.markAfterTime();
@@ -174,8 +175,8 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 //            }
             trace.recordException(result);
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         } finally {
             trace.markAfterTime();
@@ -186,9 +187,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

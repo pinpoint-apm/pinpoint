@@ -2,13 +2,14 @@ package com.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.AbstractModifier;
 
 /**
@@ -32,7 +33,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class HttpClient4Modifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(HttpClient4Modifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(HttpClient4Modifier.class.getName());
 
     public HttpClient4Modifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -43,22 +44,25 @@ public class HttpClient4Modifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
+            System.out.println("1--------------------------");
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            System.out.println("1-1--------------------------");
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.httpclient4.interceptor.ExecuteMethodInterceptor");
+            System.out.println("1-2--------------------------");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, interceptor);
-
+            System.out.println("2--------------------------");
             Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.httpclient4.interceptor.Execute2MethodInterceptor");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, interceptor2);
-
+            System.out.println("3--------------------------");
             return aClass.toBytecode();
-        } catch (InstrumentException e) {
-            // TODO log
+        } catch (Throwable e) {
+            logger.warn("httpclient4 modifier error. Caused:" + e.getMessage(), e);
             return null;
         }
     }

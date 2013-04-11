@@ -94,7 +94,8 @@ public class SystemMonitor {
 		}
 
 		private void activeThread(TraceContext traceContext, JVMInfoThriftDTO jvmInfo) {
-			int activeThread = traceContext.getActiveThreadCounter().getActiveThread();
+//			int activeThread = traceContext.getActiveThreadCounter().getActiveThread();
+            int activeThread = 0;
 			jvmInfo.setActiveThreadCount(activeThread);
 		}
 

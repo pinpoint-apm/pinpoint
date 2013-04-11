@@ -2,12 +2,14 @@ package com.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
@@ -19,7 +21,7 @@ import com.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMetho
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(HttpClient4Modifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(HttpClient4Modifier.class.getName());
 
 	public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -30,7 +32,7 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. " + javassistClassName);
 		}
 

@@ -1,5 +1,6 @@
 package com.profiler;
 
+import com.profiler.bootstrap.ClassPathResolver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

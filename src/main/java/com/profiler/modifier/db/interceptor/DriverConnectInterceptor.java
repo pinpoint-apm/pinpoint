@@ -1,27 +1,29 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.modifier.db.util.DatabaseInfo;
-import com.profiler.modifier.db.util.JDBCUrlParser;
+import com.profiler.modifier.db.DatabaseInfo;
+import com.profiler.modifier.db.JDBCUrlParser;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 /**
  *
  */
-public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(DriverConnectInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(DriverConnectInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
@@ -29,16 +31,16 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
 
     private MethodDescriptor descriptor;
     private int apiId;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
-            logger.fine("JDBCScope push:" + Thread.currentThread().getName());
+            logger.debug("JDBCScope push:" + Thread.currentThread().getName());
         }
-        JDBCScope.pushScope();
+        JDBCScope.push();
 
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -52,10 +54,10 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
-            logger.fine("JDBCScope pop:" + Thread.currentThread().getName());
+            logger.debug("JDBCScope pop:" + Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
-        JDBCScope.popScope();
+        JDBCScope.pop();
 
         boolean success = InterceptorUtils.isSuccess(result);
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
@@ -65,7 +67,6 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
             this.setUrl.invoke(result, databaseInfo);
         }
 
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -88,8 +89,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
 
     private DatabaseInfo createDatabaseInfo(String url) {
         DatabaseInfo databaseInfo = urlParser.parse(url);
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine("parse DatabaseInfo:" + databaseInfo);
+        if (logger.isDebugEnabled()) {
+            logger.debug("parse DatabaseInfo:" + databaseInfo);
         }
         return databaseInfo;
     }
@@ -98,9 +99,12 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

@@ -5,24 +5,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.util.ParsingResult;
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.MetaObject;
 
-public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
@@ -31,6 +33,7 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
     private MethodDescriptor descriptor;
     private int apiId;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -38,10 +41,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
         if (JDBCScope.isInternal()) {
-            logger.fine("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
 
         if (trace == null) {
@@ -73,8 +75,8 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
 
 
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         }
 
@@ -105,7 +107,6 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
         if (JDBCScope.isInternal()) {
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -115,8 +116,8 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
             trace.recordException(result);
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         } finally {
             trace.markAfterTime();
@@ -127,9 +128,12 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
     }
 
 
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

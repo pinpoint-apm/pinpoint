@@ -1,7 +1,7 @@
 package com.profiler.context;
 
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.common.dto.thrift.ApiMetaData;
 import com.profiler.common.dto.thrift.SqlMetaData;
 import com.profiler.common.util.ParsingResult;
@@ -63,23 +63,38 @@ public class DefaultTraceContext implements TraceContext {
         return threadLocal.get();
     }
 
-    @Override
-    public void attachTraceObject(DefaultTrace trace) {
+    public Trace continueTraceObject(TraceID traceID) {
         Trace old = this.threadLocal.get();
         if (old != null) {
             // 잘못된 상황의 old를 덤프할것.
             throw new IllegalStateException("already Trace Object exist.");
         }
         // datasender연결 부분 수정 필요.
-//        trace.setDataSender(this.dataSender);
+        DefaultTrace trace = new DefaultTrace(traceID);
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         trace.setTraceContext(this);
 
-        //
-//        trace.setTransactionId(transactionId.getAndIncrement());
         threadLocal.set(trace);
+        return trace;
     }
+
+    public Trace newTraceObject() {
+        Trace old = this.threadLocal.get();
+        if (old != null) {
+            // 잘못된 상황의 old를 덤프할것.
+            throw new IllegalStateException("already Trace Object exist.");
+        }
+        // datasender연결 부분 수정 필요.
+        DefaultTrace trace = new DefaultTrace();
+        Storage storage = storageFactory.createStorage();
+        trace.setStorage(storage);
+        trace.setTraceContext(this);
+
+        threadLocal.set(trace);
+        return trace;
+    }
+
 
     @Override
     public void detachTraceObject() {
@@ -90,7 +105,7 @@ public class DefaultTraceContext implements TraceContext {
         return globalCallTrace;
     }
 
-    @Override
+    //@Override
     public ActiveThreadCounter getActiveThreadCounter() {
         return activeThreadCounter;
     }
@@ -127,7 +142,7 @@ public class DefaultTraceContext implements TraceContext {
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             ApiMetaData apiMetadata = new ApiMetaData();
-            Agent agent = Agent.getInstance();
+            DefaultAgent agent = DefaultAgent.getInstance();
             apiMetadata.setAgentId(agent.getAgentId());
             apiMetadata.setAgentIdentifier(agent.getIdentifier());
 
@@ -162,10 +177,10 @@ public class DefaultTraceContext implements TraceContext {
             // 프로파일 데이터를 보내는데 사용되는 queue가 아니고,
             // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
             SqlMetaData sqlMetaData = new SqlMetaData();
-            sqlMetaData.setAgentId(Agent.getInstance().getAgentId());
-            sqlMetaData.setAgentIdentifier(Agent.getInstance().getIdentifier());
+            sqlMetaData.setAgentId(DefaultAgent.getInstance().getAgentId());
+            sqlMetaData.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
-            sqlMetaData.setStartTime(Agent.getInstance().getStartTime());
+            sqlMetaData.setStartTime(DefaultAgent.getInstance().getStartTime());
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);
 
@@ -174,6 +189,7 @@ public class DefaultTraceContext implements TraceContext {
         // hashId그냥 return String에서 까보면 됨.
         return parsingResult;
     }
+
 
     public void setPriorityDataSender(DataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;

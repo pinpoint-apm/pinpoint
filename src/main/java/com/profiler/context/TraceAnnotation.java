@@ -2,7 +2,7 @@ package com.profiler.context;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.util.AnnotationTranscoder;
+import com.profiler.util.AnnotationTranscoder;
 
 /**
  * @author netspider
@@ -34,8 +34,8 @@ public class TraceAnnotation implements Thriftable {
         return "Annotation [key=" + key + ", value=" + value + "]";
     }
 
-    public com.profiler.common.dto.thrift.Annotation toThrift() {
-        com.profiler.common.dto.thrift.Annotation ann = new com.profiler.common.dto.thrift.Annotation();
+    public Annotation toThrift() {
+        Annotation ann = new Annotation();
         ann.setKey(key.getCode());
         transcoder.mappingValue(value, ann);
         return ann;

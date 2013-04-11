@@ -1,31 +1,34 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
+import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.util.JDBCScope;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
-import com.profiler.modifier.db.util.DatabaseInfo;
+import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.MetaObject;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
  *
  * @author netspider
  */
-public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport {
+public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = Logger.getLogger(StatementExecuteUpdateInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(StatementExecuteUpdateInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
 //    private int apiId;
     private MethodDescriptor descriptor;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -33,10 +36,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
         if (JDBCScope.isInternal()) {
-            logger.fine("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -63,8 +65,8 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
             }
 
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
             }
         }
     }
@@ -77,7 +79,6 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
         if (JDBCScope.isInternal()) {
             return;
         }
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -93,7 +94,11 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
         traceContext.cacheApi(descriptor);
+    }
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 }

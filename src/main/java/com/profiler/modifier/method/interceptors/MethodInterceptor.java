@@ -1,9 +1,9 @@
 package com.profiler.modifier.method.interceptors;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.common.ServiceType;
-import com.profiler.context.DefaultTraceContext;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
@@ -16,8 +16,8 @@ import com.profiler.logging.LoggingUtils;
  */
 public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
 
-	private final Logger logger = Logger.getLogger(MethodInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+	private final Logger logger = LoggerFactory.getLogger(MethodInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
@@ -29,7 +29,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		Trace trace = DefaultTraceContext.getTraceContext().currentTraceObject();
+		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
@@ -46,7 +46,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
             LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
 		}
 
-		Trace trace = DefaultTraceContext.getTraceContext().currentTraceObject();
+		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
@@ -64,8 +64,7 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
     @Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
-        TraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.cacheApi(descriptor);
+        this.traceContext.cacheApi(descriptor);
     }
 
 	@Override

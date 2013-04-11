@@ -2,9 +2,11 @@ package com.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.LifeCycleEventListener;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -22,7 +24,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class TomcatStandardServiceModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(TomcatStandardServiceModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(TomcatStandardServiceModifier.class.getName());
 
 
     public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
@@ -34,7 +36,7 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
@@ -51,7 +53,7 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
 
             return standardService.toBytecode();
         } catch (InstrumentException e) {
-            logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+            logger.warn("modify fail. Cause:" + e.getMessage(), e);
             return null;
         }
     }

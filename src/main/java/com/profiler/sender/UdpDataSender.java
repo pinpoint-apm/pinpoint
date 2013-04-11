@@ -17,9 +17,9 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import com.profiler.common.dto.Header;
-import com.profiler.common.io.DefaultTBaseLocator;
-import com.profiler.common.io.HeaderTBaseSerializer;
-import com.profiler.common.io.TBaseLocator;
+import com.profiler.io.DefaultTBaseLocator;
+import com.profiler.io.HeaderTBaseSerializer;
+import com.profiler.io.TBaseLocator;
 import com.profiler.context.Thriftable;
 import com.profiler.util.Assert;
 
@@ -177,6 +177,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			logger.warning("sendPacket fail. invalid type:" + dto.getClass());
 			return;
 		}
+        // TODO single thread이므로 데이터 array를 nocopy해서 보낼수 있음.
 		byte[] sendData = serialize(tBase);
 		if (sendData == null) {
 			logger.warning("sendData is null");

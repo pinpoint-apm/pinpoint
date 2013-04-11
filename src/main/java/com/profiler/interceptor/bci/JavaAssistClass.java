@@ -170,6 +170,10 @@ public class JavaAssistClass implements InstrumentClass {
         try {
             if (interceptor != null) {
                 interceptorId = InterceptorRegistry.addInterceptor(interceptor);
+                // traceContext는 가장먼제 inject되어야 한다.
+                if (interceptor instanceof TraceContextSupport) {
+                    ((TraceContextSupport)interceptor).setTraceContext(instrumentor.getAgent().getTraceContext());
+                }
                 if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
                     setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
                 }

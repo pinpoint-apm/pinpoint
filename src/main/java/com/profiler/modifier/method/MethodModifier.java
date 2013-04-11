@@ -3,12 +3,14 @@ package com.profiler.modifier.method;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
+import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -21,7 +23,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class MethodModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(MethodModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(MethodModifier.class.getName());
 
 	public MethodModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -32,7 +34,7 @@ public class MethodModifier extends AbstractModifier {
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. " + javassistClassName);
 		}
 
@@ -53,7 +55,7 @@ public class MethodModifier extends AbstractModifier {
 				}
 				
 				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
-				setTraceContext(interceptor);
+//				setTraceContext(interceptor);
 
 				CtClass[] paramClass = m.getParameterTypes();
 
@@ -61,7 +63,7 @@ public class MethodModifier extends AbstractModifier {
 				for (int i = 0; i < paramClass.length; i++) {
 					params[i] = paramClass[i].getName();
 				}
-                if(logger.isLoggable(Level.INFO)) {
+                if(logger.isInfoEnabled()) {
                     logger.info("### c=" + javassistClassName + ", m=" + m.getName() + ", params=" + Arrays.toString(params));
                 }
 				clazz.addInterceptor(m.getName(), params, interceptor);
@@ -69,7 +71,7 @@ public class MethodModifier extends AbstractModifier {
 
 			return clazz.toBytecode();
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+			logger.warn("modify fail. Cause:" + e.getMessage(), e);
 			return null;
 		}
 	}

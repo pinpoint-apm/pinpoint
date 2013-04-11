@@ -1,6 +1,7 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.LifeCycleEventListener;
 import com.profiler.interceptor.StaticAfterInterceptor;
@@ -11,8 +12,8 @@ import com.profiler.logging.LoggingUtils;
  */
 public class StandardServiceStartInterceptor implements StaticAfterInterceptor {
 
-    private final Logger logger = Logger.getLogger(StandardServiceStartInterceptor.class.getName());
-    private final boolean isDebug = LoggingUtils.isDebug(logger);
+    private final Logger logger = LoggerFactory.getLogger(StandardServiceStartInterceptor.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private LifeCycleEventListener lifeCycleEventListener;
 

@@ -1,5 +1,7 @@
 package com.profiler.modifier.db.util;
 
+import com.profiler.modifier.db.DatabaseInfo;
+import com.profiler.modifier.db.JDBCUrlParser;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -15,7 +17,7 @@ import java.net.URI;
 public class JDBCUrlParserTest {
 
     private Logger logger = LoggerFactory.getLogger(JDBCUrlParserTest.class);
-    private JDBCUrlParser JDBCUrlParser = new JDBCUrlParser();
+    private com.profiler.modifier.db.JDBCUrlParser JDBCUrlParser = new JDBCUrlParser();
 
     @Test
     public void testURIParse() throws Exception {

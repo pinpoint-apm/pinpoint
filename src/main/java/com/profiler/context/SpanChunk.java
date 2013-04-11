@@ -1,6 +1,7 @@
 package com.profiler.context;
 
-import com.profiler.Agent;
+import com.profiler.DefaultAgent;
+import com.profiler.common.dto.thrift.Annotation;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
@@ -25,9 +26,9 @@ public class SpanChunk implements Thriftable {
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
 
-        tSpanChunk.setAgentId(Agent.getInstance().getAgentId());
-        tSpanChunk.setApplicationId(Agent.getInstance().getApplicationName());
-        tSpanChunk.setAgentIdentifier(Agent.getInstance().getIdentifier());
+        tSpanChunk.setAgentId(DefaultAgent.getInstance().getAgentId());
+        tSpanChunk.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+        tSpanChunk.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
         UUID id = parentSpan.getTraceID().getId();
         tSpanChunk.setMostTraceId(id.getMostSignificantBits());
@@ -63,7 +64,7 @@ public class SpanChunk implements Thriftable {
             tSpanEvent.setEndPoint(spanEvent.getEndPoint());
 
             // 여기서 데이터 인코딩을 하자.
-            List<com.profiler.common.dto.thrift.Annotation> annotationList = new ArrayList<com.profiler.common.dto.thrift.Annotation>(spanEvent.getAnnotationSize());
+            List<Annotation> annotationList = new ArrayList<Annotation>(spanEvent.getAnnotationSize());
             for (TraceAnnotation traceAnnotation : spanEvent.getTraceAnnotationList()) {
                 annotationList.add(traceAnnotation.toThrift());
             }

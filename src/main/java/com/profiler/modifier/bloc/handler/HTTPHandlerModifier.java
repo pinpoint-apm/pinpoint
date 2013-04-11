@@ -2,13 +2,15 @@ package com.profiler.modifier.bloc.handler;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.AbstractModifier;
 
 /**
@@ -16,7 +18,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class HTTPHandlerModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(HTTPHandlerModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(HTTPHandlerModifier.class.getName());
 
     public HTTPHandlerModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -27,7 +29,7 @@ public class HTTPHandlerModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
 

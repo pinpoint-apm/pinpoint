@@ -1,7 +1,7 @@
 package com.profiler.util;
 
-import com.profiler.common.dto.Header;
-import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.common.dto2.Header;
+import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
 import com.profiler.common.io.DefaultTBaseLocator;
 import com.profiler.common.io.HeaderTBaseDeserializer;
 import com.profiler.common.io.HeaderTBaseSerializer;

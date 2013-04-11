@@ -2,12 +2,14 @@ package com.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.modifier.arcus.interceptors.BaseOperationConstructInterceptor;
 
@@ -16,7 +18,7 @@ import com.profiler.modifier.arcus.interceptors.BaseOperationConstructIntercepto
  */
 public class BaseOperationModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(BaseOperationModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(BaseOperationModifier.class.getName());
 
     public BaseOperationModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -27,7 +29,7 @@ public class BaseOperationModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
 
@@ -48,8 +50,8 @@ public class BaseOperationModifier extends AbstractModifier {
 
             return aClass.toBytecode();
         } catch (Exception e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn( e.getMessage(), e);
             }
             return null;
         }

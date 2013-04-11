@@ -2,9 +2,11 @@ package com.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -18,7 +20,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class StandardHostValveInvokeModifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(StandardHostValveInvokeModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(StandardHostValveInvokeModifier.class.getName());
 
     public StandardHostValveInvokeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -29,7 +31,7 @@ public class StandardHostValveInvokeModifier extends AbstractModifier {
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
         }
 
@@ -37,13 +39,13 @@ public class StandardHostValveInvokeModifier extends AbstractModifier {
 
         try {
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor");
-            setTraceContext(interceptor);
+//            setTraceContext(interceptor);
 
             InstrumentClass standardHostValve = byteCodeInstrumentor.getClass(javassistClassName);
             standardHostValve.addInterceptor("invoke", new String[]{"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, interceptor);
             return standardHostValve.toBytecode();
         } catch (InstrumentException e) {
-            logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+            logger.warn("modify fail. Cause:" + e.getMessage(), e);
             return null;
         }
     }

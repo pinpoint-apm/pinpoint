@@ -1,6 +1,7 @@
 package com.profiler.modifier.db.mysql;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
@@ -14,11 +15,12 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
-    private final Logger logger = Logger.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
     private final String[] includes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
     public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
@@ -31,7 +33,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
     @Override
     public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + className);
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, className);
@@ -42,8 +44,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
             return preparedStatement.toBytecode();
         } catch (InstrumentException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
             return null;
         }
@@ -69,8 +71,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
                 }
             } catch (NotFoundInstrumentException e) {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "bindVariable api not found. Cause:" + e.getMessage(), e);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("bindVariable api not found. Cause:" + e.getMessage(), e);
                 }
             }
         }

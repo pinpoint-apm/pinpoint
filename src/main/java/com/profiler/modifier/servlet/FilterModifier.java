@@ -2,13 +2,15 @@ package com.profiler.modifier.servlet;
 
 import java.security.ProtectionDomain;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
+import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.AbstractModifier;
 
 /**
@@ -18,7 +20,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class FilterModifier extends AbstractModifier {
 
-	private final Logger logger = Logger.getLogger(FilterModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(FilterModifier.class.getName());
 
 	public FilterModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -29,7 +31,7 @@ public class FilterModifier extends AbstractModifier {
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isLoggable(Level.INFO)) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. " + javassistClassName);
 		}
 
@@ -38,7 +40,7 @@ public class FilterModifier extends AbstractModifier {
 		try {
 			Interceptor doFilterInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
 
-			setTraceContext(doFilterInterceptor);
+//			setTraceContext(doFilterInterceptor);
 
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
 
@@ -46,7 +48,7 @@ public class FilterModifier extends AbstractModifier {
 
 			return servlet.toBytecode();
 		} catch (InstrumentException e) {
-			logger.log(Level.WARNING, "modify fail. Cause:" + e.getMessage(), e);
+			logger.info("modify fail. Cause:" + e.getMessage(), e);
 			return null;
 		}
 	}
