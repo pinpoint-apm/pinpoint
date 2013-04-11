@@ -3,6 +3,8 @@ package com.profiler.context;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
 
+import java.util.UUID;
+
 /**
  *
  */
@@ -29,4 +31,6 @@ public interface TraceContext {
     int cacheApi(MethodDescriptor methodDescriptor);
 
     ParsingResult parseSql(String sql);
+
+    TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, boolean sampled, short flags);
 }

@@ -92,6 +92,7 @@ public class TomcatBootStrap {
 
 
     private static List<URL> resolveLib(ClassPathResolver classPathResolver)  {
+        // 절대경로만 처리되지 않나함. 상대 경로(./../agentlib/lib등)일 경우의 처리가 있어야 될것 같음.
         String agentJarFullPath = classPathResolver.getAgentJarFullPath();
         logger.info("agentJarPath:" + agentJarFullPath);
 
