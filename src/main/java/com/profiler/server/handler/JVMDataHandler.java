@@ -1,7 +1,7 @@
 package com.profiler.server.handler;
 
-import com.profiler.common.dto.Header;
-import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.common.dto2.Header;
+import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
 import com.profiler.common.io.PacketUtils;
 import com.profiler.server.dao.JvmInfoDao;
 import org.apache.thrift.TBase;

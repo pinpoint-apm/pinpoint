@@ -1,8 +1,8 @@
 package com.profiler.server.dao;
 
-import com.profiler.common.dto.thrift.SpanEvent;
-import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.dto.thrift.SpanChunk;
+import com.profiler.common.dto2.thrift.SpanEvent;
+import com.profiler.common.dto2.thrift.Span;
+import com.profiler.common.dto2.thrift.SpanChunk;
 
 public interface TracesDao {
     void insert(Span span);

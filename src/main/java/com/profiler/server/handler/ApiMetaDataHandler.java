@@ -1,6 +1,6 @@
 package com.profiler.server.handler;
 
-import com.profiler.common.dto.thrift.ApiMetaData;
+import com.profiler.common.dto2.thrift.ApiMetaData;
 import com.profiler.server.dao.ApiMetaDataDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;

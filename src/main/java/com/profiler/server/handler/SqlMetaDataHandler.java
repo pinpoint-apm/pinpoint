@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto.thrift.SqlMetaData;
+import com.profiler.common.dto2.thrift.SqlMetaData;
 import com.profiler.server.dao.SqlMetaDataDao;
 
 /**

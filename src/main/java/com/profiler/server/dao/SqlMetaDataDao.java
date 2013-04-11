@@ -1,6 +1,6 @@
 package com.profiler.server.dao;
 
-import com.profiler.common.dto.thrift.SqlMetaData;
+import com.profiler.common.dto2.thrift.SqlMetaData;
 
 /**
  *

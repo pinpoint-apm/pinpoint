@@ -22,8 +22,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Annotation;
-import com.profiler.common.dto.thrift.Span;
+import com.profiler.common.dto2.thrift.Annotation;
+import com.profiler.common.dto2.thrift.Span;
 import com.profiler.common.hbase.HBaseAdminTemplate;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;

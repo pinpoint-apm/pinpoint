@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.ServiceType;
-import com.profiler.common.dto.thrift.Span;
-import com.profiler.common.dto.thrift.SpanEvent;
+import com.profiler.common.dto2.thrift.Span;
+import com.profiler.common.dto2.thrift.SpanEvent;
 import com.profiler.common.util.SpanEventUtils;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;

@@ -1,6 +1,6 @@
 package com.profiler.server.dao.hbase;
 
-import com.profiler.common.dto.thrift.ApiMetaData;
+import com.profiler.common.dto2.thrift.ApiMetaData;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.buffer.Buffer;

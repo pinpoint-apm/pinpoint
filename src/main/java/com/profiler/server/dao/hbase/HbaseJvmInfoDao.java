@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
+import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.RowKeyUtils;

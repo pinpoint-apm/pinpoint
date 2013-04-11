@@ -8,7 +8,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.profiler.common.dto.AgentInfoDTO;
+import com.profiler.common.dto2.AgentInfoDTO;
 import com.profiler.server.config.TomcatProfilerReceiverConfig;
 
 @Deprecated

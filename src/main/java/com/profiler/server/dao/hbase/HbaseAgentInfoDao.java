@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.dto.thrift.AgentInfo;
+import com.profiler.common.dto2.thrift.AgentInfo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.RowKeyUtils;

@@ -2,7 +2,7 @@ package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
-import com.profiler.common.dto.thrift.*;
+import com.profiler.common.dto2.thrift.*;
 import com.profiler.server.util.AcceptedTimeService;
 import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
