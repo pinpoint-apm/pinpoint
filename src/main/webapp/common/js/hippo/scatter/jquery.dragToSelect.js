@@ -85,13 +85,17 @@ jQuery.fn.dragToSelect = function (conf) {
 		return this;
 	}
 
-	var parentOffset	= parent.offset();
-	var parentDim		= {
-		left:	parentOffset.left, 
-		top:	parentOffset.top, 
-		width:	parent.width(), 
-		height:	parent.height()
-	};
+	var parentOffset, parentDim;
+	jQuery(window).resize(function(){
+		parentOffset	= parent.offset();
+		parentDim		= {
+			left:	parentOffset.left, 
+			top:	parentOffset.top, 
+			width:	parent.width(), 
+			height:	parent.height()
+		};
+	});
+	jQuery(window).trigger('resize');
 
 	// Current origin of select box
 	var selectBoxOrigin = {
@@ -103,13 +107,15 @@ jQuery.fn.dragToSelect = function (conf) {
 	var selectBox = jQuery('<div/>')
 						.appendTo(parent)
 						.attr('class', config.className)
-						.css('position', 'absolute');
+						.css('position', 'absolute')
+						.hide();
 
 	// Shows the select box
 	var showSelectBox = function (e) {
 		if (parent.is('.' + config.disabledClass)) {
 			return;
 		}
+		selectBox.show();
 
 		selectBoxOrigin.left	= e.pageX - parentDim.left + parent[0].scrollLeft;
 		selectBoxOrigin.top		= e.pageY - parentDim.top + parent[0].scrollTop;
@@ -317,6 +323,7 @@ jQuery.fn.dragToSelect = function (conf) {
 	// 	parent.disableTextSelect();
 	// }
 
+	var bIsDraging = false;
 	parent
 		.mousedown(function (e) {
 			// Make sure user isn't clicking scrollbar (or disallow clicks far to the right actually)
@@ -324,11 +331,14 @@ jQuery.fn.dragToSelect = function (conf) {
 				return;
 			}
 
+			bIsDraging = true;
+
 			showSelectBox(e);
 
 			e.preventDefault();
 		});
 	jQuery(document).mousemove(function (e) {
+			if(!bIsDraging) return;
 			refreshSelectBox(e);
 
 			if (config.selectables && config.selectOnMove) {			
@@ -342,11 +352,15 @@ jQuery.fn.dragToSelect = function (conf) {
 			e.preventDefault();
 		})
 		.mouseup(function (e) {
+			if(!bIsDraging) return;
 			if (config.selectables) {			
 				selectElementsInRange();
 			}
 
+			bIsDraging = false;
+
 			hideSelectBox(e);
+			// console.log('e', e);
 
 			e.preventDefault();
 		});

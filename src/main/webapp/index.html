@@ -32,8 +32,6 @@
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
 
 	<script type="text/javascript" src="/common/js/d3.js"></script>
-	<script type="text/javascript" src="/common/js/d3.chart.js"></script>
-	<script type="text/javascript" src="/common/js/d3.chart.scatter.js"></script>
     
     <!-- scatter chart -->
     <script type="text/javascript" src="/common/js/hippo/chart-scatter3.js"></script>
@@ -174,17 +172,14 @@
 <div class="container" id="warningMessage"></div>
 
 <!-- MENU -->
-<div class="container-fluid">
-    <div style="position:relative;">
-        <div style="margin-right:530px;">
-			<div id="springygraph" style="height:700px;border:1px solid #DDDDDD;overflow:hidden;position:relative;display:none;"></div>
-		</div>
-        <div style="position:absolute;top:0;right:0;width:510px;">
-        	<h5 style="display:none;" id="scattercharttitle">Response scatter</h5>
-			<div id="scatterchart"></div>
-		</div>
-    </div>
-    
+<div class="chart-container">
+    <div class="chart-left">
+		<div id="springygraph" class="servermap"></div>
+	</div>
+	<div class="chart-right">
+		<h5 style="display:none;" id="scattercharttitle">Response scatter</h5>
+		<div id="scatterchart"></div>
+	</div>
 </div>
 <!-- END OF MENU -->
 

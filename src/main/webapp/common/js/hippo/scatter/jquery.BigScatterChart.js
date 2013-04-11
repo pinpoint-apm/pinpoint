@@ -18,11 +18,31 @@ var BigScatterChart = $.Class({
 			'nPaddingLeft' : 50,
 			'sLineColor' : '#000',			
 			'htTypeAndColor' : {
-				'Success' : '#2ca02c', // type name : color
-				'Failed' : '#d62728' // the order is asc, 
+				'Success' : '#b6da54', // type name : color
+				'Warning' : '#fcc666',
+				'Failed' : '#fd7865',
+				'Others' : '#55c7c7'
 			},
 			'sPrefix' : 'bigscatterchart-',
 			'nZIndexForCanvas' : 0,
+			'htGuideLine' : {
+				'nLineWidth' : 1,
+				'aLineDash' : [2, 5],
+				'nGlobalAlpha' : 0.2
+			},
+			'sXLabel' : '',
+			'sYLabel' : '',
+			'htLabelStyle' : {
+				'font-size': '10px',
+				'line-height': '20px',
+				'height': '20px',
+			},
+			'sShowNoData' : 'No Data',
+			'htShowNoDataStyle' : {
+				'font-size' : '15px',
+				'color' : '#000',
+				'font-weight' : 'bold'
+			},
 			'fXAxisFormat' : function(nXStep, i){
 				var nMilliseconds = (nXStep * i + this._nXMin),
 					sDate = new Date(nMilliseconds).toString("HH:mm");
@@ -149,15 +169,14 @@ var BigScatterChart = $.Class({
 		});
 		this._welOverlay.appendTo(this._welContainer);
 
+		var htLabelStyle = this.option('htLabelStyle');
 		// x axis
 		for(var i=0; i<=this.option('nXSteps'); i++){
 			this._nXNumbers.push($('<div>')
 				.text(' ')
+				.css(htLabelStyle)
 				.css({
 					'position': 'absolute',
-					'font-size': '10px',
-					'line-height': '20px',
-					'height': '20px',
 					'width': nXStep + 'px',
 					'text-align': 'center',
 					'top': (nHeight - nPaddingBottom + 10) + 'px',
@@ -171,22 +190,68 @@ var BigScatterChart = $.Class({
 		for(var i=0; i<=this.option('nYSteps'); i++){
 			this._nYNumbers.push($('<div>')
 				.text(' ')
+				.css(htLabelStyle)
 				.css({
 					'position': 'absolute',
-					'font-size': '10px',
-					'line-height': '20px',
-					'height': '20px',
 					'vertical-align': 'middle',
 					'width': (nPaddingLeft - 15) + 'px',
 					'text-align': 'right',
 					'top': (nBubbleSize + (i * nYStep) + nPaddingTop - 10) + 'px',
 					'left': '0px',
-					'color': '#000'
+					'color': sLineColor
 				})
 			);
 		}
 		this._welOverlay.append(this._nXNumbers);
 		this._welOverlay.append(this._nYNumbers);	
+
+		// sXLabel
+		var sXLabel = this.option('sXLabel');
+		if(_.isString(sXLabel) && sXLabel.length > 0){
+			this._welOverlay.append($('<div>')
+									.text(sXLabel)
+									.css(htLabelStyle)
+									.css({
+										'position': 'absolute',
+										'text-align': 'center',
+										'top': (nHeight - nPaddingBottom + 10) + 'px',
+										'right': 0,
+										'color': sLineColor
+									})
+			);
+		}		
+
+		// sYLabel
+		var sYLabel = this.option('sYLabel');
+		if(_.isString(sYLabel) && sYLabel.length > 0){
+			this._welOverlay.append($('<div>')
+									.text(sYLabel)
+									.css(htLabelStyle)
+									.css({
+										'position' : 'absolute',
+										'vertical-align' : 'middle',
+										'width': (nPaddingLeft - 15) + 'px',
+										'text-align': 'right',
+										'top': (nBubbleSize + nPaddingTop + 10) + 'px',
+										'left': '0px',
+										'color': sLineColor
+									})
+			);
+		}
+
+		// sShowNoData
+		var sShowNoData = this.option('sShowNoData'),
+			htShowNoDataStyle = this.option('htShowNoDataStyle');
+		this._welShowNoData = $('<div>')
+								.text(sShowNoData)
+								.css(htShowNoDataStyle)
+								.css({
+									'position' : 'absolute',
+									'top' : nHeight/2 + 'px',
+									'width' : '100%',
+									'text-align' : 'center'								
+								});
+		this._welOverlay.append(this._welShowNoData);
 		
 		// count per type to show up
 		this._welTypeUl = $('<ul>')
@@ -384,7 +449,8 @@ var BigScatterChart = $.Class({
 			nBubbleSize = this.option('nBubbleSize'),
 			nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight'),
-			sLineColor = this.option('sLineColor');
+			sLineColor = this.option('sLineColor'),
+			htGuideLine = this.option('htGuideLine');
 
 		this._oGuideCtx.lineWidth = 2;
 		this._oGuideCtx.lineCap = 'round';
@@ -400,7 +466,7 @@ var BigScatterChart = $.Class({
 
 		for(var i=0; i<=this.option('nXSteps'); i++){
 			var mov = nPaddingLeft + nBubbleSize + nXStep * i;
-			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
 			this._oGuideCtx.setLineDash([0]);
 			this._oGuideCtx.globalAlpha = 1;
 	  		this._oGuideCtx.beginPath();
@@ -409,9 +475,9 @@ var BigScatterChart = $.Class({
 			this._oGuideCtx.stroke();
 
 			// x 축 가이드라인
-			this._oGuideCtx.lineWidth = 1;
-			this._oGuideCtx.setLineDash([2,5]);
-			this._oGuideCtx.globalAlpha = 0.2;
+			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
+			this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
+			this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;
 			this._oGuideCtx.beginPath();
 			this._oGuideCtx.moveTo(mov, nPaddingTop);
 			this._oGuideCtx.lineTo(mov, nHeight - nPaddingBottom);
@@ -420,7 +486,7 @@ var BigScatterChart = $.Class({
 
 		for(var i=0; i<=this.option('nYSteps'); i++){
 			var mov = nHeight - (nPaddingBottom + nBubbleSize + nYStep * i);
-			this._oGuideCtx.lineWidth = 1;
+			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
 			this._oGuideCtx.setLineDash([0]);
 			this._oGuideCtx.globalAlpha = 1;			
 			this._oGuideCtx.beginPath();
@@ -429,9 +495,9 @@ var BigScatterChart = $.Class({
 			this._oGuideCtx.stroke();
 
 			// y 축 가이드라인
-			this._oGuideCtx.lineWidth = 1;
-			this._oGuideCtx.setLineDash([2,5]);
-			this._oGuideCtx.globalAlpha = 0.2;
+			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
+			this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
+			this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;
 			this._oGuideCtx.beginPath();
 			this._oGuideCtx.moveTo(nPaddingLeft, mov);
 			this._oGuideCtx.lineTo(nWidth - nPaddingRight, mov);			
@@ -556,6 +622,10 @@ var BigScatterChart = $.Class({
 		this._showTypeCount();		
 		this.updateXYAxis();
 
+		if(this._aBubbles.length > 0){
+			this._hideNoData();	
+		}
+		
 		for(var i=0, nLen = this._aBubbles.length; i<nLen; i++){
 			this._drawBubbules(this._aBubbles[i]);
 		}
@@ -569,17 +639,22 @@ var BigScatterChart = $.Class({
 			htType = this.option('htTypeAndColor');
 
 		_.each(htType, function(sVal, sKey){
-			this._htBubbleCtx[sKey].clearRect(nPaddingLeft + 2, 0, nWidth, nHeight - (nPaddingBottom + 2));
+			this._htBubbleCtx[sKey].clearRect(0, 0, nWidth, nHeight);
 		}, this);		
 		this._resetTypeCount();
+		this._showTypeCount();
 		this._aBubbles = [];
 		this._aBubbleStep = [];
+		this._showNoData();
 	},
 
 	addBubbleAndDraw : function(aBubbles){
 		if(_.isArray(aBubbles) === false || aBubbles.length === 0){
 			return;
 		}
+		if(aBubbles.length > 0){
+			this._hideNoData();	
+		}		
 
 		this.addBubbles(aBubbles);
 		this._showTypeCount();	
@@ -651,6 +726,8 @@ var BigScatterChart = $.Class({
 
 		if(_.isArray(aBubbles) === false || aBubbles.length === 0){
 			return;
+		}else{
+			this._hideNoData();
 		}
 		if(nXMax > this._nXMax){
 			var nXGap = nXMax - this._nXMax;
@@ -819,6 +896,14 @@ var BigScatterChart = $.Class({
 		}
 		// console.timeEnd('getDataByXY');
 		return aData;
+	},
+
+	_hideNoData : function(){
+		this._welShowNoData.hide();
+	},
+
+	_showNoData : function(){
+		this._welShowNoData.show();
 	},
 
 	destroy : function(){

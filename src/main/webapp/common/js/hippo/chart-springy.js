@@ -20,7 +20,7 @@ function showServerMap(applicationName) {
 		}
 		
         drawSpringy(applicationName, data.graphdata, "#springygraph", 1100, 500);
-    	$("#springygraph").css("display", "");
+    	$("#springygraph").show();
     };
 
     if (isQueryFromNow()) {

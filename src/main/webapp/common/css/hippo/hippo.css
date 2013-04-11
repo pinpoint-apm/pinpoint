@@ -87,3 +87,26 @@ path.link {
 .hippo-action-icon {
 	cursor:pointer;
 }
+
+.chart-container {
+	position:relative;
+}
+	
+.chart-left {
+	margin-right:530px;
+}
+
+.chart-right {
+	position:absolute;
+	top:0;
+	right:0;
+	width:510px;
+}
+
+.servermap {
+	height:700px;
+	border:1px solid #DDDDDD;
+	overflow:hidden;
+	position:relative;
+	display:none;
+}
