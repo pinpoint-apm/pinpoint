@@ -1,24 +1,18 @@
 var helptext = {
-		// Focus on passing transactions
-		1001 : "선택한 구간이나 리소스를 사용하는 요청으로 서버 지도를 다시 그립니다.",
-		// Response scatter chart
-		1002 : "응답시간에 대한 scatter chart를 조회합니다.",
-		// Show Requests
-		1003 : "선택한 구간이나 리소스를 통과하는 요청들의 목록을 조회합니다.",
-		// response statistics 
-		1004 : "선택한 구간을 지나는 요청의 응답시간 분포입니다.",
+		1001 : ["Focus on passing transactions", "선택한 구간이나 리소스를 사용하는 요청으로 서버 지도를 다시 그립니다."],
+		1002 : ["Show Requests", "선택한 구간이나 리소스를 통과하는 요청들의 목록을 조회합니다."],
+		1003 : ["Response scatter chart", "응답시간에 대한 scatter chart를 조회합니다."],
+		1004 : ["Response statistics", "선택한 구간을 지나는 요청의 응답시간 분포입니다."],
 		
-		// scatter chart란?
-		2001 : "",
-		// request list
-		2002 : ""
+		2001 : ["scatter chart", ""],
+		2002 : ["request list", ""]
 }
 
-function help(id) {
-	var msg = helptext[id];
-	if(msg) {
-		alert("\n\n" + helptext[id] + "\n\n");
-	} else {
-		alert("\n\n죄송합니다. 도움말을 찾을 수 없습니다.\n\n")
-	}
+function help(id, src) {
+	$(src).popover({
+		"title" : helptext[id][0] + " <i class='hippo-action-icon icon-remove' onclick='$(this).parent().parent().parent().remove();'></i>",
+		"content" : helptext[id][1],
+		"trigger" : "click",
+		"html" : true
+	}).popover('toggle');
 }

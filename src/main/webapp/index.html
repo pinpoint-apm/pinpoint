@@ -297,7 +297,7 @@ $(document).ready(function () {
 <script id="EdgeBox" type="text/x-jquery-tmpl">
 	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px; ">
 			Response statistics
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1004);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1004, this);"></i>
 			<ul>
 				{{var lastKey=''}}
 				{{each(key, value) histogram}}
@@ -309,9 +309,9 @@ $(document).ready(function () {
 			</ul>
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1001);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
 			<br/><a href="#" onclick="alert('Sorry. Not implemented.\n query param = ${rawdata.sourceinfo.applicationName} -> ${rawdata.targetinfo.applicationName}');">Show Requests</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1003);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
@@ -352,11 +352,11 @@ $(document).ready(function () {
 			{{/if}}
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1001);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
 			<br/><a href="#" onclick="showResponseScatter('${label}');">Response scatter chart</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1003);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
 			<br/><a href="#" onclick="showRequests('${label}');">Show Requests</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1002);"></i>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
