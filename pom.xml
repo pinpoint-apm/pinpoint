@@ -181,7 +181,7 @@
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
-            <version>0.8.0</version>
+            <version>0.9.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
