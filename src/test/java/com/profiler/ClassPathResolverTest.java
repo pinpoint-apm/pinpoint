@@ -18,7 +18,7 @@ public class ClassPathResolverTest {
 
     @Test
     public void testFindAgentJar() throws Exception {
-        String path = "D:\\nhn_source\\hippo_project\\deploy\\apache-tomcat-6.0.35\\bin\\bootstrap.jar;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/lib/javassist-3.16.1.GA.jar;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/lib/libthrift-0.8.0.wolog.jar;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/lib/hippo-commons-0.0.2.jar;;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/hippo-tomcat-profiler-0.0.2.jar";
+        String path = "D:\\nhn_source\\hippo_project\\deploy\\apache-tomcat-6.0.35\\bin\\bootstrap.jar;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/lib/javassist-3.16.1.GA.jar;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/lib/hippo-commons-0.0.2.jar;;D:\\nhn_source\\hippo_project\\deploy\\agent\\agentlib/hippo-tomcat-profiler-0.0.2.jar";
         // D:\nhn_source\hippo_project\deploy\agent\agentlib/hippo-tomcat-profiler-0.0.2.jar
         ClassPathResolver classPathResolver = new ClassPathResolver(path);
         boolean findAgentJar = classPathResolver.findAgentJar();
