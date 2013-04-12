@@ -1,10 +1,11 @@
 package com.profiler.util;
 
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import javassist.*;
 import javassist.bytecode.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
@@ -209,14 +210,22 @@ public class JavaAssistUtils {
     }
 
     private static void dump(LocalVariableAttribute lva) {
-        Logger logger = Logger.getLogger(JavaAssistUtils.class.getName());
-        if (logger.isLoggable(Level.FINE)) {
+        Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class.getName());
+        if (logger.isInfoEnabled()) {
             StringBuilder buffer = new StringBuilder(1024);
             for (int i = 0; i < lva.tableLength(); i++) {
                 buffer.append("\n");
-                buffer.append(i + "  start_pc:" + lva.startPc(i) + "  index:" + lva.index(i) + "  name:" + lva.variableName(i) + "  nameIndex:" + lva.nameIndex(i));
+                buffer.append(i);
+                buffer.append("  start_pc:");
+                buffer.append(lva.startPc(i));
+                buffer.append("  index:");
+                buffer.append(lva.index(i));
+                buffer.append("  name:");
+                buffer.append(lva.variableName(i));
+                buffer.append("  nameIndex:");
+                buffer.append(lva.nameIndex(i));
             }
-            logger.fine(buffer.toString());
+            logger.info(buffer.toString());
         }
     }
 
