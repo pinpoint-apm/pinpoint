@@ -2,6 +2,8 @@ package com.profiler.util;
 
 import org.junit.Test;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.logging.Logger;
 
 /**
@@ -12,7 +14,11 @@ public class NetworkUtilsTest {
 
     @Test
     public void testGetMachineName() throws Exception {
-        String machineName = NetworkUtils.getMachineName();
-        logger.info(machineName);
+//        NetworkInterface.getByName(InetAddress.getLocalHost());
+//        String machineName = NetworkUtils.getMachineName();
+//        System.out.println(InetAddress.getLocalHost().getHostAddress());
+//        System.out.println(InetAddress.getLocalHost().getHostName());
+//        System.out.println(InetAddress.getLocalHost().getCanonicalHostName());
+//        logger.info(machineName);
     }
 }
