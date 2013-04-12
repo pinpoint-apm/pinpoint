@@ -2,21 +2,21 @@ package com.profiler.context;
 
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.logging.LoggingUtils;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.util.StringUtils;
 
 /**
  *
  */
 public class DefaultAsyncTrace implements AsyncTrace {
-    private static final Logger logger = Logger.getLogger(DefaultAsyncTrace.class.getName());
-    private static final boolean isDebug = logger.isLoggable(Level.FINE);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
+    private static final boolean isTrace = logger.isTraceEnabled();
+
 
     public static final int NON_REGIST = -1;
     // private int id;
@@ -163,13 +163,13 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     void logSpan(SpanEvent spanEvent) {
         try {
-            if (isDebug) {
+            if (isTrace) {
                 Thread thread = Thread.currentThread();
-                logger.info("[WRITE SpanEvent]" + spanEvent + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
+                logger.trace("[WRITE SpanEvent]" + spanEvent + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
             }
             this.storage.store(spanEvent);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         }
     }
 

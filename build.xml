@@ -5,18 +5,28 @@
     <property name="agent.dir" value="${basedir}/../deploy/agent/agentlib/lib"/>
     <property name="target.dir" value="${basedir}/target/"/>
 
+    <target name="deploy" depends="mvn.build.install, copy.agent">
+    </target>
 
-    <target name="copy.agent.deploy.dir" depends="mvn.build">
+    <target name="mvn.build.install">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="install"/>
+        </exec>
+    </target>
+
+    <target name="copy.agent">
         <copy file="${target.dir}/hippo-tomcat-profiler-0.0.2.jar"  todir="${agent.dir}" overwrite="true">
         </copy>
     </target>
 
-    <target name="mvn.build">
+    <target name="mvn.build.jar">
         <exec executable="${maven.dir}/bin/mvn.bat">
             <arg value="compile"/>
             <arg value="jar:jar"/>
         </exec>
     </target>
+
+
 
 
     <!--<target name="clean" >-->

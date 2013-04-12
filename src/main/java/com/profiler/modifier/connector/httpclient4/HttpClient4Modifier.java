@@ -50,16 +50,14 @@ public class HttpClient4Modifier extends AbstractModifier {
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            System.out.println("1--------------------------");
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-            System.out.println("1-1--------------------------");
+
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.httpclient4.interceptor.ExecuteMethodInterceptor");
-            System.out.println("1-2--------------------------");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, interceptor);
-            System.out.println("2--------------------------");
+
             Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.connector.httpclient4.interceptor.Execute2MethodInterceptor");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, interceptor2);
-            System.out.println("3--------------------------");
+
             return aClass.toBytecode();
         } catch (Throwable e) {
             logger.warn("httpclient4 modifier error. Caused:" + e.getMessage(), e);

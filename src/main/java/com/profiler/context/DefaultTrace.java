@@ -18,6 +18,7 @@ public final class DefaultTrace implements Trace {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
+    private static final boolean isTrace = logger.isTraceEnabled();
 
     public static final int NOCHECK_STACKID = -1;
     public static final int ROOT_STACKID = 0;
@@ -189,17 +190,17 @@ public final class DefaultTrace implements Trace {
     }
 
     void logSpan(SpanEvent spanEvent) {
-        if (isDebug) {
+        if (isTrace) {
             Thread th = Thread.currentThread();
-            logger.debug("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            logger.trace("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
         this.storage.store(spanEvent);
     }
 
     void logSpan(Span span) {
-        if (isDebug) {
+        if (isTrace) {
             Thread th = Thread.currentThread();
-            logger.debug("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            logger.trace("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
         }
         this.storage.store(span);
     }

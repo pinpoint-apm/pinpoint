@@ -42,7 +42,6 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         if (isDebug) {
             LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
         }
-        System.out.println("-------------------------");
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
