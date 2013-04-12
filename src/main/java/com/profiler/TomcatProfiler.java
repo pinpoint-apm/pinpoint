@@ -14,6 +14,7 @@ import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.profiler.modifier.ModifierRegistry;
 
+@Deprecated
 public class TomcatProfiler {
 
     private static final Logger logger = LoggerFactory.getLogger(TomcatProfiler.class.getName());

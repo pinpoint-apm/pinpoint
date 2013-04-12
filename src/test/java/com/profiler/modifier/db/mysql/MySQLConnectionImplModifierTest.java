@@ -4,11 +4,10 @@ import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.profiler.DefaultAgent;
 import com.profiler.DummyInstrumentation;
 import com.profiler.config.ProfilerConfig;
-import com.profiler.context.BypassStorageFactory;
-import com.profiler.context.DefaultTraceContext;
-import com.profiler.context.Trace;
+
+import com.profiler.logger.Slf4jLoggerBinder;
 import com.profiler.modifier.db.DatabaseInfo;
-import com.profiler.sender.LoggingDataSender;
+
 import com.profiler.util.MetaObject;
 import com.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -26,12 +25,17 @@ public class MySQLConnectionImplModifierTest {
 
     private TestClassLoader loader;
 
+
     @Before
     public void setUp() throws Exception {
-        loader = new TestClassLoader();
+
+        com.profiler.logging.LoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
         DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);
+        loader = new TestClassLoader(agent);
+
+
         MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
         loader.addModifier(driverModifier);
 
@@ -66,10 +70,7 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
 
-        DefaultTraceContext traceContext = DefaultTraceContext.getTraceContext();
-        traceContext.setStorageFactory(new BypassStorageFactory(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 
-        Trace trace = traceContext.newTraceObject();
 
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
@@ -91,7 +92,6 @@ public class MySQLConnectionImplModifierTest {
         DatabaseInfo clearUrl = getUrl.invoke(connection);
         Assert.assertNull(clearUrl);
 
-        traceContext.detachTraceObject();
     }
 
     private void statement(Connection connection) throws SQLException {

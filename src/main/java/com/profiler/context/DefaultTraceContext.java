@@ -23,17 +23,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultTraceContext.class.getName());
 
-    private static DefaultTraceContext CONTEXT = new DefaultTraceContext();
-
-    // initailze관련 생명주기가 뭔가 애매함. 추후 방안을 더 고려해보자.
-    public static TraceContext initialize() {
-        return CONTEXT = new DefaultTraceContext();
-    }
-
-    // 얻는 것도 뭔가 모양이 마음에 안듬.
-    public static DefaultTraceContext getTraceContext() {
-        return CONTEXT;
-    }
 
     private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
 

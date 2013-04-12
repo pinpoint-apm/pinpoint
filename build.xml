@@ -28,12 +28,4 @@
     </target>
 
 
-
-
-    <!--<target name="clean" >-->
-    <!--<delete dir="${class.dir}/class/*"/>-->
-    <!--<delete dir="${jar.dir}/jar/*"/>-->
-    <!--<delete dir="${javadoc.dir}/doc/*"/>-->
-    <!--</target>-->
-
 </project>

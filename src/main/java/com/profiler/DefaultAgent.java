@@ -177,7 +177,7 @@ public class DefaultAgent implements Agent {
     }
 
     private void initializeTraceContext() {
-        this.traceContext = DefaultTraceContext.getTraceContext();
+        this.traceContext = new DefaultTraceContext();
 
         this.traceContext.setAgentId(this.agentId);
         this.traceContext.setApplicationId(this.applicationName);

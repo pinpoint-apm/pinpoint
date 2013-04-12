@@ -36,6 +36,8 @@ public class UdpDataSender implements DataSender, Runnable {
 	private int maxDrainSize = 10;
 	// 주의 single thread용임
 	private List<Object> drain = new ArrayList<Object>(maxDrainSize);
+    // 주의 single thread용임
+    private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
 	private DatagramSocket udpSocket = null;
 	private Thread ioThread;
@@ -44,10 +46,13 @@ public class UdpDataSender implements DataSender, Runnable {
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
+
 	private AtomicBoolean allowInput = new AtomicBoolean();
 
 	public UdpDataSender(String host, int port) {
-		Assert.notNull(host, "host must not be null");
+		if (host == null ) {
+            throw new NullPointerException("host must not be null");
+        }
 
 		// Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
 		this.udpSocket = createSocket(host, port);
@@ -69,7 +74,8 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private DatagramSocket createSocket(String host, int port) {
 		try {
-			DatagramSocket datagramSocket = new DatagramSocket();
+            DatagramSocket datagramSocket = new DatagramSocket();
+
 			datagramSocket.setSoTimeout(1000 * 5);
 
 			InetSocketAddress serverAddress = new InetSocketAddress(host, port);
@@ -169,6 +175,8 @@ public class UdpDataSender implements DataSender, Runnable {
 		}
 	}
 
+
+
 	private void sendPacket(Object dto) {
 		TBase<?, ?> tBase;
 		if (dto instanceof TBase) {
@@ -179,15 +187,16 @@ public class UdpDataSender implements DataSender, Runnable {
 			logger.warn("sendPacket fail. invalid type:" + dto.getClass());
 			return;
 		}
-        // TODO single thread이므로 데이터 array를 nocopy해서 보낼수 있음.
-		byte[] sendData = serialize(tBase);
-		if (sendData == null) {
-			logger.warn("sendData is null");
+        // single thread이므로 데이터 array를 nocopy해서 보냄.
+		byte[] interBufferData = serialize(tBase);
+        int interBufferSize = serializer.getInterBufferSize();
+        if (interBufferData == null) {
+			logger.warn("interBufferData is null");
 			return;
 		}
-		DatagramPacket packet = new DatagramPacket(sendData, sendData.length);
+		reusePacket.setData(interBufferData, 0, interBufferSize);
 		try {
-			udpSocket.send(packet);
+			udpSocket.send(reusePacket);
 			if (logger.isInfoEnabled()) {
 				logger.info("Data sent. " + dto);
 			}
@@ -228,6 +237,10 @@ public class UdpDataSender implements DataSender, Runnable {
 			return null;
 		}
 	}
+
+    private int beforeSerializeLength() {
+        return serializer.getInterBufferSize();
+    }
 
 	private Header headerLookup(TBase<?, ?> dto) throws TException {
 		// header 객체 생성을 안하고 정적 lookup이 되도록 변경.

@@ -22,7 +22,7 @@ public class HeaderTBaseSerializer {
      * This is the byte array that data is actually serialized into
      */
     // udp 패킷 사이즈에 최대 맞춤.
-    private final ByteArrayOutputStream baos_ = new ByteArrayOutputStream(1024 * 64);
+    private final UnsafeByteArrayOutputStream baos_ = new UnsafeByteArrayOutputStream(1024 * 64);
 
     /**
      * This transport wraps that byte array
@@ -39,7 +39,6 @@ public class HeaderTBaseSerializer {
      */
     public HeaderTBaseSerializer() {
 
-//		this(new TBinaryProtocol.Factory());
         this(new TCompactProtocol.Factory());
     }
 
@@ -65,7 +64,13 @@ public class HeaderTBaseSerializer {
         baos_.reset();
         writeHeader(header);
         base.write(protocol_);
-        return baos_.toByteArray();
+//        return baos_.toByteArray();
+        return baos_.getInterBuffer();
+    }
+
+    public int getInterBufferSize() {
+
+        return baos_.size();
     }
 
     private void writeHeader(Header header) throws TException {

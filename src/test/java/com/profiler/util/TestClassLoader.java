@@ -1,5 +1,6 @@
 package com.profiler.util;
 
+import com.profiler.Agent;
 import com.profiler.DefaultAgent;
 import com.profiler.context.DefaultTrace;
 import com.profiler.context.DefaultTraceContext;
@@ -22,16 +23,23 @@ public class TestClassLoader extends Loader {
 
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;
+    private Agent agent;
 
 
-    public TestClassLoader() {
-        this.instrumentor = new JavaAssistByteCodeInstrumentor();
+    public TestClassLoader(Agent agent) {
+        this.instrumentor = new JavaAssistByteCodeInstrumentor(null, agent);
         this.instrumentTranslator = new InstrumentTranslator(this);
+        this.agent = agent;
     }
+
 
     public void initialize() {
         addDefaultDelegateLoadingOf();
         addTranslator();
+    }
+
+    public Agent getAgent() {
+        return agent;
     }
 
     public ByteCodeInstrumentor getInstrumentor() {
