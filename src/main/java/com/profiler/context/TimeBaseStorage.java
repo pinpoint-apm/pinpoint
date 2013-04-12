@@ -1,10 +1,11 @@
 package com.profiler.context;
 
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.sender.DataSender;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *
@@ -78,8 +79,8 @@ public class TimeBaseStorage implements Storage {
 
     private boolean addSpanEvent(SpanEvent spanEvent) {
         if (storage == null) {
-            Logger logger = Logger.getLogger(this.getClass().getName());
-            logger.fine("storage is null. direct send");
+            Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+            logger.debug("storage is null. direct send");
             // 이미 span이 와서 flush된 상황임.
             return false;
         }

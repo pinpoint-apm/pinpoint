@@ -1,16 +1,17 @@
 package com.profiler.sender;
 
 import com.profiler.context.Thriftable;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
 
-import java.util.logging.Logger;
 
 /**
  *
  */
 public class LoggingDataSender implements DataSender {
 
-    private static final Logger logger = Logger.getLogger(LoggingDataSender.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(LoggingDataSender.class.getName());
     public static final DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
 
     @Override

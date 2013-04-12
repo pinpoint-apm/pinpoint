@@ -13,7 +13,6 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class CubridStatementModifier extends AbstractModifier {

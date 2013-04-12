@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.profiler.common.dto.thrift.JVMInfoThriftDTO;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.TraceContext;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.sender.DataSender;
 import com.profiler.util.Assert;
 import com.sun.management.OperatingSystemMXBean;
@@ -27,7 +27,7 @@ import com.sun.management.OperatingSystemMXBean;
 @SuppressWarnings("restriction")
 public class SystemMonitor {
 
-	private static final Logger logger = Logger.getLogger(SystemMonitor.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SystemMonitor.class.getName());
 
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
 		@Override
@@ -89,7 +89,7 @@ public class SystemMonitor {
 
 				dataSender.send(jvmInfo);
 			} catch (Exception e) {
-				logger.log(Level.INFO, "JvmInfo collect error Cause:" + e.getMessage(), e);
+				logger.warn("JvmInfo collect error Cause:" + e.getMessage(), e);
 			}
 		}
 
@@ -114,8 +114,8 @@ public class SystemMonitor {
 				jvmInfo.setGc2Time(old.getCollectionTime());
 			} else {
 				// g1 ?
-				if (logger.isLoggable(Level.FINE)) {
-					logger.fine("unknown gc type. gc collector size:" + list.size());
+				if (logger.isDebugEnabled()) {
+					logger.debug("unknown gc type. gc collector size:" + list.size());
 				}
 			}
 		}

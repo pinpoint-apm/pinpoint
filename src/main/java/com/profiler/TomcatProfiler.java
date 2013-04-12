@@ -4,11 +4,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.profiler.common.ServiceType;
 import com.profiler.config.ProfilerConfig;
+import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerBinder;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -17,8 +16,8 @@ import com.profiler.modifier.ModifierRegistry;
 
 public class TomcatProfiler {
 
-    private static final Logger logger = Logger.getLogger(TomcatProfiler.class.getName());
-    private boolean isFine = logger.isLoggable(Level.FINE);
+    private static final Logger logger = LoggerFactory.getLogger(TomcatProfiler.class.getName());
+    private boolean isFine = logger.isDebugEnabled();
 
     private String agentArgString = "";
 
@@ -45,30 +44,30 @@ public class TomcatProfiler {
             com.profiler.logging.Logger tomcatLogger = LoggerFactory.getLogger(TomcatProfiler.class);
             tomcatLogger.info("LoggerFactory initialize end");
         } catch (Exception e) {
-            logger.log(Level.INFO, "boot class not found", e);
+            logger.warn("boot class not found", e);
         }
 
         try {
             ProfilerConfig profilerConfig = null;
             if (!profilerConfig.isProfileEnable()) {
-                logger.warning("Profiler Agent not started. profile.enable=" + profilerConfig.isProfileEnable());
+                logger.warn("Profiler Agent not started. profile.enable=" + profilerConfig.isProfileEnable());
                 return;
             }
             Agent agent = new DefaultAgent(agentArgs, instrumentation, profilerConfig);
 //            new TomcatProfiler(agentArgs, instrumentation, agent, profilerConfig);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Profiler Agent start fail. Cause:" + e.getMessage(), e);
+            logger.error("Profiler Agent start fail. Cause:" + e.getMessage(), e);
         }
     }
 
 
 
     private static void dumpSystemProperties() {
-        if (logger.isLoggable(Level.FINE)) {
+        if (logger.isDebugEnabled()) {
             Properties properties = System.getProperties();
             Set<String> strings = properties.stringPropertyNames();
             for (String key : strings) {
-                logger.fine("SystemProperties " + key + "=" + properties.get(key));
+                logger.debug("SystemProperties " + key + "=" + properties.get(key));
             }
         }
     }
@@ -104,8 +103,8 @@ public class TomcatProfiler {
             return null;
         }
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("CATALINA_HOME=" + catalinaHome);
+        if (logger.isInfoEnabled()) {
+            logger.info("CATALINA_HOME={}", catalinaHome);
         }
 
 		if (profilerConfig.getServiceType() == ServiceType.BLOC) {

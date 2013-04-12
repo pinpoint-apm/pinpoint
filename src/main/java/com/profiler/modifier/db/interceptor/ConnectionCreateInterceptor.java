@@ -2,7 +2,6 @@ package com.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 import com.profiler.interceptor.StaticAfterInterceptor;

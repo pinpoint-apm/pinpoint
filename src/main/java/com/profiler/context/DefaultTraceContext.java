@@ -7,6 +7,8 @@ import com.profiler.common.dto.thrift.SqlMetaData;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.common.util.SqlParser;
 import com.profiler.interceptor.MethodDescriptor;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.metadata.LRUCache;
 import com.profiler.metadata.Result;
 import com.profiler.metadata.StringCache;
@@ -16,12 +18,10 @@ import com.profiler.util.NamedThreadLocal;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DefaultTraceContext implements TraceContext {
 
-    private final Logger logger = Logger.getLogger(DefaultTraceContext.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(DefaultTraceContext.class.getName());
 
     private static DefaultTraceContext CONTEXT = new DefaultTraceContext();
 
@@ -172,9 +172,9 @@ public class DefaultTraceContext implements TraceContext {
         // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
         boolean newValue = this.sqlCache.put(normalizedSql);
         if (newValue) {
-            if (logger.isLoggable(Level.FINE)) {
+            if (logger.isDebugEnabled()) {
                 // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
-                logger.fine("NewSQLParsingResult:" + parsingResult);
+                logger.debug("NewSQLParsingResult:{}", parsingResult);
             }
             // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
             // 그러므로 메타데이터를 서버로 전송해야 한다.

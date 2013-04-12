@@ -1,7 +1,6 @@
 package com.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -17,7 +16,7 @@ import com.profiler.modifier.AbstractModifier;
 
 public class MySQLStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLStatementModifier.class);
 
     public MySQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

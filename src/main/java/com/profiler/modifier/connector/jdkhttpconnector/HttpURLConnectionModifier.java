@@ -1,11 +1,9 @@
 package com.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;

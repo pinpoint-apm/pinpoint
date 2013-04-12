@@ -10,7 +10,6 @@ import com.profiler.modifier.AbstractModifier;
 import com.profiler.modifier.db.interceptor.*;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -19,7 +18,7 @@ import com.profiler.logging.LoggerFactory;
  */
 public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class);
 
     public MySQLNonRegisteringDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

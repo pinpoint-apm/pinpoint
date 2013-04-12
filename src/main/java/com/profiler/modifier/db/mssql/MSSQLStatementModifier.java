@@ -10,12 +10,10 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
-import com.profiler.logging.LoggerFactory;
 
 public class MSSQLStatementModifier extends AbstractModifier {
-    private static final Logger logger = LoggerFactory.getLogger(MSSQLStatementModifier.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(MSSQLStatementModifier.class);
 
     public MSSQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

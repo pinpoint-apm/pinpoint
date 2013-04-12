@@ -1,12 +1,13 @@
 package com.profiler;
 
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 import com.profiler.util.Assert;
 
-import java.util.logging.Logger;
 
 public class LifeCycleEventListener {
 
-    private final static Logger logger = Logger.getLogger(LifeCycleEventListener.class.getName());
+    private final static Logger logger = LoggerFactory.getLogger(LifeCycleEventListener.class.getName());
 
     private Agent agent;
     private boolean started = false;

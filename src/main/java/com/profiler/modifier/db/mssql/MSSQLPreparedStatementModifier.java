@@ -12,12 +12,11 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MSSQLPreparedStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MSSQLPreparedStatementModifier.class);
 
     public MSSQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

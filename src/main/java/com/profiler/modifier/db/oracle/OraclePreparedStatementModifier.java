@@ -12,12 +12,11 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class OraclePreparedStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(OraclePreparedStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(OraclePreparedStatementModifier.class);
 
     public OraclePreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

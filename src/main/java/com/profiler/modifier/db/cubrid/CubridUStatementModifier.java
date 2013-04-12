@@ -11,7 +11,6 @@ import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class CubridUStatementModifier extends AbstractModifier {

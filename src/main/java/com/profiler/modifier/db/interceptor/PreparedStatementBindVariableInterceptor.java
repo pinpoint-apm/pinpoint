@@ -12,7 +12,6 @@ import com.profiler.util.NumberUtils;
 import com.profiler.util.bindvalue.BindValueConverter;
 
 import java.util.Map;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class PreparedStatementBindVariableInterceptor implements StaticAfterInterceptor, TraceContextSupport {

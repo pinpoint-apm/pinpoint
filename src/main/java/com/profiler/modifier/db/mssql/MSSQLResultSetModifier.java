@@ -12,12 +12,11 @@ import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class MSSQLResultSetModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MSSQLResultSetModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MSSQLResultSetModifier.class);
 
     public MSSQLResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

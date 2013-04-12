@@ -14,7 +14,6 @@ import com.profiler.modifier.db.JDBCUrlParser;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 /**

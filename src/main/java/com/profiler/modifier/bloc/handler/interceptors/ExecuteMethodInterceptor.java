@@ -2,7 +2,6 @@ package com.profiler.modifier.bloc.handler.interceptors;
 
 import java.util.Enumeration;
 import java.util.UUID;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;

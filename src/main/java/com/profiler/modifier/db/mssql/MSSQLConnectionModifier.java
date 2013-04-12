@@ -11,13 +11,11 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
-import com.profiler.logging.LoggerFactory;
 
 public class MSSQLConnectionModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MSSQLConnectionModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MSSQLConnectionModifier.class);
 
     public MSSQLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

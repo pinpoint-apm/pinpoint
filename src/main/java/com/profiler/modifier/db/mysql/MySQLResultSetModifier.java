@@ -7,14 +7,13 @@ import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 // TODO 추가 개발해야 될듯.
 public class MySQLResultSetModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLResultSetModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLResultSetModifier.class);
 
     public MySQLResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

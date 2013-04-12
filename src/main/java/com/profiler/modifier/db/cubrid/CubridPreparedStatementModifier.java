@@ -12,7 +12,6 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class CubridPreparedStatementModifier extends AbstractModifier {

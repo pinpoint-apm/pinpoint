@@ -14,13 +14,12 @@ import com.profiler.util.*;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementJDBC4Modifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementJDBC4Modifier.class);
     private final String[] includes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
     public MySQLPreparedStatementJDBC4Modifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

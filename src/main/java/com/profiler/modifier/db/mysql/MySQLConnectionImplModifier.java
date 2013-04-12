@@ -11,13 +11,12 @@ import com.profiler.modifier.db.interceptor.*;
 import com.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 public class MySQLConnectionImplModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class);
 
     public MySQLConnectionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

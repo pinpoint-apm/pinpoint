@@ -1,15 +1,12 @@
 package com.profiler.modifier;
 
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
-import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
 import com.profiler.interceptor.ServiceTypeSupport;
 
 import com.profiler.Agent;
 import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.logging.LoggerFactory;
 

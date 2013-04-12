@@ -2,7 +2,6 @@ package com.profiler.modifier.servlet.interceptors;
 
 import java.util.Enumeration;
 import java.util.UUID;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -20,7 +19,7 @@ import com.profiler.util.NumberUtils;
 
 public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(DoXXXInterceptor.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(DoXXXInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;

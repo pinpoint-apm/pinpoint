@@ -1,7 +1,6 @@
 package com.profiler.modifier.servlet;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -21,7 +20,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class SpringFrameworkServletModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(SpringFrameworkServletModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(SpringFrameworkServletModifier.class);
 
 	public SpringFrameworkServletModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

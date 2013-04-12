@@ -1,7 +1,6 @@
 package com.profiler.modifier.db.oracle;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import com.profiler.config.ProfilerConstant;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.logging.LoggerFactory;
@@ -11,11 +10,10 @@ import javassist.CtClass;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class OracleStatementModifier extends AbstractModifier {
-    private final Logger logger = LoggerFactory.getLogger(OracleStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(OracleStatementModifier.class);
 
     public OracleStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

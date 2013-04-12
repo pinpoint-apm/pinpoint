@@ -11,12 +11,11 @@ import com.profiler.modifier.AbstractModifier;
 import com.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 
 public class OracleResultSetModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(OracleResultSetModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(OracleResultSetModifier.class);
 
     public OracleResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

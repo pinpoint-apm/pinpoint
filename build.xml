@@ -10,6 +10,7 @@
 
     <target name="mvn.build.install">
         <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="-Dmaven.test.skip=true"/>
             <arg value="install"/>
         </exec>
     </target>

@@ -21,12 +21,11 @@ import javassist.CtConstructor;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
-    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementModifier.class);
     private final String[] excludes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
     public MySQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

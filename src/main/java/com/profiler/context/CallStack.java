@@ -1,7 +1,7 @@
 package com.profiler.context;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
 
 /**
  * @author netspider
@@ -61,11 +61,11 @@ public class CallStack {
             stack[index] = null;
             index--;
         } else {
-            Logger logger = Logger.getLogger(this.getClass().getName());
-            if (logger.isLoggable(Level.WARNING)) {
+            Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+            if (logger.isWarnEnabled()) {
                 // 자체 stack dump 필요.
                 Exception ex = new Exception("Profiler CallStack check. index:" + index);
-                logger.log(Level.WARNING, "invalid callStack found", ex);
+                logger.warn("invalid callStack found", ex);
             }
         }
     }

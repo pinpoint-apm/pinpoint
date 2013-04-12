@@ -2,12 +2,10 @@ package com.profiler.modifier.method;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
-import java.util.logging.Level;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -23,7 +21,7 @@ import com.profiler.modifier.AbstractModifier;
  */
 public class MethodModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(MethodModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(MethodModifier.class);
 
 	public MethodModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

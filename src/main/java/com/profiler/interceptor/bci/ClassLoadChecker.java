@@ -1,12 +1,13 @@
 package com.profiler.interceptor.bci;
 
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClassLoadChecker {
-    private final Logger logger = Logger.getLogger(ClassLoadChecker.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(ClassLoadChecker.class.getName());
     private static final Object EXIST = new Object();
 
     private ConcurrentMap<LoadClass, Object> load = new ConcurrentHashMap<LoadClass, Object>();
@@ -15,13 +16,13 @@ public class ClassLoadChecker {
         LoadClass key = new LoadClass(cl, className);
         Object old = load.putIfAbsent(key, EXIST);
         if (old == null) {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info(className + " not exist from " + cl);
+            if (logger.isInfoEnabled()) {
+                logger.info("{} not exist from ", cl);
             }
             return false;
         }
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info(className + " already exist from " + cl);
+        if (logger.isInfoEnabled()) {
+            logger.info("{} already exist from ", cl);
         }
         return true;
     }
