@@ -16,13 +16,13 @@ public class LoggingDataSender implements DataSender {
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        logger.info("send tBase:" + data);
+        logger.info("send tBase:{]", data);
         return true;
     }
 
     @Override
     public boolean send(Thriftable thriftable) {
-        logger.info("send thriftable:" + thriftable);
+        logger.info("send thriftable:{}", thriftable);
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

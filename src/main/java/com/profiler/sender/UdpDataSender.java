@@ -200,7 +200,7 @@ public class UdpDataSender implements DataSender, Runnable {
 		} else if (dto instanceof Thriftable) {
 			tBase = ((Thriftable) dto).toThrift();
 		} else {
-			logger.warn("sendPacket fail. invalid type:" + dto.getClass());
+			logger.warn("sendPacket fail. invalid type:{}", dto.getClass());
 			return;
 		}
         // single thread이므로 데이터 array를 nocopy해서 보냄.
@@ -215,10 +215,10 @@ public class UdpDataSender implements DataSender, Runnable {
 		try {
 			udpSocket.send(reusePacket);
 			if (logger.isInfoEnabled()) {
-				logger.info("Data sent. " + dto);
+				logger.info("Data sent. {}", dto);
 			}
 		} catch (IOException e) {
-			logger.warn("packet send error " + dto, e);
+			logger.warn("packet send error {}", dto, e);
 		}
 	}
 
@@ -253,7 +253,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			return serializer.serialize(header, dto);
 		} catch (TException e) {
 			if (logger.isWarnEnabled()) {
-				logger.warn("Serialize fail:" + dto + " Caused:" + e.getMessage(), e);
+                logger.warn("Serialize fail:{} Caused:{}", new Object[] { dto, e.getMessage(), e});
 			}
 			return null;
 		}
