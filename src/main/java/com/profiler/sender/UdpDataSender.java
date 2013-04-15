@@ -31,7 +31,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
-	private int maxDrainSize = 10;
+	private final int maxDrainSize = 10;
 	// 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
 	private Collection<Object> drain = new UnsafeArrayCollection<Object>(maxDrainSize);
     // 주의 single thread용임
@@ -236,7 +236,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private Collection<Object> takeN() {
 		drain.clear();
-		int size = queue.drainTo(drain, 10);
+		int size = queue.drainTo(drain, maxDrainSize);
 		if (size <= 0) {
 			return null;
 		}
