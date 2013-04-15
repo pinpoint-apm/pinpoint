@@ -5,8 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,7 +21,6 @@ import com.profiler.io.DefaultTBaseLocator;
 import com.profiler.io.HeaderTBaseSerializer;
 import com.profiler.io.TBaseLocator;
 import com.profiler.context.Thriftable;
-import com.profiler.util.Assert;
 
 /**
  * @author netspider
@@ -34,8 +32,8 @@ public class UdpDataSender implements DataSender, Runnable {
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
 	private int maxDrainSize = 10;
-	// 주의 single thread용임
-	private List<Object> drain = new ArrayList<Object>(maxDrainSize);
+	// 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
+	private Collection<Object> drain = new UnsafeArrayCollection<Object>(maxDrainSize);
     // 주의 single thread용임
     private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
@@ -137,19 +135,19 @@ public class UdpDataSender implements DataSender, Runnable {
 	private void doSend() {
         drain: while (true) {
 			try {
-				if (!allowInput.get() && isEmpty()) {
+				if (isShutdown()) {
 					break;
 				}
 
 
-				List<Object> dtoList = takeN();
+				Collection<Object> dtoList = takeN();
 				if (dtoList != null) {
 					sendPacketN(dtoList);
 					continue;
 				}
 
 				while (true) {
-					if (!allowInput.get() && isEmpty()) {
+					if (isShutdown()) {
 						break;
 					}
 
@@ -160,15 +158,33 @@ public class UdpDataSender implements DataSender, Runnable {
 					}
 				}
 			} catch (Throwable th) {
-				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
+				logger.warn("UdpSenderLoop->Unexpected Error. Cause:{}", th.getMessage(), th);
 			}
 		}
+        flushQueue();
 	}
 
-	private void sendPacketN(List<Object> dtoList) {
-		for (Object dto : dtoList) {
+    private void flushQueue() {
+        logger.debug("UdpSenderLoop is stop. flushData");
+        while(true) {
+            Collection<Object> flushData = takeN();
+            if(flushData == null) {
+                break;
+            }
+            logger.debug("flushData {}", flushData.size());
+            sendPacket(flushData);
+        }
+    }
+
+    private boolean isShutdown() {
+        return !allowInput.get();
+    }
+
+    private void sendPacketN(Collection<Object> dtoList) {
+        Object[] dataList = dtoList.toArray();
+        for (int i = 0; i< dtoList.size(); i++) {
 			try {
-				sendPacket(dto);
+				sendPacket(dataList[i]);
 			} catch (Throwable th) {
 				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
 			}
@@ -194,6 +210,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			logger.warn("interBufferData is null");
 			return;
 		}
+        // single thread이므로 그냥 재활용한다.
 		reusePacket.setData(interBufferData, 0, interBufferSize);
 		try {
 			udpSocket.send(reusePacket);
@@ -209,11 +226,15 @@ public class UdpDataSender implements DataSender, Runnable {
 		try {
 			return queue.poll(2, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			return null;
+            // Thread.currentThread().interrupt();
+            // 인터럽트 한번은 그냥 무시한다.
+
+
+            return null;
 		}
 	}
 
-	private List<Object> takeN() {
+	private Collection<Object> takeN() {
 		drain.clear();
 		int size = queue.drainTo(drain, 10);
 		if (size <= 0) {
