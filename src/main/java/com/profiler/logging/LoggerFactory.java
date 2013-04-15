@@ -27,7 +27,7 @@ public final class LoggerFactory {
 
     public static Logger getLogger(Class clazz) {
         if (clazz == null) {
-            throw new NullPointerException("clazz must not be null");
+            throw new NullPointerException("class must not be null");
         }
         return getLogger(clazz.getName());
     }

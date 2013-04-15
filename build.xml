@@ -6,15 +6,26 @@
     <property name="target.dir" value="${basedir}/target/"/>
 
 
-    <target name="copy.agent.deploy.dir" depends="mvn.build">
+    <target name="deploy" depends="mvn.build.install, copy.agent">
+    </target>
+
+    <target name="copy.agent">
         <copy file="${target.dir}/hippo-profiler-bootstrap-0.0.2-jar-with-dependencies.jar" tofile="${agent.dir}/hippo-profiler-bootstrap-0.0.2.jar" overwrite="true">
         </copy>
     </target>
 
-    <target name="mvn.build">
+    <target name="mvn.build.install">
         <exec executable="${maven.dir}/bin/mvn.bat ">
             <arg value="-Dmaven.test.skip=true"/>
-            <arg value="clean"/>
+            <arg value="install"/>
+            <!--<arg value="compile"/>-->
+            <!--<arg value="jar:jar"/>-->
+        </exec>
+    </target>
+
+    <target name="mvn.build.package">
+        <exec executable="${maven.dir}/bin/mvn.bat ">
+            <arg value="-Dmaven.test.skip=true"/>
             <arg value="package"/>
             <!--<arg value="compile"/>-->
             <!--<arg value="jar:jar"/>-->

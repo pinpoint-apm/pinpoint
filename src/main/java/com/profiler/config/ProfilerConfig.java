@@ -38,9 +38,10 @@ public class ProfilerConfig {
 	private Set<String> profileInclude = new HashSet<String>(4);
 	private Set<String> profileIncludeSub = new HashSet<String>(4);
 
-	private long heartbeatInterval = 5*60*1000L;
+    private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
+	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
 	
-	private ServiceType serviceType;
+	private ServiceType serviceType = ServiceType.TOMCAT;
 	
 	public ProfilerConfig() {
 	}
@@ -147,7 +148,7 @@ public class ProfilerConfig {
 		// JVM
 		this.profileJvmCollectInterval = readInt(prop, "profile.jvm.collect.interval", 1000);
 
-		this.heartbeatInterval = readLong(prop, "agent.heartbeat.interval", 60000L);
+		this.heartbeatInterval = readLong(prop, "agent.heartbeat.interval", DEFAULT_HEART_BEAT_INTERVAL);
 		
 		// service type
 		this.serviceType = readServiceType(prop, "agent.servicetype", ServiceType.TOMCAT);
