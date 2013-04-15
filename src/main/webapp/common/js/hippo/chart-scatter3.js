@@ -14,14 +14,14 @@ function showResponseScatter(applicationName) {
 
 var scatterFetchDataCallback = function(data) {
 	// 처음 조회된 데이터를 그려준다.
-    updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter2, "#scatter");
+    updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
     
-    if (data.scatter2.length == 0) {
+    if (data.scatter.length == 0) {
     	return;
     }
     
     // 데이터 조회가 추가로 필요한지 확인한다.
-    var lastTimeStamp = data.scatter2[data.scatter2.length - 1].x;
+    var lastTimeStamp = data.scatter[data.scatter.length - 1].x;
     
     if (lastTimeStamp >= getQueryEndTime()) {
     	return;
@@ -40,18 +40,16 @@ var scatterFetchDataCallback = function(data) {
 		}
 		
     	try {
-    	//	scatter.showProgressbar(lastTimeStamp + 1, getQueryEndTime());
     		console.log("fetching scatter data.");
     		
         	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
-        		console.log("fetched " + data2.scatter2.length);
-        		// scatter.hideProgressbar();
-    	        if (data2.scatter2.length == 0) {
+        		console.log("fetched " + data2.scatter.length);
+    	        if (data2.scatter.length == 0) {
     	        	queryNext = false;
     	        	return;
     	        }
-		        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter2, "#scatter");
-        		lastTimeStamp = data2.scatter2[data2.scatter2.length - 1].x;
+		        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
+        		lastTimeStamp = data2.scatter[data2.scatter.length - 1].x;
         		scatterFetchTimer = setInterval(fetch, 200);
         	});
     	} catch(e) {
@@ -180,7 +178,7 @@ $("#auto_refresh").bind("change", function(){
 			console.log("[auto-refresh] fetching data from=" + from);
 			
 	        getRealtimeScatterData(from, function(data) {
-		        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter2, "#scatter");
+		        updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
 	        	from = data.queryTo + 1;
 	        });
 		}, 3000);

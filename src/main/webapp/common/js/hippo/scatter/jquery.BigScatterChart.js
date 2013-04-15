@@ -2,6 +2,7 @@ var BigScatterChart = $.Class({
 	$init : function(htOption){
 		this.option({
 			'sContainerId' : '',
+			'sPrefix' : 'bigscatterchart-',
 			'nWidth': 600,
 			'nHeight': 400,
 			'nXMin': 0, 'nXMax': 100,
@@ -18,13 +19,13 @@ var BigScatterChart = $.Class({
 			'nPaddingLeft' : 50,
 			'sLineColor' : '#000',			
 			'htTypeAndColor' : {
-				'Success' : '#b6da54', // type name : color
+				'Success' : '#b6da54', // type name : color, also order
 				'Warning' : '#fcc666',
 				'Failed' : '#fd7865',
 				'Others' : '#55c7c7'
 			},
-			'sPrefix' : 'bigscatterchart-',
-			'nZIndexForCanvas' : 0,
+			'nZIndexForCanvas' : 1,
+			'nDefaultRadius' : 3,
 			'htGuideLine' : {
 				'nLineWidth' : 1,
 				'aLineDash' : [2, 5],
@@ -127,7 +128,8 @@ var BigScatterChart = $.Class({
 				'height' : this.option('nHeight')
 			}).css({
 				'position' : 'absolute',
-				'top' : 0
+				'top' : 0,
+				'z-index' : nZIndexForCanvas - 1
 			}).append($('<div>')
 				.width(this.option('nWidth'))
 				.height(this.option('nHeight'))
@@ -157,6 +159,28 @@ var BigScatterChart = $.Class({
 				}).appendTo(this._welContainer);
 			this._htBubbleCtx[sKey] = this._htwelChartCanvas[sKey].get(0).getContext('2d');
 		}, this);
+
+		// Axis
+		this._welAxisCanvas = $('<canvas>')
+			.attr({
+				'width' : this.option('nWidth'),
+				'height' : this.option('nHeight')
+			}).css({
+				'position' : 'absolute',
+				'top' : 0,
+				'z-index' : nZIndexForCanvas
+			}).append($('<div>')
+				.width(this.option('nWidth'))
+				.height(this.option('nHeight'))
+				.text('Your browser does not support the canvas element, get a better one!')
+				.css({
+					'text-align': 'center',
+					'background-color': '#8b2e19',
+					'color': '#fff'
+				})
+			);
+		this._welAxisCanvas.appendTo(this._welContainer);
+		this._oAxisCtx = this._welAxisCanvas.get(0).getContext('2d');
 
 		// overlay for all the labels
 		this._welOverlay = $('<div>').css({
@@ -452,27 +476,27 @@ var BigScatterChart = $.Class({
 			sLineColor = this.option('sLineColor'),
 			htGuideLine = this.option('htGuideLine');
 
-		this._oGuideCtx.lineWidth = 2;
-		this._oGuideCtx.lineCap = 'round';
-	  	this._oGuideCtx.strokeStyle = sLineColor;
-	  	this._oGuideCtx.beginPath();
-	  	this._oGuideCtx.moveTo(nPaddingLeft, nPaddingTop);
-		this._oGuideCtx.lineTo(nPaddingLeft, nHeight - nPaddingBottom);
-		this._oGuideCtx.lineTo(nWidth - nPaddingRight, nHeight - nPaddingBottom);
-	  	this._oGuideCtx.stroke();
+		this._oAxisCtx.lineWidth = 2;
+		this._oAxisCtx.lineCap = 'round';
+	  	this._oAxisCtx.strokeStyle = sLineColor;
+	  	this._oAxisCtx.beginPath();
+	  	this._oAxisCtx.moveTo(nPaddingLeft, nPaddingTop);
+		this._oAxisCtx.lineTo(nPaddingLeft, nHeight - nPaddingBottom);
+		this._oAxisCtx.lineTo(nWidth - nPaddingRight, nHeight - nPaddingBottom);
+	  	this._oAxisCtx.stroke();
 
 		var nXStep = this._nXWork / this.option('nXSteps');
 		var nYStep = this._nYWork / this.option('nYSteps');
 
 		for(var i=0; i<=this.option('nXSteps'); i++){
 			var mov = nPaddingLeft + nBubbleSize + nXStep * i;
-			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oGuideCtx.setLineDash([0]);
-			this._oGuideCtx.globalAlpha = 1;
-	  		this._oGuideCtx.beginPath();
-			this._oGuideCtx.moveTo(mov, nHeight - nPaddingBottom);
-			this._oGuideCtx.lineTo(mov, nHeight - nPaddingBottom + 10);
-			this._oGuideCtx.stroke();
+			this._oAxisCtx.lineWidth = htGuideLine.nLineWidth;
+			this._oAxisCtx.setLineDash([0]);
+			this._oAxisCtx.globalAlpha = 1;
+	  		this._oAxisCtx.beginPath();
+			this._oAxisCtx.moveTo(mov, nHeight - nPaddingBottom);
+			this._oAxisCtx.lineTo(mov, nHeight - nPaddingBottom + 10);
+			this._oAxisCtx.stroke();
 
 			// x 축 가이드라인
 			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
@@ -486,13 +510,13 @@ var BigScatterChart = $.Class({
 
 		for(var i=0; i<=this.option('nYSteps'); i++){
 			var mov = nHeight - (nPaddingBottom + nBubbleSize + nYStep * i);
-			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oGuideCtx.setLineDash([0]);
-			this._oGuideCtx.globalAlpha = 1;			
-			this._oGuideCtx.beginPath();
-		  	this._oGuideCtx.moveTo(nPaddingLeft, mov);
-			this._oGuideCtx.lineTo(nPaddingLeft - 10, mov);
-			this._oGuideCtx.stroke();
+			this._oAxisCtx.lineWidth = htGuideLine.nLineWidth;
+			this._oAxisCtx.setLineDash([0]);
+			this._oAxisCtx.globalAlpha = 1;			
+			this._oAxisCtx.beginPath();
+		  	this._oAxisCtx.moveTo(nPaddingLeft, mov);
+			this._oAxisCtx.lineTo(nPaddingLeft - 10, mov);
+			this._oAxisCtx.stroke();
 
 			// y 축 가이드라인
 			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
@@ -667,13 +691,14 @@ var BigScatterChart = $.Class({
 			nPaddingBottom = this.option('nPaddingBottom'),
 			nPaddingRight = this.option('nPaddingRight'),
 			nBubbleSize = this.option('nBubbleSize'),
-			htTypeAndColor = this.option('htTypeAndColor');
+			htTypeAndColor = this.option('htTypeAndColor'),
+			nDefaultRadius = this.option('nDefaultRadius');
 
 		//this._oChartCtx.lineWidth = 1;
 		for(var i = 0, nLen = aBubbles.length; i < nLen; i++) {
 			var x = this._parseXDataToXChart(aBubbles[i].x),
 				y = this._parseYDataToYChart(aBubbles[i].y),
-				r = this._parseZDataToZChart(aBubbles[i].r),
+				r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
 				a = aBubbles[i].y / this._nYMax * 0.7,
 				sThisType = aBubbles[i].type;
 		
@@ -734,7 +759,7 @@ var BigScatterChart = $.Class({
 			var nX = nXGap + this._nXMin;
 			var nXWidth = Math.round(((nX - this._nXMin) / (this._nXMax - this._nXMin)) * this._nXWork);
 			this._moveSelectBox(nXGap);
-			this._moveChartLeftwardly(nPaddingLeft + nBubbleSize + nXWidth, 0, nWidth-nXWidth, nHeight - (nPaddingBottom + nBubbleSize), nXWidth);
+			this._moveChartLeftwardly(nPaddingLeft + nBubbleSize + nXWidth, 0, nWidth-nXWidth, nHeight);
 			this._nXMax = nXMax;
 			this._nXMin += nXGap;
 			this._removeOldDataLessThan(this._nXMin);
