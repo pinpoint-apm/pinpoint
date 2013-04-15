@@ -62,6 +62,7 @@ public class BusinessTransactionController extends BaseController {
 
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
+		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("applicationName", applicationName);
 		model.addAttribute("from", new Date(from));
 		model.addAttribute("to", new Date(to));

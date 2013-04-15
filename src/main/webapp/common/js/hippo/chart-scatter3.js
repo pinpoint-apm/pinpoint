@@ -199,7 +199,7 @@ function updateScatter(start, end, scatter_data, targetId, limit) {
 	// oScatterChart.addBubbleAndMoveAndDraw(data, date.getTime() + 3600000);
 }
 
-function drawScatter(title, start, end, targetId) {
+function drawScatter(title, start, end, targetId, w, h) {
 	if(!Modernizr.canvas) {
 		alert("Can't draw scatter. Not supported browser.");
 	}
@@ -214,8 +214,8 @@ function drawScatter(title, start, end, targetId) {
 	
 	oScatterChart = new BigScatterChart({
 		sContainerId : targetId,
-		nWidth : 500,
-		nHeight : 400,
+		nWidth : w ? w : 500,
+		nHeight : h ? h : 400,
 		// nXMin: date.getTime() - 86400000, nXMax: date.getTime(),
 		nXMin: start, nXMax: end,
 		nYMin: 0, nYMax: 10000,
