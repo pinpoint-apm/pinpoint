@@ -64,7 +64,7 @@ public class DefaultTBaseLocator implements TBaseLocator {
             case SQLMETADATA:
                 return new SqlMetaData();
             case APIMETADATA:
-                return new com.profiler.common.dto.thrift.ApiMetaData();
+                return new ApiMetaData();
         }
         throw new TException("Unsupported type:" + type);
     }
