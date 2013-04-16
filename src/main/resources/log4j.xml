@@ -63,6 +63,20 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="org.apache.zookeeper.ZooKeeper" additivity="false">
+        <level value="TRACE"/>
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+        <level value="TRACE"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="org.apache.hadoop.hbase" additivity="false">
+        <level value="TRACE"/>
+        <appender-ref ref="console"/>
+    </logger>
+
     <root>
         <level value="INFO"/>
         <appender-ref ref="console"/>
