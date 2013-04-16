@@ -28,10 +28,16 @@ public class ProfilerConfig {
 	private boolean jdbcProfileCubrid = true;
 	private boolean jdbcProfileDbcp = true;
 
+    // 전역 샘플링
+    private boolean samplingEnable = true;
+    private int samplingRate = 1;
+
+    // 전역 샘플링이 수행된 이후의 부분 샘플링
 	private boolean samplingElapsedTimeBaseEnable;
 	private int samplingElapsedTimeBaseBufferSize;
 	private boolean samplingElapsedTimeBaseDiscard;
 	private long samplingElapsedTimeBaseDiscardTimeLimit;
+
 
 	private int profileJvmCollectInterval;
 	
@@ -40,7 +46,7 @@ public class ProfilerConfig {
 
     private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
 	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
-	
+
 	private ServiceType serviceType = ServiceType.TOMCAT;
 	
 	public ProfilerConfig() {
@@ -95,7 +101,17 @@ public class ProfilerConfig {
 		return jdbcProfileCubrid;
 	}
 
-	public boolean isSamplingElapsedTimeBaseEnable() {
+
+    public boolean isSamplingEnable() {
+        return samplingEnable;
+    }
+
+
+    public int getSamplingRate() {
+        return samplingRate;
+    }
+
+    public boolean isSamplingElapsedTimeBaseEnable() {
 		return samplingElapsedTimeBaseEnable;
 	}
 
@@ -139,8 +155,13 @@ public class ProfilerConfig {
 		this.jdbcProfileCubrid = readBoolean(prop, "profile.jdbc.cubrid", true);
 		this.jdbcProfileDbcp = readBoolean(prop, "profile.jdbc.dbcp", true);
 
+
+        this.samplingEnable = readBoolean(prop, "sampling.enable", true);
+        this.samplingRate = readInt(prop, "sampling.rate", 1);
+
 		// 샘플링 + io 조절 bufferSize 결정
 		this.samplingElapsedTimeBaseEnable = readBoolean(prop, "sampling.elapsedtimebase.enable", true);
+        // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
 		this.samplingElapsedTimeBaseBufferSize = readInt(prop, "sampling.elapsedtimebase.buffersize", 20);
 		this.samplingElapsedTimeBaseDiscard = readBoolean(prop, "sampling.elapsedtimebase.discard", true);
 		this.samplingElapsedTimeBaseDiscardTimeLimit = readLong(prop, "sampling.elapsedtimebase.discard.timelimit", 1000);

@@ -34,9 +34,8 @@ public interface Trace {
 
     TraceID getTraceId();
 
-    void enable();
+    boolean isSampling();
 
-    void disable();
 
     void recordException(Object result);
 
