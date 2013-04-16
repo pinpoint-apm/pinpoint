@@ -45,10 +45,22 @@
             <param-value>UTF-8</param-value>
         </init-param>
     </filter>
+    
+    <filter>
+	    <description>NoCacheFilter</description>
+    	<filter-name>NoCacheFilter</filter-name>
+    	<filter-class>com.nhn.hippo.web.servletfilter.NoCacheFilter</filter-class>
+	</filter>
 
     <filter-mapping>
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>NoCacheFilter</filter-name>
+        <url-pattern>*.js</url-pattern>
+        <url-pattern>*.css</url-pattern>
     </filter-mapping>
 
     <servlet-mapping>
