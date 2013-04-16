@@ -44,6 +44,7 @@ var BigScatterChart = $.Class({
 				'color' : '#000',
 				'font-weight' : 'bold'
 			},
+			'sDragToSelectClassName' : 'jquery-drag-to-select',
 			'fXAxisFormat' : function(nXStep, i){
 				var nMilliseconds = (nXStep * i + this._nXMin),
 					sDate = new Date(nMilliseconds).toString("HH:mm");
@@ -355,7 +356,9 @@ var BigScatterChart = $.Class({
 				}.bind(this));
 		}, this);
 
+		var sDragToSelectClassName = this.option('sDragToSelectClassName');
 		this._welContainer.dragToSelect({
+			className: sDragToSelectClassName,
 		    onHide: function (welSelectBox) {
 		    	var htPosition = self._adjustSelectBoxForChart(welSelectBox),
 		        	htXY = self._parseCoordinatesToXY(htPosition);
@@ -660,7 +663,8 @@ var BigScatterChart = $.Class({
 			nPaddingBottom = this.option('nPaddingBottom'),
 			nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight'),
-			htType = this.option('htTypeAndColor');
+			htType = this.option('htTypeAndColor'),
+			sDragToSelectClassName = this.option('sDragToSelectClassName');
 
 		_.each(htType, function(sVal, sKey){
 			this._htBubbleCtx[sKey].clearRect(0, 0, nWidth, nHeight);
@@ -670,6 +674,8 @@ var BigScatterChart = $.Class({
 		this._aBubbles = [];
 		this._aBubbleStep = [];
 		this._showNoData();
+
+		this._welContainer.find('.' + sDragToSelectClassName).hide();
 	},
 
 	addBubbleAndDraw : function(aBubbles){
