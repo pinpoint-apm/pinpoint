@@ -12,6 +12,7 @@ import com.profiler.logging.LoggerFactory;
 import com.profiler.metadata.LRUCache;
 import com.profiler.metadata.Result;
 import com.profiler.metadata.StringCache;
+import com.profiler.sampler.Sampler;
 import com.profiler.sender.DataSender;
 import com.profiler.util.Assert;
 import com.profiler.util.NamedThreadLocal;
@@ -46,6 +47,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private final StringCache apiCache = new StringCache();
 
+    private Sampler sampler;
+
     public DefaultTraceContext() {
     }
 
@@ -64,6 +67,7 @@ public class DefaultTraceContext implements TraceContext {
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         trace.setTraceContext(this);
+        trace.setSampling(this.sampler.isSampling());
 
         threadLocal.set(trace);
         return trace;
@@ -80,6 +84,8 @@ public class DefaultTraceContext implements TraceContext {
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         trace.setTraceContext(this);
+        trace.setSampling(this.sampler.isSampling());
+
 
         threadLocal.set(trace);
         return trace;
@@ -123,6 +129,10 @@ public class DefaultTraceContext implements TraceContext {
     public void setStorageFactory(StorageFactory storageFactory) {
         Assert.notNull(storageFactory, "storageFactory myst not be null");
         this.storageFactory = storageFactory;
+    }
+
+    public void setSampler(Sampler sampler) {
+        this.sampler = sampler;
     }
 
 

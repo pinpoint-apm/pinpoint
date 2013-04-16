@@ -15,6 +15,7 @@ import com.profiler.logger.Slf4jLoggerBinder;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerBinder;
 import com.profiler.logging.LoggerFactory;
+import com.profiler.sampler.*;
 import com.profiler.sender.DataSender;
 import com.profiler.sender.UdpDataSender;
 import com.profiler.util.NetworkUtils;
@@ -168,6 +169,7 @@ public class DefaultAgent implements Agent {
         // static LoggerFactory에 binder를 붙임.
         LoggerFactory.initialize(binder);
 
+        // shutdown hook이나 stop에 LoggerBinder의 연결을 풀어야 되는가?
 
         return binder;
     }
@@ -183,12 +185,24 @@ public class DefaultAgent implements Agent {
         this.traceContext.setApplicationId(this.applicationName);
         this.traceContext.setPriorityDataSender(this.priorityDataSender);
 
+        Sampler sampler = createSampler();
+        this.traceContext.setSampler(sampler);
+
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
             TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.dataSender, this.profilerConfig);
             this.traceContext.setStorageFactory(timeBaseStorageFactory);
         } else {
             this.traceContext.setStorageFactory(new BypassStorageFactory(dataSender));
         }
+    }
+
+    private Sampler createSampler() {
+
+        boolean samplingEnable = this.profilerConfig.isSamplingEnable();
+        int samplingRate = this.profilerConfig.getSamplingRate();
+
+        SamplerFactory samplerFactory = new SamplerFactory();
+        return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
     private UdpDataSender createDataSender() {
@@ -293,5 +307,7 @@ public class DefaultAgent implements Agent {
         this.priorityDataSender.stop();
 
         changeStatus(AgentStatus.STOPPED);
+
     }
+
 }

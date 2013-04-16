@@ -25,7 +25,7 @@ public final class DefaultTrace implements Trace {
 
     private short sequence;
 
-    private boolean tracingEnabled = true;
+    private boolean sampling = true;
 
     private CallStack callStack;
 
@@ -179,14 +179,12 @@ public final class DefaultTrace implements Trace {
         return callStack.getSpan().getTraceID();
     }
 
-    @Override
-    public void enable() {
-        tracingEnabled = true;
+    public boolean isSampling() {
+        return this.sampling;
     }
 
-    @Override
-    public void disable() {
-        tracingEnabled = false;
+    public void setSampling(boolean sampling) {
+        this.sampling = sampling;
     }
 
     void logSpan(SpanEvent spanEvent) {

@@ -14,7 +14,7 @@ public class DeadlineSpanMap {
 
 	private final Timer timer = new Timer(true);
 
-	public Span update(DefaultTraceID traceId, SpanUpdater spanUpdater) {
+	public Span update(DefaultTraceID traceId) {
 		DefaultTraceID.TraceKey traceIdKey = traceId.getTraceKey();
 		Span span = map.get(traceIdKey);
 
@@ -28,7 +28,7 @@ public class DeadlineSpanMap {
 			timer.schedule(task, FLUSH_TIMEOUT);
 		}
 
-		return spanUpdater.updateSpan(span);
+		return span;
 	}
 
 	public Span remove(DefaultTraceID traceId) {
