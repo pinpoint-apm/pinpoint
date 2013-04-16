@@ -1,6 +1,9 @@
 body {
     padding-top: 60px;
 }
+.navbar-fixed-top {
+  position: fixed;
+}
         
 #chart {
     /* height: 500px; */
@@ -88,19 +91,26 @@ path.link {
 	cursor:pointer;
 }
 
-.chart-container {
-	position:relative;
-}
-	
-.chart-left {
-	margin-right:530px;
-}
+@media(min-width:1100px){
+  .chart-container {
+  	position:relative;
+  }
+  	
+  .chart-left {
+  	margin-right:530px;
+  }
 
-.chart-right {
-	position:absolute;
-	top:0;
-	right:0;
-	width:510px;
+  .chart-right {
+  	position:absolute;
+  	top:0;
+  	right:0;
+  	width:510px;
+  }
+}
+@media(max-width:1099px){
+  .chart-right {
+    padding-left:20px;
+  }
 }
 
 .servermap {

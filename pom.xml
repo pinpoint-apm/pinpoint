@@ -212,13 +212,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.nhn.hippo</groupId>
-            <artifactId>hippo-tomcat-profiler</artifactId>
-            <version>0.0.2</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
             <version>1.5.10</version>
@@ -479,12 +472,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.nhn.hippo</groupId>
-            <artifactId>hippo-server</artifactId>
-            <version>0.0.2</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
