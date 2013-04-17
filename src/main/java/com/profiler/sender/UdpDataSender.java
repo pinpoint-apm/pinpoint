@@ -98,6 +98,7 @@ public class UdpDataSender implements DataSender, Runnable {
 			return false;
 		}
 		if (!allowInput.get()) {
+            logger.warn("datasender is shutdown. discard data:{}", data);
 			return false;
 		}
 		boolean offer = queue.offer(data);

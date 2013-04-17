@@ -10,6 +10,16 @@ public class TimeBaseStorageFactory implements StorageFactory {
 
     private DataSender dataSender;
     private ProfilerConfig config;
+//    private boolean discardEnable;
+//    private int bufferSize;
+//    private long discardTimeLimit;
+//
+//    public TimeBaseStorageFactory(DataSender dataSender, boolean discardEnable, int bufferSize, long discardTimeLimit) {
+//        this.dataSender = dataSender;
+//        this.discardEnable = discardEnable;
+//        this.bufferSize = bufferSize;
+//        this.discardTimeLimit = discardTimeLimit;
+//    }
 
     public TimeBaseStorageFactory(DataSender dataSender, ProfilerConfig config) {
         this.dataSender = dataSender;

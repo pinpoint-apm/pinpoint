@@ -63,6 +63,7 @@ public class DefaultAgent implements Agent {
         }
 
         initializeLogger();
+        dumpConfig(profilerConfig);
         changeStatus(AgentStatus.INITIALIZING);
 
         this.profilerConfig = profilerConfig;
@@ -99,6 +100,13 @@ public class DefaultAgent implements Agent {
 
 
         SingletonHolder.INSTANCE = this;
+    }
+
+    private void dumpConfig(ProfilerConfig profilerConfig) {
+        if (logger.isInfoEnabled()) {
+            logger.info("{}\n{}", "dumpConfig", profilerConfig);
+
+        }
     }
 
     public ProfilerConfig getProfilerConfig() {

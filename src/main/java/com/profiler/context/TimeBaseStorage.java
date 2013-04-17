@@ -11,6 +11,8 @@ import java.util.List;
  *
  */
 public class TimeBaseStorage implements Storage {
+    private static final Logger logger = LoggerFactory.getLogger(TimeBaseStorage.class);
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final int RESERVE_BUFFER_SIZE = 2;
 
@@ -61,15 +63,19 @@ public class TimeBaseStorage implements Storage {
             // 1초가 지났다면.
             // 데이터가 flushCount이상일 경우 먼저 flush한다.
             List<SpanEvent> flushData = null;
+            boolean add;
             synchronized (this) {
-                if (!addSpanEvent(spanEvent)) {
-                    dataSender.send(spanEvent);
-                    return;
-                }
-                if (storage.size() >= bufferSize) {
+                add = addSpanEvent(spanEvent);
+                if (add && storage.size() >= bufferSize) {
+                    // data copy
                     flushData = storage;
                     storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
                 }
+            }
+            if (!add) {
+                // add가 실패하였을 경우는 이미 span이 flush된 상태이다.
+                dataSender.send(spanEvent);
+                return;
             }
             if (flushData != null) {
                 dataSender.send(new SpanChunk(flushData));
@@ -79,8 +85,9 @@ public class TimeBaseStorage implements Storage {
 
     private boolean addSpanEvent(SpanEvent spanEvent) {
         if (storage == null) {
-            Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-            logger.debug("storage is null. direct send");
+            if (isDebug) {
+                logger.debug("storage is null. direct send");
+            }
             // 이미 span이 와서 flush된 상황임.
             return false;
         }
