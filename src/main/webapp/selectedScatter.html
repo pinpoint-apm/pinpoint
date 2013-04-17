@@ -77,10 +77,10 @@
 			<tbody>
 			</tbody>
 		</table>
+		<div id="loader">
+			<img src="/common/images/ajaxloader.gif" />
 		</div>
-	</div>
-	<div id="loader">
-		<img src="/common/images/ajaxloader.gif" />
+		</div>
 	</div>
 </div>
 <script type="text/javascript">
@@ -94,6 +94,8 @@ $(document).ready(function () {
 	
 	if (!traces) {
 		alert("Query not found.");
+		$("#loader").hide();
+		return;
 	}
 	
 	var query = [];
