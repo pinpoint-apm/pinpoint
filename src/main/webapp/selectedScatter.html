@@ -90,10 +90,12 @@ $(document).ready(function () {
 	}
 	
 	var traces = opener.selectdTracesBox[window.name];
-	delete opener.selectdTracesBox[window.name];
+	
+	// 새로고침 때문에 chart가 변경될 때 delete하도록 변경.
+	//delete opener.selectdTracesBox[window.name];
 	
 	if (!traces) {
-		alert("Query not found.");
+		alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
 		$("#loader").hide();
 		return;
 	}

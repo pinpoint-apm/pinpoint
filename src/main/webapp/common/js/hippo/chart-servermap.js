@@ -3,6 +3,10 @@ var oServerMap = null;
 function showServerMap(applicationName) {
 	var containerId = "servermap";
 	
+	if (oServerMap) {
+		oServerMap.clear();
+	}
+	
 	var serverMapCallback = function(data) {
 		if (data.applicationMapData.nodeDataArray.length == 0) {
 			warning("NO DATA", "");

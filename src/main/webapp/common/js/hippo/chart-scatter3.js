@@ -1,3 +1,6 @@
+var oScatterChart;
+var selectdTracesBox = {};
+
 function getScatterData(application, from, to, callback) {
     var app = application.split("@");
 	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to + "&limit=5000", function(d) { callback(d, app[0], from, to, null); });
@@ -14,8 +17,6 @@ function getRealtimeScatterData(application, from, callback) {
 }
 
 function expandScatter(e) {
-	console.log(e);
-
 	var params = [];
 	params.push("application=");
 	params.push(e.data("applicationName"));
@@ -35,6 +36,9 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 	if (oScatterChart) {
 		oScatterChart.clear();
 	}
+	
+	delete selectdTracesBox;
+	selectdTracesBox = {};
 	
 	$("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
 	$("#scatterChartContainer I").data("applicationName", applicationName);
@@ -100,6 +104,23 @@ var scatterFetchDataCallback = function(data, from, to, period) {
 };
 
 var selectDotCallback = function(traces) {
+	if (traces.length === 0) {
+		return;
+	}
+	
+	if (traces.length === 1) {
+		openTrace(traces[0].traceId, traces[0].x);
+		return;
+	}
+
+	var token = Math.random() * 10000 + 1;
+	selectdTracesBox[token] = traces;
+	
+	var popupwindow = window.open("/selectedScatter.html", token);
+}
+
+/*
+var selectDotCallbackDeprecated = function(traces) {
 	if (traces.length === 0) {
 		return;
 	}
@@ -199,7 +220,9 @@ var selectDotCallback = function(traces) {
 		alert("Failed to fetching the request informations.");
 	});
 }
+*/
 
+/*
 var timer;
 $("#auto_refresh").bind("change", function(){
 	if (this.checked) {
@@ -228,8 +251,7 @@ $("#auto_refresh").bind("change", function(){
 		console.log("[auto-refresh] stopped.")
 	}
 });
-
-var oScatterChart;
+*/
 
 function updateScatter(start, end, scatter_data, targetId, limit) {
 	if (scatter_data.length == 0) {
@@ -278,39 +300,4 @@ function drawScatter(title, start, end, targetId, w, h) {
 	});
 	// oScatterChart.setBubbles([]);
 	// oScatterChart.redrawBubbles();
-}
-
-var selectdTracesBox = {};
-
-var selectDotCallback = function(traces) {
-	if (traces.length === 0) {
-		return;
-	}
-	
-	if (traces.length === 1) {
-		openTrace(traces[0].traceId, traces[0].x);
-		return;
-	}
-
-	var token = Math.random() * 10000 + 1;
-	selectdTracesBox[token] = traces;
-	
-	var popupwindow = window.open("/selectedScatter.html", token);
-	
-	/*
-	$(popupwindow.document).ready(function () {
-		$.post("/requestmetadata.hippo", query.join(""), function(d) {
-			if (popupwindow) {
-				console.log(popupwindow.writeContents);
-				console.log(popupwindow.document);
-				popupwindow.writeContents(d);
-			} else {
-				alert("[ERROR] Can't open popup window.");
-			}
-		})
-		.fail(function() {
-			alert("Failed to fetching the request informations.");
-		});
-	});
-	*/
 }

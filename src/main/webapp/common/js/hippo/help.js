@@ -19,3 +19,7 @@ function help(id, src) {
 		"html" : true
 	}).popover('toggle');
 }
+
+function man(id) {
+	window.open("/help/" + id + ".html", id, "width=800, height=600");
+}
