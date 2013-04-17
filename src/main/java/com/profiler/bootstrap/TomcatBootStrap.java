@@ -2,8 +2,6 @@ package com.profiler.bootstrap;
 
 import com.profiler.ProductInfo;
 import com.profiler.config.ProfilerConfig;
-import com.profiler.logging.LoggerBinder;
-import com.profiler.logging.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -24,7 +22,7 @@ public class TomcatBootStrap {
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
-            logger.info(ProductInfo.NAME_CAMEL + " agentArgs:" + agentArgs);
+            logger.info(ProductInfo.CAMEL_NAME + " agentArgs:" + agentArgs);
         }
         if (logger.isLoggable(Level.FINE)) {
             dumpSystemProperties();
@@ -59,7 +57,7 @@ public class TomcatBootStrap {
             agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, ProductInfo.NAME_CAMEL + " start fail. Caused:" + e.getMessage(), e);
+            logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
         }
 
     }
