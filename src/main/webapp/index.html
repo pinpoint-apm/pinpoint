@@ -167,8 +167,11 @@
 		<div id="servermap" class="servermap"></div>
 	</div>
 	<div class="chart-right">
-		<h5 style="display:none;" id="scattercharttitle">Response scatter</h5>
-		<div id="scatterchart"></div>
+		<div id="scatterChartContainer" style="display:none;">
+			<h5 id="scattercharttitle">Response scatter</h5>
+			<i class="icon-fullscreen" onclick="expandScatter($(this));" style="cursor:pointer;"></i>
+			<div id="scatterchart"></div>
+		</div>
 	</div>
 </div>
 <!-- END OF MENU -->
@@ -229,8 +232,12 @@ $(document).ready(function () {
     		return true;
     	}
     	
+    	// 임시.
+    	$("#servermap").show();
+    	$("#scatterChartContainer").show();
+    	
     	showServerMap(applicationName);
-    	showResponseScatter(applicationName);
+    	showResponseScatter(applicationName, getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());
     }
     
 	$.getJSON("/applications.hippo", function(json) {
@@ -343,10 +350,11 @@ $(document).ready(function () {
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="showResponseScatter('${label}');">Response scatter chart</a>
+			<br/><a href="#" onclick="showResponseScatter('${label}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Response scatter chart</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
 			<br/><a href="#" onclick="showRequests('${label}');">Show Requests</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
+		<button style="position:absolute;top:2px;right:6px;" onClick="console.log($(this)); $(this).parent().remove()">X</button>
 		<button style="position:absolute;top:2px;right:2px;" onClick="console.log($(this)); $(this).parent().remove()">X</button>
 	</div>
 </script>

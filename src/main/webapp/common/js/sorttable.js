@@ -101,7 +101,7 @@ sorttable = {
             sortrevind = document.createElement('span');
             sortrevind.id = "sorttable_sortrevind";
             // sortrevind.innerHTML = stIsIE ? '&nbsp<font face="webdings">5</font>' : '&nbsp;&#x25B4;<i class="icon-arrow-up"></i>';
-            sortrevind.innerHTML = stIsIE ? '&nbsp<font face="webdings">5</font>' : '&nbsp;<i class="icon-arrow-up"></i>';
+            sortrevind.innerHTML = stIsIE ? '&nbsp<font face="webdings">5</font>' : '&nbsp;<i class="icon-arrow-down"></i>';
             this.appendChild(sortrevind);
             return;
           }
@@ -115,7 +115,7 @@ sorttable = {
             sortfwdind = document.createElement('span');
             sortfwdind.id = "sorttable_sortfwdind";
             // sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25BE;<i class="icon-arrow-down"></i>';
-            sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;<i class="icon-arrow-down"></i>';
+            sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;<i class="icon-arrow-up"></i>';
             this.appendChild(sortfwdind);
             return;
           }
@@ -137,7 +137,7 @@ sorttable = {
           sortfwdind = document.createElement('span');
           sortfwdind.id = "sorttable_sortfwdind";
           // sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25BE;<i class="icon-arrow-down"></i>';
-          sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;<i class="icon-arrow-down"></i>';
+          sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;<i class="icon-arrow-up"></i>';
           this.appendChild(sortfwdind);
 
 	        // build an array to sort. This is a Schwartzian transform thing,

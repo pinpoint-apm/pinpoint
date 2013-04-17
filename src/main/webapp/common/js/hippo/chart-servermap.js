@@ -23,7 +23,7 @@ function showServerMap(applicationName) {
 		}
 		
 	    oServerMap.load(data.applicationMapData);
-    	$("#" + containerId).show();
+    	// $("#" + containerId).show();
     };
 
     if (isQueryFromNow()) {
@@ -39,18 +39,18 @@ var nodeClickHandler = function(e, data, containerId) {
 			var htOffset = $(containerId).offset();
 			var box = $('#ClientBox')
 							.tmpl(data)
-							.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+							.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 							.attr('class', 'nodeinfo' + data.id);
-			box.appendTo(containerId);
+			box.appendTo($(containerId).parent());
 		}	
 	} else {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
 			var box = $('#ServerBox')
 						.tmpl(data)
-						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 						.attr('class', 'nodeinfo' + data.id);
-			box.appendTo(containerId);
+			box.appendTo($(containerId).parent());
 		}
 	}
 }
@@ -63,7 +63,7 @@ var linkClickHandler = function(e, data, containerId) {
 	var htOffset = $(containerId).offset();
 	var box = $('#EdgeBox')
 				.tmpl(data)
-				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left})
+				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 				.attr('class', 'linkinfo' + data.id);
-	box.appendTo(containerId);
+	box.appendTo($(containerId).parent());
 }

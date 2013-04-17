@@ -36,6 +36,16 @@ public class ScatterChartController extends BaseController {
 	@Autowired
 	private SpanService spanService;
 
+	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
+	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod) {
+		model.addAttribute("applicationName", applicationName);
+		model.addAttribute("from", from);
+		model.addAttribute("to", to);
+		model.addAttribute("period", period);
+		model.addAttribute("usePeriod", usePeriod);
+		return "scatterPopup";
+	}
+	
 	@RequestMapping(value = "/scatterView", method = RequestMethod.GET)
 	public String getScatterView(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
 		StopWatch watch = new StopWatch();

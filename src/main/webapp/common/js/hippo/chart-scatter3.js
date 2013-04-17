@@ -1,20 +1,60 @@
-function showResponseScatter(applicationName) {
+function getScatterData(application, from, to, callback) {
+    var app = application.split("@");
+	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to + "&limit=5000", function(d) { callback(d, app[0], from, to, null); });
+}
+
+function getLastScatterData(application, period, callback) {
+    var app = application.split("@");
+	d3.json("/getLastScatterData.hippo?application=" + app[0] + "&period=" + period + "&limit=5000", function(d) { callback(d, app[0], null, null, period); });
+}
+
+function getRealtimeScatterData(application, from, callback) {
+    var app = application.split("@");
+	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + from + "&limit=5000", function(d) { callback(d, app[0], from, null, null); });
+}
+
+function expandScatter(e) {
+	console.log(e);
+
+	var params = [];
+	params.push("application=");
+	params.push(e.data("applicationName"));
+	params.push("&from=");
+	params.push(e.data("from"));
+	params.push("&to=");
+	params.push(e.data("to"));
+	params.push("&period=");
+	params.push(e.data("period"));
+	params.push("&usePeriod=");
+	params.push(e.data("usePeriod"));
+	
+	window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=800, height=500, resizable=yes");
+}
+
+function showResponseScatter(applicationName, from, to, period, usePeriod, w, h) {
 	if (oScatterChart) {
 		oScatterChart.clear();
 	}
-	$("#scattercharttitle").text("'" + applicationName + "' response scatter")
-	$("#scattercharttitle").show();
-	drawScatter(applicationName, getQueryStartTime(), getQueryEndTime(), "scatterchart");
-    if (isQueryFromNow()) {
-		getLastScatterData(applicationName, getQueryPeriod(), scatterFetchDataCallback);
+	
+	$("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
+	$("#scatterChartContainer I").data("applicationName", applicationName);
+	$("#scatterChartContainer I").data("from", from);
+	$("#scatterChartContainer I").data("to", to);
+	$("#scatterChartContainer I").data("period", period);
+	$("#scatterChartContainer I").data("usePeriod", usePeriod);
+	// $("#scatterChartContainer").show();
+	
+	drawScatter(applicationName, from, to, "scatterchart", w, h);
+    if (usePeriod) {
+		getLastScatterData(applicationName, period, scatterFetchDataCallback);
     } else {
-        getScatterData(applicationName, getQueryStartTime(), getQueryEndTime(), scatterFetchDataCallback);
+        getScatterData(applicationName, from, to, scatterFetchDataCallback);
     }
 }
 
-var scatterFetchDataCallback = function(data) {
+var scatterFetchDataCallback = function(data, from, to, period) {
 	// 처음 조회된 데이터를 그려준다.
-    updateScatter(getQueryStartTime(), getQueryEndTime(), data.scatter, "#scatter");
+    updateScatter(from, to, data.scatter, "#scatter");
     
     if (data.scatter.length == 0) {
     	return;
@@ -23,7 +63,7 @@ var scatterFetchDataCallback = function(data) {
     // 데이터 조회가 추가로 필요한지 확인한다.
     var lastTimeStamp = data.scatter[data.scatter.length - 1].x;
     
-    if (lastTimeStamp >= getQueryEndTime()) {
+    if (lastTimeStamp >= to) {
     	return;
     }
     
@@ -33,7 +73,7 @@ var scatterFetchDataCallback = function(data) {
 		console.log("fetch scatter data");
 		clearInterval(scatterFetchTimer);
 		
-		if(!queryNext || lastTimeStamp >= getQueryEndTime()) {
+		if(!queryNext || lastTimeStamp >= to) {
 	        scatter.hideProgressbar();
 			console.log("fetching scatter data finished.");
 			return;
@@ -42,13 +82,13 @@ var scatterFetchDataCallback = function(data) {
     	try {
     		console.log("fetching scatter data.");
     		
-        	getScatterData($("#application").val(), lastTimeStamp + 1, getQueryEndTime(), function(data2) {
+        	getScatterData($("#application").val(), lastTimeStamp + 1, to, function(data2) {
         		console.log("fetched " + data2.scatter.length);
     	        if (data2.scatter.length == 0) {
     	        	queryNext = false;
     	        	return;
     	        }
-		        updateScatter(getQueryStartTime(), getQueryEndTime(), data2.scatter, "#scatter");
+		        updateScatter(from, to, data2.scatter, "#scatter");
         		lastTimeStamp = data2.scatter[data2.scatter.length - 1].x;
         		scatterFetchTimer = setInterval(fetch, 200);
         	});
@@ -238,4 +278,39 @@ function drawScatter(title, start, end, targetId, w, h) {
 	});
 	// oScatterChart.setBubbles([]);
 	// oScatterChart.redrawBubbles();
+}
+
+var selectdTracesBox = {};
+
+var selectDotCallback = function(traces) {
+	if (traces.length === 0) {
+		return;
+	}
+	
+	if (traces.length === 1) {
+		openTrace(traces[0].traceId, traces[0].x);
+		return;
+	}
+
+	var token = Math.random() * 10000 + 1;
+	selectdTracesBox[token] = traces;
+	
+	var popupwindow = window.open("/selectedScatter.html", token);
+	
+	/*
+	$(popupwindow.document).ready(function () {
+		$.post("/requestmetadata.hippo", query.join(""), function(d) {
+			if (popupwindow) {
+				console.log(popupwindow.writeContents);
+				console.log(popupwindow.document);
+				popupwindow.writeContents(d);
+			} else {
+				alert("[ERROR] Can't open popup window.");
+			}
+		})
+		.fail(function() {
+			alert("Failed to fetching the request informations.");
+		});
+	});
+	*/
 }

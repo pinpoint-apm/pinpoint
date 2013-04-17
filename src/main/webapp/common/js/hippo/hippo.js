@@ -26,21 +26,6 @@ function getLastServerMapData(application, period, callback) {
 	d3.json("/getLastServerMapData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
 }
 
-function getScatterData(application, begin, end, callback) {
-    var app = application.split("@");
-	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end + "&limit=5000", function(d) { callback(d); });
-}
-
-function getLastScatterData(application, period, callback) {
-    var app = application.split("@");
-	d3.json("/getLastScatterData.hippo?application=" + app[0] + "&period=" + period + "&limit=5000", function(d) { callback(d); });
-}
-
-function getRealtimeScatterData(application, begin, callback) {
-    var app = application.split("@");
-	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + begin + "&limit=5000", function(d) { callback(d); });
-}
-
 function getQueryPeriod() {
 	return $("#period").find("button.active").val().split(",") * 1000 * 60;
 }
