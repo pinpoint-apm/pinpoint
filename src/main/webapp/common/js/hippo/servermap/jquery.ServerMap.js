@@ -139,9 +139,9 @@ var ServerMap = $.Class({
 	        selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
 	          layerName: "Foreground",
 	          reshapable: true,
-	          routing : go.Link.Normal,
+	          // routing : go.Link.Normal,
 	          // routing : go.Link.Orthogonal,
-	          // routing : go.Link.AvoidsNodes,
+	          routing : go.Link.AvoidsNodes,
 	          corner : 10,
 	          // curve : go.Link.JumpOver
 	          curve : go.Link.JumpGap
