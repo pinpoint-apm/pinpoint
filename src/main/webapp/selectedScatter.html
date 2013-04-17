@@ -79,6 +79,9 @@
 		</table>
 		</div>
 	</div>
+	<div id="loader">
+		<img src="/common/images/ajaxloader.gif" />
+	</div>
 </div>
 <script type="text/javascript">
 $(document).ready(function () {
@@ -117,6 +120,7 @@ $(document).ready(function () {
 	
 	$.post("/requestmetadata.hippo", query.join(""), function(d) {
 		writeContents(d);
+		$("#loader").hide();
 	})
 	.fail(function() {
 		alert("Failed to fetching the request informations.");
