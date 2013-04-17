@@ -1,5 +1,6 @@
 package com.profiler.bootstrap;
 
+import com.profiler.ProductInfo;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.logging.LoggerBinder;
 import com.profiler.logging.LoggerFactory;
@@ -23,7 +24,7 @@ public class TomcatBootStrap {
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
-            logger.info("HIPPO agentArgs:" + agentArgs);
+            logger.info(ProductInfo.NAME_CAMEL + " agentArgs:" + agentArgs);
         }
         if (logger.isLoggable(Level.FINE)) {
             dumpSystemProperties();
@@ -32,6 +33,7 @@ public class TomcatBootStrap {
         ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
+            // TODO 이거 변경해야 함.
             logger.severe("hippo-profiler-bootstrap-x.x.x.jar not found.");
             return;
         }
@@ -56,37 +58,27 @@ public class TomcatBootStrap {
             agentClassLoader.setBootClass("com.profiler.DefaultAgent");
             agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
 
-//            Object binder = agentClassLoader.initializeLoggerBinder();
-//            if (binder instanceof LoggerBinder) {
-//                LoggerBinder loggerBinder = (LoggerBinder) binder;
-//
-//                LoggerFactory.initialize(loggerBinder);
-//                com.profiler.logging.Logger logger = loggerBinder.getLogger(TomcatBootStrap.class.getName());
-//
-//                logger.info("LoggerFactory initialized");
-//
-//                logger.info("load lib:" + libUrlList);
-//            }
         } catch (Exception e) {
-            logger.log(Level.INFO, "hippo start fail. Caused:" + e.getMessage(), e);
+            logger.log(Level.SEVERE, ProductInfo.NAME_CAMEL + " start fail. Caused:" + e.getMessage(), e);
         }
 
     }
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
-        String hippoConfigFormSystemProperty = System.getProperty("hippo.config");
+        final String configName = ProductInfo.NAME + ".config";
+        String hippoConfigFormSystemProperty = System.getProperty(configName);
         if (hippoConfigFormSystemProperty != null) {
-            logger.info("hippo.config systemProperty found. " + hippoConfigFormSystemProperty);
+            logger.info(configName + " systemProperty found. " + hippoConfigFormSystemProperty);
             return hippoConfigFormSystemProperty;
         }
 
         String classPathAgentConfigPath = classPathResolver.getAgentConfigPath();
         if (classPathAgentConfigPath != null) {
-            logger.info("classpath hippo.config found. " + classPathAgentConfigPath);
+            logger.info("classpath " + configName +  " found. " + classPathAgentConfigPath);
             return classPathAgentConfigPath;
         }
 
-        logger.severe("hippo.config file not found.");
+        logger.severe(configName + " file not found.");
         return null;
     }
 

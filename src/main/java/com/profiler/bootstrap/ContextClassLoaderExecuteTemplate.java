@@ -12,16 +12,15 @@ public class ContextClassLoaderExecuteTemplate<V> {
         this.classLoader = classLoader;
     }
 
-    public V execute(Callable<V> runnable) throws BootStrapException {
+    public V execute(Callable<V> callable) throws BootStrapException {
         Thread currentThread = Thread.currentThread();
         final ClassLoader before = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(ContextClassLoaderExecuteTemplate.this.classLoader);
         try {
-            return runnable.call();
+            return callable.call();
         } catch (BootStrapException ex){
             throw ex;
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new BootStrapException("execute fail. Caused:" + ex.getMessage(), ex);
         } finally {
             currentThread.setContextClassLoader(before);

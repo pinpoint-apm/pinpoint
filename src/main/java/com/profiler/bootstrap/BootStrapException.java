@@ -1,9 +1,11 @@
 package com.profiler.bootstrap;
 
+import com.profiler.exception.PinPointException;
+
 /**
  *
  */
-public class BootStrapException extends RuntimeException {
+public class BootStrapException extends PinPointException {
 
     public BootStrapException(String message, Throwable cause) {
         super(message, cause);
