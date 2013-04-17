@@ -266,8 +266,29 @@ public class ProfilerConfig {
 		return false;
 	}
 
-	@Override
-	public String toString() {
-		return "ProfilerConfig{" + "profileEnable=" + profileEnable + ", jdbcProfile=" + jdbcProfile + ", jdbcProfileMySql=" + jdbcProfileMySql + ", jdbcProfileMsSql=" + jdbcProfileMsSql + ", jdbcProfileOracle=" + jdbcProfileOracle + ", jdbcProfileCubrid=" + jdbcProfileCubrid + ", jdbcProfileDbcp=" + jdbcProfileDbcp + '}';
-	}
+    @Override
+    public String toString() {
+        return "ProfilerConfig{" +
+                "\n profileEnable=" + profileEnable +
+                "\n collectorServerIp='" + collectorServerIp + '\'' +
+                "\n collectorServerPort=" + collectorServerPort +
+                "\n jdbcProfile=" + jdbcProfile +
+                "\n jdbcProfileMySql=" + jdbcProfileMySql +
+                "\n jdbcProfileMsSql=" + jdbcProfileMsSql +
+                "\n jdbcProfileOracle=" + jdbcProfileOracle +
+                "\n jdbcProfileCubrid=" + jdbcProfileCubrid +
+                "\n jdbcProfileDbcp=" + jdbcProfileDbcp +
+                "\n samplingEnable=" + samplingEnable +
+                "\n samplingRate=" + samplingRate +
+                "\n samplingElapsedTimeBaseEnable=" + samplingElapsedTimeBaseEnable +
+                "\n samplingElapsedTimeBaseBufferSize=" + samplingElapsedTimeBaseBufferSize +
+                "\n samplingElapsedTimeBaseDiscard=" + samplingElapsedTimeBaseDiscard +
+                "\n samplingElapsedTimeBaseDiscardTimeLimit=" + samplingElapsedTimeBaseDiscardTimeLimit +
+                "\n profileJvmCollectInterval=" + profileJvmCollectInterval +
+                "\n profileInclude=" + profileInclude +
+                "\n profileIncludeSub=" + profileIncludeSub +
+                "\n heartbeatInterval=" + heartbeatInterval +
+                "\n serviceType=" + serviceType +
+                '}';
+    }
 }
