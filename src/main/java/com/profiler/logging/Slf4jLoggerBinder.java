@@ -1,7 +1,5 @@
-package com.profiler.logger;
+package com.profiler.logging;
 
-import com.profiler.logging.Logger;
-import com.profiler.logging.LoggerBinder;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;

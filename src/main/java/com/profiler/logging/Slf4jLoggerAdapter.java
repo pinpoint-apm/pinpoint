@@ -1,4 +1,4 @@
-package com.profiler.logger;
+package com.profiler.logging;
 
 import com.profiler.logging.Logger;
 import org.slf4j.Marker;

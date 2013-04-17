@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.profiler.context.MockTraceContextFactory;
 import com.profiler.context.TraceContext;
-import com.profiler.logger.Slf4jLoggerBinder;
+import com.profiler.logging.Slf4jLoggerBinder;
 import com.profiler.logging.LoggerFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;

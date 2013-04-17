@@ -11,7 +11,7 @@ import com.profiler.context.TimeBaseStorageFactory;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.profiler.logger.Slf4jLoggerBinder;
+import com.profiler.logging.Slf4jLoggerBinder;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerBinder;
 import com.profiler.logging.LoggerFactory;

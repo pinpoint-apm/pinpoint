@@ -5,7 +5,7 @@ import com.profiler.DefaultAgent;
 import com.profiler.DummyInstrumentation;
 import com.profiler.config.ProfilerConfig;
 
-import com.profiler.logger.Slf4jLoggerBinder;
+import com.profiler.logging.Slf4jLoggerBinder;
 import com.profiler.modifier.db.DatabaseInfo;
 
 import com.profiler.util.MetaObject;
