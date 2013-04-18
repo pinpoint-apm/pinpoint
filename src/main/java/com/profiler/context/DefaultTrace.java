@@ -20,9 +20,6 @@ public final class DefaultTrace implements Trace {
     private static final boolean isDebug = logger.isDebugEnabled();
     private static final boolean isTrace = logger.isTraceEnabled();
 
-    public static final int NOCHECK_STACKID = -1;
-    public static final int ROOT_STACKID = 0;
-
     private short sequence;
 
     private boolean sampling = true;

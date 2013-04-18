@@ -18,6 +18,16 @@ public class Slf4jLoggerAdapter implements Logger {
     }
 
     @Override
+    public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+        LoggingUtils.logBefore(this, target, className, methodName, parameterDescription, args);
+    }
+
+    @Override
+    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+        LoggingUtils.logAfter(this, target, className, methodName, parameterDescription, args, result);
+    }
+
+    @Override
     public boolean isTraceEnabled() {
         return logger.isTraceEnabled();
     }

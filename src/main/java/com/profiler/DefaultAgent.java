@@ -23,7 +23,9 @@ import com.profiler.util.NetworkUtils;
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 public class DefaultAgent implements Agent {
 
@@ -63,7 +65,10 @@ public class DefaultAgent implements Agent {
         }
 
         initializeLogger();
+
+        dumpSystemProperties();
         dumpConfig(profilerConfig);
+
         changeStatus(AgentStatus.INITIALIZING);
 
         this.profilerConfig = profilerConfig;
@@ -100,6 +105,16 @@ public class DefaultAgent implements Agent {
 
 
         SingletonHolder.INSTANCE = this;
+    }
+
+    private void dumpSystemProperties() {
+        if (logger.isInfoEnabled()) {
+            Properties properties = System.getProperties();
+            Set<String> strings = properties.stringPropertyNames();
+            for (String key : strings) {
+                logger.info("SystemProperties " + key + "=" + properties.get(key));
+            }
+        }
     }
 
     private void dumpConfig(ProfilerConfig profilerConfig) {
@@ -281,7 +296,7 @@ public class DefaultAgent implements Agent {
     // TODO 필요없을것 같음 started를 start로 바꿔도 될 듯...
     @Override
     public void start() {
-        logger.info("Starting HIPPO Agent.");
+        logger.info("Starting " + ProductInfo.CAMEL_NAME + " Agent.");
     }
 
     /**
@@ -295,7 +310,7 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void stop() {
-        logger.info("Stopping HIPPO Agent.");
+        logger.info("Stopping " + ProductInfo.CAMEL_NAME +" Agent.");
 
         changeStatus(AgentStatus.STOPPING);
         this.heartBitChecker.close();
