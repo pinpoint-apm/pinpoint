@@ -20,8 +20,6 @@ public class ClassPathResolver {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    //    Pattern.compile("hippo-tomcat-profiler-([0-9]+\\){2}.jar");
-//    private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("hippo-tomcat-profiler-[0-9]+\\.[0-9]+\\.[0-9]+\\.jar");
     private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("hippo-profiler-bootstrap-[0-9]+\\.[0-9]+\\.[0-9]+\\.jar");
 
     private String classPath;

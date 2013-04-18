@@ -24,9 +24,6 @@ public class TomcatBootStrap {
         if (agentArgs != null) {
             logger.info(ProductInfo.CAMEL_NAME + " agentArgs:" + agentArgs);
         }
-        if (logger.isLoggable(Level.FINE)) {
-            dumpSystemProperties();
-        }
 
         ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
@@ -84,28 +81,20 @@ public class TomcatBootStrap {
     private static List<URL> resolveLib(ClassPathResolver classPathResolver)  {
         // 절대경로만 처리되지 않나함. 상대 경로(./../agentlib/lib등)일 경우의 처리가 있어야 될것 같음.
         String agentJarFullPath = classPathResolver.getAgentJarFullPath();
-        logger.info("agentJarPath:" + agentJarFullPath);
-
         String agentLibPath = classPathResolver.getAgentLibPath();
-        logger.info("agentLibPath:" + agentLibPath);
-
         List<URL> urlList = classPathResolver.resolveLib();
-        logger.info("agent lib list:" + urlList);
-
         String agentConfigPath = classPathResolver.getAgentConfigPath();
-        logger.info("agent config:" + agentConfigPath);
+
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("agentJarPath:" + agentJarFullPath);
+            logger.info("agentLibPath:" + agentLibPath);
+            logger.info("agent lib list:" + urlList);
+            logger.info("agent config:" + agentConfigPath);
+        }
 
         return urlList;
     }
 
-    private static void dumpSystemProperties() {
-        if (logger.isLoggable(Level.FINE)) {
-            Properties properties = System.getProperties();
-            Set<String> strings = properties.stringPropertyNames();
-            for (String key : strings) {
-                logger.fine("SystemProperties " + key + "=" + properties.get(key));
-            }
-        }
-    }
+
 
 }

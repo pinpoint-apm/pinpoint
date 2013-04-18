@@ -6,6 +6,10 @@ package com.profiler.logging;
 public interface Logger {
 
 
+    void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args);
+
+    void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result);
+
     boolean isTraceEnabled();
 
 
