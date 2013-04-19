@@ -61,40 +61,44 @@
     <!-- help -->
     <script type="text/javascript" src="/common/js/hippo/help.js"></script>
     <script type="text/javascript" src="/common/js/hippo/message.js"></script>
-	
-    <script type="text/javascript">
-	var selectedRow;
-    function showRequestList(id, row) {
-    	if (selectedRow) {
-    		$(selectedRow).css({'background-color':'#FFFFFF'});
-    	}
-    	selectedRow = row;
-		$(row).css({'background-color':'#FFFF00'});
-		
-		drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 900, 450);
-		updateScatter("", "", datamap[id]);
-   		return false;
-    }
-    </script>
     <style type="text/css">
     body {
     	padding: 30px;
 	}
+	
+	@media(min-width:1100px){
+	  .table-container {
+	  	position:relative;
+	  }
+	  	
+	  .table-left {
+	  	margin-right:530px;
+	  }
+	
+	  .table-right {
+	  	position:absolute;
+	  	top:0;
+	  	right:0;
+	  	width:510px;
+	  }
+	}
+	@media(max-width:1099px){
+	  .table-right {
+	    padding-left:20px;
+	  }
+	}
     </style>
 </head>
 <body>
-<div class="container">
-	<div class="row">
-		<div class="span12">
-			<h4>Application : ${applicationName}</h4>
-			<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
-			<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
-			<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
-		</div>
-	</div>
-	<div class="row">
-		<div class="span12" style="max-height:350px;overflow:scroll;">
-			<h5>URL list</h5>
+
+<div class="table-container">
+    <div class="table-left">
+		<h4>Application : ${applicationName}</h4>
+		<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
+		<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
+		<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
+		<h5>URL list</h5>
+		<div style="max-height:300px;overflow:scroll;">
 			<table class="table table-bordered table-hover sortable">
 				<thead>
 					<tr>
@@ -109,25 +113,37 @@
 					<c:forEach items="${rpcList}" var="t" varStatus="status">
 					<tr style="cursor:pointer;" onclick="showRequestList(${status.count}, this);">
 						<td>${t.rpc}</td>
-						<td><fmt:formatNumber value="${t.calls}" type="number" /></td>
-						<td><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" pattern="#" /></td>
-						<td><fmt:formatNumber value="${t.minTime}" type="number" /></td>
-						<td><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
+						<td sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
+						<td sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" pattern="#" /></td>
+						<td sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
+						<td sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
 					</tr>
 					</c:forEach>
 				</tbody>
-		</table>
+			</table>
 		</div>
 	</div>
-	<div class="row">
-		<div class="span12">
-			<div id="scatterchart"></div>
-		</div>
+	<div class="table-right">
+		<div id="scatterchart"></div>
 	</div>
 </div>
 
 <script type="text/javascript">
 var datamap = {};
+var selectedRow;
+
+function showRequestList(id, row) {
+	if (selectedRow) {
+		$(selectedRow).css({'background-color':'#FFFFFF'});
+	}
+	selectedRow = row;
+	$(row).css({'background-color':'#FFFF00'});
+	
+	drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 500, 450);
+	updateScatter("", "", datamap[id]);
+		return false;
+}
+
 <c:forEach items="${requestList}" var="t" varStatus="status">
 datamap["${status.count}"] = [
 	    <c:forEach items="${t.traces}" var="trace" varStatus="status2">
