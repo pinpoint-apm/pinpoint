@@ -13,7 +13,6 @@ public class LoggingUtils {
         sb.append("before ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
-//        logger.debug("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
     }
 
     public static void logAfter(Logger logger, Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {

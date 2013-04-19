@@ -10,6 +10,8 @@ public interface Logger {
 
     void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result);
 
+    void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args);
+
     boolean isTraceEnabled();
 
 

@@ -33,4 +33,6 @@ public interface TraceContext {
     ParsingResult parseSql(String sql);
 
     TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, boolean sampled, short flags);
+
+    void disableSampling();
 }
