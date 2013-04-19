@@ -26,7 +26,7 @@ public class BaseOperationConstructInterceptor implements StaticAfterInterceptor
     @Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
 		}
 		
 		Trace trace = traceContext.currentTraceObject();

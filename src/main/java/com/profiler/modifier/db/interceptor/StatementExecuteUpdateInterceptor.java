@@ -32,7 +32,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");
@@ -73,7 +73,7 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
         if (JDBCScope.isInternal()) {
             return;

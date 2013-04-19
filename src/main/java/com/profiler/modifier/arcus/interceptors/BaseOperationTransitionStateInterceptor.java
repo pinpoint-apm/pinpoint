@@ -43,7 +43,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
     @Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
-			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
 		}
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
@@ -57,7 +57,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
 		if (newState == OperationState.READING) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("event:" + newState + " asyncTrace:" + asyncTrace);
+				logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
 			}
 			if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
 				return;
@@ -101,7 +101,7 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
 //			asyncTrace.traceBlockEnd();
 		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("event:" + newState + " asyncTrace:" + asyncTrace);
+                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
 			}
 			boolean fire = asyncTrace.fire();
 			if (!fire) {

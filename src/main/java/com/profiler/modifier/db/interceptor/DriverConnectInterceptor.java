@@ -35,8 +35,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
-            logger.debug("JDBCScope push:" + Thread.currentThread().getName());
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.debug("JDBCScope push:{}", Thread.currentThread().getName());
         }
         JDBCScope.push();
 
@@ -52,8 +52,8 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
-            logger.debug("JDBCScope pop:" + Thread.currentThread().getName());
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.debug("JDBCScope pop:{}", Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         JDBCScope.pop();

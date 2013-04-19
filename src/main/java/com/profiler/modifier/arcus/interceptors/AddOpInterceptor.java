@@ -28,7 +28,7 @@ public class AddOpInterceptor implements StaticBeforeInterceptor {
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
 		}
 
 		String serviceCode = getServiceCode.invoke((MemcachedClient) target);

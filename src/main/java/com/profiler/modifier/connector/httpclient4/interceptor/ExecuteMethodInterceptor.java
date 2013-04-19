@@ -40,7 +40,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -75,7 +75,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
             // result는 로깅하지 않는다.
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args);
         }
 
         Trace trace = traceContext.currentTraceObject();
