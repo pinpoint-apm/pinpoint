@@ -139,12 +139,16 @@ var ServerMap = $.Class({
 	        selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
 	          layerName: "Foreground",
 	          reshapable: true,
+	          fromSpot: go.Spot.RightSide,
+	          toSpot: go.Spot.LeftSide,
+	          corner : 10,
+	          
 	          // routing : go.Link.Normal,
 	          // routing : go.Link.Orthogonal,
 	          routing : go.Link.AvoidsNodes,
-	          corner : 10,
-	          curve : go.Link.JumpOver
-	          // curve : go.Link.JumpGap
+	          
+	          // curve : go.Link.JumpOver
+	          curve : go.Link.JumpGap
 	          // curve: go.Link.Bezier
 	        };
 
