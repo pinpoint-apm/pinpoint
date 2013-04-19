@@ -63,21 +63,16 @@
     <script type="text/javascript" src="/common/js/hippo/message.js"></script>
 	
     <script type="text/javascript">
-	var shownList;
 	var selectedRow;
-    function showRequestList(rpc, row) {
-    	if (shownList) {
-    		$(shownList).hide();
-    	}
+    function showRequestList(id, row) {
     	if (selectedRow) {
     		$(selectedRow).css({'background-color':'#FFFFFF'});
     	}
-    	
-    	shownList = "#requestList-" + rpc;
     	selectedRow = row;
-    	
-   		$(shownList).show();
 		$(row).css({'background-color':'#FFFF00'});
+		
+		drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 900, 450);
+		updateScatter("", "", datamap[id]);
    		return false;
     }
     </script>
@@ -90,18 +85,15 @@
 <body>
 <div class="container">
 	<div class="row">
-		<div class="span8">
+		<div class="span12">
 			<h4>Application : ${applicationName}</h4>
 			<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
 			<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
 			<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
 		</div>
-		<div class="span4">
-			<div id="scatterchart"></div>
-		</div>
 	</div>
 	<div class="row">
-		<div class="span12" style="max-height:500px;overflow:scroll;">
+		<div class="span12" style="max-height:350px;overflow:scroll;">
 			<h5>URL list</h5>
 			<table class="table table-bordered table-hover sortable">
 				<thead>
@@ -129,84 +121,26 @@
 	</div>
 	<div class="row">
 		<div class="span12">
-			<c:forEach items="${requestList}" var="t" varStatus="status">
-			<div id="requestList-${status.count}" style="display:none;">
-				<h5>Request list</h5>
-				<table class="table table-bordered table-hover sortable">
-					<thead>
-						<tr>
-							<th>#</th>
-							<th class="sorttable_numeric">Time</th>
-							<th>TraceId</th>
-							<th class="sorttable_numeric">Response Time (ms)</th>
-						</tr>
-					</thead>
-					<tbody>
-					    <c:forEach items="${t.traces}" var="trace" varStatus="status2">
-					    <tr>
-					    	<td>${status2.count}</td>
-					    	<td>${hippo:longToDateStr(trace.startTime, "HH:mm:ss SSS")}</td>
-					    	<td><a href="/selectTransaction.hippo?traceId=${trace.traceId}&focusTimestamp=-1" target="_blank">${trace.traceId}</a></td>
-					    	<td>${trace.executionTime}</td>
-					    </tr>
-						</c:forEach>		
-					</tbody>
-				</table>
-			</div>
-			</c:forEach>
+			<div id="scatterchart"></div>
 		</div>
 	</div>
 </div>
 
-<!-- MODAL -->
-<div class="modal hide fade" id="traceIdSelectModal" style="width:1200px; margin-left:-600px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Selected Traces</h3>
-    </div>
-    <div class="modal-body">
-		<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-hover sortable">
-			<thead>
-			<tr>
-			    <th class="sorttable_numeric">#</th>
-			    <th class="sorttable_numeric">Time</th>
-			    <th>TraceId</th>
-			    <th class="sorttable_numeric">Res. Time (ms)</th>
-			    <th>Exception</th>
-			    <th>Application</th>
-			    <th>AgentId</th>
-			    <th>ClientIP</th>
-			</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF MODAL -->
-
 <script type="text/javascript">
-var data = {
-	"scatter" : [
-	<c:forEach items="${scatterList}" var="t" varStatus="status">
+var datamap = {};
+<c:forEach items="${requestList}" var="t" varStatus="status">
+datamap["${status.count}"] = [
 	    <c:forEach items="${t.traces}" var="trace" varStatus="status2">
 		{
-			"x" : ${trace.startTime},
-			"y" : ${trace.executionTime},
-			"traceId" : "${trace.traceId}",
-			"type" : <c:choose><c:when test="${trace.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
-		}
+   			"x" : ${trace.startTime},
+   			"y" : ${trace.executionTime},
+   			"traceId" : "${trace.traceId}",
+   			"type" : <c:choose><c:when test="${dot.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
+   		}
 	    <c:if test="${!status2.last}">,</c:if>
-		</c:forEach>
-	    <c:if test="${!status.last}">,</c:if>
-	</c:forEach>
-	]
-}
-drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 400, 250);
-updateScatter("", "", data.scatter);
+		</c:forEach>		
+    	];
+</c:forEach>
 </script>
 </body>
 </html>

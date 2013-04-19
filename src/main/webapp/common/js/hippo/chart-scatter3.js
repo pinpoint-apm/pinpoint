@@ -51,7 +51,10 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
         $("#scatterChartContainer I").data("to", to);
         $("#scatterChartContainer I").data("period", period);
         $("#scatterChartContainer I").data("usePeriod", usePeriod);
-        // $("#scatterChartContainer").show();
+        
+        $("#scatterChartContainer SPAN").click(function() {
+        	showRequests(applicationName, from, to, period, usePeriod);
+        });
         
         drawScatter(applicationName, from, to, "scatterchart", w, h);
     if (usePeriod) {
@@ -95,7 +98,7 @@ var scatterFetchDataCallback = function(data, applicationName, from, to, period)
         try {
             console.log("fetching scatter data.");
                 
-            getScatterData(applicationName, lastTimeStamp + 1, to, period, function(data2, from, to, period) {
+            getScatterData($("#application").val(), lastTimeStamp + 1, to, period, function(data2, from, to, period) {
 	            console.log("fetched " + data2.scatter.length);
 	            
 	            if (data2.scatter.length == 0) {

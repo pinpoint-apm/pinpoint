@@ -1,11 +1,8 @@
-function showRequests(applicationName) {
+function showRequests(applicationName, from, to, period, usePeriod) {
 	var app = applicationName.split("@");
-    if (isQueryFromNow()) {
-    	var begin = getQueryStartTime();
-    	var end = getQueryEndTime();
-    	window.open("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end);
+    if (usePeriod) {
+    	window.open("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to);
     } else {
-    	var period = getQueryPeriod();
     	window.open("/getLastBusinessTransactionsData.hippo?application=" + app[0] + "&period=" + period);
     }
 }
