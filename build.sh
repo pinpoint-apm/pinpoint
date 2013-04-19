@@ -20,4 +20,6 @@ cp ../hippo-tomcat-profiler/target/dependency/log4j-1.2.16.jar  ../hippo-testbed
 cp ../hippo-tomcat-profiler/target/dependency/slf4j-log4j12-1.6.6.jar  ../hippo-testbed/agent/lib
 cp ../hippo-tomcat-profiler/target/dependency/slf4j-api-1.6.6.jar  ../hippo-testbed/agent/lib
 
-cp ../hippo-tomcat-profiler/runscript/* ../hippo-testbed/agent
+cp ../hippo-tomcat-profiler/runscript/help.txt ../hippo-testbed/agent
+cp ../hippo-tomcat-profiler/runscript/hippo.config ../hippo-testbed/agent
+cp ../hippo-tomcat-profiler/runscript/log4j.xml ../hippo-testbed/agent/lib
