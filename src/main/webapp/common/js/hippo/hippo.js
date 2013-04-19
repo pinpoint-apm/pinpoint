@@ -6,26 +6,6 @@ function openTrace(uuid, timestamp) {
     window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
 }
 
-function getServerMapData2(application, begin, end, callback) {
-    var app = application.split("@");
-	d3.json("/getServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-}
-
-function getLastServerMapData2(application, period, callback) {
-    var app = application.split("@");
-	d3.json("/getLastServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&period=" + period, function(d) { callback(d); });
-}
-
-function getServerMapData(application, begin, end, callback) {
-    var app = application.split("@");
-	d3.json("/getServerMapData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-}
-
-function getLastServerMapData(application, period, callback) {
-    var app = application.split("@");
-	d3.json("/getLastServerMapData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
-}
-
 function getQueryPeriod() {
 	return $("#period").find("button.active").val().split(",") * 1000 * 60;
 }
