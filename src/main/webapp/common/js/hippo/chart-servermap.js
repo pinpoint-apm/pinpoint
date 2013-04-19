@@ -1,5 +1,25 @@
 var oServerMap = null;
 
+function getServerMapData2(application, begin, end, callback) {
+    var app = application.split("@");
+	d3.json("/getServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+}
+
+function getLastServerMapData2(application, period, callback) {
+    var app = application.split("@");
+	d3.json("/getLastServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&period=" + period, function(d) { callback(d); });
+}
+
+function getServerMapData(application, begin, end, callback) {
+    var app = application.split("@");
+	d3.json("/getServerMapData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+}
+
+function getLastServerMapData(application, period, callback) {
+    var app = application.split("@");
+	d3.json("/getLastServerMapData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
+}
+
 function showServerMap(applicationName) {
 	var containerId = "servermap";
 	
@@ -14,6 +34,8 @@ function showServerMap(applicationName) {
 			clearAllWarnings();
 		}
 		
+		mergeUnknownCloud(data);
+		
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,
@@ -27,7 +49,6 @@ function showServerMap(applicationName) {
 		}
 		
 	    oServerMap.load(data.applicationMapData);
-    	// $("#" + containerId).show();
     };
 
     if (isQueryFromNow()) {
@@ -35,6 +56,127 @@ function showServerMap(applicationName) {
     } else {
         getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
     }
+}
+
+var mergeUnknownCloud = function(data) {
+	var nodes = data.applicationMapData.nodeDataArray;
+	var links = data.applicationMapData.linkDataArray;
+	
+	var inboundCountMap = {};
+	nodes.forEach(function(node) {
+		if (!inboundCountMap[node.key]) {
+			inboundCountMap[node.key] = {
+				"sourceCount" : 0,
+				"totalCallCount" : 0
+			};
+		}
+		
+		links.forEach(function(link) {
+			if (link.to == node.key) {
+				inboundCountMap[node.key].sourceCount++;
+				inboundCountMap[node.key].totalCallCount += link.text;
+			}
+		});
+	});
+	
+	var newNodeList = [];
+	var newLinkList = [];
+	
+	var removeNodeIdSet = {};
+	var removeLinkIdSet = {};
+	
+	nodes.forEach(function(node, nodeIndex) {
+		if (node.category == "UNKNOWN_CLOUD") {
+			return;
+		}
+		
+		var newNode;
+		var newLink;
+		var newNodeKey = "UNKNOWN_CLOUDS_" + node.key;
+		
+		// for each children nodes.
+		links.forEach(function(link, linkIndex) {
+			if (link.targetinfo.serviceType != "UNKNOWN_CLOUD") {
+				return;
+			}
+			if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
+				return;
+			}
+
+			// branch out from current node.
+			if (link.from == node.key) {
+				if (!newNode) {
+					newNode = {
+				    	"id" : newNodeKey,
+				    	"key" : newNodeKey,
+					    "text" : "",
+					    "hosts" : [],
+					    "category" : "UNKNOWN_CLOUD",
+					    "terminal" : "true",
+					    "agents" : []
+					}
+				}
+				if (!newLink) {
+					newLink = {
+					    	"id" : node.key + "-" + newNodeKey,
+							"from" : node.key,
+							"to" : newNodeKey,
+							"sourceinfo" : [],
+							"targetinfo" : [],
+							"text" : 0,
+							"error" : 0,
+							"slow" : 0,
+							"histogram" : []
+					};
+				}
+				
+				// fill the new node/link informations.
+				newNode.text += link.targetinfo.applicationName + " (" + link.text + ")\n";
+
+				newLink.text += link.text;
+				newLink.error += link.error;
+				newLink.slow += link.slow;
+				newLink.sourceinfo.push(link.sourceinfo);
+				newLink.targetinfo.push(link.targetinfo);
+				newLink.histogram.push(link.histogram);
+				
+				removeNodeIdSet[link.to] = null;
+				removeLinkIdSet[link.id] = null;
+			}
+		});
+		
+		if (newNode) {
+			newNodeList.push(newNode);
+		}
+		
+		if (newLink) {
+			newLinkList.push(newLink);
+		}
+	});
+	
+	newNodeList.forEach(function(newNode) {
+		data.applicationMapData.nodeDataArray.push(newNode);
+	});
+	
+	newLinkList.forEach(function(newLink) {
+		data.applicationMapData.linkDataArray.push(newLink);
+	});
+	
+	$.each(removeNodeIdSet, function(key, val) {
+		nodes.forEach(function(node, i) {
+			if (node.id == key) {
+				nodes.splice(i, 1);
+			}
+		});
+	});
+	
+	$.each(removeLinkIdSet, function(key, val) {
+		links.forEach(function(link, i) {
+			if (link.id == key) {
+				links.splice(i, 1);
+			}
+		});			
+	});
 }
 
 var nodeClickHandler = function(e, data, containerId) {
