@@ -95,7 +95,7 @@ var scatterFetchDataCallback = function(data, applicationName, from, to, period)
         try {
             console.log("fetching scatter data.");
                 
-            getScatterData($("#application").val(), lastTimeStamp + 1, to, period, function(data2, from, to, period) {
+            getScatterData(applicationName, lastTimeStamp + 1, to, period, function(data2, from, to, period) {
 	            console.log("fetched " + data2.scatter.length);
 	            
 	            if (data2.scatter.length == 0) {
