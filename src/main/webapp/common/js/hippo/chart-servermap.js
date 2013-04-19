@@ -36,6 +36,8 @@ function showServerMap(applicationName) {
 		
 		mergeUnknownCloud(data);
 		
+		console.log(data);
+		
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,
@@ -113,7 +115,8 @@ var mergeUnknownCloud = function(data) {
 					    "hosts" : [],
 					    "category" : "UNKNOWN_CLOUD",
 					    "terminal" : "true",
-					    "agents" : []
+					    "agents" : [],
+					    "fig" : "Cloud"
 					}
 				}
 				if (!newLink) {

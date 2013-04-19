@@ -70,7 +70,7 @@ var ServerMap = $.Class({
 	        { selectionAdornmentTemplate: this._oDefaultAdornment },
 	        // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.str ingify),
 	        // define the node's outer shape, which will surround the TextBlock
-	        this.$(go.Shape, "RoundedRectangle",
+	        this.$(go.Shape, new go.Binding("figure", "fig"),
 	          { fill: this._oNodeBackground, stroke: "gray",
 	            portId: "", cursor: "pointer" }),
 	        this.$(go.Panel, go.Panel.Horizontal, {margin:4},
@@ -94,7 +94,7 @@ var ServerMap = $.Class({
 		    this._oDiagram.nodeTemplateMap.add(sKey,
 		        this.$(go.Node, go.Panel.Auto,
 		        	{ selectionAdornmentTemplate: this._oDefaultAdornment },
-			        this.$(go.Shape, "RoundedRectangle",
+			        this.$(go.Shape, new go.Binding("figure", "fig"),
 		          	{ fill: this._oNodeBackground, stroke: "gray", portId: "", cursor: "pointer" }),
 			        this.$(go.Panel, go.Panel.Horizontal, {margin:4},
 			        this.$(go.Picture, 
@@ -143,8 +143,8 @@ var ServerMap = $.Class({
 	          // routing : go.Link.Orthogonal,
 	          routing : go.Link.AvoidsNodes,
 	          corner : 10,
-	          // curve : go.Link.JumpOver
-	          curve : go.Link.JumpGap
+	          curve : go.Link.JumpOver
+	          // curve : go.Link.JumpGap
 	          // curve: go.Link.Bezier
 	        };
 
