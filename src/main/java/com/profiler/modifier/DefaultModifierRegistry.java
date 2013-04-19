@@ -42,9 +42,9 @@ import com.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
 public class DefaultModifierRegistry implements ModifierRegistry {
-	// TODO 혹시 동시성을 고려 해야 되는지 검토.
-	// 왠간해서는 동시성 상황이 안나올것으로 보임.
-	private Map<String, Modifier> registry = new HashMap<String, Modifier>(512);
+
+	// 왠간해서는 동시성 상황이 안나올것으로 보임. 사이즈를 크게 잡아서 체인을 가능한 뒤지지 않도록함.
+	private final Map<String, Modifier> registry = new HashMap<String, Modifier>(512);
 
 	private final ByteCodeInstrumentor byteCodeInstrumentor;
 	private final ProfilerConfig profilerConfig;
@@ -167,7 +167,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
 		addModifier(myqlPreparedStatementJDBC4Modifier);
-
+//      result set fectch counter를 만들어야 될듯.
 //		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
 //		addModifier(mysqlResultSetModifier);
 	}

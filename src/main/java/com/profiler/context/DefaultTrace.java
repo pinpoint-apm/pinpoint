@@ -151,7 +151,7 @@ public final class DefaultTrace implements Trace {
         if (stackFrameId != stackId) {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
             if (logger.isWarnEnabled()) {
-                logger.warn("Corrupted CallStack found. StackId not matched. expected:" + stackId + " current:" + stackFrameId);
+                logger.warn("Corrupted CallStack found. StackId not matched. expected:{} current:{}", stackId, stackFrameId);
             }
         }
         if (currentStackFrame instanceof RootStackFrame) {

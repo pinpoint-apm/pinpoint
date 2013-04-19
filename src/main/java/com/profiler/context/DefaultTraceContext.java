@@ -6,6 +6,7 @@ import com.profiler.common.dto.thrift.ApiMetaData;
 import com.profiler.common.dto.thrift.SqlMetaData;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.common.util.SqlParser;
+import com.profiler.exception.PinPointException;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
@@ -52,16 +53,37 @@ public class DefaultTraceContext implements TraceContext {
     public DefaultTraceContext() {
     }
 
+    /**
+     * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
+     * @return
+     */
     public Trace currentTraceObject() {
+        Trace trace = threadLocal.get();
+        if (trace == null) {
+            return null;
+        }
+        if (trace.isSampling()) {
+            return trace;
+        }
+        return null;
+    }
+
+    /**
+     * 유효성을 검증하지 않고 Trace를 리턴한다.
+     * @return
+     */
+    public Trace currentRawTraceObject() {
         return threadLocal.get();
     }
 
+    public void disableSampling() {
+        checkBeforeTraceObject();
+        threadLocal.set(DisableTrace.INSTANCE);
+    }
+
     public Trace continueTraceObject(TraceID traceID) {
-        Trace old = this.threadLocal.get();
-        if (old != null) {
-            // 잘못된 상황의 old를 덤프할것.
-            throw new IllegalStateException("already Trace Object exist.");
-        }
+        checkBeforeTraceObject();
+
         // datasender연결 부분 수정 필요.
         DefaultTrace trace = new DefaultTrace(traceID);
         Storage storage = storageFactory.createStorage();
@@ -73,12 +95,19 @@ public class DefaultTraceContext implements TraceContext {
         return trace;
     }
 
-    public Trace newTraceObject() {
+    private void checkBeforeTraceObject() {
         Trace old = this.threadLocal.get();
         if (old != null) {
             // 잘못된 상황의 old를 덤프할것.
-            throw new IllegalStateException("already Trace Object exist.");
+            if (logger.isDebugEnabled()) {
+                logger.warn("beforeTrace:{}", old);
+            }
+            throw new PinPointException("already Trace Object exist.");
         }
+    }
+
+    public Trace newTraceObject() {
+        checkBeforeTraceObject();
         // datasender연결 부분 수정 필요.
         DefaultTrace trace = new DefaultTrace();
         Storage storage = storageFactory.createStorage();
@@ -178,8 +207,7 @@ public class DefaultTraceContext implements TraceContext {
             // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
             // 그러므로 메타데이터를 서버로 전송해야 한다.
 
-            // 프로파일 데이터를 보내는데 사용되는 queue가 아니고,
-            // 좀더 급한 메시지만 별도 처리할수 있는 상대적으로 더 한가한 queue와 datasender를 별도로 가지고 있는게 좋을듯 하다.
+
             SqlMetaData sqlMetaData = new SqlMetaData();
             sqlMetaData.setAgentId(DefaultAgent.getInstance().getAgentId());
             sqlMetaData.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
@@ -188,6 +216,7 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);
 
+            // 좀더 신뢰성이 있는 tcp connection이 필요함.
             this.priorityDataSender.send(sqlMetaData);
         }
         // hashId그냥 return String에서 까보면 됨.

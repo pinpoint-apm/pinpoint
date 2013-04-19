@@ -15,44 +15,46 @@ import com.profiler.logging.LoggingUtils;
  * 
  */
 public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
-
-	private final Logger logger = LoggerFactory.getLogger(MethodInterceptor.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+    // method intereptor는 객체의 라이프 사이클을 알수 없이 자주 호출될수 있으므로 그냥 static으로 선언한다.
+	private static final Logger logger = LoggerFactory.getLogger(MethodInterceptor.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
     private ServiceType serviceType = ServiceType.INTERNAL_METHOD;
 
+
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
-			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        if (trace == null) {
+            return;
+        }
 
-		trace.traceBlockBegin();
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
+
         trace.recordServiceType(serviceType);
-//        trace.recordRpcName(ServiceType.INTERNAL_METHOD, null, null);
-		trace.markBeforeTime();
 	}
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
-        
+
 		trace.recordApi(descriptor);
 		trace.recordException(result);
+
 		trace.markAfterTime();
 		trace.traceBlockEnd();
 	}

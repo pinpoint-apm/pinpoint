@@ -37,12 +37,13 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
     @Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 		if (isDebug) {
-			LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
 		}
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
+
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
@@ -52,6 +53,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 
         final HttpUriRequest request = (HttpUriRequest) args[0];
         // UUID format을 그대로.
+
 		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
 		request.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
 		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
@@ -74,7 +76,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 		if (isDebug) {
             // result는 로깅하지 않는다.
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();

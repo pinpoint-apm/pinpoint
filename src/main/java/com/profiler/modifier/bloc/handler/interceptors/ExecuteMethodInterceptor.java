@@ -12,7 +12,7 @@ import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
+import com.profiler.sampler.util.SamplingFlagUtils;
 import com.profiler.util.NumberUtils;
 
 /**
@@ -22,6 +22,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 
     private final Logger logger = LoggerFactory.getLogger(ExecuteMethodInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isInfo = logger.isInfoEnabled();
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -29,29 +30,34 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
 
         try {
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+
+            boolean sampling = samplingEnable(request);
+            if (!sampling) {
+                // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
+                // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+                traceContext.disableSampling();
+                return;
+            }
+
             String requestURL = request.requestURI().toString();
-            String clientIP = request.remoteAddr().toString();
-            String parameters = getRequestParameter(request);
+            String remoteAddr = request.remoteAddr().toString();
+
 
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
+                if (isInfo) {
+                    logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
-
                 trace = traceContext.continueTraceObject(traceId);
             } else {
-                trace = new DefaultTrace();
-                if (logger.isInfoEnabled()) {
-                    logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP + " parameter:" + parameters);
+                if (isInfo) {
+                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
                 trace = traceContext.newTraceObject();
             }
@@ -65,40 +71,49 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
             trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
             trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-            }
 
-        } catch (Exception e) {
+
+        } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
                 logger.warn( "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
         }
     }
 
+
+
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
 
 //        traceContext.getActiveThreadCounter().end();
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
-        if (trace.getStackFrameId() != 0) {
-            logger.warn("Corrupted CallStack found. StackId not Root(0)");
-            // 문제 있는 callstack을 dump하면 도움이 될듯.
+
+        external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+        String parameters = getRequestParameter(request);
+        if (parameters != null && parameters.length() > 0) {
+            trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
         }
 
 		trace.recordApi(descriptor);
-//        trace.recordApi(this.apiId);
+
         trace.recordException(result);
 
         trace.markAfterTime();
         trace.traceRootBlockEnd();
+    }
+
+    private boolean samplingEnable(external.org.apache.coyote.Request request) {
+        // optional 값.
+        String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
+        return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
     /**
@@ -113,10 +128,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             UUID uuid = UUID.fromString(strUUID);
             int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
             int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
-            boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, sampled, flags);
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, true, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }
@@ -129,7 +143,7 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
     private String getRequestParameter(external.org.apache.coyote.Request request) {
         Enumeration<?> attrs = request.getParameters().getParameterNames();
 
-        StringBuilder params = new StringBuilder();
+        final StringBuilder params = new StringBuilder(32);
 
         while (attrs.hasMoreElements()) {
             String keyString = attrs.nextElement().toString();

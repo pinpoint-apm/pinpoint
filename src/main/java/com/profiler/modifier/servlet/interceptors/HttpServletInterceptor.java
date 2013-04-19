@@ -14,12 +14,12 @@ import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
-import com.profiler.logging.LoggingUtils;
+import com.profiler.sampler.util.SamplingFlagUtils;
 import com.profiler.util.NumberUtils;
 
-public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class HttpServletInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(DoXXXInterceptor.class);
+    private final Logger logger = LoggerFactory.getLogger(HttpServletInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
@@ -28,7 +28,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
 /*    
     java.lang.IllegalStateException: already Trace Object exist.
 	at com.profiler.context.TraceContext.attachTraceObject(TraceContext.java:54)
-	at com.profiler.modifier.servlet.interceptors.DoXXXInterceptor.before(DoXXXInterceptor.java:62)
+	at com.profiler.modifier.servlet.interceptors.HttpServletInterceptor.before(HttpServletInterceptor.java:62)
 	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java)								// profile method
 **	at javax.servlet.http.HttpServlet.service(HttpServlet.java:617) 												// profile method
 	at javax.servlet.http.HttpServlet.service(HttpServlet.java:717)
@@ -52,33 +52,40 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         if (isDebug) {
-            LoggingUtils.logBefore(logger, target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
 
         try {
 //            traceContext.getActiveThreadCounter().start();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
+            boolean sampling = samplingEnable(request);
+            if (!sampling) {
+                // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
+                // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+                traceContext.disableSampling();
+                return;
+            }
+
             String requestURL = request.getRequestURI();
-            String clientIP = request.getRemoteAddr();
+            String remoteAddr = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
                 if (logger.isInfoEnabled()) {
-                    logger.info("TraceID exist. continue trace. " + traceId);
-                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
                 trace = traceContext.continueTraceObject(traceId);
             } else {
                 trace = traceContext.newTraceObject();
                 if (logger.isInfoEnabled()) {
-                    logger.info("TraceID not exist. start new trace. " + trace.getTraceId());
-                    logger.debug("requestUrl:" + requestURL + " clientIp" + clientIP);
+                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
             }
 
             trace.markBeforeTime();
+            // TODO 잘못됬음 Servlet가 되어야함
             trace.recordServiceType(ServiceType.TOMCAT);
             trace.recordRpcName(requestURL);
 
@@ -86,7 +93,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             trace.recordEndPoint(request.getProtocol() + ":" + request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordDestinationId(request.getServerName() + ((port > 0) ? ":" + port : ""));
             trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestURI());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
             }
@@ -96,7 +103,7 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
-            LoggingUtils.logAfter(logger, target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
 
         Trace trace = traceContext.currentTraceObject();
@@ -112,18 +119,18 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
         }
 
 
-        if (trace.getStackFrameId() != 0) {
-            logger.warn("Corrupted CallStack found. StackId not Root(0)");
-            // 문제 있는 callstack을 dump하면 도움이 될듯.
-        }
-
         trace.recordApi(descriptor);
-//        trace.recordApi(this.apiId);
 
         trace.recordException(result);
 
         trace.markAfterTime();
         trace.traceBlockEnd();
+    }
+
+    private boolean samplingEnable(HttpServletRequest request) {
+        // optional 값.
+        String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
+        return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
     /**
@@ -138,10 +145,9 @@ public class DoXXXInterceptor implements StaticAroundInterceptor, ByteCodeMethod
             UUID uuid = UUID.fromString(strUUID);
             int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
             int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
-            boolean sampled = Boolean.parseBoolean(request.getHeader(Header.HTTP_SAMPLED.toString()));
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, sampled, flags);
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, true, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }

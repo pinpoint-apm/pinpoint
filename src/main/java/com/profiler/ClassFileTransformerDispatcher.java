@@ -17,7 +17,7 @@ import java.security.ProtectionDomain;
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-    private final boolean isFine = logger.isDebugEnabled();
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
 
@@ -29,7 +29,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
 
     public ClassFileTransformerDispatcher(Agent agent) {
-        if(agent == null) {
+        if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
         this.agent = agent;
@@ -49,6 +49,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             // agent의 clssLoader에 로드된 클래스는 스킵한다.
             return null;
         }
+        // 자기 자신의 패키지도 제외
+        // TODO 향후 패키지명 변경에 의해 코드 변경이 필요함.
+        if (className.startsWith("com/profiler/")) {
+            return null;
+        }
 
         Modifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {
@@ -62,8 +67,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             }
         }
 
-        if (isFine) {
-            logger.debug("[transform] cl" + classLoader + " className:" + className + " Modifier:" + findModifier.getClass().getName());
+        if (isDebug) {
+            logger.debug("[transform] cl:{} className:{} Modifier:{}", new Object[]{ classLoader, className, findModifier.getClass().getName()});
         }
         String javassistClassName = className.replace('/', '.');
 
@@ -71,7 +76,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
 
         } catch (Throwable e) {
-            logger.error("Modifier:" + findModifier.getTargetClass() + " modify fail. Cause:" + e.getMessage(), e);
+            logger.error("Modifier:{} modify fail. Cause:{}", new Object[] { findModifier.getTargetClass(), e.getMessage(), e});
             return null;
         }
     }

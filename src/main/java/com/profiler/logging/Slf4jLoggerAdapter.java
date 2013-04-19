@@ -1,13 +1,16 @@
 package com.profiler.logging;
 
-import com.profiler.logging.Logger;
 import org.slf4j.Marker;
+
+import java.util.Arrays;
 
 /**
  *
  */
 public class Slf4jLoggerAdapter implements Logger {
     private final org.slf4j.Logger logger;
+
+    public static final int BUFFER_SIZE = 512;
 
     public Slf4jLoggerAdapter(org.slf4j.Logger logger) {
         this.logger = logger;
@@ -19,12 +22,39 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        LoggingUtils.logBefore(this, target, className, methodName, parameterDescription, args);
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("before ");
+        logMethod(sb, target, className, methodName, parameterDescription, args);
+        logger.debug(sb.toString());
     }
 
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        LoggingUtils.logAfter(this, target, className, methodName, parameterDescription, args, result);
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("after ");
+        logMethod(sb, target, className, methodName, parameterDescription, args);
+        sb.append(" result:");
+        sb.append(result);
+        logger.debug(sb.toString());
+    }
+
+    @Override
+    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("after ");
+        logMethod(sb, target, className, methodName, parameterDescription, args);
+        logger.debug(sb.toString());
+    }
+
+    private static void logMethod(StringBuilder sb, Object target, String className, String methodName, String parameterDescription, Object[] args) {
+        sb.append(target);
+        sb.append(' ');
+        sb.append(className);
+        sb.append(' ');
+        sb.append(methodName);
+        sb.append(parameterDescription);
+        sb.append(" args:");
+        sb.append(Arrays.toString(args));
     }
 
     @Override

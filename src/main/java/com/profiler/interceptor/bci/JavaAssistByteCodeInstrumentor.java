@@ -61,7 +61,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             classPool.appendClassPath(pathName);
         } catch (NotFoundException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("appendClassPath fail. lib not found. " + e.getMessage(), e);
+                logger.warn("appendClassPath fail. lib not found. {}", e.getMessage(), e);
             }
         }
     }
@@ -118,7 +118,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             // 재귀하면서 최하위부터 로드
             defineNestedClass(nested, classLoader, protectedDomain);
             if (logger.isInfoEnabled()) {
-                logger.info("defineNestedClass class:" + nested.getName() + " cl:" + classLoader);
+                logger.info("defineNestedClass class:{} cl:{}", nested.getName(), classLoader);
             }
             nested.toClass(classLoader, protectedDomain);
         }
@@ -190,11 +190,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                     classPool.appendClassPath(filePath);
                     // 만약 한개만 로딩해도 된다면. return true 할것
                     if (logger.isInfoEnabled()) {
-                        logger.info("Loaded " + filePath + " library.");
+                        logger.info("Loaded {}", filePath);
                     }
                 } catch (NotFoundException e) {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("lib load fail. path:" + filePath + " cl:" + classLoader + " Cause:" + e.getMessage(), e);
+                        logger.warn("lib load fail. path:{} cl:{} Cause:{}", new Object[] {filePath, classLoader, e.getMessage(), e});
                     }
                 }
             }
