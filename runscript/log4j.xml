@@ -16,7 +16,6 @@
 		</layout>
 	</appender>
 
-
     <logger name="com.nhn.hippo" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
@@ -31,6 +30,15 @@
         <appender-ref ref="console" />
     </logger>
 
+	<logger name="org.apache.zookeeper" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="console" />
+    </logger>
+     
+	<logger name="com.profiler.sender" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="console" />
+    </logger> 
 
 	<root>
 		<level value="DEBUG" />
