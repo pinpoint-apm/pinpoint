@@ -170,10 +170,10 @@
 	</div>
 	<div class="chart-right">
 		<div id="scatterChartContainer" style="display:none;">
-			<h5 id="scattercharttitle">Response scatter</h5>
+			<h5 id="scattercharttitle">Transaction response scatter</h5>
 			<i class="icon-fullscreen" onclick="expandScatter($(this));" style="cursor:pointer;"></i>
 			&nbsp;&nbsp;&nbsp;
-			<span onclick="" style="text-decoration:underline;cursor:pointer">Show requests</span>
+			<span onclick="" style="text-decoration:underline;cursor:pointer">Show transactions</span>
 			<div id="scatterchart"></div>
 		</div>
 	</div>
@@ -311,7 +311,7 @@ $(document).ready(function () {
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.\n query param = ${sourceinfo.applicationName} -> ${targetinfo.applicationName}');">Show Requests</a>
+			<br/><a href="#" onclick="alert('Sorry. Not implemented.\n query param = ${sourceinfo.applicationName} -> ${targetinfo.applicationName}');">Show transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
@@ -354,9 +354,9 @@ $(document).ready(function () {
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="showResponseScatter('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Response scatter chart</a>
+			<br/><a href="#" onclick="showResponseScatter('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Transaction response scatter chart</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
-			<br/><a href="#" onclick="showRequests('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Show Requests</a>
+			<br/><a href="#" onclick="showRequests('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Show transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>
@@ -371,7 +371,7 @@ $(document).ready(function () {
 					<li>Sorry. Not implemented.</li>
 				</ul>
 			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Show Requests</a>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Show transactions</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
