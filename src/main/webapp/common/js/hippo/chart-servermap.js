@@ -116,7 +116,7 @@ var mergeUnknownCloud = function(data) {
 					    "category" : "UNKNOWN_CLOUD",
 					    "terminal" : "true",
 					    "agents" : [],
-					    "fig" : "Cloud"
+					    "fig" : "FramedRectangle"
 					}
 				}
 				if (!newLink) {
