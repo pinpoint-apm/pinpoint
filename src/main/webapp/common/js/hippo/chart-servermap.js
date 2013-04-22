@@ -34,7 +34,7 @@ function showServerMap(applicationName) {
 			clearAllWarnings();
 		}
 		
-		mergeUnknownCloud(data);
+		mergeUnknown(data);
 		
 		console.log(data);
 		
@@ -60,7 +60,7 @@ function showServerMap(applicationName) {
     }
 }
 
-var mergeUnknownCloud = function(data) {
+var mergeUnknown = function(data) {
 	var nodes = data.applicationMapData.nodeDataArray;
 	var links = data.applicationMapData.linkDataArray;
 	
@@ -94,9 +94,21 @@ var mergeUnknownCloud = function(data) {
 		
 		var newNode;
 		var newLink;
-		var newNodeKey = "UNKNOWN_CLOUDS_" + node.key;
+		var newNodeKey = "UNKNOWN_GROUP_" + node.key;
+
+		var unknownCount = 0;
+		links.forEach(function(link, linkIndex) {
+			if (link.from == node.key &&
+				link.targetinfo.serviceType == "UNKNOWN_CLOUD" &&
+				inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
+				unknownCount++;
+			}
+		});
+		if (unknownCount < 2) {
+			return;
+		}
 		
-		// for each children nodes.
+		// for each children.
 		links.forEach(function(link, linkIndex) {
 			if (link.targetinfo.serviceType != "UNKNOWN_CLOUD") {
 				return;
@@ -113,7 +125,7 @@ var mergeUnknownCloud = function(data) {
 				    	"key" : newNodeKey,
 					    "text" : "",
 					    "hosts" : [],
-					    "category" : "UNKNOWN_CLOUD",
+					    "category" : "UNKNOWN_GROUP",
 					    "terminal" : "true",
 					    "agents" : [],
 					    "fig" : "FramedRectangle"
