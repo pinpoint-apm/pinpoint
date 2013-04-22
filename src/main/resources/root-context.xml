@@ -27,6 +27,25 @@
         <property name="username" value="lucytest"/>
         <property name="password" value="testlucy"/>
 
+        <property name="initialSize" value="30"></property>
+        <property name="maxActive" value="30"></property>
+        <property name="maxIdle" value="30"></property>
+        <property name="minIdle" value="30"></property>
+        <property name="maxWait" value="3000"></property>
+
+        <property name="testOnBorrow" value="false"></property>
+        <property name="testOnReturn" value="false"></property>
+        <property name="testWhileIdle" value="true"></property>
+
+        <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
+        <property name="numTestsPerEvictionRun" value="6"></property>
+        <property name="minEvictableIdleTimeMillis" value="-1"></property>
+
+        <property name="validationQuery" value="select 1 from db_root"></property>
+
+        <property name="poolPreparedStatements" value="true"></property>
+        <property name="maxOpenPreparedStatements" value="50"></property>
+
     </bean>
 
     <bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
