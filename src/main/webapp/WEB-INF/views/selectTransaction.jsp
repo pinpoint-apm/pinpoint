@@ -147,6 +147,7 @@
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
+	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
 	<li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
 	<li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
 </ul>
@@ -254,6 +255,11 @@
 	    </table>
 	    <!-- end of new call stack -->
 	</div>
+	
+	<div class="tab-pane" id="Graph">
+		<div id="springygraph" style="width:1000px;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
+	</div>
+	
 	<div class="tab-pane" id="Timeline">
 	        <!-- begin timeline -->
 	        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
@@ -348,25 +354,6 @@
 	
 	</div>
 </div>
-
-
-<ul class="nav nav-tabs" id="chartTabs">
-	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
-</ul>
-
-<div class="tab-content">
-	<div class="tab-pane active" id="Graph">
-		<div id="springygraph" style="width:99%;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
-	</div>
-</div>
-
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-
 <script type="text/javascript">
     var data = {
         "nodes":[
