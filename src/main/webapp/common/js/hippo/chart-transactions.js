@@ -1,9 +1,8 @@
 function showRequests(applicationName, from, to, period, usePeriod) {
-	var app = applicationName.split("@");
     if (usePeriod) {
-    	window.open("/getBusinessTransactionsData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to);
+    	window.open("/getBusinessTransactionsData.hippo?application=" + applicationName + "&from=" + from + "&to=" + to);
     } else {
-    	window.open("/getLastBusinessTransactionsData.hippo?application=" + app[0] + "&period=" + period);
+    	window.open("/getLastBusinessTransactionsData.hippo?application=" + applicationName + "&period=" + period);
     }
 }
 
