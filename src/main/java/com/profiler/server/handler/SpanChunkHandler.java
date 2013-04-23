@@ -15,7 +15,6 @@ import com.profiler.common.util.SpanEventUtils;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCallerDao;
-import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TracesDao;
 
 /**
@@ -31,9 +30,6 @@ public class SpanChunkHandler implements Handler {
     @Autowired
     private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
-    @Autowired
-    private TerminalStatisticsDao terminalStatistics;
-    
     @Autowired
     private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
     
@@ -78,8 +74,10 @@ public class SpanChunkHandler implements Handler {
 //        			applicationMapStatisticsCallerDao.update(spanEvent.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
                     
                     // TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
-                	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경 
-                    terminalStatistics.update(spanChunk.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+                	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
+                    
+                    // callee, caller statistics추가되면서 사용 안함.
+                    // terminalStatistics.update(spanChunk.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {

@@ -12,7 +12,6 @@ import com.profiler.common.dto2.thrift.SpanEvent;
 import com.profiler.common.util.SpanEventUtils;
 import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCallerDao;
-import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TracesDao;
 
 /**
@@ -24,9 +23,6 @@ public class SpanEventHandler implements Handler {
 
     @Autowired
     private TracesDao traceDao;
-
-	@Autowired
-	private TerminalStatisticsDao terminalStatistics;
 
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
@@ -72,7 +68,9 @@ public class SpanEventHandler implements Handler {
 			
             // TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
         	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
-            terminalStatistics.update(spanEvent.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            
+            // callee, caller statistics추가되면서 사용 안함.
+            // terminalStatistics.update(spanEvent.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
         } catch (Exception e) {
             logger.warn("SpanEvent handle error " + e.getMessage(), e);
         }

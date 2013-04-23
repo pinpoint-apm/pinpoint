@@ -19,7 +19,6 @@ import com.profiler.server.dao.ApplicationTraceIndexDao;
 import com.profiler.server.dao.BusinessTransactionStatisticsDao;
 import com.profiler.server.dao.ClientStatisticsDao;
 import com.profiler.server.dao.HostApplicationMapDao;
-import com.profiler.server.dao.TerminalStatisticsDao;
 import com.profiler.server.dao.TraceIndexDao;
 import com.profiler.server.dao.TracesDao;
 
@@ -38,9 +37,6 @@ public class SpanHandler implements Handler {
 
     @Autowired
     private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
-
-    @Autowired
-    private TerminalStatisticsDao terminalStatistics;
 
     @Autowired
     private BusinessTransactionStatisticsDao businessTransactionStatistics;
@@ -122,7 +118,9 @@ public class SpanHandler implements Handler {
 					
                     // TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야 될듯하다.
                 	// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
-                    terminalStatistics.update(span.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+					
+					// callee, caller statistics추가되면서 사용 안함.
+                    // terminalStatistics.update(span.getApplicationId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {

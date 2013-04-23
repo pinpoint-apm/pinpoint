@@ -17,6 +17,7 @@ import com.profiler.server.dao.TerminalStatisticsDao;
 /**
  * @author netspider
  */
+@Deprecated
 public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
