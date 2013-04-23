@@ -11,6 +11,15 @@ import java.util.logging.Logger;
  */
 public class NetworkUtils {
 
+	public static String getHostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (Exception e) {
+			return "UNKNOWN-HOST";
+		}
+	}
+	
+	@Deprecated
     public static String getMachineName() {
         try {
             String name = null;
