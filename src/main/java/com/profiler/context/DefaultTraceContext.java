@@ -62,7 +62,7 @@ public class DefaultTraceContext implements TraceContext {
         if (trace == null) {
             return null;
         }
-        if (trace.isSampling()) {
+        if (trace.canSampled()) {
             return trace;
         }
         return null;

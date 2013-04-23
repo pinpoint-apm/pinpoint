@@ -33,7 +33,7 @@ public class SystemMonitor {
 		@Override
 		public Thread newThread(Runnable runnable) {
 			Thread t = new Thread(runnable);
-			t.setName("HIPPO-SystemMonitor");
+			t.setName(ProductInfo.CAMEL_NAME + "-SystemMonitor");
 			t.setDaemon(true);
 			return t;
 		}

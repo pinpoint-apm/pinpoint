@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
+import com.profiler.ProductInfo;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
@@ -28,6 +29,8 @@ import com.profiler.context.Thriftable;
 public class UdpDataSender implements DataSender, Runnable {
 
 	private final Logger logger = LoggerFactory.getLogger(UdpDataSender.class.getName());
+    private final boolean isWarn = logger.isWarnEnabled();
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
@@ -59,12 +62,12 @@ public class UdpDataSender implements DataSender, Runnable {
 
 		this.ioThread = createIoThread();
 
-		logger.info("UdpDataSender initialized. host=" + host + ", port=" + port);
+		logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 	}
 
 	private Thread createIoThread() {
 		Thread thread = new Thread(this);
-		thread.setName("HIPPO-UdpDataSender-IoThread");
+		thread.setName(ProductInfo.CAMEL_NAME + "-UdpDataSender-IoThread");
 		thread.setDaemon(true);
 		thread.start();
 		return thread;
@@ -94,16 +97,20 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private boolean putQueue(Object data) {
 		if (data == null) {
-			logger.warn("putQueue(). data is null");
+            if (isWarn) {
+			    logger.warn("putQueue(). data is null");
+            }
 			return false;
 		}
 		if (!allowInput.get()) {
-            logger.warn("datasender is shutdown. discard data:{}", data);
+            if (isWarn) {
+                logger.warn("datasender is shutdown. discard data:{}", data);
+            }
 			return false;
 		}
 		boolean offer = queue.offer(data);
 		if (!offer) {
-			if (logger.isWarnEnabled()) {
+			if (isWarn) {
 				logger.warn("Drop data. queue is full. size:{}", queue.size());
 			}
 		}
@@ -166,14 +173,18 @@ public class UdpDataSender implements DataSender, Runnable {
 	}
 
     private void flushQueue() {
-        logger.debug("UdpSenderLoop is stop. flushData");
+        if (isDebug) {
+            logger.debug("UdpSenderLoop is stop.");
+        }
         while(true) {
             Collection<Object> flushData = takeN();
             if(flushData == null) {
                 break;
             }
-            logger.debug("flushData {}", flushData.size());
-            sendPacket(flushData);
+            if (isDebug) {
+                logger.debug("flushData size {}", flushData.size());
+            }
+            sendPacketN(flushData);
         }
     }
 

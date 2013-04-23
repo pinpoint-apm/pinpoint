@@ -51,17 +51,17 @@ public class SubStackFrame implements StackFrame {
 
     @Override
     public void attachObject(Object object) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public Object getAttachObject(Object object) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public Object detachObject() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
 

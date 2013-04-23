@@ -176,7 +176,7 @@ public final class DefaultTrace implements Trace {
         return callStack.getSpan().getTraceID();
     }
 
-    public boolean isSampling() {
+    public boolean canSampled() {
         return this.sampling;
     }
 

@@ -73,7 +73,7 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public boolean isSampling() {
+    public boolean canSampled() {
         // sampling false를 항상 false를 리턴한다.
         return false;
     }

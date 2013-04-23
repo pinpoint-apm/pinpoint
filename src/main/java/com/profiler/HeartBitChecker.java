@@ -29,13 +29,13 @@ public class HeartBitChecker {
 
     public void start() {
         if (logger.isInfoEnabled()) {
-            logger.info("Send startup information to HIPPO server via " + dataSender.getClass().getSimpleName() + ". agentInfo=" + agentInfo);
+            logger.info("Send startup information to HIPPO server via {}. agentInfo={}", dataSender.getClass().getSimpleName() + agentInfo);
         }
         dataSender.send(agentInfo);
         dataSender.send(agentInfo);
         dataSender.send(agentInfo);
 
-        this.ioThread = new Thread(heartBitCommand, "HIPPO-Agent-Heartbeat-Thread");
+        this.ioThread = new Thread(heartBitCommand, ProductInfo.CAMEL_NAME + "-Agent-Heartbeat-Thread");
         this.ioThread.setDaemon(true);
         ioThread.start();
     }
@@ -46,7 +46,7 @@ public class HeartBitChecker {
         public void run() {
 
             if (logger.isInfoEnabled()) {
-                logger.info("Starting agent heartbeat. heartbeatInterval:" + heartBitInterVal);
+                logger.info("Starting agent heartbeat. heartbeatInterval:{}", heartBitInterVal);
             }
             while (true) {
                 dataSender.send(agentInfo);
