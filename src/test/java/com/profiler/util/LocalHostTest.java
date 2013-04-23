@@ -9,7 +9,8 @@ import java.util.Enumeration;
 /**
  *
  */
-public class Test {
+public class LocalHostTest {
+
     public static void main(String[] args) throws UnknownHostException, SocketException {
         System.out.println("Canonical:" + InetAddress.getLocalHost().getCanonicalHostName());
         System.out.println("normal:" + InetAddress.getLocalHost().getHostName());
@@ -27,4 +28,5 @@ public class Test {
             }
         }
     }
+
 }
