@@ -82,7 +82,7 @@ public class DefaultAgent implements Agent {
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
-        this.machineName = NetworkUtils.getMachineName();
+        this.machineName = NetworkUtils.getHostName();
         this.agentId = getId("hippo.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
         this.applicationName = getId("hippo.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
 
