@@ -23,12 +23,12 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
 	private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private AcceptedTimeService acceptedTImeService ;
+    private AcceptedTimeService acceptedTimeService ;
 
 	@Override
 	public void update(Span span) {
 
-        final long acceptedTime = acceptedTImeService.getAcceptedTime();
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
 
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
         byte[] rowTimeSlotBytes = Bytes.toBytes(rowTimeSlot);

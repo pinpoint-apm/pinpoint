@@ -16,7 +16,6 @@ import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;
 import com.profiler.server.dao.ApplicationMapStatisticsCallerDao;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
-import com.profiler.server.dao.BusinessTransactionStatisticsDao;
 import com.profiler.server.dao.ClientStatisticsDao;
 import com.profiler.server.dao.HostApplicationMapDao;
 import com.profiler.server.dao.TraceIndexDao;
@@ -38,8 +37,8 @@ public class SpanHandler implements Handler {
     @Autowired
     private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
-    @Autowired
-    private BusinessTransactionStatisticsDao businessTransactionStatistics;
+	// @Autowired
+	// private BusinessTransactionStatisticsDao businessTransactionStatistics;
     
     @Autowired
     private ClientStatisticsDao clientStatisticsDao;
@@ -69,7 +68,7 @@ public class SpanHandler implements Handler {
             traceDao.insert(span);
             traceIndexDao.insert(span);
             applicationTraceIndexDao.insert(span);
-            businessTransactionStatistics.update(span);
+            // businessTransactionStatistics.update(span);
 
 			if (span.getParentSpanId() == -1) {
 				// TODO error가 있으면 getErr값이 0보다 큰가??
