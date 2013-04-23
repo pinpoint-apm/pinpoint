@@ -12,6 +12,8 @@ public interface TraceContext {
 
     Trace currentTraceObject();
 
+    Trace currentRawTraceObject();
+
     Trace continueTraceObject(TraceID traceID);
 
     Trace newTraceObject();
