@@ -32,7 +32,7 @@ function expandScatter(e) {
         params.push("&usePeriod=");
         params.push(e.data("usePeriod"));
         
-        window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=800, height=500, resizable=yes");
+        window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=900, height=600, resizable=yes");
 }
 
 function showResponseScatter(applicationName, from, to, period, usePeriod, w, h) {
@@ -46,15 +46,24 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
         selectdTracesBox = {};
         
         $("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
-        $("#scatterChartContainer I").data("applicationName", applicationName);
-        $("#scatterChartContainer I").data("from", from);
-        $("#scatterChartContainer I").data("to", to);
-        $("#scatterChartContainer I").data("period", period);
-        $("#scatterChartContainer I").data("usePeriod", usePeriod);
+        
+        var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen"); 
+        fullscreenButton.data("applicationName", applicationName);
+        fullscreenButton.data("from", from);
+        fullscreenButton.data("to", to);
+        fullscreenButton.data("period", period);
+        fullscreenButton.data("usePeriod", usePeriod);
+        
+        var downloadButton = $("#scatterChartContainer A");
+        downloadButton.attr("download", applicationName + ".png");
+        downloadButton.unbind("click");
+        downloadButton.bind("click", function() {
+        	oScatterChart.saveAsPNG(downloadButton);
+        });
         
         $("#scatterChartContainer SPAN").unbind("click");     
         $("#scatterChartContainer SPAN").bind("click", function() {
-                showRequests(applicationName, from, to, period, usePeriod);
+        	showRequests(applicationName, from, to, period, usePeriod);
         });
         
         drawScatter(applicationName, from, to, "scatterchart", w, h);
@@ -297,6 +306,9 @@ function drawScatter(title, start, end, targetId, w, h) {
                 nYMin: 0, nYMax: 10000,
                 nZMin: 0, nZMax: 5,
                 nBubbleSize: 3,
+        		sXLabel : '(time)',
+    			sYLabel : '(ms)',
+    			sTitle : title,
                 htTypeAndColor : {
                         // type name : color
                         'Success' : '#2ca02c', 

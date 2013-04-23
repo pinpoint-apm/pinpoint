@@ -31,6 +31,11 @@ var BigScatterChart = $.Class({
 				'aLineDash' : [2, 5],
 				'nGlobalAlpha' : 0.2
 			},
+			'sTitle' : 'Big Scatter Chart by Denny',
+			'htTitleStyle' : {
+				'font-size' : '12px',
+				'font-weight' : 'bold'
+			},
 			'sXLabel' : '',
 			'sYLabel' : '',
 			'htLabelStyle' : {
@@ -61,6 +66,13 @@ var BigScatterChart = $.Class({
 		this._initEvents();
 		this._drawXYAxis();
 		this.updateXYAxis();
+
+		// var self = this;
+		// $('#saveAsPNG').click(function(e){
+		// 	var welCanvas = self._mergeAllDisplay();
+		// 	$(this).attr('href', welCanvas.get(0).toDataURL());
+			
+		// });
 	},
 
 	_initVariables : function(){		
@@ -93,8 +105,8 @@ var BigScatterChart = $.Class({
 		this._nZMax = this.option('nZMax');
 		this._nZMin = this.option('nZMin');
 		
-		this._nXNumbers = [];
-		this._nYNumbers = [];		
+		this._awelXNumber = [];
+		this._awelYNumber = [];		
 
 		this._htTypeCount = {};
 	},
@@ -197,9 +209,8 @@ var BigScatterChart = $.Class({
 		var htLabelStyle = this.option('htLabelStyle');
 		// x axis
 		for(var i=0; i<=this.option('nXSteps'); i++){
-			this._nXNumbers.push($('<div>')
+			this._awelXNumber.push($('<div>')
 				.text(' ')
-				.css(htLabelStyle)
 				.css({
 					'position': 'absolute',
 					'width': nXStep + 'px',
@@ -208,14 +219,14 @@ var BigScatterChart = $.Class({
 					'left': (nPaddingLeft + nBubbleSize) - (nXStep / 2) + i * nXStep + 'px',
 					'color': sLineColor
 				})
+				.css(htLabelStyle)
 			);
 		}
 
 		// y axis
 		for(var i=0; i<=this.option('nYSteps'); i++){
-			this._nYNumbers.push($('<div>')
+			this._awelYNumber.push($('<div>')
 				.text(' ')
-				.css(htLabelStyle)
 				.css({
 					'position': 'absolute',
 					'vertical-align': 'middle',
@@ -225,15 +236,16 @@ var BigScatterChart = $.Class({
 					'left': '0px',
 					'color': sLineColor
 				})
+				.css(htLabelStyle)
 			);
 		}
-		this._welOverlay.append(this._nXNumbers);
-		this._welOverlay.append(this._nYNumbers);	
+		this._welOverlay.append(this._awelXNumber);
+		this._welOverlay.append(this._awelYNumber);	
 
 		// sXLabel
 		var sXLabel = this.option('sXLabel');
 		if(_.isString(sXLabel) && sXLabel.length > 0){
-			this._welOverlay.append($('<div>')
+			this._welOverlay.append(this._welXLabel = $('<div>')
 									.text(sXLabel)
 									.css(htLabelStyle)
 									.css({
@@ -249,7 +261,7 @@ var BigScatterChart = $.Class({
 		// sYLabel
 		var sYLabel = this.option('sYLabel');
 		if(_.isString(sYLabel) && sYLabel.length > 0){
-			this._welOverlay.append($('<div>')
+			this._welOverlay.append(this._welYLabel = $('<div>')
 									.text(sYLabel)
 									.css(htLabelStyle)
 									.css({
@@ -283,7 +295,7 @@ var BigScatterChart = $.Class({
 			.css({
 				'float' : 'right',
 				'top' : '5px',
-				'right' : nPaddingRight,
+				'right' : nPaddingRight + 'px',
 				'list-style' : 'none',
 				'font-size' : '12px'
 			});
@@ -307,10 +319,10 @@ var BigScatterChart = $.Class({
 		}, this);
 		this._welTypeUl.appendTo(this._welOverlay);
 
-		var aChartCanvas = [];
+		this._awelChartCanvasInOrder = [];
 		_.each(this._htwelChartCanvas, function(welChartCanvas, sKey){
-			aChartCanvas.push(welChartCanvas);
-		});
+			this._awelChartCanvasInOrder.push(welChartCanvas);
+		}, this);
 		this._welTypeUl.mousedown(function(event){
 			event.stopPropagation();
 		});
@@ -327,17 +339,33 @@ var BigScatterChart = $.Class({
         		var nStart = ui.item.startIndex,
         			nStop = ui.item.index();
 
-        		var welStart = aChartCanvas[nStart];
-        		aChartCanvas.splice(nStart, 1); 
-        		aChartCanvas.splice(nStop, 0, welStart);
+        		var welStart = self._awelChartCanvasInOrder[nStart];
+        		self._awelChartCanvasInOrder.splice(nStart, 1); 
+        		self._awelChartCanvasInOrder.splice(nStop, 0, welStart);
         		
-        		for(var i=0, nLen=aChartCanvas.length; i<nLen; i++){
-        			aChartCanvas[i].css('z-index', nZIndexForCanvas+i);
+        		for(var i=0, nLen=self._awelChartCanvasInOrder.length; i<nLen; i++){
+        			self._awelChartCanvasInOrder[i].css('z-index', nZIndexForCanvas+i);
         		}
 			}
 		});
 
 		this._resetTypeCount();
+
+		// title
+		var sTitle = this.option('sTitle'),
+			htTitleStyle = this.option('htTitleStyle');
+		if(_.isString(sTitle) && sTitle.length > 0){
+			this._welOverlay.append(this._welTitle = $('<div>')
+									.text(sTitle)
+									.css({
+										'position' : 'absolute',
+										'vertical-align' : 'middle',
+										'top': '12px',
+										'left': nPaddingLeft + 'px'
+									})
+									.css(htTitleStyle)
+			);
+		}		
 	},
 
 	_initEvents : function(){
@@ -479,7 +507,8 @@ var BigScatterChart = $.Class({
 			sLineColor = this.option('sLineColor'),
 			htGuideLine = this.option('htGuideLine');
 
-		this._oAxisCtx.lineWidth = 2;
+		this._oAxisCtx.lineWidth = htGuideLine.nLineWidth;
+		this._oAxisCtx.globalAlpha = 1;
 		this._oAxisCtx.lineCap = 'round';
 	  	this._oAxisCtx.strokeStyle = sLineColor;
 	  	this._oAxisCtx.beginPath();
@@ -488,23 +517,22 @@ var BigScatterChart = $.Class({
 		this._oAxisCtx.lineTo(nWidth - nPaddingRight, nHeight - nPaddingBottom);
 	  	this._oAxisCtx.stroke();
 
+	  	this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
+		this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;	
+		if ( this._oGuideCtx.setLineDash !== undefined )   this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
+		if ( this._oGuideCtx.mozDash !== undefined )       this._oGuideCtx.mozDash = htGuideLine.aLineDash;		  	
+
 		var nXStep = this._nXWork / this.option('nXSteps');
 		var nYStep = this._nYWork / this.option('nYSteps');
 
 		for(var i=0; i<=this.option('nXSteps'); i++){
 			var mov = nPaddingLeft + nBubbleSize + nXStep * i;
-			this._oAxisCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oAxisCtx.setLineDash([0]);
-			this._oAxisCtx.globalAlpha = 1;
 	  		this._oAxisCtx.beginPath();
 			this._oAxisCtx.moveTo(mov, nHeight - nPaddingBottom);
 			this._oAxisCtx.lineTo(mov, nHeight - nPaddingBottom + 10);
 			this._oAxisCtx.stroke();
 
 			// x 축 가이드라인
-			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
-			this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;
 			this._oGuideCtx.beginPath();
 			this._oGuideCtx.moveTo(mov, nPaddingTop);
 			this._oGuideCtx.lineTo(mov, nHeight - nPaddingBottom);
@@ -513,18 +541,12 @@ var BigScatterChart = $.Class({
 
 		for(var i=0; i<=this.option('nYSteps'); i++){
 			var mov = nHeight - (nPaddingBottom + nBubbleSize + nYStep * i);
-			this._oAxisCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oAxisCtx.setLineDash([0]);
-			this._oAxisCtx.globalAlpha = 1;			
 			this._oAxisCtx.beginPath();
 		  	this._oAxisCtx.moveTo(nPaddingLeft, mov);
 			this._oAxisCtx.lineTo(nPaddingLeft - 10, mov);
 			this._oAxisCtx.stroke();
 
 			// y 축 가이드라인
-			this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
-			this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
-			this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;
 			this._oGuideCtx.beginPath();
 			this._oGuideCtx.moveTo(nPaddingLeft, mov);
 			this._oGuideCtx.lineTo(nWidth - nPaddingRight, mov);			
@@ -540,7 +562,7 @@ var BigScatterChart = $.Class({
 		
 		var fXAxisFormat = this.option('fXAxisFormat'),
 			nXStep = (this._nXMax - this._nXMin) / this.option('nXSteps');
-		_.each(this._nXNumbers, function(el, i){
+		_.each(this._awelXNumber, function(el, i){
 			if(_.isFunction(fXAxisFormat)){
 				el.text(fXAxisFormat.call(this, nXStep, i));
 			}else{
@@ -550,7 +572,7 @@ var BigScatterChart = $.Class({
 		
 		var fYAxisFormat = this.option('fYAxisFormat'),
 			nYStep = (this._nYMax - this._nYMin) / this.option('nYSteps');
-		_.each(this._nYNumbers, function(el, i){
+		_.each(this._awelYNumber, function(el, i){
 			if(_.isFunction(fXAxisFormat)){
 				el.text(fYAxisFormat.call(this, nYStep, i));
 			}else{
@@ -939,31 +961,132 @@ var BigScatterChart = $.Class({
 
 	destroy : function(){
 		this._welContainer.empty();
-		delete this._welTypeUl;
-		delete this._aBubbles;
-		delete this._aBubbleStep;
-		delete this._htBubbleCtx;
-		delete this._htTypeCount;
-		delete this._htwelChartCanvas;
-		delete this._htwelTypeLi;
-		delete this._htwelTypeSpan;
-		delete this._nXMax;
-		delete this._nXMin;
-		delete this._nXNumbers;
-		delete this._nXWork;
-		delete this._nYMax;
-		delete this._nYMin;
-		delete this._nYNumbers;
-		delete this._nYWork;
-		delete this._nZMax;
-		delete this._nZMin;
-		delete this._oGuideCtx;
-		delete this._welContainer;
-		delete this._welGuideCanvas;
-		delete this._welOverlay;
-		delete this._welTypeUlv
-		// delete this.htOption;
-		// delete this.__proto__;
-		// delete this;
+		_.each(this, function(content, property){
+			delete this[property];
+		}, this);
+	},
+
+	_mergeAllDisplay : function(){
+		var nWidth = this.option('nWidth'),
+			nHeight = this.option('nHeight');
+		var welCanvas = $('<canvas>').attr({
+										'width' : nWidth,
+										'height' : nHeight
+									});
+		var oCtx = welCanvas.get(0).getContext('2d');
+		oCtx.fillStyle="#FFFFFF";
+		oCtx.fillRect(0, 0, nWidth, nHeight);
+		// soCtx.globalCompositeOperation = 'destination-out';
+
+		// guide line
+		oCtx.drawImage(this._welGuideCanvas.get(0), 0, 0);
+
+		// scatter
+		_.each(this._awelChartCanvasInOrder, function(welChartCanvas, sKey){
+			if(welChartCanvas.css('display') === 'block'){
+				oCtx.drawImage(welChartCanvas.get(0), 0, 0);
+			}
+		}, this);
+
+		// xy axis
+		oCtx.drawImage(this._welAxisCanvas.get(0), 0, 0);
+
+		// common setting
+		oCtx.textBaseline = "top";
+
+		// title
+		var nTitleX = parseInt(this._welTitle.css('left'), 10),
+			nTitleY = parseInt(this._welTitle.css('top'), 10);
+		oCtx.textAlign = "left"; 
+		oCtx.fillStyle = this._welTitle.css('color');		
+		oCtx.font = this._welTitle.css('font');
+		oCtx.fillText(this._welTitle.text(), nTitleX, nTitleY);
+
+		// count
+		var htContainerOffset = this._welContainer.offset();
+		oCtx.textAlign = "left";
+		_.each(this._htwelTypeLi, function(welTypeLi){
+			var htOffset = welTypeLi.offset();
+			var nX = htOffset.left - htContainerOffset.left,
+				nY = htOffset.top - htContainerOffset.top;
+			console.log(nX, nY, welTypeLi.css('color'), welTypeLi.css('font'));
+			oCtx.fillStyle = welTypeLi.css('color');
+			oCtx.font = welTypeLi.css('font');
+			oCtx.fillText(welTypeLi.text(), nX, nY);		
+			if(welTypeLi.hasClass('strike')){
+				oCtx.moveTo(nX, nY + welTypeLi.height()/2);
+				oCtx.lineTo(nX + welTypeLi.width(), nY + welTypeLi.height()/2);
+				oCtx.strokeStyle = welTypeLi.css('color');
+				oCtx.lineWidth = 0.7;
+				oCtx.stroke();
+			}	
+		});
+
+		// x axis
+		oCtx.textAlign = "center"; 
+		_.each(this._awelXNumber, function(welXNumber){
+			var nX = parseInt(welXNumber.css('left'), 10) + welXNumber.width() / 2,
+				nY = parseInt(welXNumber.css('top'), 10);
+			oCtx.fillStyle = welXNumber.css('color');
+			oCtx.font = welXNumber.css('font');
+			oCtx.fillText(welXNumber.text(), nX, nY);
+		});
+
+		// y axis
+		oCtx.textAlign = "right"; 
+		_.each(this._awelYNumber, function(welYNumber){
+			var nX = parseInt(welYNumber.css('left'), 10) + welYNumber.width(),
+				nY = parseInt(welYNumber.css('top'), 10);
+			oCtx.fillStyle = welYNumber.css('color');
+			oCtx.font = welYNumber.css('font');
+			oCtx.fillText(welYNumber.text(), nX, nY);
+		});
+
+		// x label
+		oCtx.textAlign = "right"; 
+		var nX = nWidth,
+			nY = parseInt(this._welXLabel.css('top'), 10);
+		oCtx.fillStyle = this._welXLabel.css('color');
+		oCtx.font = this._welXLabel.css('font');
+		console.log(nX, nY);
+		oCtx.fillText(this._welXLabel.text(), nX, nY);
+
+		// y label
+		oCtx.textAlign = "right"; 
+		nX = parseInt(this._welYLabel.css('left'), 10) + this._welYLabel.width();
+		nY = parseInt(this._welYLabel.css('top'), 10);
+		oCtx.fillStyle = this._welYLabel.css('color');
+		oCtx.font = this._welYLabel.css('font');
+		oCtx.fillText(this._welYLabel.text(), nX, nY);
+
+		// nodata
+		if(this._welShowNoData.css('display') === 'block'){
+			oCtx.textAlign = "center";
+			oCtx.fillStyle = this._welShowNoData.css('color');
+			oCtx.font = this._welShowNoData.css('font');
+			oCtx.fillText(this._welShowNoData.text(), parseInt(this._welShowNoData.css('top')), nWidth/2);
+		}
+
+		// drag-selecting
+		var sDragToSelectClassName = this.option('sDragToSelectClassName'),
+			welDragToSelect = $('.' + sDragToSelectClassName);
+		oCtx.rect(parseInt(welDragToSelect.css('left')), parseInt(welDragToSelect.css('top')), welDragToSelect.width(), welDragToSelect.height());
+		oCtx.globalAlpha = welDragToSelect.css('opacity');
+		oCtx.fillStyle = welDragToSelect.css('background-color');
+		oCtx.fill();
+		oCtx.strokeStyle = welDragToSelect.css('border-color');
+		oCtx.stroke();
+
+		return welCanvas;
+	},
+
+	saveAsPNG : function(elA){
+		var welCanvas = this._mergeAllDisplay();
+		$(elA).attr('href', welCanvas.get(0).toDataURL('image/png'));
+	},
+
+	saveAsJPEG : function(elA){
+		var welCanvas = this._mergeAllDisplay();
+		$(elA).attr('href', welCanvas.get(0).toDataURL('image/jpeg'));
 	}
 });
