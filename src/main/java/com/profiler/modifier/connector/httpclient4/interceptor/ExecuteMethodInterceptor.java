@@ -6,6 +6,7 @@ import com.profiler.common.AnnotationKey;
 import com.profiler.context.*;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
+import com.profiler.sampler.util.SamplingFlagUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
@@ -13,7 +14,6 @@ import com.profiler.common.ServiceType;
 import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.logging.LoggingUtils;
 
 /**
  * Method interceptor
@@ -42,33 +42,42 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         if (isDebug) {
             logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
+
+        final HttpRequest request = (HttpRequest) args[1];
+        final boolean sampling = trace.canSampled();
+        if (!sampling) {
+            request.addHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            return;
+        }
+
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
         TraceID nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
-        
+
         final HttpHost host = (HttpHost) args[0];
-        final HttpRequest request = (HttpRequest) args[1];
+
         // UUID format을 그대로.
         request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
         request.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
         request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
-        request.addHeader(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
+
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-		request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
-		request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
+        request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
+        request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
 
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
-		int port = host.getPort();
+        int port = host.getPort();
         trace.recordDestinationId(host.getHostName() +  ((port > 0) ? ":" + port : ""));
 
-		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
+        trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
+
     }
 
     @Override
@@ -83,7 +92,6 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
             return;
         }
 		trace.recordApi(descriptor);
-//        trace.recordApi(this.apiId);
         trace.recordException(result);
 
         trace.markAfterTime();

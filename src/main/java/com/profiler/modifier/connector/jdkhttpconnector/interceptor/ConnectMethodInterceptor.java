@@ -11,7 +11,7 @@ import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
+import com.profiler.sampler.util.SamplingFlagUtils;
 
 /**
  * @author netspider
@@ -30,23 +30,31 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 		if (isDebug) {
 			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
 		}
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        HttpURLConnection request = (HttpURLConnection) target;
+        // UUID format을 그대로.
+        final boolean sampling = trace.canSampled();
+        if (!sampling) {
+            request.addRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            return;
+        }
+
+
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
-		HttpURLConnection request = (HttpURLConnection) target;
-
 		// UUID format을 그대로.
 		request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
 		request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
 		request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
-		request.setRequestProperty(Header.HTTP_SAMPLED.toString(), String.valueOf(nextId.isSampled()));
+
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationId());
 		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
