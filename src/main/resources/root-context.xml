@@ -35,13 +35,13 @@
 
         <property name="testOnBorrow" value="false"></property>
         <property name="testOnReturn" value="false"></property>
-        <property name="testWhileIdle" value="true"></property>
+        <property name="testWhileIdle" value="false"></property>
 
         <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
         <property name="numTestsPerEvictionRun" value="6"></property>
         <property name="minEvictableIdleTimeMillis" value="-1"></property>
-
-        <property name="validationQuery" value="select 1 from db_root"></property>
+        <!-- db_root가 없다고 하여 잠시 주석처리함.-->
+        <!--<property name="validationQuery" value="select 1 from db_root"></property>-->
 
         <property name="poolPreparedStatements" value="true"></property>
         <property name="maxOpenPreparedStatements" value="50"></property>
