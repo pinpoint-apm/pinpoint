@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ClassLoadChecker {
     private final Logger logger = LoggerFactory.getLogger(ClassLoadChecker.class.getName());
+    private final boolean isDebug = logger.isDebugEnabled();
+
     private static final Object EXIST = new Object();
 
     private ConcurrentMap<LoadClass, Object> load = new ConcurrentHashMap<LoadClass, Object>();
@@ -16,13 +18,13 @@ public class ClassLoadChecker {
         LoadClass key = new LoadClass(cl, className);
         Object old = load.putIfAbsent(key, EXIST);
         if (old == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("{} not exist from ", cl);
+            if (isDebug) {
+                logger.debug("{} not exist from ", cl);
             }
             return false;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info("{} already exist from ", cl);
+        if (isDebug) {
+            logger.debug("{} already exist from ", cl);
         }
         return true;
     }

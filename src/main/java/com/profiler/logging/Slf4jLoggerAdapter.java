@@ -54,7 +54,28 @@ public class Slf4jLoggerAdapter implements Logger {
         sb.append(methodName);
         sb.append(parameterDescription);
         sb.append(" args:");
-        sb.append(Arrays.toString(args));
+        appendArray(sb, args);
+    }
+
+    private static void appendArray(StringBuilder sb, Object[] args) {
+        if (args == null) {
+            sb.append("null");
+            return;
+        }
+        if (args.length == 0) {
+            return;
+        }
+
+        if (args.length > 0) {
+            sb.append('(');
+            sb.append(args[0]);
+            for (int i = 1; i < args.length; i++) {
+                sb.append(", ");
+                sb.append(args[i]);
+            }
+            sb.append(')');
+        }
+        return;
     }
 
     @Override
