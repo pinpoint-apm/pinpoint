@@ -78,14 +78,17 @@ struct Span {
 struct SpanChunk {
   1: string agentId
   2: string applicationId
-  3: i16 agentIdentifier
+  3: i16 serviceType
+  4: i16 agentIdentifier
 
-  4: i64 mostTraceId
-  5: i64 leastTraceId
+  5: i64 mostTraceId
+  6: i64 leastTraceId
 
-  6: i32 spanId
+  7: i32 spanId
+  
+  8: optional string endPoint
 
-  7: list<SpanEvent> spanEventList
+  9: list<SpanEvent> spanEventList
 }
 
 struct SqlMetaData {

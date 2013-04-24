@@ -1,12 +1,13 @@
 package com.profiler.context;
 
-import com.profiler.DefaultAgent;
-import com.profiler.common.dto.thrift.Annotation;
-import org.apache.thrift.TBase;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.apache.thrift.TBase;
+
+import com.profiler.DefaultAgent;
+import com.profiler.common.dto.thrift.Annotation;
 
 /**
  *
@@ -28,13 +29,16 @@ public class SpanChunk implements Thriftable {
 
         tSpanChunk.setAgentId(DefaultAgent.getInstance().getAgentId());
         tSpanChunk.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+        tSpanChunk.setServiceType(parentSpan.getServiceType().getCode());
         tSpanChunk.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
         UUID id = parentSpan.getTraceID().getId();
         tSpanChunk.setMostTraceId(id.getMostSignificantBits());
         tSpanChunk.setLeastTraceId(id.getLeastSignificantBits());
         tSpanChunk.setSpanId(parentSpan.getTraceID().getSpanId());
-
+        
+        tSpanChunk.setEndPoint(parentSpan.getEndPoint());
+        
         List<com.profiler.common.dto.thrift.SpanEvent> tSpanEvent = createSpanEvent(spanEventList);
 
         tSpanChunk.setSpanEventList(tSpanEvent);
