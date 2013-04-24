@@ -14,15 +14,22 @@ import com.profiler.common.util.TimeSlot;
 import com.profiler.server.dao.ClientStatisticsDao;
 import com.profiler.server.util.AcceptedTimeService;
 
+/**
+ * caller table로 통합됨.
+ * 
+ * @author netspider
+ * 
+ */
+@Deprecated
 public class HbaseClientStatisticsDao implements ClientStatisticsDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
-	
-    @Autowired
-    private AcceptedTimeService acceptedTImeService;
+
+	@Autowired
+	private AcceptedTimeService acceptedTImeService;
 
 	@Override
 	public void update(String destApplicationName, short destServiceType, int elapsed, boolean isError) {
