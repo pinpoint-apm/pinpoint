@@ -21,6 +21,7 @@ import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.ApplicationMapStatisticsUtils;
 import com.profiler.common.util.TimeSlot;
+import com.profiler.common.util.TimeUtils;
 
 /**
  * 
@@ -64,12 +65,15 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 		long startTime = TimeSlot.getStatisticsRowSlot(from);
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
 		long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
+		
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
 		}
-		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, startTime);
-		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, endTime);
+		
+		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
+		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, endTime);
+		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, startTime);
 
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);

@@ -24,6 +24,7 @@ import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.util.SpanUtils;
+import com.profiler.common.util.TimeUtils;
 
 /**
  *
@@ -72,13 +73,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 		byte[] bAgent = Bytes.toBytes(agent);
 		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, start);
-		scan.setStartRow(traceIndexStartKey);
-		// TODO 추가 filter를 구현하여 scan시 중복된 값을 제가 할수 있음. 단 server에도 Filter 클래스가
-		// 배포되어야 한다.
-		// scan.setFilter(new ValueFilter());
-
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
-		scan.setStopRow(traceIndexEndKey);
+		
+		// key가 reverse되었기 떄문에 start, end가 뒤바뀌게 된다.
+		scan.setStartRow(traceIndexEndKey);
+		scan.setStopRow(traceIndexStartKey);
+		
 		scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
 		scan.setId("ApplicationTraceIndexScan");
 
@@ -113,7 +113,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 						int elapsed = BytesUtils.bytesToInt(v, 0);
 						int exceptionCode = BytesUtils.bytesToInt(v, 4);
 
-						long acceptedTime = BytesUtils.bytesToLong(kv.getRow(), 24);
+						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24));
 
 						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
 						String traceId = TraceIdUtils.formatString(tid[0], tid[1]);

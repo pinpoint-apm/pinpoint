@@ -33,6 +33,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Qualifier("traceIndexMapper")
 	private RowMapper<List<TraceId>> traceIndexMapper;
 
+	// cache size를 지정해야 되는거 같음.??
 	private int scanCacheSize = 40;
 
 	public void setScanCacheSize(int scanCacheSize) {
@@ -56,20 +57,17 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	}
 
 	private Scan createScan(String agent, long start, long end) {
-
 		Scan scan = new Scan();
-		// cache size를 지정해야 되는거 같음.??
 		scan.setCaching(this.scanCacheSize);
 
 		byte[] bAgent = Bytes.toBytes(agent);
 		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, start);
-		scan.setStartRow(traceIndexStartKey);
-		// TODO 추가 filter를 구현하여 scan시 중복된 값을 제가 할수 있음. 단 server에도 Filter 클래스가
-		// 배포되어야 한다.
-		// scan.setFilter(new ValueFilter());
-
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
-		scan.setStopRow(traceIndexEndKey);
+		
+		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
+		scan.setStartRow(traceIndexEndKey);
+		scan.setStopRow(traceIndexStartKey);
+		
 		scan.addFamily(HBaseTables.TRACE_INDEX_CF_TRACE);
 		scan.setId("traceIndexScan");
 

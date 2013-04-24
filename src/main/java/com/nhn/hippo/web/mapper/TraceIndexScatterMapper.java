@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.profiler.common.util.TimeUtils;
 import com.profiler.common.util.TraceIdUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -35,7 +36,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 			int elapsed = BytesUtils.bytesToInt(v, 0);
 			int exceptionCode = BytesUtils.bytesToInt(v, 4);
 
-			long acceptedTime = BytesUtils.bytesToLong(kv.getRow(), 24);
+			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24));
 
 			long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
 			String traceId = TraceIdUtils.formatString(tid[0], tid[1]);
