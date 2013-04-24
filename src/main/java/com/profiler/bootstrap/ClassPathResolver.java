@@ -109,6 +109,10 @@ public class ClassPathResolver {
         return this.agentDirPath + File.separator + "lib";
     }
 
+    public String getAgentLogFilePath() {
+        return this.agentDirPath + File.separator + "log";
+    }
+
     public List<URL> resolveLib() {
         String agentLibPath = getAgentLibPath();
         File libDir = new File(agentLibPath);

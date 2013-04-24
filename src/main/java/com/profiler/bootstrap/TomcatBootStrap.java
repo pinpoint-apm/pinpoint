@@ -38,16 +38,16 @@ public class TomcatBootStrap {
             // 설정파일을 못찾으므로 종료.
             return;
         }
+        // 로그가 저장될 위치를 시스템 properties로 저장한다.
+        saveLogFilePath(classPathResolver);
 
-
-        // 이게 로드할 lib List임.
 
         try {
             // 설정파일 로드 이게 bootstrap에 있어야 되나는게 맞나?
             ProfilerConfig profilerConfig = new ProfilerConfig();
             profilerConfig.readConfigFile(configPath);
 
-
+            // 이게 로드할 lib List임.
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass("com.profiler.DefaultAgent");
@@ -57,6 +57,13 @@ public class TomcatBootStrap {
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
         }
 
+    }
+
+    private static void saveLogFilePath(ClassPathResolver classPathResolver) {
+        String agentLogFilePath = classPathResolver.getAgentLogFilePath();
+        logger.info("logPath:" + agentLogFilePath);
+
+        System.setProperty(ProductInfo.NAME + "." + "log", agentLogFilePath);
     }
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
