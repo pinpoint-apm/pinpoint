@@ -10,6 +10,7 @@ import com.nhn.hippo.web.vo.ClientStatistics;
  * @author netspider
  * 
  */
+@Deprecated
 public interface ClientStatisticsDao {
 	public List<Map<String, ClientStatistics>> selectClient(String applicationName, short serviceType, long from, long to);
 }
