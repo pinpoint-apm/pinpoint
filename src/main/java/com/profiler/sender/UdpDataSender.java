@@ -31,6 +31,7 @@ public class UdpDataSender implements DataSender, Runnable {
 	private final Logger logger = LoggerFactory.getLogger(UdpDataSender.class.getName());
     private final boolean isWarn = logger.isWarnEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isTrace = logger.isTraceEnabled();
 
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
@@ -224,8 +225,8 @@ public class UdpDataSender implements DataSender, Runnable {
 		reusePacket.setData(interBufferData, 0, interBufferSize);
 		try {
 			udpSocket.send(reusePacket);
-			if (logger.isInfoEnabled()) {
-				logger.info("Data sent. {}", dto);
+			if (isTrace) {
+				logger.trace("Data sent. {}", dto);
 			}
 		} catch (IOException e) {
 			logger.warn("packet send error {}", dto, e);
