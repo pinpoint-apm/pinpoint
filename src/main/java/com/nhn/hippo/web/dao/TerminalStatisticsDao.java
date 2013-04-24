@@ -10,6 +10,7 @@ import com.nhn.hippo.web.vo.TerminalStatistics;
  * @author netspider
  * 
  */
+@Deprecated
 public interface TerminalStatisticsDao {
 	/**
 	 * 

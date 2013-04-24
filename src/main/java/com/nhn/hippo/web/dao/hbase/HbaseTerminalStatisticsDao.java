@@ -25,6 +25,7 @@ import com.profiler.common.util.TimeSlot;
  * @author netspider
  * 
  */
+@Deprecated
 @Repository
 public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
