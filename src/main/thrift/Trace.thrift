@@ -16,6 +16,8 @@ struct Annotation {
 struct SpanEvent {
   1: optional string agentId
   2: optional string applicationId
+  17: optional i16 parentServiceType
+  18: optional string parentEndPoint
   3: optional i16 agentIdentifier
 
   4: optional i64 mostTraceId
