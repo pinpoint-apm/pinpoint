@@ -38,10 +38,7 @@ public class SpanHandler implements Handler {
     private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
 	// @Autowired
-	// private BusinessTransactionStatisticsDao businessTransactionStatistics;
-    
-    @Autowired
-    private ClientStatisticsDao clientStatisticsDao;
+	// private ClientStatisticsDao clientStatisticsDao;
     
     @Autowired
     private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
@@ -72,7 +69,7 @@ public class SpanHandler implements Handler {
 
 			if (span.getParentSpanId() == -1) {
 				// TODO error가 있으면 getErr값이 0보다 큰가??
-				clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
+				// clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
 				applicationMapStatisticsCalleeDao.update(span.getApplicationId(), span.getServiceType(), span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 				applicationMapStatisticsCallerDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getApplicationId(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 			}

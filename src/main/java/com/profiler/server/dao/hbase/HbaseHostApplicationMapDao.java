@@ -12,6 +12,7 @@ import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.BytesUtils;
 import com.profiler.common.util.TimeSlot;
+import com.profiler.common.util.TimeUtils;
 import com.profiler.server.dao.HostApplicationMapDao;
 import com.profiler.server.util.AcceptedTimeService;
 
@@ -33,7 +34,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	public void insert(String host, String applicationName, short serviceType) {
 		logger.debug("Insert host-application map. host={}, applicationName={}, serviceType={}", new Object[] { host, applicationName, serviceType });
 
-		byte[] rowKey = Bytes.toBytes(TimeSlot.getStatisticsRowSlot(acceptedTimeService.getAcceptedTime()));
+		byte[] rowKey = Bytes.toBytes(TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(acceptedTimeService.getAcceptedTime())));
 		byte[] columnName = Bytes.toBytes(host);
 
 		byte[] applicationNameBytes = Bytes.toBytes(applicationName);
