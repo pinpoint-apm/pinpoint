@@ -39,8 +39,10 @@ public class HeaderTBaseSerializer {
      */
     public HeaderTBaseSerializer() {
 
-        this(new TCompactProtocol.Factory());
+        this(new TCompactProtocol.Factory(), new DefaultTBaseLocator());
     }
+
+    private TBaseLocator locator;
 
     /**
      * Create a new TSerializer. It will use the TProtocol specified by the
@@ -48,8 +50,9 @@ public class HeaderTBaseSerializer {
      *
      * @param protocolFactory Factory to create a protocol
      */
-    public HeaderTBaseSerializer(TProtocolFactory protocolFactory) {
+    public HeaderTBaseSerializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
         protocol_ = protocolFactory.getProtocol(transport_);
+        this.locator = locator;
     }
 
     /**
@@ -60,7 +63,8 @@ public class HeaderTBaseSerializer {
      * @param base The object to serialize
      * @return Serialized object in byte[] format
      */
-    public byte[] serialize(Header header, TBase<?, ?> base) throws TException {
+    public byte[] serialize(TBase<?, ?> base) throws TException {
+        final Header header = locator.headerLookup(base);
         baos_.reset();
         writeHeader(header);
         base.write(protocol_);
@@ -90,9 +94,9 @@ public class HeaderTBaseSerializer {
      * @param charset Valid JVM charset
      * @return Serialized object as a String
      */
-    public String toString(Header header, TBase<?, ?> base, String charset) throws TException {
+    public String toString(TBase<?, ?> base, String charset) throws TException {
         try {
-            return new String(serialize(header, base), charset);
+            return new String(serialize(base), charset);
         } catch (UnsupportedEncodingException uex) {
             throw new TException("JVM DOES NOT SUPPORT ENCODING: " + charset);
         }
@@ -105,7 +109,7 @@ public class HeaderTBaseSerializer {
      * @param base The object to serialize
      * @return Serialized object as a String
      */
-    public String toString(Header header, TBase<?, ?> base) throws TException {
-        return new String(serialize(header, base));
+    public String toString(TBase<?, ?> base) throws TException {
+        return new String(serialize(base));
     }
 }

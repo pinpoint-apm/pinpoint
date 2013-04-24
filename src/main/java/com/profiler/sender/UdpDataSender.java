@@ -43,10 +43,8 @@ public class UdpDataSender implements DataSender, Runnable {
 	private DatagramSocket udpSocket = null;
 	private Thread ioThread;
 
-	private TBaseLocator locator = new DefaultTBaseLocator();
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
-
 
 	private AtomicBoolean allowInput = new AtomicBoolean();
 
@@ -261,8 +259,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	private byte[] serialize(TBase<?, ?> dto) {
 		try {
-			Header header = headerLookup(dto);
-			return serializer.serialize(header, dto);
+			return serializer.serialize(dto);
 		} catch (TException e) {
 			if (logger.isWarnEnabled()) {
                 logger.warn("Serialize fail:{} Caused:{}", new Object[] { dto, e.getMessage(), e});
@@ -275,8 +272,4 @@ public class UdpDataSender implements DataSender, Runnable {
         return serializer.getInterBufferSize();
     }
 
-	private Header headerLookup(TBase<?, ?> dto) throws TException {
-		// header 객체 생성을 안하고 정적 lookup이 되도록 변경.
-		return locator.headerLookup(dto);
-	}
 }
