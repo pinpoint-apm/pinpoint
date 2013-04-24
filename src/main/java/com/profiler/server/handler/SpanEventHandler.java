@@ -56,8 +56,12 @@ public class SpanEventHandler implements Handler {
             int elapsed = spanEvent.getEndElapsed();
             boolean hasException = SpanEventUtils.hasException(spanEvent);
             
-            System.out.println("I am SpanEventHandler");
-            System.out.println("WARN Can't generate application map information.");
+            // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
+            // 내가 호출한 정보 저장. (span이 호출한 spanevent)
+			applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getApplicationId(), spanEvent.getParentServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+
+			// 나를 호출한 정보 저장 (spanevent를 호출한 span)
+			applicationMapStatisticsCallerDao.update(spanEvent.getApplicationId(), spanEvent.getParentServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanEvent.getParentEndPoint(), elapsed, hasException);
         } catch (Exception e) {
             logger.warn("SpanEvent handle error " + e.getMessage(), e);
         }
