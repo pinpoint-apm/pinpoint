@@ -1,7 +1,7 @@
 # profiler
 pushd .
 cd ../hippo-tomcat-profiler
-./build.sh
+mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip -P withThrift -Dthrift.executable.property=/Users/netspider/DEV-TOOLS/thrift-0.9.0/bin/thrift
 popd
 
 # bootstrap
