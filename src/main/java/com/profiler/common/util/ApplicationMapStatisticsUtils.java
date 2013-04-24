@@ -74,10 +74,10 @@ public class ApplicationMapStatisticsUtils {
 	 * </pre>
 	 * 
 	 * @param applicationName
-	 * @param time
+	 * @param timestamp
 	 * @return
 	 */
-	public static byte[] makeRowKey(String applicationName, short applicationType, long time) {
+	public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
 		if (applicationName == null) {
 			throw new NullPointerException("applicationName must not be null");
 		}
@@ -86,7 +86,7 @@ public class ApplicationMapStatisticsUtils {
 		byte[] applicationnameBytesLength = Bytes.toBytes((short) applicationnameBytes.length);
 		// byte[] offset = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN - applicationnameBytes.length];
 		byte[] applicationtypeBytes = Bytes.toBytes(applicationType);
-		byte[] slot = Bytes.toBytes(time);
+		byte[] slot = Bytes.toBytes(TimeUtils.reverseCurrentTimeMillis(timestamp));
 
 		return BytesUtils.concat(applicationnameBytesLength, applicationnameBytes, applicationtypeBytes, slot);
 	}

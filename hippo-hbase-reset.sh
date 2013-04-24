@@ -40,9 +40,6 @@ create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
 create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , TTL => 259200  }, { NAME => 'TerminalSpan' , TTL => 259200  }
 create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
-create 'TerminalStatistics', { NAME => 'Counter' , TTL => 259200  }
-create 'BusinessTransactionStatistics', { NAME => 'Normal' , TTL => 259200  }, { NAME => 'Slow' , TTL => 259200  }, { NAME => 'Error' , TTL => 259200  }
-create 'ClientStatistics', { NAME => 'Counter' , TTL => 259200  }
 create 'ApplicationMapStatisticsCaller', { NAME => 'Counter' }
 create 'ApplicationMapStatisticsCallee', { NAME => 'Counter' }
 create 'HostApplicationMap', { NAME => 'Map' }
