@@ -17,6 +17,7 @@ import com.profiler.server.dao.BusinessTransactionStatisticsDao;
 /**
  * @author netspider
  */
+@Deprecated
 public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactionStatisticsDao {
 
 	@Autowired
