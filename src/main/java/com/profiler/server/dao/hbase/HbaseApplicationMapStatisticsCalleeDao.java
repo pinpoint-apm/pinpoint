@@ -41,7 +41,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("[UpdatingApplicationMapStatisticsCallee] " + callerApplicationName + " (" + ServiceType.findServiceType(callerServiceType) + ") -> " + calleeApplicationName + " (" + ServiceType.findServiceType(calleeServiceType) + ")");
+			logger.debug("[UpdatingApplicationMapStatisticsCallee] " + callerApplicationName + " (" + ServiceType.findServiceType(callerServiceType) + ")[" + calleeHost + "] -> " + calleeApplicationName + " (" + ServiceType.findServiceType(calleeServiceType) + ")");
 		}
 
 		// make row key. rowkey는 나.
