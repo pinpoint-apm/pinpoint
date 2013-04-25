@@ -72,9 +72,10 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
                 trace = traceContext.newTraceObject();
                 if (!trace.canSampled()){
                     logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[] {requestURL, remoteAddr });
+                    return;
                 } else {
                     if (isDebug) {
-                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[] { requestURL, remoteAddr });
+                        logger.debug("TraceID not exist. start new trace. traceId:{} requestUrl:{}, remoteAddr:{}", new Object[] { traceId, requestURL, remoteAddr });
                     }
                 }
             }

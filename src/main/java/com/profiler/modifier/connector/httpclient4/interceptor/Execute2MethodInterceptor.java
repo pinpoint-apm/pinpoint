@@ -50,7 +50,7 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if(isDebug) {
-                logger.debug("set Samplingflag= ");
+                logger.debug("set Sampling flag=false");
             }
             request.addHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             return;

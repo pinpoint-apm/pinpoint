@@ -50,6 +50,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
         final HttpRequest request = (HttpRequest) args[1];
         final boolean sampling = trace.canSampled();
         if (!sampling) {
+            if(isDebug) {
+                logger.debug("set Sampling flag=false");
+            }
             request.addHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             return;
         }
