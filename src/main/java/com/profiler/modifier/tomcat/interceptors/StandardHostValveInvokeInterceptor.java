@@ -98,11 +98,14 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 
 //        traceContext.getActiveThreadCounter().end();
 
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
+        if (!trace.canSampled()) {
+            return;
+        }
 
         HttpServletRequest request = (HttpServletRequest) args[0];
         String parameters = getRequestParameter(request);

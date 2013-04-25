@@ -90,11 +90,15 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
 
 //        traceContext.getActiveThreadCounter().end();
 
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
+
+        if (!trace.canSampled()) {
+            return;
+        }
 
         external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
         String parameters = getRequestParameter(request);
