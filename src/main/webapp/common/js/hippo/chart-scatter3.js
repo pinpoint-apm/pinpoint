@@ -2,19 +2,19 @@ var oScatterChart;
 var selectdTracesBox = {};
 
 function getScatterData(application, from, to, period, callback) {
-	console.log("Get scatter data. appName=" + application + ", from=" + from + ", to=" + to + ", period=" + period);
+	console.log("   fetch scatter data2. appName=" + application + ", from=" + from + " (" + new Date(from) + ") , to=" + to + " (" + new Date(to) + ") , period=" + period);
 	var app = application.split("@");
 	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
 }
 
 function getLastScatterData(application, from, to, period, callback) {
-	console.log("get last scatter data. appName=" + application + ", from=" + from + ", to=" + to + ", period=" + period);
+	console.log("   fetch scatter data1. appName=" + application + ", from=" + from + " (" + new Date(from) + ") , to=" + to + " (" + new Date(to) + ") , period=" + period);
 	var app = application.split("@");
 	d3.json("/getLastScatterData.hippo?application=" + app[0] + "&period=" + period + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
 }
 
 function getRealtimeScatterData(application, from, to, period, callback) {
-	console.log("get realtime scatter data. appName=" + application + ", from=" + from + ", to=" + to + ", period=" + period);
+	console.log("   fetch realtime scatter data. appName=" + application + ", from=" + from + ", to=" + to + ", period=" + period);
 	var app = application.split("@");
 	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + from + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
 }
@@ -36,37 +36,38 @@ function expandScatter(e) {
 }
 
 function showResponseScatter(applicationName, from, to, period, usePeriod, w, h) {
-        console.log("ShowReponseScatter. appName=" + applicationName + ", from=" + from + ", to=" + to + ", period=" + period);
+    console.log("ShowReponseScatter. appName=" + applicationName + ", from=" + from + ", to=" + to + ", period=" + period);
 
-        if (oScatterChart) {
-                oScatterChart.clear();
-        }
-        
-        delete selectdTracesBox;
-        selectdTracesBox = {};
-        
-        $("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
-        
-        var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen"); 
-        fullscreenButton.data("applicationName", applicationName);
-        fullscreenButton.data("from", from);
-        fullscreenButton.data("to", to);
-        fullscreenButton.data("period", period);
-        fullscreenButton.data("usePeriod", usePeriod);
-        
-        var downloadButton = $("#scatterChartContainer A");
-        downloadButton.attr("download", applicationName + ".png");
-        downloadButton.unbind("click");
-        downloadButton.bind("click", function() {
-        	oScatterChart.saveAsPNG(downloadButton);
-        });
-        
-        $("#scatterChartContainer SPAN").unbind("click");     
-        $("#scatterChartContainer SPAN").bind("click", function() {
-        	showRequests(applicationName, from, to, period, usePeriod);
-        });
-        
-        drawScatter(applicationName, from, to, "scatterchart", w, h);
+    if (oScatterChart) {
+    	oScatterChart.clear();
+    }
+    
+    delete selectdTracesBox;
+    selectdTracesBox = {};
+    
+    $("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
+    
+    var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen"); 
+    fullscreenButton.data("applicationName", applicationName);
+    fullscreenButton.data("from", from);
+    fullscreenButton.data("to", to);
+    fullscreenButton.data("period", period);
+    fullscreenButton.data("usePeriod", usePeriod);
+    
+    var downloadButton = $("#scatterChartContainer A");
+    downloadButton.attr("download", applicationName + ".png");
+    downloadButton.unbind("click");
+    downloadButton.bind("click", function() {
+    	oScatterChart.saveAsPNG(downloadButton);
+    });
+    
+    $("#scatterChartContainer SPAN").unbind("click");     
+    $("#scatterChartContainer SPAN").bind("click", function() {
+    	showRequests(applicationName, from, to, period, usePeriod);
+    });
+    
+    drawScatter(applicationName, from, to, "scatterchart", w, h);
+    
     if (usePeriod) {
         getLastScatterData(applicationName, from, to, period, scatterFetchDataCallback);
     } else {
@@ -75,44 +76,38 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 }
 
 var scatterFetchDataCallback = function(data, applicationName, from, to, period) {
-	console.log("ShowReponseScatter callback. appName=" + applicationName + ", from=" + from + ", to=" + to + ", period=" + period);
-
 	// 처음 조회된 데이터를 그려준다.
     updateScatter(from, to, data.scatter, "#scatter");
     
     if (data.scatter.length == 0) {
-    	console.log("Stop query scatter. no data.");
+    	console.log("   stop query scatter. no data.");
         return;
     }
     
     // 데이터 조회가 추가로 필요한지 확인한다.
-    var lastTimeStamp = data.scatter[data.scatter.length - 1].x;
+    var lastTimeStamp = data.scatter[0].x;
 
     if (lastTimeStamp >= to) {
-    	console.log("Stop query scatter. lastTimeStamp=" + lastTimeStamp + ", to=" + to);
+    	console.log("   stop query scatter. lastTimeStamp=" + lastTimeStamp + ", to=" + to);
         return;
     }
     
     var queryNext = true;
     
     var fetch = function() {
-    	console.log("fetch scatter data");
     	clearInterval(scatterFetchTimer);
                 
 		if(!queryNext || lastTimeStamp >= to) {
 			scatter.hideProgressbar();
-	        console.log("fetching scatter data finished.");
+	        console.log("fetch scatter data finished.");
 	        return;
 		}
                 
         try {
-            console.log("fetching scatter data.");
-                
-            getScatterData($("#application").val(), lastTimeStamp + 1, to, period, function(data2, from, to, period) {
-	            console.log("fetched " + data2.scatter.length);
-	            
+            getScatterData(applicationName, lastTimeStamp + 1, to, period, function(data2, from, to, period) {
 	            if (data2.scatter.length == 0) {
 	                queryNext = false;
+	                console.log("   fetch scatter data finished. there's no data.");
 	                return;
 	            }
 	            updateScatter(from, to, data2.scatter, "#scatter");
@@ -120,26 +115,26 @@ var scatterFetchDataCallback = function(data, applicationName, from, to, period)
 	            scatterFetchTimer = setInterval(fetch, 200);
             });
         } catch(e) {
-                console.log(e);
+        	console.log(e);
         }
     }
     var scatterFetchTimer = setInterval(fetch, 200);
 };
 
 var selectDotCallback = function(traces) {
-        if (traces.length === 0) {
-                return;
-        }
-        
-        if (traces.length === 1) {
-                openTrace(traces[0].traceId, traces[0].x);
-                return;
-        }
+    if (traces.length === 0) {
+        return;
+    }
+    
+    if (traces.length === 1) {
+        openTrace(traces[0].traceId, traces[0].x);
+        return;
+    }
 
-        var token = Math.random() * 10000 + 1;
-        selectdTracesBox[token] = traces;
-        
-        var popupwindow = window.open("/selectedScatter.html", token);
+    var token = Math.random() * 10000 + 1;
+    selectdTracesBox[token] = traces;
+    
+    var popupwindow = window.open("/selectedScatter.html", token);
 }
 
 /*
@@ -277,11 +272,12 @@ $("#auto_refresh").bind("change", function(){
 */
 
 function updateScatter(start, end, scatter_data, targetId, limit) {
-        if (scatter_data.length == 0) {
-                return;
-        }
-        oScatterChart.addBubbleAndDraw(scatter_data);
-        // oScatterChart.addBubbleAndMoveAndDraw(data, date.getTime() + 3600000);
+    if (scatter_data.length == 0) {
+    	return;
+    }
+	console.log("   updating scatter chart. datasize=" + scatter_data.length);
+    oScatterChart.addBubbleAndDraw(scatter_data);
+    // oScatterChart.addBubbleAndMoveAndDraw(data, date.getTime() + 3600000);
 }
 
 function drawScatter(title, start, end, targetId, w, h) {

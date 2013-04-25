@@ -36,8 +36,6 @@ function showServerMap(applicationName) {
 		
 		mergeUnknown(data);
 		
-		console.log(data);
-		
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,

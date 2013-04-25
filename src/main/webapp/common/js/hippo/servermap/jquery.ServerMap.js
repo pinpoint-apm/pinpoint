@@ -75,7 +75,7 @@ var ServerMap = $.Class({
 	            portId: "", cursor: "pointer" }),
 	        this.$(go.Panel, go.Panel.Horizontal, {margin:4},
 	          this.$(go.Picture, 
-	            { source : sImageDir + "ico_UNKNOWN_CLOUD.png", 
+	            { source : sImageDir + "UNKNOWN_CLOUD.png", 
 	                        width: 20, height: 20, margin: 1, imageStretch: go.GraphObject.Uniform 
 	                        }),
 	          this.$(go.TextBlock,
