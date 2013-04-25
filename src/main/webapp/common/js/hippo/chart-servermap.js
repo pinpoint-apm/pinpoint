@@ -36,6 +36,9 @@ function showServerMap(applicationName) {
 		
 		mergeUnknown(data);
 		
+		// TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
+		replaceClientToUser(data);
+		
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,
@@ -56,6 +59,17 @@ function showServerMap(applicationName) {
     } else {
         getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
     }
+}
+
+// TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
+var replaceClientToUser = function(data) {
+	var nodes = data.applicationMapData.nodeDataArray;
+	nodes.forEach(function(node) {
+		if (node.category == "CLIENT") {
+			node.category = "USER";
+			node.text = "USER";
+		}
+	});
 }
 
 var mergeUnknown = function(data) {
