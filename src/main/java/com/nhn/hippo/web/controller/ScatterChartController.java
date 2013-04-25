@@ -15,9 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.hippo.web.service.FlowChartService;
-import com.nhn.hippo.web.service.SpanService;
-import com.nhn.hippo.web.vo.RequestMetadataQuery;
+import com.nhn.hippo.web.service.ScatterChartService;
+import com.nhn.hippo.web.vo.TransactionMetadataQuery;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.bo.SpanBo;
 
@@ -31,10 +30,7 @@ public class ScatterChartController extends BaseController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private FlowChartService flow;
-
-	@Autowired
-	private SpanService spanService;
+	private ScatterChartService scatter;
 
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod) {
@@ -44,29 +40,6 @@ public class ScatterChartController extends BaseController {
 		model.addAttribute("period", period);
 		model.addAttribute("usePeriod", usePeriod);
 		return "scatterPopup";
-	}
-	
-	@RequestMapping(value = "/scatterView", method = RequestMethod.GET)
-	public String getScatterView(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit) {
-		StopWatch watch = new StopWatch();
-		watch.start("selectScatterData");
-
-		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
-		watch.stop();
-
-		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-
-		model.addAttribute("scatter", scatterData);
-
-		addResponseHeader(response);
-		return "scatter_view";
-	}
-
-	@RequestMapping(value = "/lastScatterView", method = RequestMethod.GET)
-	public String getLastScatterView(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit) {
-		long to = getQueryEndTime();
-		long from = to - period;
-		return getScatterView(model, response, applicationName, from, to, limit);
 	}
 
 	/**
@@ -82,11 +55,11 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value="_callback", required=false) String jsonpCallback) {
+	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
+		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
@@ -94,7 +67,7 @@ public class ScatterChartController extends BaseController {
 		model.addAttribute("scatter", scatterData);
 
 		addResponseHeader(response);
-		
+
 		if (jsonpCallback == null) {
 			return "scatter_json";
 		} else {
@@ -114,7 +87,7 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value="_callback", required=false) String jsonpCallback) {
+	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
 		long to = getQueryEndTime();
 		long from = to - period;
 		return getScatterData(model, response, applicationName, from, to, limit, jsonpCallback);
@@ -139,7 +112,7 @@ public class ScatterChartController extends BaseController {
 
 		long to = getQueryEndTime();
 
-		List<Dot> scatterData = flow.selectScatterData(applicationName, from, to, limit);
+		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
@@ -167,13 +140,13 @@ public class ScatterChartController extends BaseController {
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/requestmetadata", method = RequestMethod.POST)
-	public String requestmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
+	public String transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
 		String TRACEID = "tr";
 		String TIME = "ti";
 		String RESPONSE_TIME = "re";
 
-		RequestMetadataQuery query = new RequestMetadataQuery();
+		TransactionMetadataQuery query = new TransactionMetadataQuery();
 
 		int index = 0;
 		while (true) {
@@ -190,11 +163,11 @@ public class ScatterChartController extends BaseController {
 		}
 
 		if (query.size() > 0) {
-			List<SpanBo> metadata = spanService.selectRequestMetadata(query);
+			List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
 			model.addAttribute("metadata", metadata);
 		}
 
 		addResponseHeader(response);
-		return "requestmetadata";
+		return "transactionmetadata";
 	}
 }

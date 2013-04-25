@@ -131,7 +131,7 @@ $(document).ready(function () {
 		query.push(traces[i].y)
 	}
 	
-	$.post("/requestmetadata.hippo", query.join(""), function(d) {
+	$.post("/transactionmetadata.hippo", query.join(""), function(d) {
 		writeContents(d);
 		$("#loader").hide();
 	})
@@ -165,7 +165,7 @@ var writeContents = function(d) {
 		
 		html.push("<td>");
 		html.push("<a href='");
-		html.push("/selectTransaction.hippo?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
+		html.push("/transactionInfo.hippo?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
 		html.push("' target='transactionView'>");
 		html.push(data[i].traceId);
 		html.push("</a>");

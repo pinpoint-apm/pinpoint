@@ -3,7 +3,7 @@ function expandToNewWindow() {
 }
 
 function openTrace(uuid, timestamp) {
-    window.open("/selectTransaction.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
+    window.open("/transactionInfo.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
 }
 
 function getQueryPeriod() {

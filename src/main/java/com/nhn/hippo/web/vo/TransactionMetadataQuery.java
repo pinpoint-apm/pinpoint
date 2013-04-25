@@ -13,12 +13,12 @@ import java.util.Set;
  * @author netspider
  * 
  */
-public class RequestMetadataQuery {
+public class TransactionMetadataQuery {
 
 	private final Map<QueryCondition, Object> queryConditions;
 
-	public RequestMetadataQuery() {
-		queryConditions = new HashMap<RequestMetadataQuery.QueryCondition, Object>();
+	public TransactionMetadataQuery() {
+		queryConditions = new HashMap<TransactionMetadataQuery.QueryCondition, Object>();
 	}
 
 	public void addQueryCondition(String traceId, long time, int responseTime) {

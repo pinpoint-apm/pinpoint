@@ -80,13 +80,20 @@ public class BusinessTransactionController extends BaseController {
 		return getBusinessTransactionsData(model, response, applicationName, from, to);
 	}
 
-	@RequestMapping(value = "/selectTransaction", method = RequestMethod.GET)
-	public ModelAndView selectTransaction(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
+	/**
+	 * 선택한 하나의 Transaction 정보 조회.
+	 *  
+	 * @param traceIdParam
+	 * @param focusTimestamp
+	 * @return
+	 */
+	@RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
+	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
 		logger.debug("traceId:{}", traceIdParam);
 
 		final TraceId traceId = new TraceId(traceIdParam);
 
-		ModelAndView mv = new ModelAndView("selectTransaction");
+		ModelAndView mv = new ModelAndView("transactionInfo");
 
 		try {
 			// select spans
