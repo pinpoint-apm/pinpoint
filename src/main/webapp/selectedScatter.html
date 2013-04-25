@@ -8,7 +8,6 @@
 
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
     <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
@@ -58,32 +57,42 @@
     <script type="text/javascript" src="/common/js/hippo/message.js"></script>
 </head>
 <body>
-<div class="container">
-	<div class="row">
-		<div class="span12">
-		<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-hover sortable">
-			<thead>
-			<tr>
-			    <th class="sorttable_numeric">#</th>
-			    <th class="sorttable_numeric">Time</th>
-			    <th>TraceId</th>
-			    <th class="sorttable_numeric">Res. Time (ms)</th>
-			    <th>Exception</th>
-			    <th>Application</th>
-			    <th>AgentId</th>
-			    <th>ClientIP</th>
-			</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-		<div id="loader">
-			<img src="/common/images/ajaxloader.gif" />
-		</div>
-		</div>
-	</div>
+<div style="max-height:200px;overflow:scroll;">
+	<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
+		<thead>
+		<tr>
+		    <th class="sorttable_numeric">#</th>
+		    <th class="sorttable_numeric">Time</th>
+		    <th>TraceId</th>
+		    <th class="sorttable_numeric">Res. Time (ms)</th>
+		    <th>Exception</th>
+		    <th>Application</th>
+		    <th>AgentId</th>
+		    <th>ClientIP</th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
 </div>
+<div id="loader">
+	<img src="/common/images/ajaxloader.gif" />
+</div>
+
+<iframe id="transactionView" name="transactionView" src="" width="100%" height="1000" style="border-left:0px;border-right:0px"></iframe>
+
 <script type="text/javascript">
+var selectedRow;
+
+function selectRow(row) {
+	if (selectedRow) {
+		$(selectedRow).css({'background-color':'#FFFFFF'});
+	}
+	selectedRow = row;
+	$(row).css({'background-color':'#FFFF00'});
+	return false;
+}
+
 $(document).ready(function () {
 	if(!opener) {
 		return;
@@ -139,9 +148,9 @@ var writeContents = function(d) {
 	var html = [];
 	for (var i = 0; i < data.length; i++) {
 		if(data[i].exception) {
-			html.push("<tr class='error'>");
+			html.push("<tr class='error' onclick='selectRow(this);'>");
 		} else {
-			html.push("<tr>");
+			html.push("<tr onclick='selectRow(this);'>");
 		}
 
 		html.push("<td style='padding-right:5px;text-align:right'>");
@@ -155,11 +164,9 @@ var writeContents = function(d) {
 		html.push("</td>");
 		
 		html.push("<td>");
-		html.push("<a href='#' onclick='openTrace(\"");
-		html.push(data[i].traceId);
-		html.push("\", \"");
-		html.push(data[i].collectorAcceptTime);
-		html.push("\");'>");
+		html.push("<a href='");
+		html.push("/selectTransaction.hippo?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
+		html.push("' target='transactionView'>");
 		html.push(data[i].traceId);
 		html.push("</a>");
 		html.push("</td>");
