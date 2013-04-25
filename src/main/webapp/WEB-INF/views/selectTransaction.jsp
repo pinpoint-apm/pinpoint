@@ -59,8 +59,10 @@
         }
         
         #callStacks TD {
-            padding: 3px;
-            font-size:12px;
+            padding-left: 4px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            font-size:11px;
         }
 
         #callStacks .seq {
@@ -90,7 +92,7 @@
         #callStacks .arguments {
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 300px;
+            max-width: 200px;
             white-space: nowrap;
             font-family:consolas;
         }
@@ -135,6 +137,7 @@
 
         #callStacks .bar {
             width: 100px;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -203,30 +206,30 @@
 				</c:choose>
 				                
                 	<c:if test="${record.method}">
-                	<c:set var="seq" scope="page" value="${seq + 1}"/>
-                	<td sorttable_customkey="${status.count}" class="seq">${seq}</td>
-                    <td class="exectime">
-                    	<c:if test="${record.method}">
-                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
-                    	</c:if>
-                    </td>
-                    <td class="gap">${gap}</td>
-                    <td class="method">
+	                	<c:set var="seq" scope="page" value="${seq + 1}"/>
+	                	<td sorttable_customkey="${status.count}" class="seq">${seq}</td>
+	                    <td class="exectime">
+	                    	<c:if test="${record.method}">
+	                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+	                    	</c:if>
+	                    </td>
+	                    <td class="gap"><fmt:formatNumber value="${gap}" type="number" /></td>
+	                    <td class="method">
                     </c:if>
                     
                 	<c:if test="${not record.method}">
-                	<td sorttable_customkey="${status.count}" class="seq info"></td>
-                    <td class="exectime info">
-                    	<c:if test="${record.method}">
-                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
-                    	</c:if>
-                    </td>
-                    <td class="gap info"></td>
-                    <td class="method">
+	                	<td sorttable_customkey="${status.count}" class="seq info"></td>
+	                    <td class="exectime info">
+	                    	<c:if test="${record.method}">
+	                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+	                    	</c:if>
+	                    </td>
+	                    <td class="gap info"></td>
+	                    <td class="method">
                     </c:if>
 
                     	<c:if test="${record.tab > 1}">
-                        	<c:forEach begin="2" end="${record.tab}">&nbsp;</c:forEach>
+                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;</c:forEach>
                         </c:if>
                         <c:choose>
                         	<c:when test="${not record.method}"><i class="icon-info-sign"></i></c:when>
@@ -243,7 +246,7 @@
                     </td>
                     <td class="bar">
                     	<c:if test="${record.method}">
-                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
+                        <div style="height:10px;width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
                     	</c:if>
                     </td>
                     <td class="simpleClassName">${record.simpleClassName}</td>
