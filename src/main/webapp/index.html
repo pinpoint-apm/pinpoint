@@ -302,8 +302,8 @@ $(document).ready(function () {
 	$("#application").bind("change", updateCharts);
 });
 </script>
-<script id="EdgeBox" type="text/x-jquery-tmpl">
-	<div class="EdgeBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
+<script id="LinkInfoBox" type="text/x-jquery-tmpl">
+	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
 			Response statistics
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1004, this);"></i>
 			<ul>
@@ -323,9 +323,9 @@ $(document).ready(function () {
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
-<script id="ServerBox" type="text/x-jquery-tmpl">
+<script id="ApplicationBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Application Name
+			Application
 				<ul>
 					<li>${text}</li>
 				</ul>
@@ -371,7 +371,7 @@ $(document).ready(function () {
 	</div>
 </script>
 <script id="ClientBox" type="text/x-jquery-tmpl">
-	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
+	<div class="ApplicationBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
 			Clients
 			Calls
 				<ul>
@@ -380,6 +380,55 @@ $(document).ready(function () {
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Show transactions</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
+	</div>
+</script>
+<script id="UnknownGroupBox" type="text/x-jquery-tmpl">
+	<div class="UnknownGroupBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
+			Application Group
+				<ul>
+					{{each(index, value) text.split('\n')}}
+					<li>${value}</li>
+					{{/each}}
+				</ul>
+			Group Type
+				<ul>
+					<li>UNKNOWN</li>
+				</ul>
+			{{if hosts.length > 0}}
+			Hosts
+				<ul>
+					{{each(key, value) hosts}}
+						<li>
+							<span class="label label-success">OK</span>
+							${value}
+							<a href="http://nsight.nhncorp.com/dashboard_server/${value.split(':')[0].replace('.nhnsystem.com','')}" target="_blank">(NSight)</a>
+						</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+			{{if agents.length > 0}}
+			Server instances
+				<ul>
+					{{each(key, value) agents}}
+					<li>
+						<span class="label label-success">OK</span>
+						${value.agentId}
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
+					</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+			<hr/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
+			<br/><a href="#" onclick="showResponseScatter('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Transaction response scatter chart</a>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
+			<br/><a href="#" onclick="showRequests('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Show transactions</a>
+			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
+
+		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>
+		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()"><i class="hippo-action-icon icon-remove"></i></button>
 	</div>
 </script>
 </body>

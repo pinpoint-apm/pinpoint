@@ -141,7 +141,8 @@ var mergeUnknown = function(data) {
 							"text" : 0,
 							"error" : 0,
 							"slow" : 0,
-							"histogram" : []
+							"rawhistogram" : [],
+							"histogram" : {}
 					};
 				}
 				
@@ -153,7 +154,15 @@ var mergeUnknown = function(data) {
 				newLink.slow += link.slow;
 				newLink.sourceinfo.push(link.sourceinfo);
 				newLink.targetinfo.push(link.targetinfo);
-				newLink.histogram.push(link.histogram);
+				newLink.rawhistogram.push(link.histogram);
+
+				$.each(link.histogram, function(key, value) {
+					if (newLink.histogram[key]) {
+						newLink.histogram[key] += value;	
+					} else {
+						newLink.histogram[key] = value;
+					}
+				});
 				
 				removeNodeIdSet[link.to] = null;
 				removeLinkIdSet[link.id] = null;
@@ -195,7 +204,7 @@ var mergeUnknown = function(data) {
 }
 
 var nodeClickHandler = function(e, data, containerId) {
-	if (data.serviceType == "CLIENT") {
+	if (data.category == "CLIENT") {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
 			var box = $('#ClientBox')
@@ -204,10 +213,19 @@ var nodeClickHandler = function(e, data, containerId) {
 							.attr('class', 'nodeinfo' + data.id);
 			box.appendTo($(containerId).parent());
 		}	
+	} else if (data.category == "UNKNOWN_GROUP") {
+		if ($("DIV.nodeinfo" + data.id).length == 0) {
+			var htOffset = $(containerId).offset();
+			var box = $('#UnknownGroupBox')
+			.tmpl(data)
+			.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
+			.attr('class', 'nodeinfo' + data.id);
+			box.appendTo($(containerId).parent());
+		}
 	} else {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
-			var box = $('#ServerBox')
+			var box = $('#ApplicationBox')
 						.tmpl(data)
 						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 						.attr('class', 'nodeinfo' + data.id);
@@ -222,7 +240,7 @@ var linkClickHandler = function(e, data, containerId) {
 	}
 	
 	var htOffset = $(containerId).offset();
-	var box = $('#EdgeBox')
+	var box = $('#LinkInfoBox')
 				.tmpl(data)
 				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 				.attr('class', 'linkinfo' + data.id);
