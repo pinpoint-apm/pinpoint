@@ -5,18 +5,18 @@ var ServerMap = $.Class({
 			"sBigFont" : "12pt Helvetica, Arial, sans-serif",
 			"sSmallFont" : "11pt Helvetica, Arial, sans-serif",
 			"htNodeBackgroundColor" : { 0: "rgba(136, 194, 251, 0)", 0.5: "rgba(64, 169, 253, 0.1)", 1: "rgba(122, 231, 255, 0)"},
-			"sImageDir" : './images/',
+			"sImageDir" : './images/icons/',
 			"htIcons" : {
-				'APACHE' : 'ico_APACHE.png',
-				'ARCUS' : 'ico_ARCUS.png',
-				'CUBRID' : 'ico_CUBRID.png',
-				'ETC' : 'ico_ETC.png',
-				'MEMCACHED' : 'ico_MEMCACHED.png',
-				'MYSQL' : 'ico_MYSQL.png',
-				'QUEUE' : 'ico_QUEUE.png',
-				'TOMCAT' : 'ico_TOMCAT.png',
-				'UNKNOWN_CLOUD' : 'ico_UNKNOWN_CLOUD.png',
-				'USER' : 'ico_USER.png'
+				'APACHE' : 'APACHE.png',
+				'ARCUS' : 'ARCUS.png',
+				'CUBRID' : 'CUBRID.png',
+				'ETC' : 'ETC.png',
+				'MEMCACHED' : 'MEMCACHED.png',
+				'MYSQL' : 'MYSQL.png',
+				'QUEUE' : 'QUEUE.png',
+				'TOMCAT' : 'TOMCAT.png',
+				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+				'USER' : 'USER.png'
 			},
 			"fOnNodeClick" : function(eMouseEvent, htData) {
 				console.log("fOnNodeClick", eMouseEvent, htData);
