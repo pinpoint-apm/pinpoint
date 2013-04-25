@@ -11,6 +11,7 @@ public enum ServiceType {
     UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, Histogram.NORMAL),
     CLIENT((short) 2, "CLIENT", false, false, false, Histogram.NORMAL),
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, Histogram.NORMAL),
+    USER((short) 4, "USER", false, false, false, Histogram.NORMAL),
 
     // WAS류 1000번 부터 시작
     TOMCAT((short) 1010, "TOMCAT", false, true, false, Histogram.NORMAL),
