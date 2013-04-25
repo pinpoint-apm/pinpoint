@@ -64,22 +64,26 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
             logger.debug("internal jdbc scope. skip trace");
             return;
         }
-        if (!InterceptorUtils.isSuccess(result)) {
-            return;
-            // TODO traceBlockEnd() 호출 해야함.
-        }
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
         if (target instanceof Connection) {
-            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-            this.setUrl.invoke(result, databaseInfo);
             String sql = (String) args[0];
-
+            // 성공하였을 때만 PreparedSteatement에 Parsing Result를 넣어야 한다.
             ParsingResult parsingResult = trace.recordSqlInfo(sql);
-            if (parsingResult != null) {
-                this.setSql.invoke(result, parsingResult);
+
+            boolean success = InterceptorUtils.isSuccess(result);
+            if (success) {
+
+                // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
+                DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+                this.setUrl.invoke(result, databaseInfo);
+
+                if (parsingResult != null) {
+                    this.setSql.invoke(result, parsingResult);
+                }
             }
 
             trace.recordException(result);

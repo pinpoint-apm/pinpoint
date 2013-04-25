@@ -29,7 +29,6 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     private JDBCUrlParser urlParser = new JDBCUrlParser();
 
     private MethodDescriptor descriptor;
-    private int apiId;
     private TraceContext traceContext;
 
     @Override
