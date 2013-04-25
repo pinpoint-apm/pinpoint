@@ -37,29 +37,45 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
 //            traceContext.getActiveThreadCounter().start();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
+            String requestURL = request.getRequestURI();
+            String remoteAddr = request.getRemoteAddr();
 
+            // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
             boolean sampling = samplingEnable(request);
             if (!sampling) {
                 // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
                 // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
                 traceContext.disableSampling();
+                if (isDebug) {
+                    logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", requestURL, remoteAddr);
+                }
                 return;
             }
 
-            String requestURL = request.getRequestURI();
-            String remoteAddr = request.getRemoteAddr();
 
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
-                if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
-                }
+                // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
                 trace = traceContext.continueTraceObject(traceId);
+                if (!trace.canSampled()) {
+                    if (isDebug) {
+                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                        return;
+                    }
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                    }
+                }
             } else {
                 trace = traceContext.newTraceObject();
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                if (!trace.canSampled()){
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[] {requestURL, remoteAddr });
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[] { requestURL, remoteAddr });
+                    }
                 }
             }
 

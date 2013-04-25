@@ -209,6 +209,8 @@ public class DefaultAgent implements Agent {
         this.traceContext.setPriorityDataSender(this.priorityDataSender);
 
         Sampler sampler = createSampler();
+        logger.info("SamplerType:{}", sampler.getClass());
+
         this.traceContext.setSampler(sampler);
 
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {

@@ -41,6 +41,9 @@ public class ExecuteMethodInterceptor implements StaticAroundInterceptor, ByteCo
                 // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
                 // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
                 traceContext.disableSampling();
+                if (isDebug) {
+                    logger.debug("mark disable sampling. skip trace");
+                }
                 return;
             }
 

@@ -81,6 +81,7 @@ public class DefaultTraceContext implements TraceContext {
         threadLocal.set(DisableTrace.INSTANCE);
     }
 
+    // remote 에서 샘플링 대상으로 선정된 경우.
     public Trace continueTraceObject(TraceID traceID) {
         checkBeforeTraceObject();
 
@@ -89,7 +90,9 @@ public class DefaultTraceContext implements TraceContext {
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         trace.setTraceContext(this);
-        trace.setSampling(this.sampler.isSampling());
+        // remote에 의해 trace가 continue될때는  sampling flag를 좀더 상위에서 하므로 무조껀 true여야함.
+        // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
+        trace.setSampling(true);
 
         threadLocal.set(trace);
         return trace;
@@ -109,15 +112,20 @@ public class DefaultTraceContext implements TraceContext {
     public Trace newTraceObject() {
         checkBeforeTraceObject();
         // datasender연결 부분 수정 필요.
-        DefaultTrace trace = new DefaultTrace();
-        Storage storage = storageFactory.createStorage();
-        trace.setStorage(storage);
-        trace.setTraceContext(this);
-        trace.setSampling(this.sampler.isSampling());
-
-
-        threadLocal.set(trace);
-        return trace;
+        boolean sampling = this.sampler.isSampling();
+        if(sampling) {
+            DefaultTrace trace = new DefaultTrace();
+            Storage storage = storageFactory.createStorage();
+            trace.setStorage(storage);
+            trace.setTraceContext(this);
+            trace.setSampling(sampling);
+            threadLocal.set(trace);
+            return trace;
+        } else {
+            DisableTrace instance = DisableTrace.INSTANCE;
+            threadLocal.set(instance);
+            return instance;
+        }
     }
 
 
