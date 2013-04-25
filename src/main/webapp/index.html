@@ -68,20 +68,22 @@
 		        	<option>Loading...</option>
 		        </select>
 				<div id="until" class="btn-group" data-toggle="buttons-radio">
-					<button id="now" type="button" class="btn btn-primary active">now</button>
-					<button id="specific" type="button" class="btn">select</button>
+					<button id="now" type="button" class="btn btn-primary active" disabled>now</button>
+					<button id="specific" type="button" class="btn" disabled>select</button>
 				</div>
 				<!-- 
 				<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
 				<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
 				-->
 				<div id="period" class="btn-group" data-toggle="buttons-radio">
-					<button type="button" value="5" class="btn">Last 5m</button>
-					<button type="button" value="20" class="btn btn-inverse active">20m</button>
-					<button type="button" value="60" class="btn">1h</button>
-					<button type="button" value="360" class="btn">6h</button>
-					<button type="button" value="1440" class="btn">1d</button>
-					<button type="button" value="2880" class="btn">2d</button>
+					<button type="button" value="5" class="btn" disabled>Last 5m</button>
+					<button type="button" value="20" class="btn btn-inverse active" disabled>20m</button>
+					<button type="button" value="60" class="btn" disabled>1h</button>
+					<button type="button" value="180" class="btn" disabled>3h</button>
+					<button type="button" value="360" class="btn" disabled>6h</button>
+					<button type="button" value="740" class="btn" disabled>12h</button>
+					<button type="button" value="1440" class="btn" disabled>1d</button>
+					<button type="button" value="2880" class="btn" disabled>2d</button>
 				</div>
             </form>
             <!-- 
@@ -248,6 +250,12 @@ $(document).ready(function () {
     
 	$.getJSON("/applications.hippo", function(json) {
         var target = $("#application");
+        
+        if (json.length == 0) {
+        	$("#application OPTION:first").text("Application not found.");
+        	return;
+        }
+        
 		target.empty();
 		$(json).each(function(i, e) {
             var html = [];
@@ -286,15 +294,12 @@ $(document).ready(function () {
 		    // 임시.
 		    $(".select2-container").css("top", "4px");
 		});
+		
+       	$("#until BUTTON").attr("disabled", null);
+       	$("#period BUTTON").attr("disabled", null);
 	});
 	
-	$("#selectedBusinessTransactionsDetailPager li").click(function() {
-		alert("[NOT IMPLEMENTED]\n\nNOTE : 한꺼번에 많은 점을 선택했을 때 다 보여주지 않고.. 페이징?? 스크롤 페이징을 사용해도 될 것 같기도 하고...");
-	});
-	
-	$("#application").bind("change", function() {
-		updateCharts();
-	});
+	$("#application").bind("change", updateCharts);
 });
 </script>
 <script id="EdgeBox" type="text/x-jquery-tmpl">
