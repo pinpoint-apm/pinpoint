@@ -52,7 +52,7 @@ public class BusinessTransactionController extends BaseController {
 	 * @param to
 	 * @return
 	 */
-	@RequestMapping(value = "/getBusinessTransactionsData", method = RequestMethod.GET)
+	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
 	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 
@@ -70,10 +70,10 @@ public class BusinessTransactionController extends BaseController {
 		model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
 		
 		addResponseHeader(response);
-		return "businesstransactions";
+		return "transactionList";
 	}
 
-	@RequestMapping(value = "/getLastBusinessTransactionsData", method = RequestMethod.GET)
+	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
 	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period) {
 		long to = getQueryEndTime();
 		long from = to - period;

@@ -37,23 +37,18 @@ function formatDate(date) {
 }
 
 function getQueryEndTime() {
-	var format = d3.time.format("%Y/%m/%d %H:%M:%S"),
-	now = new Date(),
-	input = format.parse($('#date').val() + ' ' + $('#time').val()) || now;
-	
+	var now = new Date();
+	var input = Date.parse($('#date').val() + ' ' + $('#time').val()) || now;
 	if (input.getTime() > now.getTime()) {
-		input = now;
+		return now;
 	}
 	return input.getTime();
 }
 
 function setQueryDateToNow() {
    	var date = new Date();
-   	var format_date = d3.time.format("%Y/%m/%d"),
-   		format_time = d3.time.format("%H:%M:%S");
-   	
-   	$('#date').val(format_date(date));
-   	$('#time').val(format_time(date));
+   	$('#date').val(date.toString("yyyy/MM/dd"));
+   	$('#time').val(date.toString("hh:mm"));
 }
 
 function isQueryFromNow() {

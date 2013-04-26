@@ -4,19 +4,68 @@ var selectdTracesBox = {};
 function getScatterData(application, from, to, period, callback) {
 	console.log("   fetch scatter data2. appName=" + application + ", from=" + from + " (" + new Date(from) + ") , to=" + to + " (" + new Date(to) + ") , period=" + period);
 	var app = application.split("@");
-	d3.json("/getScatterData.hippo?application=" + app[0] + "&from=" + from + "&to=" + to + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getScatterData.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : app[0],
+    		from : from,
+    		to : to,
+    		limit : 5000
+    	},
+    	success : function(d) {
+    		callback(d, app[0], from, to, period);
+    	},
+    	error : function(xhr, status, error) {
+    		
+    	}
+    });
 }
 
 function getLastScatterData(application, from, to, period, callback) {
 	console.log("   fetch scatter data1. appName=" + application + ", from=" + from + " (" + new Date(from) + ") , to=" + to + " (" + new Date(to) + ") , period=" + period);
 	var app = application.split("@");
-	d3.json("/getLastScatterData.hippo?application=" + app[0] + "&period=" + period + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getLastScatterData.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : app[0],
+    		period : period,
+    		limit : 5000
+    	},
+    	success : function(d) {
+    		callback(d, app[0], from, to, period);
+    	},
+    	error : function(xhr, status, error) {
+    		
+    	}
+    });
 }
 
 function getRealtimeScatterData(application, from, to, period, callback) {
 	console.log("   fetch realtime scatter data. appName=" + application + ", from=" + from + ", to=" + to + ", period=" + period);
 	var app = application.split("@");
-	d3.json("/getRealtimeScatterData.hippo?application=" + app[0] + "&from=" + from + "&limit=5000", function(d) { callback(d, app[0], from, to, period); });
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getRealtimeScatterData.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : app[0],
+    		from : from,
+    		limit : 5000
+    	},
+    	success : function(d) {
+    		callback(d, app[0], from, to, period);
+    	},
+    	error : function(xhr, status, error) {
+    		
+    	}
+    });
 }
 
 function expandScatter(e) {

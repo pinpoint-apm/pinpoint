@@ -1,8 +1,8 @@
 function showRequests(applicationName, from, to, period, usePeriod) {
     if (usePeriod) {
-    	window.open("/getBusinessTransactionsData.hippo?application=" + applicationName + "&from=" + from + "&to=" + to);
+    	window.open("/transactionList.hippo?application=" + applicationName + "&from=" + from + "&to=" + to);
     } else {
-    	window.open("/getLastBusinessTransactionsData.hippo?application=" + applicationName + "&period=" + period);
+    	window.open("/lastTransactionList.hippo?application=" + applicationName + "&period=" + period);
     }
 }
 

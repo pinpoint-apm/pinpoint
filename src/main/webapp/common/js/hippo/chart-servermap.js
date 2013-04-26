@@ -2,22 +2,45 @@ var oServerMap = null;
 
 function getServerMapData2(application, begin, end, callback) {
     var app = application.split("@");
-	d3.json("/getServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getServerMapData2.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : app[0],
+    		serviceType : app[1],
+    		from : begin,
+    		to : end
+    	},
+    	success : function(msg) {
+    		callback(msg);
+    	},
+    	error : function(xhr, status, error) {
+    		
+    	}
+    });
 }
 
 function getLastServerMapData2(application, period, callback) {
     var app = application.split("@");
-	d3.json("/getLastServerMapData2.hippo?application=" + app[0] + "&serviceType=" + app[1] + "&period=" + period, function(d) { callback(d); });
-}
-
-function getServerMapData(application, begin, end, callback) {
-    var app = application.split("@");
-	d3.json("/getServerMapData.hippo?application=" + app[0] + "&from=" + begin + "&to=" + end, function(d) { callback(d); });
-}
-
-function getLastServerMapData(application, period, callback) {
-    var app = application.split("@");
-	d3.json("/getLastServerMapData.hippo?application=" + app[0] + "&period=" + period, function(d) { callback(d); });
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getLastServerMapData2.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : app[0],
+    		serviceType : app[1],
+    		period : period
+    	},
+    	success : function(msg) {
+    		callback(msg);
+    	},
+    	error : function(xhr, status, error) {
+    		alert(error);
+    	}
+    });
 }
 
 function showServerMap(applicationName) {

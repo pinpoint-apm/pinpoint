@@ -22,21 +22,16 @@
 	<!-- commons -->    
     <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
-    
-    <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
 	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="/common/js/sorttable.js"></script>
-    <script type="text/javascript" src="/common/js/date.format.js"></script>
+	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
-
-	<script type="text/javascript" src="/common/js/d3.js"></script>
+    <script type="text/javascript" src="/select2/select2.js"></script>
     
     <!-- scatter chart -->
     <script type="text/javascript" src="/common/js/hippo/chart-scatter3.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.dragToSelect.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.BigScatterChart.js"></script>
@@ -71,10 +66,8 @@
 					<button id="now" type="button" class="btn btn-primary active" disabled>now</button>
 					<button id="specific" type="button" class="btn" disabled>select</button>
 				</div>
-				<!-- 
-				<input id="date" class="" maxlength="10" size="16" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
-				<input id="time" class="" maxlength="8" size="16" type="text" style="text-align:center;width:75px" placeholder="hh:mm:ss" disabled>
-				-->
+				<input id="date" class="" maxlength="10" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
+				<input id="time" class="" maxlength="5" type="text" style="text-align:center;width:50px" placeholder="hh:mm" disabled>
 				<div id="period" class="btn-group" data-toggle="buttons-radio">
 					<button type="button" value="5" class="btn" disabled>Last 5m</button>
 					<button type="button" value="20" class="btn btn-inverse active" disabled>20m</button>
