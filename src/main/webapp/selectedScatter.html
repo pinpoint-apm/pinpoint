@@ -109,7 +109,7 @@ $(document).ready(function () {
 var writeContents = function(d) {
 	$("#selectedBusinessTransactionsDetail TBODY").empty();
 	
-	var data = jQuery.parseJSON(d).metadata;
+	var data = d.metadata;
 	
 	var html = [];
 	for (var i = 0; i < data.length; i++) {
