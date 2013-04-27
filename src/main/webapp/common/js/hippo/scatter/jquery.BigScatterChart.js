@@ -57,6 +57,15 @@ var BigScatterChart = $.Class({
 			},
 			'fYAxisFormat' : function(nYStep, i){
 				return this._addComma((this._nYMax + this._nYMin) - ((nYStep*i) + this._nYMin));
+			},
+			htDataSource : {
+				fUrl : function(){},
+				fData : function(htFetchedData){},
+				fFetch : function(htFetchedData){},
+				htOption : {
+					dataType : 'jsonp',
+					jsonp : 'callback'
+				}
 			}
 		});
 		this.option(htOption);
@@ -66,13 +75,6 @@ var BigScatterChart = $.Class({
 		this._initEvents();
 		this._drawXYAxis();
 		this.updateXYAxis();
-
-		// var self = this;
-		// $('#saveAsPNG').click(function(e){
-		// 	var welCanvas = self._mergeAllDisplay();
-		// 	$(this).attr('href', welCanvas.get(0).toDataURL());
-			
-		// });
 	},
 
 	_initVariables : function(){		
@@ -109,6 +111,8 @@ var BigScatterChart = $.Class({
 		this._awelYNumber = [];		
 
 		this._htTypeCount = {};
+
+		this._bDestroied = false;
 	},
 
 	_initElements : function(){
@@ -723,7 +727,7 @@ var BigScatterChart = $.Class({
 			nDefaultRadius = this.option('nDefaultRadius');
 
 		//this._oChartCtx.lineWidth = 1;
-		for(var i = 0, nLen = aBubbles.length; i < nLen; i++) {
+		for(var i = 0, nLen = aBubbles.length; i < nLen && !this._bDestroied; i++) {
 			var x = this._parseXDataToXChart(aBubbles[i].x),
 				y = this._parseYDataToYChart(aBubbles[i].y),
 				r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
@@ -964,6 +968,7 @@ var BigScatterChart = $.Class({
 		_.each(this, function(content, property){
 			delete this[property];
 		}, this);
+		this._bDestroied = true;
 	},
 
 	_mergeAllDisplay : function(){
@@ -995,12 +1000,14 @@ var BigScatterChart = $.Class({
 		oCtx.textBaseline = "top";
 
 		// title
-		var nTitleX = parseInt(this._welTitle.css('left'), 10),
-			nTitleY = parseInt(this._welTitle.css('top'), 10);
-		oCtx.textAlign = "left"; 
-		oCtx.fillStyle = this._welTitle.css('color');		
-		oCtx.font = this._welTitle.css('font');
-		oCtx.fillText(this._welTitle.text(), nTitleX, nTitleY);
+		if(this._welTitle){
+			var nTitleX = parseInt(this._welTitle.css('left'), 10),
+				nTitleY = parseInt(this._welTitle.css('top'), 10);
+			oCtx.textAlign = "left"; 
+			oCtx.fillStyle = this._welTitle.css('color');		
+			oCtx.font = this._welTitle.css('font');
+			oCtx.fillText(this._welTitle.text(), nTitleX, nTitleY);
+		}
 
 		// count
 		var htContainerOffset = this._welContainer.offset();
@@ -1009,7 +1016,6 @@ var BigScatterChart = $.Class({
 			var htOffset = welTypeLi.offset();
 			var nX = htOffset.left - htContainerOffset.left,
 				nY = htOffset.top - htContainerOffset.top;
-			console.log(nX, nY, welTypeLi.css('color'), welTypeLi.css('font'));
 			oCtx.fillStyle = welTypeLi.css('color');
 			oCtx.font = welTypeLi.css('font');
 			oCtx.fillText(welTypeLi.text(), nX, nY);		
@@ -1043,21 +1049,24 @@ var BigScatterChart = $.Class({
 		});
 
 		// x label
-		oCtx.textAlign = "right"; 
-		var nX = nWidth,
-			nY = parseInt(this._welXLabel.css('top'), 10);
-		oCtx.fillStyle = this._welXLabel.css('color');
-		oCtx.font = this._welXLabel.css('font');
-		console.log(nX, nY);
-		oCtx.fillText(this._welXLabel.text(), nX, nY);
+		if(this._welXLabel){
+			oCtx.textAlign = "right"; 
+			var nX = nWidth,
+				nY = parseInt(this._welXLabel.css('top'), 10);
+			oCtx.fillStyle = this._welXLabel.css('color');
+			oCtx.font = this._welXLabel.css('font');
+			oCtx.fillText(this._welXLabel.text(), nX, nY);
+		}
 
 		// y label
-		oCtx.textAlign = "right"; 
-		nX = parseInt(this._welYLabel.css('left'), 10) + this._welYLabel.width();
-		nY = parseInt(this._welYLabel.css('top'), 10);
-		oCtx.fillStyle = this._welYLabel.css('color');
-		oCtx.font = this._welYLabel.css('font');
-		oCtx.fillText(this._welYLabel.text(), nX, nY);
+		if(this._welYLabel){
+			oCtx.textAlign = "right"; 
+			var nX = parseInt(this._welYLabel.css('left'), 10) + this._welYLabel.width(),
+				nY = parseInt(this._welYLabel.css('top'), 10);
+			oCtx.fillStyle = this._welYLabel.css('color');
+			oCtx.font = this._welYLabel.css('font');
+			oCtx.fillText(this._welYLabel.text(), nX, nY);
+		}
 
 		// nodata
 		if(this._welShowNoData.css('display') === 'block'){
@@ -1088,5 +1097,42 @@ var BigScatterChart = $.Class({
 	saveAsJPEG : function(elA){
 		var welCanvas = this._mergeAllDisplay();
 		$(elA).attr('href', welCanvas.get(0).toDataURL('image/jpeg'));
+	},
+
+	loadFromDataSource : function(htDataSource){
+		if(_.isObject(htDataSource)){
+			this.option('htDataSource', htDataSource);
+		}
+		this.clear();
+		this._abortAjax();
+		this._nCallCount = 0;
+		this._loadFromDataSource();
+	},
+
+	_loadFromDataSource : function(){
+		var self = this;
+		var htDataSource = this.option('htDataSource');
+
+		var htOption = htDataSource.htOption;
+		htOption.url = htDataSource.fUrl.call(this, this._nCallCount);
+		htOption.data = htDataSource.fData.call(this, this._nCallCount, this._htLastFetchedData);
+		htOption.success = function(htData){
+			self._htLastFetchedData = htData;
+
+			htDataSource = self.option('htDataSource'); // refresh
+			var bFetch = htDataSource.fFetch.call(this, htData);
+			if(bFetch === true){
+				self._loadFromDataSource();
+			}
+			self.addBubbleAndDraw(htData.scatter);
+		}
+		this._oAjax = $.ajax(htOption);	
+		this._nCallCount += 1;
+	},
+
+	_abortAjax : function(){
+		if(this._oAjax){
+			this._oAjax.abort();
+		}
 	}
 });

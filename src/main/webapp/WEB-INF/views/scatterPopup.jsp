@@ -39,7 +39,7 @@
 	<script type="text/javascript" src="/common/js/d3.js"></script>
     
     <!-- scatter chart -->
-    <script type="text/javascript" src="/common/js/hippo/chart-scatter3.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/chart-scatter4.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
     <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>

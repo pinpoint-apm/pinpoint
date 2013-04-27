@@ -21,9 +21,14 @@
     <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript" src="/common/js/date.format.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <style type="text/css">
+	html, body {
+		height: 100%;
+	}
+	</style>
 </head>
 <body>
-<div style="max-height:200px;overflow:scroll;">
+<div style="max-height:200px;min-height:200px;overflow:scroll;">
 	<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
 		<thead>
 		<tr>
@@ -45,7 +50,7 @@
 	<img src="/common/images/ajaxloader.gif" />
 </div>
 
-<iframe id="transactionView" name="transactionView" src="" width="100%" height="1000" style="border-left:0px;border-right:0px"></iframe>
+<iframe id="transactionView" name="transactionView" src="" style="width:100%;height:100%;padding-bottom:300px;"></iframe>
 
 <script type="text/javascript">
 var selectedRow;
