@@ -5,7 +5,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
-    <title></title>
+    <title>PINPOINT - ERROR</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
 </head>
 <body>

@@ -7,17 +7,15 @@
 <html lang="en">
 <head>
     <title>PINPOINT - ${applicationName} request list</title>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -27,28 +25,19 @@
 	<!-- commons -->    
     <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
-    
-    <script type="text/javascript" src="/select2/select2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
 	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="/common/js/sorttable.js"></script>
-    <script type="text/javascript" src="/common/js/date.format.js"></script>
+	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
+    <script type="text/javascript" src="/common/js/date.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
-
-	<script type="text/javascript" src="/common/js/d3.js"></script>
     
     <!-- scatter chart -->
     <script type="text/javascript" src="/common/js/hippo/chart-scatter4.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.dragToSelect.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.BigScatterChart.js"></script>
     
-    <!-- help -->
-    <script type="text/javascript" src="/common/js/hippo/help.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/message.js"></script>
     <style type="text/css">
     body {
     	padding: 30px;

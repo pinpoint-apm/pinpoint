@@ -29,7 +29,7 @@
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
+    <script type="text/javascript" src="/common/js/date.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     
