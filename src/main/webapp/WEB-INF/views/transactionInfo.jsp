@@ -10,31 +10,48 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/common/css/hippo/hippo.css" rel="stylesheet">
-    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
+    <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
+    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
+    <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
+    <link href="/common/css/datepicker.css" rel="stylesheet"/>
+    <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script type="text/javascript" src="/common/js/jquery/jquery-1.7.1.min.js"></script>
+	<!-- commons -->    
+    <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
     <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/scatter/date.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <script type="text/javascript" src="/select2/select2.js"></script>
     
-    <script type="text/javascript" src="/common/js/hippo/chart-scatter.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/chart-springy.js"></script>
+    <!-- scatter chart -->
+    <script type="text/javascript" src="/common/js/hippo/chart-scatter4.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.dragToSelect.js"></script>
+	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.BigScatterChart.js"></script>
     
+	<!-- server map -->    
+    <script type="text/javascript" src="/common/js/hippo/chart-servermap.js"></script>
+    <script type="text/javascript" src="/common/js/go.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/intersection.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/springy.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/hippoServerMap.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.ServerMap.js"></script>
     
-    <script type="text/javascript" src="/common/js/sorttable.js"></script>
-    <script type="text/javascript" src="/common/js/resizable-table.js"></script>
+    <!-- help -->
+    <script type="text/javascript" src="/common/js/hippo/help.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/message.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -150,7 +167,7 @@
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
-	<li><a href="#Graph" data-toggle="tab">Server Graph</a></li>
+	<li><a href="#servermap">Server Map</a></li>
 	<li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
 	<li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
 </ul>
@@ -259,42 +276,37 @@
 	    <!-- end of new call stack -->
 	</div>
 	
-	<div class="tab-pane" id="Graph">
-		<div id="springygraph" style="width:1000px;height:700px;border:1px solid #000;overflow:hidden;position:relative"></div>
-	</div>
-	
 	<div class="tab-pane" id="Timeline">
-	        <!-- begin timeline -->
-	        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
-				<c:set var="startTime" scope="page" value="${callstackStart}"/>
-		        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
-		        
-		        <c:forEach items="${timeline}" var="record" varStatus="status">
-		            <c:set var="depth" scope="page" value="${span.depth}"/>
-	                <c:set var="begin" scope="page" value="${record.begin}"/>
-	                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
-					<c:if test="${status.first}">
-						<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
-					</c:if>
-	                
-                   	<c:if test="${record.method and not record.excludeFromTimeline}">
-                        <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;"
-                        	onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-							<div style="width:200px;">${record.service} (${end - begin}ms)</div>
-                        </div>
-                        
-						<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-	                    <ul>
-	                        <li>${record}</li>
-	                    </ul>
-		                </div>
-                   	</c:if>
-		        </c:forEach>
-	        </div>
-	        <!-- end timeline -->
+        <!-- begin timeline -->
+        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
+			<c:set var="startTime" scope="page" value="${callstackStart}"/>
+	        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
+	        
+	        <c:forEach items="${timeline}" var="record" varStatus="status">
+	            <c:set var="depth" scope="page" value="${span.depth}"/>
+                <c:set var="begin" scope="page" value="${record.begin}"/>
+                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
+				<c:if test="${status.first}">
+					<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
+				</c:if>
+                
+                  	<c:if test="${record.method and not record.excludeFromTimeline}">
+                       <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;"
+                       	onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+						<div style="width:200px;">${record.service} (${end - begin}ms)</div>
+                       </div>
+                       
+					<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+                    <ul>
+                        <li>${record}</li>
+                    </ul>
+	                </div>
+                  	</c:if>
+	        </c:forEach>
+        </div>
+        <!-- end timeline -->
 	</div>
 	<div class="tab-pane" id="Details">
-	
 		<!-- begin details -->
 		<table id="businessTransactions" class="table table-bordered table-hover" style="font-size:12px;">
            <thead>
@@ -353,10 +365,17 @@
            </tbody>
        	</table>
 		<!-- end of details -->
-	
-	
 	</div>
 </div>
+
+</br>
+</br>
+<a href="#servermap"></a>
+<div id="servermap" style="width:1000px;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
+</br>
+</br>
+</br>
+
 <script type="text/javascript">
     var data = {
         "nodes":[
@@ -391,9 +410,65 @@
             </c:forEach>
         ]
     };
-
+    
+    var data = {
+   		"applicationMapData" : {
+   			"nodeDataArray": [
+   				<c:forEach items="${nodes}" var="node" varStatus="status">
+   				    {
+   				    	"id" : ${status.count},
+   				    	"key" : ${status.count},
+   					    "text" : "${node}",
+   					    "hosts" : [
+   					    <c:forEach items="${node.hosts}" var="host" varStatus="status2">
+   					        "${host}"
+   					        <c:if test="${!status2.last}">,</c:if>
+   					    </c:forEach>
+   					    ],
+   					    "category" : "${node.serviceType.desc}",
+   					    "terminal" : "${node.serviceType.terminal}"
+   				    } <c:if test="${!status.last}">,</c:if>
+   				</c:forEach>
+			],
+			"linkDataArray": [
+   			 	<c:forEach items="${links}" var="link" varStatus="status">
+   				    {
+   				    	"id" : "${link.from.sequence + 1}-${link.to.sequence + 1}",
+   						"from" : ${link.from.sequence + 1},
+   						"to" : ${link.to.sequence + 1},
+   						"text" : ${link.histogram.totalCount},
+   						"error" : ${link.histogram.errorCount},
+   						"slow" : ${link.histogram.slowCount},
+   						"histogram" : ${link.histogram}
+   					} <c:if test="${!status.last}">,</c:if>
+   				</c:forEach>   	
+   			 ]
+   		}
+    };
+    
+    var oServerMap;
+    
     $(document).ready(function () {
-        drawSpringy("", data, "#springygraph", 960, 500);
+    	var containerId = "servermap";
+
+		if (data.applicationMapData.nodeDataArray.length == 0) {
+			return;
+		}
+		
+		if (oServerMap == null) {
+			oServerMap = new ServerMap({
+		        sContainerId : containerId,
+				fOnNodeClick : function(e, data) {
+					// nodeClickHandler(e, data, "#" + containerId);
+				},
+				fOnLinkClick : function(e, data) {
+					// linkClickHandler(e, data, "#" + containerId);
+				}
+		    });
+		}
+		
+	    oServerMap.load(data.applicationMapData);
+	    
         $('#chartTabs a:first').tab('show');
         $('#traceTabs a:first').tab('show');
     });
