@@ -151,7 +151,7 @@ function drawScatter(title, start, end, targetId, w, h) {
             var token = Math.random() * 10000 + 1;
             selectdTracesBox[token] = traces;
             
-            var popupwindow = window.open("/selectedScatter.html", token);
+            var popupwindow = window.open("/selectedScatter.hippo", token);
         }
 });
 }
