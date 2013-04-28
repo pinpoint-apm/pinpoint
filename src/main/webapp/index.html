@@ -62,21 +62,24 @@
          		<select id="application" disabled>
 		        	<option>Loading...</option>
 		        </select>
+		        <!--
 				<div id="until" class="btn-group" data-toggle="buttons-radio">
 					<button id="now" type="button" class="btn btn-primary active" disabled>now</button>
 					<button id="specific" type="button" class="btn" disabled>select</button>
 				</div>
 				<input id="date" class="" maxlength="10" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
 				<input id="time" class="" maxlength="5" type="text" style="text-align:center;width:50px" placeholder="hh:mm" disabled>
+		        -->
 				<div id="period" class="btn-group" data-toggle="buttons-radio">
-					<button type="button" value="5" class="btn" disabled>Last 5m</button>
-					<button type="button" value="20" class="btn btn-inverse active" disabled>20m</button>
-					<button type="button" value="60" class="btn" disabled>1h</button>
-					<button type="button" value="180" class="btn" disabled>3h</button>
-					<button type="button" value="360" class="btn" disabled>6h</button>
-					<button type="button" value="740" class="btn" disabled>12h</button>
-					<button type="button" value="1440" class="btn" disabled>1d</button>
-					<button type="button" value="2880" class="btn" disabled>2d</button>
+					<button type="button" value="5" class="btn btn-mini" disabled>Last 5m</button>
+					<button type="button" value="20" class="btn btn-mini btn-inverse active" disabled>20m</button>
+					<button type="button" value="60" class="btn btn-mini" disabled>1h</button>
+					<button type="button" value="180" class="btn btn-mini" disabled>3h</button>
+					<button type="button" value="360" class="btn btn-mini" disabled>6h</button>
+					<button type="button" value="740" class="btn btn-mini" disabled>12h</button>
+					<button type="button" value="1440" class="btn btn-mini" disabled>1d</button>
+					<button type="button" value="2880" class="btn btn-mini" disabled>2d</button>
+					<button type="button" value="4320" class="btn btn-mini" disabled>3d</button>
 				</div>
             </form>
             <!-- 
@@ -92,73 +95,9 @@
     </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal hide fade" id="myModal" style="width:1000px; margin-left:-500px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Configuration</h3>
-    </div>
-    <div class="modal-body">
-	Configuration.
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-        <!-- 
-        <a href="#" class="btn btn-primary" onclick="saveNewChart();">Add to dashboard</a>
-		-->
-    </div>
-</div>
-<!-- END OF MODAL -->
-
-<!-- HELP-MODAL -->
-<div class="modal hide fade" id="myHelpModal" style="width:1000px; margin-left:-500px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Help</h3>
-    </div>
-    <div class="modal-body">
-    <br/>E-mail to us. <a href="mailto:!hippo@nhn.com">!hippo@nhn.com</a><br/>
-	<br/>Thank you.<br/><br/>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF HELP-MODAL -->
-
-<!-- MODAL -->
-<div class="modal hide fade" id="traceIdSelectModal" style="width:1200px; margin-left:-600px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Selected Traces</h3>
-    </div>
-    <div class="modal-body">
-		<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-hover sortable">
-			<thead>
-			<tr>
-			    <th class="sorttable_numeric">#</th>
-			    <th class="sorttable_numeric">Time</th>
-			    <th>TraceId</th>
-			    <th class="sorttable_numeric">Res. Time (ms)</th>
-			    <th>Exception</th>
-			    <th>Application</th>
-			    <th>AgentId</th>
-			    <th>ClientIP</th>
-			</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF MODAL -->
-
 <div class="container" id="warningMessage"></div>
 
-<!-- MENU -->
+<!-- BODY -->
 <div class="chart-container">
     <div class="chart-left">
 		<div id="servermap" class="servermap"></div>
@@ -175,7 +114,7 @@
 		</div>
 	</div>
 </div>
-<!-- END OF MENU -->
+<!-- END OF BODY -->
 
 <script type="text/javascript">
 $.extend($.tmpl.tag, {
@@ -217,11 +156,9 @@ $(document).ready(function () {
    	
    	$('#period').delegate("button", "click", function(){
    		var $this = $(this);
-   		
    		$this.siblings(".btn-inverse").removeClass("btn-inverse active");
    		$this.addClass("btn-inverse active");
    		updateCharts();
-   		$("#auto_refresh").trigger("change");
    	});
 	
 	// TODO 조회 버튼을 두 번 연속 눌렀을 때 앞서 수행되던 결과는 취소시켜야 함.
@@ -250,44 +187,39 @@ $(document).ready(function () {
         }
         
 		target.empty();
+		var optionsHTML = [];
 		$(json).each(function(i, e) {
-            var html = [];
-            html.push('<option value="');
-            html.push(e.applicationName);
-            html.push("@");
-            html.push(e.code);
-            html.push('"');
-            if (json.length == 1) {
-           		html.push(' selected>');
-            } else {
-           		html.push('>');
-            }
-            html.push(e.applicationName + "@" + e.serviceType);
-            html.push('</option>');
-            
-            target.append(html.join(''));
-            
-            $("#application").attr("disabled", null);
-            
-            function format(state) {
-            	var chunk = state.text.split("@");
-            	if (chunk.length > 1) {
-                	return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
-            	} else {
-            		return state;
-            	}
-            }
-            
-		    $("#application").select2({
-				placeholder: "Select an application.",
-				formatResult: format,
-				formatSelection: format
-			});
-		    
-		    // 임시.
-		    $(".select2-container").css("top", "4px");
+			optionsHTML.push('<option value="');
+			optionsHTML.push(e.applicationName);
+			optionsHTML.push("@");
+			optionsHTML.push(e.code);
+			optionsHTML.push('"');
+			optionsHTML.push((json.length == 1) ? ' selected>' : '>');
+			optionsHTML.push(e.applicationName);
+			optionsHTML.push("@");
+			optionsHTML.push(e.serviceType);
+			optionsHTML.push('</option>');
+		});
+		target.append(optionsHTML.join(''));
+		target.attr("disabled", null);
+		
+		var formatOptionText = function(state) {
+			var chunk = state.text.split("@");
+			if (chunk.length > 1) {
+				return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
+			} else {
+				return state;
+			}
+		}
+          
+	    target.select2({
+			placeholder: "Select an application.",
+			formatResult: formatOptionText,
+			formatSelection: formatOptionText
 		});
 		
+	    // 임시.
+	    $(".select2-container").css("top", "4px");
        	$("#until BUTTON").attr("disabled", null);
        	$("#period BUTTON").attr("disabled", null);
 	});
