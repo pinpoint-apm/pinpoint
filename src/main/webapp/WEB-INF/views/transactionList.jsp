@@ -64,6 +64,8 @@
 	@media(max-width:1099px){
 	  .table-right {
 	    padding-left:20px;
+	    width:60px;
+	    max-width:60px;
 	  }
 	}
     </style>
@@ -76,9 +78,9 @@
 		<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
 		<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
 		<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
-		<h5>URL list</h5>
+		
 		<div style="max-height:300px;overflow:scroll;">
-			<table class="table table-bordered table-hover sortable">
+			<table class="table table-bordered table-condensed table-hover sortable">
 				<thead>
 					<tr>
 						<th>URL</th>
@@ -92,10 +94,10 @@
 					<c:forEach items="${rpcList}" var="t" varStatus="status">
 					<tr style="cursor:pointer;" onclick="showRequestList(${status.count}, this);">
 						<td>${t.rpc}</td>
-						<td sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
-						<td sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" pattern="#" /></td>
-						<td sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
-						<td sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
+						<td class="num" sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
+						<td class="num" sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" /></td>
+						<td class="num" sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
+						<td class="num" sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
 					</tr>
 					</c:forEach>
 				</tbody>

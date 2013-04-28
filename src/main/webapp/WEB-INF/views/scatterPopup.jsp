@@ -1,21 +1,16 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="hippo" uri="http://hippo.nhncorp.com/hippo" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>PINPOINT - ${applicationName} request list</title>
+    <title>PINPOINT - ${applicationName} response scatter</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
-    <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
     <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
     <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
-    <link href="/common/css/datepicker.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -25,8 +20,6 @@
 	<!-- commons -->    
     <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
-    <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
     <script type="text/javascript" src="/common/js/date.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
@@ -45,47 +38,13 @@
     </style>
 </head>
 <body>
-<div class="container">
-	<div class="row">
-		<div class="span4">
-			<div id="scatterchart"></div>
-		</div>
-	</div>
-</div>
-
-<!-- MODAL -->
-<div class="modal hide fade" id="traceIdSelectModal" style="width:1200px; margin-left:-600px">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Selected Traces</h3>
-    </div>
-    <div class="modal-body">
-		<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-hover sortable">
-			<thead>
-			<tr>
-			    <th class="sorttable_numeric">#</th>
-			    <th class="sorttable_numeric">Time</th>
-			    <th>TraceId</th>
-			    <th class="sorttable_numeric">Res. Time (ms)</th>
-			    <th>Exception</th>
-			    <th>Application</th>
-			    <th>AgentId</th>
-			    <th>ClientIP</th>
-			</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div>
-<!-- END OF MODAL -->
-
+<h5>'${applicationName}' response scatter</h5>
+<h5></h5>
+<div id="scatterchart"></div>
 <script type="text/javascript">
 $(document).ready(function () {
-	showResponseScatter("${applicationName}", ${from}, ${to}, ${period}, ${usePeriod}, 700, 450);
+	showResponseScatter("${applicationName}", ${from}, ${to}, ${period}, ${usePeriod}, 800, 500);
+	$("H5:nth-child(2)").text(new Date(${from}).toString("yyyy-MM-dd HH:mm") + " ~ " + new Date(${to}).toString("yyyy-MM-dd HH:mm"))
 });
 </script>
 </body>

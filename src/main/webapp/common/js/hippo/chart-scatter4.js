@@ -14,7 +14,7 @@ function expandScatter(e) {
     params.push("&usePeriod=");
     params.push(e.data("usePeriod"));
     
-    window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=900, height=600, resizable=yes");
+    window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=900, height=700, resizable=yes");
 }
 
 function showResponseScatter(applicationName, from, to, period, usePeriod, w, h) {
@@ -37,7 +37,15 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
     fullscreenButton.data("usePeriod", usePeriod);
     
     var downloadButton = $("#scatterChartContainer A");
-    downloadButton.attr("download", applicationName + ".png");
+
+    var imageFileName = applicationName +
+    				"_" +
+    				new Date(from).toString("yyyyMMdd_HHmm") +
+    				"~" +
+    				new Date(to).toString("yyyyMMdd_HHmm") +
+    				"_response_scatter.png";
+    
+    downloadButton.attr("download", imageFileName);
     downloadButton.unbind("click");
     downloadButton.bind("click", function() {
     	oScatterChart.saveAsPNG(downloadButton);
