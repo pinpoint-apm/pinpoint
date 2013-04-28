@@ -32,6 +32,11 @@ public class ScatterChartController extends BaseController {
 	@Autowired
 	private ScatterChartService scatter;
 
+	@RequestMapping(value = "/selectedScatter", method = RequestMethod.GET)
+	public String selectedScatter(Model model, HttpServletResponse response) {
+		return "selectedScatter";
+	}
+	
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod) {
 		model.addAttribute("applicationName", applicationName);
