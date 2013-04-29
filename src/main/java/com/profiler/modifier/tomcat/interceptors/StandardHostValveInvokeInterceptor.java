@@ -168,6 +168,9 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     private boolean samplingEnable(HttpServletRequest request) {
         // optional 값.
         String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
+        if (isDebug) {
+            logger.debug("SamplingFlag:{}", samplingFlag);
+        }
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 

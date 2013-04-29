@@ -32,13 +32,6 @@ public abstract class AbstractModifier implements Modifier {
         }
     }
 
-//    public void setTraceContext(Interceptor interceptor) {
-//        // TODO TraceContext를 인터셉터에 바인하는 방안의 추가 개선 필요.
-//        if (interceptor instanceof TraceContextSupport) {
-//            ((TraceContextSupport) interceptor).setTraceContext(agent.getTraceContext());
-//        }
-//    }
-
     public void setServiceType(Interceptor interceptor, ServiceType serviceType) {
         if (interceptor instanceof ServiceTypeSupport) {
             ((ServiceTypeSupport) interceptor).setServiceType(serviceType);

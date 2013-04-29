@@ -32,7 +32,7 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. " + javassistClassName);
+			logger.info("Modifing. {}", javassistClassName);
 		}
 
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
@@ -40,11 +40,9 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 		try {
 			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
             setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
-//            setTraceContext(doGetInterceptor);
 
             Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.method.interceptors.MethodInterceptor");
             setServiceType(doPostInterceptor, ServiceType.SPRING_MVC);
-//            setTraceContext(doPostInterceptor);
 
 
 

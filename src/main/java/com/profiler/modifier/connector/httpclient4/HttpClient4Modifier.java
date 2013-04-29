@@ -43,7 +43,7 @@ public class HttpClient4Modifier extends AbstractModifier {
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
+            logger.info("Modifing. {}", javassistClassName);
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
@@ -58,7 +58,7 @@ public class HttpClient4Modifier extends AbstractModifier {
 
             return aClass.toBytecode();
         } catch (Throwable e) {
-            logger.warn("httpclient4 modifier error. Caused:" + e.getMessage(), e);
+            logger.warn("httpclient4 modifier error. Caused:{}", e.getMessage(), e);
             return null;
         }
     }
