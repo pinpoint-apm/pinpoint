@@ -16,13 +16,16 @@ public final class SamplingFlagUtils {
     private SamplingFlagUtils() {
     }
 
-    public static boolean isSamplingFlag(String flag) {
-        if (flag == null) {
+    public static boolean isSamplingFlag(String samplingFlag) {
+        if (samplingFlag == null) {
             return true;
         }
         // 정확하게 하지 말란 flag가 세팅되었을 경우만 샘플링을 하지 않는다.
         // prefix를 보고 뭔가 더 정확하게 동작되어야 필요성이 있음.
-        return !SAMPLING_RATE_FALSE.equals(false);
+        if (samplingFlag.startsWith(SAMPLING_RATE_PREFIX)) {
+            return !SAMPLING_RATE_FALSE.equals(samplingFlag);
+        }
+        return true;
     }
 }
 
