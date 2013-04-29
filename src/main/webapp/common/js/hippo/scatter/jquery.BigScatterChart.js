@@ -59,9 +59,9 @@ var BigScatterChart = $.Class({
 				return this._addComma((this._nYMax + this._nYMin) - ((nYStep*i) + this._nYMin));
 			},
 			htDataSource : {
-				fUrl : function(){},
-				fData : function(htFetchedData){},
-				fFetch : function(htFetchedData){},
+				sUrl : function(){},
+				htParam : function(htFetchedData){},
+				nFetch : function(htFetchedData){},
 				htOption : {
 					dataType : 'jsonp',
 					jsonp : 'callback'
@@ -782,6 +782,7 @@ var BigScatterChart = $.Class({
 			nHeight = this.option('nHeight');
 
 		if(_.isArray(aBubbles) === false || aBubbles.length === 0){
+
 			return;
 		}else{
 			this._hideNoData();
@@ -1099,35 +1100,54 @@ var BigScatterChart = $.Class({
 		$(elA).attr('href', welCanvas.get(0).toDataURL('image/jpeg'));
 	},
 
-	loadFromDataSource : function(htDataSource){
+	drawWithDataSource : function(htDataSource){
 		if(_.isObject(htDataSource)){
 			this.option('htDataSource', htDataSource);
 		}
 		this.clear();
 		this._abortAjax();
 		this._nCallCount = 0;
-		this._loadFromDataSource();
+		this._drawWithDataSource();
 	},
 
-	_loadFromDataSource : function(){
+	_drawWithDataSource : function(){
 		var self = this;
 		var htDataSource = this.option('htDataSource');
 
 		var htOption = htDataSource.htOption;
-		htOption.url = htDataSource.fUrl.call(this, this._nCallCount);
-		htOption.data = htDataSource.fData.call(this, this._nCallCount, this._htLastFetchedData);
+		htOption.url = htDataSource.sUrl.call(this, this._nCallCount);
+		htOption.data = htDataSource.htParam.call(this, this._nCallCount, this._htLastFechedParam, this._htLastFetchedData);
 		htOption.success = function(htData){
-			self._htLastFetchedData = htData;
-
-			htDataSource = self.option('htDataSource'); // refresh
-			var bFetch = htDataSource.fFetch.call(this, htData);
-			if(bFetch === true){
-				self._loadFromDataSource();
+			if(htData.scatter.length > 0){
+				self.addBubbleAndMoveAndDraw(htData.scatter, htData.scatter[htData.scatter.length - 1].x);
+				self._htLastFetchedData = htData;
+			} else {
+				self._htLastFetchedData = {};
 			}
-			self.addBubbleAndDraw(htData.scatter);
+			/* for testing
+			else{
+				console.log('--------------');
+				self.addBubbleAndMoveAndDraw([
+						{
+							"x" : self._nXMax + 1000,
+							"y" : 5000,
+							"z" : 10,
+							"traceId" : "e553df1f-6e31-4142-8aea-bdbf50d08f5c",
+							"type" : "Success" 
+						}
+					], self._nXMax + 1000)
+			}*/
+			htDataSource = self.option('htDataSource'); // refresh
+			var nInterval = htDataSource.nFetch.call(this, self._htLastFechedParam, htData);
+			if(nInterval > -1){
+				setTimeout(function(){
+					self._drawWithDataSource();
+				}, nInterval);
+			}
 		}
 		this._oAjax = $.ajax(htOption);	
 		this._nCallCount += 1;
+		this._htLastFechedParam = htOption.data;
 	},
 
 	_abortAjax : function(){
