@@ -14,7 +14,6 @@ import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.MetaObject;
 
@@ -29,7 +28,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
     private MethodDescriptor descriptor;
-    private int apiId;
     private TraceContext traceContext;
 
     @Override
@@ -93,7 +91,24 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             }
             temp[key] = entry.getValue();
         }
-        return Arrays.toString(temp);
+
+        return bindValueToString(temp);
+
+    }
+
+    private String bindValueToString(String[] temp) {
+        if (temp == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        int end = temp.length - 1;
+        for (int i = 0; i < temp.length; i++) {
+            sb.append(temp[i]);
+            if (i < end) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override

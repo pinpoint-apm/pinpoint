@@ -1,12 +1,8 @@
 package com.profiler.modifier.db.mysql;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import com.profiler.interceptor.Interceptor;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.interceptor.bci.InstrumentException;
-import com.profiler.interceptor.bci.NotFoundInstrumentException;
+import com.profiler.interceptor.bci.*;
 import com.profiler.modifier.AbstractModifier;
 import com.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.profiler.util.*;
@@ -64,9 +60,9 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
             String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
             try {
                 if (interceptorId == -1) {
-                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
+                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor, Type.after);
                 } else {
-                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
+                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId, Type.after);
                 }
             } catch (NotFoundInstrumentException e) {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.

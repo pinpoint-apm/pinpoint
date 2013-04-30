@@ -22,6 +22,10 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     private TraceContext traceContext;
 
     @Override
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    }
+
+    @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         if (isDebug) {
             logger.afterInterceptor(target,className, methodName, parameterDescription, args, result);
@@ -58,8 +62,5 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
         this.traceContext = traceContext;
     }
 
-    @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 
-    }
 }
