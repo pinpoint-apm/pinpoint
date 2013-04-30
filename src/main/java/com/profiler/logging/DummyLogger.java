@@ -13,13 +13,33 @@ public class DummyLogger implements Logger {
     }
 
     @Override
+    public void beforeInterceptor(Object target, Object[] args) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+
+
+
+
+    @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 
     }
 
     @Override
+    public void afterInterceptor(Object target, Object[] args, Object result) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+
+    @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
 
+    }
+
+    @Override
+    public void afterInterceptor(Object target, Object[] args) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
