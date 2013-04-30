@@ -1,14 +1,13 @@
 package com.profiler.modifier.arcus.interceptors;
 
-import com.profiler.interceptor.SimpleBeforeInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.logging.Logger;
 
 import com.profiler.logging.LoggerFactory;
 import net.spy.memcached.CacheManager;
 import net.spy.memcached.MemcachedClient;
 
-import com.profiler.interceptor.StaticBeforeInterceptor;
-import com.profiler.logging.LoggingUtils;
+
 import com.profiler.util.MetaObject;
 
 /**
@@ -16,7 +15,7 @@ import com.profiler.util.MetaObject;
  * @author netspider
  * 
  */
-public class SetCacheManagerInterceptor implements SimpleBeforeInterceptor {
+public class SetCacheManagerInterceptor implements SimpleAroundInterceptor {
 
 	private final Logger logger = LoggerFactory.getLogger(SetCacheManagerInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -35,4 +34,9 @@ public class SetCacheManagerInterceptor implements SimpleBeforeInterceptor {
 		
 		setServiceCode.invoke((MemcachedClient) target, serviceCode);
 	}
+
+    @Override
+    public void after(Object target, Object[] args, Object result) {
+
+    }
 }

@@ -2,11 +2,10 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.NumberUtils;
 import com.profiler.util.bindvalue.BindValueConverter;
@@ -14,7 +13,7 @@ import com.profiler.util.bindvalue.BindValueConverter;
 import java.util.Map;
 import com.profiler.logging.Logger;
 
-public class PreparedStatementBindVariableInterceptor implements StaticAfterInterceptor, TraceContextSupport {
+public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(PreparedStatementBindVariableInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -57,5 +56,10 @@ public class PreparedStatementBindVariableInterceptor implements StaticAfterInte
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+
     }
 }

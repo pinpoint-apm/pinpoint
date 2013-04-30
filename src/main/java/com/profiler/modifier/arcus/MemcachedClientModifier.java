@@ -1,6 +1,8 @@
 package com.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
+
+import com.profiler.interceptor.bci.Type;
 import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
@@ -36,7 +38,7 @@ public class MemcachedClientModifier extends AbstractModifier {
             aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 
             Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.AddOpInterceptor");
-            aClass.addInterceptor("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"}, addOpInterceptor);
+            aClass.addInterceptor("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"}, addOpInterceptor, Type.before);
 
             return aClass.toBytecode();
         } catch (Exception e) {

@@ -30,7 +30,7 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
         }
         if (JDBCScope.isInternal()) {
-            logger.info("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
         Trace trace = traceContext.currentTraceObject();

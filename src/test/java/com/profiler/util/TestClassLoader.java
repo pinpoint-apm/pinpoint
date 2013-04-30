@@ -54,8 +54,7 @@ public class TestClassLoader extends Loader {
         // 패키지명 필터로 바꾸던지 개선해야 될것으로 보임.
         this.delegateLoadingOf(Interceptor.class.getName());
         this.delegateLoadingOf(StaticAroundInterceptor.class.getName());
-        this.delegateLoadingOf(StaticBeforeInterceptor.class.getName());
-        this.delegateLoadingOf(StaticAfterInterceptor.class.getName());
+        this.delegateLoadingOf(SimpleAroundInterceptor.class.getName());
         this.delegateLoadingOf(InterceptorRegistry.class.getName());
         this.delegateLoadingOf(Trace.class.getName());
         this.delegateLoadingOf(DefaultTrace.class.getName());

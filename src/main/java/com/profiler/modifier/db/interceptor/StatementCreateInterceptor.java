@@ -2,12 +2,10 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.SimpleAfterInterceptor;
-import com.profiler.interceptor.StaticAfterInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
@@ -15,7 +13,7 @@ import com.profiler.util.MetaObject;
 import java.sql.Connection;
 import com.profiler.logging.Logger;
 
-public class StatementCreateInterceptor implements SimpleAfterInterceptor, TraceContextSupport {
+public class StatementCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(StatementCreateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -25,6 +23,10 @@ public class StatementCreateInterceptor implements SimpleAfterInterceptor, Trace
 
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
     private TraceContext traceContext;
+
+    @Override
+    public void before(Object target, Object[] args) {
+    }
 
     @Override
     public void after(Object target, Object[] args, Object result) {

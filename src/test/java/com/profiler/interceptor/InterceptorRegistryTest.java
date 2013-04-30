@@ -46,6 +46,7 @@ public class InterceptorRegistryTest {
         logger.info("ctClass:" + ctClass.getSimpleName());
     }
 
+    @Deprecated
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException {
        AroundInterceptor aroundInterceptor = new AroundInterceptor() {
            @Override
@@ -58,7 +59,7 @@ public class InterceptorRegistryTest {
                System.out.println("after ctx:" + ctx);
            }
        };
-       int i = InterceptorRegistry.addInterceptor(aroundInterceptor);
+//       int i = InterceptorRegistry.addInterceptor(aroundInterceptor);
 
 
        ClassPool p = ClassPool.getDefault();

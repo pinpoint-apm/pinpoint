@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-public class TestBeforeInterceptor implements StaticBeforeInterceptor {
+public class TestBeforeInterceptor implements StaticAroundInterceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
         public int call = 0;
@@ -23,4 +23,9 @@ public class TestBeforeInterceptor implements StaticBeforeInterceptor {
             this.args = args;
             call++;
         }
+
+    @Override
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+
+    }
 }

@@ -211,7 +211,7 @@ public class JavaAssistUtils {
 
     private static void dump(LocalVariableAttribute lva) {
         Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class.getName());
-        if (logger.isInfoEnabled()) {
+        if (logger.isDebugEnabled()) {
             StringBuilder buffer = new StringBuilder(1024);
             for (int i = 0; i < lva.tableLength(); i++) {
                 buffer.append("\n");
@@ -225,7 +225,7 @@ public class JavaAssistUtils {
                 buffer.append("  nameIndex:");
                 buffer.append(lva.nameIndex(i));
             }
-            logger.info(buffer.toString());
+            logger.debug(buffer.toString());
         }
     }
 

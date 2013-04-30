@@ -1,17 +1,15 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import com.profiler.interceptor.SimpleAfterInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 import com.profiler.LifeCycleEventListener;
-import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.logging.LoggingUtils;
 
 /**
  *
  */
-public class StandardServiceStopInterceptor implements SimpleAfterInterceptor {
+public class StandardServiceStopInterceptor implements SimpleAroundInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(StandardServiceStopInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -20,6 +18,11 @@ public class StandardServiceStopInterceptor implements SimpleAfterInterceptor {
 
     public StandardServiceStopInterceptor(LifeCycleEventListener lifeCycleEventListener) {
         this.lifeCycleEventListener = lifeCycleEventListener;
+    }
+
+    @Override
+    public void before(Object target, Object[] args) {
+
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.profiler.modifier.tomcat.interceptors;
 
-import com.profiler.interceptor.SimpleBeforeInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -10,7 +10,7 @@ import com.profiler.util.Assert;
 /**
  *
  */
-public class CatalinaAwaitInterceptor implements SimpleBeforeInterceptor {
+public class CatalinaAwaitInterceptor implements SimpleAroundInterceptor {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -29,5 +29,10 @@ public class CatalinaAwaitInterceptor implements SimpleBeforeInterceptor {
         }
 		agent.started();
 		// agent.sendStartupInfo();
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result) {
+
     }
 }

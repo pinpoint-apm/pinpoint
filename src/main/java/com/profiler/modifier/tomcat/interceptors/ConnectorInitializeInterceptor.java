@@ -1,7 +1,7 @@
 package com.profiler.modifier.tomcat.interceptors;
 
 import com.profiler.Agent;
-import com.profiler.interceptor.SimpleAfterInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import org.apache.catalina.connector.Connector;
 
 import com.profiler.logging.Logger;
@@ -10,7 +10,7 @@ import com.profiler.logging.LoggerFactory;
 /**
  *
  */
-public class ConnectorInitializeInterceptor implements SimpleAfterInterceptor {
+public class ConnectorInitializeInterceptor implements SimpleAroundInterceptor {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -22,6 +22,11 @@ public class ConnectorInitializeInterceptor implements SimpleAfterInterceptor {
             throw new NullPointerException("agent must not be null");
         }
         this.agent = agent;
+    }
+
+    @Override
+    public void before(Object target, Object[] args) {
+
     }
 
     @Override

@@ -88,7 +88,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
         if (logger.isInfoEnabled()) {
-            logger.warn("defineClass class:" + defineClass + " cl:" + classLoader);
+            logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
 //            아래 classLoaderChecker가 생겼으니 classLoader 를 같이 락으로 잡아야 되지 않는가?

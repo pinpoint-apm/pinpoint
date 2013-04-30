@@ -1,6 +1,8 @@
 package com.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
+
+import com.profiler.interceptor.bci.Type;
 import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
@@ -34,7 +36,7 @@ public class ArcusClientModifier extends AbstractModifier {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
             Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.SetCacheManagerInterceptor");
-            aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor);
+            aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor,  Type.before);
 
             return aClass.toBytecode();
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;
 import com.profiler.interceptor.bci.InstrumentException;
+import com.profiler.interceptor.bci.Type;
 import com.profiler.modifier.db.interceptor.*;
 
 import com.profiler.modifier.AbstractModifier;
@@ -46,10 +47,10 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 
             Interceptor closeConnection = new ConnectionCloseInterceptor();
-            mysqlConnection.addInterceptor("close", null, closeConnection);
+            mysqlConnection.addInterceptor("close", null, closeConnection, Type.before);
 
             Interceptor createStatement = new StatementCreateInterceptor();
-            mysqlConnection.addInterceptor("createStatement", null, createStatement);
+            mysqlConnection.addInterceptor("createStatement", null, createStatement, Type.after);
 
 
             Interceptor preparedStatement = new PreparedStatementCreateInterceptor();

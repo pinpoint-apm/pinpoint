@@ -46,11 +46,11 @@ public class InvokeMethodInterceptorTest {
         TraceContext traceContext = new MockTraceContextFactory().create();
         interceptor.setTraceContext(traceContext);
 
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target", new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
 
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target", new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
     }
 
     @Test
@@ -74,11 +74,11 @@ public class InvokeMethodInterceptorTest {
         TraceContext traceContext = new MockTraceContextFactory().create();
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
         interceptor.setTraceContext(traceContext);
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target",  new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
 
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target", new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
     }
 
     @Test
@@ -103,10 +103,10 @@ public class InvokeMethodInterceptorTest {
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
         interceptor.setTraceContext(traceContext);
 
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target", new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
 
-        interceptor.before("target", "classname", "methodname", null, new Object[]{request, response});
-        interceptor.after("target", "classname", "methodname", null, new Object[]{request, response}, new Object());
+        interceptor.before("target", new Object[]{request, response});
+        interceptor.after("target", new Object[]{request, response}, new Object());
     }
 }

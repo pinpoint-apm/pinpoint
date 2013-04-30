@@ -2,16 +2,17 @@ package com.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
 import java.util.Arrays;
+
+import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.Logger;
 
-import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 import com.profiler.util.StringUtils;
 
 @Deprecated
-public class ConnectionCreateInterceptor implements StaticAfterInterceptor {
+public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(ConnectionCreateInterceptor.class.getName());
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
@@ -33,5 +34,10 @@ public class ConnectionCreateInterceptor implements StaticAfterInterceptor {
                 this.setUrl.invoke(result, url);
             }
         }
+    }
+
+    @Override
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+
     }
 }

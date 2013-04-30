@@ -1,7 +1,7 @@
 package com.profiler.modifier.arcus.interceptors;
 
 import com.profiler.context.AsyncTrace;
-import com.profiler.interceptor.SimpleBeforeInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.logging.Logger;
 
 import com.profiler.context.DefaultAsyncTrace;
@@ -9,14 +9,12 @@ import com.profiler.logging.LoggerFactory;
 import com.profiler.util.TimeObject;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
-import com.profiler.interceptor.StaticBeforeInterceptor;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 
 /**
  *
  */
-public class BaseOperationCancelInterceptor implements SimpleBeforeInterceptor {
+public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 
 	private final Logger logger = LoggerFactory.getLogger(BaseOperationCancelInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -47,4 +45,8 @@ public class BaseOperationCancelInterceptor implements SimpleBeforeInterceptor {
 		}
 	}
 
+    @Override
+    public void after(Object target, Object[] args, Object result) {
+
+    }
 }

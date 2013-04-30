@@ -24,7 +24,7 @@ import com.profiler.util.MetaObject;
 /**
  *
  */
-public class BaseOperationTransitionStateInterceptor implements SimpleBeforeInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class BaseOperationTransitionStateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -142,5 +142,9 @@ public class BaseOperationTransitionStateInterceptor implements SimpleBeforeInte
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result) {
     }
 }

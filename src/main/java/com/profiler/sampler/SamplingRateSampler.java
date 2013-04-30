@@ -26,4 +26,12 @@ public class SamplingRateSampler implements Sampler{
         int isSampling = samplingCount % samplingRate;
         return isSampling == 0;
     }
+
+    @Override
+    public String toString() {
+        return "SamplingRateSampler{" +
+                    "counter=" + counter +
+                    "samplingRate=" + samplingRate +
+                '}';
+    }
 }

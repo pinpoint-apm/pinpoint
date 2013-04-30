@@ -1,6 +1,8 @@
 package com.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
+
+import com.profiler.interceptor.bci.Type;
 import com.profiler.logging.Logger;
 
 import com.profiler.Agent;
@@ -41,10 +43,10 @@ public class BaseOperationModifier extends AbstractModifier {
             aClass.addConstructorInterceptor(null, new BaseOperationConstructInterceptor());
 
             Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
-            aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor);
+            aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor, Type.before);
 
             Interceptor cancelInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.arcus.interceptors.BaseOperationCancelInterceptor");
-            aClass.addInterceptor("cancel", null, cancelInterceptor);
+            aClass.addInterceptor("cancel", null, cancelInterceptor, Type.after);
 
             return aClass.toBytecode();
         } catch (Exception e) {

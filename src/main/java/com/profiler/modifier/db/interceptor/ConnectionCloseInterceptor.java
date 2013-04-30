@@ -1,16 +1,14 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.interceptor.SimpleBeforeInterceptor;
-import com.profiler.interceptor.StaticBeforeInterceptor;
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.util.MetaObject;
 
 import java.sql.Connection;
 import com.profiler.logging.Logger;
 
-public class ConnectionCloseInterceptor implements SimpleBeforeInterceptor {
+public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(ConnectionCloseInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -32,5 +30,9 @@ public class ConnectionCloseInterceptor implements SimpleBeforeInterceptor {
         if (target instanceof Connection) {
             this.setUrl.invoke(target, EMPTY);
         }
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result) {
     }
 }
