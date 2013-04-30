@@ -2,6 +2,8 @@ package com.profiler.modifier.tomcat.interceptors;
 
 import java.util.Enumeration;
 import java.util.UUID;
+
+import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
@@ -10,15 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.context.*;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.sampler.util.SamplingFlagUtils;
 import com.profiler.util.NetworkUtils;
 import com.profiler.util.NumberUtils;
 
-public class StandardHostValveInvokeInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class.getName());
     private final boolean isDebug = logger.isInfoEnabled();
@@ -28,9 +26,9 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     private TraceContext traceContext;
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
 
         try {
@@ -108,9 +106,9 @@ public class StandardHostValveInvokeInterceptor implements StaticAroundIntercept
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
 
 //        traceContext.getActiveThreadCounter().end();

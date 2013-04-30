@@ -1,8 +1,7 @@
 package com.profiler.modifier.tomcat.interceptors;
 
 import com.profiler.Agent;
-import com.profiler.interceptor.StaticAfterInterceptor;
-import com.profiler.logging.LoggingUtils;
+import com.profiler.interceptor.SimpleAfterInterceptor;
 import org.apache.catalina.connector.Connector;
 
 import com.profiler.logging.Logger;
@@ -11,7 +10,7 @@ import com.profiler.logging.LoggerFactory;
 /**
  *
  */
-public class ConnectorInitializeInterceptor implements StaticAfterInterceptor {
+public class ConnectorInitializeInterceptor implements SimpleAfterInterceptor {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -26,9 +25,9 @@ public class ConnectorInitializeInterceptor implements StaticAfterInterceptor {
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
         Connector connector = (Connector) target;
         agent.addConnector(connector.getProtocol(), connector.getPort());

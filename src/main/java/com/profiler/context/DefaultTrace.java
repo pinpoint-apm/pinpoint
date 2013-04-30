@@ -270,9 +270,32 @@ public final class DefaultTrace implements Trace {
         return parsingResult;
     }
 
+//    재발할 경우 좀더 정확한 원인분석을 위해 과거 NullPointException 발생 로그의 일부를 첨부함.
+//    2013-04-30 11:34:58 [DEBUG](db.interceptor.PreparedStatementBindVariableInterceptor) after com.mysql.jdbc.JDBC4PreparedStatement@1f31ad9: /* testquery */ delete from member where id = -1334720425 com.mysql.jdbc.PreparedStatement setInt(int, int) args:(1, -1334720425) result:null
+//    2013-04-30 11:34:58 [DEBUG](db.interceptor.PreparedStatementBindVariableInterceptor) after com.mysql.jdbc.JDBC4PreparedStatement@1f31ad9: /* testquery */ delete from member where id = -1334720425 com.mysql.jdbc.PreparedStatement setObject(int, java.lang.Object) args:(1, -1334720425) result:null
+//    2013-04-30 11:34:58 [DEBUG](db.interceptor.PreparedStatementExecuteQueryInterceptor) before com.mysql.jdbc.JDBC4PreparedStatement@1f31ad9: /* testquery */ delete from member where id = -1334720425 com.mysql.jdbc.PreparedStatement executeUpdate() args:null
+//    2013-04-30 11:34:58 [WARN ](db.interceptor.PreparedStatementExecuteQueryInterceptor)
+//    java.lang.NullPointerException
+//    at com.profiler.context.DefaultTrace.recordSqlParsingResult(DefaultTrace.java:275)
+//    at com.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor.before(PreparedStatementExecuteQueryInterceptor.java:64)
+//    at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java)
+//    at org.apache.commons.dbcp.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:105)
+//    at org.apache.commons.dbcp.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:105)
+//    at org.apache.commons.dbcp.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:105)
+//    at org.springframework.jdbc.core.JdbcTemplate$2.doInPreparedStatement(JdbcTemplate.java:818)
+//    at org.springframework.jdbc.core.JdbcTemplate$2.doInPreparedStatement(JdbcTemplate.java:1)
+//    at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:587)
+//    at org.springframework.jdbc.core.JdbcTemplate.update(JdbcTemplate.java:812)
     @Override
     public void recordSqlParsingResult(ParsingResult parsingResult) {
-        recordAttribute(AnnotationKey.SQL_ID, parsingResult.getSql().hashCode());
+        if (parsingResult == null) {
+            // TODO 먼가 여기서 NullPointException이 발생한 Exception 기록이 잇음.
+
+            logger.warn("ParsingResult is null");
+            return;
+        }
+        String sql = parsingResult.getSql();
+        recordAttribute(AnnotationKey.SQL_ID, sql.hashCode());
         String output = parsingResult.getOutput();
         if (output != null && output.length() != 0) {
             recordAttribute(AnnotationKey.SQL_PARAM, output);

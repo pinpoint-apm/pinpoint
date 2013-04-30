@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.interceptor.SimpleBeforeInterceptor;
 import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
@@ -9,7 +10,7 @@ import com.profiler.util.MetaObject;
 import java.sql.Connection;
 import com.profiler.logging.Logger;
 
-public class ConnectionCloseInterceptor implements StaticBeforeInterceptor {
+public class ConnectionCloseInterceptor implements SimpleBeforeInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(ConnectionCloseInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -19,9 +20,9 @@ public class ConnectionCloseInterceptor implements StaticBeforeInterceptor {
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
         if (JDBCScope.isInternal()) {
             logger.info("internal jdbc scope. skip trace");

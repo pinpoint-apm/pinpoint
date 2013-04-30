@@ -28,7 +28,7 @@ public class SpanEvent implements Thriftable {
     private String destionationId;
     private List<String> destinationAddress;
 
-    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(5);
+    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(4);
 
     private int nextSpanId = -1;
     private int depth = -1;

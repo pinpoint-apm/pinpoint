@@ -5,14 +5,12 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.context.AsyncTrace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.util.TimeObject;
@@ -21,13 +19,12 @@ import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 import com.profiler.common.ServiceType;
-import com.profiler.interceptor.StaticBeforeInterceptor;
 import com.profiler.util.MetaObject;
 
 /**
  *
  */
-public class BaseOperationTransitionStateInterceptor implements StaticBeforeInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class BaseOperationTransitionStateInterceptor implements SimpleBeforeInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(BaseOperationTransitionStateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -41,9 +38,9 @@ public class BaseOperationTransitionStateInterceptor implements StaticBeforeInte
     private TraceContext traceContext;
 
     @Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);

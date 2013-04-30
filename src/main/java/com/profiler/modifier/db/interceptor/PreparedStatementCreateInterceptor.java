@@ -14,7 +14,7 @@ import com.profiler.util.MetaObject;
 import java.sql.Connection;
 import com.profiler.logging.Logger;
 
-public class PreparedStatementCreateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class PreparedStatementCreateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(PreparedStatementCreateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -30,9 +30,9 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     private TraceContext traceContext;
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");
@@ -56,16 +56,16 @@ public class PreparedStatementCreateInterceptor implements StaticAroundIntercept
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");
             return;
         }
         boolean success = InterceptorUtils.isSuccess(result);
-        if(success) {
+        if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
             this.setUrl.invoke(result, databaseInfo);

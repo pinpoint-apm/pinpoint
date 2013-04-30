@@ -2,10 +2,7 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.*;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
@@ -19,7 +16,7 @@ import com.profiler.logging.Logger;
  *
  * @author netspider
  */
-public class StatementExecuteUpdateInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class StatementExecuteUpdateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(StatementExecuteUpdateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -30,9 +27,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     private TraceContext traceContext;
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");
@@ -71,9 +68,9 @@ public class StatementExecuteUpdateInterceptor implements StaticAroundIntercepto
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
         if (JDBCScope.isInternal()) {
             return;

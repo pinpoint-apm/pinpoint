@@ -1,15 +1,13 @@
 package com.profiler.modifier.connector.jdkhttpconnector.interceptor;
 
 import java.net.HttpURLConnection;
+
+import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
 import com.profiler.context.*;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.sampler.util.SamplingFlagUtils;
 
@@ -17,7 +15,7 @@ import com.profiler.sampler.util.SamplingFlagUtils;
  * @author netspider
  * 
  */
-public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(ConnectMethodInterceptor.class.getName());
 	private final boolean isDebug = logger.isDebugEnabled();
@@ -26,9 +24,9 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
     private TraceContext traceContext;
 
     @Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
@@ -71,10 +69,10 @@ public class ConnectMethodInterceptor implements StaticAroundInterceptor, ByteCo
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
 			// result는 로깅하지 않는다.
-			logger.afterInterceptor(target, className, methodName, parameterDescription, args);
+			logger.afterInterceptor(target, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();

@@ -4,23 +4,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.MetaObject;
 
-public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(PreparedStatementExecuteQueryInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -35,19 +33,19 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     private TraceContext traceContext;
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");
             return;
         }
         Trace trace = traceContext.currentTraceObject();
-
         if (trace == null) {
             return;
         }
+
         trace.traceBlockBegin();
         trace.markBeforeTime();
         try {
@@ -99,9 +97,9 @@ public class PreparedStatementExecuteQueryInterceptor implements StaticAroundInt
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
         if (JDBCScope.isInternal()) {
             return;

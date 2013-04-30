@@ -1,5 +1,6 @@
 package com.profiler.modifier.arcus.interceptors;
 
+import com.profiler.interceptor.SimpleBeforeInterceptor;
 import com.profiler.logging.Logger;
 
 import com.profiler.logging.LoggerFactory;
@@ -15,7 +16,7 @@ import com.profiler.util.MetaObject;
  * @author netspider
  * 
  */
-public class SetCacheManagerInterceptor implements StaticBeforeInterceptor {
+public class SetCacheManagerInterceptor implements SimpleBeforeInterceptor {
 
 	private final Logger logger = LoggerFactory.getLogger(SetCacheManagerInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -24,9 +25,9 @@ public class SetCacheManagerInterceptor implements StaticBeforeInterceptor {
 	private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);
 
 	@Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
 		
 		CacheManager cm = (CacheManager) args[0];

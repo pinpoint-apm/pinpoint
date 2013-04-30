@@ -1,5 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
+import com.profiler.interceptor.SimpleAroundInterceptor;
 import com.profiler.interceptor.StaticAroundInterceptor;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
@@ -11,22 +12,22 @@ import com.profiler.logging.Logger;
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
  */
-public class DataSourceGetConnectionInterceptor implements StaticAroundInterceptor {
+public class DataSourceGetConnectionInterceptor implements SimpleAroundInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(DataSourceGetConnectionInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
         }
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
 
         if (!InterceptorUtils.isSuccess(result)) {

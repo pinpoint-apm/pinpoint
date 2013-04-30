@@ -1,5 +1,6 @@
 package com.profiler.modifier.arcus.interceptors;
 
+import com.profiler.interceptor.SimpleBeforeInterceptor;
 import com.profiler.logging.Logger;
 
 import com.profiler.logging.LoggerFactory;
@@ -15,7 +16,7 @@ import com.profiler.util.MetaObject;
  * @author netspider
  * 
  */
-public class AddOpInterceptor implements StaticBeforeInterceptor {
+public class AddOpInterceptor implements SimpleBeforeInterceptor {
 
 	private final Logger logger = LoggerFactory.getLogger(AddOpInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -26,9 +27,9 @@ public class AddOpInterceptor implements StaticBeforeInterceptor {
 	private final String MEMCACHED = "MEMCACHED";
 
 	@Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
 		}
 
 		String serviceCode = getServiceCode.invoke((MemcachedClient) target);

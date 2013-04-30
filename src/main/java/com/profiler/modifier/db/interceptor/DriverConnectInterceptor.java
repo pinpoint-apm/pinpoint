@@ -2,10 +2,7 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
-import com.profiler.interceptor.TraceContextSupport;
+import com.profiler.interceptor.*;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.logging.LoggingUtils;
@@ -19,7 +16,7 @@ import com.profiler.logging.Logger;
 /**
  *
  */
-public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(DriverConnectInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -32,9 +29,9 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     private TraceContext traceContext;
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+            logger.beforeInterceptor(target, args);
             logger.debug("JDBCScope push:{}", Thread.currentThread().getName());
         }
         JDBCScope.push();
@@ -49,9 +46,9 @@ public class DriverConnectInterceptor implements StaticAroundInterceptor, ByteCo
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
             logger.debug("JDBCScope pop:{}", Thread.currentThread().getName());
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.

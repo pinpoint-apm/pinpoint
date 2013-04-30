@@ -1,10 +1,11 @@
 package com.profiler.modifier.connector.httpclient4.interceptor;
 
 import java.net.URI;
+
+import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
 import com.profiler.context.*;
-import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.sampler.util.SamplingFlagUtils;
 import org.apache.http.HttpHost;
@@ -12,9 +13,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 
 import com.profiler.common.AnnotationKey;
 import com.profiler.common.ServiceType;
-import com.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.profiler.interceptor.MethodDescriptor;
-import com.profiler.interceptor.StaticAroundInterceptor;
 
 /**
  * Method interceptor
@@ -26,7 +24,7 @@ import com.profiler.interceptor.StaticAroundInterceptor;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  */
-public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(Execute2MethodInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -35,9 +33,9 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
     private TraceContext traceContext;
 
     @Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
 
         Trace trace = traceContext.currentRawTraceObject();
@@ -81,10 +79,10 @@ public class Execute2MethodInterceptor implements StaticAroundInterceptor, ByteC
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
             // result는 로깅하지 않는다.
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args);
+            logger.afterInterceptor(target, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();

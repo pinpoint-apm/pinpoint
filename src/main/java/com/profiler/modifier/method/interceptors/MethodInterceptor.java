@@ -7,14 +7,13 @@ import com.profiler.common.ServiceType;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
-import com.profiler.logging.LoggingUtils;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
+public class MethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
     // method intereptor는 객체의 라이프 사이클을 알수 없이 자주 호출될수 있으므로 그냥 static으로 선언한다.
 	private static final Logger logger = LoggerFactory.getLogger(MethodInterceptor.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
@@ -25,9 +24,9 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 
 
 	@Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();
@@ -42,9 +41,9 @@ public class MethodInterceptor implements StaticAroundInterceptor, ByteCodeMetho
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args);
+            logger.afterInterceptor(target, args);
 		}
 
 		Trace trace = traceContext.currentTraceObject();

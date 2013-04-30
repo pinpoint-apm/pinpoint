@@ -29,10 +29,28 @@ public class Slf4jLoggerAdapter implements Logger {
     }
 
     @Override
+    public void beforeInterceptor(Object target, Object[] args) {
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("before ");
+        logMethod(sb, target, args);
+        logger.debug(sb.toString());
+    }
+
+    @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
+        sb.append(" result:");
+        sb.append(result);
+        logger.debug(sb.toString());
+    }
+
+    @Override
+    public void afterInterceptor(Object target, Object[] args, Object result) {
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("after ");
+        logMethod(sb, target, args);
         sb.append(" result:");
         sb.append(result);
         logger.debug(sb.toString());
@@ -46,6 +64,14 @@ public class Slf4jLoggerAdapter implements Logger {
         logger.debug(sb.toString());
     }
 
+    @Override
+    public void afterInterceptor(Object target, Object[] args) {
+        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
+        sb.append("after ");
+        logMethod(sb, target, args);
+        logger.debug(sb.toString());
+    }
+
     private static void logMethod(StringBuilder sb, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         sb.append(target);
         sb.append(' ');
@@ -53,6 +79,13 @@ public class Slf4jLoggerAdapter implements Logger {
         sb.append(' ');
         sb.append(methodName);
         sb.append(parameterDescription);
+        sb.append(" args:");
+        appendArray(sb, args);
+    }
+
+    private static void logMethod(StringBuilder sb, Object target, Object[] args) {
+        sb.append(target);
+        sb.append(' ');
         sb.append(" args:");
         appendArray(sb, args);
     }

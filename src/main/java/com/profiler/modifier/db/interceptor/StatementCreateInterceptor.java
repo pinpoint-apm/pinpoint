@@ -2,6 +2,7 @@ package com.profiler.modifier.db.interceptor;
 
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
+import com.profiler.interceptor.SimpleAfterInterceptor;
 import com.profiler.interceptor.StaticAfterInterceptor;
 import com.profiler.interceptor.TraceContextSupport;
 import com.profiler.interceptor.util.JDBCScope;
@@ -14,7 +15,7 @@ import com.profiler.util.MetaObject;
 import java.sql.Connection;
 import com.profiler.logging.Logger;
 
-public class StatementCreateInterceptor implements StaticAfterInterceptor, TraceContextSupport {
+public class StatementCreateInterceptor implements SimpleAfterInterceptor, TraceContextSupport {
 
     private final Logger logger = LoggerFactory.getLogger(StatementCreateInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -26,9 +27,9 @@ public class StatementCreateInterceptor implements StaticAfterInterceptor, Trace
     private TraceContext traceContext;
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, args, result);
         }
         if (JDBCScope.isInternal()) {
             logger.debug("internal jdbc scope. skip trace");

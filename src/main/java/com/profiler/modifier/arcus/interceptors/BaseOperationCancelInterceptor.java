@@ -1,6 +1,7 @@
 package com.profiler.modifier.arcus.interceptors;
 
 import com.profiler.context.AsyncTrace;
+import com.profiler.interceptor.SimpleBeforeInterceptor;
 import com.profiler.logging.Logger;
 
 import com.profiler.context.DefaultAsyncTrace;
@@ -15,7 +16,7 @@ import com.profiler.util.MetaObject;
 /**
  *
  */
-public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
+public class BaseOperationCancelInterceptor implements SimpleBeforeInterceptor {
 
 	private final Logger logger = LoggerFactory.getLogger(BaseOperationCancelInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -23,9 +24,9 @@ public class BaseOperationCancelInterceptor implements StaticBeforeInterceptor {
 	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
 
 	@Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+	public void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+			logger.beforeInterceptor(target, args);
 		}
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
