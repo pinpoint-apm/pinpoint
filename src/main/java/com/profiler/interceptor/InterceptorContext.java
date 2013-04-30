@@ -2,6 +2,7 @@ package com.profiler.interceptor;
 
 import java.util.Arrays;
 
+@Deprecated
 public class InterceptorContext {
 	private Object target;
 	private String className;

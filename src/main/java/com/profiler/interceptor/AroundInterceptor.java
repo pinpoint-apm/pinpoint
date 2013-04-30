@@ -1,9 +1,9 @@
 package com.profiler.interceptor;
 
-public interface AroundInterceptor extends BeforeInterceptor, AfterInterceptor {
-	@Override
+@Deprecated
+public interface AroundInterceptor  {
+
 	void before(InterceptorContext ctx);
 
-	@Override
 	void after(InterceptorContext ctx);
 }

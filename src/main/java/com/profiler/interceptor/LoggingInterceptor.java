@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoggingInterceptor implements StaticAroundInterceptor {
+public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAroundInterceptor {
 
 	private final Logger logger;
 
@@ -27,5 +27,19 @@ public class LoggingInterceptor implements StaticAroundInterceptor {
 			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 	}
+
+    @Override
+    public void before(Object target, Object[] args) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("before " + StringUtils.toString(target) + " args:" + Arrays.toString(args) );
+        }
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("after " + StringUtils.toString(target) + " args:" + Arrays.toString(args) + " result:" + result);
+        }
+    }
 
 }
