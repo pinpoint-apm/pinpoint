@@ -183,7 +183,7 @@ var selectDotCallback = function(traces) {
     var token = Math.random() * 10000 + 1;
     selectdTracesBox[token] = traces;
     
-    var popupwindow = window.open("/selectedScatter.html", token);
+    var popupwindow = window.open("/selectedScatter.hippo", token);
 }
 
 function updateScatter(start, end, scatter_data, targetId, limit) {
