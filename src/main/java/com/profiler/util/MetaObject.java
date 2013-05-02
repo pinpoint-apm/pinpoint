@@ -1,13 +1,14 @@
 package com.profiler.util;
 
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MetaObject<R> {
 
-    private final Logger logger = Logger.getLogger(MetaObject.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MetaObject.class.getName());
 
     private String methodName;
     private Class[] args;
@@ -49,10 +50,10 @@ public class MetaObject<R> {
         try {
             return (R) method.invoke(target, args);
         } catch (IllegalAccessException e) {
-            logger.log(Level.WARNING, "invoke fail", e);
+            logger.warn("{} invoke fail", this.methodName, e);
             return defaultReturnValue;
         } catch (InvocationTargetException e) {
-            logger.log(Level.WARNING, "invoke fail", e);
+            logger.warn("{} invoke fail", this.methodName, e);
             return defaultReturnValue;
         }
     }
@@ -61,7 +62,7 @@ public class MetaObject<R> {
         try {
             return aClass.getMethod(this.methodName, this.args);
         } catch (NoSuchMethodException e) {
-            logger.log(Level.WARNING, this.methodName + " not found cls:" + aClass + " Caused:" + e.getMessage(), e);
+            logger.warn("{} not found cls:{} Caused:{}", new Object[] { this.methodName, aClass, e.getMessage(), e });
             return null;
         }
     }
