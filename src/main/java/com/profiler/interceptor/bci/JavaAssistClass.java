@@ -330,9 +330,9 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptorType == STATIC_INTERCEPTOR) {
             parameterTypeString = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
         }
-        String parameter = getParameter(behavior);
+        final String parameter = getParameter(behavior);
 
-        CodeBuilder after = new CodeBuilder();
+        final CodeBuilder after = new CodeBuilder();
         if (useContextClassLoader) {
             after.begin();
             beginAddFindInterceptorCode(id, after, interceptorType);
@@ -362,9 +362,9 @@ public class JavaAssistClass implements InstrumentClass {
             }
             after.end();
         }
-        String buildAfter = after.toString();
+        final String buildAfter = after.toString();
         if (logger.isDebugEnabled()) {
-            logger.debug("addStaticAfterInterceptor after behavior:{} code:{}", behavior.getLongName(), buildAfter);
+            logger.debug("addAfterInterceptor after behavior:{} code:{}", behavior.getLongName(), buildAfter);
         }
         behavior.insertAfter(buildAfter);
 
@@ -402,7 +402,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
         String buildCatch = catchCode.toString();
         if (logger.isDebugEnabled()) {
-            logger.debug("addStaticAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
+            logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
         CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
         behavior.addCatch(buildCatch, th);

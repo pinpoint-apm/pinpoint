@@ -6,12 +6,10 @@ import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;
 import com.profiler.interceptor.util.JDBCScope;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.modifier.db.DatabaseInfo;
 import com.profiler.util.InterceptorUtils;
 import com.profiler.util.MetaObject;
 
-import java.sql.Connection;
 import com.profiler.logging.Logger;
 
 public class PreparedStatementCreateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
@@ -26,7 +24,6 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private final MetaObject setSql = new MetaObject("__setSql", Object.class);
-    private int apiId;
     private TraceContext traceContext;
 
     @Override
@@ -65,29 +62,31 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
             return;
         }
         boolean success = InterceptorUtils.isSuccess(result);
+        ParsingResult parsingResult = null;
         if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
             this.setUrl.invoke(result, databaseInfo);
+            // 1. traceContext를 체크하면 안됨. traceContext에서 즉 같은 thread에서 prearedStatement에서 안만들수도 있음.
+            // 2. sampling 동작이 동작할 경우 preparedStatement를 create하는 thread가 trace 대상이 아닐수 있음. 먼제 sql을 저장해야 한다.
+            String sql = (String) args[0];
+
+            parsingResult = traceContext.parseSql(sql);
+            if (parsingResult != null) {
+                this.setSql.invoke(result, parsingResult);
+            } else {
+                if (logger.isErrorEnabled()) {
+                    logger.error("sqlParsing fail. parsingResult is null sql:{}", sql);
+                }
+            }
         }
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        if (target instanceof Connection) {
-            String sql = (String) args[0];
-            // 성공하였을 때만 PreparedSteatement에 Parsing Result를 넣어야 한다.
-            ParsingResult parsingResult = trace.recordSqlInfo(sql);
-            if (success) {
-                if (parsingResult != null) {
-                    this.setSql.invoke(result, parsingResult);
-                }
-            }
 
-            trace.recordException(result);
-        }
-
+        trace.recordException(result);
         trace.recordApi(descriptor);
 
         trace.markAfterTime();
