@@ -32,6 +32,7 @@
     <script type="text/javascript" src="/common/js/date.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
+	<script type="text/javascript" src="/common/js/sorttable.js"></script>
     
     <!-- scatter chart -->
     <script type="text/javascript" src="/common/js/hippo/chart-scatter3.js"></script>

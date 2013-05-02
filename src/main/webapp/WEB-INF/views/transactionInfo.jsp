@@ -33,6 +33,7 @@
 	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     
     <!-- scatter chart -->
@@ -445,6 +446,20 @@
    			 ]
    		}
     };
+    
+    var expandCell = function(e) {
+		var target = $(e.target);
+		if (target.data("isExpanded") === 'undefined' || target.data("isExpanded") == "T") {
+			target.data("isExpanded", "F");
+			target.css("white-space", "nowrap");
+		} else {
+			target.data("isExpanded", "T");
+			target.css("white-space", "normal");
+		}
+    }
+    
+    $(".arguments").bind("click", expandCell);
+    $(".method").bind("click", expandCell);
     
     var oServerMap;
     
