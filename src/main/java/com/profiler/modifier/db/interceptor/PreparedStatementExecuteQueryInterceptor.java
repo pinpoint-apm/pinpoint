@@ -61,7 +61,9 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
             Map bindValue = getBindValue.invoke(target);
             String bindString = toBindVariable(bindValue);
-            trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
+            if (bindString != null && bindString.length() != 0) {
+                trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
+            }
 
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);
