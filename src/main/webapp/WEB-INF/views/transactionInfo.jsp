@@ -116,6 +116,7 @@
         }
 
         #callStacks .exectime {
+            min-width:80px;
             text-align: center;
             width:80px;
         }
