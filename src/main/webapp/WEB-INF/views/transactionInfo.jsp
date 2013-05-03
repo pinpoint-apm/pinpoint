@@ -280,7 +280,7 @@
 	
 	<div class="tab-pane" id="Timeline">
         <!-- begin timeline -->
-        <div id="timeline" style="background-color:#E8E8E8;width:1000px;">
+		<div id="timeline" style="background-color:#E8E8E8;width:1000px;font-size:11px;">
 			<c:set var="startTime" scope="page" value="${callstackStart}"/>
 	        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
 	        
@@ -292,18 +292,16 @@
 					<c:set var="barRatio" scope="page" value="${1000 / (end - begin)}"/>
 				</c:if>
                 
-                  	<c:if test="${record.method and not record.excludeFromTimeline}">
-                       <div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;"
-                       	onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
-						<div style="width:200px;">${record.service} (${end - begin}ms)</div>
-                       </div>
-                       
-					<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-                    <ul>
-                        <li>${record}</li>
-                    </ul>
-	                </div>
-                  	</c:if>
+				<c:if test="${record.method and not record.excludeFromTimeline and record.service != ''}">
+				<div style="width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9; margin-left:<fmt:formatNumber value="${((begin - startTime) * barRatio) + 0.9}" type="number" pattern="#"/>px; margin-top:3px;" onmouseover="showDetail(${status.count})" onmouseout="hideDetail(${status.count})">
+					<div style="width:200px;">${record.service} (${end - begin}ms)</div>
+				</div>
+				<div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+                   <ul>
+                       <li>${record}</li>
+                   </ul>
+                </div>
+				</c:if>
 	        </c:forEach>
         </div>
         <!-- end timeline -->
@@ -420,10 +418,12 @@
 			target.data("isExpanded", "F");
 			target.css("white-space", "nowrap");
 			target.css("text-overflow", "ellipsis");
+            target.css("word-break", "normal");
 		} else {
 			target.data("isExpanded", "T");
 			target.css("white-space", "normal");
 			target.css("text-overflow", "initial");
+            target.css("word-break", "break-all");
 		}
     }
     
