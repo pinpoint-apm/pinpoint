@@ -208,10 +208,11 @@ function drawScatter(title, start, end, targetId, w, h) {
         alert("Can't draw scatter. Not supported browser.");
     }
     
+    var yAxisMAX = 2000;
     var date = new Date();
 
     if (oScatterChart != null) {
-        oScatterChart.updateXYAxis(start, end, 0, 10000);
+        oScatterChart.updateXYAxis(start, end, 0, yAxisMAX);
         oScatterChart.clear();
         return;
     }
@@ -222,7 +223,7 @@ function drawScatter(title, start, end, targetId, w, h) {
         nHeight : h ? h : 400,
         // nXMin: date.getTime() - 86400000, nXMax: date.getTime(),
         nXMin: start, nXMax: end,
-        nYMin: 0, nYMax: 10000,
+        nYMin: 0, nYMax: yAxisMAX,
         nZMin: 0, nZMax: 5,
         nBubbleSize: 3,
 		sXLabel : '(time)',
