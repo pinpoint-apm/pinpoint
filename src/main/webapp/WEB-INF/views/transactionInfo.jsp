@@ -174,7 +174,7 @@
 </ul>
 
 <div class="tab-content">
-	<div class="tab-pane active" id="CallStacks" style="overflow:hidden;">
+	<div class="tab-pane active" id="CallStacks">
 		<!-- begin new call stack -->
 	    <table id="callStacks" class="table table-bordered table-hover sortable resizable">
 	        <thead>
