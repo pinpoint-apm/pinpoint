@@ -413,14 +413,16 @@
    		}
     };
     
-    var expandCell = function(e) {
+	var expandCell = function(e) {
 		var target = $(e.target);
 		if (target.data("isExpanded") === 'undefined' || target.data("isExpanded") == "T") {
 			target.data("isExpanded", "F");
 			target.css("white-space", "nowrap");
+			target.css("text-overflow", "ellipsis");
 		} else {
 			target.data("isExpanded", "T");
 			target.css("white-space", "normal");
+			target.css("text-overflow", "initial");
 		}
     }
     
