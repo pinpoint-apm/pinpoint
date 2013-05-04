@@ -36,10 +36,10 @@ create 'AgentIdApplicationIndex', { NAME => 'Application' }
 create 'ApplicationIndex', { NAME => 'Agents' }
 create 'SqlMetaData', { NAME => 'Sql' }
 create 'ApiMetaData', { NAME => 'Api' }
-create 'TraceIndex', { NAME => 'Trace' , TTL => 259200  }
-create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 259200  }
-create 'Traces', { NAME => 'Span' , TTL => 259200  }, { NAME => 'Annotation' , TTL => 259200  }, { NAME => 'TerminalSpan' , TTL => 259200  }
-create 'SystemInfo', { NAME => 'JVM' , TTL => 259200  }
+create 'TraceIndex', { NAME => 'Trace' , TTL => 604800000  }
+create 'ApplicationTraceIndex', { NAME => 'Trace' , TTL => 604800000  }
+create 'Traces', { NAME => 'Span' , TTL => 604800000  }, { NAME => 'Annotation' , TTL => 604800000  }, { NAME => 'TerminalSpan' , TTL => 604800000  }
+create 'SystemInfo', { NAME => 'JVM' , TTL => 604800000  }
 create 'ApplicationMapStatisticsCaller', { NAME => 'Counter' }
 create 'ApplicationMapStatisticsCallee', { NAME => 'Counter' }
 create 'HostApplicationMap', { NAME => 'Map' }
