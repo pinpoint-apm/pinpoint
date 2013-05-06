@@ -30,24 +30,22 @@
 	</style>
 </head>
 <body>
-<div style="max-height:200px;min-height:200px;overflow:scroll;">
-	<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
-		<thead>
-		<tr>
-		    <th class="sorttable_numeric">#</th>
-		    <th class="sorttable_numeric">Time</th>
-		    <th>TraceId</th>
-		    <th class="sorttable_numeric">Res. Time (ms)</th>
-		    <th>Exception</th>
-		    <th>Application</th>
-		    <th>AgentId</th>
-		    <th>ClientIP</th>
-		</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
-</div>
+<table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
+	<thead>
+	<tr>
+	    <th class="sorttable_numeric">#</th>
+	    <th class="sorttable_numeric">Time</th>
+	    <th>TraceId</th>
+	    <th class="sorttable_numeric">Res. Time (ms)</th>
+	    <th>Exception</th>
+	    <th>Application</th>
+	    <th>AgentId</th>
+	    <th>ClientIP</th>
+	</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
 <script type="text/javascript">
 var selectedRow;
 
