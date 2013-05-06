@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import com.nhn.hippo.web.calltree.server.AgentIdNodeSelector;
+import com.nhn.hippo.web.calltree.server.ApplicationIdNodeSelector;
+import com.nhn.hippo.web.calltree.server.NodeSelector;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
@@ -57,7 +59,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<SpanBo> transaction = this.traceDao.selectSpans(traceId);
 
 		Set<String> endPoints = createUniqueEndpoint(transaction);
-		ServerCallTree tree = createServerCallTree(transaction);
+		ServerCallTree tree = createServerCallTree(transaction, new AgentIdNodeSelector());
 
 		// subSpan에서 record할 데이터만 골라낸다.
 		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
@@ -68,6 +70,37 @@ public class FlowChartServiceImpl implements FlowChartService {
 		watch.stop();
 		logger.info("Fetch single transaction serverCallTree elapsed. {}ms", watch.getLastTaskTimeMillis());
 
+		return tree;
+	}
+	
+	/**
+	 * filtered application map
+	 */
+	@Override
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet) {
+		StopWatch watch = new StopWatch();
+		watch.start();
+		
+		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
+		List<SpanBo> transaction = new ArrayList<SpanBo>();
+		for (List<SpanBo> t : transactionList) {
+			for (SpanBo span : t) {
+				transaction.add(span);
+			}
+		}
+		
+		Set<String> endPoints = createUniqueEndpoint(transaction);
+		ServerCallTree tree = createServerCallTree(transaction, new ApplicationIdNodeSelector());
+		
+		// subSpan에서 record할 데이터만 골라낸다.
+		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
+		
+		tree.addSpanEventList(spanEventBoList);
+		tree.build();
+		
+		watch.stop();
+		logger.info("Fetch single transaction serverCallTree elapsed. {}ms", watch.getLastTaskTimeMillis());
+		
 		return tree;
 	}
 
@@ -102,8 +135,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * @param transaction
 	 * @return
 	 */
-	private ServerCallTree createServerCallTree(List<SpanBo> transaction) {
-		ServerCallTree serverCallTree = new ServerCallTree(new AgentIdNodeSelector());
+	private ServerCallTree createServerCallTree(List<SpanBo> transaction, NodeSelector nodeSelector) {
+		ServerCallTree serverCallTree = new ServerCallTree(nodeSelector);
 		serverCallTree.addSpanList(transaction);
 
 		// TODO 이 메소드는 transaction하나만 조회하는 페이지에서 사용되기 때문에 이렇게 한다.

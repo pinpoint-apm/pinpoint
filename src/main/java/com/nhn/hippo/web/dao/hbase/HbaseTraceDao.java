@@ -71,6 +71,18 @@ public class HbaseTraceDao implements TraceDao {
 		}
 		return template2.get(HBaseTables.TRACES, gets, spanMapper);
 	}
+	
+	@Override
+	public List<List<SpanBo>> selectAllSpans(Set<TraceId> traceIdSet) {
+		List<Get> gets = new ArrayList<Get>(traceIdSet.size());
+		for (TraceId traceId : traceIdSet) {
+			Get get = new Get(traceId.getBytes());
+			get.addFamily(HBaseTables.TRACES_CF_SPAN);
+			get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
+			gets.add(get);
+		}
+		return template2.get(HBaseTables.TRACES, gets, spanMapper);
+	}
 
 	@Override
 	public List<SpanBo> selectSpans(TraceId traceId) {
