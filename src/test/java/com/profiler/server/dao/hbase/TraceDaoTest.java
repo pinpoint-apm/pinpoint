@@ -96,11 +96,13 @@ public class TraceDaoTest {
         UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         long l = System.currentTimeMillis();
-        
+
         Span span = new Span();
-        
         span.setAgentId("UnitTest");
-        span.setApplicationId("testApplication");
+        span.setApplicationName("testApplication");
+        span.setAgentStartTime(123);
+
+
         span.setMostTraceId(uuid.getMostSignificantBits());
         span.setLeastTraceId(uuid.getLeastSignificantBits());
         span.setStartTime(l);

@@ -1,5 +1,7 @@
 package com.profiler.server.dao.hbase;
 
+import com.profiler.common.bo.SqlMetaDataBo;
+import com.profiler.common.dto2.thrift.AgentKey;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -9,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.profiler.common.dto2.thrift.SqlMetaData;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
 import com.profiler.server.dao.SqlMetaDataDao;
 
 /**
@@ -28,8 +29,8 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
             logger.debug("insert:" + sqlMetaData);
         }
 
-        String agentId = sqlMetaData.getAgentId();
-        byte[] rowKey = RowKeyUtils.getSqlId(agentId, sqlMetaData.getAgentIdentifier(), sqlMetaData.getHashCode(), sqlMetaData.getStartTime());
+        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getHashCode(), sqlMetaData.getAgentStartTime());
+        byte[] rowKey = sqlMetaDataBo.toRowKey();
 
 
         Put put = new Put(rowKey);

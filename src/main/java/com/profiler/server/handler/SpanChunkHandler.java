@@ -71,10 +71,12 @@ public class SpanChunkHandler implements Handler {
                     
                     // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
                     // 내가 호출한 정보 저장. (span이 호출한 spanevent)
-					applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanChunk.getApplicationId(), spanChunk.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+					applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(),
+                            spanChunk.getApplicationName(), spanChunk.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
 
 					// 나를 호출한 정보 저장 (spanevent를 호출한 span)
-					applicationMapStatisticsCallerDao.update(spanChunk.getApplicationId(), spanChunk.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
+					applicationMapStatisticsCallerDao.update(spanChunk.getApplicationName(),
+                            spanChunk.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {

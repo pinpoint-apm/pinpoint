@@ -34,7 +34,7 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
         byte[] rowTimeSlotBytes = Bytes.toBytes(rowTimeSlot);
 
-        byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(span.getApplicationId(), 24), rowTimeSlotBytes);
+        byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(span.getApplicationName(), 24), rowTimeSlotBytes);
 		byte[] cf;
         if (span.getErr() == 0) {
             // 에러 없음.
