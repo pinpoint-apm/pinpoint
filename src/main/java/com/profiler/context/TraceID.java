@@ -15,8 +15,6 @@ public interface TraceID {
 
     int getParentSpanId();
 
-    boolean isSampled();
-
     short getFlags();
 
     boolean isRoot();
