@@ -145,7 +145,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, true, flags);
+            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. " + id);
             }

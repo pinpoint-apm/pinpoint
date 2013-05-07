@@ -6,23 +6,21 @@ public class DefaultTraceID implements TraceID {
 	private UUID id;
 	private int parentSpanId;
 	private int spanId;
-	private boolean sampled;
 	private short flags;
 
 	public static DefaultTraceID newTraceId() {
 		UUID uuid = UUID.randomUUID();
-		return new DefaultTraceID(uuid, SpanID.NULL, SpanID.newSpanID(), false, (short) 0);
+		return new DefaultTraceID(uuid, SpanID.NULL, SpanID.newSpanID(), (short) 0);
 	}
 
 	public TraceID getNextTraceId() {
-		return new DefaultTraceID(id, spanId, SpanID.nextSpanID(spanId, parentSpanId), sampled, flags);
+		return new DefaultTraceID(id, spanId, SpanID.nextSpanID(spanId, parentSpanId), flags);
 	}
 
-	public DefaultTraceID(UUID id, int parentSpanId, int spanId, boolean sampled, short flags) {
+	public DefaultTraceID(UUID id, int parentSpanId, int spanId, short flags) {
 		this.id = id;
 		this.parentSpanId = parentSpanId;
 		this.spanId = spanId;
-		this.sampled = sampled;
 		this.flags = flags;
 	}
 
@@ -78,9 +76,6 @@ public class DefaultTraceID implements TraceID {
 		return spanId;
 	}
 
-	public boolean isSampled() {
-		return sampled;
-	}
 
 	public short getFlags() {
 		return flags;
@@ -96,10 +91,6 @@ public class DefaultTraceID implements TraceID {
 
 	public void setSpanId(int spanId) {
 		this.spanId = spanId;
-	}
-
-	public void setSampled(boolean sampled) {
-		this.sampled = sampled;
 	}
 
 	public void setFlags(short flags) {
@@ -118,7 +109,6 @@ public class DefaultTraceID implements TraceID {
 		sb.append("id=").append(id);
 		sb.append(", parentSpanId=").append(parentSpanId);
 		sb.append(", spanId=").append(spanId);
-		sb.append(", sampled=").append(sampled);
 		sb.append(", flags=").append(flags);
 		sb.append("}");
 

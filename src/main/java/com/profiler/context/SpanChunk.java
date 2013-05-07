@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.profiler.common.dto.thrift.AgentKey;
 import org.apache.thrift.TBase;
 
 import com.profiler.DefaultAgent;
@@ -27,10 +28,12 @@ public class SpanChunk implements Thriftable {
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
 
-        tSpanChunk.setAgentId(DefaultAgent.getInstance().getAgentId());
-        tSpanChunk.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+        DefaultAgent agent = DefaultAgent.getInstance();
+        tSpanChunk.setAgentId(agent.getAgentId());
+        tSpanChunk.setApplicationName(agent.getApplicationName());
+        tSpanChunk.setAgentStartTime(agent.getStartTime());
+
         tSpanChunk.setServiceType(parentSpan.getServiceType().getCode());
-        tSpanChunk.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
         UUID id = parentSpan.getTraceID().getId();
         tSpanChunk.setMostTraceId(id.getMostSignificantBits());
@@ -52,7 +55,7 @@ public class SpanChunk implements Thriftable {
             com.profiler.common.dto.thrift.SpanEvent tSpanEvent = new com.profiler.common.dto.thrift.SpanEvent();
 
 //            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
-//            tSpanEvent.setApplicationId(Agent.getInstance().getApplicationName());
+//            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());
 //            tSpanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
 
             long parentSpanStartTime = spanEvent.getParentSpan().getStartTime();

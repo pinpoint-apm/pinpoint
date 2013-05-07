@@ -168,8 +168,8 @@ public class Span implements Thriftable {
         com.profiler.common.dto.thrift.Span span = new com.profiler.common.dto.thrift.Span();
 
         span.setAgentId(DefaultAgent.getInstance().getAgentId());
-        span.setApplicationId(DefaultAgent.getInstance().getApplicationName());
-        span.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
+        span.setApplicationName(DefaultAgent.getInstance().getApplicationName());
+        span.setAgentStartTime(DefaultAgent.getInstance().getStartTime());
 
         span.setStartTime(startTime);
         span.setElapsed((int) (endTime - startTime));

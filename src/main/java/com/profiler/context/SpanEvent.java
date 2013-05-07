@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.profiler.DefaultAgent;
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto.thrift.AgentKey;
 import com.profiler.common.dto.thrift.Annotation;
 
 /**
@@ -175,11 +176,16 @@ public class SpanEvent implements Thriftable {
         spanEvent.setSequence(sequence);
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
-            spanEvent.setAgentId(DefaultAgent.getInstance().getAgentId());
-            spanEvent.setApplicationId(DefaultAgent.getInstance().getApplicationName());
+            AgentKey agentKey = new AgentKey();
+            DefaultAgent agent = DefaultAgent.getInstance();
+            agentKey.setAgentId(agent.getAgentId());
+            agentKey.setApplicationName(agent.getApplicationName());
+            agentKey.setAgentStartTime(agent.getStartTime());
+
+            spanEvent.setAgentKey(agentKey);
+
             spanEvent.setParentServiceType(parentSpan.getServiceType().getCode()); // added
             spanEvent.setParentEndPoint(parentSpan.getEndPoint()); // added
-            spanEvent.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
 
             TraceID parentSpanTraceID = parentSpan.getTraceID();
             spanEvent.setMostTraceId(parentSpanTraceID.getId().getMostSignificantBits());
