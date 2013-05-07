@@ -104,7 +104,7 @@ public class SpanServiceImpl implements SpanService {
 				// TODO 일단 시간까지 조회는 하지 말고 하자.
 				// 미리 sqlMetaDataList를 indentifier로 필터치는 로직이 더 좋을것으로 생각됨.
 				int hashCode = (Integer) sqlIdAnnotation.getValue();
-				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentInfoBo.getAgentId(), agentInfoBo.getIdentifier(), hashCode, agentInfoBo.getTimestamp());
+				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentInfoBo.getAgentId(), hashCode, agentInfoBo.getTimestamp());
 				int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -120,12 +120,12 @@ public class SpanServiceImpl implements SpanService {
 						sqlMeta.setValue(sqlMetaDataBo.getSql());
 						annotationBoList.add(sqlMeta);
 
-						AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
-						if (checkFail != null) {
-							// 실패
-							annotationBoList.add(checkFail);
-							return;
-						}
+//						AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
+//						if (checkFail != null) {
+//							// 실패
+//							annotationBoList.add(checkFail);
+//							return;
+//						}
 
 						AnnotationBo sql = new AnnotationBo();
 						sql.setKey(AnnotationKey.SQL.getCode());
@@ -144,12 +144,6 @@ public class SpanServiceImpl implements SpanService {
 						sqlMeta.setValue(sqlMetaDataBo.getSql());
 						annotationBoList.add(sqlMeta);
 
-						AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
-						if (checkFail != null) {
-							// 실패
-							annotationBoList.add(checkFail);
-							return;
-						}
 
 						AnnotationBo sql = new AnnotationBo();
 						sql.setKey(AnnotationKey.SQL.getCode());
@@ -167,17 +161,6 @@ public class SpanServiceImpl implements SpanService {
 
 			}
 
-			private AnnotationBo checkIdentifier(SpanAlign spanAlign, SqlMetaDataBo sqlMetaDataBo) {
-				short agentIdentifier = getAgentIdentifier(spanAlign);
-				short sqlIdentifier = sqlMetaDataBo.getIdentifier();
-				if (agentIdentifier == sqlIdentifier) {
-					return null;
-				}
-				AnnotationBo identifierCheckFail = new AnnotationBo();
-				identifierCheckFail.setKey(AnnotationKey.SQL.getCode());
-				identifierCheckFail.setValue("invalid SqlMetaInfo:" + sqlMetaDataBo);
-				return identifierCheckFail;
-			}
 		});
 	}
 
@@ -211,14 +194,6 @@ public class SpanServiceImpl implements SpanService {
 			return spanAlign.getSpanBo().getAgentId();
 		} else {
 			return spanAlign.getSpanEventBo().getAgentId();
-		}
-	}
-
-	private short getAgentIdentifier(SpanAlign spanAlign) {
-		if (spanAlign.isSpan()) {
-			return spanAlign.getSpanBo().getAgentIdentifier();
-		} else {
-			return spanAlign.getSpanEventBo().getAgentIdentifier();
 		}
 	}
 
@@ -258,13 +233,6 @@ public class SpanServiceImpl implements SpanService {
 					apiMetaData.setValue(apiMetaDataBo);
 					annotationBoList.add(apiMetaData);
 
-					AnnotationBo checkFail = checkIdentifier(spanAlign, apiMetaDataBo);
-					if (checkFail != null) {
-						// 실패
-						annotationBoList.add(checkFail);
-						return;
-					}
-
 					AnnotationBo apiAnnotation = new AnnotationBo();
 					apiAnnotation.setKey(AnnotationKey.API.getCode());
 					String apiInfo = getApiInfo(apiMetaDataBo);
@@ -278,18 +246,6 @@ public class SpanServiceImpl implements SpanService {
 					annotationBoList.add(apiAnnotation);
 				}
 
-			}
-
-			private AnnotationBo checkIdentifier(SpanAlign spanAlign, ApiMetaDataBo apiMetaDataBo) {
-				short agentIdentifier = getAgentIdentifier(spanAlign);
-				short sqlIdentifier = apiMetaDataBo.getIdentifier();
-				if (agentIdentifier == sqlIdentifier) {
-					return null;
-				}
-				AnnotationBo identifierCheckFail = new AnnotationBo();
-				identifierCheckFail.setKey(AnnotationKey.ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR.getCode());
-				identifierCheckFail.setValue("invalid ApiMetaInfo:" + apiMetaDataBo);
-				return identifierCheckFail;
 			}
 
 		});

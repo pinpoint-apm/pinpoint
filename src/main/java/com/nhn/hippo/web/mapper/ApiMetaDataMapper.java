@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.profiler.common.bo.ApiMetaDataBo;
 import com.profiler.common.buffer.Buffer;
-import com.profiler.common.util.RowKeyUtils;
 
 /**
  *
@@ -31,7 +30,8 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();
         KeyValue[] keyList = result.raw();
         for (KeyValue keyValue : keyList) {
-            ApiMetaDataBo apiMetaDataBo = RowKeyUtils.parseApiId(rowKey);
+            ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
+            apiMetaDataBo.readRowKey(rowKey);
             byte[] qualifier = keyValue.getQualifier();
             Buffer buffer = new FixedBuffer(qualifier);
             String apiInfo = buffer.readPrefixedString();

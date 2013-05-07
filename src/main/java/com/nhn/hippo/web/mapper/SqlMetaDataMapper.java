@@ -10,7 +10,6 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.profiler.common.bo.SqlMetaDataBo;
-import com.profiler.common.util.RowKeyUtils;
 
 /**
  *
@@ -25,7 +24,8 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
         List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
         KeyValue[] keyList = result.raw();
         for (KeyValue keyValue : keyList) {
-            SqlMetaDataBo sqlMetaDataBo = RowKeyUtils.parseSqlId(rowKey);
+            SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo();
+            sqlMetaDataBo.readRowKey(rowKey);
             String sql = Bytes.toString(keyValue.getBuffer(), keyValue.getQualifierOffset(), keyValue.getQualifierLength());
             sqlMetaDataBo.setSql(sql);
             sqlMetaDataList.add(sqlMetaDataBo);

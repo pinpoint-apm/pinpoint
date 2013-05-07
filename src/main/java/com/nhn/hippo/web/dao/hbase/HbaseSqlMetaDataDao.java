@@ -12,7 +12,6 @@ import com.nhn.hippo.web.dao.SqlMetaDataDao;
 import com.profiler.common.bo.SqlMetaDataBo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
 
 /**
  *
@@ -28,8 +27,10 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
     @Override
-    public List<SqlMetaDataBo> getSqlMetaData(String agentId, short identifier, int hashCode, long time) {
-        byte[] sqlId = RowKeyUtils.getSqlId(agentId, identifier, hashCode, time);
+    public List<SqlMetaDataBo> getSqlMetaData(String agentId, int hashCode, long time) {
+        SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, hashCode, time);
+        byte[] sqlId = sqlMetaData.toRowKey();
+
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.SQL_METADATA_CF_SQL);
 

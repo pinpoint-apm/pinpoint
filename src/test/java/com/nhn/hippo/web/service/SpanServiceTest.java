@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -127,7 +128,7 @@ public class SpanServiceTest {
 		Span span = new Span();
 
 		span.setAgentId("UnitTest");
-		span.setApplicationId("ApplicationId");
+		span.setApplicationName("ApplicationId");
 		span.setMostTraceId(uuid.getMostSignificantBits());
 		span.setLeastTraceId(uuid.getLeastSignificantBits());
 		span.setStartTime(time);
@@ -154,7 +155,9 @@ public class SpanServiceTest {
 		Span sub = new Span();
 
 		sub.setAgentId("UnitTest");
-		sub.setApplicationId("ApplicationId");
+		sub.setApplicationName("ApplicationId");
+        sub.setAgentStartTime(123);
+
 		sub.setMostTraceId(span.getMostTraceId());
 		sub.setLeastTraceId(span.getLeastTraceId());
 		sub.setStartTime(time);

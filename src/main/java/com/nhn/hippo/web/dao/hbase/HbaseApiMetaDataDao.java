@@ -12,7 +12,6 @@ import com.nhn.hippo.web.dao.ApiMetaDataDao;
 import com.profiler.common.bo.ApiMetaDataBo;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
 
 /**
  *
@@ -29,7 +28,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     @Override
     public List<ApiMetaDataBo> getApiMetaData(String agentId, short identifier, int apiId, long time) {
-        byte[] sqlId = RowKeyUtils.getApiId(agentId, identifier, apiId, time);
+        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, apiId, time);
+        byte[] sqlId = apiMetaDataBo.toRowKey();
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.API_METADATA_CF_API);
 
