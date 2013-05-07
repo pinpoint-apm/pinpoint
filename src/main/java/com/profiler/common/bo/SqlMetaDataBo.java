@@ -1,11 +1,18 @@
 package com.profiler.common.bo;
 
+import com.profiler.common.util.BytesUtils;
+import com.profiler.common.util.RowKeyUtils;
+import com.profiler.common.util.TimeUtils;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import static com.profiler.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.profiler.common.util.BytesUtils.INT_BYTE_LENGTH;
+
 /**
  *
  */
 public class SqlMetaDataBo {
     private String agentId;
-    private short identifier;
     private int hashCode;
     private long startTime;
 
@@ -15,9 +22,8 @@ public class SqlMetaDataBo {
     }
 
 
-    public SqlMetaDataBo(String agentId, short identifier, int hashCode, long startTime) {
+    public SqlMetaDataBo(String agentId, int hashCode, long startTime) {
         this.agentId = agentId;
-        this.identifier = identifier;
         this.hashCode = hashCode;
         this.startTime = startTime;
     }
@@ -30,13 +36,6 @@ public class SqlMetaDataBo {
         this.agentId = agentId;
     }
 
-    public short getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(short identifier) {
-        this.identifier = identifier;
-    }
 
     public int getHashCode() {
         return hashCode;
@@ -62,14 +61,33 @@ public class SqlMetaDataBo {
         this.sql = sql;
     }
 
+    public void readRowKey(byte[] rowKey) {
+        this.agentId = Bytes.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
+        this.hashCode = readKeyCode(rowKey);
+        this.startTime = TimeUtils.recoveryCurrentTimeMillis(readTime(rowKey));
+    }
+
+
+    private static long readTime(byte[] rowKey) {
+        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH);
+    }
+
+    private static int readKeyCode(byte[] rowKey) {
+        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN);
+    }
+
+    public byte[] toRowKey() {
+        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.hashCode, this.startTime);
+    }
+
     @Override
     public String toString() {
         return "SqlMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
-                ", identifier=" + identifier +
                 ", hashCode=" + hashCode +
                 ", startTime=" + startTime +
                 ", sql='" + sql + '\'' +
                 '}';
     }
+
 }

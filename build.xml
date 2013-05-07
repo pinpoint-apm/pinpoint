@@ -4,10 +4,10 @@
     <property name="target.dir" value="${basedir}/target/"/>
 
 
-    <target name="copy.common.deploy.dir" depends="mvn.build">
-        <copy file="${target.dir}/hippo-commons-0.0.2.jar" todir="${common.dir}">
-        </copy>
-    </target>
+    <!--<target name="copy.common.deploy.dir" depends="mvn.build">-->
+        <!--<copy file="${target.dir}/hippo-commons-0.0.2.jar" todir="${common.dir}">-->
+        <!--</copy>-->
+    <!--</target>-->
 
     <target name="mvn.build">
         <exec executable="${maven.dir}/bin/mvn.bat">

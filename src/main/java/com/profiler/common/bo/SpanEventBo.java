@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto2.thrift.AgentKey;
 import com.profiler.common.dto2.thrift.Annotation;
 import com.profiler.common.dto2.thrift.SpanChunk;
 import com.profiler.common.buffer.Buffer;
@@ -29,11 +30,11 @@ public class SpanEventBo implements Span {
 	// private static final int TIMESTAMP = 8;
 	private static final int SERVICETYPE = 2;
 	private static final int FLAG = 2;
-    private static final int AGENTIDENTIFIER = 2;
+    private static final int AGENTSTARTTIME = 8;
 
 	private String agentId;
     private String applicationId;
-    private short agentIdentifier;
+    private long agentStartTime;
 
 	private long mostTraceId;
 	private long leastTraceId;
@@ -61,8 +62,8 @@ public class SpanEventBo implements Span {
 
 	public SpanEventBo(com.profiler.common.dto2.thrift.Span tSpan, SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
-        this.applicationId = tSpan.getApplicationId();
-        this.agentIdentifier = tSpan.getAgentIdentifier();
+        this.applicationId = tSpan.getApplicationName();
+        this.agentStartTime = tSpan.getAgentStartTime();
 
 		this.mostTraceId = tSpan.getMostTraceId();
 		this.leastTraceId = tSpan.getLeastTraceId();
@@ -95,7 +96,8 @@ public class SpanEventBo implements Span {
 
 	public SpanEventBo(SpanChunk spanChunk, SpanEvent spanEvent) {
 		this.agentId = spanChunk.getAgentId();
-        this.agentIdentifier = spanChunk.getAgentIdentifier();
+        this.applicationId = spanChunk.getApplicationName();
+        this.agentStartTime = spanChunk.getAgentStartTime();
 
 		this.mostTraceId = spanChunk.getMostTraceId();
 		this.leastTraceId = spanChunk.getLeastTraceId();
@@ -126,9 +128,12 @@ public class SpanEventBo implements Span {
 	}
 
 	public SpanEventBo(SpanEvent spanEvent) {
-		this.agentId = spanEvent.getAgentId();
-        this.applicationId = spanEvent.getApplicationId();
-        this.agentIdentifier = spanEvent.getAgentIdentifier();
+        final AgentKey agentKey = spanEvent.getAgentKey();
+        if (agentKey != null) {
+            this.agentId = agentKey.getAgentId();
+            this.applicationId = agentKey.getApplicationName();
+            this.agentStartTime = agentKey.getAgentStartTime();
+        }
 
 		this.mostTraceId = spanEvent.getMostTraceId();
 		this.leastTraceId = spanEvent.getLeastTraceId();
@@ -175,12 +180,12 @@ public class SpanEventBo implements Span {
 		this.agentId = agentId;
 	}
 
-    public short getAgentIdentifier() {
-        return agentIdentifier;
+    public long getAgentStartTime() {
+        return this.agentStartTime;
     }
 
-    public void setAgentIdentifier(short agentIdentifier) {
-        this.agentIdentifier = agentIdentifier;
+    public void setAgentStartTime(long agentStartTime) {
+        this.agentStartTime = agentStartTime;
     }
 
     public long getMostTraceId() {
@@ -304,7 +309,7 @@ public class SpanEventBo implements Span {
 		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
 		// PARENTSPANID + FLAG + TERMINAL;
-		size += SERVICETYPE + AGENTIDENTIFIER;
+		size += SERVICETYPE + AGENTSTARTTIME;
 
 		// startTime 4, elapsed 4, depth 4, nextSpanId 4
 		size += 16;
@@ -330,7 +335,7 @@ public class SpanEventBo implements Span {
 
 		buffer.put1PrefixedBytes(agentIDBytes);
         buffer.put1PrefixedBytes(applicationIdBytes);
-        buffer.put(agentIdentifier);
+        buffer.put(agentStartTime);
 
 		buffer.put(startElapsed);
 		buffer.put(endElapsed);
@@ -377,7 +382,7 @@ public class SpanEventBo implements Span {
 
 		this.agentId = buffer.read1PrefixedString();
         this.applicationId = buffer.read1UnsignedPrefixedString();
-        this.agentIdentifier = buffer.readShort();
+        this.agentStartTime = buffer.readLong();
 
 		this.startElapsed = buffer.readInt();
 		this.endElapsed = buffer.readInt();

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.dto2.thrift.AgentKey;
 import com.profiler.common.dto2.thrift.Annotation;
 import com.profiler.common.dto2.thrift.Span;
 import com.profiler.common.buffer.Buffer;
@@ -30,12 +31,13 @@ public class SpanBo implements com.profiler.common.bo.Span {
     // private static final int TIMESTAMP = 8;
     private static final int SERVICETYPE = 2;
     private static final int FLAG = 2;
-    private static final int AGENTIDENTIFIER = 2;
+    private static final int AGENTSTARTTIME = 8;
     private static final int EXCEPTION_SIZE = 4;
 
+//    private AgentKeyBo agentKeyBo;
     private String agentId;
     private String applicationId;
-    private short agentIdentifier;
+    private long agentStartTime;
 
     private long mostTraceId;
     private long leastTraceId;
@@ -64,8 +66,8 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
 	public SpanBo(Span span) {
         this.agentId = span.getAgentId();
-        this.applicationId = span.getApplicationId();
-        this.agentIdentifier = span.getAgentIdentifier();
+        this.applicationId = span.getApplicationName();
+        this.agentStartTime = span.getAgentStartTime();
 
         this.mostTraceId = span.getMostTraceId();
         this.leastTraceId = span.getLeastTraceId();
@@ -134,14 +136,13 @@ public class SpanBo implements com.profiler.common.bo.Span {
         this.applicationId = applicationId;
     }
 
-    public short getAgentIdentifier() {
-        return agentIdentifier;
+    public long getAgentStartTime() {
+        return agentStartTime;
     }
 
-    public void setAgentIdentifier(short agentIdentifier) {
-        this.agentIdentifier = agentIdentifier;
+    public void setAgentStartTime(long agentStartTime) {
+        this.agentStartTime = agentStartTime;
     }
-
 
     public long getStartTime() {
         return startTime;
@@ -310,7 +311,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
 	    size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 	    // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
         // PARENTSPANID + FLAG + TERMINAL;
-        size += PARENTSPANID + SERVICETYPE + AGENTIDENTIFIER + EXCEPTION_SIZE;
+        size += PARENTSPANID + SERVICETYPE + AGENTSTARTTIME + EXCEPTION_SIZE;
         if (flag != 0) {
             size += FLAG;
         }
@@ -336,7 +337,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         // buffer.put(leastTraceID);
 
         buffer.put1PrefixedBytes(agentIDBytes);
-        buffer.put(agentIdentifier);
+        buffer.put(agentStartTime);
 
         // buffer.put(spanID);
         buffer.put(parentSpanId);
@@ -369,7 +370,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
         // this.leastTraceID = buffer.readLong();
 
         this.agentId = buffer.read1PrefixedString();
-        this.agentIdentifier = buffer.readShort();
+        this.agentStartTime = buffer.readLong();
 
         // this.spanID = buffer.readLong();
         this.parentSpanId = buffer.readInt();
@@ -398,7 +399,7 @@ public class SpanBo implements com.profiler.common.bo.Span {
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
-                ", agentIdentifier=" + agentIdentifier +
+                ", agentStartTime=" + agentStartTime +
                 ", mostTraceId=" + mostTraceId +
                 ", leastTraceId=" + leastTraceId +
                 ", spanId=" + spanId +

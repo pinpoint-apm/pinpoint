@@ -1,14 +1,21 @@
 package com.profiler.common.bo;
 
+import com.profiler.common.util.BytesUtils;
+import com.profiler.common.util.RowKeyUtils;
+import com.profiler.common.util.TimeUtils;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import static com.profiler.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.profiler.common.util.BytesUtils.INT_BYTE_LENGTH;
+
 /**
  *
  */
 public class ApiMetaDataBo {
     private String agentId;
-    private short identifier;
+    private long startTime;
 
     private int apiId;
-    private long startTime;
 
     private String apiInfo;
     private int lineNumber;
@@ -16,9 +23,8 @@ public class ApiMetaDataBo {
     public ApiMetaDataBo() {
     }
 
-    public ApiMetaDataBo(String agentId, short identifier, int apiId, long startTime) {
+    public ApiMetaDataBo(String agentId, int apiId, long startTime) {
         this.agentId = agentId;
-        this.identifier = identifier;
         this.apiId = apiId;
         this.startTime = startTime;
     }
@@ -39,13 +45,6 @@ public class ApiMetaDataBo {
         this.apiId = apiId;
     }
 
-    public short getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(short identifier) {
-        this.identifier = identifier;
-    }
 
     public long getStartTime() {
         return startTime;
@@ -71,17 +70,33 @@ public class ApiMetaDataBo {
         this.lineNumber = lineNumber;
     }
 
+    public void readRowKey(byte[] bytes) {
+        this.agentId = Bytes.toString(bytes, 0, AGENT_NAME_MAX_LEN).trim();
+        this.apiId = readKeyCode(bytes);
+        this.startTime = TimeUtils.recoveryCurrentTimeMillis(readTime(bytes));
+    }
+
+    private static long readTime(byte[] rowKey) {
+        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH);
+    }
+
+    private static int readKeyCode(byte[] rowKey) {
+        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN);
+    }
+
+    public byte[] toRowKey() {
+        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.apiId, this.startTime);
+    }
+
     @Override
     public String toString() {
         return "ApiMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
-                ", identifier=" + identifier +
                 ", apiId=" + apiId +
                 ", startTime=" + startTime +
                 ", apiInfo='" + apiInfo + '\'' +
                 ", lineNumber=" + lineNumber +
                 '}';
     }
-
 
 }
