@@ -181,9 +181,8 @@ public class DefaultTraceContext implements TraceContext {
             ApiMetaData apiMetadata = new ApiMetaData();
             DefaultAgent agent = DefaultAgent.getInstance();
             apiMetadata.setAgentId(agent.getAgentId());
-            apiMetadata.setAgentIdentifier(agent.getIdentifier());
+            apiMetadata.setAgentStartTime(agent.getStartTime());
 
-            apiMetadata.setStartTime(agent.getStartTime());
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());
@@ -195,8 +194,8 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, boolean sampled, short flags) {
-        return new DefaultTraceID(uuid, parentSpanID, spanID, sampled, flags);
+    public TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, short flags) {
+        return new DefaultTraceID(uuid, parentSpanID, spanID, flags);
     }
 
 
@@ -206,6 +205,7 @@ public class DefaultTraceContext implements TraceContext {
         ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
         String normalizedSql = parsingResult.getSql();
         // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
+
         boolean newValue = this.sqlCache.put(normalizedSql);
         if (newValue) {
             if (logger.isDebugEnabled()) {
@@ -218,9 +218,8 @@ public class DefaultTraceContext implements TraceContext {
 
             SqlMetaData sqlMetaData = new SqlMetaData();
             sqlMetaData.setAgentId(DefaultAgent.getInstance().getAgentId());
-            sqlMetaData.setAgentIdentifier(DefaultAgent.getInstance().getIdentifier());
+            sqlMetaData.setAgentStartTime(DefaultAgent.getInstance().getStartTime());
 
-            sqlMetaData.setStartTime(DefaultAgent.getInstance().getStartTime());
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);
 
