@@ -23,12 +23,12 @@ public class FromToFilter implements Filter {
 	}
 
 	@Override
-	public boolean exclude(SpanBo o) {
+	public boolean exclude(SpanBo span) {
 		return false;
 	}
 
 	@Override
-	public boolean include(SpanBo o) {
+	public boolean include(SpanBo span) {
 		return true;
 	}
 

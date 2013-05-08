@@ -11,12 +11,12 @@ public interface Filter {
 
 	public static final Filter NONE = new Filter() {
 		@Override
-		public boolean exclude(SpanBo o) {
+		public boolean exclude(SpanBo span) {
 			return false;
 		}
 
 		@Override
-		public boolean include(SpanBo o) {
+		public boolean include(SpanBo span) {
 			return true;
 		}
 	};
@@ -25,7 +25,7 @@ public interface Filter {
 	public static final String FILTER_ENTRY_DELIMETER = "\\|";
 
 	// TODO need generic ??
-	boolean exclude(SpanBo o);
+	boolean exclude(SpanBo span);
 
-	boolean include(SpanBo o);
+	boolean include(SpanBo span);
 }

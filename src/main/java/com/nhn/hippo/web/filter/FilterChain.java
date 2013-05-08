@@ -23,9 +23,9 @@ public class FilterChain implements Filter {
 	}
 
 	@Override
-	public boolean exclude(SpanBo o) {
+	public boolean exclude(SpanBo span) {
 		for (Filter f : filterList) {
-			if (!f.exclude(o)) {
+			if (!f.exclude(span)) {
 				return false;
 			}
 		}
@@ -33,9 +33,9 @@ public class FilterChain implements Filter {
 	}
 
 	@Override
-	public boolean include(SpanBo o) {
+	public boolean include(SpanBo span) {
 		for (Filter f : filterList) {
-			if (!f.include(o)) {
+			if (!f.include(span)) {
 				return false;
 			}
 		}
