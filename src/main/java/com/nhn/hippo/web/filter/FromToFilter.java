@@ -39,25 +39,63 @@ public class FromToFilter implements Filter {
 	public boolean include(List<SpanBo> transaction) {
 		boolean include = false;
 
-		for (SpanBo span : transaction) {
-			// from이 같으면...
-			if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
-				// event 확인.
-				List<SpanEventBo> eventBoList = span.getSpanEventBoList();
-				for (SpanEventBo event : eventBoList) {
-					if (toServiceCode == event.getServiceType().getCode() && toApplicationName.equals(event.getDestinationId())) {
-						include = true;
+		if (ServiceType.findServiceType(fromServiceCode) == ServiceType.CLIENT || ServiceType.findServiceType(fromServiceCode) == ServiceType.USER) {
+			for (SpanBo span : transaction) {
+				if (toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
+					include = true;
+					break;
+				}
+			}
+		} else if (ServiceType.findServiceType(toServiceCode).isUnknown()) {
+			for (SpanBo span : transaction) {
+				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
+					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
+					for (SpanEventBo event : eventBoList) {
+						// client가 있는지만 확인.
+						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
+							include = true;
+							break;
+						}
+					}
+					if (include) {
 						break;
 					}
 				}
-				if (include) {
+			}
+		} else if (ServiceType.findServiceType(toServiceCode).isWas()) {
+			// destination이 was인 경우 src, dest의 span이 모두 존재하겠지...
+			int foundCounter = 0;
+			for (SpanBo span : transaction) {
+				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
+					foundCounter++;
+				}
+				if (toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
+					foundCounter++;
+				}
+				if (foundCounter == 2) {
 					break;
+				}
+			}
+			include = foundCounter == 2;
+		} else {
+			for (SpanBo span : transaction) {
+				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
+					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
+					for (SpanEventBo event : eventBoList) {
+						if (toServiceCode == event.getServiceType().getCode() && toApplicationName.equals(event.getDestinationId())) {
+							include = true;
+							break;
+						}
+					}
+					if (include) {
+						break;
+					}
 				}
 			}
 		}
 
 		logger.debug("filter result = {}", include);
-		
+
 		return include;
 	}
 
