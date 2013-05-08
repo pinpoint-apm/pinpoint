@@ -28,7 +28,9 @@
     <script type="text/javascript" src="/common/js/date.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
 	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <script type="text/javascript" src="/common/js/hippo/navigationbar.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     
     <!-- scatter chart -->
@@ -39,7 +41,6 @@
 	<!-- server map -->    
     <script type="text/javascript" src="/common/js/hippo/chart-servermap.js"></script>
     <script type="text/javascript" src="/common/js/go.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/intersection.js"></script>
     <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
@@ -117,14 +118,11 @@
 <!-- END OF BODY -->
 
 <script type="text/javascript">
-$.extend($.tmpl.tag, {
-    "var": {
-        open: "var $1;"
-    }
-});
-$.extend($.tmpl.tag, { "eval": { open: "$1;"} });
+var Nav;
 
 $(document).ready(function () {
+	Nav = new _PinpointNavigationBar();
+	
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();
 	});
@@ -164,8 +162,7 @@ $(document).ready(function () {
 	// TODO 조회 버튼을 두 번 연속 눌렀을 때 앞서 수행되던 결과는 취소시켜야 함.
 	// 예를 들어 1일치 조회하다가 모두 조회 되기 전에 30분 데이터 조회할 때...
     function updateCharts() {
-		var applicationName = $("#application").val().split("@")[0];
-    	if(applicationName == "") {
+    	if(!Nav.isSelected()) {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;
     	}
@@ -174,8 +171,8 @@ $(document).ready(function () {
     	$("#servermap").show();
     	$("#scatterChartContainer").show();
     	
-    	showServerMap(applicationName);
-    	showResponseScatter(applicationName, getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());
+    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
+    	showResponseScatter(Nav.getApplicationName(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     }
     
 	$.getJSON("/applications.hippo", function(json) {
@@ -230,7 +227,6 @@ $(document).ready(function () {
 <script id="LinkInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
 			Response statistics
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1004, this);"></i>
 			<ul>
 				{{var lastKey=''}}
 				{{each(key, value) histogram}}
@@ -241,10 +237,8 @@ $(document).ready(function () {
 				<li>Failed : ${error}</li>
 			</ul>
 			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="alert('Sorry. Not implemented.\n query param = ${sourceinfo.applicationName} -> ${targetinfo.applicationName}');">Show transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
+			<a href="#" onclick="filterPassingTransaction('${query.applicationName}', '${query.serviceType}', ${query.from}, ${query.to}, '${sourceinfo.serviceType}', '${sourceinfo.applicationName}', '${targetinfo.serviceType}', '${targetinfo.applicationName}', null);">Filter passing transactions</a><br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
@@ -284,12 +278,10 @@ $(document).ready(function () {
 				</ul>
 			{{/if}}
 			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="showResponseScatter('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Transaction response scatter chart</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
-			<br/><a href="#" onclick="showRequests('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Show transactions</a>
-			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
+
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Filter passing transactions</a><br/>
+			<a href="#" onclick="showResponseScatter('${text}', Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());">Transaction response scatter chart</a><br/>
+			<a href="#" onclick="showRequests('${text}', ${query.from}, ${query.to}, ${query.period}, ${query.usePeriod});">Transaction list</a>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()"><i class="hippo-action-icon icon-remove"></i></button>
@@ -347,9 +339,9 @@ $(document).ready(function () {
 			<hr/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Focus on passing transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1001, this);"></i>
-			<br/><a href="#" onclick="showResponseScatter('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Transaction response scatter chart</a>
+			<br/><a href="#" onclick="showResponseScatter('${text}', Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());">Transaction response scatter chart</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1003, this);"></i>
-			<br/><a href="#" onclick="showRequests('${text}', getQueryStartTime(), getQueryEndTime(), getQueryPeriod(), isQueryFromNow());">Show transactions</a>
+			<br/><a href="#" onclick="showRequests('${text}', Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());">Show transactions</a>
 			<i class="hippo-action-icon icon-question-sign" onclick="help(1002, this);"></i>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>

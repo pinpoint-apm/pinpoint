@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.hippo.web.applicationmap.ApplicationMap;
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.filter.FilterBuilder;
 import com.nhn.hippo.web.service.ApplicationMapService;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.vo.TraceId;
@@ -49,12 +50,9 @@ public class ApplicationMapController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
-	public String getFilteredServerMapData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("serviceType") short serviceType, @RequestParam("from") long from, @RequestParam("to") long to) {
+	public String getFilteredServerMapData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("serviceType") short serviceType, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
 		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
-		
-		System.out.println(traceIdSet);
-		
-		ServerCallTree map = flow.selectServerCallTree(traceIdSet);
+		ServerCallTree map = flow.selectServerCallTree(traceIdSet, FilterBuilder.build(filterText));
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());

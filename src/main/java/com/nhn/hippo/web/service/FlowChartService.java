@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
+import com.nhn.hippo.web.filter.Filter;
 import com.nhn.hippo.web.vo.Application;
 import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.TraceId;
@@ -21,5 +22,5 @@ public interface FlowChartService {
 
 	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to);
 	
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet);
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter);
 }

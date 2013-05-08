@@ -68,32 +68,12 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 			}							
 		},
 		htParam : function(nFetchIndex, htLastFetchParam, htLastFetchedData) {
-			/*
-			// ORG
-			var htData;
-			if(nCallCount === 0 || typeof(htFetchedData) === 'undefined'){
-				htData = {
-					'application' : applicationName,
-					'period' : period,
-					'limit' : 5000
-				};
-			}else{
-				htData = {
-					'application' : applicationName,
-					'from' : htFetchedData.scatter[htFetchedData.scatter.length - 1].x + 1,
-					'to' : to,
-					'limit' : 5000
-				};
-			}
-			return htData;
-			*/
 			// calculate parameter
 			var htData;
 			console.log("htParam", nFetchIndex, htLastFetchParam, htLastFetchedData);
 
 			// period만큼 먼저 조회해본다.
 			if(nFetchIndex === 0 /*|| typeof(htLastFetchParam) === 'undefined' || typeof(htLastFetchedData) === 'undefined'*/){
-				console.log("1A");
 				htData = {
 					'application' : applicationName,
 					'period' : period,
@@ -101,7 +81,6 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 				};
 			} else {
 				if (bDrawOnceAll || htLastFetchedData.scatter.length == 0) {
-					console.log("1B");
 					htData = {
 						'application' : applicationName,
 						'from' : htLastFetchParam.to + 1,
@@ -109,7 +88,6 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 						'limit' : 500
 					};
 				} else {
-					console.log("1C", htLastFetchedData);
 					htData = {
 						'application' : applicationName,
 						// array[0] 이 최근 값, array[len]이 오래된 이다.
@@ -120,35 +98,9 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 				}
 			}
 			
-			console.log(htData.from, htData.to);
-			
 			return htData;
 		},
-		
-		//application=API-TOMCAT&period=259200000&limit=500&_=1367224726169
-		//application=API-TOMCAT&from=1366965558608&to=1367215685709&limit=500&_=1367224726170
-		//application=API-TOMCAT&from=1366965558608&to=1367201715998&limit=500&_=1367224726171
-		
-//		1366965814962 1367225014962 chart-scatter4.js:194
-//		1366965814962 1367215685709 chart-scatter4.js:123
-//		1366965814962 1367201715998 
-		
-		
 		nFetch : function(htLastFetchParam, htLastFetchedData) {
-			/*
-			// ORG
-			if (htFetchedData.scatter.length != 0) {
-				return true;
-			} else {
-				return false;
-			}
-
-			if (htFetchedData.scatter[htFetchedData.scatter.length - 1].x < date.getTime()) {
-				return true;
-			}					
-			return false;
-			*/
-			
 			// -1 : stop, n = 0 : immediately, n > 0 : interval
 			var useInterval = false;
 
@@ -163,11 +115,9 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 			if (htLastFetchedData.scatter.length != 0) {
 				// array[0] 이 최근 값, array[len]이 오래된 이다.
 				if (htLastFetchedData.scatter[0].x > from) {
-					console.log("2B");
 					// TO THE NEXT
 					return 0;
 				} else {
-					console.log("2C");
 					// STOP
 					return -1;
 				}
@@ -176,16 +126,12 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 			if (htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1] &&
 				htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1].x < date.getTime()) {
 				if (useInterval) {
-					console.log("2D");
 					bDrawOnceAll = true;
 					return nInterval;
 				}
 				// TO THE NEXT
-				console.log("2E");
 				return 0;
 			}
-			
-			console.log("2E");
 			
 			// STOP
 			return -1;
@@ -195,15 +141,11 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 			jsonp : '_callback'
 		}
 	};
-    
-    console.log(from, to);
-    
-    drawScatter(applicationName, from, to, "scatterchart", w, h);
-    
+    makeScatter(applicationName, from, to, "scatterchart", w, h);
 	oScatterChart.drawWithDataSource(htDataSource);
 }
 
-function drawScatter(title, start, end, targetId, w, h) {
+function makeScatter(title, start, end, targetId, w, h) {
     if(!Modernizr.canvas) {
         alert("Can't draw scatter. Not supported browser.");
     }
@@ -252,5 +194,5 @@ function drawScatter(title, start, end, targetId, w, h) {
             
             var popupwindow = window.open("/selectedScatter.hippo", token);
         }
-});
+    });
 }

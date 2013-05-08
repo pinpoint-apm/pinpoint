@@ -1,20 +1,46 @@
 var oServerMap = null;
+var FILTER_DELIMETER = "^";
+var FILTER_ENTRY_DELIMETER = "|";
 
-function getServerMapData2(application, begin, end, callback) {
-    var app = application.split("@");
+function filterPassingTransaction(
+			applicationName,
+			serviceType,
+			begin,
+			end,
+			fromServiceType,
+			fromApplicationName,
+			toServiceType,
+			toApplicationName,
+			prevFilter) {
+	
+	var params = {
+		"application" : applicationName,
+		"serviceType" : serviceType,
+		"from" : begin,
+		"to" : end,
+		"filter" : ((prevFilter) ? prevFilter + FILTER_DELIMETER : "")
+					+ fromServiceType + FILTER_ENTRY_DELIMETER
+					+ fromApplicationName + FILTER_ENTRY_DELIMETER
+					+ toServiceType + FILTER_ENTRY_DELIMETER
+					+ toApplicationName
+	}
+	window.open("/getFilteredServerMapData.hippo?" + decodeURIComponent($.param(params)), "");
+}
+
+function getServerMapData2(query, callback) {
     jQuery.ajax({
     	type : 'GET',
     	url : '/getServerMapData2.hippo',
     	cache : false,
     	dataType: 'json',
     	data : {
-    		application : app[0],
-    		serviceType : app[1],
-    		from : begin,
-    		to : end
+    		application : query.applicationName,
+    		serviceType : query.serviceType,
+    		from : query.from,
+    		to : query.to
     	},
-    	success : function(msg) {
-    		callback(msg);
+    	success : function(result) {
+    		callback(query, result);
     	},
     	error : function(xhr, status, error) {
     		
@@ -22,7 +48,7 @@ function getServerMapData2(application, begin, end, callback) {
     });
 }
 
-function getLastServerMapData2(application, period, callback) {
+function getLastServerMapData2(query, callback) {
     var app = application.split("@");
     jQuery.ajax({
     	type : 'GET',
@@ -30,12 +56,12 @@ function getLastServerMapData2(application, period, callback) {
     	cache : false,
     	dataType: 'json',
     	data : {
-    		application : app[0],
-    		serviceType : app[1],
-    		period : period
+    		application : query.applicationName,
+    		serviceType : query.serviceType,
+    		period : query.period
     	},
-    	success : function(msg) {
-    		callback(msg);
+    	success : function(result) {
+    		callback(query, result);
     	},
     	error : function(xhr, status, error) {
     		alert(error);
@@ -43,14 +69,23 @@ function getLastServerMapData2(application, period, callback) {
     });
 }
 
-function showServerMap(applicationName) {
+function showServerMap(applicationName, serviceType, from, to, period, usePeriod, w, h) {
 	var containerId = "servermap";
 	
 	if (oServerMap) {
 		oServerMap.clear();
 	}
 	
-	var serverMapCallback = function(data) {
+	var query = {
+		applicationName : applicationName,
+		serviceType : serviceType, 
+		from : from,
+		to : to, 
+		period : period,
+		usePeriod : usePeriod
+	};
+	
+	var serverMapCallback = function(query, data) {
 		if (data.applicationMapData.nodeDataArray.length == 0) {
 			warning("NO DATA", "");
 		} else {
@@ -58,29 +93,26 @@ function showServerMap(applicationName) {
 		}
 		
 		mergeUnknown(data);
-		
-		// TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
 		replaceClientToUser(data);
-		
+
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,
 				fOnNodeClick : function(e, data) {
-					nodeClickHandler(e, data, "#" + containerId);
+					nodeClickHandler(e, query, data, "#" + containerId);
 				},
 				fOnLinkClick : function(e, data) {
-					linkClickHandler(e, data, "#" + containerId);
+					linkClickHandler(e, query, data, "#" + containerId);
 				}
 		    });
 		}
-		
 	    oServerMap.load(data.applicationMapData);
     };
 
-    if (isQueryFromNow()) {
-        getLastServerMapData2($("#application").val(), getQueryPeriod(), serverMapCallback);
+    if (usePeriod) {
+        getLastServerMapData2(query, serverMapCallback);
     } else {
-        getServerMapData2($("#application").val(), getQueryStartTime(), getQueryEndTime(), serverMapCallback);
+        getServerMapData2(query, serverMapCallback);
     }
 }
 
@@ -238,7 +270,8 @@ var mergeUnknown = function(data) {
 	});
 }
 
-var nodeClickHandler = function(e, data, containerId) {
+var nodeClickHandler = function(e, query, data, containerId) {
+	data.query = query;
 	if (data.category == "CLIENT") {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
@@ -269,11 +302,11 @@ var nodeClickHandler = function(e, data, containerId) {
 	}
 }
 
-var linkClickHandler = function(e, data, containerId) {
+var linkClickHandler = function(e, query, data, containerId) {
 	if ($("DIV.linkinfo" + data.id).length > 0) {
 		return;
 	}
-	
+	data.query = query;
 	var htOffset = $(containerId).offset();
 	var box = $('#LinkInfoBox')
 				.tmpl(data)

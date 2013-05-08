@@ -18,6 +18,7 @@ import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.dao.ApplicationIndexDao;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
+import com.nhn.hippo.web.filter.Filter;
 import com.nhn.hippo.web.vo.Application;
 import com.nhn.hippo.web.vo.BusinessTransactions;
 import com.nhn.hippo.web.vo.ClientStatistics;
@@ -77,7 +78,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet) {
+	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		
@@ -85,7 +86,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<SpanBo> transaction = new ArrayList<SpanBo>();
 		for (List<SpanBo> t : transactionList) {
 			for (SpanBo span : t) {
-				transaction.add(span);
+				if (filter.include(span)) {
+					transaction.add(span);
+				}
 			}
 		}
 		

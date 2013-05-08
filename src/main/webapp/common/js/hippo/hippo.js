@@ -1,17 +1,12 @@
-function expandToNewWindow() {
-	alert("새 창으로 확대.\n\nSorry. Not implemented.");
-}
+$.extend($.tmpl.tag, {
+    "var": {
+        open: "var $1;"
+    }
+});
+$.extend($.tmpl.tag, { "eval": { open: "$1;"} });
 
 function openTrace(uuid, timestamp) {
     window.open("/transactionInfo.hippo?traceId=" + uuid + "&focusTimestamp=" + timestamp);
-}
-
-function getQueryPeriod() {
-	return $("#period").find("button.active").val().split(",") * 1000 * 60;
-}
-
-function getQueryStartTime() {
-	return getQueryEndTime() - getQueryPeriod();
 }
 
 function formatDate(date) {
@@ -34,25 +29,6 @@ function formatDate(date) {
 	dateStr.push(padZero(date.getSeconds()));
 					
     return dateStr.join('');
-}
-
-function getQueryEndTime() {
-	var now = new Date();
-	var input = Date.parse($('#date').val() + ' ' + $('#time').val()) || now;
-	if (input.getTime() > now.getTime()) {
-		return now;
-	}
-	return input.getTime();
-}
-
-function setQueryDateToNow() {
-   	var date = new Date();
-   	$('#date').val(date.toString("yyyy/MM/dd"));
-   	$('#time').val(date.toString("hh:mm"));
-}
-
-function isQueryFromNow() {
-	return $(".btn#now.active").length > 0;
 }
 
 function formatNumber(num) {
