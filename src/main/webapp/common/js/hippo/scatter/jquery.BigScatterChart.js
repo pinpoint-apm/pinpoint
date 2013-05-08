@@ -979,10 +979,18 @@ var BigScatterChart = $.Class({
 			// }else{
 				for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
 					if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
-						&& aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo
 						&& _.indexOf(aVisibleType, aBubbles[i][j].type) >= 0){
-						aData.push(aBubbles[i][j]);
+
+						if(aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo
+							||  nYTo === this._nYMax && nYTo < aBubbles[i][j].y){
+							aData.push(aBubbles[i][j]);
+						}
 					}
+					// if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
+					// 	&& aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo
+					// 	&& _.indexOf(aVisibleType, aBubbles[i][j].type) >= 0){
+					// 	aData.push(aBubbles[i][j]);
+					// }
 				}	
 			// }
 		}
