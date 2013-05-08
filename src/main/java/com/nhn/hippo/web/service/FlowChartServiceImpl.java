@@ -85,8 +85,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
 		List<SpanBo> transaction = new ArrayList<SpanBo>();
 		for (List<SpanBo> t : transactionList) {
-			for (SpanBo span : t) {
-				if (filter.include(span)) {
+			if (filter.include(t)) {
+				for (SpanBo span : t) {
 					transaction.add(span);
 				}
 			}

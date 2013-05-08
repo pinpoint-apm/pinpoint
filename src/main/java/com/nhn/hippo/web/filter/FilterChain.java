@@ -23,7 +23,7 @@ public class FilterChain implements Filter {
 	}
 
 	@Override
-	public boolean exclude(SpanBo span) {
+	public boolean exclude(List<SpanBo> span) {
 		for (Filter f : filterList) {
 			if (!f.exclude(span)) {
 				return false;
@@ -33,7 +33,7 @@ public class FilterChain implements Filter {
 	}
 
 	@Override
-	public boolean include(SpanBo span) {
+	public boolean include(List<SpanBo> span) {
 		for (Filter f : filterList) {
 			if (!f.include(span)) {
 				return false;

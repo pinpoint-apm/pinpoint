@@ -1,5 +1,7 @@
 package com.nhn.hippo.web.filter;
 
+import java.util.List;
+
 import com.profiler.common.ServiceType;
 import com.profiler.common.bo.SpanBo;
 
@@ -23,12 +25,12 @@ public class FromToFilter implements Filter {
 	}
 
 	@Override
-	public boolean exclude(SpanBo span) {
+	public boolean exclude(List<SpanBo> span) {
 		return false;
 	}
 
 	@Override
-	public boolean include(SpanBo span) {
+	public boolean include(List<SpanBo> span) {
 		return true;
 	}
 
