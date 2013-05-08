@@ -48,7 +48,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
     downloadButton.attr("download", imageFileName);
     downloadButton.unbind("click");
     downloadButton.bind("click", function() {
-    	oScatterChart.saveAsPNG(downloadButton);
+    	var sImageUrl = oScatterChart.getChartAsPNG();
+    	$(this).attr('href', sImageUrl);
     });
     
     $("#scatterChartContainer SPAN").unbind("click");     

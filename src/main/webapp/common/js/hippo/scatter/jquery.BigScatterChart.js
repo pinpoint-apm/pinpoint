@@ -27,9 +27,9 @@ var BigScatterChart = $.Class({
 			'nZIndexForCanvas' : 1,
 			'nDefaultRadius' : 3,
 			'htGuideLine' : {
-				'nLineWidth' : 0.5,
-				'aLineDash' : [0], //[2, 5],
-				'nGlobalAlpha' : 0.1
+				'nLineWidth' : 1,
+				'aLineDash' : [2, 5],
+				'nGlobalAlpha' : 0.2
 			},
 			'sTitle' : 'Big Scatter Chart by Denny',
 			'htTitleStyle' : {
@@ -50,6 +50,10 @@ var BigScatterChart = $.Class({
 				'font-weight' : 'bold'
 			},
 			'sDragToSelectClassName' : 'jquery-drag-to-select',
+			'htCheckBoxImage' : {
+				'checked' : 'data:image/gif;base64,R0lGODlhDgANANU7APf6/QBoAO31+wBEAABZABSmDfj7/kLFLM/k9CpFeCA7bBs1ZiU/cWDZQBgxYvL4/PD2/ABLAKzQ6wBTAPn8/vD3/FLPNgBzAO30/J/J6JKgu1/YPzBLfzVQhQBvAO31/EhknURgmNTn9NPm9Orz+9fc51LQNztWjfX5/e/2++72+9vh7Njp9kBbk9jp9aCvzd3r+QB3AABhAKXM6SGvFTG5IEtnoBUuXuLu+v//zP///wAAAAAAAAAAAAAAAAAAACH5BAEAADsALAAAAAAOAA0AAAaHwJ1tSCS+VrsdSMdsOmOxXUiHq1ohlFguF2vpMAYDBvYxXDaNxuWkA3gCABIgYLGYAruOTraVoWQHgTIlOxw6BDWJiIoUGjsJOg8TNJSUEw8QCTsMOiwVEQWhERUuOAw7CjoSIykDrioiEjgKOws6MzMIArsIuDgLOw4ZVsRWDkk3ycrLN0lBADs=',
+				'unchecked' : 'data:image/gif;base64,R0lGODlhDgANAPcbANnZ2X9/f3Nzc4eHh4ODg5GRkfDw8IqKim1tbXt7e46Ojnd3d3BwcOzs7NPT09jY2O/v7+3t7eHh4eXl5dXV1enp6d3d3Wtra5OTk/Ly8v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjYxQjZBNkRCQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjYxQjZBNkRDQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NjFCNkE2RDlBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NjFCNkE2REFBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQBAAAbACwAAAAADgANAAAIgwA3YBhIsCCGDRsKaFjIsGGGAhsUaMhAsaJFBRsOaIDAkaMBAxwzHNgwQEOEkygbnMwwYAMBDRViypSZgcCGABom6Ny5M0OADQk0SBhKlGiGBBsWaLDAtGnTDAs2CNDw4AEAq1WvZhCwgYEGCmDDhs3AYAMCBxbTZkCA8ILbt3AvIAwIADs='
+			},
 			'fXAxisFormat' : function(nXStep, i){
 				var nMilliseconds = (nXStep * i + this._nXMin),
 					sDate = new Date(nMilliseconds).toString("HH:mm");
@@ -136,7 +140,7 @@ var BigScatterChart = $.Class({
 			'position' : 'relative',
 			'width' : this.option('nWidth'),
 			'height' : this.option('nHeight'),
-		});
+		}).addClass('bigscatterchart');
 
 		// guide
 		this._welGuideCanvas = $('<canvas>')
@@ -305,14 +309,18 @@ var BigScatterChart = $.Class({
 			});
 		this._htwelTypeLi = {};
 		this._htwelTypeSpan = {};
+		var htCheckBoxImage = this.option('htCheckBoxImage');
 		_.each(htType, function(sVal, sKey){
 			this._welTypeUl.append(
 				this._htwelTypeLi[sKey] = $('<li>')
 				.css({
 					'display' : 'inline-block',
 					'margin' : '0 10px',
-					'padding' : '0',
-					'color' : htType[sKey]
+					'padding' : '0 0 0 16px',
+					'color' : htType[sKey],
+					'background-image' : 'url(' + htCheckBoxImage.checked + ')',
+					'background-repeat' : 'no-repeat',
+					'cursor' : 'url(data:image/gif;base64,R0lGODlhEAAQAIABAAAAA////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjYxQjZBNkRGQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjYxQjZBNkUwQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NjFCNkE2RERBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NjFCNkE2REVBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQBAAABACwAAAAAEAAQAAACHYyPqcvtDxNgE4Gq7rm8e+OF3IZJZXBu0cq2LlMAADs=), move'
 				})
 				.text(sKey + ' : ')
 				.append(
@@ -322,6 +330,10 @@ var BigScatterChart = $.Class({
 			);
 		}, this);
 		this._welTypeUl.appendTo(this._welOverlay);
+		this._oCheckedBoxImage = new Image();
+		this._oCheckedBoxImage.src = htCheckBoxImage.checked;
+		this._oUncheckedBoxImage = new Image();
+		this._oUncheckedBoxImage.src = htCheckBoxImage.unchecked;
 
 		this._awelChartCanvasInOrder = [];
 		_.each(this._htwelChartCanvas, function(welChartCanvas, sKey){
@@ -374,17 +386,17 @@ var BigScatterChart = $.Class({
 
 	_initEvents : function(){
 		var self = this;
+		var htCheckBoxImage = this.option('htCheckBoxImage');
 		_.each(this._htwelTypeLi, function(welTypeLi, sKey){
-			welTypeLi.css( 'cursor', 'pointer')
-				.click(function(e){
+			welTypeLi.click(function(e){
 					e.preventDefault();
 					self._htwelChartCanvas[sKey].toggle();
-					if(!welTypeLi.hasClass('strike')){
-						welTypeLi.addClass('strike')
-						welTypeLi.css('text-decoration', 'line-through');					
+					if(!welTypeLi.hasClass('unchecked')){
+						welTypeLi.addClass('unchecked')
+						welTypeLi.css('background-image', 'url('+htCheckBoxImage.unchecked+')');
 					}else{
-						welTypeLi.removeClass('strike')
-						welTypeLi.css('text-decoration', 'none');
+						welTypeLi.removeClass('unchecked')
+						welTypeLi.css('background-image', 'url('+htCheckBoxImage.checked+')');
 					};
 
 				});
@@ -730,8 +742,8 @@ var BigScatterChart = $.Class({
 
 		//this._oChartCtx.lineWidth = 1;
 		for(var i = 0, nLen = aBubbles.length; i < nLen && !this._bDestroied; i++) {
-			var x = this._parseXDataToXChart(aBubbles[i].x),
-				y = this._parseYDataToYChart(aBubbles[i].y),
+			var x = this._parseXDataToXChart(this._checkXMinMax(aBubbles[i].x)),
+				y = this._parseYDataToYChart(this._checkYMinMax(aBubbles[i].y)),
 				r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
 				a = aBubbles[i].y / this._nYMax * 0.7,
 				sThisType = aBubbles[i].type;
@@ -747,6 +759,26 @@ var BigScatterChart = $.Class({
 			
 			aBubbles[i].realx = x; aBubbles[i].realy = y; aBubbles[i].realz = r;
 		}		
+	},
+
+	_checkXMinMax : function(nX){
+		if(nX < this._nXMin){
+			return this._nXMin;
+		}else if(nX > this._nXMax){
+			return this._nXMax;
+		}else{
+			return nX;
+		}
+	},
+
+	_checkYMinMax : function(nY){
+		if(nY < this._nYMin){
+			return this._nYMin;
+		}else if(nY > this._nYMax){
+			return this._nYMax;
+		}else{
+			return nY;
+		}
 	},
 
 	_parseXDataToXChart : function(nX){
@@ -974,7 +1006,7 @@ var BigScatterChart = $.Class({
 		this._bDestroied = true;
 	},
 
-	_mergeAllDisplay : function(){
+	_mergeAllDisplay : function(fCb){
 		var nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight');
 		var welCanvas = $('<canvas>').attr({
@@ -1002,6 +1034,32 @@ var BigScatterChart = $.Class({
 		// common setting
 		oCtx.textBaseline = "top";
 
+		// count
+		var htContainerOffset = this._welContainer.offset(),
+			htCheckBoxImage = this.option('htCheckBoxImage');
+		oCtx.textAlign = "left";
+		_.each(this._htwelTypeLi, function(welTypeLi){
+			var htOffset = welTypeLi.offset();
+			var nX = htOffset.left - htContainerOffset.left,
+				nY = htOffset.top - htContainerOffset.top;
+			oCtx.fillStyle = welTypeLi.css('color');
+			oCtx.font = welTypeLi.css('font');
+			oCtx.fillText(welTypeLi.text(), nX + parseInt(welTypeLi.css('padding-left'), 10), nY);		
+
+			if(welTypeLi.hasClass('unchecked')){
+				oCtx.drawImage(this._oUncheckedBoxImage, nX, nY);
+			}else{
+				oCtx.drawImage(this._oCheckedBoxImage, nX, nY);
+			}
+			// if(welTypeLi.hasClass('unchecked')){
+			// 	oCtx.moveTo(nX, nY + welTypeLi.height()/2);
+				// oCtx.lineTo(nX + welTypeLi.width(), nY + welTypeLi.height()/2);
+				// oCtx.strokeStyle = welTypeLi.css('color');
+				// oCtx.lineWidth = 0.7;
+				// oCtx.stroke();
+			// }	
+		}, this);		
+
 		// title
 		if(this._welTitle){
 			var nTitleX = parseInt(this._welTitle.css('left'), 10),
@@ -1011,25 +1069,6 @@ var BigScatterChart = $.Class({
 			oCtx.font = this._welTitle.css('font');
 			oCtx.fillText(this._welTitle.text(), nTitleX, nTitleY);
 		}
-
-		// count
-		var htContainerOffset = this._welContainer.offset();
-		oCtx.textAlign = "left";
-		_.each(this._htwelTypeLi, function(welTypeLi){
-			var htOffset = welTypeLi.offset();
-			var nX = htOffset.left - htContainerOffset.left,
-				nY = htOffset.top - htContainerOffset.top;
-			oCtx.fillStyle = welTypeLi.css('color');
-			oCtx.font = welTypeLi.css('font');
-			oCtx.fillText(welTypeLi.text(), nX, nY);		
-			if(welTypeLi.hasClass('strike')){
-				oCtx.moveTo(nX, nY + welTypeLi.height()/2);
-				oCtx.lineTo(nX + welTypeLi.width(), nY + welTypeLi.height()/2);
-				oCtx.strokeStyle = welTypeLi.css('color');
-				oCtx.lineWidth = 0.7;
-				oCtx.stroke();
-			}	
-		});
 
 		// x axis
 		oCtx.textAlign = "center"; 
@@ -1092,14 +1131,14 @@ var BigScatterChart = $.Class({
 		return welCanvas;
 	},
 
-	saveAsPNG : function(elA){
+	getChartAsPNG : function(){
 		var welCanvas = this._mergeAllDisplay();
-		$(elA).attr('href', welCanvas.get(0).toDataURL('image/png'));
+		return welCanvas.get(0).toDataURL('image/png')
 	},
 
-	saveAsJPEG : function(elA){
+	getChartAsJPEG : function(){
 		var welCanvas = this._mergeAllDisplay();
-		$(elA).attr('href', welCanvas.get(0).toDataURL('image/jpeg'));
+		return welCanvas.get(0).toDataURL('image/jpeg');
 	},
 
 	drawWithDataSource : function(htDataSource){
