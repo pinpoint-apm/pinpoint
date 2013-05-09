@@ -44,6 +44,10 @@ public class FilterChain implements Filter {
 
 	@Override
 	public String toString() {
-		return "FilterChain [filterList=" + filterList + "]";
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < filterList.size(); i++, sb.append("<br/>")) {
+			sb.append(filterList.get(i).toString());
+		}
+		return sb.toString();
 	}
 }

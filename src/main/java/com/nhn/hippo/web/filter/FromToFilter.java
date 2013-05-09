@@ -110,6 +110,10 @@ public class FromToFilter implements Filter {
 
 	@Override
 	public String toString() {
-		return "FromToFilter [fromServiceCode=" + fromServiceCode + ", fromApplicationName=" + fromApplicationName + ", toServiceCode=" + toServiceCode + ", toApplicationName=" + toApplicationName + "]";
+		StringBuilder sb = new StringBuilder();
+		sb.append(fromApplicationName).append(" (").append(ServiceType.findServiceType(fromServiceCode)).append(")");
+		sb.append(" --&gt; ");
+		sb.append(toApplicationName).append(" (").append(ServiceType.findServiceType(toServiceCode)).append(")");
+		return sb.toString();
 	}
 }

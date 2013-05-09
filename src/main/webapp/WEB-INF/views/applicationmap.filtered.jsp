@@ -55,6 +55,7 @@
     <script type="text/javascript" src="/common/js/hippo/message.js"></script>
 </head>
 <body>
+<h3>${filter}</h3>
 <div id="servermap" style="width:1000px;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
 <script type="text/javascript">
     var data = {
