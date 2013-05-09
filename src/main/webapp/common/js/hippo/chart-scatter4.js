@@ -155,9 +155,10 @@ function makeScatter(title, start, end, targetId, w, h) {
     var date = new Date();
 
     if (oScatterChart != null) {
-        oScatterChart.updateXYAxis(start, end, 0, yAxisMAX);
-        oScatterChart.clear();
-        return;
+    	oScatterChart.destroy();
+        // oScatterChart.updateXYAxis(start, end, 0, yAxisMAX);
+        // oScatterChart.clear();
+        // return;
     }
     
     oScatterChart = new BigScatterChart({
