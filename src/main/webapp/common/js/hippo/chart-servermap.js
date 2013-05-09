@@ -24,7 +24,7 @@ function filterPassingTransaction(
 					+ toServiceType + FILTER_ENTRY_DELIMETER
 					+ toApplicationName
 	}
-	window.open("/getFilteredServerMapData.hippo?" + decodeURIComponent($.param(params)), "");
+	window.open("/filtermap.hippo?" + decodeURIComponent($.param(params)), "");
 }
 
 function getServerMapData2(query, callback) {
@@ -49,7 +49,6 @@ function getServerMapData2(query, callback) {
 }
 
 function getLastServerMapData2(query, callback) {
-    var app = application.split("@");
     jQuery.ajax({
     	type : 'GET',
     	url : '/getLastServerMapData2.hippo',
@@ -69,7 +68,29 @@ function getLastServerMapData2(query, callback) {
     });
 }
 
-function showServerMap(applicationName, serviceType, from, to, period, usePeriod, w, h) {
+function getFilteredServerMapData(query, callback) {
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/getFilteredServerMapData.hippo',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+    		application : query.applicationName,
+    		serviceType : query.serviceType,
+    		from : query.from,
+    		to : query.to,
+    		filter : query.filter
+    	},
+    	success : function(result) {
+    		callback(query, result);
+    	},
+    	error : function(xhr, status, error) {
+    		alert(error);
+    	}
+    });
+}
+
+function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, cb) {
 	var containerId = "servermap";
 	
 	if (oServerMap) {
@@ -82,14 +103,18 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 		from : from,
 		to : to, 
 		period : period,
-		usePeriod : usePeriod
+		usePeriod : usePeriod,
+		filter : filterText
 	};
 	
 	var serverMapCallback = function(query, data) {
+		if (cb) { cb(query, data); }
 		if (data.applicationMapData.nodeDataArray.length == 0) {
 			warning("NO DATA", "");
+			return;
 		} else {
 			clearAllWarnings();
+			$("#" + containerId).show();
 		}
 		
 		mergeUnknown(data);
@@ -109,7 +134,33 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 	    oServerMap.load(data.applicationMapData);
     };
 
-    if (usePeriod) {
+    console.log("filterText", filterText);
+    
+    if (filterText) {
+    	getFilteredServerMapData(query, function(query, data) {
+    		if (cb) { cb(query, data); }
+    		if (data.applicationMapData.nodeDataArray.length == 0) {
+    			warning("NO DATA", "");
+    			return;
+    		} else {
+    			clearAllWarnings();
+    			$("#" + containerId).show();
+    		}
+
+    		if (oServerMap == null) {
+    			oServerMap = new ServerMap({
+    		        sContainerId : containerId,
+    				fOnNodeClick : function(e, data) {
+    					nodeClickHandler(e, query, data, "#" + containerId);
+    				},
+    				fOnLinkClick : function(e, data) {
+    					linkClickHandler(e, query, data, "#" + containerId);
+    				}
+    		    });
+    		}
+    	    oServerMap.load(data.applicationMapData);
+        });
+    } else if (usePeriod) {
         getLastServerMapData2(query, serverMapCallback);
     } else {
         getServerMapData2(query, serverMapCallback);
@@ -272,6 +323,7 @@ var mergeUnknown = function(data) {
 
 var nodeClickHandler = function(e, query, data, containerId) {
 	data.query = query;
+	console.log("data", data);
 	if (data.category == "CLIENT") {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
@@ -307,6 +359,7 @@ var linkClickHandler = function(e, query, data, containerId) {
 		return;
 	}
 	data.query = query;
+	console.log("data", data);
 	var htOffset = $(containerId).offset();
 	var box = $('#LinkInfoBox')
 				.tmpl(data)

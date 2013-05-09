@@ -98,6 +98,10 @@
 
 <div class="container" id="warningMessage"></div>
 
+<div class="container">
+	<div id="progressbar" style="display:none;"><img src="/images/ajaxloader.gif" /></div>
+</div>
+
 <!-- BODY -->
 <div class="chart-container">
     <div class="chart-left">
@@ -166,12 +170,11 @@ $(document).ready(function () {
     		alert("\n\nSelect an application, please.\n\n");
     		return true;
     	}
+
+    	$("#progressbar").show();
+    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, function() { $("#progressbar").hide(); });
     	
-    	// 임시.
-    	$("#servermap").show();
     	$("#scatterChartContainer").show();
-    	
-    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     	showResponseScatter(Nav.getApplicationName(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     }
     

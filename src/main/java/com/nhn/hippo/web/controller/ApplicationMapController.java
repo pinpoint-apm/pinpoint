@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.controller;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,22 @@ public class ApplicationMapController extends BaseController {
 		long from = to - period;
 		return getServerMapData2(model, response, applicationName, serviceType, from, to);
 	}
-	
+
+	@RequestMapping(value = "/filtermap", method = RequestMethod.GET)
+	public String filtermap(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("serviceType") short serviceType, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
+		model.addAttribute("applicationName", applicationName);
+		model.addAttribute("serviceType", serviceType);
+		model.addAttribute("from", from);
+		model.addAttribute("to", to);
+		model.addAttribute("fromDate", new Date(from));
+		model.addAttribute("toDate", new Date(to));
+		model.addAttribute("filterText", filterText);
+		model.addAttribute("filter", FilterBuilder.build(filterText));
+
+		addResponseHeader(response);
+		return "applicationmap.filtered.view";
+	}
+
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
 	public String getFilteredServerMapData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("serviceType") short serviceType, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
 		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
