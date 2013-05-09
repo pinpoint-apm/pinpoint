@@ -1,9 +1,11 @@
 package com.nhn.hippo.web.calltree.server;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.bo.AgentInfoBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SpanEventBo;
 
@@ -98,7 +100,28 @@ public class Server implements Comparable<Server> {
 	public ServiceType getServiceType() {
 		return serviceType;
 	}
+	
+	public String getJson() {
+		StringBuilder sb = new StringBuilder();
 
+		sb.append("{ ");
+		sb.append("\"sequence\" : ").append(sequence).append(",");
+		sb.append("\"applicationName\" : \"").append(applicationName).append("\",");
+		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
+		sb.append("\"agents\" : [ ");
+		Iterator<String> iterator = hosts.iterator();
+		while (iterator.hasNext()) {
+			sb.append("\"").append(iterator.next()).append("\"");
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
+		sb.append(" ]");
+		sb.append(" }");
+
+		return sb.toString();
+	}
+	
 	@Override
 	public int compareTo(Server server) {
 		return id.compareTo(server.id);
