@@ -63,20 +63,29 @@ public class FromToFilter implements Filter {
 				}
 			}
 		} else if (ServiceType.findServiceType(toServiceCode).isWas()) {
-			// destination이 was인 경우 src, dest의 span이 모두 존재하겠지...
-			int foundCounter = 0;
-			for (SpanBo span : transaction) {
-				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
-					foundCounter++;
-				}
-				if (toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
-					foundCounter++;
-				}
-				if (foundCounter == 2) {
-					break;
+			/**
+			 * destination이 was인 경우 src, dest의 span이 모두 존재하겠지... 그리고 circular
+			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
+			 * spanId == parentSpanId도 확인해야함.
+			 */
+			for (SpanBo srcSpan : transaction) {
+				if (fromServiceCode == srcSpan.getServiceType().getCode() && fromApplicationName.equals(srcSpan.getApplicationId())) {
+					// find dest of src.
+					for (SpanBo destSpan : transaction) {
+						if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
+							continue;
+						}
+
+						if (toServiceCode == destSpan.getServiceType().getCode() && toApplicationName.equals(destSpan.getApplicationId())) {
+							include = true;
+							break;
+						}
+					}
+					if (include) {
+						break;
+					}
 				}
 			}
-			include = foundCounter == 2;
 		} else {
 			for (SpanBo span : transaction) {
 				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
