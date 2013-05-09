@@ -162,8 +162,8 @@ function makeScatter(title, start, end, targetId, w, h) {
     
     oScatterChart = new BigScatterChart({
         sContainerId : targetId,
-        nWidth : w ? w : 500,
-        nHeight : h ? h : 400,
+        nWidth : w ? w : 400,
+        nHeight : h ? h : 300,
         // nXMin: date.getTime() - 86400000, nXMax: date.getTime(),
         nXMin: start, nXMax: end,
         nYMin: 0, nYMax: yAxisMAX,

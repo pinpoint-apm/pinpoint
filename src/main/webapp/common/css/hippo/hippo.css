@@ -91,23 +91,23 @@ path.link {
 	cursor:pointer;
 }
 
-@media(min-width:1100px){
+@media(min-width:1000px){
   .chart-container {
   	position:relative;
   }
   	
   .chart-left {
-  	margin-right:530px;
+  	margin-right:430px;
   }
 
   .chart-right {
   	position:absolute;
   	top:0;
   	right:0;
-  	width:510px;
+  	width:410px;
   }
 }
-@media(max-width:1099px){
+@media(max-width:999px){
   .chart-right {
     padding-left:20px;
   }
