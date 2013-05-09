@@ -57,6 +57,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
     	showRequests(applicationName, from, to, period, usePeriod);
     });
     
+    $("#scatterChartContainer").show();
+    
 	var bDrawOnceAll = false,
 		nInterval = 2000;
 	

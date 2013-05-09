@@ -189,7 +189,7 @@ $(document).ready(function () {
 			<hr/>
 
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Filter passing transactions</a><br/>
-			<a href="#" onclick="showResponseScatter('{{= text}}', Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());">Transaction response scatter chart</a><br/>
+			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
 			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>
