@@ -85,17 +85,28 @@ jQuery.fn.dragToSelect = function (conf) {
 		return this;
 	}
 
-	var parentOffset, parentDim;
-	jQuery(window).resize(function(){
-		parentOffset	= parent.offset();
-		parentDim		= {
+	var getParentDim = function(){
+		var parentOffset	= parent.offset();
+		var parentDim		= {
 			left:	parentOffset.left, 
 			top:	parentOffset.top, 
 			width:	parent.width(), 
 			height:	parent.height()
-		};
-	});
-	jQuery(window).trigger('resize');
+		};	
+		return parentDim;	
+	}
+
+	// var parentOffset, parentDim;
+	// jQuery(window).resize(function(){
+	// 	parentOffset	= parent.offset();
+	// 	parentDim		= {
+	// 		left:	parentOffset.left, 
+	// 		top:	parentOffset.top, 
+	// 		width:	parent.width(), 
+	// 		height:	parent.height()
+	// 	};
+	// });
+	// jQuery(window).trigger('resize');
 
 	// Current origin of select box
 	var selectBoxOrigin = {
@@ -116,6 +127,7 @@ jQuery.fn.dragToSelect = function (conf) {
 			return;
 		}
 		selectBox.show();
+		var parentDim = getParentDim();
 
 		selectBoxOrigin.left	= e.pageX - parentDim.left + parent[0].scrollLeft;
 		selectBoxOrigin.top		= e.pageY - parentDim.top + parent[0].scrollTop;
@@ -136,6 +148,7 @@ jQuery.fn.dragToSelect = function (conf) {
 		if (!selectBox.is('.' + config.activeClass) || parent.is('.' + config.disabledClass)) {
 			return;
 		}
+		var parentDim = getParentDim();
 
 		var left		= e.pageX - parentDim.left + parent[0].scrollLeft;
 		var top			= e.pageY - parentDim.top + parent[0].scrollTop;
@@ -196,6 +209,7 @@ jQuery.fn.dragToSelect = function (conf) {
 		if (!selectBox.is('.' + config.activeClass) || parent.is('.' + config.disabledClass)) {
 			return;
 		}
+		var parentDim = getParentDim();
 
 		// Scroll down
 		if ((e.pageY + config.scrollTH) > (parentDim.top + parentDim.height)) {
