@@ -2,6 +2,7 @@ package com.profiler.common.buffer;
 
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.buffer.FixedBuffer;
+import com.profiler.common.util.BytesUtils;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -88,6 +89,73 @@ public class FixedBufferTest {
         checkUnsignedByte(255);
 
         checkUnsignedByte(0);
+    }
+
+    @Test
+    public void testPutVar32() throws Exception {
+        checkVarInt(Integer.MAX_VALUE, 5);
+
+        checkVarInt(Integer.MIN_VALUE, 10);
+
+        checkVarInt(0, -1);
+        checkVarInt(Integer.MAX_VALUE / 2, -1);
+        checkVarInt(Integer.MAX_VALUE / 10, -1);
+        checkVarInt(Integer.MAX_VALUE / 10000, -1);
+
+        checkVarInt(Integer.MIN_VALUE / 2, -1);
+        checkVarInt(Integer.MIN_VALUE / 10, -1);
+        checkVarInt(Integer.MIN_VALUE / 10000, -1);
+
+    }
+
+    private void checkVarInt(int v, int offset) {
+        Buffer buffer = new FixedBuffer(32);
+        buffer.putVar(v);
+        if (offset != -1) {
+            Assert.assertEquals(buffer.getOffset(), offset);
+        } else {
+            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+        }
+        buffer.setOffset(0);
+        int readV = buffer.readVarInt();
+        Assert.assertEquals(readV, v);
+    }
+
+    @Test
+    public void testPutSVar32() throws Exception {
+
+        checkSVarInt(Integer.MAX_VALUE, 5);
+
+        checkSVarInt(Integer.MIN_VALUE, 5);
+
+        checkSVarInt(0, -1);
+        checkSVarInt(Integer.MAX_VALUE / 2, -1);
+        checkSVarInt(Integer.MAX_VALUE / 10, -1);
+        checkSVarInt(Integer.MAX_VALUE / 10000, -1);
+
+        checkSVarInt(Integer.MIN_VALUE / 2, -1);
+        checkSVarInt(Integer.MIN_VALUE / 10, -1);
+        checkSVarInt(Integer.MIN_VALUE / 10000, -1);
+
+
+    }
+
+    private void checkSVarInt(int v, int offset) {
+        Buffer buffer = new FixedBuffer(32);
+        buffer.putSVar(v);
+        if (offset != -1) {
+            Assert.assertEquals(buffer.getOffset(), offset);
+        } else {
+            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+        }
+        buffer.setOffset(0);
+        int readV = buffer.readSVarInt();
+        Assert.assertEquals(readV, v);
+    }
+
+    @Test
+    public void testPutVar64() throws Exception {
+
     }
 
     private void checkUnsignedByte(int value) {

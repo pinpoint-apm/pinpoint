@@ -60,7 +60,7 @@ public class AnnotationTranscoderTest {
     private void typeCode(Object value) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
-        int typeCode = transcoder.getTypeCode(value);
+        byte typeCode = transcoder.getTypeCode(value);
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
@@ -70,7 +70,7 @@ public class AnnotationTranscoderTest {
     private void typeUnsupportCode(Object value) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
-        int typeCode = transcoder.getTypeCode(value);
+        byte typeCode = transcoder.getTypeCode(value);
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
@@ -80,7 +80,7 @@ public class AnnotationTranscoderTest {
     private void typeBinaryCode(byte[] value) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
-        int typeCode = transcoder.getTypeCode(value);
+        byte typeCode = transcoder.getTypeCode(value);
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
