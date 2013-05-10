@@ -239,7 +239,7 @@ $(document).ready(function () {
 				<li>Failed : {{= error}}</li>
 			</ul>
 			<hr/>
-			<a href="#" onclick="filterPassingTransaction('{{= query.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
+			<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
