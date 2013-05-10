@@ -43,7 +43,7 @@
 <div id="scatterchart"></div>
 <script type="text/javascript">
 $(document).ready(function () {
-	showResponseScatter("${applicationName}", ${from}, ${to}, ${period}, ${usePeriod}, 800, 500);
+	showResponseScatter("${applicationName}", ${from}, ${to}, ${period}, ${usePeriod}, "${filter}", 800, 500);
 	$("H5:nth-child(2)").text(new Date(${from}).toString("yyyy-MM-dd HH:mm") + " ~ " + new Date(${to}).toString("yyyy-MM-dd HH:mm"))
 });
 </script>

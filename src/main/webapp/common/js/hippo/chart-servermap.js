@@ -91,6 +91,8 @@ function getFilteredServerMapData(query, callback) {
 }
 
 function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, cb) {
+	console.log("showServerMap", applicationName, serviceType, from, to, period, usePeriod, filterText, cb);
+	
 	var containerId = "servermap";
 	
 	if (oServerMap) {
@@ -137,29 +139,7 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
     console.log("filterText", filterText);
     
     if (filterText) {
-    	getFilteredServerMapData(query, function(query, data) {
-    		if (cb) { cb(query, data); }
-    		if (data.applicationMapData.nodeDataArray.length == 0) {
-    			warning("NO DATA", "");
-    			return;
-    		} else {
-    			clearAllWarnings();
-    			$("#" + containerId).show();
-    		}
-
-    		if (oServerMap == null) {
-    			oServerMap = new ServerMap({
-    		        sContainerId : containerId,
-    				fOnNodeClick : function(e, data) {
-    					nodeClickHandler(e, query, data, "#" + containerId);
-    				},
-    				fOnLinkClick : function(e, data) {
-    					linkClickHandler(e, query, data, "#" + containerId);
-    				}
-    		    });
-    		}
-    	    oServerMap.load(data.applicationMapData);
-        });
+    	getFilteredServerMapData(query, serverMapCallback);
     } else if (usePeriod) {
         getLastServerMapData2(query, serverMapCallback);
     } else {

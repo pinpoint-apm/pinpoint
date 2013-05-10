@@ -13,12 +13,14 @@ function expandScatter(e) {
     params.push(e.data("period"));
     params.push("&usePeriod=");
     params.push(e.data("usePeriod"));
+    params.push("&filter=");
+    params.push(e.data("filter"));
     
     window.open("/scatterpopup.hippo?" + params.join(""), params.join(""), "width=900, height=700, resizable=yes");
 }
 
-function showResponseScatter(applicationName, from, to, period, usePeriod, w, h) {
-    console.log("ShowReponseScatter. appName=" + applicationName + ", from=" + from + ", to=" + to + ", period=" + period);
+function showResponseScatter(applicationName, from, to, period, usePeriod, filter, w, h) {
+	console.log("showResponseScatter", applicationName, from, to, period, usePeriod, w, h);
 
     if (oScatterChart) {
     	oScatterChart.clear();
@@ -35,6 +37,7 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
     fullscreenButton.data("to", to);
     fullscreenButton.data("period", period);
     fullscreenButton.data("usePeriod", usePeriod);
+    fullscreenButton.data("filter", filter);
     
     var downloadButton = $("#scatterChartContainer A");
 
@@ -64,6 +67,10 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 	
     var htDataSource = {
 		sUrl : function(nFetchIndex) {
+			if (!usePeriod) {
+				return "/getScatterData.hippo";
+			}
+			
 			if(nFetchIndex === 0) {
 				return "/getLastScatterData.hippo";	
 			} else {
@@ -75,6 +82,15 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
 			var htData;
 			console.log("htParam", nFetchIndex, htLastFetchParam, htLastFetchedData);
 
+			if (nFetchIndex === 0 && !usePeriod) {
+				return {
+					'application' : applicationName,
+					'from' : from,
+					'to' : to,
+					'limit' : 500
+				};
+			}
+			
 			// period만큼 먼저 조회해본다.
 			if(nFetchIndex === 0 /*|| typeof(htLastFetchParam) === 'undefined' || typeof(htLastFetchedData) === 'undefined'*/){
 				htData = {

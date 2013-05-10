@@ -60,7 +60,7 @@
 <body>
 
 
-<div class="navbar navbar navbar-fixed-top">
+<div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
     <div class="container">
       <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -146,7 +146,7 @@ $(document).ready(function () {
 				<li>Failed : {{= error}}</li>
 			</ul>
 			<hr/>
-			<a href="#" onclick="filterPassingTransaction('{{= query.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
+			<a href="#" onclick="filterPassingTransaction('{{= query.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', '{{= query.filter}}');">Filter passing transactions</a><br/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
@@ -189,7 +189,7 @@ $(document).ready(function () {
 			<hr/>
 
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Filter passing transactions</a><br/>
-			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
+			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= query.filter}}');">Transaction response scatter chart</a><br/>
 			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="hippo-action-icon icon-question-sign"></i></button>

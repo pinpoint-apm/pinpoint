@@ -43,12 +43,13 @@ public class ScatterChartController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
-	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod) {
+	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod, @RequestParam("filter") String filter) {
 		model.addAttribute("applicationName", applicationName);
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
 		model.addAttribute("period", period);
 		model.addAttribute("usePeriod", usePeriod);
+		model.addAttribute("filter", filter);
 		return "scatterPopup";
 	}
 
