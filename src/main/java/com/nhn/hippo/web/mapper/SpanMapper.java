@@ -70,7 +70,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
                 int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
                 // 앞의 spanid가 int이므로 4.
-                int spanIdOffset = 4;
+                final int spanIdOffset = 4;
                 short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + spanIdOffset);
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
