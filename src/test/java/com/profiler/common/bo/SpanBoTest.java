@@ -44,6 +44,15 @@ public class SpanBoTest {
         spanBo.setEndPoint("end");
         spanBo.setRpc("rpc");
 
+        spanBo.setParentSpanId(5);
+
+        spanBo.setAgentStartTime(1);
+        spanBo.setMostTraceId(2);
+        spanBo.setLeastTraceId(3);
+        spanBo.setElapsed(4);
+        spanBo.setStartTime(5);
+
+
         spanBo.setServiceType(ServiceType.BLOC);
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);
@@ -52,6 +61,22 @@ public class SpanBoTest {
         int i = newSpanBo.readValue(bytes, 0);
         logger.info("length:{}", i);
         Assert.assertEquals(bytes.length, i);
+        Assert.assertEquals(newSpanBo.getAgentId(), spanBo.getAgentId());
+        Assert.assertEquals(newSpanBo.getApplicationId(), spanBo.getApplicationId());
+        Assert.assertEquals(newSpanBo.getAgentStartTime(), spanBo.getAgentStartTime());
+        Assert.assertEquals(newSpanBo.getElapsed(), spanBo.getElapsed());
+        Assert.assertEquals(newSpanBo.getEndPoint(), spanBo.getEndPoint());
+        Assert.assertEquals(newSpanBo.getException(), spanBo.getException());
+        Assert.assertEquals(newSpanBo.getFlag(), spanBo.getFlag());
+
+//        이건 serialize에서 안가져옴.
+//        Assert.assertEquals(newSpanBo.getMostTraceId(), spanBo.getMostTraceId());
+//        Assert.assertEquals(newSpanBo.getLeastTraceId(), spanBo.getLeastTraceId());
+        Assert.assertEquals(newSpanBo.getParentSpanId(), spanBo.getParentSpanId());
+
+        Assert.assertEquals(newSpanBo.getVersion(), spanBo.getVersion());
+
+
     }
 
     @Test

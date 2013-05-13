@@ -57,8 +57,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     private List<SpanEventBo> spanEventBoList;
 
-    private int recursiveCallCount = 0;
-
     private long collectorAcceptTime;
 
     
@@ -238,12 +236,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
     }
 
     public void setAnnotationBoList(List<AnnotationBo> anoList) {
-        // List<AnnotationBo> boList = new
-        // ArrayList<AnnotationBo>(anoList.size());
-        // for(Annotation ano : anoList) {
-        // boList.add(new AnnotationBo(ano));
-        // }
-        // this.annotationBoList = boList;
         if (anoList == null) {
             this.annotationBoList = Collections.emptyList();
         } else {
@@ -260,14 +252,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
 
     public List<SpanEventBo> getSpanEventBoList() {
         return spanEventBoList;
-    }
-
-    public int increaseRecursiveCallCount() {
-        return recursiveCallCount++;
-    }
-
-    public int getRecursiveCallCount() {
-        return recursiveCallCount;
     }
 
     public ServiceType getServiceType() {
@@ -418,7 +402,6 @@ public class SpanBo implements com.profiler.common.bo.Span {
                 ", flag=" + flag +
                 ", exception=" + exception +
                 ", spanEventBoList=" + spanEventBoList +
-                ", recursiveCallCount=" + recursiveCallCount +
                 ", collectorAcceptTime=" + collectorAcceptTime +
                 ", remoteAddr='" + remoteAddr + '\'' +
                 '}';

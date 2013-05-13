@@ -3,6 +3,7 @@ package com.profiler.common.bo;
 import com.profiler.common.buffer.Buffer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,6 +22,10 @@ public class AnnotationBoList {
     }
 
     public AnnotationBoList(List<AnnotationBo> annotationBoList) {
+        if (annotationBoList == null) {
+            this.annotationBoList = Collections.emptyList();
+            return;
+        }
         this.annotationBoList = annotationBoList;
     }
 
@@ -33,6 +38,7 @@ public class AnnotationBoList {
     }
 
     public void writeValue(Buffer writer){
+
         int size = this.annotationBoList.size();
         writer.putVar(size);
         for (AnnotationBo annotationBo : this.annotationBoList) {
