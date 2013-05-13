@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.hippo.web.filter.Filter;
 import com.nhn.hippo.web.filter.FilterBuilder;
 import com.nhn.hippo.web.service.ScatterChartService;
+import com.nhn.hippo.web.vo.TraceId;
+import com.nhn.hippo.web.vo.TraceIdWithTime;
 import com.nhn.hippo.web.vo.TransactionMetadataQuery;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.bo.SpanBo;
@@ -38,12 +39,12 @@ public class ScatterChartController extends BaseController {
 	public String selectedScatter(Model model, HttpServletResponse response) {
 		return "selectedScatter";
 	}
-	
+
 	@RequestMapping(value = "/selectedScatterList", method = RequestMethod.GET)
 	public String selectedScatterList(Model model, HttpServletResponse response) {
 		return "selectedScatterList";
 	}
-	
+
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod, @RequestParam(value = "filter", required = false) String filterText) {
 		model.addAttribute("applicationName", applicationName);
@@ -72,8 +73,21 @@ public class ScatterChartController extends BaseController {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		Filter filter = FilterBuilder.build(filterText);
-		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit, filter);
+		List<Dot> scatterData;
+		if (filterText == null) {
+			scatterData = scatter.selectScatterData(applicationName, from, to, limit);
+
+			model.addAttribute("queryStart", scatterData.get(0).getTimestamp());
+			model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
+		} else {
+			List<TraceId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
+
+			model.addAttribute("queryStart", ((TraceIdWithTime) traceIds.get(0)).getAcceptedTime());
+			model.addAttribute("queryEnd", ((TraceIdWithTime) traceIds.get(traceIds.size() - 1)).getAcceptedTime());
+
+			scatterData = scatter.selectScatterData(traceIds, applicationName, FilterBuilder.build(filterText));
+		}
+
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
@@ -127,7 +141,7 @@ public class ScatterChartController extends BaseController {
 		long to = getQueryEndTime();
 
 		// TODO need filter??
-		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit, Filter.NONE);
+		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());

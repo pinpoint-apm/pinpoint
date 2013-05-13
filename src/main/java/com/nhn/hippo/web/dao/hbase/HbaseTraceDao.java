@@ -1,6 +1,7 @@
 package com.nhn.hippo.web.dao.hbase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -73,7 +74,7 @@ public class HbaseTraceDao implements TraceDao {
 	}
 	
 	@Override
-	public List<List<SpanBo>> selectAllSpans(Set<TraceId> traceIdSet) {
+	public List<List<SpanBo>> selectAllSpans(Collection<TraceId> traceIdSet) {
 		List<Get> gets = new ArrayList<Get>(traceIdSet.size());
 		for (TraceId traceId : traceIdSet) {
 			Get get = new Get(traceId.getBytes());

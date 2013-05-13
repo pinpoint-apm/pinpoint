@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
 import com.nhn.hippo.web.filter.Filter;
+import com.nhn.hippo.web.vo.TraceId;
 import com.nhn.hippo.web.vo.TransactionMetadataQuery;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.bo.SpanBo;
@@ -28,13 +29,34 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	private TraceDao traceDao;
 
 	@Override
-	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit, Filter filter) {
-		if (filter == Filter.NONE) {
-			return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
-		} else {
-			// TODO implement filter.
-			return Collections.emptyList();
+	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
+		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
+	}
+
+	@Override
+	public List<Dot> selectScatterData(List<TraceId> traceIds, String applicationName, Filter filter) {
+		List<List<SpanBo>> traceList = traceDao.selectAllSpans(traceIds);
+
+		List<Dot> list = new ArrayList<Dot>();
+
+		for (List<SpanBo> trace : traceList) {
+			if (!filter.include(trace)) {
+				continue;
+			}
+
+			for (SpanBo span : trace) {
+				if (applicationName.equals(span.getApplicationId())) {
+					list.add(new Dot(span.getTraceId(), span.getCollectorAcceptTime(), span.getElapsed(), span.getException()));
+				}
+			}
 		}
+
+		return list;
+	}
+
+	@Override
+	public List<TraceId> selectScatterTraceIdList(String applicationName, long from, long to, int limit) {
+		return applicationTraceIndexDao.scanTraceScatterTraceIdList(applicationName, from, to, limit);
 	}
 
 	/**
@@ -57,21 +79,23 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 		}
 
 		// TODO 일단 임시로...
-		Collections.sort(result, new Comparator<SpanBo>() {
-			@Override
-			public int compare(SpanBo o1, SpanBo o2) {
-				if (o1.getException() != 0 && o2.getException() != 0) {
-					return o2.getElapsed() - o1.getElapsed();
-				} else if (o1.getException() != 0) {
-					return -1;
-				} else if (o2.getException() != 0) {
-					return 1;
-				} else {
-					return o2.getElapsed() - o1.getElapsed();
-				}
-			}
-		});
+		Collections.sort(result, spanComparator);
 
 		return result;
 	}
+
+	private final Comparator<SpanBo> spanComparator = new Comparator<SpanBo>() {
+		@Override
+		public int compare(SpanBo o1, SpanBo o2) {
+			if (o1.getException() != 0 && o2.getException() != 0) {
+				return o2.getElapsed() - o1.getElapsed();
+			} else if (o1.getException() != 0) {
+				return -1;
+			} else if (o2.getException() != 0) {
+				return 1;
+			} else {
+				return o2.getElapsed() - o1.getElapsed();
+			}
+		}
+	};
 }

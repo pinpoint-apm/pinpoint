@@ -5,8 +5,8 @@ import com.profiler.common.util.TraceIdUtils;
 
 public class TraceId {
 
-    private final long most;
-    private final long least;
+    protected final long most;
+    protected final long least;
 
     public TraceId(byte[] traceId) {
         if (traceId == null) {

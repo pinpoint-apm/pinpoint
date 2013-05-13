@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="application/javascript; charset=UTF-8" pageEncoding="UTF-8" %><%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>${callback}(
 {
+	"queryStart" : ${queryStart},
+	"queryEnd" : ${queryEnd},
 	"scatter" : [
 	<c:forEach items="${scatter}" var="dot" varStatus="status">
 		{
