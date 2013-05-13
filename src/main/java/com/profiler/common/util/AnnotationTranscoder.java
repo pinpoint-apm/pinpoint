@@ -9,21 +9,21 @@ public class AnnotationTranscoder {
 
     private static final String DEFAULT_CHARSET = "UTF-8";
 
-    static final int CODE_STRING = 0;
-    static final int CODE_NULL = 1;
-    static final int CODE_INT = 2;
-    static final int CODE_LONG = 3;
+    static final byte CODE_STRING = 0;
+    static final byte CODE_NULL = 1;
+    static final byte CODE_INT = 2;
+    static final byte CODE_LONG = 3;
 
-    static final int CODE_BOOLEAN_TRUE = 4;
-    static final int CODE_BOOLEAN_FALSE = 5;
+    static final byte CODE_BOOLEAN_TRUE = 4;
+    static final byte CODE_BOOLEAN_FALSE = 5;
 
-    static final int CODE_BYTEARRAY = 6;
-    static final int CODE_BYTE = 7;
+    static final byte CODE_BYTEARRAY = 6;
+    static final byte CODE_BYTE = 7;
 
-    static final int CODE_SHORT = 8;
-    static final int CODE_FLOAT = 9;
-    static final int CODE_DOUBLE = 10;
-    static final int CODE_TOSTRING = 11;
+    static final byte CODE_SHORT = 8;
+    static final byte CODE_FLOAT = 9;
+    static final byte CODE_DOUBLE = 10;
+    static final byte CODE_TOSTRING = 11;
 
     protected final TranscoderUtils tu = new TranscoderUtils(true);
 
@@ -88,7 +88,7 @@ public class AnnotationTranscoder {
     }
 
 
-    public Object decode(int dataType, byte[] data) {
+    public Object decode(byte dataType, byte[] data) {
         switch (dataType) {
             case CODE_STRING:
                 return decodeString(data);
@@ -118,7 +118,7 @@ public class AnnotationTranscoder {
         throw new RuntimeException("unsupported DataType:" + dataType);
     }
 
-    public int getTypeCode(Object o) {
+    public byte getTypeCode(Object o) {
         if (o == null) {
             return CODE_NULL;
         }

@@ -16,15 +16,13 @@ public class AnnotationBo {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     private static final int VERSION_SIZE = 1;
-    // version 0 = prefix의 사이즈를 int로
-    // version 1 = prefix의 사이즈를 short로
-    // version 2 = prefix의 사이즈를 byte 하면 byte eocnding이 좀 줄지 않나?
+
     private byte version = 0;
-    private long spanId;
+    private int spanId;
 
     private int key;
 
-    private int valueType;
+    private byte valueType;
     private byte[] byteValue;
     private Object value;
 
@@ -38,11 +36,11 @@ public class AnnotationBo {
         this.byteValue = transcoder.encode(value, this.valueType);
     }
 
-    public long getSpanId() {
+    public int getSpanId() {
         return spanId;
     }
 
-    public void setSpanId(long spanId) {
+    public void setSpanId(int spanId) {
         this.spanId = spanId;
     }
 
@@ -75,7 +73,7 @@ public class AnnotationBo {
         return valueType;
     }
 
-    public void setValueType(int valueType) {
+    public void setValueType(byte valueType) {
         this.valueType = valueType;
     }
 
@@ -102,34 +100,29 @@ public class AnnotationBo {
         // int valueTypeCode; // required 4
         // ByteBuffer value; // optional 4 + buf.length
         buffer.put(this.version);
-        buffer.put(this.key);
+        buffer.putSVar(this.key);
         buffer.put(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
     }
 
-    public int getBufferSize() {
-        // int key; // required 4+string.length
-        // int valueTypeCode; // required 4
-        // ByteBuffer value; // optional 4 + buf.length
-        int size = 0;
-        size += 1 + 4 + 4 + 4;
-        size += 4;
-        if (this.getByteValue() != null) {
-            size += this.getByteValue().length;
-        }
-        return size;
-    }
+//    public int getBufferSize() {
+//        // int key; // required 4+string.length
+//        // int valueTypeCode; // required 4
+//        // ByteBuffer value; // optional 4 + buf.length
+//        int size = 0;
+//        size += 1 + 4 + 4 + 4;
+//        size += 4;
+//        if (this.getByteValue() != null) {
+//            size += this.getByteValue().length;
+//        }
+//        return size;
+//    }
 
-    public int readValue(byte[] buf, int offset) {
-        Buffer buffer = new FixedBuffer(buf, offset);
-        readValue(buffer);
-        return buffer.getOffset();
-    }
 
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
-        this.key = buffer.readInt();
-        this.valueType = buffer.readInt();
+        this.key = buffer.readSVarInt();
+        this.valueType = buffer.readByte();
         this.byteValue = buffer.readPrefixedBytes();
         this.value = transcoder.decode(valueType, byteValue);
     }
@@ -142,13 +135,4 @@ public class AnnotationBo {
         return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", value=" + value + '}';
     }
 
-    public static final Comparator AnnotationBoComparator = new Comparator() {
-        @Override
-        public int compare(Object o1, Object o2) {
-            AnnotationBo annotationBo = (AnnotationBo) o1;
-            int key = annotationBo.getKey();
-            AnnotationKey annotationKey = (AnnotationKey) o2;
-            return key - annotationKey.getCode();
-        }
-    };
 }

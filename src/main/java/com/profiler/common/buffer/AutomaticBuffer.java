@@ -1,5 +1,7 @@
 package com.profiler.common.buffer;
 
+import com.profiler.common.util.BytesUtils;
+
 /**
  * 버퍼사이즈가 자동으로 확장되는 buffer
  */
@@ -32,13 +34,22 @@ public class AutomaticBuffer extends FixedBuffer {
             length = 1;
         }
 
+        // 사이즈 계산을 먼저한 후에 buffer를 한번만 할당하도록 변경.
+        int expendBufferSize = computeExpendBufferSize(size, length, remain);
+        // allocate buffer
+        final byte[] expendBuffer = new byte[expendBufferSize];
+        System.arraycopy(buffer, 0, expendBuffer, 0, buffer.length);
+        buffer = expendBuffer;
+    }
+
+    private int computeExpendBufferSize(int size, int length, int remain) {
+        int expendBufferSize = 0;
         while (remain < size) {
             length <<= 2;
-            final byte[] expendBuffer = new byte[length];
-            System.arraycopy(buffer, 0, expendBuffer, 0, buffer.length);
-            buffer = expendBuffer;
-            remain = expendBuffer.length - offset;
+            expendBufferSize = length;
+            remain = expendBufferSize - offset;
         }
+        return expendBufferSize;
     }
 
     @Override
@@ -103,6 +114,26 @@ public class AutomaticBuffer extends FixedBuffer {
     public void put(int v) {
         checkExpend(4);
         super.put(v);
+    }
+
+    public void putVar(int v) {
+        checkExpend(10);
+        super.putVar(v);
+    }
+
+    public void putSVar(int v) {
+        checkExpend(5);
+        super.putSVar(v);
+    }
+
+    public void putVar(long v) {
+        checkExpend(10);
+        super.putVar(v);
+    }
+
+    public void putSVar(long v) {
+        checkExpend(10);
+        super.putSVar(v);
     }
 
     @Override

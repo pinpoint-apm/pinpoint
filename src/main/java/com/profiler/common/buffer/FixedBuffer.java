@@ -1,7 +1,9 @@
 package com.profiler.common.buffer;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.profiler.common.util.BytesUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -114,6 +116,30 @@ public class FixedBuffer implements Buffer {
         this.offset = offset + 4;
     }
 
+    public void putVar(int v) {
+        if (v >= 0) {
+            putVar32(v);
+        } else {
+            putVar64((long) v);
+        }
+    }
+
+    public void putSVar(int v) {
+        putVar32(BytesUtils.encodeZigZagInt(v));
+    }
+
+    private void putVar32(int v) {
+        while (true) {
+            if ((v & ~0x7F) == 0) {
+                this.buffer[offset++] = (byte)v;
+                return;
+            } else {
+                this.buffer[offset++] = (byte)((v & 0x7F) | 0x80);
+                v >>>= 7;
+            }
+        }
+    }
+
     @Override
     public void put(final short v) {
         BytesUtils.writeShort(v, buffer, offset);
@@ -125,6 +151,30 @@ public class FixedBuffer implements Buffer {
         BytesUtils.writeLong(v, buffer, offset);
         this.offset = offset + 8;
     }
+
+    @Override
+    public void putVar(long v) {
+        putVar64(v);
+    }
+
+    @Override
+    public void putSVar(long v) {
+        putVar64(BytesUtils.encodeZigZagLong(v));
+    }
+
+    private void putVar64(long v) {
+        while (true) {
+            if ((v & ~0x7FL) == 0) {
+                this.buffer[offset++] = (byte)v;
+                return;
+            } else {
+                this.buffer[offset++] = (byte)(((int)v & 0x7F) | 0x80);
+                v >>>= 7;
+            }
+        }
+    }
+
+
 
     @Override
     public void put(final byte[] v) {
@@ -159,6 +209,45 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public int readVarInt() {
+        // protocol buffer의 var encoding 차용.
+        byte v = readByte();
+        if (v >= 0) {
+            return v;
+        }
+        int result = v & 0x7f;
+        if ((v = readByte()) >= 0) {
+            result |= v << 7;
+        } else {
+            result |= (v & 0x7f) << 7;
+            if ((v = readByte()) >= 0) {
+                result |= v << 14;
+            } else {
+                result |= (v & 0x7f) << 14;
+                if ((v = readByte()) >= 0) {
+                    result |= v << 21;
+                } else {
+                    result |= (v & 0x7f) << 21;
+                    result |= (v = readByte()) << 28;
+                    if (v < 0) {
+                        for (int i = 0; i < 5; i++) {
+                            if (readByte() >= 0) {
+                                return result;
+                            }
+                        }
+                        throw new IllegalArgumentException("invalid varInt");
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public int readSVarInt() {
+        return BytesUtils.decodeZigZagInt(readVarInt());
+    }
+
+    @Override
     public short readShort() {
         final short i = BytesUtils.bytesToShort(buffer, offset);
         this.offset = this.offset + 2;
@@ -170,6 +259,26 @@ public class FixedBuffer implements Buffer {
         final long l = BytesUtils.bytesToLong(buffer, offset);
         this.offset = this.offset + 8;
         return l;
+    }
+
+    @Override
+    public long readVarLong() {
+        int shift = 0;
+        long result = 0;
+        while (shift < 64) {
+            final byte v = readByte();
+            result |= (long)(v & 0x7F) << shift;
+            if ((v & 0x80) == 0) {
+                return result;
+            }
+            shift += 7;
+        }
+        throw new IllegalArgumentException("invalid varLong");
+    }
+
+    @Override
+    public long readSVarLong() {
+        return BytesUtils.decodeZigZagLong(readVarLong());
     }
 
     @Override
@@ -278,7 +387,10 @@ public class FixedBuffer implements Buffer {
         }
     }
 
-
+    /**
+     * 암묵적으로 성능을 내부 buffe length와 offset의 사이즈가 같으면 메모리 copy를 하지 않고 그냥 internal buffer를 리턴하므로 주의해야 한다.
+     * @return
+     */
     @Override
     public byte[] getBuffer() {
         if (offset == buffer.length) {
@@ -290,7 +402,10 @@ public class FixedBuffer implements Buffer {
         }
     }
 
-
+    /**
+     * 내부 buffer를 리턴한다.
+     * @return
+     */
     @Override
     public byte[] getInternalBuffer() {
         return this.buffer;

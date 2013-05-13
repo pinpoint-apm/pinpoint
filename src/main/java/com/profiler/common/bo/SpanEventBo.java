@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.profiler.common.ServiceType;
+import com.profiler.common.buffer.AutomaticBuffer;
 import com.profiler.common.dto2.thrift.AgentKey;
 import com.profiler.common.dto2.thrift.Annotation;
 import com.profiler.common.dto2.thrift.SpanChunk;
@@ -304,73 +305,71 @@ public class SpanEventBo implements Span {
 		this.annotationBoList = boList;
 	}
 
-	private int getBufferLength(int a, int b, int c, int d, int f) {
-		int size = a + b + c + d + f;
-		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
-		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
-		// PARENTSPANID + FLAG + TERMINAL;
-		size += SERVICETYPE + AGENTSTARTTIME;
+//	private int getBufferLength(int a, int b, int c, int d, int f) {
+//		int size = a + b + c + d + f;
+//		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
+//		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
+//		// PARENTSPANID + FLAG + TERMINAL;
+//		size += SERVICETYPE + AGENTSTARTTIME;
+//
+//		// startTime 4, elapsed 4, depth 4, nextSpanId 4
+//		size += 16;
+//		return size;
+//	}
 
-		// startTime 4, elapsed 4, depth 4, nextSpanId 4
-		size += 16;
-		return size;
-	}
-
-	public byte[] writeValue() {
-		byte[] agentIDBytes = BytesUtils.getBytes(agentId);
+    public byte[] writeValue() {
+        byte[] agentIDBytes = BytesUtils.getBytes(agentId);
         byte[] applicationIdBytes = BytesUtils.getBytes(applicationId);
         byte[] rpcBytes = BytesUtils.getBytes(rpc);
-		byte[] endPointBytes = BytesUtils.getBytes(endPoint);
+        byte[] endPointBytes = BytesUtils.getBytes(endPoint);
         byte[] destinationIdBytes = BytesUtils.getBytes(this.destinationId);
 
-		int bufferLength = getBufferLength(agentIDBytes.length, applicationIdBytes.length, rpcBytes.length, endPointBytes.length, destinationIdBytes.length);
-		int annotationSize = getAnnotationBufferSize(annotationBoList);
+//        int bufferLength = getBufferLength(agentIDBytes.length, applicationIdBytes.length, rpcBytes.length, endPointBytes.length, destinationIdBytes.length);
+//        int annotationSize = getAnnotationBufferSize(annotationBoList);
 
-		Buffer buffer = new FixedBuffer(bufferLength + annotationSize);
+        Buffer buffer = new AutomaticBuffer(512);
 
-		buffer.put(version);
+        buffer.put(version);
 
-		// buffer.put(mostTraceID);
-		// buffer.put(leastTraceID);
+        // buffer.put(mostTraceID);
+        // buffer.put(leastTraceID);
 
-		buffer.put1PrefixedBytes(agentIDBytes);
+        buffer.put1PrefixedBytes(agentIDBytes);
         buffer.put1PrefixedBytes(applicationIdBytes);
-        buffer.put(agentStartTime);
+        buffer.putVar(agentStartTime);
 
-		buffer.put(startElapsed);
-		buffer.put(endElapsed);
-		// Qualifier에서 읽어서 set하므로 필요 없음.
-		// buffer.put(sequence);
+        buffer.putVar(startElapsed);
+        buffer.putVar(endElapsed);
+        // Qualifier에서 읽어서 set하므로 필요 없음.
+        // buffer.put(sequence);
 
-		buffer.put1PrefixedBytes(rpcBytes);
-		buffer.put(serviceType.getCode());
-		buffer.put1PrefixedBytes(endPointBytes);
+        buffer.put1PrefixedBytes(rpcBytes);
+        buffer.put(serviceType.getCode());
+        buffer.put1PrefixedBytes(endPointBytes);
         buffer.put1PrefixedBytes(destinationIdBytes);
 
-		buffer.put(depth);
-		buffer.put(nextSpanId);
-		
-		writeAnnotation(buffer);
+        buffer.putSVar(depth);
+        buffer.put(nextSpanId);
 
-		return buffer.getBuffer();
-	}
+        writeAnnotation(buffer);
+
+        return buffer.getBuffer();
+    }
 
 	private void writeAnnotation(Buffer buffer) {
-		buffer.put(annotationBoList.size());
-		for (AnnotationBo annotation : annotationBoList) {
-			annotation.writeValue(buffer);
-		}
+        AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
+        annotationBo.writeValue(buffer);
 	}
 
-	private int getAnnotationBufferSize(List<AnnotationBo> boList) {
-		int size = 0;
-		for (AnnotationBo ano : boList) {
-			size += ano.getBufferSize();
-		}
-		// size
-		size += 4;
-		return size;
-	}
+//	private int getAnnotationBufferSize(List<AnnotationBo> boList) {
+//		int size = 0;
+//		for (AnnotationBo ano : boList) {
+//			size += ano.getBufferSize();
+//		}
+//		// size
+//		size += 4;
+//		return size;
+//	}
 
 	public int readValue(byte[] bytes, int offset) {
 		Buffer buffer = new FixedBuffer(bytes, offset);
@@ -382,19 +381,20 @@ public class SpanEventBo implements Span {
 
 		this.agentId = buffer.read1PrefixedString();
         this.applicationId = buffer.read1UnsignedPrefixedString();
-        this.agentStartTime = buffer.readLong();
+        this.agentStartTime = buffer.readVarLong();
 
-		this.startElapsed = buffer.readInt();
-		this.endElapsed = buffer.readInt();
+		this.startElapsed = buffer.readVarInt();
+		this.endElapsed = buffer.readVarInt();
 		// Qualifier에서 읽어서 가져오므로 하지 않아도 됨.
 		// this.sequence = buffer.readShort();
+
 
 		this.rpc = buffer.read1UnsignedPrefixedString();
 		this.serviceType = ServiceType.findServiceType(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
         this.destinationId = buffer.read1UnsignedPrefixedString();
 
-		this.depth = buffer.readInt();
+		this.depth = buffer.readSVarInt();
 		this.nextSpanId = buffer.readInt();
 		
 		this.annotationBoList = readAnnotation(buffer);
@@ -402,14 +402,9 @@ public class SpanEventBo implements Span {
 	}
 
 	private List<AnnotationBo> readAnnotation(Buffer buffer) {
-		int count = buffer.readInt();
-		List<AnnotationBo> list = new ArrayList<AnnotationBo>();
-		for (int i = 0; i < count; i++) {
-			AnnotationBo bo = new AnnotationBo();
-			bo.readValue(buffer);
-			list.add(bo);
-		}
-		return list;
+        AnnotationBoList annotationBoList = new AnnotationBoList();
+        annotationBoList.readValue(buffer);
+		return annotationBoList.getAnnotationBoList();
 	}
 
 	@Override
