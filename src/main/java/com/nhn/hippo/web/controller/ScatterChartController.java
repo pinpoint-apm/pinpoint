@@ -69,22 +69,31 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
+	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback, @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
 		List<Dot> scatterData;
 		if (filterText == null) {
 			scatterData = scatter.selectScatterData(applicationName, from, to, limit);
-
-			model.addAttribute("queryStart", scatterData.get(0).getTimestamp());
-			model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
+			
+			if (scatterData.isEmpty()) {
+				model.addAttribute("queryStart", -1);
+				model.addAttribute("queryEnd", -1);
+			} else {
+				model.addAttribute("queryStart", scatterData.get(0).getTimestamp());
+				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
+			}
 		} else {
 			List<TraceId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
 
-			model.addAttribute("queryStart", ((TraceIdWithTime) traceIds.get(0)).getAcceptedTime());
-			model.addAttribute("queryEnd", ((TraceIdWithTime) traceIds.get(traceIds.size() - 1)).getAcceptedTime());
-
+			if (!traceIds.isEmpty()) {
+				model.addAttribute("queryStart", -1);
+				model.addAttribute("queryEnd", -1);
+			} else {
+				model.addAttribute("queryStart", ((TraceIdWithTime) traceIds.get(0)).getAcceptedTime());
+				model.addAttribute("queryEnd", ((TraceIdWithTime) traceIds.get(traceIds.size() - 1)).getAcceptedTime());
+			}
 			scatterData = scatter.selectScatterData(traceIds, applicationName, FilterBuilder.build(filterText));
 		}
 
@@ -96,11 +105,12 @@ public class ScatterChartController extends BaseController {
 
 		addResponseHeader(response);
 
+		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고. 변경 후 삭제예정.
 		if (jsonpCallback == null) {
-			return "scatter_json";
+			return "scatter_json" + ((version > 1) ? version : "");
 		} else {
 			model.addAttribute("callback", jsonpCallback);
-			return "scatter_jsonp";
+			return "scatter_jsonp" + ((version > 1) ? version : "");
 		}
 	}
 
@@ -115,10 +125,11 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
+	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback, @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
 		long to = getQueryEndTime();
 		long from = to - period;
-		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback);
+		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고..
+		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback, version);
 	}
 
 	/**
