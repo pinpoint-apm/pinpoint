@@ -132,6 +132,15 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 					linkClickHandler(e, query, data, "#" + containerId);
 				}
 		    });
+		} else {
+			oServerMap.option({
+				fOnNodeClick : function(e, data) {
+					nodeClickHandler(e, query, data, "#" + containerId);
+				},
+				fOnLinkClick : function(e, data) {
+					linkClickHandler(e, query, data, "#" + containerId);
+				}
+			});
 		}
 	    oServerMap.load(data.applicationMapData);
     };
