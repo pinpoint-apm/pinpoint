@@ -75,7 +75,6 @@ public class BusinessTransactionController extends BaseController {
 		model.addAttribute("filterText", filterText);
 		model.addAttribute("filter", filter);
 		
-		addResponseHeader(response);
 		return "transactionList";
 	}
 

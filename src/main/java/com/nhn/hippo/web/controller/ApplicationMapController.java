@@ -40,7 +40,6 @@ public class ApplicationMapController extends BaseController {
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
 
-		addResponseHeader(response);
 		return "applicationmap";
 	}
 
@@ -62,7 +61,6 @@ public class ApplicationMapController extends BaseController {
 		model.addAttribute("filterText", filterText);
 		model.addAttribute("filter", FilterBuilder.build(filterText));
 
-		addResponseHeader(response);
 		return "applicationmap.filtered.view";
 	}
 
@@ -76,7 +74,6 @@ public class ApplicationMapController extends BaseController {
 		model.addAttribute("links", map.getLinks());
 		model.addAttribute("filter", filter);
 
-		addResponseHeader(response);
 		return "applicationmap.filtered";
 	}
 }

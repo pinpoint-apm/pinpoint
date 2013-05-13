@@ -40,7 +40,6 @@ public class MainController extends BaseController {
 
 		logger.debug("Applications, {}", applications);
 
-		addResponseHeader(response);
 		return "applications";
 	}
 
@@ -53,7 +52,6 @@ public class MainController extends BaseController {
 		model.addAttribute("gap", gap);
 		model.addAttribute("agentinfo", agentInfo);
 
-		addResponseHeader(response);
 		return "agentstatus";
 	}
 }

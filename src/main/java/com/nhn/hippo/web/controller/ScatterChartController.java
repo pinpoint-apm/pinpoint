@@ -103,7 +103,6 @@ public class ScatterChartController extends BaseController {
 
 		model.addAttribute("scatter", scatterData);
 
-		addResponseHeader(response);
 
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고. 변경 후 삭제예정.
 		if (jsonpCallback == null) {
@@ -168,7 +167,6 @@ public class ScatterChartController extends BaseController {
 
 		model.addAttribute("limit", limit);
 
-		addResponseHeader(response);
 		return "scatterRealtime";
 	}
 
@@ -207,7 +205,6 @@ public class ScatterChartController extends BaseController {
 			model.addAttribute("metadata", metadata);
 		}
 
-		addResponseHeader(response);
 		return "transactionmetadata";
 	}
 }
