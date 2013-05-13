@@ -1,8 +1,10 @@
 package com.profiler.server.dao.hbase;
 
 import com.profiler.common.bo.AnnotationBo;
+import com.profiler.common.bo.AnnotationBoList;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SpanEventBo;
+import com.profiler.common.buffer.AutomaticBuffer;
 import com.profiler.common.dto2.thrift.Annotation;
 import com.profiler.common.dto2.thrift.Span;
 import com.profiler.common.dto2.thrift.SpanChunk;
@@ -10,7 +12,6 @@ import com.profiler.common.dto2.thrift.SpanEvent;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.buffer.Buffer;
 import com.profiler.common.util.BytesUtils;
-import com.profiler.common.buffer.FixedBuffer;
 import com.profiler.common.util.SpanUtils;
 import com.profiler.server.dao.TracesDao;
 import com.profiler.server.util.AcceptedTimeService;
@@ -51,7 +52,7 @@ public class HbaseTraceDao implements TracesDao {
 
         List<Annotation> annotations = span.getAnnotations();
         if (annotations != null && annotations.size() != 0) {
-            byte[] bytes = writeBuffer(annotations);
+            byte[] bytes = writeAnnotation(annotations);
             put.add(TRACES_CF_ANNOTATION, spanId, bytes);
         }
 
@@ -108,21 +109,16 @@ public class HbaseTraceDao implements TracesDao {
 
     }
 
-    private byte[] writeBuffer(List<Annotation> annotations) {
-        int size = 0;
+    private byte[] writeAnnotation(List<Annotation> annotations) {
         List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
         for (Annotation ano : annotations) {
             AnnotationBo annotationBo = new AnnotationBo(ano);
-            size += annotationBo.getBufferSize();
             boList.add(annotationBo);
         }
-        // size
-        size += 4;
-        Buffer buffer = new FixedBuffer(size);
-        buffer.put(boList.size());
-        for (AnnotationBo bo : boList) {
-            bo.writeValue(buffer);
-        }
+
+        Buffer buffer = new AutomaticBuffer(64);
+        AnnotationBoList annotationBoList = new AnnotationBoList(boList);
+        annotationBoList.writeValue(buffer);
         return buffer.getBuffer();
     }
 }

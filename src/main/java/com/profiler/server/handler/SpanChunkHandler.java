@@ -66,9 +66,7 @@ public class SpanChunkHandler implements Handler {
                     // if terminal update statistics
 					int elapsed = spanEvent.getEndElapsed();
                     boolean hasException = SpanEventUtils.hasException(spanEvent);
-                    
-                    System.out.println("I am SpanChunkHandler");
-                    
+
                     // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
                     // 내가 호출한 정보 저장. (span이 호출한 spanevent)
 					applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(),

@@ -103,8 +103,6 @@ public class SpanHandler implements Handler {
 					int elapsed = spanEvent.getEndElapsed();
                     boolean hasException = SpanEventUtils.hasException(spanEvent);
                     
-                    System.out.println("I am SpanHandler");
-                    
                     // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
                     // 내가 호출한 정보 저장. (span이 호출한 spanevent)
 					applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(), span.getApplicationName(), span.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
