@@ -36,12 +36,14 @@ public class AnnotationUtils {
     }
 
     public static AnnotationBo getDisplayArgument(Span span) {
+        // arcus 관련 일반화 필요.
         List<AnnotationBo> list = span.getAnnotationBoList();
         if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
             return findAnnotationBo(list, AnnotationKey.ARCUS_COMMAND);
         }
 
-        if (span.getServiceType() == ServiceType.HTTP_CLIENT) {
+        // rpc connector의 경우 보여주는 code일반화 필요.
+        if (span.getServiceType() == ServiceType.HTTP_CLIENT || span.getServiceType() == ServiceType.JDK_HTTPURLCONNECTOR) {
             return findAnnotationBo(list, AnnotationKey.HTTP_URL);
         }
 
