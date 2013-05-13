@@ -95,6 +95,9 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 	
 	var containerId = "servermap";
 	
+	$(".nodeinfo").remove()
+	$(".linkinfo").remove()
+
 	if (oServerMap) {
 		oServerMap.clear();
 	}
@@ -312,23 +315,24 @@ var mergeUnknown = function(data) {
 
 var nodeClickHandler = function(e, query, data, containerId) {
 	data.query = query;
-	console.log("data", data);
 	if (data.category == "CLIENT") {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
 			var box = $('#ClientBox')
-							.tmpl(data)
-							.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-							.attr('class', 'nodeinfo' + data.id);
+						.tmpl(data)
+						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
+						.addClass('nodeinfo')
+						.addClass('nodeinfo' + data.id);
 			box.appendTo($(containerId).parent());
 		}	
 	} else if (data.category == "UNKNOWN_GROUP") {
 		if ($("DIV.nodeinfo" + data.id).length == 0) {
 			var htOffset = $(containerId).offset();
 			var box = $('#UnknownGroupBox')
-			.tmpl(data)
-			.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-			.attr('class', 'nodeinfo' + data.id);
+						.tmpl(data)
+						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
+						.addClass('nodeinfo')
+						.addClass('nodeinfo' + data.id);
 			box.appendTo($(containerId).parent());
 		}
 	} else {
@@ -337,7 +341,8 @@ var nodeClickHandler = function(e, query, data, containerId) {
 			var box = $('#ApplicationBox')
 						.tmpl(data)
 						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-						.attr('class', 'nodeinfo' + data.id);
+						.addClass('nodeinfo')
+						.addClass('nodeinfo' + data.id);
 			box.appendTo($(containerId).parent());
 		}
 	}
@@ -348,11 +353,11 @@ var linkClickHandler = function(e, query, data, containerId) {
 		return;
 	}
 	data.query = query;
-	console.log("data", data);
 	var htOffset = $(containerId).offset();
 	var box = $('#LinkInfoBox')
 				.tmpl(data)
 				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-				.attr('class', 'linkinfo' + data.id);
+				.addClass('linkinfo')
+				.addClass('linkinfo' + data.id);
 	box.appendTo($(containerId).parent());
 }
