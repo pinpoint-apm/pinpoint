@@ -193,11 +193,21 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to) {
-		List<List<SpanBo>> traceList = this.traceDao.selectSpans(traceIds);
+	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to, Filter filter) {
+		List<List<SpanBo>> traceList;
+
+		if (filter == Filter.NONE) {
+			traceList = this.traceDao.selectSpans(traceIds);
+		} else {
+			traceList = this.traceDao.selectAllSpans(traceIds);
+		}
 
 		BusinessTransactions businessTransactions = new BusinessTransactions();
 		for (List<SpanBo> trace : traceList) {
+			if (!filter.include(trace)) {
+				continue;
+			}
+			
 			for (SpanBo spanBo : trace) {
 				// 해당 application으로 인입된 요청만 보여준다.
 				if (applicationName.equals(spanBo.getApplicationId())) {

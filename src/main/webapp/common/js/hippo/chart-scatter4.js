@@ -57,7 +57,7 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
     
     $("#scatterChartContainer SPAN").unbind("click");     
     $("#scatterChartContainer SPAN").bind("click", function() {
-    	showRequests(applicationName, from, to, period, usePeriod);
+    	showRequests(applicationName, from, to, period, usePeriod, filter);
     });
     
     $("#scatterChartContainer").show();

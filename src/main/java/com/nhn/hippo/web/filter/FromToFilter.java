@@ -50,6 +50,9 @@ public class FromToFilter implements Filter {
 			for (SpanBo span : transaction) {
 				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
+					if (eventBoList == null) {
+						continue;
+					}
 					for (SpanEventBo event : eventBoList) {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
@@ -90,6 +93,9 @@ public class FromToFilter implements Filter {
 			for (SpanBo span : transaction) {
 				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
+					if (eventBoList == null) {
+						continue;
+					}
 					for (SpanEventBo event : eventBoList) {
 						if (toServiceCode == event.getServiceType().getCode() && toApplicationName.equals(event.getDestinationId())) {
 							include = true;

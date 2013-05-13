@@ -20,7 +20,7 @@ public interface FlowChartService {
 
 	public ServerCallTree selectServerCallTree(TraceId traceId);
 
-	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to);
+	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to, Filter filter);
 	
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter);
 }

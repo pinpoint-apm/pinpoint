@@ -1,5 +1,6 @@
 package com.nhn.hippo.web.controller;
 
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.nhn.hippo.web.calltree.server.ServerCallTree;
 import com.nhn.hippo.web.calltree.span.SpanAlign;
+import com.nhn.hippo.web.filter.Filter;
+import com.nhn.hippo.web.filter.FilterBuilder;
 import com.nhn.hippo.web.service.FlowChartService;
 import com.nhn.hippo.web.service.RecordSetService;
 import com.nhn.hippo.web.service.SpanService;
@@ -53,12 +56,13 @@ public class BusinessTransactionController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
-	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to) {
+	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 
 		Set<TraceId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
-		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to);
+		Filter filter = FilterBuilder.build(filterText);
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to, filter);
 
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
@@ -68,16 +72,18 @@ public class BusinessTransactionController extends BaseController {
 		model.addAttribute("to", new Date(to));
 		model.addAttribute("urlCount", selectBusinessTransactions.getURLCount());
 		model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
+		model.addAttribute("filterText", filterText);
+		model.addAttribute("filter", filter);
 		
 		addResponseHeader(response);
 		return "transactionList";
 	}
 
 	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
-	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period) {
+	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam(value = "filter", required = false) String filterText) {
 		long to = getQueryEndTime();
 		long from = to - period;
-		return getBusinessTransactionsData(model, response, applicationName, from, to);
+		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText);
 	}
 
 	/**
