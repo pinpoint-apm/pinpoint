@@ -1011,6 +1011,8 @@ var BigScatterChart = $.Class({
 		_.each(this, function(content, property){
 			delete this[property];
 		}, this);
+		// this is for drag-selecting. it should be unbinded.
+		jQuery(document).unbind('mousemove').unbind('mouseup');		
 		this._bDestroied = true;
 	},
 
