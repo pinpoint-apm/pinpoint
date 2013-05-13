@@ -70,7 +70,6 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
             // 1. traceContext를 체크하면 안됨. traceContext에서 즉 같은 thread에서 prearedStatement에서 안만들수도 있음.
             // 2. sampling 동작이 동작할 경우 preparedStatement를 create하는 thread가 trace 대상이 아닐수 있음. 먼제 sql을 저장해야 한다.
             String sql = (String) args[0];
-
             parsingResult = traceContext.parseSql(sql);
             if (parsingResult != null) {
                 this.setSql.invoke(result, parsingResult);
@@ -85,7 +84,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         if (trace == null) {
             return;
         }
-
+        trace.recordSqlParsingResult(parsingResult);
         trace.recordException(result);
         trace.recordApi(descriptor);
 
