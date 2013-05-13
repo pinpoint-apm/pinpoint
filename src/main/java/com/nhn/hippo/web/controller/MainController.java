@@ -23,7 +23,7 @@ import com.profiler.common.bo.AgentInfoBo;
  * @author netspider
  */
 @Controller
-public class MainController extends BaseController {
+public class MainController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

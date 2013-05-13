@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.hippo.web.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ import com.profiler.common.bo.SpanBo;
  * @author netspider
  */
 @Controller
-public class ScatterChartController extends BaseController {
+public class ScatterChartController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -125,7 +126,7 @@ public class ScatterChartController extends BaseController {
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
 	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback, @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
-		long to = getQueryEndTime();
+		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고..
 		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback, version);
@@ -148,7 +149,7 @@ public class ScatterChartController extends BaseController {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		long to = getQueryEndTime();
+		long to = TimeUtils.getDelayLastTime();
 
 		// TODO need filter??
 		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);

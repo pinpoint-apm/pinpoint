@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.hippo.web.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +26,7 @@ import com.nhn.hippo.web.vo.TraceId;
  * @author netspider
  */
 @Controller
-public class ApplicationMapController extends BaseController {
+public class ApplicationMapController {
 
 	@Autowired
 	private ApplicationMapService applicationMapService;
@@ -45,7 +46,7 @@ public class ApplicationMapController extends BaseController {
 
 	@RequestMapping(value = "/getLastServerMapData2", method = RequestMethod.GET)
 	public String getLastServerMapData2(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("serviceType") short serviceType, @RequestParam("period") long period) {
-		long to = getQueryEndTime();
+		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		return getServerMapData2(model, response, applicationName, serviceType, from, to);
 	}

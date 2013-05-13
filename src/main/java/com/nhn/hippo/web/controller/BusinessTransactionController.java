@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.hippo.web.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import com.nhn.hippo.web.vo.callstacks.RecordSet;
  *
  */
 @Controller
-public class BusinessTransactionController extends BaseController {
+public class BusinessTransactionController {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -80,7 +81,7 @@ public class BusinessTransactionController extends BaseController {
 
 	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
 	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam(value = "filter", required = false) String filterText) {
-		long to = getQueryEndTime();
+		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText);
 	}
