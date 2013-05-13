@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.hippo.web.filter.Filter;
+import com.nhn.hippo.web.filter.FilterBuilder;
 import com.nhn.hippo.web.service.ScatterChartService;
 import com.nhn.hippo.web.vo.TransactionMetadataQuery;
 import com.nhn.hippo.web.vo.scatter.Dot;
@@ -43,13 +45,13 @@ public class ScatterChartController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
-	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod, @RequestParam("filter") String filter) {
+	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod, @RequestParam(value = "filter", required = false) String filterText) {
 		model.addAttribute("applicationName", applicationName);
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
 		model.addAttribute("period", period);
 		model.addAttribute("usePeriod", usePeriod);
-		model.addAttribute("filter", filter);
+		model.addAttribute("filter", filterText);
 		return "scatterPopup";
 	}
 
@@ -66,11 +68,12 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
+	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
+		Filter filter = FilterBuilder.build(filterText);
+		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit, filter);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
@@ -98,10 +101,10 @@ public class ScatterChartController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
+	public String getLastScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback) {
 		long to = getQueryEndTime();
 		long from = to - period;
-		return getScatterData(model, response, applicationName, from, to, limit, jsonpCallback);
+		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback);
 	}
 
 	/**
@@ -123,7 +126,8 @@ public class ScatterChartController extends BaseController {
 
 		long to = getQueryEndTime();
 
-		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
+		// TODO need filter??
+		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit, Filter.NONE);
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());

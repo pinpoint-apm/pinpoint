@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.nhn.hippo.web.dao.ApplicationTraceIndexDao;
 import com.nhn.hippo.web.dao.TraceDao;
+import com.nhn.hippo.web.filter.Filter;
 import com.nhn.hippo.web.vo.TransactionMetadataQuery;
 import com.nhn.hippo.web.vo.scatter.Dot;
 import com.profiler.common.bo.SpanBo;
@@ -27,8 +28,13 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	private TraceDao traceDao;
 
 	@Override
-	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
-		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
+	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit, Filter filter) {
+		if (filter == Filter.NONE) {
+			return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
+		} else {
+			// TODO implement filter.
+			return Collections.emptyList();
+		}
 	}
 
 	/**

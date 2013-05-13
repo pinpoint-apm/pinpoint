@@ -20,7 +20,7 @@ function expandScatter(e) {
 }
 
 function showResponseScatter(applicationName, from, to, period, usePeriod, filter, w, h) {
-	console.log("showResponseScatter", applicationName, from, to, period, usePeriod, w, h);
+	console.log("showResponseScatter", applicationName, from, to, period, usePeriod, filter, w, h);
 
     if (oScatterChart) {
     	oScatterChart.clear();
@@ -87,7 +87,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
 					'application' : applicationName,
 					'from' : from,
 					'to' : to,
-					'limit' : 500
+					'limit' : 500,
+					'filter' : filter
 				};
 			}
 			
@@ -96,7 +97,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
 				htData = {
 					'application' : applicationName,
 					'period' : period,
-					'limit' : 500
+					'limit' : 500,
+					'filter' : filter
 				};
 			} else {
 				if (bDrawOnceAll || htLastFetchedData.scatter.length == 0) {
@@ -104,7 +106,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
 						'application' : applicationName,
 						'from' : htLastFetchParam.to + 1,
 						'to' : htLastFetchParam.to + 2000,
-						'limit' : 500
+						'limit' : 500,
+						'filter' : filter
 					};
 				} else {
 					htData = {
@@ -112,7 +115,8 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
 						// array[0] 이 최근 값, array[len]이 오래된 이다.
 						'from' : from,
 						'to' : htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1].x - 1,
-						'limit' : 500
+						'limit' : 500,
+						'filter' : filter
 					};
 				}
 			}
