@@ -131,6 +131,7 @@ $(document).ready(function () {
 	showServerMap("${applicationName}", "${serviceType}", ${from}, ${to}, 0, false, "${filterText}", function() {
 		$("#progressbar").hide();
 	});
+	showResponseScatter("${applicationName}", ${from}, ${to}, 0, false, "${filterText}");
 });
 </script>
 <script id="LinkInfoBox" type="text/x-jquery-tmpl">
