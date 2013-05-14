@@ -56,21 +56,22 @@
 <body>
 
 <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container">
-			<img class="brand" src="/images/logo.png" width="116" height="18" />
-            <form class="navbar-form pull-left">
-         		<select id="application" disabled>
-		        	<option>Loading...</option>
-		        </select>
-		        <!--
-				<div id="until" class="btn-group" data-toggle="buttons-radio">
-					<button id="now" type="button" class="btn btn-primary active" disabled>now</button>
-					<button id="specific" type="button" class="btn" disabled>select</button>
-				</div>
-				<input id="date" class="" maxlength="10" type="text" data-date-format="yyyy/mm/dd" style="text-align:center;width:80px" placeholder="yyyy/mm/dd" disabled>
-				<input id="time" class="" maxlength="5" type="text" style="text-align:center;width:50px" placeholder="hh:mm" disabled>
-		        -->
+  <div class="navbar-inner">
+    <div class="container">
+      <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <img class="brand" src="/images/logo.png" width="116" height="18" />
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          <li class="">
+          	<form class="navbar-form pull-left">
+				<select id="application" disabled>
+				<option>Loading...</option>
+				</select>
 				<div id="period" class="btn-group" data-toggle="buttons-radio">
 					<button type="button" value="5" class="btn btn-mini" disabled>Last 5m</button>
 					<button type="button" value="20" class="btn btn-mini btn-inverse active" disabled>20m</button>
@@ -82,18 +83,21 @@
 					<button type="button" value="2880" class="btn btn-mini" disabled>2d</button>
 					<button type="button" value="4320" class="btn btn-mini" disabled>3d</button>
 				</div>
-            </form>
-            <!-- 
-			<div class="nav-collapse pull-right">
-                <ul class="nav">
-                    <li><a href="http://devcafe.nhncorp.com/arcus" target="_blank">About</a></li>
-                    <li><a data-toggle="modal" href="#myModal">Configuration</a></li>
-                    <li><a data-toggle="modal" href="#myHelpModal">Help</a></li>
-                </ul>
-            </div>
-            -->
-        </div>
+			</form>
+          </li>
+          <li class="divider-vertical"></li>
+          <li class="">
+          	<form class="navbar-form">
+				<label class="checkbox">
+				<input type="checkbox" id="mergeUnknown" value="useMerge" data-placement="bottom" onmouseover="$(this).tooltip('show');" title="서버 맵에서 Pinpoint agent가 설치되지 않은 노드는 하나의 노드로 병합하여 보여줍니다." checked/>
+				merge unknown          	
+    			</label>
+			</form>
+          </li>
+        </ul>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="container" id="warningMessage"></div>
@@ -126,6 +130,8 @@ var Nav;
 
 $(document).ready(function () {
 	Nav = new _PinpointNavigationBar();
+	
+	$("#mergeUnknown").bind('click', toggleMerge);
 	
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();

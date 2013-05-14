@@ -90,13 +90,80 @@ function getFilteredServerMapData(query, callback) {
     });
 }
 
+var serverMapCachedData;
+var serverMapCachedQuery;
+
+function toggleMerge() {
+	if (serverMapCachedData && serverMapCachedQuery) {
+		$(".nodeinfo").remove();
+		$(".linkinfo").remove();
+		if (oServerMap) {
+			oServerMap.clear();
+		}
+		serverMapCallback(serverMapCachedQuery, serverMapCachedData, true);
+	}
+}
+
+var serverMapCallback = function(query, data, ignoreCache) {
+	var containerId = "servermap";
+	
+	var cloneObject = function(obj) {
+	    var newObj = (obj instanceof Array) ? [] : {};
+	    for (var i in obj) {
+	        if (obj[i] && typeof obj[i] == "object") {
+	            newObj[i] = cloneObject(obj[i]);
+	        } else {
+	            newObj[i] = obj[i];
+	        }
+	    }
+	    return newObj;
+	}; 
+	
+	serverMapCachedQuery = cloneObject(query);
+	serverMapCachedData = cloneObject(data);
+	
+	if (data.applicationMapData.nodeDataArray.length == 0) {
+		warning("NO DATA", "");
+		return;
+	} else {
+		clearAllWarnings();
+		$("#" + containerId).show();
+	}
+
+	if ($('#mergeUnknown').is(':checked')) {
+		mergeUnknown(data);
+	}
+
+	replaceClientToUser(data);
+
+	if (oServerMap == null) {
+		oServerMap = new ServerMap({
+	        sContainerId : containerId,
+			fOnNodeClick : function(e, data) {
+				nodeClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnLinkClick : function(e, data) {
+				linkClickHandler(e, query, data, "#" + containerId);
+			}
+	    });
+	} else {
+		oServerMap.option({
+			fOnNodeClick : function(e, data) {
+				nodeClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnLinkClick : function(e, data) {
+				linkClickHandler(e, query, data, "#" + containerId);
+			}
+		});
+	}
+    oServerMap.load(data.applicationMapData);
+};
+
 function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, cb) {
 	console.log("showServerMap", applicationName, serviceType, from, to, period, usePeriod, filterText, cb);
 	
-	var containerId = "servermap";
-	
-	$(".nodeinfo").remove()
-	$(".linkinfo").remove()
+	$(".nodeinfo").remove();
+	$(".linkinfo").remove();
 
 	if (oServerMap) {
 		oServerMap.clear();
@@ -111,51 +178,30 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 		usePeriod : usePeriod,
 		filter : filterText
 	};
-	
-	var serverMapCallback = function(query, data) {
-		if (cb) { cb(query, data); }
-		if (data.applicationMapData.nodeDataArray.length == 0) {
-			warning("NO DATA", "");
-			return;
-		} else {
-			clearAllWarnings();
-			$("#" + containerId).show();
-		}
-		
-		mergeUnknown(data);
-		replaceClientToUser(data);
 
-		if (oServerMap == null) {
-			oServerMap = new ServerMap({
-		        sContainerId : containerId,
-				fOnNodeClick : function(e, data) {
-					nodeClickHandler(e, query, data, "#" + containerId);
-				},
-				fOnLinkClick : function(e, data) {
-					linkClickHandler(e, query, data, "#" + containerId);
-				}
-		    });
-		} else {
-			oServerMap.option({
-				fOnNodeClick : function(e, data) {
-					nodeClickHandler(e, query, data, "#" + containerId);
-				},
-				fOnLinkClick : function(e, data) {
-					linkClickHandler(e, query, data, "#" + containerId);
-				}
-			});
-		}
-	    oServerMap.load(data.applicationMapData);
-    };
-
-    console.log("filterText", filterText);
+	console.log("filterText", filterText);
     
     if (filterText) {
-    	getFilteredServerMapData(query, serverMapCallback);
+    	getFilteredServerMapData(query, function(query, result) {
+	    		if (cb) {
+	    			cb(query, result);
+	    		}
+	    		serverMapCallback(query, result);
+    		});
     } else if (usePeriod) {
-        getLastServerMapData2(query, serverMapCallback);
+        getLastServerMapData2(query, function(query, result) {
+    		if (cb) {
+    			cb(query, result);
+    		}
+    		serverMapCallback(query, result);
+		});
     } else {
-        getServerMapData2(query, serverMapCallback);
+        getServerMapData2(query, function(query, result) {
+    		if (cb) {
+    			cb(query, result);
+    		}
+    		serverMapCallback(query, result);
+		});
     }
 }
 
