@@ -139,19 +139,32 @@ var serverMapCallback = function(query, data, ignoreCache) {
 	if (oServerMap == null) {
 		oServerMap = new ServerMap({
 	        sContainerId : containerId,
-			fOnNodeClick : function(e, data) {
+			"sImageDir" : './images/icons/',
+			"htIcons" : {
+				'APACHE' : 'APACHE.png',
+				'ARCUS' : 'ARCUS.png',
+				'CUBRID' : 'CUBRID.png',
+				'ETC' : 'ETC.png',
+				'MEMCACHED' : 'MEMCACHED.png',
+				'MYSQL' : 'MYSQL.png',
+				'QUEUE' : 'QUEUE.png',
+				'TOMCAT' : 'TOMCAT.png',
+				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+				'USER' : 'USER.png'
+			},
+			fOnNodeContextClick : function(e, data) {
 				nodeClickHandler(e, query, data, "#" + containerId);
 			},
-			fOnLinkClick : function(e, data) {
+			fOnLinkContextClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
 			}
 	    });
 	} else {
 		oServerMap.option({
-			fOnNodeClick : function(e, data) {
+			fOnNodeContextClick : function(e, data) {
 				nodeClickHandler(e, query, data, "#" + containerId);
 			},
-			fOnLinkClick : function(e, data) {
+			fOnLinkContextClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
 			}
 		});
