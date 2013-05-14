@@ -191,7 +191,7 @@ var ServerMap = $.Class({
 	    this._oDiagram.layout = this.$(go.LayeredDigraphLayout, //{ isOngoing: false, layerSpacing: 50 });
 	      { //rdirection: 90,
 	          isOngoing: false,
-	          layerSpacing: 50,
+	          layerSpacing: 150,
 	          columnSpacing: 50,
 	          setsPortSpots: false }
 	    );	    
