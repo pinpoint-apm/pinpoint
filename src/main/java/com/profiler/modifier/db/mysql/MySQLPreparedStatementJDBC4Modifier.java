@@ -66,8 +66,9 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
                 }
             } catch (NotFoundInstrumentException e) {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
-                if (logger.isTraceEnabled()) {
-                    logger.trace("bindVariable api not found. Cause:" + e.getMessage(), e);
+                // stack trace는 일부러 안찍음.
+                if (logger.isDebugEnabled()) {
+                    logger.debug("bindVariable api not found. method:{} Cause:{}", methodName, e.getMessage());
                 }
             }
         }
