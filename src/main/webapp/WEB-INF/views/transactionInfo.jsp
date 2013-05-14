@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="hippo" uri="http://hippo.nhncorp.com/hippo" %>
+<%@ taglib prefix="pinpoint" uri="http://pinpoint.nhncorp.com/pinpoint" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
@@ -12,9 +12,9 @@
 
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/hippo.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/scatter.css" rel="stylesheet"/>
+    <link href="/common/css/pinpoint/pinpoint.css" rel="stylesheet"/>
+    <link href="/common/css/pinpoint/sorttable.css" rel="stylesheet"/>
+    <link href="/common/css/pinpoint/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
@@ -30,29 +30,29 @@
 	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
     <script type="text/javascript" src="/common/js/date.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/underscore-min.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.Class.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/scatter/underscore-min.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.Class.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/pinpoint.js"></script>
     <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     
     <!-- scatter chart -->
-    <script type="text/javascript" src="/common/js/hippo/chart-scatter4.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.dragToSelect.js"></script>
-	<script type="text/javascript" src="/common/js/hippo/scatter/jquery.BigScatterChart.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/chart-scatter4.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.dragToSelect.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.BigScatterChart.js"></script>
     
 	<!-- server map -->    
-    <script type="text/javascript" src="/common/js/hippo/chart-servermap.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/chart-servermap.js"></script>
     <script type="text/javascript" src="/common/js/go.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.tmpl.min.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/Point2D.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/intersection.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/canvas.roundRect.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/servermap/jquery.ServerMap.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/servermap/Point2D.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/servermap/intersection.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.ServerMap.js"></script>
     
     <!-- help -->
-    <script type="text/javascript" src="/common/js/hippo/help.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/message.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/help.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/message.js"></script>
     <script type="text/javascript">
         function showDetail(id) {
             $("#spanDetail" + id).css("display", "");
@@ -229,7 +229,7 @@
 	                	<td sorttable_customkey="${status.count}" class="seq">${seq}</td>
 	                    <td class="exectime">
 	                    	<c:if test="${record.method}">
-	                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+	                    		${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}
 	                    	</c:if>
 	                    </td>
 	                    <td class="gap"><fmt:formatNumber value="${gap}" type="number" /></td>
@@ -240,7 +240,7 @@
 	                	<td sorttable_customkey="${status.count}" class="seq info"></td>
 	                    <td class="exectime info">
 	                    	<c:if test="${record.method}">
-	                    		${hippo:longToDateStr(record.begin, "HH:mm:ss SSS")}
+	                    		${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}
 	                    	</c:if>
 	                    </td>
 	                    <td class="gap info"></td>

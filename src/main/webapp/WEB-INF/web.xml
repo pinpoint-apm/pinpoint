@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         id="hippo-testweb" version="3.0">
+         id="pinpoint-testweb" version="3.0">
 
     <context-param>
         <param-name>log4jConfigLocation</param-name>
@@ -22,7 +22,7 @@
 
     <!-- servlet application context -->
     <servlet>
-        <servlet-name>hippo-web</servlet-name>
+        <servlet-name>pinpoint-web</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
@@ -33,8 +33,8 @@
 
     <!-- url mapping -->
     <servlet-mapping>
-        <servlet-name>hippo-web</servlet-name>
-        <url-pattern>*.hippo</url-pattern>
+        <servlet-name>pinpoint-web</servlet-name>
+        <url-pattern>*.pinpoint</url-pattern>
     </servlet-mapping>
 
     <filter>
@@ -49,7 +49,7 @@
     <filter>
 	    <description>NoCacheFilter</description>
     	<filter-name>NoCacheFilter</filter-name>
-    	<filter-class>com.nhn.hippo.web.servletfilter.NoCacheFilter</filter-class>
+    	<filter-class>com.nhn.pinpoint.web.servletfilter.NoCacheFilter</filter-class>
 	</filter>
 
     <filter-mapping>

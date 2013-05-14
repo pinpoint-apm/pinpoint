@@ -17,38 +17,38 @@
         </layout>
     </appender>
 
-    <logger name="com.nhn.hippo" additivity="false">
+    <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.hippo.web.applicationmap" additivity="false">
+    <logger name="com.nhn.pinpoint.web.applicationmap" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.hippo.web.calltree.server" additivity="false">
+    <logger name="com.nhn.pinpoint.web.calltree.server" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.nhn.hippo.web.mapper" additivity="false">
+    <logger name="com.nhn.pinpoint.web.mapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.hippo.web.dao" additivity="false">
+    <logger name="com.nhn.pinpoint.web.dao" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.nhn.hippo.web.mapper.ApiMetaDataMapper" additivity="false">
+    <logger name="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 
 
-    <logger name="com.nhn.hippo.web.service" additivity="false">
+    <logger name="com.nhn.pinpoint.web.service" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>

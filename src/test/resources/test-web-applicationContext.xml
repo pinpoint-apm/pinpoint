@@ -31,18 +31,18 @@
     <bean id="trace" class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
 
 
-    <bean class="com.nhn.hippo.web.dao.hbase.HbaseTraceDao"></bean>
-    <bean class="com.nhn.hippo.web.service.SpanServiceImpl"></bean>
+    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseTraceDao"></bean>
+    <bean class="com.nhn.pinpoint.web.service.SpanServiceImpl"></bean>
 
-    <bean class="com.nhn.hippo.web.dao.hbase.HbaseSqlMetaDataDao"></bean>
-    <bean class="com.nhn.hippo.web.mapper.SqlMetaDataMapper"></bean>
+    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao"></bean>
+    <bean class="com.nhn.pinpoint.web.mapper.SqlMetaDataMapper"></bean>
 
-    <bean class="com.nhn.hippo.web.dao.hbase.HbaseAgentInfoDao"></bean>
+    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseAgentInfoDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseAgentInfoDao"></bean>
 
-    <bean id="spanMapper" class="com.nhn.hippo.web.mapper.SpanMapper"></bean>
-    <bean id="annotationMapper" class="com.nhn.hippo.web.mapper.AnnotationMapper"></bean>
-    <bean id="spanAnnotationMapper" class="com.nhn.hippo.web.mapper.SpanMapper">
+    <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
+    <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"></bean>
+    <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 

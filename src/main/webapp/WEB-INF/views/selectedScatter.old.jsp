@@ -11,7 +11,7 @@
 
     <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/common/css/hippo/sorttable.css" rel="stylesheet"/>
+    <link href="/common/css/pinpoint/sorttable.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
     <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript" src="/common/js/date.format.js"></script>
-    <script type="text/javascript" src="/common/js/hippo/hippo.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/pinpoint.js"></script>
     <style type="text/css">
         html, body {
                 height: 100%;
@@ -113,7 +113,7 @@ $(document).ready(function () {
                 query.push(traces[i].y)
         }
         
-        $.post("/transactionmetadata.hippo", query.join(""), function(d) {
+        $.post("/transactionmetadata.pinpoint", query.join(""), function(d) {
                 writeContents(d);
                 $("#loader").hide();
         })
@@ -147,7 +147,7 @@ var writeContents = function(d) {
                 
                 html.push("<td>");
                 html.push("<a href='");
-                html.push("/transactionInfo.hippo?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
+                html.push("/transactionInfo.pinpoint?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
                 html.push("' target='transactionView'>");
                 html.push(data[i].traceId);
                 html.push("</a>");
