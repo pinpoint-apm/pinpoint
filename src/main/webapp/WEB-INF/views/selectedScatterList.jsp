@@ -35,12 +35,12 @@
 	<tr>
 	    <th class="sorttable_numeric">#</th>
 	    <th class="sorttable_numeric">Time</th>
-	    <th>TraceId</th>
+	    <th>Application</th>
 	    <th class="sorttable_numeric">Res. Time (ms)</th>
 	    <th>Exception</th>
-	    <th>Application</th>
 	    <th>AgentId</th>
 	    <th>ClientIP</th>
+	    <th>TraceId</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -136,7 +136,7 @@ var writeContents = function(d) {
 		html.push("<a href='");
 		html.push("/transactionInfo.pinpoint?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
 		html.push("' target='transactionView'>");
-		html.push(data[i].traceId);
+		html.push(data[i].application);
 		html.push("</a>");
 		html.push("</td>");
 
@@ -151,10 +151,6 @@ var writeContents = function(d) {
 		html.push("</td>");
 		
 		html.push("<td>");
-		html.push(data[i].application);
-		html.push("</td>");
-		
-		html.push("<td>");
 		html.push(data[i].agentId);
 		html.push("</td>");
 		
@@ -164,6 +160,14 @@ var writeContents = function(d) {
 		html.push("</a>");
 		html.push("</td>");
 
+		html.push("<td>");
+		html.push("<a href='");
+		html.push("/transactionInfo.pinpoint?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
+		html.push("' target='transactionView'>");
+		html.push(data[i].traceId);
+		html.push("</a>");
+		html.push("</td>");
+		
 		html.push("</tr>");
 	}
 
