@@ -154,18 +154,24 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				'USER' : 'USER.png'
 			},
 			fOnNodeContextClick : function(e, data) {
-				nodeClickHandler(e, query, data, "#" + containerId);
+				nodeContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkContextClick : function(e, data) {
+				linkContextClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
 			}
 	    });
 	} else {
 		oServerMap.option({
 			fOnNodeContextClick : function(e, data) {
-				nodeClickHandler(e, query, data, "#" + containerId);
+				nodeContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkContextClick : function(e, data) {
+				linkContextClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
 			}
 		});
@@ -373,7 +379,7 @@ var mergeUnknown = function(data) {
 	});
 }
 
-var nodeClickHandler = function(e, query, data, containerId) {
+var nodeContextClickHandler = function(e, query, data, containerId) {
 	if ($("DIV.nodeinfo" + data.id).length > 0) {
 		$("DIV.nodeinfo" + data.id).remove();
 		return;
@@ -383,11 +389,11 @@ var nodeClickHandler = function(e, query, data, containerId) {
 	var htOffset = $(containerId).offset();
 	var template;
 	if (data.category == "CLIENT") {
-		template = $('#ClientBox');
+		template = $('#ClientContextInfoBox');
 	} else if (data.category == "UNKNOWN_GROUP") {
-		template = $('#UnknownGroupBox');
+		template = $('#UnknownGroupContextInfoBox');
 	} else {
-		template = $('#ApplicationBox');
+		template = $('#ApplicationContextInfoBox');
 	}
 	
 	var box = template
@@ -399,17 +405,23 @@ var nodeClickHandler = function(e, query, data, containerId) {
 	box.appendTo($(containerId).parent());
 }
 
-var linkClickHandler = function(e, query, data, containerId) {
+var linkContextClickHandler = function(e, query, data, containerId) {
 	if ($("DIV.linkinfo" + data.id).length > 0) {
 		$("DIV.linkinfo" + data.id).remove();
 		return;
 	}
 	data.query = query;
 	var htOffset = $(containerId).offset();
-	var box = $('#LinkInfoBox')
+	var box = $('#LinkContextInfoBox')
 				.tmpl(data)
 				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
 				.addClass('linkinfo')
 				.addClass('linkinfo' + data.id);
 	box.appendTo($(containerId).parent());
+}
+
+var linkClickHandler = function(e, query, data, containerId) {
+	data.query = query;
+	$('#linkInfoDetails').empty();
+	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
 }
