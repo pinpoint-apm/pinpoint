@@ -139,7 +139,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 	if (oServerMap == null) {
 		oServerMap = new ServerMap({
 	        sContainerId : containerId,
-			"sImageDir" : './images/icons/',
+			"sImageDir" : '/images/icons/',
 			"htIcons" : {
 				'APACHE' : 'APACHE.png',
 				'ARCUS' : 'ARCUS.png',
@@ -150,6 +150,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				'QUEUE' : 'QUEUE.png',
 				'TOMCAT' : 'TOMCAT.png',
 				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
 				'USER' : 'USER.png'
 			},
 			fOnNodeContextClick : function(e, data) {

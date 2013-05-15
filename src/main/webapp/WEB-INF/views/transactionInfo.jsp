@@ -442,6 +442,20 @@
 		if (oServerMap == null) {
 			oServerMap = new ServerMap({
 		        sContainerId : containerId,
+				"sImageDir" : '/images/icons/',
+				"htIcons" : {
+					'APACHE' : 'APACHE.png',
+					'ARCUS' : 'ARCUS.png',
+					'CUBRID' : 'CUBRID.png',
+					'ETC' : 'ETC.png',
+					'MEMCACHED' : 'MEMCACHED.png',
+					'MYSQL' : 'MYSQL.png',
+					'QUEUE' : 'QUEUE.png',
+					'TOMCAT' : 'TOMCAT.png',
+					'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+					'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
+					'USER' : 'USER.png'
+				},
 				fOnNodeClick : function(e, data) {
 					// nodeClickHandler(e, data, "#" + containerId);
 				},
