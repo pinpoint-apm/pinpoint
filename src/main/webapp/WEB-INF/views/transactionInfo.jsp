@@ -33,6 +33,7 @@
 	<script type="text/javascript" src="/common/js/pinpoint/scatter/underscore-min.js"></script>
 	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.Class.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/pinpoint.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/sorttable.js"></script>
     <script type="text/javascript" src="/select2/select2.js"></script>
     
@@ -44,7 +45,6 @@
 	<!-- server map -->    
     <script type="text/javascript" src="/common/js/pinpoint/chart-servermap.js"></script>
     <script type="text/javascript" src="/common/js/go.js"></script>
-    <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.tmpl.min.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/Point2D.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/intersection.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
@@ -340,7 +340,7 @@
                    </c:forEach>
                    <tr>
                        <td colspan="7">
-                       <span onclick="$('#detailedInfo${status.count}').show()" style="color:blue;cursor:pointer;">[show span]</span>
+                       <span onclick="displaySpan('#detailedInfo${status.count}')" style="color:blue;cursor:pointer;">[show span]</span>
                        <div style="display:none" id="detailedInfo${status.count}">${sp}</div>
                        </td>
                    </tr>
@@ -365,7 +365,7 @@
                    </c:forEach>
                    <tr>
                        <td colspan="7">
-                       <span onclick="$('#detailedInfo${status.count}').show()" style="color:blue;cursor:pointer;">[show sub span]</span>
+                       <span onclick="displaySpan('#detailedInfo${status.count}')" style="color:blue;cursor:pointer;">[show sub span]</span>
                        <div style="display:none" id="detailedInfo${status.count}">${subSp}</div>
                        </td>
                    </tr>
@@ -389,6 +389,55 @@
 </br>
 
 <script type="text/javascript">
+	function displaySpan(id) {
+		var target = $(id);
+		var arr = target.text().split('');
+
+		var result = [];
+		var disableConvert = false;
+		var indent = 0;
+		
+		var addIndent = function() {
+			for(var k = 0; k <= indent; k++) {
+				result.push("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+			}
+		}
+		
+		for(var i = 0; i < arr.length; i++) {
+			var ch = arr[i];
+			
+			if (ch == "'" || ch == "\"") {
+				disableConvert = !disableConvert;
+				result.push(ch);
+			} else if (ch == "=") {
+				result.push(' ');
+				result.push(ch);
+				result.push(' ');
+			} else if (ch == "{") {
+				indent++;
+				result.push(' ');
+				result.push(ch);
+				result.push("<br/>");
+				addIndent();
+			} else if (ch == "}") {
+				indent--;
+				result.push("<br/>");
+				addIndent();	
+				result.push(ch);
+			} else if (arr[i] == "," && !disableConvert) {
+				result.push(ch);
+				result.push("<br/>");
+				addIndent();
+			} else {
+				result.push(ch);
+			}
+		}
+		
+		target.text('');
+		target.html(result.join(''));
+		target.show();
+	}
+
     var data = {
    		"applicationMapData" : {
    			"nodeDataArray": [
