@@ -241,6 +241,8 @@ $(document).ready(function () {
 		--&gt;
 		<img src="/images/icons/{{= targetinfo.serviceType}}.png" width="20" height="10" /> {{= targetinfo.applicationName}} 
 		<hr/>
+		Total requests : ???<br/> 
+		Failed : {{= error}}<br/>
 		Response statistics
 		<ul>
 			{{var lastKey=''}}
@@ -248,8 +250,7 @@ $(document).ready(function () {
 			<li>&lt;= {{= key}}ms : {{= value}}</li>
 			{{eval lastKey=key}}
 			{{/each}}
-			<li>&gt; {{= lastKey}}ms : {{= slow}}</li>
-			<li>Failed : {{= error}}</li>
+			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
 		</ul>
 		<hr/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
@@ -258,19 +259,20 @@ $(document).ready(function () {
 </script>
 <script id="LinkContextInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Response statistics
-			<ul>
-				{{var lastKey=''}}
-				{{each(key, value) histogram}}
-				<li>&lt;= {{= key}}ms : {{= value}}</li>
-				{{eval lastKey=key}}
-				{{/each}}
-				<li>&gt; {{= lastKey}}ms : {{= slow}}</li>
-				<li>Failed : {{= error}}</li>
-			</ul>
-			<hr/>
-			<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
+		Total requests : ???<br/> 
+		Failed : {{= error}}<br/>
+		Response statistics
+		<ul>
+			{{var lastKey=''}}
+			{{each(key, value) histogram}}
+			<li>&lt;= {{= key}}ms : {{= value}}</li>
+			{{eval lastKey=key}}
+			{{/each}}
+			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
+		</ul>
+		<hr/>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
+		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
