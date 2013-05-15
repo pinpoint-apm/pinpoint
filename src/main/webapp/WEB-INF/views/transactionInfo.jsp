@@ -339,6 +339,12 @@
                        </tr>
                    </c:forEach>
                    <tr>
+                       <td colspan="7">
+                       <span onclick="$('#detailedInfo${status.count}').show()" style="color:blue;cursor:pointer;">[show span]</span>
+                       <div style="display:none" id="detailedInfo${status.count}">${sp}</div>
+                       </td>
+                   </tr>
+                   <tr>
                        <td colspan="7">&nbsp;</td>
                    </tr>
                </c:if>
@@ -357,6 +363,12 @@
                            </td>
                        </tr>
                    </c:forEach>
+                   <tr>
+                       <td colspan="7">
+                       <span onclick="$('#detailedInfo${status.count}').show()" style="color:blue;cursor:pointer;">[show sub span]</span>
+                       <div style="display:none" id="detailedInfo${status.count}">${subSp}</div>
+                       </td>
+                   </tr>
                    <tr>
                        <td colspan="7">&nbsp;</td>
                    </tr>
