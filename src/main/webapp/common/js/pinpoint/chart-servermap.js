@@ -373,42 +373,34 @@ var mergeUnknown = function(data) {
 }
 
 var nodeClickHandler = function(e, query, data, containerId) {
-	data.query = query;
-	if (data.category == "CLIENT") {
-		if ($("DIV.nodeinfo" + data.id).length == 0) {
-			var htOffset = $(containerId).offset();
-			var box = $('#ClientBox')
-						.tmpl(data)
-						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-						.addClass('nodeinfo')
-						.addClass('nodeinfo' + data.id);
-			box.appendTo($(containerId).parent());
-		}	
-	} else if (data.category == "UNKNOWN_GROUP") {
-		if ($("DIV.nodeinfo" + data.id).length == 0) {
-			var htOffset = $(containerId).offset();
-			var box = $('#UnknownGroupBox')
-						.tmpl(data)
-						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-						.addClass('nodeinfo')
-						.addClass('nodeinfo' + data.id);
-			box.appendTo($(containerId).parent());
-		}
-	} else {
-		if ($("DIV.nodeinfo" + data.id).length == 0) {
-			var htOffset = $(containerId).offset();
-			var box = $('#ApplicationBox')
-						.tmpl(data)
-						.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-						.addClass('nodeinfo')
-						.addClass('nodeinfo' + data.id);
-			box.appendTo($(containerId).parent());
-		}
+	if ($("DIV.nodeinfo" + data.id).length > 0) {
+		$("DIV.nodeinfo" + data.id).remove();
+		return;
 	}
+	
+	data.query = query;
+	var htOffset = $(containerId).offset();
+	var template;
+	if (data.category == "CLIENT") {
+		template = $('#ClientBox');
+	} else if (data.category == "UNKNOWN_GROUP") {
+		template = $('#UnknownGroupBox');
+	} else {
+		template = $('#ApplicationBox');
+	}
+	
+	var box = template
+				.tmpl(data)
+				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
+				.addClass('nodeinfo')
+				.addClass('nodeinfo' + data.id);
+	
+	box.appendTo($(containerId).parent());
 }
 
 var linkClickHandler = function(e, query, data, containerId) {
 	if ($("DIV.linkinfo" + data.id).length > 0) {
+		$("DIV.linkinfo" + data.id).remove();
 		return;
 	}
 	data.query = query;
