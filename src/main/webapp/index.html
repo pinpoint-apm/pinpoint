@@ -138,6 +138,10 @@
 			DEMO (response histogram summary)
 			<svg style='height:150px' />
 		</div>
+		<div id='linkInfoSFChart' style='width:100%;display:none'>
+			DEMO (failed rate)
+			<svg style='height:150px' />
+		</div>
 	</div>
 </div>
 <!-- END OF BODY -->
@@ -254,6 +258,7 @@ $(document).ready(function () {
 		<img src="/images/icons/{{= sourceinfo.serviceType}}.png" width="20" height="10" /> {{= sourceinfo.applicationName}}
 		--&gt;
 		<img src="/images/icons/{{= targetinfo.serviceType}}.png" width="20" height="10" /> {{= targetinfo.applicationName}} 
+		<!--
 		<br/>
 		Total requests : ???<br/> 
 		Failed : {{= error}}<br/>
@@ -266,8 +271,9 @@ $(document).ready(function () {
 			{{/each}}
 			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
 		</ul>
-		<hr/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
+		-->
+		<br/>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Scan passing transactions</a><br/>
 		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<hr/>
 	</div>
@@ -286,7 +292,7 @@ $(document).ready(function () {
 			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
 		</ul>
 		<hr/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Scan passing transactions</a><br/>
 		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
@@ -328,7 +334,7 @@ $(document).ready(function () {
 			{{/if}}
 			<hr/>
 
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Filter passing transactions</a><br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transactions</a><br/>
 			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
 			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
 

@@ -426,4 +426,5 @@ var linkClickHandler = function(e, query, data, containerId) {
 	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
 	showLinkHistogramDetailed();
 	showLinkHistogramSum();
+	showLinkSuccessOrFailedDetailed();
 }
