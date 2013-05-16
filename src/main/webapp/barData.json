@@ -1,0 +1,23 @@
+[ 
+	{
+		"key" : "Cumulative Return",
+		"values" : [
+			{ 
+				"label" : "<= 1000ms",
+				"value" : 220
+			}, 
+			{ 
+				"label" : "<= 3000ms",
+				"value" : 110
+			}, 
+			{ 
+				"label" : "<= 5000ms",
+				"value" : 50
+			}, 
+			{ 
+				"label" : "> 5000ms" ,
+				"value" : 30
+			} 
+		]
+	}
+]

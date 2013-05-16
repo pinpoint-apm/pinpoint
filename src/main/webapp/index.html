@@ -47,10 +47,11 @@
     <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.ServerMap.js"></script>
     
-    <!-- stacked area chart -->
+    <!-- link info chart -->
     <script type="text/javascript" src="/common/js/nvd3/d3.v2.min.js"></script>
     <script type="text/javascript" src="/common/js/nvd3/nv.d3.min.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/chart-stacked.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/chart-bar.js"></script>
     
     <!-- requests list -->
     <script type="text/javascript" src="/common/js/pinpoint/chart-transactions.js"></script>
@@ -119,7 +120,6 @@
 	</div>
 	<div class="chart-right">
 		<div id="scatterChartContainer" style="display:none;">
-			<h5 id="scattercharttitle">Transaction response scatter</h5>
 			<span onclick="" style="text-decoration:underline;cursor:pointer">Show all transactions</span>
 			&nbsp;&nbsp;&nbsp;
 			<i class="icon-fullscreen" onclick="expandScatter($(this));" onmouseover="$(this).tooltip('show');" title="Expand to new popup window." style="cursor:pointer;"></i>
@@ -131,8 +131,12 @@
 		<div id="linkInfoDetails">
 		</div>
 		<div id='linkInfoChart' style='width:100%;display:none'>
-			DEMO
+			DEMO (timeseries response histogram)
 			<svg style='height:200px' />
+		</div>
+		<div id='linkInfoBarChart' style='width:100%;display:none'>
+			DEMO (response histogram summary)
+			<svg style='height:150px' />
 		</div>
 	</div>
 </div>

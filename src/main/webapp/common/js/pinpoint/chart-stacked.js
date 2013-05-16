@@ -1,5 +1,5 @@
 
-function showLinkHistogram() {
+function showLinkHistogramDetailed() {
 	$("#linkInfoChart").show();
 	
 	d3.json('/stackedTestData.json', function(data) {
