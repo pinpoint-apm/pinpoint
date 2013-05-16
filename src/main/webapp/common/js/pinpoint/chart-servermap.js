@@ -424,4 +424,5 @@ var linkClickHandler = function(e, query, data, containerId) {
 	data.query = query;
 	$('#linkInfoDetails').empty();
 	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
+	showLinkHistogram();
 }

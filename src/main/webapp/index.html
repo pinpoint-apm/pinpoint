@@ -12,6 +12,7 @@
     <link href="/common/css/pinpoint/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/pinpoint/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
+    <link href="/common/js/nvd3/nv.d3.css" rel="stylesheet"/>
     <link href="/select2/select2-customized.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -45,6 +46,11 @@
     <script type="text/javascript" src="/common/js/pinpoint/servermap/intersection.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.ServerMap.js"></script>
+    
+    <!-- stacked area chart -->
+    <script type="text/javascript" src="/common/js/nvd3/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/common/js/nvd3/nv.d3.min.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/chart-stacked.js"></script>
     
     <!-- requests list -->
     <script type="text/javascript" src="/common/js/pinpoint/chart-transactions.js"></script>
@@ -123,6 +129,10 @@
 		</div>
 		<div><br/><br/></div>
 		<div id="linkInfoDetails">
+		</div>
+		<div id='linkInfoChart' style='width:100%;display:none'>
+			DEMO
+			<svg style='height:200px' />
 		</div>
 	</div>
 </div>
@@ -240,7 +250,7 @@ $(document).ready(function () {
 		<img src="/images/icons/{{= sourceinfo.serviceType}}.png" width="20" height="10" /> {{= sourceinfo.applicationName}}
 		--&gt;
 		<img src="/images/icons/{{= targetinfo.serviceType}}.png" width="20" height="10" /> {{= targetinfo.applicationName}} 
-		<hr/>
+		<br/>
 		Total requests : ???<br/> 
 		Failed : {{= error}}<br/>
 		Response statistics
@@ -255,6 +265,7 @@ $(document).ready(function () {
 		<hr/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Filter passing transactions</a><br/>
 		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
+		<hr/>
 	</div>
 </script>
 <script id="LinkContextInfoBox" type="text/x-jquery-tmpl">
