@@ -1,12 +1,17 @@
 package com.profiler.context;
 
+import com.profiler.exception.PinPointException;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * @author netspider
  */
 public class CallStack {
+
+    private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
 
     private Span span;
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
@@ -23,6 +28,12 @@ public class CallStack {
 
     public Span getSpan() {
         return span;
+    }
+
+//    public synchronized int getIndex() {
+    public int getIndex() {
+        // 일단 락 안잡는 코드로 함.
+       return index;
     }
 
     // copy시의 락 생각할 경우 좀더 정교하게 잡을수 있을듯.
@@ -56,17 +67,33 @@ public class CallStack {
         return index;
     }
 
-    public synchronized void pop() {
+    public synchronized void popRoot() {
         if (index >= 0) {
+            // stack 전체를 정리하는게 더 좋은가?
             stack[index] = null;
             index--;
         } else {
-            Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+            PinPointException ex = new PinPointException("Profiler CallStack check. index:" + index + "");
             if (logger.isWarnEnabled()) {
                 // 자체 stack dump 필요.
-                Exception ex = new Exception("Profiler CallStack check. index:" + index);
-                logger.warn("invalid callStack found", ex);
+                logger.warn("invalid callStack found stack dump:{}", this, ex);
             }
+            throw ex;
+        }
+    }
+
+    public synchronized StackFrame pop() {
+        if (index >= 0) {
+            stack[index] = null;
+            index--;
+            return stack[index];
+        } else {
+            PinPointException ex = new PinPointException("Profiler CallStack check. index:" + index + "");
+            if (logger.isWarnEnabled()) {
+                // 자체 stack dump 필요.
+                logger.warn("invalid callStack found stack dump:{}", this, ex);
+            }
+            throw ex;
         }
     }
 
@@ -87,7 +114,11 @@ public class CallStack {
         return copy;
     }
 
-	public synchronized int index() {
-		return index;
-	}
+    @Override
+    public String toString() {
+        return "CallStack{" +
+                "stack=" + (stack == null ? null : Arrays.asList(stack)) +
+                ", index=" + index +
+                '}';
+    }
 }

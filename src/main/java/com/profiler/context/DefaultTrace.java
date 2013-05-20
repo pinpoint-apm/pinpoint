@@ -30,23 +30,26 @@ public final class DefaultTrace implements Trace {
 
     private TraceContext traceContext;
 
-    // use for calculating depth of each Span.
+    // use for calculating depth of each Span.                                                                               
     private int latestStackIndex = -1;
+    private StackFrame currentStackFrame;
 
     public DefaultTrace() {
         DefaultTraceID traceId = DefaultTraceID.newTraceId();
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();
-        StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
+        StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
+        this.currentStackFrame = stackFrame;
     }
 
     public DefaultTrace(TraceID continueTraceID) {
-        // this.root = continueRoot;
+        // this.root = continueRoot;                                                                                         
         this.callStack = new CallStack(continueTraceID);
         latestStackIndex = this.callStack.push();
-        StackFrame stackFrame = createRootStackFrame(ROOT_STACKID, callStack.getSpan());
+        StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
+        this.currentStackFrame = stackFrame;
     }
 
     public CallStack getCallStack() {
@@ -62,18 +65,22 @@ public final class DefaultTrace implements Trace {
         return sequence++;
     }
 
+    public int getCallStackDepth() {
+        return this.callStack.getIndex();
+    }
+
     @Override
     public AsyncTrace createAsyncTrace() {
-        // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.
+        // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.                                                               
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
         spanEvent.setSequence(getSequence());
         DefaultAsyncTrace asyncTrace = new DefaultAsyncTrace(spanEvent);
-        // asyncTrace.setDataSender(this.getDataSender());
+        // asyncTrace.setDataSender(this.getDataSender());                                                                   
         asyncTrace.setStorage(this.storage);
         return asyncTrace;
     }
 
-    private StackFrame createSubStackFrame(int stackId) {
+    private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
         SubStackFrame stackFrame = new SubStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
@@ -81,7 +88,7 @@ public final class DefaultTrace implements Trace {
         return stackFrame;
     }
 
-    private StackFrame createRootStackFrame(int stackId, Span span) {
+    private StackFrame createSpanStackFrame(int stackId, Span span) {
         RootStackFrame stackFrame = new RootStackFrame(span);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSpan(span);
@@ -96,33 +103,29 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void markBeforeTime() {
-        StackFrame stackFrame = getCurrentStackFrame();
-        stackFrame.markBeforeTime();
+        this.currentStackFrame.markBeforeTime();
     }
 
     @Override
     public long getBeforeTime() {
-        StackFrame stackFrame = getCurrentStackFrame();
-        return stackFrame.getBeforeTime();
+        return this.currentStackFrame.getBeforeTime();
     }
 
     @Override
     public void markAfterTime() {
-        StackFrame stackFrame = getCurrentStackFrame();
-        stackFrame.markAfterTime();
+        this.currentStackFrame.markAfterTime();
     }
 
     @Override
     public long getAfterTime() {
-        StackFrame stackFrame = getCurrentStackFrame();
-        return stackFrame.getAfterTime();
+        return this.currentStackFrame.getAfterTime();
     }
 
 
     @Override
-    public void traceBlockBegin(int stackId) {
-        int currentStackIndex = callStack.push();
-        StackFrame stackFrame = createSubStackFrame(stackId);
+    public void traceBlockBegin(final int stackId) {
+        final int currentStackIndex = callStack.push();
+        final StackFrame stackFrame = createSpanEventStackFrame(stackId);
 
         if (latestStackIndex != currentStackIndex) {
             latestStackIndex = currentStackIndex;
@@ -131,11 +134,15 @@ public final class DefaultTrace implements Trace {
         }
 
         callStack.setStackFrame(stackFrame);
+        this.currentStackFrame = stackFrame;
     }
 
     @Override
     public void traceRootBlockEnd() {
-        traceBlockEnd(ROOT_STACKID);
+        pop(ROOT_STACKID);
+        callStack.popRoot();
+        // 잘못된 stack 조작시 다음부터 그냥 nullPointerException이 발생할건데 괜찮은가?
+        this.currentStackFrame = null;
     }
 
     @Override
@@ -146,7 +153,14 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceBlockEnd(int stackId) {
-        StackFrame currentStackFrame = callStack.getCurrentStackFrame();
+        pop(stackId);
+        StackFrame popStackFrame = callStack.pop();
+        // pop 할때 frame위치를 원복해야 한다.
+        this.currentStackFrame = popStackFrame;
+    }
+
+    private void pop(int stackId) {
+        final StackFrame currentStackFrame = this.currentStackFrame;
         int stackFrameId = currentStackFrame.getStackFrameId();
         if (stackFrameId != stackId) {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
@@ -159,7 +173,6 @@ public final class DefaultTrace implements Trace {
         } else {
             logSpan(((SubStackFrame) currentStackFrame).getSpanEvent());
         }
-        callStack.pop();
     }
 
     public StackFrame getCurrentStackFrame() {
@@ -167,7 +180,7 @@ public final class DefaultTrace implements Trace {
     }
 
     /**
-     * Get current TraceID. If it was not set this will return null.
+     * Get current TraceID. If it was not set this will return null.                                                         
      *
      * @return
      */
@@ -228,7 +241,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
-        // API 저장 방법의 개선 필요.
+        // API 저장 방법의 개선 필요.                                                                                        
         recordApi(methodDescriptor);
         recocordArgs(args);
     }
@@ -250,7 +263,7 @@ public final class DefaultTrace implements Trace {
             for (int i = 0; i < min; i++) {
                 recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
-            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
+            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?                                                                  
         }
     }
 
@@ -285,8 +298,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordAttribute(final AnnotationKey key, final Object value) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        final StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new TraceAnnotation(key, value));
@@ -300,8 +313,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordServiceType(final ServiceType serviceType) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceType(serviceType);
@@ -314,8 +327,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordRpcName(final String rpc) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setRpc(rpc);
@@ -328,8 +341,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordDestinationId(final String destinationId) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof SubStackFrame) {
             SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setDestionationId(destinationId);
@@ -338,8 +351,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordDestinationAddress(List<String> address) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof SubStackFrame) {
             SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setDestinationAddress();
@@ -348,13 +361,13 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordDestinationAddressList(List<String> addressList) {
-        //To change body of created methods use File | Settings | File Templates.
+        //To change body of created methods use File | Settings | File Templates.                                            
     }
 
     @Override
     public void recordEndPoint(final String endPoint) {
-        // TODO API 단일화 필요.
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        // TODO API 단일화 필요.                                                                                             
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setEndPoint(endPoint);
@@ -363,22 +376,22 @@ public final class DefaultTrace implements Trace {
             spanEvent.setEndPoint(endPoint);
         }
     }
-    
+
     @Override
     public void recordRemoteAddr(final String remoteAddr) {
-    	// TODO API 단일화 필요.
-    	StackFrame currentStackFrame = getCurrentStackFrame();
-    	if (currentStackFrame instanceof RootStackFrame) {
-    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
-    		span.setRemoteAddr(remoteAddr);
-    	} else {
-    		// do nothing.
-    	}
+        // TODO API 단일화 필요.
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setRemoteAddr(remoteAddr);
+        } else {
+            // do nothing.
+        }
     }
 
     @Override
     public void recordNextSpanId(int spanId) {
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
         } else {
@@ -388,7 +401,7 @@ public final class DefaultTrace implements Trace {
     }
 
     private void annotate(final AnnotationKey key) {
-        StackFrame currentStackFrame = getCurrentStackFrame();
+        StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new TraceAnnotation(key));
@@ -406,31 +419,31 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
-    	StackFrame currentStackFrame = getCurrentStackFrame();
-    	if (currentStackFrame instanceof RootStackFrame) {
-    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
-    		span.setParentApplicationName(parentApplicationName);
-    		span.setParentApplicationType(parentApplicationType);
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setParentApplicationName(parentApplicationName);
+            span.setParentApplicationType(parentApplicationType);
             if (isDebug) {
-			    logger.debug("ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
+                logger.debug("ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
             }
-    	} else {
-    		// do nothing.
-    	}
+        } else {
+            // do nothing.
+        }
     }
-    
+
     @Override
     public void recordAcceptorHost(String host) {
-    	StackFrame currentStackFrame = getCurrentStackFrame();
-    	if (currentStackFrame instanceof RootStackFrame) {
-    		Span span = ((RootStackFrame) currentStackFrame).getSpan();
-    		span.setAcceptorHost(host); // me
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if (currentStackFrame instanceof RootStackFrame) {
+            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            span.setAcceptorHost(host); // me
             if (isDebug) {
-    		    logger.debug("Acceptor host received. host={}", host);
+                logger.debug("Acceptor host received. host={}", host);
             }
-    	} else {
-    		// do nothing.
-    	}
+        } else {
+            // do nothing.
+        }
     }
 
     @Override
@@ -438,4 +451,4 @@ public final class DefaultTrace implements Trace {
         return this.getCurrentStackFrame().getStackFrameId();
 
     }
-}
+}                                                                                                                            
