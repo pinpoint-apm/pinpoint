@@ -16,6 +16,7 @@
 				</c:forEach>
 				],
 				"category" : "${node.serviceType.desc}",
+				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
 				"agents" : [
 				<c:forEach items="${node.agents}" var="agent" varStatus="status3">

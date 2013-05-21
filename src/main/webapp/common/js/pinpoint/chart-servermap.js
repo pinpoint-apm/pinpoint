@@ -2,15 +2,147 @@ var oServerMap = null;
 var FILTER_DELIMETER = "^";
 var FILTER_ENTRY_DELIMETER = "|";
 
+function linkStatistics(
+		begin,
+		end,
+		srcServiceType,
+		srcApplicationName,
+		destServiceType,
+		destApplicationName) {
+	
+	var params = {
+			"from" : begin,
+			"to" : end,
+			"srcServiceType" : srcServiceType,
+			"srcApplicationName" : srcApplicationName,
+			"destServiceType" : destServiceType,
+			"destApplicationName" : destApplicationName
+	}
+
+	var showFailedRateChart = function(data) {
+		$("#linkInfoSFChart").show();
+		nv.addGraph(function() {
+			var chart = nv.models.stackedAreaChart().x(function(d) {
+				return d[0];
+			}).y(function(d) {
+				return d[1];
+			}).clipEdge(true).color(function(d) {
+				if (d.key == "Success") {
+					return "green";
+				} else if (d.key == "Failed") {
+					return "red";
+				} else {
+					return nv.utils.getColor(d);
+				}
+			}).style('expand').showControls(false);
+
+			chart.xAxis.tickFormat(function(d) {
+				return d3.time.format('%x')(new Date(d));
+			});
+
+			chart.yAxis.tickFormat(d3.format(',.2f'));
+
+			d3.select('#linkInfoSFChart svg')
+				.datum(data)
+				.transition()
+				.duration(500)
+				.call(chart);
+
+			nv.utils.windowResize(chart.update);
+
+			return chart;
+		});
+	};
+	
+	var showSummary = function(data) {
+		$("#linkInfoBarChart").show();
+		nv.addGraph(function() {
+			var chart = nv.models.discreteBarChart().x(function(d) {
+				return d.label
+			}).y(function(d) {
+				return d.value
+			}).staggerLabels(true).tooltips(false).showValues(true)
+	
+			d3.select('#linkInfoBarChart svg')
+					.datum(data)
+					.transition()
+					.duration(500)
+					.call(chart);
+	
+			nv.utils.windowResize(chart.update);
+	
+			return chart;
+		});
+	}
+
+	var showTimeseriesHistogram = function(data) {
+		$("#linkInfoChart").show();
+		nv.addGraph(function() {
+			var chart = nv.models.stackedAreaChart().x(function(d) {
+				return d[0];
+			}).y(function(d) {
+				return d[1];
+			}).clipEdge(true);
+			
+			chart.xAxis.tickFormat(function(d) {
+				return d3.time.format('%x')(new Date(d));
+			});
+			
+			chart.yAxis.tickFormat(d3.format(',.2f'));
+			
+			d3.select('#linkInfoChart svg')
+			.datum(data)
+			.transition()
+			.duration(500)
+			.call(chart);
+			
+			nv.utils.windowResize(chart.update);
+			
+			return chart;
+		});
+	}; 
+	
+	getLinkStatisticsData(params, function(query, result) {
+		showFailedRateChart(result.timeseriesFailRate);
+		showSummary(result.histogramSummary);
+		//showTimeseriesHistogram(result.)
+	});
+}
+
+function filteredLinkStatistics(
+		applicationName,
+		serviceType,
+		begin,
+		end,
+		srcServiceType,
+		srcApplicationName,
+		destServiceType,
+		destApplicationName,
+		prevFilter) {
+	
+	var params = {
+			"application" : applicationName,
+			"serviceType" : serviceType,
+			"from" : begin,
+			"to" : end,
+			"srcServiceType" : srcServiceType,
+			"srcApplicationName" : srcApplicationName,
+			"destServiceType" : destServiceType,
+			"destApplicationName" : destApplicationName,
+			"filter" : prevFilter
+	}
+	window.open("/filteredLinkStatistics.pinpoint?" + decodeURIComponent($.param(params)), "");
+}
+
 function filterPassingTransaction(
 			applicationName,
 			serviceType,
 			begin,
 			end,
-			fromServiceType,
-			fromApplicationName,
-			toServiceType,
-			toApplicationName,
+			srcServiceType,
+			srcApplicationName,
+			destServiceType,
+			destApplicationName,
 			prevFilter) {
 	
 	var params = {
@@ -19,12 +151,35 @@ function filterPassingTransaction(
 		"from" : begin,
 		"to" : end,
 		"filter" : ((prevFilter) ? prevFilter + FILTER_DELIMETER : "")
-					+ fromServiceType + FILTER_ENTRY_DELIMETER
-					+ fromApplicationName + FILTER_ENTRY_DELIMETER
-					+ toServiceType + FILTER_ENTRY_DELIMETER
-					+ toApplicationName
+					+ srcServiceType + FILTER_ENTRY_DELIMETER
+					+ srcApplicationName + FILTER_ENTRY_DELIMETER
+					+ destServiceType + FILTER_ENTRY_DELIMETER
+					+ destApplicationName
 	}
 	window.open("/filtermap.pinpoint?" + decodeURIComponent($.param(params)), "");
+}
+
+function getLinkStatisticsData(query, callback) {
+    jQuery.ajax({
+    	type : 'GET',
+    	url : '/linkStatistics.pinpoint',
+    	cache : false,
+    	dataType: 'json',
+    	data : {
+			from : query.from,
+			to : query.to,
+			srcServiceType : query.srcServiceType,
+			srcApplicationName : query.srcApplicationName,
+			destServiceType : query.destServiceType,
+			destApplicationName : query.destApplicationName
+    	},
+    	success : function(result) {
+    		callback(query, result);
+    	},
+    	error : function(xhr, status, error) {
+    		console.log("ERROR", status, error);
+    	}
+    });
 }
 
 function getServerMapData2(query, callback) {
@@ -43,7 +198,7 @@ function getServerMapData2(query, callback) {
     		callback(query, result);
     	},
     	error : function(xhr, status, error) {
-    		
+    		console.log("ERROR", status, error);
     	}
     });
 }
@@ -63,7 +218,7 @@ function getLastServerMapData2(query, callback) {
     		callback(query, result);
     	},
     	error : function(xhr, status, error) {
-    		alert(error);
+    		console.log("ERROR", status, error);
     	}
     });
 }
@@ -85,7 +240,7 @@ function getFilteredServerMapData(query, callback) {
     		callback(query, result);
     	},
     	error : function(xhr, status, error) {
-    		alert(error);
+    		console.log("ERROR", status, error);
     	}
     });
 }
@@ -424,7 +579,18 @@ var linkClickHandler = function(e, query, data, containerId) {
 	data.query = query;
 	$('#linkInfoDetails').empty();
 	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
+	
+	
+	linkStatistics(	query.from,
+					query.to,
+					data.sourceinfo.serviceTypeCode,
+					data.sourceinfo.applicationName,
+					data.targetinfo.serviceTypeCode,
+					data.targetinfo.applicationName);
+
+	/*
 	showLinkHistogramDetailed();
 	showLinkHistogramSum();
 	showLinkSuccessOrFailedDetailed();
+	*/
 }

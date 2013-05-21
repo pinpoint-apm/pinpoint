@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,13 +18,18 @@ import com.nhn.pinpoint.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.NodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
+import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
+import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TraceId;
+import com.profiler.common.AnnotationKey;
+import com.profiler.common.ServiceType;
+import com.profiler.common.bo.AnnotationBo;
 import com.profiler.common.bo.SpanBo;
 import com.profiler.common.bo.SpanEventBo;
 
@@ -43,6 +50,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 	@Autowired
 	private ApplicationTraceIndexDao applicationTraceIndexDao;
 
+	@Autowired
+	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+	
 	@Override
 	public List<Application> selectAllApplicationNames() {
 		return applicationIndexDao.selectAllApplicationNames();
@@ -217,5 +227,85 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 
 		return businessTransactions;
+	}
+	
+	@Override
+	public LinkStatistics linkStatisticsDetail(Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+		StopWatch watch = new StopWatch();
+		watch.start();
+
+		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
+		List<SpanBo> transaction = new ArrayList<SpanBo>();
+		for (List<SpanBo> t : transactionList) {
+			if (filter.include(t)) {
+				for (SpanBo span : t) {
+					transaction.add(span);
+				}
+			}
+		}
+
+		LinkStatistics statistics = new LinkStatistics();
+
+		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
+		
+		// scan transaction list
+		for (SpanBo span : transaction) {
+			if (srcApplicationName.equals(span.getApplicationId()) && srcServiceType == span.getServiceType().getCode()) {
+				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+				if (spanEventBoList == null) {
+					continue;
+				}
+
+				// find dest elapsed time
+				for (SpanEventBo ev : spanEventBoList) {
+					if (destServiceType == ev.getServiceType().getCode() && destApplicationName.equals(ev.getDestinationId())) {
+						// find exception
+						boolean hasException = false;
+						List<AnnotationBo> annList = ev.getAnnotationBoList();
+						for (AnnotationBo ann : annList) {
+							if (ann.getKey() == AnnotationKey.EXCEPTION.getCode()) {
+								hasException = true;
+								break;
+							}
+						}
+
+						// add sample
+						// TODO : 실제값 대신 slot값을 넣어야 함.
+						statistics.addSample(span.getStartTime() + ev.getStartElapsed(), ev.getEndElapsed(), 1, hasException);
+						break;
+					}
+				}
+			}
+		}
+
+		watch.stop();
+		logger.info("Fetch link statistics elapsed. {}ms", watch.getLastTaskTimeMillis());
+
+		return statistics;
+	}
+
+	@Override
+	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
+		List<Map<Long, Map<Short, Long>>> list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+
+		LinkStatistics statistics = new LinkStatistics();
+
+		statistics.setDefaultHistogramSlotList(ServiceType.findServiceType(destServiceType).getHistogram().getHistogramSlotList());
+		
+		for (Map<Long, Map<Short, Long>> map : list) {
+			for (Entry<Long, Map<Short, Long>> entry : map.entrySet()) {
+				long timestamp = entry.getKey();
+				Map<Short, Long> histogramMap = entry.getValue();
+
+				for (Entry<Short, Long> histogram : histogramMap.entrySet()) {
+					if (histogram.getKey() == -1) {
+						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), true);
+					} else {
+						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), false);
+					}
+				}
+			}
+		}
+		return statistics;
 	}
 }

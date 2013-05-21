@@ -51,7 +51,6 @@
     <script type="text/javascript" src="/common/js/nvd3/d3.v2.min.js"></script>
     <script type="text/javascript" src="/common/js/nvd3/nv.d3.min.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/chart-stacked.js"></script>
-    <script type="text/javascript" src="/common/js/pinpoint/chart-bar.js"></script>
     
     <!-- requests list -->
     <script type="text/javascript" src="/common/js/pinpoint/chart-transactions.js"></script>
@@ -135,11 +134,11 @@
 			<svg style='height:200px' />
 		</div>
 		<div id='linkInfoBarChart' style='width:100%;display:none'>
-			DEMO (response histogram summary)
+			Response histogram summary
 			<svg style='height:150px' />
 		</div>
 		<div id='linkInfoSFChart' style='width:100%;display:none'>
-			DEMO (failed rate)
+			Timeseries failure rate
 			<svg style='height:150px' />
 		</div>
 	</div>
@@ -271,6 +270,7 @@ $(document).ready(function () {
 			{{/each}}
 			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
 		</ul>
+		<a href="#" onclick="linkStatistics({{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceTypeCode}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceTypeCode}}', '{{= targetinfo.applicationName}}');">Show statistics</a><br/>
 		-->
 		<br/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Scan passing transactions</a><br/>

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
+import com.nhn.pinpoint.web.mapper.ApplicationMapStatisticsMapper;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.ApplicationMapStatisticsUtils;
@@ -60,16 +61,40 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 		return result;
 	}
 
+	/**
+	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
+	 * 
+	 * @return <pre>
+	 * list [
+	 *     map {
+	 *         key = timestamp
+	 *         value = map {
+	 *             key = histogram slot
+	 *             value = count
+	 *         }
+	 *     }
+	 * ]
+	 * </pre>
+	 */
+	@Override
+	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to) {
+		System.out.println("selectCalleeStatistics. " + callerApplicationName + ", " + callerServiceType + ", " + calleeApplicationName + ", " + calleeServiceType + ", " + from + ", " + to);
+
+		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
+		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapStatisticsMapper(calleeApplicationName, calleeServiceType);
+		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, mapper);
+	}
+
 	private Scan createScan(String applicationName, short serviceType, long from, long to) {
 		long startTime = TimeSlot.getStatisticsRowSlot(from);
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
 		long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
-		
+
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
 		}
-		
+
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, endTime);
 		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, startTime);

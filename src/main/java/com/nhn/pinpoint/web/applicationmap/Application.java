@@ -84,6 +84,7 @@ public class Application implements Comparable<Application> {
 		sb.append("\"sequence\" : ").append(sequence).append(",");
 		sb.append("\"applicationName\" : \"").append(applicationName).append("\",");
 		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
+		sb.append("\"serviceTypeCode\" : \"").append(serviceType.getCode()).append("\",");
 		sb.append("\"agents\" : [ ");
 		Iterator<AgentInfoBo> iterator = agents.iterator();
 		while (iterator.hasNext()) {
