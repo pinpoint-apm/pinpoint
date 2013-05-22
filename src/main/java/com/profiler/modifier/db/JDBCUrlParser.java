@@ -12,18 +12,19 @@ import java.util.regex.Pattern;
  */
 public class JDBCUrlParser {
 
-    private static Pattern oracleRAC = Pattern.compile(".*HOST\\s*=\\s*([\\w\\.]*).*PORT\\s*=\\s*([\\d]*).*SERVICE_NAME\\s*=\\s*([\\w]*).*");
+
 
     public DatabaseInfo parse(String url) {
+        // jdbc 체크
         String lowCaseURL = url.toLowerCase().trim();
         if (!lowCaseURL.startsWith("jdbc:")) {
             return createUnknownDataBase(url);
         }
 
-        if (jdbcTypeCheck(lowCaseURL, "mysql")) {
+        if (driverTypeCheck(lowCaseURL, "mysql")) {
             return parseMysql(url);
         }
-        if (jdbcTypeCheck(lowCaseURL, "oracle")) {
+        if (driverTypeCheck(lowCaseURL, "oracle")) {
             return parseOracle(url);
         }
         return createUnknownDataBase(url);
@@ -74,7 +75,7 @@ public class JDBCUrlParser {
 //        return null;
     }
 
-    private boolean jdbcTypeCheck(String lowCaseURL, String type) {
+    private boolean driverTypeCheck(String lowCaseURL, String type) {
         final int jdbcNextIndex = 5;
         return lowCaseURL.startsWith(type, jdbcNextIndex);
     }
@@ -88,6 +89,29 @@ public class JDBCUrlParser {
 //    thin driver url
 //    jdbc:oracle:thin:@hostname:port:SID
 //    "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
+//    들여 쓰기를 통해 token을 보기 좋게 나눈경우.
+//    jdbc:oracle:thin:
+//    @(
+//         DESCRIPTION=(LOAD_BALANCE=on)
+//         (
+//             ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521)
+//         )
+//         (
+//             ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1521)
+//         )
+//         (
+//             CONNECT_DATA=(SERVICE_NAME=service)
+//         )
+//    )
+
+    static Pattern oracleRAC = Pattern.compile(
+            "(" +
+                ".*[ADDRESS=].*\\(\\s*HOST\\s*=\\s*([\\w\\.]*\\s*\\)).*\\(\\s*PORT\\s*=\\s*([\\d]*\\s*\\))+" +
+            ").*" +
+            "\\(\\s*SERVICE_NAME\\s*=\\s*([\\w]*)\\s*\\).*");
+//
+
+
     private DatabaseInfo parseOracle(String url) {
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:oracle:").after(":");
@@ -140,6 +164,7 @@ public class JDBCUrlParser {
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:mysql:");
         // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
+        // mm db? 의 경우도 고려해야 될듯하다.
         String host = maker.after("//").before('/').value();
         List<String> hostList = new ArrayList<String>(1);
         hostList.add(host);

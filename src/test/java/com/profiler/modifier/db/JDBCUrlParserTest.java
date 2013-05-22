@@ -1,7 +1,5 @@
-package com.profiler.modifier.db.util;
+package com.profiler.modifier.db;
 
-import com.profiler.modifier.db.DatabaseInfo;
-import com.profiler.modifier.db.JDBCUrlParser;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -10,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.profiler.common.ServiceType;
 
 import java.net.URI;
+import java.util.regex.Matcher;
 
 /**
  *
@@ -17,7 +16,7 @@ import java.net.URI;
 public class JDBCUrlParserTest {
 
     private Logger logger = LoggerFactory.getLogger(JDBCUrlParserTest.class);
-    private com.profiler.modifier.db.JDBCUrlParser JDBCUrlParser = new JDBCUrlParser();
+    private com.profiler.modifier.db.JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
     @Test
     public void testURIParse() throws Exception {
@@ -43,7 +42,7 @@ public class JDBCUrlParserTest {
     @Test
     public void mysqlParse1() {
 
-        DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), ("ip_address:3306"));
         Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
@@ -53,7 +52,7 @@ public class JDBCUrlParserTest {
     @Test
     public void mysqlParse2() {
 
-        DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://10.98.133.22:3306/test_lucy_db");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://10.98.133.22:3306/test_lucy_db");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.98.133.22:3306");
 
@@ -65,7 +64,7 @@ public class JDBCUrlParserTest {
 
     @Test
     public void mysqlParse3() {
-        DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:mysql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
@@ -77,7 +76,7 @@ public class JDBCUrlParserTest {
     public void oracleParser1() {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-        DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:oracle:thin:@hostname:port:SID");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port:SID");
         Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
         Assert.assertEquals(dbInfo.getDatabaseId(), "SID");
@@ -89,7 +88,7 @@ public class JDBCUrlParserTest {
     public void oracleParser2() {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-        DatabaseInfo dbInfo = JDBCUrlParser.parse("jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
         Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "localhost:1521");
         Assert.assertEquals(dbInfo.getDatabaseId(), "XE");
@@ -108,7 +107,7 @@ public class JDBCUrlParserTest {
                 "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
                 "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
                 "(CONNECT_DATA=(SERVICE_NAME=service)))";
-        DatabaseInfo dbInfo = JDBCUrlParser.parse(rac);
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(rac);
         Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:1521");
 
@@ -116,4 +115,59 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getUrl(), rac);
         logger.info(dbInfo.toString());
     }
+
+    @Test
+    public void regexTest1() {
+        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
+                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
+                "(CONNECT_DATA=(SERVICE_NAME=service)))";
+
+        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+        Assert.assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void regexTest2() {
+        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
+//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
+                "(CONNECT_DATA=(SERVICE_NAME=service)))";
+
+        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+        Assert.assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void regexTest3() {
+        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+                "(   ADDRESS = ( PROTOCOL=TCP) ( HOST = 1.2.3.4) ( PORT =1521))" +
+                "(ADDRESS= (PROTOCOL =TCP)(HOST = 1.2.3.5) (PORT= 1522 ))" +
+                "(CONNECT_DATA=(SERVICE_NAME=service)))";
+
+        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+        Assert.assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void regexInvalidAddressTest1() {
+        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
+//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
+                "(CONNECT_DATA=(SERVICE_NAME=service)))";
+
+        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+        Assert.assertFalse(matcher.matches());
+    }
+
+//    @Test
+//    public void regexInvalidAddressTest2() {
+//        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+////                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
+//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
+//                "(CONNECT_DATA=(SERVICE_NAME=service)))";
+//
+//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+//        Assert.assertFalse(matcher.matches());
+//    }
 }
