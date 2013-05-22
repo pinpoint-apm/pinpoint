@@ -106,7 +106,7 @@ public class JDBCUrlParser {
 
     static Pattern oracleRAC = Pattern.compile(
             "(" +
-                ".*[ADDRESS=].*\\(\\s*HOST\\s*=\\s*([\\w\\.]*\\s*\\)).*\\(\\s*PORT\\s*=\\s*([\\d]*\\s*\\))+" +
+                ".*[ADDRESS=].*\\(\\s*HOST\\s*=\\s*([\\w\\.]*)\\s*\\).*\\(\\s*PORT\\s*=\\s*([\\d]*)\\s*+\\)" +
             ").*" +
             "\\(\\s*SERVICE_NAME\\s*=\\s*([\\w]*)\\s*\\).*");
 //

@@ -146,7 +146,17 @@ public class JDBCUrlParserTest {
                 "(CONNECT_DATA=(SERVICE_NAME=service)))";
 
         Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
+
         Assert.assertTrue(matcher.matches());
+        dumpGroup(matcher);
+    }
+
+    private void dumpGroup(Matcher matcher) {
+        int groupSize = matcher.groupCount();
+        for (int i = 0; i < groupSize; i++) {
+            String group = matcher.group(i);
+            System.out.println("group " + i + "=" + group);
+        }
     }
 
     @Test
