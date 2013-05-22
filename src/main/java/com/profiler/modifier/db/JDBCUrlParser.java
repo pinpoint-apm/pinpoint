@@ -4,22 +4,29 @@ import com.profiler.common.ServiceType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
  */
 public class JDBCUrlParser {
+
+    private static Pattern oracleRAC = Pattern.compile(".*HOST\\s*=\\s*([\\w\\.]*).*PORT\\s*=\\s*([\\d]*).*SERVICE_NAME\\s*=\\s*([\\w]*).*");
+
     public DatabaseInfo parse(String url) {
         String lowCaseURL = url.toLowerCase().trim();
-        if (lowCaseURL.startsWith("jdbc:mysql")) {
+        if (!lowCaseURL.startsWith("jdbc:")) {
+            return createUnknownDataBase(url);
+        }
+
+        if (jdbcTypeCheck(lowCaseURL, "mysql")) {
             return parseMysql(url);
         }
-        if (lowCaseURL.startsWith("jdbc:oracle")) {
+        if (jdbcTypeCheck(lowCaseURL, "oracle")) {
             return parseOracle(url);
         }
-        List<String> list = new ArrayList<String>();
-        list.add("error");
-        return new DatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, list, "error");
+        return createUnknownDataBase(url);
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -67,8 +74,64 @@ public class JDBCUrlParser {
 //        return null;
     }
 
+    private boolean jdbcTypeCheck(String lowCaseURL, String type) {
+        final int jdbcNextIndex = 5;
+        return lowCaseURL.startsWith(type, jdbcNextIndex);
+    }
+
+    //    rac url.
+//    jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+//    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
+//            "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1521))" +
+//            "(CONNECT_DATA=(SERVICE_NAME=service)))"
+//
+//    thin driver url
+//    jdbc:oracle:thin:@hostname:port:SID
+//    "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
     private DatabaseInfo parseOracle(String url) {
-        return null;
+        StringMaker maker = new StringMaker(url);
+        maker.after("jdbc:oracle:").after(":");
+        String description = maker.after('@').value().trim();
+
+        if (description.startsWith("(")) {
+            Matcher matcher = oracleRAC.matcher(description);
+            if (matcher.matches()) {
+//                n개의 rac 주소를 못찾는 문제가 있음.
+//                rac type url의 파서를 추가적으로 개발해야 함.
+                String host = matcher.group(1);
+                String port = matcher.group(2);
+                String databaseId = matcher.group(3);
+                for(int i =0; i<matcher.groupCount(); i++ ) {
+                    System.out.println(i + ":" + matcher.group(i));
+                }
+
+                List<String> hostList = new ArrayList<String>(1);
+                hostList.add(host + ":" + port);
+                // oracle driver는 option을 connectionString으롤 받지 않기 때문에. normalizedUrl이 없다.
+                return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+            } else {
+                // error 처리를 다시 생각해봐야 될듯한다.
+                // 그냥 파싱에 실패하면 동작되지 않도록 수정해야 하는게 바람직한가?
+                // rac url이 매칭 되지 않았다는 의미인데. rac url 파싱에 실패시 정보를 넣기가 애매함.
+                return createUnknownDataBase(url);
+            }
+        } else {
+            // thin driver
+            // jdbc:oracle:thin:@hostname:port:SID
+            // "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
+            String host  = maker.before(':').value();
+            String port = maker.next().after(':').before(':').value();
+            String databaseId = maker.next().afterLast(':').value();
+            List<String> hostList = new ArrayList<String>(1);
+            hostList.add(host + ":" + port);
+            return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+        }
+    }
+
+    private DatabaseInfo createUnknownDataBase(String url) {
+        List<String> list = new ArrayList<String>();
+        list.add("error");
+        return new DatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, list, "error");
     }
 
 
