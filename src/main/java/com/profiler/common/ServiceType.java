@@ -19,7 +19,7 @@ public enum ServiceType {
 
     // DB 2000
     UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, Histogram.NORMAL),
-    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, false, true, Histogram.NORMAL),
+    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, Histogram.NORMAL),
 
     MYSQL((short) 2100, "MYSQL", true, false, true, Histogram.NORMAL),
     MYSQL_EXECUTE_QUERY((short) 2101, "MYSQL", true, true, true, Histogram.NORMAL),
