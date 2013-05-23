@@ -126,20 +126,24 @@
 			<a href=""><i class="icon-download-alt" onmouseover="$(this).tooltip('show');" title="Download as PNG image format file." style="cursor:pointer;"></i></a>
 			<div id="scatterchart"></div>
 		</div>
-		<div><br/><br/></div>
+		<hr/>
+		<div id="nodeInfoDetails">
+			<div class='info'></div>
+		</div>
 		<div id="linkInfoDetails">
-		</div>
-		<div id='linkInfoChart' style='width:100%;display:none'>
-			DEMO (timeseries response histogram)
-			<svg style='height:200px' />
-		</div>
-		<div id='linkInfoBarChart' style='width:100%;display:none'>
-			Response histogram summary
-			<svg style='height:150px' />
-		</div>
-		<div id='linkInfoSFChart' style='width:100%;display:none'>
-			Timeseries failure rate
-			<svg style='height:150px' />
+			<div class='info'></div>
+			<div class='linkInfoChart' style='width:100%;display:none'>
+				DEMO (timeseries response histogram)
+				<svg style='height:200px' />
+			</div>
+			<div class='linkInfoBarChart' style='width:100%;display:none'>
+				Response histogram summary
+				<svg style='height:150px' />
+			</div>
+			<div class='linkInfoSFChart' style='width:100%;display:none'>
+				Timeseries failure rate
+				<svg style='height:150px' />
+			</div>
 		</div>
 	</div>
 </div>
@@ -251,6 +255,44 @@ $(document).ready(function () {
 	
 	$("#application").bind("change", updateCharts);
 });
+</script>
+<script id="NodeInfoBox" type="text/x-jquery-tmpl">
+	<div class="LinkInfoBox">
+		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
+		<br/>
+			{{if hosts.length > 0}}
+			Hosts
+				<ul>
+					{{each(key, value) hosts}}
+						<li>
+							<span class="label label-success">OK</span>
+							{{= value}}
+							<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
+							{{if category == 'ARCUS' }}
+							<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site">(Hubble)</a>
+							{{/if}}
+						</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+			{{if agents.length > 0}}
+			Server instances
+				<ul>
+					{{each(key, value) agents}}
+					<li>
+						<span class="label label-success">OK</span>
+						{{= value.agentId}}
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
+					</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+		<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transactions</a><br/>
+		<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
+		<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
+		<hr/>
+	</div>
 </script>
 <script id="LinkInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox">

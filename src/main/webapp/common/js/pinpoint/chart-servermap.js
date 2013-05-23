@@ -2,6 +2,10 @@ var oServerMap = null;
 var FILTER_DELIMETER = "^";
 var FILTER_ENTRY_DELIMETER = "|";
 
+function nodeStatistics() {
+	
+}
+
 function linkStatistics(
 		begin,
 		end,
@@ -20,7 +24,7 @@ function linkStatistics(
 	}
 
 	var showFailedRateChart = function(data) {
-		$("#linkInfoSFChart").show();
+		$("#linkInfoDetails .linkInfoSFChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
 				return d[0];
@@ -42,7 +46,7 @@ function linkStatistics(
 
 			chart.yAxis.tickFormat(d3.format(',.2f'));
 
-			d3.select('#linkInfoSFChart svg')
+			d3.select('#linkInfoDetails .linkInfoSFChart svg')
 				.datum(data)
 				.transition()
 				.duration(500)
@@ -55,7 +59,7 @@ function linkStatistics(
 	};
 	
 	var showSummary = function(data) {
-		$("#linkInfoBarChart").show();
+		$("#linkInfoDetails .linkInfoBarChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.discreteBarChart().x(function(d) {
 				return d.label
@@ -63,7 +67,7 @@ function linkStatistics(
 				return d.value
 			}).staggerLabels(true).tooltips(false).showValues(true)
 	
-			d3.select('#linkInfoBarChart svg')
+			d3.select('#linkInfoDetails .linkInfoBarChart svg')
 					.datum(data)
 					.transition()
 					.duration(500)
@@ -76,7 +80,7 @@ function linkStatistics(
 	}
 
 	var showTimeseriesHistogram = function(data) {
-		$("#linkInfoChart").show();
+		$("#linkInfoDetails .linkInfoChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
 				return d[0];
@@ -90,7 +94,7 @@ function linkStatistics(
 			
 			chart.yAxis.tickFormat(d3.format(',.2f'));
 			
-			d3.select('#linkInfoChart svg')
+			d3.select('#linkInfoDetails .linkInfoChart svg')
 			.datum(data)
 			.transition()
 			.duration(500)
@@ -316,6 +320,9 @@ var serverMapCallback = function(query, data, ignoreCache) {
 			},
 			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnNodeClick : function(e, data) {
+				nodeClickHandler(e, query, data, "#" + containerId);
 			}
 	    });
 	} else {
@@ -328,6 +335,9 @@ var serverMapCallback = function(query, data, ignoreCache) {
 			},
 			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
+			},
+			fOnNodeClick : function(e, data) {
+				nodeClickHandler(e, query, data, "#" + containerId);
 			}
 		});
 	}
@@ -575,6 +585,29 @@ var linkContextClickHandler = function(e, query, data, containerId) {
 	box.appendTo($(containerId).parent());
 }
 
+var nodeClickHandler = function(e, query, data, containerId) {
+	emptyDetailPanel();
+	
+	data.query = query;
+	var htOffset = $(containerId).offset();
+	var template;
+	if (data.category == "CLIENT") {
+		template = $('#ClientContextInfoBox');
+	} else if (data.category == "UNKNOWN_GROUP") {
+		template = $('#UnknownGroupContextInfoBox');
+	} else {
+		template = $('#ApplicationContextInfoBox');
+	}
+	
+	var box = template
+				.tmpl(data)
+				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
+				.addClass('nodeinfo')
+				.addClass('nodeinfo' + data.id);
+	
+	$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
+}
+
 var linkClickHandler = function(e, query, data, containerId) {
 	console.log("link data", data);
 	
@@ -583,17 +616,17 @@ var linkClickHandler = function(e, query, data, containerId) {
 	// rawhistogram이 있는 녀석은 상세정보 조회 불가.
 	// TODO rawhistogram말고 다른 정보로 판단하도록 수정하기.
 	if (data.rawhistogram) {
-		$('#linkInfoDetails').text("merge된 연결선은 상세정보를 조회할 수 없습니다. 맵 옵션에서 'merge unknown'을 해제하고 조회하세요.");	
+		$('#linkInfoDetails .info').text("merge된 연결선은 상세정보를 조회할 수 없습니다. 맵 옵션에서 'merge unknown'을 해제하고 조회하세요.");	
 		return;
 	}
 	
 	if (data.sourceinfo.serviceType == "CLIENT") {
-		$('#linkInfoDetails').text("CLIENT 정보는 아직 제공하지 않습니다.");	
+		$('#linkInfoDetails .info').text("CLIENT 정보는 아직 제공하지 않습니다.");	
 		return;
 	}
 	
 	data.query = query;
-	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
+	$('#linkInfoDetails .info').append($('#LinkInfoBox').tmpl(data));
 
 	linkStatistics(	query.from,
 					query.to,
@@ -610,11 +643,14 @@ var linkClickHandler = function(e, query, data, containerId) {
 }
 
 var emptyDetailPanel = function() {
-	$('#linkInfoDetails').empty();
-	$("#linkInfoBarChart").hide();
-	$("#linkInfoChart").hide();
-	$("#linkInfoSFChart").hide();
-	$("#linkInfoBarChart svg").empty();
-	$("#linkInfoChart svg").empty();
-	$("#linkInfoSFChart svg").empty();
+	$('#nodeInfoDetails .info').empty();
+	$('#linkInfoDetails .info').empty();
+	
+	$("#linkInfoDetails .linkInfoBarChart").hide();
+	$("#linkInfoDetails .linkInfoChart").hide();
+	$("#linkInfoDetails .linkInfoSFChart").hide();
+	
+	$("#linkInfoDetails .linkInfoBarChart svg").empty();
+	$("#linkInfoDetails .linkInfoChart svg").empty();
+	$("#linkInfoDetails .linkInfoSFChart svg").empty();
 }
