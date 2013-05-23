@@ -12,6 +12,7 @@
 	"failedCount" : ${linkStatistics.failedCount},
 	"successCount" : ${linkStatistics.successCount},
 	"histogramSummary" : [
+		<c:if test="${linkStatistics.failedCount > 0 or linkStatistics.successCount > 0}">
 		{
 			"key" : "Responsetime Histogram",
 			"values" : [
@@ -33,8 +34,10 @@
 				</c:forEach>
 			]
 		}
+		</c:if>
 	],
 	"timeseriesFailRate" : [
+		<c:if test="${linkStatistics.failedCount > 0 or linkStatistics.successCount > 0}">
 		{ 
 			"key" : "Failed", 
 			"values" : [ <c:forEach items="${timeseriesFaileureHistogram}" var="item" varStatus="status">
@@ -47,5 +50,6 @@
 				[ ${item.key}, ${item.value[0]} ]<c:if test="${!status.last}">,</c:if></c:forEach>
 			]
 		}
+		</c:if>
 	]
 }

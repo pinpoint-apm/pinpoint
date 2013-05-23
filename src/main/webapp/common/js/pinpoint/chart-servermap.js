@@ -20,6 +20,7 @@ function linkStatistics(
 	}
 
 	var showFailedRateChart = function(data) {
+		$("#linkInfoSFChart svg").empty();
 		$("#linkInfoSFChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
@@ -55,6 +56,7 @@ function linkStatistics(
 	};
 	
 	var showSummary = function(data) {
+		$("#linkInfoBarChart svg").empty();
 		$("#linkInfoBarChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.discreteBarChart().x(function(d) {
@@ -76,6 +78,7 @@ function linkStatistics(
 	}
 
 	var showTimeseriesHistogram = function(data) {
+		$("#linkInfoChart svg").empty();
 		$("#linkInfoChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
