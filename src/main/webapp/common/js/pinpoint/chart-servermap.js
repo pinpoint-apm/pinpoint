@@ -20,7 +20,6 @@ function linkStatistics(
 	}
 
 	var showFailedRateChart = function(data) {
-		$("#linkInfoSFChart svg").empty();
 		$("#linkInfoSFChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
@@ -56,7 +55,6 @@ function linkStatistics(
 	};
 	
 	var showSummary = function(data) {
-		$("#linkInfoBarChart svg").empty();
 		$("#linkInfoBarChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.discreteBarChart().x(function(d) {
@@ -78,7 +76,6 @@ function linkStatistics(
 	}
 
 	var showTimeseriesHistogram = function(data) {
-		$("#linkInfoChart svg").empty();
 		$("#linkInfoChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.stackedAreaChart().x(function(d) {
@@ -579,11 +576,25 @@ var linkContextClickHandler = function(e, query, data, containerId) {
 }
 
 var linkClickHandler = function(e, query, data, containerId) {
+	console.log("link data", data);
+	
+	emptyDetailPanel();
+	
+	// rawhistogram이 있는 녀석은 상세정보 조회 불가.
+	// TODO rawhistogram말고 다른 정보로 판단하도록 수정하기.
+	if (data.rawhistogram) {
+		$('#linkInfoDetails').text("merge된 연결선은 상세정보를 조회할 수 없습니다. 맵 옵션에서 'merge unknown'을 해제하고 조회하세요.");	
+		return;
+	}
+	
+	if (data.sourceinfo.serviceType == "CLIENT") {
+		$('#linkInfoDetails').text("CLIENT 정보는 아직 제공하지 않습니다.");	
+		return;
+	}
+	
 	data.query = query;
-	$('#linkInfoDetails').empty();
 	$('#linkInfoDetails').append($('#LinkInfoBox').tmpl(data));
-	
-	
+
 	linkStatistics(	query.from,
 					query.to,
 					data.sourceinfo.serviceTypeCode,
@@ -596,4 +607,14 @@ var linkClickHandler = function(e, query, data, containerId) {
 	showLinkHistogramSum();
 	showLinkSuccessOrFailedDetailed();
 	*/
+}
+
+var emptyDetailPanel = function() {
+	$('#linkInfoDetails').empty();
+	$("#linkInfoBarChart").hide();
+	$("#linkInfoChart").hide();
+	$("#linkInfoSFChart").hide();
+	$("#linkInfoBarChart svg").empty();
+	$("#linkInfoChart svg").empty();
+	$("#linkInfoSFChart svg").empty();
 }

@@ -273,27 +273,17 @@ $(document).ready(function () {
 		<a href="#" onclick="linkStatistics({{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceTypeCode}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceTypeCode}}', '{{= targetinfo.applicationName}}');">Show statistics</a><br/>
 		-->
 		<br/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Scan passing transactions</a><br/>
-		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
+		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
 		<hr/>
 	</div>
 </script>
 <script id="LinkContextInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-		Total requests : ???<br/> 
-		Failed : {{= error}}<br/>
-		Response statistics
-		<ul>
-			{{var lastKey=''}}
-			{{each(key, value) histogram}}
-			<li>&lt;= {{= key}}ms : {{= value}}</li>
-			{{eval lastKey=key}}
-			{{/each}}
-			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
-		</ul>
+		Drilldown menu
 		<hr/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Scan passing transactions</a><br/>
-		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
+		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
