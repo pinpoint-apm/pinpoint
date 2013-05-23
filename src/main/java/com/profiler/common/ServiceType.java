@@ -16,7 +16,10 @@ public enum ServiceType {
     // WAS류 1000번 부터 시작
     TOMCAT((short) 1010, "TOMCAT", false, true, false, Histogram.NORMAL),
     BLOC((short) 1020, "BLOC", false, true, false, Histogram.NORMAL),
-
+    
+    /**
+     * xxx_EXECUTE_QUERY만 server map통계정보에 집계된다.
+     */
     // DB 2000
     UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, Histogram.NORMAL),
     UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, Histogram.NORMAL),

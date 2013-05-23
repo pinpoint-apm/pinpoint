@@ -50,6 +50,15 @@ public class ApplicationMapStatisticsUtils {
 		return BytesUtils.bytesToShort(bytes, 0);
 	}
 
+	/**
+	 * 
+	 * @param bytes
+	 * @return <pre>
+	 * 0 > : ms
+	 * 0 : slow
+	 * -1 : error
+	 * </pre>
+	 */
 	public static short getHistogramSlotFromColumnName(byte[] bytes) {
 		return BytesUtils.bytesToShort(bytes, 2);
 	}
@@ -101,5 +110,10 @@ public class ApplicationMapStatisticsUtils {
 	public static short getApplicationTypeFromRowKey(byte[] bytes) {
 		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
 		return BytesUtils.bytesToShort(bytes, applicationNameLength + 2);
+	}
+	
+	public static long getTimestampFromRowKey(byte[] bytes) {
+		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+		return TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
 	}
 }
