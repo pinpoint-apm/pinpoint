@@ -347,6 +347,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, cb) {
 	console.log("showServerMap", applicationName, serviceType, from, to, period, usePeriod, filterText, cb);
 	
+	emptyDetailPanel();
 	$(".nodeinfo").remove();
 	$(".linkinfo").remove();
 
