@@ -58,12 +58,12 @@ public class ApplicationMapLinkStatisticsCalleeMapper implements RowMapper<Map<L
 			// dest가 같지 않으면 버림.
 			if (this.calleeServiceType.isUnknown()) {
 				if (!this.calleeApplicationName.equals(calleeApplicationName)) {
-					System.out.println("\tFIND CALLEE SKIP, DIFFERENT DEST : " + calleeApplicationName + ", " + calleeServiceType + ", " + this.calleeApplicationName + ", " + this.calleeServiceType);
+					System.out.println("\tFIND CALLEE SKIP,1, DIFFERENT DEST. fetched={" + calleeApplicationName + ", " + ServiceType.findServiceType(calleeServiceType) + "}, params={" + this.calleeApplicationName + ", " + this.calleeServiceType + "}");
 					continue;
 				}
 			} else {
 				if (!this.calleeApplicationName.equals(calleeApplicationName) || this.calleeServiceType.getCode() != calleeServiceType) {
-					System.out.println("\tFIND CALLEE SKIP, DIFFERENT DEST : " + calleeApplicationName + ", " + calleeServiceType + ", " + this.calleeApplicationName + ", " + this.calleeServiceType);
+					System.out.println("\tFIND CALLEE SKIP,2, DIFFERENT DEST. fetched={" + calleeApplicationName + ", " + ServiceType.findServiceType(calleeServiceType) + "}, params={" + this.calleeApplicationName + ", " + this.calleeServiceType + "}");
 					continue;
 				}
 			}
