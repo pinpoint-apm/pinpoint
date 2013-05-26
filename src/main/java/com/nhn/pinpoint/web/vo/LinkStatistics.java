@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.profiler.common.HistogramSlot;
 
 /**
@@ -15,6 +18,8 @@ import com.profiler.common.HistogramSlot;
  */
 public class LinkStatistics {
 
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private static final int SUCCESS = 0;
 	private static final int FAILED = 1;
 	private static final int SLOW = Integer.MAX_VALUE - 1;
@@ -90,6 +95,8 @@ public class LinkStatistics {
 	}
 
 	public void addSample(long timeslot, int responseTimeslot, long callCount, boolean failed) {
+		logger.info("Add sample. timeslot=" + timeslot + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + failed);
+		
 		if (failed) {
 			failedCount += callCount;
 		} else {

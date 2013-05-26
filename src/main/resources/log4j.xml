@@ -33,7 +33,12 @@
     </logger>
 
     <logger name="com.nhn.pinpoint.web.mapper" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.service" additivity="false">
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
@@ -44,12 +49,6 @@
 
     <logger name="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="DEBUG"/>
-        <appender-ref ref="console"/>
-    </logger>
-
-
-    <logger name="com.nhn.pinpoint.web.service" additivity="false">
-        <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 

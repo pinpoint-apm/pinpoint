@@ -621,10 +621,12 @@ var linkClickHandler = function(e, query, data, containerId) {
 		return;
 	}
 	
+	/*
 	if (data.sourceinfo.serviceType == "CLIENT") {
 		$('#linkInfoDetails .info').text("CLIENT 정보는 아직 제공하지 않습니다.");	
 		return;
 	}
+	*/
 	
 	data.query = query;
 	$('#linkInfoDetails .info').append($('#LinkInfoBox').tmpl(data));
