@@ -20,14 +20,14 @@ import com.profiler.common.util.ApplicationMapStatisticsUtils;
  * @author netspider
  * 
  */
-public class ApplicationMapStatisticsMapper implements RowMapper<Map<Long, Map<Short, Long>>> {
+public class ApplicationMapLinkStatisticsCallerMapper implements RowMapper<Map<Long, Map<Short, Long>>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	final String calleeApplicationName;
 	final ServiceType calleeServiceType;
 
-	public ApplicationMapStatisticsMapper(String calleeApplicationName, short calleeServiceType) {
+	public ApplicationMapLinkStatisticsCallerMapper(String calleeApplicationName, short calleeServiceType) {
 		this.calleeApplicationName = calleeApplicationName;
 		this.calleeServiceType = ServiceType.findServiceType(calleeServiceType);
 	}
@@ -58,12 +58,12 @@ public class ApplicationMapStatisticsMapper implements RowMapper<Map<Long, Map<S
 			// dest가 같지 않으면 버림.
 			if (this.calleeServiceType.isUnknown()) {
 				if (!this.calleeApplicationName.equals(calleeApplicationName)) {
-					System.out.println("\tSKIP, DIFFERENT DEST : " + calleeApplicationName + ", " + calleeServiceType + ", " + this.calleeApplicationName + ", " + this.calleeServiceType);
+					System.out.println("\tFIND CALLER SKIP,1, DIFFERENT DEST. fetched={" + calleeApplicationName + ", " + ServiceType.findServiceType(calleeServiceType) + "}, params={" + this.calleeApplicationName + ", " + this.calleeServiceType + "}");
 					continue;
 				}
 			} else {
 				if (!this.calleeApplicationName.equals(calleeApplicationName) || this.calleeServiceType.getCode() != calleeServiceType) {
-					System.out.println("\tSKIP, DIFFERENT DEST : " + calleeApplicationName + ", " + calleeServiceType + ", " + this.calleeApplicationName + ", " + this.calleeServiceType);
+					System.out.println("\tFIND CALLER SKIP,2, DIFFERENT DEST. fetched={" + calleeApplicationName + ", " + ServiceType.findServiceType(calleeServiceType) + "}, params={" + this.calleeApplicationName + ", " + this.calleeServiceType + "}");
 					continue;
 				}
 			}

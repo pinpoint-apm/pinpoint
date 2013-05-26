@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
-import com.nhn.pinpoint.web.mapper.ApplicationMapStatisticsMapper;
+import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsCalleeMapper;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.ApplicationMapStatisticsUtils;
@@ -81,7 +81,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 		System.out.println("selectCalleeStatistics. " + callerApplicationName + ", " + callerServiceType + ", " + calleeApplicationName + ", " + calleeServiceType + ", " + from + ", " + to);
 
 		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
-		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapStatisticsMapper(calleeApplicationName, calleeServiceType);
+		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsCalleeMapper(calleeApplicationName, calleeServiceType);
 		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 

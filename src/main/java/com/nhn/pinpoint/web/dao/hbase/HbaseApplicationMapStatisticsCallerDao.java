@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsCallerMapper;
 import com.profiler.common.hbase.HBaseTables;
 import com.profiler.common.hbase.HbaseOperations2;
 import com.profiler.common.util.ApplicationMapStatisticsUtils;
@@ -58,6 +59,30 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 		}
 
 		return result;
+	}
+	
+	/**
+	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
+	 * 
+	 * @return <pre>
+	 * list [
+	 *     map {
+	 *         key = timestamp
+	 *         value = map {
+	 *             key = histogram slot
+	 *             value = count
+	 *         }
+	 *     }
+	 * ]
+	 * </pre>
+	 */
+	@Override
+	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to) {
+		System.out.println("selectCallerStatistics. " + callerApplicationName + ", " + callerServiceType + ", " + calleeApplicationName + ", " + calleeServiceType + ", " + from + ", " + to);
+
+		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
+		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsCallerMapper(callerApplicationName, callerServiceType);
+		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, mapper);
 	}
 
 	private Scan createScan(String applicationName, short serviceType, long from, long to) {

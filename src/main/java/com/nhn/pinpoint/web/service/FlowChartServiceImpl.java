@@ -19,6 +19,7 @@ import com.nhn.pinpoint.web.calltree.server.NodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
+import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
@@ -52,6 +53,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Autowired
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+	
+	@Autowired
+	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
 	
 	@Override
 	public List<Application> selectAllApplicationNames() {
@@ -286,7 +290,14 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Override
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
-		List<Map<Long, Map<Short, Long>>> list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+		List<Map<Long, Map<Short, Long>>> list;
+		
+		// TODO from.isWas() and to.isWas()인 경우 처리가 필요함.
+		if (ServiceType.findServiceType(destServiceType).isWas()) {
+			list = applicationMapStatisticsCallerDao.selectCallerStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+		} else {
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+		}
 
 		LinkStatistics statistics = new LinkStatistics();
 
