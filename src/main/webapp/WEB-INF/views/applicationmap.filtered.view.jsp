@@ -114,7 +114,6 @@
 	</div>
 	<div class="chart-right">
 		<div id="scatterChartContainer" style="display:none;">
-			<h5 id="scattercharttitle">Transaction response scatter</h5>
 			<span onclick="" style="text-decoration:underline;cursor:pointer">Show all transactions</span>
 			&nbsp;&nbsp;&nbsp;
 			<i class="icon-fullscreen" onclick="expandScatter($(this));" onmouseover="$(this).tooltip('show');" title="Expand to new popup window." style="cursor:pointer;"></i>
