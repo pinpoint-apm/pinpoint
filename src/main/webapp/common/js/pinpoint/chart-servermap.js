@@ -252,7 +252,20 @@ function getFilteredServerMapData(query, callback) {
 var serverMapCachedData;
 var serverMapCachedQuery;
 
-function toggleMerge() {
+function toggleMerge(e) {
+	var target = $("#mergeUnknown");
+	var selected = target.data('selected');
+	
+	if (selected) {
+		target.data('selected', false);
+		selected = false;
+		target.html('<i class="icon-ok icon-white"></i> Merge unknowns</a>');
+	} else {
+		target.data('selected', true);
+		selected = true;
+		target.html('<i class="icon-ok"></i> Merge unknowns</a>');
+	}
+	
 	if (serverMapCachedData && serverMapCachedQuery) {
 		$(".nodeinfo").remove();
 		$(".linkinfo").remove();
@@ -260,6 +273,21 @@ function toggleMerge() {
 			oServerMap.clear();
 		}
 		serverMapCallback(serverMapCachedQuery, serverMapCachedData, true);
+	}
+}
+
+function toggleHideDependencies(e) {
+	var target = $("#hideDependencies");
+	var selected = target.data('selected');
+	
+	if (selected) {
+		target.data('selected', false);
+		selected = false;
+		target.html('<i class="icon-ok icon-white"></i> Hide dependencies');
+	} else {
+		target.data('selected', true);
+		selected = true;		
+		target.html('<i class="icon-ok"></i> Hide dependencies');
 	}
 }
 
@@ -289,7 +317,8 @@ var serverMapCallback = function(query, data, ignoreCache) {
 		$("#" + containerId).show();
 	}
 
-	if ($('#mergeUnknown').is(':checked')) {
+	if ($('#mergeUnknown').data('selected')) {
+	// if ($('#mergeUnknown').is(':checked')) {
 		mergeUnknown(data);
 	}
 

@@ -92,16 +92,20 @@
 			</form>
           </li>
           <li class="divider-vertical"></li>
-          <li class="" id="queryTime"></li>
-          <li class="divider-vertical"></li>
           <li class="">
-          	<form class="navbar-form">
-				<label class="checkbox">
-				<input type="checkbox" id="mergeUnknown" value="useMerge" data-placement="bottom" onmouseover="$(this).tooltip('show');" title="서버 맵에서 Pinpoint agent가 설치되지 않은 노드는 하나의 노드로 병합하여 보여줍니다." checked/>
-				merge unknown          	
-    			</label>
-			</form>
+			<div class="btn-group">
+			  <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+			    options
+			    <span class="caret"></span>
+			  </a>
+			  <ul class="dropdown-menu">
+				<li><a href="#" id="mergeUnknown" data-selected="true"><i class="icon-ok"></i> Merge unknowns</a></li>
+				<li><a href="#" id="hideDependencies" data-selected="false"><i class="icon-ok icon-white"></i> Hide dependencies</a></li>
+			  </ul>
+			</div>
           </li>
+          <li class="divider-vertical"></li>
+          <li class="" id="queryTime"></li>
         </ul>
       </div>
     </div>
@@ -158,6 +162,7 @@ $(document).ready(function () {
 	Nav = new _PinpointNavigationBar();
 	
 	$("#mergeUnknown").bind('click', toggleMerge);
+	$("#hideDependencies").bind('click', toggleHideDependencies);
 	
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();
