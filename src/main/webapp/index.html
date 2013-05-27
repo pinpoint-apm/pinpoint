@@ -259,45 +259,44 @@ $(document).ready(function () {
 <script id="NodeInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox">
 		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
+		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions map</a>
+		<br/><a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions list</a>
+		<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
 		<br/>
-			{{if hosts.length > 0}}
-			Hosts
-				<ul>
-					{{each(key, value) hosts}}
-						<li>
-							<span class="label label-success">OK</span>
-							{{= value}}
-							<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
-							{{if category == 'ARCUS' }}
-							<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site">(Hubble)</a>
-							{{/if}}
-						</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-			{{if agents.length > 0}}
-			Server instances
-				<ul>
-					{{each(key, value) agents}}
-					<li>
-						<span class="label label-success">OK</span>
-						{{= value.agentId}}
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
-					</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-		<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions map</a><br/>
-		<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions list</a><br/>
-		<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
-		<hr/>
+		{{if hosts.length > 0}}
+		Hosts
+		<ul>
+			{{each(key, value) hosts}}
+			<li>
+				<span class="label label-success">OK</span>
+				{{= value}}
+				<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
+				{{if category == 'ARCUS' }}
+				<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site">(Hubble)</a>
+				{{/if}}
+			</li>
+			{{/each}}
+		</ul>
+		{{/if}}
+		{{if agents.length > 0}}
+		Server instances
+			<ul>
+				{{each(key, value) agents}}
+				<li>
+					<span class="label label-success">OK</span>
+					{{= value.agentId}}
+					<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
+					<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
+				</li>
+				{{/each}}
+			</ul>
+		{{/if}}
 	</div>
 </script>
 <script id="LinkInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox">
 		<img src="/images/icons/{{= sourceinfo.serviceType}}.png" width="20" height="10" /> {{= sourceinfo.applicationName}}
-		--&gt;
+		<i class="icon-arrow-right"></i>
 		<img src="/images/icons/{{= targetinfo.serviceType}}.png" width="20" height="10" /> {{= targetinfo.applicationName}} 
 		<!--
 		<br/>
@@ -312,18 +311,16 @@ $(document).ready(function () {
 			{{/each}}
 			<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
 		</ul>
-		<a href="#" onclick="linkStatistics({{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceTypeCode}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceTypeCode}}', '{{= targetinfo.applicationName}}');">Show statistics</a><br/>
 		-->
 		<br/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
 		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
-		<hr/>
 	</div>
 </script>
 <script id="LinkContextInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-		Drilldown menu
-		<hr/>
+		<br/>
+		<br/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
 		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>

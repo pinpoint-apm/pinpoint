@@ -120,3 +120,12 @@ path.link {
 	position:relative;
 	display:none;
 }
+
+#nodeInfoDetails a {
+	text-decoration:underline;
+}
+
+#linkInfoDetails a {
+	text-decoration:underline;
+}
+
