@@ -26,6 +26,8 @@ var _PinpointNavigationBar = $.Class({
 		if (input.getTime() > now.getTime()) {
 			return now;
 		}
+		// 초단위 무시.
+		input.setSeconds(0);
 		return input.getTime();
 	},
 	setQueryDateToNow : function() {

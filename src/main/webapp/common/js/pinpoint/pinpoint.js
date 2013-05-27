@@ -9,7 +9,7 @@ function openTrace(uuid, timestamp) {
     window.open("/transactionInfo.pinpoint?traceId=" + uuid + "&focusTimestamp=" + timestamp);
 }
 
-function formatDate(date) {
+function formatDate(date, ignoreSeconds) {
 	var padZero = function(i) {
 	    return (i < 10) ? "0" + i : "" + i;
 	}
@@ -25,8 +25,10 @@ function formatDate(date) {
 	dateStr.push(padZero(date.getHours())); 
 	dateStr.push(":");
 	dateStr.push(padZero(date.getMinutes()));
-	dateStr.push(":");
-	dateStr.push(padZero(date.getSeconds()));
+	if (!ignoreSeconds) {
+		dateStr.push(":");
+		dateStr.push(padZero(date.getSeconds()));
+	}
 					
     return dateStr.join('');
 }

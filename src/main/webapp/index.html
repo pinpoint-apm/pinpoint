@@ -92,6 +92,8 @@
 			</form>
           </li>
           <li class="divider-vertical"></li>
+          <li class="" id="queryTime"></li>
+          <li class="divider-vertical"></li>
           <li class="">
           	<form class="navbar-form">
 				<label class="checkbox">
@@ -201,6 +203,11 @@ $(document).ready(function () {
     		return true;
     	}
 
+    	var f = formatDate(new Date(Nav.getQueryStartTime()), true);
+    	var e = formatDate(new Date(Nav.getQueryEndTime()), true);
+
+    	$("#queryTime").html(f + ' ~<br/>' + e);
+    	
     	$("#progressbar").show();
     	
     	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, function() { $("#progressbar").hide(); });
