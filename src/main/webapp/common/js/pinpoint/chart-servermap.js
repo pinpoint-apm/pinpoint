@@ -196,7 +196,8 @@ function getServerMapData2(query, callback) {
     		application : query.applicationName,
     		serviceType : query.serviceType,
     		from : query.from,
-    		to : query.to
+    		to : query.to,
+    		hideDependencies : query.hideDependencies
     	},
     	success : function(result) {
     		callback(query, result);
@@ -216,7 +217,8 @@ function getLastServerMapData2(query, callback) {
     	data : {
     		application : query.applicationName,
     		serviceType : query.serviceType,
-    		period : query.period
+    		period : query.period,
+    		hideDependencies : query.hideDependencies
     	},
     	success : function(result) {
     		callback(query, result);
@@ -289,6 +291,9 @@ function toggleHideDependencies(e) {
 		selected = true;		
 		target.html('<i class="icon-ok"></i> Hide dependencies');
 	}
+
+	$("#progressbar").show();
+	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideDependencies(), function() { $("#progressbar").hide(); });
 }
 
 var serverMapCallback = function(query, data, ignoreCache) {
@@ -373,7 +378,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
     oServerMap.load(data.applicationMapData);
 };
 
-function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, cb) {
+function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, hideDependencies, cb) {
 	console.log("showServerMap", applicationName, serviceType, from, to, period, usePeriod, filterText, cb);
 	
 	emptyDetailPanel();
@@ -391,7 +396,8 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 		to : to, 
 		period : period,
 		usePeriod : usePeriod,
-		filter : filterText
+		filter : filterText,
+		hideDependencies : hideDependencies
 	};
 
 	console.log("filterText", filterText);

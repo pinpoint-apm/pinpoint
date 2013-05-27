@@ -42,9 +42,10 @@ public class ApplicationMapController {
 									@RequestParam("application") String applicationName, 
 									@RequestParam("serviceType") short serviceType, 
 									@RequestParam("from") long from,
-									@RequestParam("to") long to) {
+									@RequestParam("to") long to,
+									@RequestParam(value = "hideDependencies", defaultValue = "false") boolean hideDependencies) {
 		
-		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to);
+		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to, hideDependencies);
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -57,11 +58,12 @@ public class ApplicationMapController {
 										HttpServletResponse response,
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
-										@RequestParam("period") long period) {
+										@RequestParam("period") long period,
+										@RequestParam(value = "hideDependencies", defaultValue = "false") boolean hideDependencies) {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData2(model, response, applicationName, serviceType, from, to);
+		return getServerMapData2(model, response, applicationName, serviceType, from, to, hideDependencies);
 	}
 
 	@RequestMapping(value = "/filtermap", method = RequestMethod.GET)

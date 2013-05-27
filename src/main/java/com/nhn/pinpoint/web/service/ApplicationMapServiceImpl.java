@@ -61,12 +61,15 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * callerApplicationName이 호출한 callee를 모두 탐색
 	 * 
 	 * @param callerApplicationName
+	 * @param callerServiceType
 	 * @param from
 	 * @param to
-	 * @param foundApplications
+	 * @param calleeFoundApplications
+	 * @param callerFoundApplications
+	 * @param hideDependencies
 	 * @return
 	 */
-	private Set<ApplicationStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications) {
+	private Set<ApplicationStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications, boolean hideDependencies) {
 		// 이미 조회된 구간이면 skip
 		if (calleeFoundApplications.contains(callerApplicationName + callerServiceType)) {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. " + callerApplicationName + callerServiceType);
@@ -98,13 +101,15 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 			ApplicationStatistics stat = entry.getValue();
 
-			Set<ApplicationStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+			Set<ApplicationStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
-			for (ApplicationStatistics eachCallee : calleeSub) {
-				Set<ApplicationStatistics> callerSub = selectCaller(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
-				calleeSet.addAll(callerSub);
+			if (!hideDependencies) {
+				for (ApplicationStatistics eachCallee : calleeSub) {
+					Set<ApplicationStatistics> callerSub = selectCaller(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
+					calleeSet.addAll(callerSub);
+				}
 			}
 		}
 
@@ -120,7 +125,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param foundApplications
 	 * @return
 	 */
-	private Set<ApplicationStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications) {
+	private Set<ApplicationStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications, boolean hideDependencies) {
 		// 이미 조회된 구간이면 skip
 		if (callerFoundApplications.contains(calleeApplicationName + calleeServiceType)) {
 			logger.debug("ApplicationStatistics exists. Skip finding caller. " + calleeApplicationName + calleeServiceType);
@@ -143,17 +148,19 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			ApplicationStatistics stat = entry.getValue();
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-			Set<ApplicationStatistics> callerSub = selectCaller(stat.getFrom(), stat.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+			Set<ApplicationStatistics> callerSub = selectCaller(stat.getFrom(), stat.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
 			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
-			for (ApplicationStatistics eachCallee : callerSub) {
-				// terminal이면 skip
-				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
-					continue;
+			if (!hideDependencies) {
+				for (ApplicationStatistics eachCallee : callerSub) {
+					// terminal이면 skip
+					if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
+						continue;
+					}
+					Set<ApplicationStatistics> calleeSub = selectCallee(eachCallee.getTo(), eachCallee.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
+					callerSet.addAll(calleeSub);
 				}
-				Set<ApplicationStatistics> calleeSub = selectCallee(eachCallee.getTo(), eachCallee.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
-				callerSet.addAll(calleeSub);
 			}
 		}
 
@@ -200,7 +207,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to) {
+	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to, boolean hideDependencies) {
 		logger.debug("SelectApplicationMap");
 
 		StopWatch watch = new StopWatch("applicationMapWatch");
@@ -210,8 +217,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		final Set<String> callerFoundApplications = new HashSet<String>();
 		final Set<String> calleeFoundApplications = new HashSet<String>();
 
-		Set<ApplicationStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
-		Set<ApplicationStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
+		Set<ApplicationStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
+		Set<ApplicationStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications, hideDependencies);
 
 		Set<ApplicationStatistics> data = new HashSet<ApplicationStatistics>(callee.size() + caller.size());
 		data.addAll(callee);

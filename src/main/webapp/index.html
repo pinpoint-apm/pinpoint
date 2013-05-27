@@ -215,7 +215,7 @@ $(document).ready(function () {
     	
     	$("#progressbar").show();
     	
-    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, function() { $("#progressbar").hide(); });
+    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideDependencies(), function() { $("#progressbar").hide(); });
     	showResponseScatter(Nav.getApplicationName(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     }
     
