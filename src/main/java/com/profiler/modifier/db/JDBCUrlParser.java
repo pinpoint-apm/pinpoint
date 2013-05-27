@@ -1,17 +1,20 @@
 package com.profiler.modifier.db;
 
 import com.profiler.common.ServiceType;
+import com.profiler.logging.Logger;
+import com.profiler.logging.LoggerFactory;
+import com.profiler.modifier.db.oracle.KeyValue;
+import com.profiler.modifier.db.oracle.OracleConnectionStringException;
+import com.profiler.modifier.db.oracle.OracleURLParser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
  */
 public class JDBCUrlParser {
-
+    private static Logger logger = LoggerFactory.getLogger(JDBCUrlParser.class);
 
 
     public DatabaseInfo parse(String url) {
@@ -81,7 +84,7 @@ public class JDBCUrlParser {
     }
 
     //    rac url.
-//    jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
+//    jdbc:oracle:thin:@(Description=(LOAD_BALANCE=on)" +
 //    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
 //            "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1521))" +
 //            "(CONNECT_DATA=(SERVICE_NAME=service)))"
@@ -92,7 +95,7 @@ public class JDBCUrlParser {
 //    들여 쓰기를 통해 token을 보기 좋게 나눈경우.
 //    jdbc:oracle:thin:
 //    @(
-//         DESCRIPTION=(LOAD_BALANCE=on)
+//         Description=(LOAD_BALANCE=on)
 //         (
 //             ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521)
 //         )
@@ -104,13 +107,6 @@ public class JDBCUrlParser {
 //         )
 //    )
 
-    static Pattern oracleRAC = Pattern.compile(
-            "(" +
-                ".*[ADDRESS=].*\\(\\s*HOST\\s*=\\s*([\\w\\.]*)\\s*\\).*\\(\\s*PORT\\s*=\\s*([\\d]*)\\s*+\\)" +
-            ").*" +
-            "\\(\\s*SERVICE_NAME\\s*=\\s*([\\w]*)\\s*\\).*");
-//
-
 
     private DatabaseInfo parseOracle(String url) {
         StringMaker maker = new StringMaker(url);
@@ -118,38 +114,75 @@ public class JDBCUrlParser {
         String description = maker.after('@').value().trim();
 
         if (description.startsWith("(")) {
-            Matcher matcher = oracleRAC.matcher(description);
-            if (matcher.matches()) {
-//                n개의 rac 주소를 못찾는 문제가 있음.
-//                rac type url의 파서를 추가적으로 개발해야 함.
-                String host = matcher.group(1);
-                String port = matcher.group(2);
-                String databaseId = matcher.group(3);
-                for(int i =0; i<matcher.groupCount(); i++ ) {
-                    System.out.println(i + ":" + matcher.group(i));
-                }
+            try {
+                // oracle new URL : rac용
+                OracleURLParser parser = new OracleURLParser(url);
+                KeyValue keyValue = parser.parse();
 
-                List<String> hostList = new ArrayList<String>(1);
-                hostList.add(host + ":" + port);
-                // oracle driver는 option을 connectionString으롤 받지 않기 때문에. normalizedUrl이 없다.
-                return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
-            } else {
-                // error 처리를 다시 생각해봐야 될듯한다.
-                // 그냥 파싱에 실패하면 동작되지 않도록 수정해야 하는게 바람직한가?
-                // rac url이 매칭 되지 않았다는 의미인데. rac url 파싱에 실패시 정보를 넣기가 애매함.
-                return createUnknownDataBase(url);
+                return createOracleDatabaseInfo(keyValue, url);
+            } catch (OracleConnectionStringException ex) {
+                logger.warn("OracleConnectionStringParse Error Caused:", ex.getMessage(), ex);
+                logger.warn("OracleConnectionString parse error:{}", url);
+                // 에러찍고 그냥 unknownDataBase 생성
             }
+            return createUnknownDataBase(url);
         } else {
             // thin driver
             // jdbc:oracle:thin:@hostname:port:SID
             // "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-            String host  = maker.before(':').value();
+            String host = maker.before(':').value();
             String port = maker.next().after(':').before(':').value();
             String databaseId = maker.next().afterLast(':').value();
             List<String> hostList = new ArrayList<String>(1);
             hostList.add(host + ":" + port);
             return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
         }
+    }
+
+    private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
+        if (!"description".equals(keyValue.getKey())) {
+            throw new OracleConnectionStringException("description not exist");
+        }
+
+        List<String> hostList = findAddress(keyValue);
+        String oracleDatabaseId = getOracleDatabaseId(keyValue);
+        return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, oracleDatabaseId);
+
+    }
+
+    public String getOracleDatabaseId(KeyValue keyValue) {
+        List<KeyValue> keyValueList = keyValue.getKeyValueList();
+        for (KeyValue kv : keyValueList) {
+            if ("connect_data".equals(kv.getKey())) {
+                List<KeyValue> connectDataList = kv.getKeyValueList();
+                for (KeyValue connectDataNode : connectDataList) {
+                    if ("service_name".equals(connectDataNode.getKey())) {
+                        return connectDataNode.getValue();
+                    }
+                }
+            }
+        }
+        return "oracleDatabaseId not found";
+    }
+
+    private List<String> findAddress(KeyValue keyValue) {
+        List<String> hostList = new ArrayList<String>();
+
+        List<KeyValue> keyValueList = keyValue.getKeyValueList();
+        for (KeyValue kv : keyValueList) {
+            if ("address".equals(kv.getKey())) {
+                KeyValue host = new KeyValue();
+                for (KeyValue addressChild : kv.getKeyValueList()) {
+                    if ("host".equals(addressChild.getKey())) {
+                        host.setKey(addressChild.getValue());
+                    } else if ("port".equals(addressChild.getKey())) {
+                        host.setValue(addressChild.getValue());
+                    }
+                }
+                hostList.add(host.getKey() + ":" + host.getValue());
+            }
+        }
+        return hostList;
     }
 
     private DatabaseInfo createUnknownDataBase(String url) {
@@ -174,4 +207,6 @@ public class JDBCUrlParser {
         String normalizedUrl = maker.clear().before('?').value();
         return new DatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
+
+
 }
