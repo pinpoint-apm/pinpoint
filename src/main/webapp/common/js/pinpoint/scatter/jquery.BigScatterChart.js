@@ -1,3 +1,12 @@
+/**
+ * Big Scatter Chart
+ * @class BigScatterChart 
+ * @version 1.2.3
+ * @since May 20, 2013
+ * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
+ * @license MIT License
+ * @copyright 2013 NHN Corp.
+ */
 var BigScatterChart = $.Class({
 	$init : function(htOption){
 		this.option({
@@ -43,6 +52,7 @@ var BigScatterChart = $.Class({
 				'line-height': '20px',
 				'height': '20px',
 			},
+			'sShowLoading' : 'Loading',
 			'sShowNoData' : 'No Data',
 			'htShowNoDataStyle' : {
 				'font-size' : '15px',
@@ -62,7 +72,7 @@ var BigScatterChart = $.Class({
 			'fYAxisFormat' : function(nYStep, i){
 				return this._addComma((this._nYMax + this._nYMin) - ((nYStep*i) + this._nYMin));
 			},
-			htDataSource : {
+			'htDataSource' : {
 				sUrl : function(){},
 				htParam : function(htFetchedData){},
 				nFetch : function(htFetchedData){},
@@ -70,7 +80,8 @@ var BigScatterChart = $.Class({
 					dataType : 'jsonp',
 					jsonp : 'callback'
 				}
-			}
+			},
+			'sConfigImage' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADFUlEQVR4XnWTbWgcVRSGnxmzs6ssbZC0/1TSTUPSaFOTaPdPStYfQURpQQRZSgMNUrMaC61Nt5sPjVVKI9pakBLRElFsaEsNCSSpIlGq1oprSxKzm4WWtDQtREsy1d2d/TzeGxIQpGd4Oee8L++5d+6dMY6+/wEApmkCUCgUsCyLYrEoKjAMQ2uG5ldCa6yGCSAimhxW+FrXmUyGXC7HzmBQZ91rXQ+/q/KQiPxvwHBl5cYXfL4NO7LZ7J/KJKVr13J1agqdde84TrGiwvfwxsqK7UUpDgv6AVNESKfTHtu+R82mGgKBQFlLyy6aAgHcLovGxkZUr/gmQ+uLto2d+ttyJEeGHPQefg/A1/3WO4uDZ87JxZ8uydj4tzI69o3Oq1jmTyv9YE/3ArAh0XeRqcgQpjokPeSaSLF0S+1mUqk0KC6eSDATixGfnSWTdRTvoHW1/XWzfT9ey5GXrFHA1Ket33H9+jL+SaawXC7i8Rg35q6fP3tmcPucynM3buJxu0k7GdyWhafqMWyvF8M0xNTX09raSnPzs6TSKVyWi3w+T2xm5vgvl36+EIvFjucK8IDHy9nzI7z6SojPE1+xdGuR/F8LlAD09/dTXl5O7eZaAEpKStjyZF1Lw9Nb55W5xbDW8NDQi4R393Fs4DT+rX5GvxvlxMmjDQZQD/BmR/i3YDCoV2fJtpmeniZXMDA9pTxzp4+659fBzevMunbzyeU8Hx7pbfgjNBAl0tVDONLFvgMdxZGRMblydVJ+V7gyGZdobF5+jdSIXG4WOfe4yKdl8kXoCQHqOzq72N/VibnyFd6trqo2qjZVcev2bdwPesHykv1sG08trzwP9gKnoo+S9Pdy4FB3xMTAJSb6Fkgmk5P6X5iYmGB8/MLSiY9PUp3YhX/fHljTBEt3GIg+QsbfqUwOTjpZKsqnwcFDnQC+ttfaf2gLvT4B1AL1Xx7ZKWODb4vMHJNToTrR3Bv7w4ttofbvgQrt02C10CTg64j0cHjvS/S0vyzv7nlOEh/tWDbvDfeyMtynPaswuH/U/6eOcp/4F3+xsCxH/WvuAAAAAElFTkSuQmCC'
 		});
 		this.option(htOption);
 			
@@ -81,9 +92,11 @@ var BigScatterChart = $.Class({
 		this.updateXYAxis();
 	},
 
-	_initVariables : function(){		
-		this._aBubbles = [];
-		this._aBubbleStep = [];
+	_initVariables : function(bIsRedrawing){
+		if(bIsRedrawing != true){
+			this._aBubbles = [];
+			this._aBubbleStep = [];
+		}
 		
 		var nPaddingTop = this.option('nPaddingTop'),
 			nPaddingLeft = this.option('nPaddingLeft'),
@@ -93,8 +106,10 @@ var BigScatterChart = $.Class({
 			nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight');
 
-		this.option('nXSteps', this.option('nXSteps') - 1);
-		this.option('nYSteps', this.option('nYSteps') - 1);
+//		this.option('nXSteps', this.option('nXSteps') - 1);
+//		this.option('nYSteps', this.option('nYSteps') - 1);
+		this._nXSteps = this.option('nXSteps') - 1;
+		this._nYSteps = this.option('nYSteps') - 1;
 
 		if (this.option('nYLabel')) this._paddingLeft += 30;
 		if (this.option('nXLabel')) this._paddingBottom += 20;
@@ -121,8 +136,9 @@ var BigScatterChart = $.Class({
 
 	_initElements : function(){
 		var self = this,
-			nXStep = this._nXWork / this.option('nXSteps'),
-			nYStep = this._nYWork / this.option('nYSteps'),
+			nXStep = this._nXWork / this._nXSteps,
+			nYStep = this._nYWork / this._nYSteps,
+			nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight'),
 			nPaddingTop = this.option('nPaddingTop'),
 			nPaddingLeft = this.option('nPaddingLeft'),
@@ -189,7 +205,7 @@ var BigScatterChart = $.Class({
 			}).css({
 				'position' : 'absolute',
 				'top' : 0,
-				'z-index' : nZIndexForCanvas
+				'z-index' : nZIndexForCanvas++
 			}).append($('<div>')
 				.width(this.option('nWidth'))
 				.height(this.option('nHeight'))
@@ -210,13 +226,13 @@ var BigScatterChart = $.Class({
 			'height': this.option('nHeight'),
 			'top': 0,
 			'font-family': 'Helvetica, Arial, sans-serif',
-			'z-index': 240
+			'z-index': nZIndexForCanvas++
 		});
 		this._welOverlay.appendTo(this._welContainer);
 
 		var htLabelStyle = this.option('htLabelStyle');
 		// x axis
-		for(var i=0; i<=this.option('nXSteps'); i++){
+		for(var i=0; i<=this._nXSteps; i++){
 			this._awelXNumber.push($('<div>')
 				.text(' ')
 				.css({
@@ -232,7 +248,7 @@ var BigScatterChart = $.Class({
 		}
 
 		// y axis
-		for(var i=0; i<=this.option('nYSteps'); i++){
+		for(var i=0; i<=this._nYSteps; i++){
 			this._awelYNumber.push($('<div>')
 				.text(' ')
 				.css({
@@ -301,11 +317,13 @@ var BigScatterChart = $.Class({
 		// count per type to show up
 		this._welTypeUl = $('<ul>')
 			.css({
-				'float' : 'right',
+				'position' : 'absolute',
 				'top' : '5px',
 				'right' : nPaddingRight + 'px',
 				'list-style' : 'none',
-				'font-size' : '12px'
+				'font-size' : '12px',
+				'padding' : '0',
+				'margin' :'0'
 			});
 		this._htwelTypeLi = {};
 		this._htwelTypeSpan = {};
@@ -315,8 +333,9 @@ var BigScatterChart = $.Class({
 				this._htwelTypeLi[sKey] = $('<li>')
 				.css({
 					'display' : 'inline-block',
-					'margin' : '0 10px',
+					'margin' : '0 0 0 20px',
 					'padding' : '0 0 0 16px',
+					'line-height' : '15px',
 					'color' : htType[sKey],
 					'background-image' : 'url(' + htCheckBoxImage.checked + ')',
 					'background-repeat' : 'no-repeat',
@@ -368,6 +387,10 @@ var BigScatterChart = $.Class({
 		this._resetTypeCount();
 
 		// title
+		var htTypeUlOffset = this._welTypeUl.offset(),
+			htOverlayOffset = this._welOverlay.offset(),
+			nLeftGap = htTypeUlOffset.left - htOverlayOffset.left;
+		
 		var sTitle = this.option('sTitle'),
 			htTitleStyle = this.option('htTitleStyle');
 		if(_.isString(sTitle) && sTitle.length > 0){
@@ -376,12 +399,85 @@ var BigScatterChart = $.Class({
 									.css({
 										'position' : 'absolute',
 										'vertical-align' : 'middle',
-										'top': '12px',
-										'left': nPaddingLeft + 'px'
+										'top': '5px',
+										'left': '5px',
+										'width' : nLeftGap - 5 + 'px',
+										'overflow' : 'hidden',
+										'white-space' : 'nowrap',
+										'text-overflow' : 'ellipsis'
 									})
 									.css(htTitleStyle)
 			);
 		}		
+		
+		// config
+		var nCenterOfWidth = nWidth / 2,
+			nMiddleOfHeight = nHeight / 2,
+			nConfigLayerWidth = 200,
+			nConfigLayerHeight = 130,
+			sYMin = sPrefix + 'ymin',
+			sYMax = sPrefix + 'ymax';
+		
+		var fConfigToggle = function(e){
+			self._welConfigBg.toggle();
+			self._welConfigLayer.toggle();
+			$('#' + sYMin).val(self.option('nYMin'));
+			$('#' + sYMax).val(self.option('nYMax'));
+			if(e) e.preventDefault();
+		}		
+		var sConfigImage = this.option('sConfigImage');
+		this._welContainer.append(this._welConfigButton = $('<img>')
+								.attr('src', sConfigImage)
+								.css({
+									'position' : 'absolute',
+									'top' : '6px',
+									'right' : '5px',
+									'cursor' : 'pointer',
+									'z-index' : nZIndexForCanvas++
+								})
+								.click(fConfigToggle)
+		);
+		this._welConfigBg = $('<div>')
+			.addClass('config-bg')
+			.css({
+				'position' : 'absolute',
+				'width' :  nWidth + 'px',
+				'height' : nHeight + 'px',
+				'background-color' : '#000',
+				'opacity' : 0.3,
+				'display' : 'none',
+				'z-index' : nZIndexForCanvas++
+			})
+			.click(fConfigToggle)
+			.appendTo(this._welContainer);
+		
+		this._welConfigLayer = $('<div>')
+			.addClass('config')
+			.css({
+				'top' : nMiddleOfHeight - nConfigLayerHeight/2 + 'px',
+				'left' : nCenterOfWidth - nConfigLayerWidth/2 + 'px',
+				'width' : nConfigLayerWidth + 'px',
+				'height' : nConfigLayerHeight + 'px',
+				'z-index' : nZIndexForCanvas++
+			})
+			.append('<h4>Setting</h4>')
+			.append('<label for="'+sYMin+'" class="label">Min of Y axis</label>')
+			.append('<input type="text" name="'+sYMin+'" id="'+sYMin+'" class="input"/>')
+			.append('<label for="'+sYMax+'" class="label">Max of Y axis</label>')
+			.append('<input type="text" name="'+sYMax+'" id="'+sYMax+'" class="input"/>')
+			.append(this._welConfigApply = $('<button type="button" class="button apply">Apply</button>'))
+			.append(this._welConfigCancel = $('<button type="button" class="button cancel">Cancel</button>'));
+		
+		this._welConfigApply.click(function(){
+			var nYMin = parseInt($('#' + sYMin).val(), 10),
+				nYMax = parseInt($('#' + sYMax).val(), 10);
+			self.option('nYMin', nYMin);
+			self.option('nYMax', nYMax);
+			fConfigToggle();
+			self._redraw();
+		});
+		this._welConfigCancel.click(fConfigToggle);
+		this._welConfigLayer.appendTo(this._welContainer);
 	},
 
 	_initEvents : function(){
@@ -403,7 +499,7 @@ var BigScatterChart = $.Class({
 		}, this);
 
 		var sDragToSelectClassName = this.option('sDragToSelectClassName');
-		this._welContainer.dragToSelect({
+		this._welOverlay.dragToSelect({
 			className: sDragToSelectClassName,
 		    onHide: function (welSelectBox) {
 		    	var htPosition = self._adjustSelectBoxForChart(welSelectBox),
@@ -540,10 +636,10 @@ var BigScatterChart = $.Class({
 		if ( this._oGuideCtx.setLineDash !== undefined )   this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
 		if ( this._oGuideCtx.mozDash !== undefined )       this._oGuideCtx.mozDash = htGuideLine.aLineDash;		  	
 
-		var nXStep = this._nXWork / this.option('nXSteps');
-		var nYStep = this._nYWork / this.option('nYSteps');
+		var nXStep = this._nXWork / this._nXSteps;
+		var nYStep = this._nYWork / this._nYSteps;
 
-		for(var i=0; i<=this.option('nXSteps'); i++){
+		for(var i=0; i<=this._nXSteps; i++){
 			var mov = nPaddingLeft + nBubbleSize + nXStep * i;
 	  		this._oAxisCtx.beginPath();
 			this._oAxisCtx.moveTo(mov, nHeight - nPaddingBottom);
@@ -557,7 +653,7 @@ var BigScatterChart = $.Class({
 			this._oGuideCtx.stroke();
 		}
 
-		for(var i=0; i<=this.option('nYSteps'); i++){
+		for(var i=0; i<=this._nYSteps; i++){
 			var mov = nHeight - (nPaddingBottom + nBubbleSize + nYStep * i);
 			this._oAxisCtx.beginPath();
 		  	this._oAxisCtx.moveTo(nPaddingLeft, mov);
@@ -579,7 +675,7 @@ var BigScatterChart = $.Class({
 		if(_.isNumber(nYMin)){ this._nYMax = this.option('nYMax', nYMax); }
 		
 		var fXAxisFormat = this.option('fXAxisFormat'),
-			nXStep = (this._nXMax - this._nXMin) / this.option('nXSteps');
+			nXStep = (this._nXMax - this._nXMin) / this._nXSteps;
 		_.each(this._awelXNumber, function(el, i){
 			if(_.isFunction(fXAxisFormat)){
 				el.text(fXAxisFormat.call(this, nXStep, i));
@@ -589,7 +685,7 @@ var BigScatterChart = $.Class({
 		}, this);
 		
 		var fYAxisFormat = this.option('fYAxisFormat'),
-			nYStep = (this._nYMax - this._nYMin) / this.option('nYSteps');
+			nYStep = (this._nYMax - this._nYMin) / this._nYSteps;
 		_.each(this._awelYNumber, function(el, i){
 			if(_.isFunction(fXAxisFormat)){
 				el.text(fYAxisFormat.call(this, nYStep, i));
@@ -1007,13 +1103,21 @@ var BigScatterChart = $.Class({
 	},
 
 	destroy : function(){
-		this._welContainer.empty();
+		this._empty();
 		_.each(this, function(content, property){
 			delete this[property];
 		}, this);
-		// this is for drag-selecting. it should be unbinded.
-		jQuery(document).unbind('mousemove').unbind('mouseup');		
+		this._unbindAllEvents();
 		this._bDestroied = true;
+	},
+	
+	_empty : function(){
+		this._welContainer.empty();
+	},
+	
+	_unbindAllEvents : function(){
+		// this is for drag-selecting. it should be unbinded.
+		jQuery(document).unbind('mousemove').unbind('mouseup');
 	},
 
 	_mergeAllDisplay : function(fCb){
@@ -1061,13 +1165,6 @@ var BigScatterChart = $.Class({
 			}else{
 				oCtx.drawImage(this._oCheckedBoxImage, nX, nY);
 			}
-			// if(welTypeLi.hasClass('unchecked')){
-			// 	oCtx.moveTo(nX, nY + welTypeLi.height()/2);
-				// oCtx.lineTo(nX + welTypeLi.width(), nY + welTypeLi.height()/2);
-				// oCtx.strokeStyle = welTypeLi.css('color');
-				// oCtx.lineWidth = 0.7;
-				// oCtx.stroke();
-			// }	
 		}, this);		
 
 		// title
@@ -1170,6 +1267,7 @@ var BigScatterChart = $.Class({
 		htOption.data = htDataSource.htParam.call(this, this._nCallCount, this._htLastFechedParam, this._htLastFetchedData);
 		htOption.success = function(htData){
 			if(htData.scatter.length > 0){
+				self._hideNoData();
 				self.addBubbleAndMoveAndDraw(htData.scatter, htData.scatter[htData.scatter.length - 1].x);
 				self._htLastFetchedData = htData;
 			}else{
@@ -1194,9 +1292,15 @@ var BigScatterChart = $.Class({
 				setTimeout(function(){
 					self._drawWithDataSource();
 				}, nInterval);
+			}else if(this._aBubbles.length === 0){
+				self._showNoData();
+				self._welShowNoData.text(self.option('sShowNoData'));
 			}
 		}
 		this._oAjax = $.ajax(htOption);	
+		if(this._nCallCount === 0){
+			this._welShowNoData.text(this.option('sShowLoading'));
+		}
 		this._nCallCount += 1;
 		this._htLastFechedParam = htOption.data;
 	},
@@ -1205,5 +1309,17 @@ var BigScatterChart = $.Class({
 		if(this._oAjax){
 			this._oAjax.abort();
 		}
+	},
+	
+	_redraw : function(){
+		this._empty();
+		this._unbindAllEvents();
+		
+		this._initVariables(true);
+		this._initElements();
+		this._initEvents();
+		this._drawXYAxis();
+		this.updateXYAxis();
+		this.redrawBubbles();
 	}
 });

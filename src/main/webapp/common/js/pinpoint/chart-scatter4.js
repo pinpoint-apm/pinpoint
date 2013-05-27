@@ -164,7 +164,7 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, filte
 			jsonp : '_callback'
 		}
 	};
-    makeScatter(applicationName + ' response scatter', from, to, "scatterchart", w, h);
+    makeScatter(applicationName, from, to, "scatterchart", w, h);
 	oScatterChart.drawWithDataSource(htDataSource);
 }
 

@@ -94,7 +94,7 @@ function showResponseScatter(applicationName, from, to, period, usePeriod, w, h)
     delete selectdTracesBox;
     selectdTracesBox = {};
     
-    $("#scatterChartContainer H5").text("'" + applicationName + "' response scatter")
+    $("#scatterChartContainer H5").text(applicationName);
     
     var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen"); 
     fullscreenButton.data("applicationName", applicationName);
