@@ -88,7 +88,7 @@ public class ScatterChartController {
 		} else {
 			List<TraceId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
 
-			if (!traceIds.isEmpty()) {
+			if (traceIds.isEmpty()) {
 				model.addAttribute("queryStart", -1);
 				model.addAttribute("queryEnd", -1);
 			} else {
