@@ -270,11 +270,17 @@ $(document).ready(function () {
 </script>
 <script id="NodeInfoBox" type="text/x-jquery-tmpl">
 	<div class="LinkInfoBox">
+		{{if category != "UNKNOWN_GROUP"}}
 		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
 		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions map</a>
 		<br/><a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions list</a>
 		<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
 		<br/>
+		{{/if}}
+		{{if category == "UNKNOWN_GROUP"}}
+			GROUP정보 조회 아직 지원하지 않습니다.<br/>
+			옵션에서 merge unknown을 해제하고 조회하세요.
+		{{/if}}
 		{{if hosts.length > 0}}
 		Hosts
 		<ul>

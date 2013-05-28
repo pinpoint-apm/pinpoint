@@ -26,7 +26,7 @@
 						"label" : "Slow",
 						</c:when>
 						<c:otherwise>
-						"label" : "<= ${item.key}ms",
+						"label" : "${item.key}",
 						</c:otherwise>
 					</c:choose>
 					"value" : ${item.value}

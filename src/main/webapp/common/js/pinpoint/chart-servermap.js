@@ -41,10 +41,13 @@ function linkStatistics(
 			}).style('expand').showControls(false);
 
 			chart.xAxis.tickFormat(function(d) {
-				return d3.time.format('%x')(new Date(d));
+				return d3.time.format('%x %H:%M')(new Date(d));
 			});
 
-			chart.yAxis.tickFormat(d3.format(',.2f'));
+			// chart.yAxis.tickFormat(d3.format(',.2f'));
+			chart.yAxis.tickFormat(function(d) {
+				return d;
+			});
 
 			d3.select('#linkInfoDetails .linkInfoSFChart svg')
 				.datum(data)
@@ -62,11 +65,27 @@ function linkStatistics(
 		$("#linkInfoDetails .linkInfoBarChart").show();
 		nv.addGraph(function() {
 			var chart = nv.models.discreteBarChart().x(function(d) {
-				return d.label
+				return d.label;
 			}).y(function(d) {
-				return d.value
-			}).staggerLabels(true).tooltips(false).showValues(true)
+				return d.value;
+			}).staggerLabels(false).tooltips(false).showValues(true);
 	
+			chart.xAxis.tickFormat(function(d) {
+				if($.isNumeric(d)) {
+					return (d >= 1000) ? d / 1000 + "s" : d + "ms";
+				}
+				return d;
+			});
+			
+			chart.yAxis.tickFormat(function(d) {
+				console.log(d);
+				return d;
+			});
+			
+			chart.valueFormat(function(d) {
+				return d;
+			});
+			
 			d3.select('#linkInfoDetails .linkInfoBarChart svg')
 					.datum(data)
 					.transition()
