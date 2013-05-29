@@ -58,7 +58,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	}
 
 	/**
-	 * callerApplicationName이 호출한 callee를 모두 탐색
+	 * callerApplicationName이 호출한 callee를 모두 조회
 	 * 
 	 * @param callerApplicationName
 	 * @param callerServiceType
@@ -77,13 +77,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		}
 		calleeFoundApplications.add(callerApplicationName + callerServiceType);
 
-		logger.debug("Find Callee. caller=" + callerApplicationName + ", serviceType=" + ServiceType.findServiceType(callerServiceType));
+		logger.debug("Find Callee. caller=" + callerApplicationName + ", serviceType=" + ServiceType.findServiceType(callerServiceType) + ", hideIndirectAccess=" + hideIndirectAccess);
 
 		final Set<ApplicationStatistics> calleeSet = new HashSet<ApplicationStatistics>();
 
 		Map<String, ApplicationStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplicationName, callerServiceType, from, to);
 
-		logger.debug("     Found Callee. caller=" + callerApplicationName + " (" + callee.size() + ")");
+		logger.debug("     Found Callee. count=" + callee.size() + ", caller=" + callerApplicationName);
 
 		for (Entry<String, ApplicationStatistics> entry : callee.entrySet()) {
 			boolean replaced = replaceApplicationInfo(entry.getValue(), from, to);
@@ -101,13 +101,38 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 			ApplicationStatistics stat = entry.getValue();
 
+			logger.debug("     Find subCallee of " + stat.getTo());
 			Set<ApplicationStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideIndirectAccess);
+			logger.debug("     Found subCallee. count=" + calleeSub.size() + ", caller=" + stat.getTo());
+			
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
-			if (!hideIndirectAccess) {
-				for (ApplicationStatistics eachCallee : calleeSub) {
-					Set<ApplicationStatistics> callerSub = selectCaller(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideIndirectAccess);
+			for (ApplicationStatistics eachCallee : calleeSub) {
+				// hide indirect access이면 destination이 was인 것만 caller 탐색 (왜냐하면 호출한 녀석과 연결선을 그려주기 위해서.)
+				// was(src) -> was(dest)간의 연결은 dest was에서 src was를 찾는 방식이기 때문. (중간에 client span이 끼어있어서..) 
+				if (hideIndirectAccess && !eachCallee.getFromServiceType().isWas()) {
+					continue;
+				}
+				
+				logger.debug("     Find caller of " + eachCallee.getFrom());
+				Set<ApplicationStatistics> callerSub = selectCaller(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications, hideIndirectAccess);
+				logger.debug("     Found subCaller. count=" + callerSub.size() + ", callee=" + eachCallee.getFrom());
+				
+				if (hideIndirectAccess) {
+					for(ApplicationStatistics as : callerSub) {
+						// 호출한 was와 dest가 같은경우에만 수집.
+						if (callerApplicationName.equals(as.getFrom()) && callerServiceType == as.getFromServiceType().getCode()) {
+							calleeSet.add(as);
+						}
+
+						// TODO client는 일단 표시.
+						if (as.getFromServiceType() == ServiceType.CLIENT) {
+							calleeSet.add(as);
+						}
+					}
+					calleeSet.addAll(callerSub);
+				} else {
 					calleeSet.addAll(callerSub);
 				}
 			}
@@ -133,15 +158,20 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		}
 		callerFoundApplications.add(calleeApplicationName + calleeServiceType);
 
-		logger.debug("Find Caller. callee=" + calleeApplicationName + ", serviceType=" + ServiceType.findServiceType(calleeServiceType));
+		logger.debug("Find Caller. callee=" + calleeApplicationName + ", serviceType=" + ServiceType.findServiceType(calleeServiceType) + ", hideIndirectAccess=" + hideIndirectAccess);
 
 		final Set<ApplicationStatistics> callerSet = new HashSet<ApplicationStatistics>();
 
 		Map<String, ApplicationStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplicationName, calleeServiceType, from, to);
 
-		logger.debug("     Found Caller. callee=" + calleeApplicationName + " (" + caller.size() + ")");
+		logger.debug("     Found Caller. count=" + caller.size() + ", callee=" + calleeApplicationName);
 
 		for (Entry<String, ApplicationStatistics> entry : caller.entrySet()) {
+			// 간접 access를 숨기면 client만 찾는다.
+//			if (hideIndirectAccess && entry.getValue().getFromServiceType() != ServiceType.CLIENT) {
+//				continue;
+//			}
+			
 			fillAdditionalInfo(entry.getValue(), from, to);
 			callerSet.add(entry.getValue());
 
@@ -219,7 +249,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		Set<ApplicationStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications, hideIndirectAccess);
 		Set<ApplicationStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications, hideIndirectAccess);
-
+		
 		Set<ApplicationStatistics> data = new HashSet<ApplicationStatistics>(callee.size() + caller.size());
 		data.addAll(callee);
 		data.addAll(caller);
