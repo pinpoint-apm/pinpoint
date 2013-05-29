@@ -1,8 +1,8 @@
 /**
  * Big Scatter Chart
  * @class BigScatterChart 
- * @version 1.2.3
- * @since May 20, 2013
+ * @version 1.3.2
+ * @since May 28, 2013
  * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
  * @license MIT License
  * @copyright 2013 NHN Corp.
@@ -106,8 +106,6 @@ var BigScatterChart = $.Class({
 			nWidth = this.option('nWidth'),
 			nHeight = this.option('nHeight');
 
-//		this.option('nXSteps', this.option('nXSteps') - 1);
-//		this.option('nYSteps', this.option('nYSteps') - 1);
 		this._nXSteps = this.option('nXSteps') - 1;
 		this._nYSteps = this.option('nYSteps') - 1;
 
@@ -358,18 +356,22 @@ var BigScatterChart = $.Class({
 		_.each(this._htwelChartCanvas, function(welChartCanvas, sKey){
 			this._awelChartCanvasInOrder.push(welChartCanvas);
 		}, this);
-		this._welTypeUl.mousedown(function(event){
-			event.stopPropagation();
+		this._welTypeUl.mousedown(function(e){
+			console.log('ul mousedown');
+			e.stopPropagation();
+			//e.preventDefault();
 		});
 		this._welTypeUl.sortable({
 			axis: 'x',
 			containment: "document",
     		placeholder: sPrefix + 'placeholder',
 			start : function(event, ui){
+				console.log('start');
 				$('.bigscatterchart-placeholder').append('<span>&nbsp;</span>');
 				ui.item.startIndex = ui.item.index();
 			},
 			stop : function(event,ui){
+				console.log('stop');
 				var nZIndexForCanvas = self.option('nZIndexForCanvas');
         		var nStart = ui.item.startIndex,
         			nStop = ui.item.index();
@@ -381,6 +383,24 @@ var BigScatterChart = $.Class({
         		for(var i=0, nLen=self._awelChartCanvasInOrder.length; i<nLen; i++){
         			self._awelChartCanvasInOrder[i].css('z-index', nZIndexForCanvas+i);
         		}
+			},
+			activate : function(e, ui){
+				console.log('activate');
+			},
+			deactivate : function(e, ui){
+				console.log('deactivate');
+			},
+			create : function(e, ui){
+				console.log('create');
+			},
+			remove : function(e, ui){
+				console.log('remove');
+			},
+			update : function(e, ui){
+				console.log('update');
+			},
+			sort : function(e, ui){
+				console.log('sort');
 			}
 		});
 
@@ -408,6 +428,13 @@ var BigScatterChart = $.Class({
 									})
 									.css(htTitleStyle)
 			);
+			// do after image loading
+			setTimeout(function(){
+				var htTypeUlOffset = self._welTypeUl.offset(),
+					htOverlayOffset = self._welOverlay.offset(),
+					nLeftGap = htTypeUlOffset.left - htOverlayOffset.left;
+				self._welTitle.width(nLeftGap - 5)
+			}, 1000);
 		}		
 		
 		// config
@@ -471,6 +498,10 @@ var BigScatterChart = $.Class({
 		this._welConfigApply.click(function(){
 			var nYMin = parseInt($('#' + sYMin).val(), 10),
 				nYMax = parseInt($('#' + sYMax).val(), 10);
+			if(nYMin >= nYMax){
+				alert('Min of Y axis is should be smaller than ' + nYMax);
+				return;
+			}
 			self.option('nYMin', nYMin);
 			self.option('nYMax', nYMax);
 			fConfigToggle();
@@ -485,17 +516,18 @@ var BigScatterChart = $.Class({
 		var htCheckBoxImage = this.option('htCheckBoxImage');
 		_.each(this._htwelTypeLi, function(welTypeLi, sKey){
 			welTypeLi.click(function(e){
-					e.preventDefault();
-					self._htwelChartCanvas[sKey].toggle();
-					if(!welTypeLi.hasClass('unchecked')){
-						welTypeLi.addClass('unchecked')
-						welTypeLi.css('background-image', 'url('+htCheckBoxImage.unchecked+')');
-					}else{
-						welTypeLi.removeClass('unchecked')
-						welTypeLi.css('background-image', 'url('+htCheckBoxImage.checked+')');
-					};
+				console.log('li click')
+				e.preventDefault();
+				self._htwelChartCanvas[sKey].toggle();
+				if(!welTypeLi.hasClass('unchecked')){
+					welTypeLi.addClass('unchecked')
+					welTypeLi.css('background-image', 'url('+htCheckBoxImage.unchecked+')');
+				}else{
+					welTypeLi.removeClass('unchecked')
+					welTypeLi.css('background-image', 'url('+htCheckBoxImage.checked+')');
+				};
 
-				});
+			});
 		}, this);
 
 		var sDragToSelectClassName = this.option('sDragToSelectClassName');
@@ -1103,11 +1135,11 @@ var BigScatterChart = $.Class({
 	},
 
 	destroy : function(){
+		this._unbindAllEvents();
 		this._empty();
 		_.each(this, function(content, property){
 			delete this[property];
 		}, this);
-		this._unbindAllEvents();
 		this._bDestroied = true;
 	},
 	
@@ -1116,6 +1148,7 @@ var BigScatterChart = $.Class({
 	},
 	
 	_unbindAllEvents : function(){
+		this._welTypeUl.sortable('destroy');
 		// this is for drag-selecting. it should be unbinded.
 		jQuery(document).unbind('mousemove').unbind('mouseup');
 	},
@@ -1287,12 +1320,12 @@ var BigScatterChart = $.Class({
 					], self._nXMax + 1000)
 			}*/
 			htDataSource = self.option('htDataSource'); // refresh
-			var nInterval = htDataSource.nFetch.call(this, self._htLastFechedParam, htData);
+			var nInterval = htDataSource.nFetch.call(self, self._htLastFechedParam, htData);
 			if(nInterval > -1){
 				setTimeout(function(){
 					self._drawWithDataSource();
 				}, nInterval);
-			}else if(this._aBubbles.length === 0){
+			}else if(self._aBubbles.length === 0){
 				self._showNoData();
 				self._welShowNoData.text(self.option('sShowNoData'));
 			}
@@ -1312,8 +1345,8 @@ var BigScatterChart = $.Class({
 	},
 	
 	_redraw : function(){
+//		this._unbindAllEvents(); // if unbind all, the sortable type will be not working.
 		this._empty();
-		this._unbindAllEvents();
 		
 		this._initVariables(true);
 		this._initElements();
@@ -1321,5 +1354,6 @@ var BigScatterChart = $.Class({
 		this._drawXYAxis();
 		this.updateXYAxis();
 		this.redrawBubbles();
+		
 	}
 });
