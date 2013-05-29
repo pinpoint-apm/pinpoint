@@ -127,7 +127,7 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
-	showServerMap("${applicationName}", "${serviceType}", ${from}, ${to}, 0, false, "${filterText}", function() {
+	showServerMap("${applicationName}", "${serviceType}", ${from}, ${to}, 0, false, "${filterText}", false, function() {
 		$("#progressbar").hide();
 	});
 	showResponseScatter("${applicationName}", ${from}, ${to}, 0, false, "${filterText}");
