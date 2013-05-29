@@ -100,7 +100,7 @@
 			  </a>
 			  <ul class="dropdown-menu">
 				<li><a href="#" id="mergeUnknown" data-selected="true"><i class="icon-ok"></i> Merge unknowns</a></li>
-				<li><a href="#" id="hideDependencies" data-selected="false"><i class="icon-ok icon-white"></i> Hide dependencies</a></li>
+				<li><a href="#" id="hideIndirectAccess" data-selected="false"><i class="icon-ok icon-white"></i> Hide indirect access</a></li>
 			  </ul>
 			</div>
           </li>
@@ -161,8 +161,8 @@ var Nav;
 $(document).ready(function () {
 	Nav = new _PinpointNavigationBar();
 	
-	$("#mergeUnknown").bind('click', toggleMerge);
-	$("#hideDependencies").bind('click', toggleHideDependencies);
+	$("#mergeUnknown").bind('click', toggleMergeUnknowns);
+	$("#hideIndirectAccess").bind('click', toggleHideIndirectAccess);
 	
    	$('#date').datepicker().on('changeDate', function(ev){
    		updateCharts();
@@ -215,7 +215,7 @@ $(document).ready(function () {
     	
     	$("#progressbar").show();
     	
-    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideDependencies(), function() { $("#progressbar").hide(); });
+    	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideIndirectAccess(), function() { $("#progressbar").hide(); });
     	showResponseScatter(Nav.getApplicationName(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     }
     

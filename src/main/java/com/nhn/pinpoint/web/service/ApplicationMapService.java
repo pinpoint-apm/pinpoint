@@ -13,8 +13,8 @@ public interface ApplicationMapService {
 	 * @param serviceType
 	 * @param from
 	 * @param to
-	 * @param hideDependencies
+	 * @param hideIndirectAccess
 	 * @return
 	 */
-	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to, boolean hideDependencies);
+	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to, boolean hideIndirectAccess);
 }

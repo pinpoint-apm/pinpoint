@@ -39,7 +39,7 @@ var _PinpointNavigationBar = $.Class({
 		return false;
 		// return $(".btn#now.active").length > 0;
 	},
-	isHideDependencies : function() {
-		return $("#hideDependencies").data('selected');
+	isHideIndirectAccess : function() {
+		return $("#hideIndirectAccess").data('selected');
 	}
 });

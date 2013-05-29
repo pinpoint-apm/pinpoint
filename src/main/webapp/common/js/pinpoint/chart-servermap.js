@@ -216,7 +216,7 @@ function getServerMapData2(query, callback) {
     		serviceType : query.serviceType,
     		from : query.from,
     		to : query.to,
-    		hideDependencies : query.hideDependencies
+    		hideIndirectAccess : query.hideIndirectAccess
     	},
     	success : function(result) {
     		callback(query, result);
@@ -237,7 +237,7 @@ function getLastServerMapData2(query, callback) {
     		application : query.applicationName,
     		serviceType : query.serviceType,
     		period : query.period,
-    		hideDependencies : query.hideDependencies
+    		hideIndirectAccess : query.hideIndirectAccess
     	},
     	success : function(result) {
     		callback(query, result);
@@ -273,7 +273,7 @@ function getFilteredServerMapData(query, callback) {
 var serverMapCachedData;
 var serverMapCachedQuery;
 
-function toggleMerge(e) {
+function toggleMergeUnknowns(e) {
 	var target = $("#mergeUnknown");
 	var selected = target.data('selected');
 	
@@ -297,22 +297,22 @@ function toggleMerge(e) {
 	}
 }
 
-function toggleHideDependencies(e) {
-	var target = $("#hideDependencies");
+function toggleHideIndirectAccess(e) {
+	var target = $("#hideIndirectAccess");
 	var selected = target.data('selected');
 	
 	if (selected) {
 		target.data('selected', false);
 		selected = false;
-		target.html('<i class="icon-ok icon-white"></i> Hide dependencies');
+		target.html('<i class="icon-ok icon-white"></i> Hide indirect access');
 	} else {
 		target.data('selected', true);
 		selected = true;		
-		target.html('<i class="icon-ok"></i> Hide dependencies');
+		target.html('<i class="icon-ok"></i> Hide indirect access');
 	}
 
 	$("#progressbar").show();
-	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideDependencies(), function() { $("#progressbar").hide(); });
+	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideIndirectAccess(), function() { $("#progressbar").hide(); });
 }
 
 var serverMapCallback = function(query, data, ignoreCache) {
@@ -397,7 +397,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
     oServerMap.load(data.applicationMapData);
 };
 
-function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, hideDependencies, cb) {
+function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, hideIndirectAccess, cb) {
 	console.log("showServerMap", applicationName, serviceType, from, to, period, usePeriod, filterText, cb);
 	
 	emptyDetailPanel();
@@ -416,7 +416,7 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 		period : period,
 		usePeriod : usePeriod,
 		filter : filterText,
-		hideDependencies : hideDependencies
+		hideIndirectAccess : hideIndirectAccess
 	};
 
 	console.log("filterText", filterText);

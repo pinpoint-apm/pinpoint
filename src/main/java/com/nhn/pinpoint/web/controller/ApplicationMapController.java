@@ -43,9 +43,9 @@ public class ApplicationMapController {
 									@RequestParam("serviceType") short serviceType, 
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
-									@RequestParam(value = "hideDependencies", defaultValue = "false") boolean hideDependencies) {
+									@RequestParam(value = "hideIndirectAccess", defaultValue = "false") boolean hideIndirectAccess) {
 		
-		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to, hideDependencies);
+		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to, hideIndirectAccess);
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -59,11 +59,11 @@ public class ApplicationMapController {
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
 										@RequestParam("period") long period,
-										@RequestParam(value = "hideDependencies", defaultValue = "false") boolean hideDependencies) {
+										@RequestParam(value = "hideIndirectAccess", defaultValue = "false") boolean hideIndirectAccess) {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData2(model, response, applicationName, serviceType, from, to, hideDependencies);
+		return getServerMapData2(model, response, applicationName, serviceType, from, to, hideIndirectAccess);
 	}
 
 	@RequestMapping(value = "/filtermap", method = RequestMethod.GET)
