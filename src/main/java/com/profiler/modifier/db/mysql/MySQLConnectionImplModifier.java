@@ -17,7 +17,7 @@ import com.profiler.logging.LoggerFactory;
 
 public class MySQLConnectionImplModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MySQLConnectionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

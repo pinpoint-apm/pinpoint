@@ -18,7 +18,7 @@ import com.profiler.logging.LoggerFactory;
  */
 public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MySQLNonRegisteringDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

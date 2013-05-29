@@ -13,7 +13,7 @@ import com.profiler.logging.LoggerFactory;
 // TODO 추가 개발해야 될듯.
 public class MySQLResultSetModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MySQLResultSetModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MySQLResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

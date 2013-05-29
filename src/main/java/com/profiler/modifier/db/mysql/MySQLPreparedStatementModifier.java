@@ -25,7 +25,7 @@ import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
-    private final Logger logger = LoggerFactory.getLogger(MySQLPreparedStatementModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String[] excludes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
     public MySQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
