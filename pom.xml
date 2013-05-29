@@ -113,6 +113,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.1.0.7.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-bloc-http11</artifactId>
             <version>5.5.23</version>
