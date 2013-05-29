@@ -96,6 +96,17 @@ public class JDBCUrlParserTest {
         logger.info(dbInfo.toString());
     }
 
+    @Test
+    public void oracleParserServiceName() {
+        //    jdbc:oracle:thin:@hostname:port:SID
+//      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port/serviceName");
+        Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
+        Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "serviceName");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port/serviceName");
+        logger.info(dbInfo.toString());
+    }
 
     @Test
     public void oracleRacParser1() {
@@ -117,69 +128,5 @@ public class JDBCUrlParserTest {
         logger.info(dbInfo.toString());
     }
 
-    @Test
-    public void regexTest1() {
-        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
-                "(CONNECT_DATA=(SERVICE_NAME=service)))";
 
-//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
-//        Assert.assertTrue(matcher.matches());
-    }
-
-    @Test
-    public void regexTest2() {
-        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
-                "(CONNECT_DATA=(SERVICE_NAME=service)))";
-
-//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
-//        Assert.assertTrue(matcher.matches());
-    }
-
-    @Test
-    public void regexTest3() {
-        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-                "(   ADDRESS = ( PROTOCOL=TCP) ( HOST = 1.2.3.4) ( PORT =1521))" +
-                "(ADDRESS= (PROTOCOL =TCP)(HOST = 1.2.3.5) (PORT= 1522 ))" +
-                "(CONNECT_DATA=(SERVICE_NAME=service)))";
-
-//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
-//
-//        Assert.assertTrue(matcher.matches());
-//        dumpGroup(matcher);
-    }
-
-    private void dumpGroup(Matcher matcher) {
-        int groupSize = matcher.groupCount();
-        for (int i = 0; i < groupSize; i++) {
-            String group = matcher.group(i);
-            System.out.println("group " + i + "=" + group);
-        }
-    }
-
-
-    @Test
-    public void regexInvalidAddressTest1() {
-        String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
-                "(CONNECT_DATA=(SERVICE_NAME=service)))";
-
-//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
-//        Assert.assertFalse(matcher.matches());
-    }
-
-//    @Test
-//    public void regexInvalidAddressTest2() {
-//        String rac = "jdbc:oracle:thin:@(Description=(LOAD_BALANCE=on)" +
-////                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-//                "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
-//                "(CONNECT_DATA=(SERVICE_NAME=service)))";
-//
-//        Matcher matcher = JDBCUrlParser.oracleRAC.matcher(rac);
-//        Assert.assertFalse(matcher.matches());
-//    }
 }

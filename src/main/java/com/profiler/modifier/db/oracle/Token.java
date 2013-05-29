@@ -28,4 +28,14 @@ public class Token {
     public void setType(int type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Token");
+        sb.append("{token='").append(token).append('\'');
+        sb.append(", type=").append(type);
+        sb.append('}');
+        return sb.toString();
+    }
 }

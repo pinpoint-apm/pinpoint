@@ -131,6 +131,28 @@ public class StringMaker {
         return this;
     }
 
+    public StringMaker before(char ch1, char ch2) {
+        int index = indexOf(ch1, ch2);
+//        int index = indexing.indexOf(ch1, begin);
+
+        if (index < 0 || index > end) {
+            return this;
+        }
+
+        end = index < begin ? begin : index;
+        return this;
+    }
+
+    private int indexOf(char ch1, char ch2) {
+        for(int i = begin; i< indexing.length(); i++) {
+            final char c = indexing.charAt(i);
+            if (c == ch1 || c == ch2) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /**
      * Before.
      *
@@ -163,6 +185,45 @@ public class StringMaker {
 
         begin = index + 1 > end ? end : index + 1;
         return this;
+    }
+
+    public int getBeginIndex() {
+        return begin;
+    }
+
+    public int getEndIndex() {
+        return end;
+    }
+
+
+    /**
+     * ch1이나 ch2중 하나가 발견될때까지 역으로 스캔
+     * @param ch1
+     * @param ch2
+     * @return
+     */
+    public StringMaker afterLast(char ch1, char ch2) {
+        int index = lastIndexOf(indexing, end, ch1, ch2);
+        if (index < begin) {
+            return this;
+        }
+
+        begin = index + 1 > end ? end : index + 1;
+        return this;
+    }
+
+
+
+    int lastIndexOf(String string, int end, char ch1, char ch2) {
+        int i = end;
+        for (; i >= begin; i--) {
+            final char c = string.charAt(i - 1);
+            if (ch1 == c || ch2 == c)  {
+                return i-1;
+            }
+        }
+        // 찾지 못함..
+        return -1;
     }
 
     /**

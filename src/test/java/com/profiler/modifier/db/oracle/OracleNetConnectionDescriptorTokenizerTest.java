@@ -6,7 +6,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OracleConnectionStringTokenizerTest {
+public class OracleNetConnectionDescriptorTokenizerTest {
 
     @Test
     public void trimLeft() {
@@ -29,8 +29,8 @@ public class OracleConnectionStringTokenizerTest {
 
 
     private void assertTrimLeft(String token, String result) {
-        OracleConnectionStringTokenizer oracleConnectionStringTokenizer = new OracleConnectionStringTokenizer(token);
-        int leftTrimIndex = oracleConnectionStringTokenizer.trimLeft();
+        OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
+        int leftTrimIndex = tokenizer.trimLeft();
         Assert.assertEquals(wrap(result), wrap(token.substring(leftTrimIndex)));
     }
 
@@ -50,8 +50,8 @@ public class OracleConnectionStringTokenizerTest {
     }
 
     private void assertTrimRight(String token, String result) {
-        OracleConnectionStringTokenizer oracleConnectionStringTokenizer = new OracleConnectionStringTokenizer(token);
-        int rightTrimIndex = oracleConnectionStringTokenizer.trimRight(token.length());
+        OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
+        int rightTrimIndex = tokenizer.trimRight(token.length());
         Assert.assertEquals(wrap(result), wrap(token.substring(0, rightTrimIndex)));
     }
 
@@ -81,12 +81,16 @@ public class OracleConnectionStringTokenizerTest {
     }
 
     private void assertCompareToken(String token, String... parsedTokens) {
-        OracleConnectionStringTokenizer oracleConnectionStringTokenizer = new OracleConnectionStringTokenizer(token);
-        oracleConnectionStringTokenizer.parse();
+        OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
+        tokenizer.parse();
 
         int index = 0;
         while(true) {
-            Token t = oracleConnectionStringTokenizer.nextToken();
+            Token t = tokenizer.nextToken();
+            // EOF 오브젝트가 추가되서 테스트가 깨짐.
+            if (t != null && t == OracleNetConnectionDescriptorTokenizer.TOKEN_EOF_OBJECT) {
+                return;
+            }
 
             if (t == null) {
                 break;
@@ -96,8 +100,8 @@ public class OracleConnectionStringTokenizerTest {
     }
 
     private void AssertParseLiteral(String token, String result) {
-        OracleConnectionStringTokenizer oracleConnectionStringTokenizer = new OracleConnectionStringTokenizer(token);
-        String literal = oracleConnectionStringTokenizer.parseLiteral();
+        OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
+        String literal = tokenizer.parseLiteral();
         Assert.assertEquals(wrap(result), wrap(literal));
     }
 

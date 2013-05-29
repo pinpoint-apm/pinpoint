@@ -3,9 +3,7 @@ package com.profiler.modifier.db;
 import com.profiler.common.ServiceType;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.modifier.db.oracle.KeyValue;
-import com.profiler.modifier.db.oracle.OracleConnectionStringException;
-import com.profiler.modifier.db.oracle.OracleURLParser;
+import com.profiler.modifier.db.oracle.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,78 +110,58 @@ public class JDBCUrlParser {
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:oracle:").after(":");
         String description = maker.after('@').value().trim();
-
         if (description.startsWith("(")) {
-            try {
-                // oracle new URL : rac용
-                OracleURLParser parser = new OracleURLParser(url);
-                KeyValue keyValue = parser.parse();
-
-                return createOracleDatabaseInfo(keyValue, url);
-            } catch (OracleConnectionStringException ex) {
-                logger.warn("OracleConnectionStringParse Error Caused:", ex.getMessage(), ex);
-                logger.warn("OracleConnectionString parse error:{}", url);
-                // 에러찍고 그냥 unknownDataBase 생성
-            }
-            return createUnknownDataBase(url);
+            return parseNetConnectionUrl(url);
         } else {
-            // thin driver
-            // jdbc:oracle:thin:@hostname:port:SID
-            // "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-            String host = maker.before(':').value();
-            String port = maker.next().after(':').before(':').value();
-            String databaseId = maker.next().afterLast(':').value();
-            List<String> hostList = new ArrayList<String>(1);
-            hostList.add(host + ":" + port);
-            return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+            return parseSimpleUrl(url, maker);
         }
+    }
+
+    private DatabaseInfo parseNetConnectionUrl(String url) {
+        try {
+            // oracle new URL : rac용
+            OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
+            KeyValue keyValue = parser.parse();
+            // TODO oci 드라이버 일경우의 추가 처리가 필요함. nhn말고 왠간한데는 oci를 더 많이 씀.
+//                parser.getDriverType();
+            return createOracleDatabaseInfo(keyValue, url);
+        } catch (OracleConnectionStringException ex) {
+            logger.warn("OracleConnectionStringParse Error Caused:", ex.getMessage(), ex);
+            logger.warn("OracleConnectionString parse error:{}", url);
+            // 에러찍고 그냥 unknownDataBase 생성
+            return createUnknownDataBase(url);
+        } catch (Throwable ex) {
+            // 나중에 좀더 정교하게 exception을 던지게 되면 OracleConnectionStringException 만 잡는것으로 바꿔야 될듯하다.
+            logger.warn("OracleConnectionStringParse Error Caused:", ex.getMessage(), ex);
+            logger.warn("OracleConnectionString parse error:{}", url);
+            // 에러찍고 그냥 unknownDataBase 생성
+            return createUnknownDataBase(url);
+        }
+    }
+
+    private DatabaseInfo parseSimpleUrl(String url, StringMaker maker) {
+        // thin driver
+        // jdbc:oracle:thin:@hostname:port:SID
+        // "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
+//      jdbc:oracle:thin:@//hostname:port/serviceName
+        String host = maker.before(':').value();
+        String port = maker.next().after(':').before(':', '/').value();
+        String databaseId = maker.next().afterLast(':', '/').value();
+
+        List<String> hostList = new ArrayList<String>(1);
+        hostList.add(host + ":" + port);
+        return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
     }
 
     private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
-        if (!"description".equals(keyValue.getKey())) {
-            throw new OracleConnectionStringException("description not exist");
-        }
 
-        List<String> hostList = findAddress(keyValue);
-        String oracleDatabaseId = getOracleDatabaseId(keyValue);
-        return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, oracleDatabaseId);
+        Description description = new Description(keyValue);
+        List<String> jdbcHost = description.getJdbcHost();
+
+        return new DatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, jdbcHost, description.getDatabaseId());
 
     }
 
-    public String getOracleDatabaseId(KeyValue keyValue) {
-        List<KeyValue> keyValueList = keyValue.getKeyValueList();
-        for (KeyValue kv : keyValueList) {
-            if ("connect_data".equals(kv.getKey())) {
-                List<KeyValue> connectDataList = kv.getKeyValueList();
-                for (KeyValue connectDataNode : connectDataList) {
-                    if ("service_name".equals(connectDataNode.getKey())) {
-                        return connectDataNode.getValue();
-                    }
-                }
-            }
-        }
-        return "oracleDatabaseId not found";
-    }
-
-    private List<String> findAddress(KeyValue keyValue) {
-        List<String> hostList = new ArrayList<String>();
-
-        List<KeyValue> keyValueList = keyValue.getKeyValueList();
-        for (KeyValue kv : keyValueList) {
-            if ("address".equals(kv.getKey())) {
-                KeyValue host = new KeyValue();
-                for (KeyValue addressChild : kv.getKeyValueList()) {
-                    if ("host".equals(addressChild.getKey())) {
-                        host.setKey(addressChild.getValue());
-                    } else if ("port".equals(addressChild.getKey())) {
-                        host.setValue(addressChild.getValue());
-                    }
-                }
-                hostList.add(host.getKey() + ":" + host.getValue());
-            }
-        }
-        return hostList;
-    }
 
     private DatabaseInfo createUnknownDataBase(String url) {
         List<String> list = new ArrayList<String>();

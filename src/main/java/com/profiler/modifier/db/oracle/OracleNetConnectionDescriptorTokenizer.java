@@ -6,11 +6,18 @@ import java.util.List;
 /**
  *
  */
-public class OracleConnectionStringTokenizer {
+public class OracleNetConnectionDescriptorTokenizer {
 
     public static final char TOKEN_EQUAL = '=';
     public static final char TOKEN_KEY_START = '(';
     public static final char TOKEN_KEY_END = ')';
+
+//    사실 아래 토큰이 더 있음 추후 이슈 발생시 추가로 구현이 필요함.
+//    현재는 그냥 지원하지 않는다고 에러나 발생시키자.
+    private static final char TOKEN_COMMA = ',';
+    private static final char TOKEN_BKSLASH = '\\';
+    private static final char TOKEN_DQUOTE = '"';
+    private static final char TOKEN_SQUOTE = '\'';
 
     public static final int TYPE_KEY_START = 0;
     public static final Token TOKEN_KEY_START_OBJECT = new Token(String.valueOf(TOKEN_KEY_START), TYPE_KEY_START);
@@ -23,13 +30,16 @@ public class OracleConnectionStringTokenizer {
 
     public static final int TYPE_LITERAL = 3;
 
+    public static final int TYPE_EOF = -1;
+    public static final Token TOKEN_EOF_OBJECT = new Token("EOF", TYPE_EOF);
+
     private final List<Token> tokenList = new ArrayList<Token>();
     private int tokenPosition = 0;
 
     private final String connectionString;
     private int position = 0;
 
-    public OracleConnectionStringTokenizer(String connectionString) {
+    public OracleNetConnectionDescriptorTokenizer(String connectionString) {
         if (connectionString == null) {
             throw new NullPointerException("connectionString");
         }
@@ -55,12 +65,19 @@ public class OracleConnectionStringTokenizer {
                 case TOKEN_KEY_END:
                     this.tokenList.add(TOKEN_KEY_END_OBJECT);
                     break;
+                case TOKEN_COMMA:
+                case TOKEN_BKSLASH:
+                case TOKEN_DQUOTE:
+                case TOKEN_SQUOTE:
+                    // TODO 위 4개 토큰에 대해서 추가 구현이 필요함.
+                    // 사내에서는 안쓰고 어떻게 구문이 완성되는건지 모르니 일단 skip하자.
+                    throw new OracleConnectionStringException("unsupported token:" + ch);
                 default:
                     String literal = parseLiteral();
                     addToken(literal, TYPE_LITERAL);
             }
         }
-        return ;
+        this.tokenList.add(TOKEN_EOF_OBJECT);
     }
 
     String parseLiteral() {
@@ -75,6 +92,7 @@ public class OracleConnectionStringTokenizer {
                 case TOKEN_KEY_END:
                     // literal 의 오른쪽 빈칸을 감는다.
                     int end = trimRight(position);
+                    // 마지막 토큰을 본것은 다시 리셋해야 되므로 pos를 역으로 치환.
                     position--;
                     return connectionString.substring(start, end);
                 default:
@@ -160,11 +178,11 @@ public class OracleConnectionStringTokenizer {
     public void checkEqualToken() {
         Token token = this.nextToken();
         if (token == null) {
-            throw new OracleConnectionStringException("parse error. token is null");
+            throw new OracleConnectionStringException("parse error. token is null. Expected token='='");
         }
         // 객체를 재활용한므로 == 해도됨
         if (!(token == TOKEN_EQUAL_OBJECT)) {
-            throw new OracleConnectionStringException("syntax error. Expected token='=' :" + token.getToken());
+            throw new OracleConnectionStringException("Syntax error. Expected token='=' :" + token.getToken());
         }
         return ;
     }
@@ -172,11 +190,11 @@ public class OracleConnectionStringTokenizer {
     public void checkEndToken() {
         Token token = this.nextToken();
         if (token == null) {
-            throw new OracleConnectionStringException("parse error. token is null");
+            throw new OracleConnectionStringException("parse error. token is null. Expected token=')");
         }
         // 객체를 재활용한므로 == 해도됨
         if (!(token == TOKEN_KEY_END_OBJECT)) {
-            throw new OracleConnectionStringException("syntax error. Expected token=')' :" + token.getToken());
+            throw new OracleConnectionStringException("Syntax error. Expected token=')' :" + token.getToken());
         }
         return;
     }
@@ -184,11 +202,11 @@ public class OracleConnectionStringTokenizer {
     public Token getLiteralToken() {
         Token token = this.nextToken();
         if (token == null) {
-            throw new OracleConnectionStringException("parse error. token is null");
+            throw new OracleConnectionStringException("parse error. token is null. Expected token='LITERAL'");
         }
         // 객체를 재활용한므로 == 해도됨
         if (!(token.getType() == TYPE_LITERAL)) {
-            throw new OracleConnectionStringException("syntax error. Expected token=( :" + token.getToken());
+            throw new OracleConnectionStringException("Syntax error. Expected token='LITERAL'' :" + token.getToken());
         }
         return token;
     }
@@ -196,14 +214,14 @@ public class OracleConnectionStringTokenizer {
     public Token getLiteralToken(String expectedValue) {
         Token token = this.nextToken();
         if (token == null) {
-            throw new OracleConnectionStringException("parse error. token is null");
+            throw new OracleConnectionStringException("parse error. token is null. Expected token='LITERAL'");
         }
         // 객체를 재활용한므로 == 해도됨
         if (!(token.getType() == TYPE_LITERAL)) {
-            throw new OracleConnectionStringException("syntax error. Expected token=( :" + token.getToken());
+            throw new OracleConnectionStringException("Syntax error. Expected token='LITERAL' :" + token.getToken());
         }
         if (!expectedValue.equals(token.getToken())) {
-            throw new OracleConnectionStringException("syntax error. Expected token=" + expectedValue + "' :" + token.getToken());
+            throw new OracleConnectionStringException("Syntax error. Expected token=" + expectedValue + "' :" + token.getToken());
         }
         return token;
     }
