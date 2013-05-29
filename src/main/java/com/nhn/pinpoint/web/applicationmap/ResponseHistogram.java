@@ -16,6 +16,7 @@ public class ResponseHistogram {
 	private final Histogram histogram;
 	private final long[] values;
 
+	private long totalCount;
 	private long errorCount;
 	private long slowCount;
 
@@ -25,12 +26,16 @@ public class ResponseHistogram {
 		// TODO value에 저장하는 구조 추가 수정 필요.
 		int size = histogram.getHistogramSlotList().size();
 		values = new long[size];
-
 	}
 
 	public void addSample(short slot, long value) {
+		totalCount += value;
+		
 		if (slot == 0) { // 0 is slow slot
 			slowCount += value;
+		} else if (slot == -1) { // -1 is error
+			errorCount += value;
+			return;
 		}
 
 		int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
@@ -38,20 +43,6 @@ public class ResponseHistogram {
 			return;
 		}
 		values[histogramSlotIndex] += value;
-	}
-
-	public void addSample(long elapsed) {
-
-		int histogramSlotIndex = histogram.findHistogramSlotIndex((int) elapsed);
-		if (histogramSlotIndex == -1) {
-			slowCount++;
-			return;
-		}
-		values[histogramSlotIndex]++;
-	}
-
-	public void incrErrorCount(long value) {
-		errorCount += value;
 	}
 
 	public ServiceType getServiceType() {
@@ -71,11 +62,7 @@ public class ResponseHistogram {
 	}
 
 	public long getTotalCount() {
-		long total = errorCount + slowCount;
-		for (long v : values) {
-			total += v;
-		}
-		return total;
+		return totalCount;
 	}
 
 	public void mergeWith(ResponseHistogram histogram) {
@@ -88,6 +75,7 @@ public class ResponseHistogram {
 			values[i] += otherValues[i];
 		}
 
+		this.totalCount += histogram.totalCount;
 		this.errorCount += histogram.errorCount;
 		this.slowCount += histogram.slowCount;
 	}

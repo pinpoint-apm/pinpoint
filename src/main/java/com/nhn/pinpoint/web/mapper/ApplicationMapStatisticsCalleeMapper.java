@@ -70,14 +70,16 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
 			if (stat.containsKey(id)) {
 				ApplicationStatistics statistics = stat.get(id);
 				if (isError) {
-					statistics.getHistogram().incrErrorCount(requestCount);
+					statistics.getHistogram().addSample((short) -1, 1L);
+					// statistics.getHistogram().incrErrorCount(requestCount);
 				} else {
 					statistics.getHistogram().addSample(histogramSlot, requestCount);
 				}
 			} else {
 				ApplicationStatistics statistics = new ApplicationStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
 				if (isError) {
-					statistics.getHistogram().incrErrorCount(requestCount);
+					statistics.getHistogram().addSample((short) -1, 1L);
+					// statistics.getHistogram().incrErrorCount(requestCount);
 				} else {
 					statistics.getHistogram().addSample(histogramSlot, requestCount);
 				}

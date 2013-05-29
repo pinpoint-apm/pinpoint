@@ -44,7 +44,11 @@
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.slowCount},
-				"histogram" : ${link.histogram}
+				"histogram" : ${link.histogram},
+				<c:choose>
+					<c:when test="${(link.histogram.errorCount / link.histogram.totalCount * 100) > 10}">"category" : "bad"</c:when>
+					<c:otherwise>"category" : "default"</c:otherwise>
+				</c:choose>
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>   	
 		]
