@@ -60,7 +60,10 @@ public class MetaObject<R> {
 
     private Method getMethod(Class aClass) {
         try {
-            return aClass.getMethod(this.methodName, this.args);
+            Method method = aClass.getMethod(this.methodName, this.args);
+            // package등과 같이 access 제한이 걸려 있을 경우 강 푼다.
+            method.setAccessible(true);
+            return method;
         } catch (NoSuchMethodException e) {
             logger.warn("{} not found cls:{} Caused:{}", new Object[] { this.methodName, aClass, e.getMessage(), e });
             return null;

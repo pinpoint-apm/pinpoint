@@ -70,7 +70,7 @@ public class OracleNetConnectionDescriptorParser {
         } else if(normalizedUrl.startsWith("@", thinLength)) {
             return thinLength + 1;
         } else {
-            throw new IllegalArgumentException("invalid oracle jdbc url");
+            throw new OracleConnectionStringException("invalid oracle jdbc url:" + driverUrl);
         }
     }
 
@@ -120,6 +120,7 @@ public class OracleNetConnectionDescriptorParser {
             } else {
                 // START, END, LITERAL 을 다 체크하므로 불가능한거 같긴한데.
                 // 향후 추가 토큰이 발생하면 에러 발생이 가능함.
+                // 문법이 잘못됬을 경우 EOF가 오거나 할 수있음.
                 throw new OracleConnectionStringException("Syntax error. " + token.getToken());
             }
         }
