@@ -29,9 +29,7 @@ import com.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
 import com.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
 import com.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
 import com.profiler.modifier.db.mysql.MySQLStatementModifier;
-import com.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
-import com.profiler.modifier.db.oracle.OracleResultSetModifier;
-import com.profiler.modifier.db.oracle.OracleStatementModifier;
+import com.profiler.modifier.db.oracle.*;
 import com.profiler.modifier.method.MethodModifier;
 import com.profiler.modifier.servlet.FilterModifier;
 import com.profiler.modifier.servlet.HttpServletModifier;
@@ -189,16 +187,20 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addOracleDriver() {
+        Modifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleDriverModifier);
 
-		// TODO oracle의 경우 connection에 대한 impl이 없음. 확인필요.
+        Modifier mssqlConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
+        addModifier(mssqlConnectionModifier);
+//
 		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(oraclePreparedStatementModifier);
-
-		Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor, agent);
-		addModifier(oracleStatement);
-
-		Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
-		addModifier(oracleResultSetModifier);
+//
+//		Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor, agent);
+//		addModifier(oracleStatement);
+//
+//		Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
+//		addModifier(oracleResultSetModifier);
 	}
 
 	private void addCubridDriver() {

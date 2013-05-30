@@ -68,6 +68,8 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);
             // clean 타이밍을 변경해야 될듯 하다.
+            // clearParameters api가 따로 있으나, 구지 캡쳐 하지 않아도 될듯함.시간남으면 하면 좋기는 함.
+            // ibatis 등에서 확인해봐도 cleanParameters 의 경우 대부분의 경우 일부러 호출하지 않음.
             clean(target);
 
 

@@ -18,12 +18,13 @@ import com.profiler.util.NumberUtils;
 
 public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isInfoEnabled();
 
     private MethodDescriptor descriptor;
 
     private TraceContext traceContext;
+//    private ContainerAcceptor acceptor = new ContainerAcceptor(logger, ServiceType.TOMCAT);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -37,6 +38,8 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             HttpServletRequest request = (HttpServletRequest) args[0];
             String requestURL = request.getRequestURI();
             String remoteAddr = request.getRemoteAddr();
+            String port = Integer.toString(request.getServerPort());
+            String endPoint = request.getServerName() + ":" + port;
 
             // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
             boolean sampling = samplingEnable(request);
@@ -83,8 +86,8 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             trace.recordServiceType(ServiceType.TOMCAT);
             trace.recordRpcName(requestURL);
 
-            int port = request.getServerPort();
-            trace.recordEndPoint(request.getServerName() + ((port > 0) ? ":" + port : ""));
+
+            trace.recordEndPoint(endPoint);
             trace.recordRemoteAddr(remoteAddr);
             
             // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
