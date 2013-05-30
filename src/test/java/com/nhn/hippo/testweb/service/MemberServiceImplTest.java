@@ -24,12 +24,12 @@ public class MemberServiceImplTest {
 	@Before
 	public void setUp() {
 		memberService = new MemberServiceImpl();
-		memberService.dao = dao;
+        memberService.setDao(dao);
 	}
 
 	@Test
 	public void mockup() {
-		assertThat(memberService.dao, is(notNullValue()));
+		assertThat(memberService.getDao(), is(notNullValue()));
 	}
 
 	/**

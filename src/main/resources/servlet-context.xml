@@ -14,7 +14,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- Enables the Spring MVC @Controller programming model -->
-	<tx:annotation-driven />
+	<tx:annotation-driven transaction-manager="mysqlTransactionManager"/>
 
 	<context:component-scan base-package="com.nhn.hippo" />
 

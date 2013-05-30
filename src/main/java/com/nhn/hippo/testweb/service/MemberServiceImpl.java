@@ -11,14 +11,22 @@ import com.nhn.hippo.testweb.domain.Member;
 import com.nhn.hippo.testweb.repository.MemberDao;
 
 @Service
-@Transactional
+@Transactional("mysqlTransactionManager")
 public class MemberServiceImpl implements MemberService {
 
 	@Autowired
 	@Qualifier("memberDaoJdbc")
-	MemberDao dao;
+	private MemberDao dao;
 
-	public void add(Member member) {
+    public MemberDao getDao() {
+        return dao;
+    }
+
+    public void setDao(MemberDao dao) {
+        this.dao = dao;
+    }
+
+    public void add(Member member) {
 		dao.add(member);
 	}
 

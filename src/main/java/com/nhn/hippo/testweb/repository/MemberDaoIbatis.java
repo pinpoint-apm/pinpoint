@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,8 @@ import com.nhn.hippo.testweb.domain.Member;
 public class MemberDaoIbatis implements MemberDao {
 
 	@Autowired
-	SqlMapClientTemplate sqlMapClientTemplate;
+    @Qualifier("mysqlSqlMapClientTemplate")
+    private SqlMapClientTemplate sqlMapClientTemplate;
 
 	public void add(Member member) {
 		sqlMapClientTemplate.insert("add", member);

@@ -113,6 +113,11 @@
             <artifactId>cubrid-jdbc</artifactId>
             <version>8.4.1.2032</version>
         </dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.1.0.7.0</version>
+        </dependency>
 
         <!-- web -->
         <dependency>
