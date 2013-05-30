@@ -51,5 +51,14 @@
 			]
 		}
 		</c:if>
+	],
+	"timeseriesHistogram" : [ <c:forEach items="${timeseriesSlotIndex}" var="slot" varStatus="status">
+		{
+			"key" : "${slot.key}",
+			"values" : [
+				<c:forEach var="entry" items="${timeseriesValue[slot.value]}" varStatus="mapStatus">
+				[ ${entry.key}, ${entry.value} ]<c:if test="${!mapStatus.last}">,</c:if></c:forEach>
+			]
+		}<c:if test="${!status.last}">,</c:if></c:forEach>
 	]
 }

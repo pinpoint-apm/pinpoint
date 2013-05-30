@@ -39,8 +39,13 @@ public class LinkStatistics {
 	 * value = { responseTimeslot, count }
 	 * </pre>
 	 */
-	private final Map<Long, SortedMap<Integer, Long>> timeseriesHistogram = new TreeMap<Long, SortedMap<Integer, Long>>();;
+	// private final Map<Long, SortedMap<Integer, Long>> timeseriesHistogram = new TreeMap<Long, SortedMap<Integer, Long>>();;
 
+	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
+	
+	// index = slot index, key = timestamp, value = value 
+	private final List<SortedMap<Long, Long>> timeseriesValue = new ArrayList<SortedMap<Long,Long>>();
+	
 	/**
 	 * <pre>
 	 * key = timeslot
@@ -91,11 +96,13 @@ public class LinkStatistics {
 		for (HistogramSlot slot : slotList) {
 			histogramSlotList.add(slot.getSlotTime());
 			histogramSummary.put(slot.getSlotTime(), 0L);
+			timeseriesSlotIndex.put(slot.getSlotTime(), timeseriesSlotIndex.size());
+			timeseriesValue.add(new TreeMap<Long, Long>());
 		}
 	}
 
-	public void addSample(long timeslot, int responseTimeslot, long callCount, boolean failed) {
-		logger.info("Add sample. timeslot=" + timeslot + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + failed);
+	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean failed) {
+		logger.info("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + failed);
 		
 		if (failed) {
 			failedCount += callCount;
@@ -103,6 +110,7 @@ public class LinkStatistics {
 			successCount += callCount;
 		}
 
+		// TODO 이렇게 하는게 뭔가 좋지 않은것 같음.
 		if (responseTimeslot == -1) {
 			responseTimeslot = ERROR;
 		} else if (responseTimeslot == 0) {
@@ -110,30 +118,36 @@ public class LinkStatistics {
 		}
 
 		// add summary
-		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) : 0L;
-		histogramSummary.put(responseTimeslot, value + callCount);
+		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
+		histogramSummary.put(responseTimeslot, value);
 
 		// add timeseries histogram
-		if (timeseriesHistogram.containsKey(timeslot)) {
-			SortedMap<Integer, Long> eachResponseHistogram = timeseriesHistogram.get(timeslot);
-			long count = eachResponseHistogram.containsKey(responseTimeslot) ? eachResponseHistogram.get(responseTimeslot) : 0L;
-			eachResponseHistogram.put(responseTimeslot, count + callCount);
-		} else {
-			SortedMap<Integer, Long> map = makeDefaultHistogram();
-			map.put(responseTimeslot, callCount);
-			timeseriesHistogram.put(timeslot, map);
-		}
+		// error:-1, slow:0가 아닌경우.
+		if (responseTimeslot != ERROR && responseTimeslot != SLOW) {
+			for (int i = 0; i < timeseriesValue.size(); i++) {
+				SortedMap<Long, Long> map = timeseriesValue.get(i);
 
+				// 다른 slot에도 같은 시간이 존재해야한다.
+				if (i == timeseriesSlotIndex.get(responseTimeslot)) {
+					long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
+					map.put(timestamp, v);
+				} else {
+					if (!map.containsKey(timestamp)) {
+						map.put(timestamp, 0L);
+					}
+				}
+			}
+		}
+		
 		// add failure rate histogram
-		if (timeseriesFaileureHistogram.containsKey(timeslot)) {
-			Long[] array = timeseriesFaileureHistogram.get(timeslot);
+		if (timeseriesFaileureHistogram.containsKey(timestamp)) {
+			Long[] array = timeseriesFaileureHistogram.get(timestamp);
 
 			if (failed) {
 				array[FAILED] += callCount;
 			} else {
 				array[SUCCESS] += callCount;
 			}
-			// timeseriesFaileureRateHistogram.put(timeslot, array);
 		} else {
 			Long[] array = new Long[2];
 			array[SUCCESS] = 0L;
@@ -144,16 +158,12 @@ public class LinkStatistics {
 			} else {
 				array[SUCCESS] += callCount;
 			}
-			timeseriesFaileureHistogram.put(timeslot, array);
+			timeseriesFaileureHistogram.put(timestamp, array);
 		}
 	}
 
 	public Map<Integer, Long> getHistogramSummary() {
 		return histogramSummary;
-	}
-
-	public Map<Long, SortedMap<Integer, Long>> getTimeseriesHistogram() {
-		return timeseriesHistogram;
 	}
 
 	public Map<Long, Long[]> getTimeseriesFaileureHistogram() {
@@ -176,8 +186,16 @@ public class LinkStatistics {
 		return ERROR;
 	}
 
+	public SortedMap<Integer, Integer> getTimeseriesSlotIndex() {
+		return timeseriesSlotIndex;
+	}
+
+	public List<SortedMap<Long, Long>> getTimeseriesValue() {
+		return timeseriesValue;
+	}
+
 	@Override
 	public String toString() {
-		return "LinkStatistics [histogramSummary=" + histogramSummary + ", timeseriesHistogram=" + timeseriesHistogram + ", timeseriesFaileureRateHistogram=" + timeseriesFaileureHistogram + ", successCount=" + successCount + ", failedCount=" + failedCount + ", histogramSlotList=" + histogramSlotList + "]";
+		return "LinkStatistics [histogramSummary=" + histogramSummary + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", timeseriesValue=" + timeseriesValue + ", timeseriesFaileureHistogram=" + timeseriesFaileureHistogram + ", successCount=" + successCount + ", failedCount=" + failedCount + ", histogramSlotList=" + histogramSlotList + "]";
 	}
 }

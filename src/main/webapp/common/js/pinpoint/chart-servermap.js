@@ -78,11 +78,6 @@ function linkStatistics(
 			});
 			
 			chart.yAxis.tickFormat(function(d) {
-				console.log(d);
-				return d;
-			});
-			
-			chart.valueFormat(function(d) {
 				return d;
 			});
 			
@@ -108,11 +103,13 @@ function linkStatistics(
 			}).clipEdge(true);
 			
 			chart.xAxis.tickFormat(function(d) {
-				return d3.time.format('%x')(new Date(d));
+				return d3.time.format('%H:%M')(new Date(d));
 			});
 			
-			chart.yAxis.tickFormat(d3.format(',.2f'));
-			
+			chart.yAxis.tickFormat(function(d) {
+				return d;
+			});
+						
 			d3.select('#linkInfoDetails .linkInfoChart svg')
 			.datum(data)
 			.transition()
@@ -128,7 +125,7 @@ function linkStatistics(
 	getLinkStatisticsData(params, function(query, result) {
 		showFailedRateChart(result.timeseriesFailRate);
 		showSummary(result.histogramSummary);
-		//showTimeseriesHistogram(result.)
+		showTimeseriesHistogram(result.timeseriesHistogram);
 	});
 }
 
