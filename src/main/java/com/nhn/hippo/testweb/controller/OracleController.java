@@ -27,4 +27,14 @@ public class OracleController {
         logger.info("selectOne end:{}", i);
         return "donothing";
     }
+
+    @RequestMapping(value = "/oracleStatement")
+    public String oracleStatement(Model model) {
+        logger.info("oracleStatement start");
+
+        oracleService.oracleStatement();
+
+        logger.info("oracleStatement end:{}");
+        return "donothing";
+    }
 }

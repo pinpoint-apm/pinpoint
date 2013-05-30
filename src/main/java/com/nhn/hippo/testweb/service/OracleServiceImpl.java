@@ -19,4 +19,9 @@ public class OracleServiceImpl implements OracleService {
     public int selectOne() {
         return oracleDao.selectOne();
     }
+
+    @Override
+    public void oracleStatement() {
+        oracleDao.oracleStatement();
+    }
 }
