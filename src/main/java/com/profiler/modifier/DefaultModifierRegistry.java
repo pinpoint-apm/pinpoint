@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.modifier.arcus.ArcusClientModifier;
@@ -190,14 +189,16 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         Modifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
         addModifier(oracleDriverModifier);
 
-        Modifier mssqlConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(mssqlConnectionModifier);
-//
-		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
+        // TODO PhysicalConnection으로 하니 view에서 api가 phy로 나와 모양이 나쁘다.
+        // 최상위인 클래스인 T4C T2C, OCI 따로 다 처리하는게 이쁠듯하다.
+        Modifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleConnectionModifier);
+
+		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
 		addModifier(oraclePreparedStatementModifier);
-//
-//		Modifier oracleStatement = new OracleStatementModifier(byteCodeInstrumentor, agent);
-//		addModifier(oracleStatement);
+
+		Modifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
+		addModifier(oracleStatement);
 //
 //		Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
 //		addModifier(oracleResultSetModifier);

@@ -19,10 +19,10 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-public class OraclePreparedStatementModifier extends AbstractModifier {
+public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public OraclePreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public OraclePreparedStatementWrapperModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
