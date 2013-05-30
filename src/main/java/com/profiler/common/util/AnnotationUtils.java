@@ -38,12 +38,13 @@ public class AnnotationUtils {
     public static AnnotationBo getDisplayArgument(Span span) {
         // arcus 관련 일반화 필요.
         List<AnnotationBo> list = span.getAnnotationBoList();
-        if (span.getServiceType() == ServiceType.ARCUS || span.getServiceType() == ServiceType.MEMCACHED) {
+        final ServiceType serviceType = span.getServiceType();
+        if (serviceType == ServiceType.ARCUS || serviceType == ServiceType.MEMCACHED) {
             return findAnnotationBo(list, AnnotationKey.ARCUS_COMMAND);
         }
 
         // rpc connector의 경우 보여주는 code일반화 필요.
-        if (span.getServiceType() == ServiceType.HTTP_CLIENT || span.getServiceType() == ServiceType.JDK_HTTPURLCONNECTOR) {
+        if (serviceType == ServiceType.HTTP_CLIENT || serviceType == ServiceType.JDK_HTTPURLCONNECTOR) {
             return findAnnotationBo(list, AnnotationKey.HTTP_URL);
         }
 
@@ -53,8 +54,11 @@ public class AnnotationUtils {
 //            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
 //        }
 //
-
-        if (span.getServiceType() == ServiceType.MYSQL) {
+        // TODO 먼가 고쳐야 함.
+        if (serviceType == ServiceType.MYSQL || serviceType == ServiceType.ORACLE || serviceType == ServiceType.MSSQL
+                || serviceType == ServiceType.CUBRID) {
+            // args 0의 경우 연결string이다
+            // 구현 방법이 매우 구림 좀더 개선 필요.
             return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         return null;
