@@ -5,10 +5,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 import java.net.URI;
-import java.util.regex.Matcher;
 
 /**
  *

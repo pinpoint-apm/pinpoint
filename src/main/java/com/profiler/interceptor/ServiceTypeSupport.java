@@ -1,6 +1,6 @@
 package com.profiler.interceptor;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  *

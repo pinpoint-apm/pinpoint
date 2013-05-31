@@ -1,6 +1,6 @@
 package com.profiler.context;
 
-import com.profiler.common.util.ParsingResult;
+import com.nhn.pinpoint.common.util.ParsingResult;
 import com.profiler.interceptor.MethodDescriptor;
 
 import java.util.UUID;

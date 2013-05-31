@@ -1,6 +1,6 @@
 package com.profiler.modifier.db;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.modifier.db.oracle.*;

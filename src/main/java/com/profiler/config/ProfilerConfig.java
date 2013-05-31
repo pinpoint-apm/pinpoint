@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.util.PropertyUtils;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.profiler.util.NumberUtils;
 
 public class ProfilerConfig {

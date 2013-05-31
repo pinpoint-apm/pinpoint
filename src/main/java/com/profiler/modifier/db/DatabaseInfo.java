@@ -1,6 +1,6 @@
 package com.profiler.modifier.db;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.List;
 
