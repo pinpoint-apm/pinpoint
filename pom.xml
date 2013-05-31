@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nhn.hippo</groupId>
-    <artifactId>hippo-tomcat-profiler</artifactId>
-    <version>0.0.2</version>
-    <name>hippo tomcat profiler</name>
+    <groupId>com.nhn.pinpoint</groupId>
+    <artifactId>pinpoint-profiler</artifactId>
+    <version>0.0.3-SNAPSHOT</version>
+    <name>pinpoint profiler</name>
     <packaging>jar</packaging>
 
     <properties>
@@ -77,9 +77,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.nhn.hippo</groupId>
-            <artifactId>hippo-profiler-bootstrap</artifactId>
-            <version>0.0.2</version>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
