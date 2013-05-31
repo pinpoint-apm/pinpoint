@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nhn.hippo</groupId>
-    <artifactId>hippo-profiler-bootstrap</artifactId>
-    <version>0.0.2</version>
-    <name>hippo profiler bootstrap</name>
+    <groupId>com.nhn.pinpoint</groupId>
+    <artifactId>pinpoint-bootstrap</artifactId>
+    <version>0.0.3-SNAPSHOT</version>
+    <name>pinpoint bootstrap</name>
     <packaging>jar</packaging>
 
     <distributionManagement>
@@ -188,7 +188,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>com.profiler.bootstrap.TomcatBootStrap</Premain-Class>
+                            <Premain-Class>com.nhn.pinpoint.bootstrap.TomcatBootStrap</Premain-Class>
                         </manifestEntries>
                     </archive>
                     <descriptorRefs>
