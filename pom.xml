@@ -53,9 +53,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nhn.hippo</groupId>
-            <artifactId>hippo-commons</artifactId>
-            <version>0.0.2</version>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-commons</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>

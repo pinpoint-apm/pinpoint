@@ -1,17 +1,17 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.SYSTEMINFO;
-import static com.profiler.common.hbase.HBaseTables.SYSTEMINFO_CF_JVM;
-import static com.profiler.common.hbase.HBaseTables.SYSTEMINFO_CN_INFO;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.SYSTEMINFO;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.SYSTEMINFO_CF_JVM;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.SYSTEMINFO_CN_INFO;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
+import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.profiler.server.dao.JvmInfoDao;
 
 public class HbaseJvmInfoDao implements JvmInfoDao {

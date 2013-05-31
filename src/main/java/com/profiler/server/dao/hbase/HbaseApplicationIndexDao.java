@@ -1,7 +1,7 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_INDEX;
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_INDEX_CF_AGENTS;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX_CF_AGENTS;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.AgentInfo;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.profiler.server.dao.ApplicationIndexDao;
 
 /**

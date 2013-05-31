@@ -1,17 +1,17 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.*;
-import static com.profiler.common.hbase.HBaseTables.TERMINAL_STATISTICS_CF_COUNTER;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.TERMINAL_STATISTICS_CF_COUNTER;
 
 import com.profiler.server.util.AcceptedTimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.TerminalSpanUtils;
-import com.profiler.common.util.TimeSlot;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.TerminalSpanUtils;
+import com.nhn.pinpoint.common.util.TimeSlot;
 import com.profiler.server.dao.TerminalStatisticsDao;
 
 /**

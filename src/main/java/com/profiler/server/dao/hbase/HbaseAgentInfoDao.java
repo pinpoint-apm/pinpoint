@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.dto2.thrift.AgentInfo;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
-import com.profiler.common.util.TimeUtils;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.RowKeyUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.profiler.server.dao.AgentInfoDao;
 
 /**

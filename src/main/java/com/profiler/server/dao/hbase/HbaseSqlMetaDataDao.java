@@ -1,16 +1,15 @@
 package com.profiler.server.dao.hbase;
 
-import com.profiler.common.bo.SqlMetaDataBo;
-import com.profiler.common.dto2.thrift.AgentKey;
+import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.SqlMetaData;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.dto2.thrift.SqlMetaData;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.profiler.server.dao.SqlMetaDataDao;
 
 /**

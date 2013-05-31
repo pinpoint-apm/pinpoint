@@ -21,14 +21,14 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.dto2.thrift.Annotation;
-import com.profiler.common.dto2.thrift.Span;
-import com.profiler.common.hbase.HBaseAdminTemplate;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.RowKeyUtils;
-import com.profiler.common.util.SpanUtils;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.dto2.thrift.Annotation;
+import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.hbase.HBaseAdminTemplate;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.RowKeyUtils;
+import com.nhn.pinpoint.common.util.SpanUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 //@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})

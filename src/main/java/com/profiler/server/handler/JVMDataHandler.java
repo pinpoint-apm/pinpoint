@@ -1,8 +1,8 @@
 package com.profiler.server.handler;
 
-import com.profiler.common.dto2.Header;
-import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
-import com.profiler.common.io.PacketUtils;
+import com.nhn.pinpoint.common.dto2.Header;
+import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
+import com.nhn.pinpoint.common.io.PacketUtils;
 import com.profiler.server.dao.JvmInfoDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;

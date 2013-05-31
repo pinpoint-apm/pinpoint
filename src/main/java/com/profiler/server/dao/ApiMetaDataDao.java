@@ -1,6 +1,6 @@
 package com.profiler.server.dao;
 
-import com.profiler.common.dto2.thrift.ApiMetaData;
+import com.nhn.pinpoint.common.dto2.thrift.ApiMetaData;
 
 /**
  *

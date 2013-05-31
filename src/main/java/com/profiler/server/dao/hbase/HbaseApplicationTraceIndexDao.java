@@ -1,16 +1,16 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX;
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
 
 import com.profiler.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.Span;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
-import com.profiler.common.util.SpanUtils;
+import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.SpanUtils;
 import com.profiler.server.dao.ApplicationTraceIndexDao;
 
 /**

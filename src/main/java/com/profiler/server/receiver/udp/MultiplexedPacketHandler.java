@@ -2,14 +2,14 @@ package com.profiler.server.receiver.udp;
 
 import java.net.DatagramPacket;
 
-import com.profiler.common.dto2.thrift.*;
+import com.nhn.pinpoint.common.dto2.thrift.*;
 import com.profiler.server.util.AcceptedTimeService;
 import com.profiler.server.util.PacketUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.profiler.common.io.HeaderTBaseDeserializer;
-import com.profiler.common.io.TBaseLocator;
+import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.common.io.TBaseLocator;
 import com.profiler.server.handler.Handler;
 
 import org.slf4j.Logger;

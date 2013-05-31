@@ -1,15 +1,15 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.TRACE_INDEX_CF_TRACE;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.TRACE_INDEX_CF_TRACE;
 
 import com.profiler.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.Span;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.SpanUtils;
+import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.SpanUtils;
 import com.profiler.server.dao.TraceIndexDao;
 
 public class HbaseTraceIndexDao implements TraceIndexDao {

@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
 import com.profiler.server.dao.AgentIdApplicationIndexDao;
 import com.profiler.server.dao.AgentInfoDao;
 import com.profiler.server.dao.ApplicationIndexDao;

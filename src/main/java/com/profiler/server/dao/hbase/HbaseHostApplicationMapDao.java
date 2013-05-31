@@ -1,18 +1,18 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.HOST_APPLICATION_MAP;
-import static com.profiler.common.hbase.HBaseTables.HOST_APPLICATION_MAP_CF_MAP;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP_CF_MAP;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
-import com.profiler.common.util.TimeSlot;
-import com.profiler.common.util.TimeUtils;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.TimeSlot;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.profiler.server.dao.HostApplicationMapDao;
 import com.profiler.server.util.AcceptedTimeService;
 

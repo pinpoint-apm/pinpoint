@@ -1,17 +1,16 @@
 package com.profiler.server.dao.hbase;
 
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE;
-import static com.profiler.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.ApplicationMapStatisticsUtils;
-import com.profiler.common.util.TimeSlot;
-import com.profiler.common.util.TimeUtils;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.nhn.pinpoint.common.util.TimeSlot;
 import com.profiler.server.dao.ApplicationMapStatisticsCalleeDao;
 import com.profiler.server.util.AcceptedTimeService;
 

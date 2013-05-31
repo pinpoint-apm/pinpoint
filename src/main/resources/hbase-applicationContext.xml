@@ -25,7 +25,7 @@
     </bean>
 
 
-    <bean id="hbaseTemplate" class="com.profiler.common.hbase.HbaseTemplate2">
+    <bean id="hbaseTemplate" class="com.nhn.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"></property>
     </bean>
 </beans>

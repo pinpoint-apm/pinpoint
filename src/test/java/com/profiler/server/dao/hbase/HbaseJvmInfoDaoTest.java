@@ -14,10 +14,10 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.profiler.common.dto2.thrift.JVMInfoThriftDTO;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.io.TBaseLocator;
+import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.io.TBaseLocator;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 // @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})

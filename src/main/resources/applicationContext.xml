@@ -37,7 +37,7 @@
     <bean id="SqlMetaDataHandler" class="com.profiler.server.handler.SqlMetaDataHandler"/>
     <bean id="ApiMetaDataHandler" class="com.profiler.server.handler.ApiMetaDataHandler"/>
 
-    <bean class="com.profiler.common.io.DefaultTBaseLocator"></bean>
+    <bean class="com.nhn.pinpoint.common.io.DefaultTBaseLocator"></bean>
 
     <bean class="com.profiler.server.dao.hbase.HbaseTraceIndexDao"></bean>
     <bean class="com.profiler.server.dao.hbase.HbaseTraceDao"></bean>
