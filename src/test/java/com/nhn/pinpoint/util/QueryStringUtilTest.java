@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.util;
 
-import com.profiler.util.QueryStringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

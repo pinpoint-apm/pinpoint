@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.util;
 
-import com.profiler.modifier.Modifier;
+import com.nhn.pinpoint.modifier.Modifier;
 import javassist.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

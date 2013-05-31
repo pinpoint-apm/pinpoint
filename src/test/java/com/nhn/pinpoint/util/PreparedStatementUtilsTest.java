@@ -1,14 +1,9 @@
 package com.nhn.pinpoint.util;
 
-import com.profiler.util.PreparedStatementUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 public class PreparedStatementUtilsTest {

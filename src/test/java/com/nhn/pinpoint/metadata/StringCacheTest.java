@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.metadata;
 
-import com.profiler.metadata.Result;
-import com.profiler.metadata.StringCache;
 import junit.framework.Assert;
 import org.junit.Test;
 

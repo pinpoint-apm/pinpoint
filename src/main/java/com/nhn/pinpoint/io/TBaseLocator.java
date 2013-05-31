@@ -1,0 +1,13 @@
+package com.nhn.pinpoint.io;
+
+import com.nhn.pinpoint.common.dto.Header;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+
+public interface TBaseLocator {
+    TBase<?, ?> tBaseLookup(short type) throws TException;
+
+//    short typeLookup(TBase<?, ?> tbase) throws TException;
+
+    Header headerLookup(TBase<?, ?> dto) throws TException;
+}

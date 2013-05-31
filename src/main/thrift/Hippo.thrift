@@ -1,4 +1,4 @@
-namespace java com.profiler.common.dto.thrift
+namespace java com.nhn.pinpoint.common.dto.thrift
 
 struct AgentInfo {
 	1: string	hostname

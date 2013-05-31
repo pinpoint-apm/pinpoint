@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.interceptor.bci;
 
-import com.profiler.interceptor.bci.CodeBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

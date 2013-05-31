@@ -1,9 +1,7 @@
 package com.nhn.pinpoint.context;
 
-import com.profiler.context.BypassStorage;
-import com.profiler.context.DefaultTrace;
-import com.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.profiler.sender.LoggingDataSender;
+import com.nhn.pinpoint.logging.Slf4jLoggerBinderInitializer;
+import com.nhn.pinpoint.sender.LoggingDataSender;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

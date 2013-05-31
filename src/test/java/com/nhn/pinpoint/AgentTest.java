@@ -1,6 +1,5 @@
 package com.nhn.pinpoint;
 
-import com.profiler.DefaultAgent;
 import com.profiler.config.ProfilerConfig;
 import org.junit.Test;
 import org.slf4j.Logger;

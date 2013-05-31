@@ -2,9 +2,6 @@ package com.nhn.pinpoint.interceptor.bci;
 
 import com.nhn.pinpoint.interceptor.TestAfterInterceptor;
 import com.nhn.pinpoint.interceptor.TestBeforeInterceptor;
-import com.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.profiler.interceptor.bci.InstrumentClass;
-import com.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import javassist.bytecode.Descriptor;
 import org.junit.Assert;
 import org.junit.Test;

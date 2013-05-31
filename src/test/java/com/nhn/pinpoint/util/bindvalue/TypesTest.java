@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.util.bindvalue;
 
-import com.profiler.util.bindvalue.Types;
 import org.junit.Assert;
 import org.junit.Test;
 

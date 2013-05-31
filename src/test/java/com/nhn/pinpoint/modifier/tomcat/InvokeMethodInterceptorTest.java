@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.context.MockTraceContextFactory;
 import com.profiler.context.TraceContext;
-import com.profiler.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
 import com.profiler.logging.LoggerFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.profiler.context.Header;
-import com.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
+import com.nhn.pinpoint.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
 
 public class InvokeMethodInterceptorTest {
     @BeforeClass
