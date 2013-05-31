@@ -9,8 +9,8 @@ import com.profiler.logging.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.context.*;
 import com.profiler.sampler.util.SamplingFlagUtils;
 import com.profiler.util.NumberUtils;

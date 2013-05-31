@@ -1,9 +1,9 @@
 package com.profiler;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.common.dto.thrift.AgentInfo;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.mapping.ApiMappingTable;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.profiler.config.ProfilerConfig;
 import com.profiler.context.BypassStorageFactory;
 import com.profiler.context.DefaultTraceContext;

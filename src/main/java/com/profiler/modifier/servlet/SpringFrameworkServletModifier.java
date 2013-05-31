@@ -5,8 +5,7 @@ import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;
 
 import com.profiler.Agent;
-import com.profiler.DefaultAgent;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.interceptor.Interceptor;
 import com.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.profiler.interceptor.bci.InstrumentClass;

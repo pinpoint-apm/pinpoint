@@ -11,8 +11,8 @@ import com.profiler.sampler.util.SamplingFlagUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * Method interceptor

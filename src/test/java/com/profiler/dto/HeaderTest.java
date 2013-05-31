@@ -1,6 +1,6 @@
 package com.profiler.dto;
 
-import com.profiler.common.dto2.Header;
+import com.nhn.pinpoint.common.dto2.Header;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

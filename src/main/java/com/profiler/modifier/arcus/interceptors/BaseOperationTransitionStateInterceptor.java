@@ -8,17 +8,16 @@ import java.nio.charset.Charset;
 import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
-import com.profiler.common.AnnotationKey;
+import com.nhn.pinpoint.common.AnnotationKey;
 import com.profiler.context.AsyncTrace;
 import com.profiler.context.TraceContext;
 import com.profiler.logging.LoggerFactory;
-import com.profiler.logging.LoggingUtils;
 import com.profiler.util.TimeObject;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.util.MetaObject;
 
 /**

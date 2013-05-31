@@ -1,7 +1,7 @@
 package com.profiler.io;
 
 import com.profiler.common.dto.Header;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;

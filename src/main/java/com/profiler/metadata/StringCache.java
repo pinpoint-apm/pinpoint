@@ -1,6 +1,6 @@
 package com.profiler.metadata;
 
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

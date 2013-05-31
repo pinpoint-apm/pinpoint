@@ -1,10 +1,8 @@
 package com.profiler.modifier.mapping;
 
-import com.profiler.common.mapping.ApiUtils;
+import com.nhn.pinpoint.common.mapping.ApiUtils;
 import junit.framework.Assert;
 import org.junit.Test;
-
-import java.math.MathContext;
 
 /**
  *

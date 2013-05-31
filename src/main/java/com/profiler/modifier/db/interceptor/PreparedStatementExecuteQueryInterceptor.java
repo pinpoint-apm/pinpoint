@@ -1,6 +1,5 @@
 package com.profiler.modifier.db.interceptor;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +7,8 @@ import java.util.Map;
 import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.util.ParsingResult;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.util.JDBCScope;

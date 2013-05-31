@@ -2,7 +2,7 @@ package com.profiler.modifier;
 
 import com.profiler.logging.Logger;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.interceptor.ServiceTypeSupport;
 
 import com.profiler.Agent;

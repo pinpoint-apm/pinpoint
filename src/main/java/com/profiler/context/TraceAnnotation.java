@@ -1,6 +1,6 @@
 package com.profiler.context;
 
-import com.profiler.common.AnnotationKey;
+import com.nhn.pinpoint.common.AnnotationKey;
 import com.profiler.common.dto.thrift.Annotation;
 import com.profiler.util.AnnotationTranscoder;
 

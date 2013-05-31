@@ -1,6 +1,6 @@
 package com.profiler.modifier.db.interceptor;
 
-import com.profiler.common.util.ParsingResult;
+import com.nhn.pinpoint.common.util.ParsingResult;
 import com.profiler.context.Trace;
 import com.profiler.context.TraceContext;
 import com.profiler.interceptor.*;

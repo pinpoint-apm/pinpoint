@@ -2,8 +2,8 @@ package com.profiler.context;
 
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.interceptor.MethodDescriptor;
 import com.profiler.logging.Logger;
 import com.profiler.logging.LoggerFactory;

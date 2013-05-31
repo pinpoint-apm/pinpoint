@@ -1,7 +1,7 @@
 package com.profiler.io;
 
 import com.profiler.common.dto.Header;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -9,7 +9,6 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
 
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 /**

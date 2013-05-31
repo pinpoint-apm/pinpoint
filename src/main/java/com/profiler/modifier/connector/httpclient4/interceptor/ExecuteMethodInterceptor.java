@@ -3,14 +3,14 @@ package com.profiler.modifier.connector.httpclient4.interceptor;
 import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
-import com.profiler.common.AnnotationKey;
+import com.nhn.pinpoint.common.AnnotationKey;
 import com.profiler.context.*;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.sampler.util.SamplingFlagUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * Method interceptor

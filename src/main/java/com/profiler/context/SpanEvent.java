@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.profiler.DefaultAgent;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.common.dto.thrift.AgentKey;
 import com.profiler.common.dto.thrift.Annotation;
 

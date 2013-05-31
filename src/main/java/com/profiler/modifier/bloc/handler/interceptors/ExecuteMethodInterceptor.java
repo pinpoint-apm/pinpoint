@@ -6,8 +6,8 @@ import java.util.UUID;
 import com.profiler.interceptor.*;
 import com.profiler.logging.Logger;
 
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
 import com.profiler.context.*;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.sampler.util.SamplingFlagUtils;

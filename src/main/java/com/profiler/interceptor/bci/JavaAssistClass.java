@@ -2,8 +2,8 @@ package com.profiler.interceptor.bci;
 
 import java.io.IOException;
 
-import com.profiler.common.mapping.ApiMappingTable;
-import com.profiler.common.mapping.ApiUtils;
+import com.nhn.pinpoint.common.mapping.ApiMappingTable;
+import com.nhn.pinpoint.common.mapping.ApiUtils;
 import com.profiler.interceptor.*;
 import com.profiler.logging.LoggerFactory;
 import com.profiler.util.JavaAssistUtils;
