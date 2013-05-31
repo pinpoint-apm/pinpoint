@@ -21,7 +21,7 @@ import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * 

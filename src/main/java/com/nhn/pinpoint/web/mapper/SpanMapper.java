@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.web.mapper;
 
-import com.profiler.common.bo.AnnotationBo;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;

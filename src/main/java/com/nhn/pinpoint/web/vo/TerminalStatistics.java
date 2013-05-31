@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.vo;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * 

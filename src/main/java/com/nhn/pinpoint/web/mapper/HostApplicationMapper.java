@@ -10,7 +10,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.web.vo.Application;
-import com.profiler.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 
 /**
  * 

@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.util.ApplicationMapStatisticsUtils;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
  * rowkey = caller col = callee

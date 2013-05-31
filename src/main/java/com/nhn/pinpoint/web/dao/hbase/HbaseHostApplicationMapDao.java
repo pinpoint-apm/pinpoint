@@ -15,10 +15,10 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.TimeSlot;
-import com.profiler.common.util.TimeUtils;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.TimeSlot;
+import com.nhn.pinpoint.common.util.TimeUtils;
 
 /**
  * 

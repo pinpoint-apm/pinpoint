@@ -28,11 +28,11 @@ import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.AnnotationBo;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author netspider

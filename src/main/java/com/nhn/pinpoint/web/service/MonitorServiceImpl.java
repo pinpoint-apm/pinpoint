@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * 

@@ -6,7 +6,7 @@ import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.profiler.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
 
 public interface ScatterChartService {
 

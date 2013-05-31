@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.filter;
 
 import java.util.List;
 
-import com.profiler.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
 
 /**
  * 

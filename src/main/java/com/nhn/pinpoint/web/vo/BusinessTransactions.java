@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.profiler.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
 
 public class BusinessTransactions {
 

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.dao;
 
 import java.util.List;
 
-import com.profiler.common.bo.ApiMetaDataBo;
+import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
 
 /**
  *

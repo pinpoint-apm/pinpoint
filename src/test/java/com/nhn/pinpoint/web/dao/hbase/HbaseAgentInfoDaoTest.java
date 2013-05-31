@@ -8,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.web.dao.hbase.HbaseAgentInfoDao;
-import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
 
 /**
  *

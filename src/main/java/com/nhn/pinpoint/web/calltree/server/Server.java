@@ -4,10 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author netspider

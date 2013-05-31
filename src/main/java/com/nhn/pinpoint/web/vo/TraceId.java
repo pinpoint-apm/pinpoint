@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.vo;
 
-import com.profiler.common.util.BytesUtils;
-import com.profiler.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.TraceIdUtils;
 
 public class TraceId {
 

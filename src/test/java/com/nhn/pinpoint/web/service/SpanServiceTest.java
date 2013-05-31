@@ -20,15 +20,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.ServiceType;
-import com.profiler.common.dto2.thrift.Annotation;
-import com.profiler.common.dto2.thrift.Span;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseTemplate2;
-import com.profiler.common.util.SpanUtils;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.dto2.thrift.Annotation;
+import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseTemplate2;
+import com.nhn.pinpoint.common.util.SpanUtils;
 import com.profiler.server.dao.TracesDao;
 
 /**

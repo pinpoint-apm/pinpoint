@@ -13,9 +13,9 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  *

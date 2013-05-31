@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.service;
 
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * @author netspider

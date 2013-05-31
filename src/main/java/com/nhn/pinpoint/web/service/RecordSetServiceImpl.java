@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.vo.callstacks.Record;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.bo.AnnotationBo;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
-import com.profiler.common.util.AnnotationUtils;
-import com.profiler.common.util.ApiDescription;
-import com.profiler.common.util.ApiDescriptionParser;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.util.AnnotationUtils;
+import com.nhn.pinpoint.common.util.ApiDescription;
+import com.nhn.pinpoint.common.util.ApiDescriptionParser;
 
 /**
  *

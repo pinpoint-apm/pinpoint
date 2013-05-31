@@ -9,9 +9,9 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
-import com.profiler.common.bo.ApiMetaDataBo;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  *

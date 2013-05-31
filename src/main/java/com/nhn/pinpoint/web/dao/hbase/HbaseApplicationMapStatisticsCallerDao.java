@@ -18,10 +18,10 @@ import org.springframework.stereotype.Repository;
 import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.ApplicationMapStatisticsUtils;
-import com.profiler.common.util.TimeSlot;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.nhn.pinpoint.common.util.TimeSlot;
 
 /**
  * 

@@ -19,8 +19,8 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * 

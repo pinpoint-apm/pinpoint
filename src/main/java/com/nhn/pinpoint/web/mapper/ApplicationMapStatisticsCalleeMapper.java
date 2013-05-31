@@ -15,7 +15,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
-import com.profiler.common.util.ApplicationMapStatisticsUtils;
+import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
  * rowkey = caller col = callee

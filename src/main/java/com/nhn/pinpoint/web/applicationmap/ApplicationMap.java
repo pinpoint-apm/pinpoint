@@ -10,7 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * Application map

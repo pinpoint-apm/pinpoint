@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.profiler.common.bo.SqlMetaDataBo;
+import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 
 /**
  *

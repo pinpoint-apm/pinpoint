@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.vo.Application;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  * @author netspider

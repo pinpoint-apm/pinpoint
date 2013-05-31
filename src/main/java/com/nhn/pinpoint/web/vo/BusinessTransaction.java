@@ -3,8 +3,8 @@ package com.nhn.pinpoint.web.vo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.util.TraceIdUtils;
 
 public class BusinessTransaction {
 	private final List<Trace> traces = new ArrayList<Trace>();

@@ -20,12 +20,12 @@ import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.web.vo.TraceIdWithTime;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
-import com.profiler.common.util.BytesUtils;
-import com.profiler.common.util.SpanUtils;
-import com.profiler.common.util.TimeUtils;
-import com.profiler.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.SpanUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
+import com.nhn.pinpoint.common.util.TraceIdUtils;
 
 /**
  *

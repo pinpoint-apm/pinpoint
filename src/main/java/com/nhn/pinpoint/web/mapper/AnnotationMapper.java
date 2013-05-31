@@ -1,11 +1,10 @@
 package com.nhn.pinpoint.web.mapper;
 
-import com.profiler.common.bo.AnnotationBo;
-import com.profiler.common.bo.AnnotationBoList;
-import com.profiler.common.buffer.Buffer;
-import com.profiler.common.buffer.FixedBuffer;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.AnnotationBoList;
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;

@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.profiler.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.profiler.common.bo.ApiMetaDataBo;
-import com.profiler.common.buffer.Buffer;
+import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
+import com.nhn.pinpoint.common.buffer.Buffer;
 
 /**
  *

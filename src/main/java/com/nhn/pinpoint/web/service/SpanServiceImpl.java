@@ -15,17 +15,17 @@ import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
 import com.nhn.pinpoint.web.dao.SqlMetaDataDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.AnnotationKey;
-import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.bo.AnnotationBo;
-import com.profiler.common.bo.ApiMetaDataBo;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SqlMetaDataBo;
-import com.profiler.common.mapping.ApiMappingTable;
-import com.profiler.common.mapping.ApiUtils;
-import com.profiler.common.mapping.MethodMapping;
-import com.profiler.common.util.OutputParameterParser;
-import com.profiler.common.util.SqlParser;
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
+import com.nhn.pinpoint.common.mapping.ApiMappingTable;
+import com.nhn.pinpoint.common.mapping.ApiUtils;
+import com.nhn.pinpoint.common.mapping.MethodMapping;
+import com.nhn.pinpoint.common.util.OutputParameterParser;
+import com.nhn.pinpoint.common.util.SqlParser;
 
 /**
  *

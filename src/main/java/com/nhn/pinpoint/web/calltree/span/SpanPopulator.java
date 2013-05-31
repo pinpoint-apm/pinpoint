@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.calltree.span;
 
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 import java.util.ArrayList;
 import java.util.Collections;

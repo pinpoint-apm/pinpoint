@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 
-import com.profiler.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.dto2.thrift.Span;
 
 /**
  *

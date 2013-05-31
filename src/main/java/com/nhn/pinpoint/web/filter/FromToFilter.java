@@ -5,9 +5,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.SpanBo;
-import com.profiler.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 /**
  * 

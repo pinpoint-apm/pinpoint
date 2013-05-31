@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.vo.callstacks;
 
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * each stack

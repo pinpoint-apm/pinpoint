@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import com.profiler.common.bo.AgentInfoBo;
-import com.profiler.common.util.*;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.RowKeyUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -13,8 +15,8 @@ import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
-import com.profiler.common.hbase.HBaseTables;
-import com.profiler.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  *

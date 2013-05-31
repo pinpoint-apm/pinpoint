@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.MonitorService;
 import com.nhn.pinpoint.web.vo.Application;
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * 

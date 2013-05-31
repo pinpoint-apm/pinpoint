@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;

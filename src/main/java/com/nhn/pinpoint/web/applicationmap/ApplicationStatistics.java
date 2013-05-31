@@ -3,8 +3,8 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * DB에서 조회한 application호출 관계 정보.

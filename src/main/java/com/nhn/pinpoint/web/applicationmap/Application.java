@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.profiler.common.ServiceType;
-import com.profiler.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * application map에서 application을 나타낸다.

@@ -2,9 +2,9 @@ package com.nhn.pinpoint.web.vo;
 
 import java.util.List;
 
-import com.profiler.common.Histogram;
-import com.profiler.common.HistogramSlot;
-import com.profiler.common.ServiceType;
+import com.nhn.pinpoint.common.Histogram;
+import com.nhn.pinpoint.common.HistogramSlot;
+import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * 

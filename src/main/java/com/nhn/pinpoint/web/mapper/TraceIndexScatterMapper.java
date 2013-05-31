@@ -3,17 +3,16 @@ package com.nhn.pinpoint.web.mapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
-import com.profiler.common.util.TimeUtils;
-import com.profiler.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
+import com.nhn.pinpoint.common.util.TraceIdUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.profiler.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.BytesUtils;
 
 /**
  *

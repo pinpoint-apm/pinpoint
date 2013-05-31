@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.profiler.common.HistogramSlot;
+import com.nhn.pinpoint.common.HistogramSlot;
 
 /**
  * 
