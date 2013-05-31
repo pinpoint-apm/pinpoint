@@ -178,7 +178,7 @@ public class ClassPathResolver {
     }
 
     public String getAgentConfigPath() {
-        return agentDirPath + File.separator + "hippo.config";
+        return agentDirPath + File.separator + "pinpoint.config";
     }
 
 }

@@ -52,18 +52,18 @@ public class ProfilerConfig {
 	public ProfilerConfig() {
 	}
 
-	public void readConfigFile(String hippoConfigFileName) throws IOException {
+	public void readConfigFile(String pinpiontConfigFileName) throws IOException {
 		try {
-			Properties properties = PropertyUtils.readProperties(hippoConfigFileName);
+			Properties properties = PropertyUtils.readProperties(pinpiontConfigFileName);
 			readPropertyValues(properties);
 		} catch (FileNotFoundException fe) {
 			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, hippoConfigFileName + " file is not exists. Please check configuration.");
+				logger.log(Level.WARNING, pinpiontConfigFileName + " file is not exists. Please check configuration.");
 			}
 			throw fe;
 		} catch (IOException e) {
 			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, hippoConfigFileName + " file read error. Cause:" + e.getMessage(), e);
+				logger.log(Level.WARNING, pinpiontConfigFileName + " file read error. Cause:" + e.getMessage(), e);
 			}
 			throw e;
 		}

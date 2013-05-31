@@ -27,7 +27,7 @@ public class TomcatBootStrap {
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
             // TODO 이거 변경해야 함.
-            logger.severe("hippo-profiler-bootstrap-x.x.x.jar not found.");
+            logger.severe("pinpoint-bootstrap-x.x.x.jar not found.");
             return;
         }
 
@@ -66,10 +66,10 @@ public class TomcatBootStrap {
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
         final String configName = ProductInfo.NAME + ".config";
-        String hippoConfigFormSystemProperty = System.getProperty(configName);
-        if (hippoConfigFormSystemProperty != null) {
-            logger.info(configName + " systemProperty found. " + hippoConfigFormSystemProperty);
-            return hippoConfigFormSystemProperty;
+        String pinpointConfigFormSystemProperty = System.getProperty(configName);
+        if (pinpointConfigFormSystemProperty != null) {
+            logger.info(configName + " systemProperty found. " + pinpointConfigFormSystemProperty);
+            return pinpointConfigFormSystemProperty;
         }
 
         String classPathAgentConfigPath = classPathResolver.getAgentConfigPath();
