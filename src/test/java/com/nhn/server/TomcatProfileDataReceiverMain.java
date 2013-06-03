@@ -1,6 +1,6 @@
 package com.nhn.server;
 
-import com.nhn.pinpoint.server.Server;
+import com.nhn.pinpoint.collector.Server;
 
 public class TomcatProfileDataReceiverMain {
 
