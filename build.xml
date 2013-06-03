@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="hippo_profiler_bootstrap_build" basedir=".">
+<project name="pinpoint_bootstrap_build" basedir=".">
     <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
     <property name="agent.dir" value="${basedir}/../deploy/agent/agentlib/"/>
     <property name="target.dir" value="${basedir}/target/"/>
@@ -10,7 +10,7 @@
     </target>
 
     <target name="copy.agent">
-        <copy file="${target.dir}/hippo-profiler-bootstrap-0.0.2-jar-with-dependencies.jar" tofile="${agent.dir}/hippo-profiler-bootstrap-0.0.2.jar" overwrite="true">
+        <copy file="${target.dir}/pinpoint-bootstrap-0.0.3-SNAPSHOT.jar-with-dependencies.jar" tofile="${agent.dir}/pinpoint-bootstrap-0.0.3-SNAPSHOT.jar" overwrite="true">
         </copy>
     </target>
 
