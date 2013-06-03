@@ -52,7 +52,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
         // 자기 자신의 패키지도 제외
         // TODO 향후 패키지명 변경에 의해 코드 변경이 필요함.
-        if (className.startsWith("com/profiler/")) {
+        if (className.startsWith("com/nhn/pinpoint/")) {
             return null;
         }
 
