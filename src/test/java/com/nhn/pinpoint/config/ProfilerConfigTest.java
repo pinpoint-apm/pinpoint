@@ -11,18 +11,18 @@ public class ProfilerConfigTest {
 	@Test
 	public void testIsProfilableClassWithNoConfiguration() throws IOException {
 		ProfilerConfig profilerConfig = new ProfilerConfig();
-		profilerConfig.setProfilableClass("com.nhn.hippo.testweb.controller.*,com.nhn.hippo.testweb.MyClass");
+		profilerConfig.setProfilableClass("com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass");
 
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/controllers/MyController"));
+		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controllers/MyController"));
 		Assert.assertFalse(profilerConfig.isProfilableClass("net/spider/king/wang/Jjang"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/hippo/testweb2/controller/MyController"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/hippo/testweb2/MyClass"));
+		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb2/controller/MyController"));
+		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb2/MyClass"));
 	}
 	
 	/**
 	 * <pre>
 	 * configuration is 
-	 * profile.package.include=com.nhn.hippo.testweb.controller.*,com.nhn.hippo.testweb.MyClass
+	 * profile.package.include=com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass
 	 * </pre>
 	 * 
 	 * @throws IOException
@@ -31,14 +31,14 @@ public class ProfilerConfigTest {
 	public void testIsProfilableClass() throws IOException {
 
 		ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.setProfilableClass("com.nhn.hippo.testweb.controller.*,com.nhn.hippo.testweb.MyClass");
+        profilerConfig.setProfilableClass("com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass");
 
-		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/MyClass"));
-		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/controller/MyController"));
-		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/controller/customcontroller/MyCustomController"));
+		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/MyClass"));
+		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller/MyController"));
+		Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller/customcontroller/MyCustomController"));
 
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/MyUnknownClass"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/hippo/testweb/controller2/MyController"));
+		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/MyUnknownClass"));
+		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller2/MyController"));
 	}
 
 }
