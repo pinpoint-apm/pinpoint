@@ -32,7 +32,7 @@ public class AgentClassLoaderTest {
         logger.info("lib:" + projectDir);
         URL[] lib = getLib(projectDir);
         logger.info("lib list:" + Arrays.toString(lib));
-//        String testJar = "hippoClassLoaderTest-1.0.jar";
+//        String testJar = "pinpointClassLoaderTest-1.0.jar";
 //        logger.info("load lib:" + testJar);
 //
 //        String testJarPath = projectDir + File.separator + testJar;
@@ -76,7 +76,7 @@ public class AgentClassLoaderTest {
 
         logger.info("lib location:" + location);
         String path = location.getPath();
-        // file:/D:/nhn_source/hippo_project/hippo-tomcat-profiler/target/classes/
+        // file:/D:/nhn_source/pinpoint_project/pinpoint-tomcat-profiler/target/classes/
         int dirPath = path.lastIndexOf("target/classes/");
         if (dirPath == -1) {
             throw new RuntimeException("target/classes/ not found");

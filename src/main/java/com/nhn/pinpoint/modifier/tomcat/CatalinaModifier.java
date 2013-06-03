@@ -11,7 +11,7 @@ import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.modifier.tomcat.interceptors.CatalinaAwaitInterceptor;
 
 /**
- * Tomcat startup정보를 HIPPO서버로 전송하는 코드를 호출하기위한 modifier
+ * Tomcat startup정보를 Pinpoint서버로 전송하는 코드를 호출하기위한 modifier
  *
  * @author netspider
  */
@@ -38,7 +38,7 @@ public class CatalinaModifier extends AbstractModifier {
         try {
             /**
              * Tomcat startup완료되면 Catalina.await()을 호출하고 stop되기를 기다린다. 이 때
-             * await하기 전에 서버가 시작되면서 수집된 WAS정보를 HIPPO 서버로 전송한다.
+             * await하기 전에 서버가 시작되면서 수집된 WAS정보를 Pinpoint 서버로 전송한다.
              */
             CatalinaAwaitInterceptor catalinaAwaitInterceptor = new CatalinaAwaitInterceptor(agent);
             InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
