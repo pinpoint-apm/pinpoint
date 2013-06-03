@@ -48,7 +48,7 @@ public class TraceTest {
 
         // response to client
 
-        trace.traceBlockEnd(0);
+        trace.traceRootBlockEnd();
 
         logger.info(String.valueOf(dataSender.event));
     }

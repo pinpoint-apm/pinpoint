@@ -19,7 +19,7 @@ public class CallStackTest {
         logger.info(String.valueOf(stackIndex));
         callStack.push();
 
-        callStack.pop();
+        callStack.popRoot();
     }
 
     @Test
