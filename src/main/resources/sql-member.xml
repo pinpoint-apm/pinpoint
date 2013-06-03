@@ -4,7 +4,7 @@
     "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="Member">
-	<typeAlias alias="Member" type="com.nhn.hippo.testweb.domain.Member" />
+	<typeAlias alias="Member" type="com.nhn.pinpoint.testweb.domain.Member" />
 
 	<delete id="delete" parameterClass="int">
 		delete from member where id = #id#

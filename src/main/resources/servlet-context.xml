@@ -16,7 +16,7 @@
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<tx:annotation-driven transaction-manager="mysqlTransactionManager"/>
 
-	<context:component-scan base-package="com.nhn.hippo" />
+	<context:component-scan base-package="com.nhn.pinpoint" />
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

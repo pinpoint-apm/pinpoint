@@ -17,7 +17,7 @@
 	</appender>
 
 
-    <logger name="com.nhn.hippo" additivity="false">
+    <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>
