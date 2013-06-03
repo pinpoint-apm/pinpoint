@@ -25,20 +25,20 @@ public class TomcatProfilerReceiverConfig {
 	}
 
 	public static void readConfigFile() {
-		String configFileName = "hipposerver.config";
-		String hippoConfigFileName = System.getProperty(configFileName);
-		if (hippoConfigFileName != null) {
+		String configFileName = "pinpointserver.config";
+		String pinpointConfigFileName = System.getProperty(configFileName);
+		if (pinpointConfigFileName != null) {
 			Properties prop = new Properties();
 			try {
-				FileReader reader = new FileReader(hippoConfigFileName);
+				FileReader reader = new FileReader(pinpointConfigFileName);
 				prop.load(reader);
 				reader.close();
 				setPropertyValues(prop);
 			} catch (FileNotFoundException fnfe) {
-				logger.error("File '{}' is not exists. Please check configuration.", hippoConfigFileName);
+				logger.error("File '{}' is not exists. Please check configuration.", pinpointConfigFileName);
 				fnfe.printStackTrace();
 			} catch (Exception e) {
-				logger.error("File '{}' is not exists. Please check configuration.", hippoConfigFileName);
+				logger.error("File '{}' is not exists. Please check configuration.", pinpointConfigFileName);
 				e.printStackTrace();
 			}
 		} else {
@@ -55,6 +55,6 @@ public class TomcatProfilerReceiverConfig {
 		if ((temp = prop.get("SERVER_UDP_LISTEN_PORT")) != null)
 			SERVER_UDP_LISTEN_PORT = Integer.parseInt(temp.toString());
 
-		logger.info("Hippo configuration successfully loaded.");
+		logger.info("Pinpoint configuration successfully loaded.");
 	}
 }
