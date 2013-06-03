@@ -1,4 +1,4 @@
-package com.profiler.server;
+package com.nhn.server;
 
 import com.nhn.pinpoint.server.Server;
 

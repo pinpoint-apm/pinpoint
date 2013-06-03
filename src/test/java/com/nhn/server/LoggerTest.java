@@ -1,4 +1,4 @@
-package com.profiler.server;
+package com.nhn.server;
 
 import org.junit.Test;
 import org.slf4j.Logger;

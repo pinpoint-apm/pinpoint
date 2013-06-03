@@ -1,4 +1,4 @@
-package com.profiler.server.receiver.udp;
+package com.nhn.server.receiver.udp;
 
 import java.util.concurrent.Future;
 

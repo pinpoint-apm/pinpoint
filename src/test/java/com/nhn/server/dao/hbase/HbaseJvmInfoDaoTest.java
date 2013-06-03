@@ -1,4 +1,4 @@
-package com.profiler.server.dao.hbase;
+package com.nhn.server.dao.hbase;
 
 import java.util.Arrays;
 
