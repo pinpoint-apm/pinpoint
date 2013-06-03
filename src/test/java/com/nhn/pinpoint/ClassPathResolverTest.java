@@ -63,13 +63,13 @@ public class ClassPathResolverTest {
 
     @Test
     public void findAgentJar() {
-        findAgentJar("hippo-tomcat-profiler-0.0.2.jar");
-        findAgentJar("hippo-tomcat-profiler-1.0.0.jar");
-        findAgentJar("hippo-tomcat-profiler-1.10.20.jar");
+        findAgentJar("pinpoint-bootstrap-0.0.2.jar");
+        findAgentJar("pinpoint-bootstrap-1.0.0.jar");
+        findAgentJar("pinpoint-bootstrap-1.10.20.jar");
 
 
-        findAgentJarAssertFail("hippo-tomcat-profiler-1.a.test.jar");
-        findAgentJarAssertFail("hippotomcatprofiler-1.a.test.jar");
+        findAgentJarAssertFail("pinpoint-bootstrap-1.a.test.jar");
+        findAgentJarAssertFail("pinpointbootstrap-1.a.test.jar");
     }
 
     private void findAgentJar(String path) {

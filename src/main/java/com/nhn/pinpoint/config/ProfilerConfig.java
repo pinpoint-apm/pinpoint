@@ -41,8 +41,8 @@ public class ProfilerConfig {
 
 	private int profileJvmCollectInterval;
 	
-	private Set<String> profileInclude = new HashSet<String>(4);
-	private Set<String> profileIncludeSub = new HashSet<String>(4);
+	private Set<String> profileInclude = new HashSet<String>();
+	private Set<String> profileIncludeSub = new HashSet<String>();
 
     private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
 	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
@@ -178,19 +178,28 @@ public class ProfilerConfig {
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
 		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
 		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
-		String[] tmp = readString(prop, "profile.include", "").split(",");
-		for (String str : tmp) {
-			if (str.endsWith(".*")) {
-				this.profileIncludeSub.add(str.substring(0, str.length() - 2).replace('.', '/') + "/");
-			} else {
-				this.profileInclude.add(str.trim().replace('.', '/'));
-			}
-		}
-		
-		logger.info("configuration loaded successfully.");
+		String profileableClass = readString(prop, "profile.include", "");
+        setProfilableClass(profileableClass);
+
+        logger.info("configuration loaded successfully.");
 	}
 
-	private String readString(Properties prop, String propertyName, String defaultValue) {
+    public void setProfilableClass(String profilableClass) {
+        if (profilableClass == null || profilableClass.length() == 0) {
+            return;
+        }
+        String[] className = profilableClass.split(",");
+        for (String str : className) {
+            if (str.endsWith(".*")) {
+                this.profileIncludeSub.add(str.substring(0, str.length() - 2).replace('.', '/') + "/");
+            } else {
+                String replace = str.trim().replace('.', '/');
+                this.profileInclude.add(replace);
+            }
+        }
+    }
+
+    private String readString(Properties prop, String propertyName, String defaultValue) {
 		String value = prop.getProperty(propertyName, defaultValue);
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info(propertyName + "=" + value);
