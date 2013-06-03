@@ -1,0 +1,44 @@
+package com.nhn.pinpoint.server.dao.hbase;
+
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
+
+import com.nhn.pinpoint.server.dao.ApplicationTraceIndexDao;
+import com.nhn.pinpoint.server.util.AcceptedTimeService;
+import com.nhn.pinpoint.server.util.AcceptedTimeService;
+import org.apache.hadoop.hbase.client.Put;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.SpanUtils;
+import com.nhn.pinpoint.server.dao.ApplicationTraceIndexDao;
+
+/**
+ * find traceids by application name
+ * 
+ * @author netspider
+ */
+public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
+
+	@Autowired
+	private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
+	@Override
+	public void insert(final Span span) {
+		int elapsedTime = span.getElapsed();
+		byte[] value = new byte[8];
+		BytesUtils.writeInt(elapsedTime, value, 0);
+		BytesUtils.writeInt(span.getErr(), value, 4);
+
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        Put put = new Put(SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime));
+		put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, value);
+
+		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+	}
+}

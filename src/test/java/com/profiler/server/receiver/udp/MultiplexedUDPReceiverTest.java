@@ -2,12 +2,14 @@ package com.profiler.server.receiver.udp;
 
 import java.util.concurrent.Future;
 
+import com.nhn.pinpoint.server.receiver.udp.DataReceiver;
+import com.nhn.pinpoint.server.receiver.udp.MultiplexedUDPReceiver;
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 
-import com.profiler.server.spring.ApplicationContextUtils;
+import com.nhn.pinpoint.server.spring.ApplicationContextUtils;
 
 public class MultiplexedUDPReceiverTest {
 	@Test

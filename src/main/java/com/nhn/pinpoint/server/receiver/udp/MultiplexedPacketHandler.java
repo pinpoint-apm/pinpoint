@@ -1,0 +1,114 @@
+package com.nhn.pinpoint.server.receiver.udp;
+
+import java.net.DatagramPacket;
+
+import com.nhn.pinpoint.common.dto2.thrift.*;
+import com.nhn.pinpoint.server.handler.Handler;
+import com.nhn.pinpoint.server.util.AcceptedTimeService;
+import com.nhn.pinpoint.server.util.AcceptedTimeService;
+import com.nhn.pinpoint.server.util.PacketUtils;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+
+import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.common.io.TBaseLocator;
+import com.nhn.pinpoint.server.handler.Handler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class MultiplexedPacketHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
+    @Autowired
+    private TBaseLocator locator;
+
+    @Autowired()
+    @Qualifier("JvmDataHandler")
+    private Handler jvmDataHandler;
+
+    @Autowired()
+    @Qualifier("SpanHandler")
+    private Handler spanDataHandler;
+
+    @Autowired()
+    @Qualifier("AgentInfoHandler")
+    private Handler agentInfoHandler;
+
+    @Autowired()
+    @Qualifier("SpanEventHandler")
+    private Handler spanEventHandler;
+
+    @Autowired()
+    @Qualifier("SpanChunkHandler")
+    private Handler spanChunkHandler;
+
+    @Autowired()
+    @Qualifier("SqlMetaDataHandler")
+    private Handler sqlMetaDataHandler;
+
+    @Autowired()
+    @Qualifier("ApiMetaDataHandler")
+    private Handler apiMetaDataHandler;
+
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
+    public MultiplexedPacketHandler() {
+    }
+
+    public void handlePacket(DatagramPacket packet) {
+        HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+        try {
+            TBase<?, ?> tBase = deserializer.deserialize(locator, packet.getData());
+            dispatch(tBase, packet);
+        } catch (TException e) {
+            logger.warn("packet serialize error. SendSocketAddress:" + packet.getSocketAddress() + "Cause:" + e.getMessage(), e);
+            logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
+        } catch (Exception e) {
+            // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+            logger.warn("Unexpected error. SendSocketAddress:" + packet.getSocketAddress() + " Cause:" + e.getMessage(), e);
+            logger.warn("packet dump hex:" + PacketUtils.dumpDatagramPacket(packet));
+        }
+    }
+
+
+    private void dispatch(TBase<?, ?> tBase, DatagramPacket datagramPacket) {
+        Handler handler = getHandler(tBase);
+        if (logger.isDebugEnabled()) {
+            logger.debug("handler name:" + handler.getClass().getName());
+        }
+
+        acceptedTimeService.accept();
+        handler.handler(tBase, datagramPacket);
+    }
+
+    private Handler getHandler(TBase<?, ?> tBase) {
+        if (tBase instanceof JVMInfoThriftDTO) {
+            return jvmDataHandler;
+        }
+        if (tBase instanceof Span) {
+            return spanDataHandler;
+        }
+        if (tBase instanceof AgentInfo) {
+            return agentInfoHandler;
+        }
+        if (tBase instanceof SpanEvent) {
+            return spanEventHandler;
+        }
+        if (tBase instanceof SpanChunk) {
+            return spanChunkHandler;
+        }
+        if (tBase instanceof SqlMetaData) {
+            return sqlMetaDataHandler;
+        }
+        if (tBase instanceof ApiMetaData) {
+            return apiMetaDataHandler;
+        }
+        throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
+    }
+
+}

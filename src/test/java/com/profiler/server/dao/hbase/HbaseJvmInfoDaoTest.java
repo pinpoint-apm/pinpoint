@@ -2,6 +2,7 @@ package com.profiler.server.dao.hbase;
 
 import java.util.Arrays;
 
+import com.nhn.pinpoint.server.dao.hbase.HbaseJvmInfoDao;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TSerializer;
