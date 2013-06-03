@@ -16,6 +16,7 @@ public class TomcatBootStrap {
 
     private static final Logger logger = Logger.getLogger(TomcatBootStrap.class.getName());
 
+    public static final String BOOT_CLASS = "com.nhn.DefaultAgent";
 
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
@@ -48,7 +49,7 @@ public class TomcatBootStrap {
             // 이게 로드할 lib List임.
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
-            agentClassLoader.setBootClass("com.profiler.DefaultAgent");
+            agentClassLoader.setBootClass(BOOT_CLASS);
             agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
 
         } catch (Exception e) {
