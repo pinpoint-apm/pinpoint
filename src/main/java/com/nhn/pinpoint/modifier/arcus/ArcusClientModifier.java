@@ -35,7 +35,7 @@ public class ArcusClientModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "SetCacheManagerInterceptor");
+            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.SetCacheManagerInterceptor");
             aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor,  Type.before);
 
             return aClass.toBytecode();

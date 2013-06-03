@@ -37,7 +37,7 @@ public class MemcachedClientModifier extends AbstractModifier {
 
             aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 
-            Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "AddOpInterceptor");
+            Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.AddOpInterceptor");
             aClass.addInterceptor("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"}, addOpInterceptor, Type.before);
 
             return aClass.toBytecode();

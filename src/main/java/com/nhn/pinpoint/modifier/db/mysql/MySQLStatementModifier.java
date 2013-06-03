@@ -38,14 +38,14 @@ public class MySQLStatementModifier extends AbstractModifier {
             statementClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
 
             // TODO 이거 고쳐야 됨.
-            Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdate1);
-            Interceptor executeUpdate2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdate2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdate2);
 
-            Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("execute", new String[]{"java.lang.String"}, executeUpdate3);
-            Interceptor executeUpdate4 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdate4 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
             statementClass.addInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdate4);
 
             statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");

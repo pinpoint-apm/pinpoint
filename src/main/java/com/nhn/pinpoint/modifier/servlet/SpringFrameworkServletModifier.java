@@ -37,10 +37,10 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "MethodInterceptor");
+			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.servlet.MethodInterceptor");
             setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
 
-            Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "MethodInterceptor");
+            Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.servlet.MethodInterceptor");
             setServiceType(doPostInterceptor, ServiceType.SPRING_MVC);
 
 

@@ -50,10 +50,10 @@ public class HttpClient4Modifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "ExecuteMethodInterceptor");
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.connector.httpclient4.interceptor.ExecuteMethodInterceptor");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, interceptor);
 
-            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "Execute2MethodInterceptor");
+            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.connector.httpclient4.interceptor.Execute2MethodInterceptor");
             aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, interceptor2);
 
             return aClass.toBytecode();
