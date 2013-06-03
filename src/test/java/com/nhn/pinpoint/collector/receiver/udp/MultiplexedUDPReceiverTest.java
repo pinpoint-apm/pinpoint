@@ -1,4 +1,4 @@
-package com.nhn.server.receiver.udp;
+package com.nhn.pinpoint.collector.receiver.udp;
 
 import java.util.concurrent.Future;
 

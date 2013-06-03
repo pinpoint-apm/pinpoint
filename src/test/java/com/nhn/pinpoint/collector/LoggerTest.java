@@ -1,4 +1,4 @@
-package com.nhn.server;
+package com.nhn.pinpoint.collector;
 
 import org.junit.Test;
 import org.slf4j.Logger;

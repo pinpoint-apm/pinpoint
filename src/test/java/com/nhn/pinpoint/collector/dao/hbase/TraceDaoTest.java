@@ -1,4 +1,4 @@
-package com.nhn.server.dao.hbase;
+package com.nhn.pinpoint.collector.dao.hbase;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

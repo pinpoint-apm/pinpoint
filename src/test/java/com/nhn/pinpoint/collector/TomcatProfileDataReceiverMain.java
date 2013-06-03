@@ -1,4 +1,4 @@
-package com.nhn.server;
+package com.nhn.pinpoint.collector;
 
 import com.nhn.pinpoint.collector.Server;
 
