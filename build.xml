@@ -1,11 +1,11 @@
-<project name="hippo_common_build" basedir=".">
+<project name="pinpoint_common_build" basedir=".">
     <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
     <property name="common.dir" value="${basedir}/../deploy/agent/agentlib/lib"/>
     <property name="target.dir" value="${basedir}/target/"/>
 
 
     <!--<target name="copy.common.deploy.dir" depends="mvn.build">-->
-        <!--<copy file="${target.dir}/hippo-commons-0.0.2.jar" todir="${common.dir}">-->
+        <!--<copy file="${target.dir}/pinpoint-commons-0.0.2.jar" todir="${common.dir}">-->
         <!--</copy>-->
     <!--</target>-->
 
