@@ -24,23 +24,12 @@
     </appender>
 
 
-    <logger name="com.nhn.hippo" additivity="false">
+    <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
         <appender-ref ref="dailyRollingFile" />
     </logger>
 
-    <logger name="com.profiler" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-        <appender-ref ref="dailyRollingFile" />
-    </logger>
-
-    <logger name="com.profiler.boot" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-        <appender-ref ref="dailyRollingFile" />
-    </logger>
 
 
     <root>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="hippo_profiler_build" basedir=".">
+<project name="pinpoint_profiler_build" basedir=".">
+    <!-- 버전은 맨날 변경해야 됨 -->
+    <property name="project.jar" value="pinpoint-profiler-0.0.3-SNAPSHOT.jar"/>
     <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
     <property name="agent.dir" value="${basedir}/../deploy/agent/agentlib/lib"/>
     <property name="target.dir" value="${basedir}/target/"/>
@@ -17,7 +19,7 @@
     </target>
 
     <target name="copy.agent">
-        <copy file="${target.dir}/hippo-tomcat-profiler-0.0.2.jar"  todir="${agent.dir}" overwrite="true">
+        <copy file="${target.dir}/${project.jar}"  todir="${agent.dir}" overwrite="true">
         </copy>
     </target>
 

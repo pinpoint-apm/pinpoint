@@ -16,16 +16,7 @@
 		</layout>
 	</appender>
 
-    <logger name="com.nhn.hippo" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-    <logger name="com.profiler" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-    
-    <logger name="com.profiler.boot" additivity="false">
+    <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>
