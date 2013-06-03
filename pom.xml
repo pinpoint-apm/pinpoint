@@ -4,7 +4,7 @@
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pinpoint-collector</artifactId>
     <version>0.0.3-SNAPSHOT</version>
-    <name>hippo data receiver</name>
+    <name>pinpoint collector</name>
     <packaging>jar</packaging>
 
     <properties>
