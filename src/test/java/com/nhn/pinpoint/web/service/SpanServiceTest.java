@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
+import com.nhn.pinpoint.collector.dao.TracesDao;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -28,7 +29,6 @@ import com.nhn.pinpoint.common.dto2.thrift.Span;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseTemplate2;
 import com.nhn.pinpoint.common.util.SpanUtils;
-import com.profiler.server.dao.TracesDao;
 
 /**
  *

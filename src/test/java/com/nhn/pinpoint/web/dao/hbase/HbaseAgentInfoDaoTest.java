@@ -21,7 +21,7 @@ public class HbaseAgentInfoDaoTest {
 	@Autowired
 	private HbaseAgentInfoDao selectDao;
 	@Autowired
-	private com.profiler.server.dao.hbase.HbaseAgentInfoDao insertDao;
+	private com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao insertDao;
 
 	@Test
 	public void testSelectAgentInfoStartTime() throws Exception {
