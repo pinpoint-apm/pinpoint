@@ -3,12 +3,13 @@ package com.nhn.pinpoint.modifier.db.mysql;
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.nhn.pinpoint.DefaultAgent;
 import com.nhn.pinpoint.DummyInstrumentation;
-import com.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.modifier.db.DatabaseInfo;
 
 import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
-import com.profiler.modifier.db.DatabaseInfo;
 
-import com.profiler.util.MetaObject;
+
+import com.nhn.pinpoint.util.MetaObject;
 import com.nhn.pinpoint.util.TestClassLoader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +30,7 @@ public class MySQLConnectionImplModifierTest {
     @Before
     public void setUp() throws Exception {
 
-        com.profiler.logging.LoggerFactory.initialize(new Slf4jLoggerBinder());
+        com.nhn.pinpoint.logging.LoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
         DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);

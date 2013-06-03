@@ -9,14 +9,14 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.context.Header;
 import com.nhn.pinpoint.context.MockTraceContextFactory;
-import com.profiler.context.TraceContext;
+import com.nhn.pinpoint.context.TraceContext;
+import com.nhn.pinpoint.logging.LoggerFactory;
 import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
-import com.profiler.logging.LoggerFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.profiler.context.Header;
 import com.nhn.pinpoint.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
 
 public class InvokeMethodInterceptorTest {
