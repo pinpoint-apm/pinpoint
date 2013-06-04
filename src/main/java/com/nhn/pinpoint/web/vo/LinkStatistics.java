@@ -33,14 +33,6 @@ public class LinkStatistics {
 	 */
 	private final SortedMap<Integer, Long> histogramSummary = new TreeMap<Integer, Long>();;
 
-	/**
-	 * <pre>
-	 * key = timeslot
-	 * value = { responseTimeslot, count }
-	 * </pre>
-	 */
-	// private final Map<Long, SortedMap<Integer, Long>> timeseriesHistogram = new TreeMap<Long, SortedMap<Integer, Long>>();;
-
 	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
 	
 	// index = slot index, key = timestamp, value = value 
@@ -58,19 +50,50 @@ public class LinkStatistics {
 	private long failedCount = 0;
 	private final List<Integer> histogramSlotList = new ArrayList<Integer>();
 
+	private final long from;
+	private final long to;
+
+	public LinkStatistics(long from, long to) {
+		this.from = from;
+		this.to = to;
+	}
+	
+	private long valueSteps() {
+		long diff = (to - from);
+		long step;
+
+		long SIX_HOURS = 6 * 24 * 60 * 1000;
+		long ONE_DAY = 24 * 24 * 60 * 1000;
+
+		if (diff < SIX_HOURS) {
+			step = 5 * 60 * 1000L;
+		} else if (diff < ONE_DAY) {
+			step = 10 * 60 * 1000L;
+		} else if (diff < ONE_DAY * 2) {
+			step = 15 * 60 * 1000L;
+		} else {
+			step = 20 * 60 * 1000L;
+		}
+
+		logger.debug("step=" + step);
+		
+		return step;
+	}
+
 	/**
-	 * view에서 값이 없는 slot도 보여주기위해서..
+	 * timeseries 기본값 채운다. 빈 공간은 그냥 적당히 채워준다. 모두 채우면 느리니까..
 	 * 
 	 * @return
 	 */
-	private SortedMap<Integer, Long> makeDefaultHistogram() {
-		SortedMap<Integer, Long> map = new TreeMap<Integer, Long>();
-		for (int key : histogramSlotList) {
-			map.put(key, 0L);
+	private SortedMap<Long, Long> makeDefaultTimeseriesValues() {
+		SortedMap<Long, Long> map = new TreeMap<Long, Long>();
+		long step = valueSteps();
+		for (long time = from; time <= to; time += step) {
+			map.put(time, 0L);
 		}
 		return map;
 	}
-
+	
 	/**
 	 * histogram slot을 설정하면 view에서 값이 없는 slot의 값을 0으로 보여줄 수 있다. 설정되지 않으면 key를
 	 * 몰라서 보여주지 못함. 입력된 값만 보이게 됨.
@@ -84,6 +107,9 @@ public class LinkStatistics {
 
 		histogramSlotList.clear();
 		histogramSummary.clear();
+		timeseriesSlotIndex.clear();
+		timeseriesValue.clear();
+		timeseriesFaileureHistogram.clear();
 
 		// -1 is failed
 		histogramSlotList.add(ERROR);
@@ -97,7 +123,17 @@ public class LinkStatistics {
 			histogramSlotList.add(slot.getSlotTime());
 			histogramSummary.put(slot.getSlotTime(), 0L);
 			timeseriesSlotIndex.put(slot.getSlotTime(), timeseriesSlotIndex.size());
-			timeseriesValue.add(new TreeMap<Long, Long>());
+			timeseriesValue.add(makeDefaultTimeseriesValues());
+		}
+		
+		timeseriesSlotIndex.put(SLOW, timeseriesSlotIndex.size());
+		timeseriesSlotIndex.put(ERROR, timeseriesSlotIndex.size());
+		timeseriesValue.add(makeDefaultTimeseriesValues());
+		timeseriesValue.add(makeDefaultTimeseriesValues());
+		
+		long step = valueSteps();
+		for (long time = from; time <= to; time += step) {
+			timeseriesFaileureHistogram.put(time, new Long[] { 0L, 0L });
 		}
 	}
 
@@ -123,7 +159,7 @@ public class LinkStatistics {
 
 		// add timeseries histogram
 		// error:-1, slow:0가 아닌경우.
-		if (responseTimeslot != ERROR && responseTimeslot != SLOW) {
+		// if (responseTimeslot != ERROR && responseTimeslot != SLOW) {
 			for (int i = 0; i < timeseriesValue.size(); i++) {
 				SortedMap<Long, Long> map = timeseriesValue.get(i);
 
@@ -137,7 +173,7 @@ public class LinkStatistics {
 					}
 				}
 			}
-		}
+		// }
 		
 		// add failure rate histogram
 		if (timeseriesFaileureHistogram.containsKey(timestamp)) {

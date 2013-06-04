@@ -156,7 +156,7 @@ public class ApplicationMapController {
 		
 		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 		Filter filter = FilterBuilder.build(filterText);
-		LinkStatistics linkStatistics = flow.linkStatisticsDetail(traceIdSet, srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
+		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet, srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
 		model.addAttribute("linkStatistics", linkStatistics);
 		

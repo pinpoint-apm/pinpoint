@@ -26,8 +26,13 @@ var _PinpointNavigationBar = $.Class({
 		if (input.getTime() > now.getTime()) {
 			return now;
 		}
+		
 		// 초단위 무시.
 		input.setSeconds(0);
+		
+		// 5분 단위로 조회
+		input.setMinutes(Math.floor(input.getMinutes() / 5 + 0.9) * 5);
+		
 		return input.getTime();
 	},
 	setQueryDateToNow : function() {

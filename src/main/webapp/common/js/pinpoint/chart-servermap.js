@@ -15,18 +15,19 @@ function linkStatistics(
 		destApplicationName) {
 	
 	var params = {
-			"from" : begin,
-			"to" : end,
-			"srcServiceType" : srcServiceType,
-			"srcApplicationName" : srcApplicationName,
-			"destServiceType" : destServiceType,
-			"destApplicationName" : destApplicationName
+		"from" : begin,
+		"to" : end,
+		"srcServiceType" : srcServiceType,
+		"srcApplicationName" : srcApplicationName,
+		"destServiceType" : destServiceType,
+		"destApplicationName" : destApplicationName
 	}
 
 	var showFailedRateChart = function(data) {
 		$("#linkInfoDetails .linkInfoSFChart").show();
 		nv.addGraph(function() {
-			var chart = nv.models.stackedAreaChart().x(function(d) {
+//			var chart = nv.models.stackedAreaChart().x(function(d) {
+			var chart = nv.models.multiBarChart().x(function(d) {
 				return d[0];
 			}).y(function(d) {
 				return d[1];
@@ -38,8 +39,10 @@ function linkStatistics(
 				} else {
 					return nv.utils.getColor(d);
 				}
-			}).style('expand').showControls(false);
+			}).showControls(false);//.style('expand').showControls(false);
 
+			chart.stacked(true);
+			
 			chart.xAxis.tickFormat(function(d) {
 				return d3.time.format('%x %H:%M')(new Date(d));
 			});
@@ -81,6 +84,10 @@ function linkStatistics(
 				return d;
 			});
 			
+			chart.valueFormat(function(d) {
+				return d;
+			});
+			
 			d3.select('#linkInfoDetails .linkInfoBarChart svg')
 					.datum(data)
 					.transition()
@@ -96,11 +103,14 @@ function linkStatistics(
 	var showTimeseriesHistogram = function(data) {
 		$("#linkInfoDetails .linkInfoChart").show();
 		nv.addGraph(function() {
-			var chart = nv.models.stackedAreaChart().x(function(d) {
+//			var chart = nv.models.stackedAreaChart().x(function(d) {
+			var chart = nv.models.multiBarChart().x(function(d) {
 				return d[0];
 			}).y(function(d) {
 				return d[1];
-			}).clipEdge(true);
+			}).clipEdge(true).showControls(false);
+			
+			chart.stacked(true);
 			
 			chart.xAxis.tickFormat(function(d) {
 				return d3.time.format('%H:%M')(new Date(d));
@@ -122,7 +132,9 @@ function linkStatistics(
 		});
 	}; 
 	
+	$("#statisticsProgressbar").show();
 	getLinkStatisticsData(params, function(query, result) {
+		$("#statisticsProgressbar").hide();
 		showFailedRateChart(result.timeseriesFailRate);
 		showSummary(result.histogramSummary);
 		showTimeseriesHistogram(result.timeseriesHistogram);

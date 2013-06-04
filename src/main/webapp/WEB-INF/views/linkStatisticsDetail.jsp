@@ -54,7 +54,11 @@
 	],
 	"timeseriesHistogram" : [ <c:forEach items="${timeseriesSlotIndex}" var="slot" varStatus="status">
 		{
-			"key" : "${slot.key}",
+			<c:choose>
+				<c:when test="${slot.key == 2147483646}">"key" : "Slow",</c:when>
+				<c:when test="${slot.key == 2147483647}">"key" : "Failed",</c:when>
+				<c:otherwise>"key" : "<= ${slot.key}ms",</c:otherwise>
+			</c:choose>
 			"values" : [
 				<c:forEach var="entry" items="${timeseriesValue[slot.value]}" varStatus="mapStatus">
 				[ ${entry.key}, ${entry.value} ]<c:if test="${!mapStatus.last}">,</c:if></c:forEach>

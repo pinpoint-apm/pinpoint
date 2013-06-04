@@ -169,7 +169,7 @@
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
-	<li><a href="#servermap">Server Map</a></li>
+	<li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
 	<li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
 	<li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
 </ul>
@@ -278,6 +278,10 @@
 	    <!-- end of new call stack -->
 	</div>
 	
+	<div class="tab-pane" id="ServerMap">
+		<div id="servermap" style="width:1000px;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
+	</div>
+	
 	<div class="tab-pane" id="Timeline">
         <!-- begin timeline -->
 		<div id="timeline" style="background-color:#E8E8E8;width:1000px;font-size:11px;">
@@ -380,11 +384,6 @@
 	</div>
 </div>
 
-</br>
-</br>
-<a href="#servermap"></a>
-<div id="servermap" style="width:1000px;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
-</br>
 </br>
 </br>
 
@@ -490,44 +489,48 @@
     
     $(".arguments").bind("click", expandCell);
     $(".method").bind("click", expandCell);
-    
+
     var oServerMap;
+    $("#traceTabs li:nth-child(2) a").bind("click", function() {
+    	if (oServerMap != null) {
+    		return;
+    	}
+    	
+        var containerId = "servermap";
+
+    	if (data.applicationMapData.nodeDataArray.length == 0) {
+    		return;
+    	}
+    	
+    	if (oServerMap == null) {
+    		oServerMap = new ServerMap({
+    	        sContainerId : containerId,
+    			"sImageDir" : '/images/icons/',
+    			"htIcons" : {
+    				'APACHE' : 'APACHE.png',
+    				'ARCUS' : 'ARCUS.png',
+    				'CUBRID' : 'CUBRID.png',
+    				'ETC' : 'ETC.png',
+    				'MEMCACHED' : 'MEMCACHED.png',
+    				'MYSQL' : 'MYSQL.png',
+    				'QUEUE' : 'QUEUE.png',
+    				'TOMCAT' : 'TOMCAT.png',
+    				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+    				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
+    				'USER' : 'USER.png'
+    			},
+    			fOnNodeClick : function(e, data) {
+    				// nodeClickHandler(e, data, "#" + containerId);
+    			},
+    			fOnLinkClick : function(e, data) {
+    				// linkClickHandler(e, data, "#" + containerId);
+    			}
+    	    });
+    	}
+        oServerMap.load(data.applicationMapData);    	
+    });
     
     $(document).ready(function () {
-    	var containerId = "servermap";
-
-		if (data.applicationMapData.nodeDataArray.length == 0) {
-			return;
-		}
-		
-		if (oServerMap == null) {
-			oServerMap = new ServerMap({
-		        sContainerId : containerId,
-				"sImageDir" : '/images/icons/',
-				"htIcons" : {
-					'APACHE' : 'APACHE.png',
-					'ARCUS' : 'ARCUS.png',
-					'CUBRID' : 'CUBRID.png',
-					'ETC' : 'ETC.png',
-					'MEMCACHED' : 'MEMCACHED.png',
-					'MYSQL' : 'MYSQL.png',
-					'QUEUE' : 'QUEUE.png',
-					'TOMCAT' : 'TOMCAT.png',
-					'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
-					'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
-					'USER' : 'USER.png'
-				},
-				fOnNodeClick : function(e, data) {
-					// nodeClickHandler(e, data, "#" + containerId);
-				},
-				fOnLinkClick : function(e, data) {
-					// linkClickHandler(e, data, "#" + containerId);
-				}
-		    });
-		}
-		
-	    oServerMap.load(data.applicationMapData);
-	    
         $('#chartTabs a:first').tab('show');
         $('#traceTabs a:first').tab('show');
     });

@@ -46,8 +46,6 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
 
-			logger.debug("    Fetched. " + callerApplicationName + " -> " + calleeApplicationName);
-
 			long requestCount = Bytes.toLong(kv.getValue());
 			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
@@ -55,6 +53,8 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			
 			String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
 
+			logger.debug("    Fetched. " + callerApplicationName + "[" + ServiceType.findServiceType(callerServiceType) + "] -> " + calleeApplicationName + "[" + ServiceType.findServiceType(calleeServiceType) + "] (" + requestCount + ")");
+			
 			// hostname은 일단 따로 보관.
 			if (calleeHost != null) {
 				if (calleeAppHostMap.containsKey(id)) {
@@ -69,16 +69,14 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			if (stat.containsKey(id)) {
 				ApplicationStatistics statistics = stat.get(id);
 				if (isError) {
-					statistics.getHistogram().addSample((short) -1, 1L);
-					// statistics.getHistogram().incrErrorCount(requestCount);
+					statistics.getHistogram().addSample((short) -1, requestCount);
 				} else {
 					statistics.getHistogram().addSample(histogramSlot, requestCount);
 				}
 			} else {
 				ApplicationStatistics statistics = new ApplicationStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
 				if (isError) {
-					statistics.getHistogram().addSample((short) -1, 1L);
-					// statistics.getHistogram().incrErrorCount(requestCount);
+					statistics.getHistogram().addSample((short) -1, requestCount);
 				} else {
 					statistics.getHistogram().addSample(histogramSlot, requestCount);
 				}

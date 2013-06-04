@@ -27,5 +27,5 @@ public interface FlowChartService {
 	
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType);
 
-	public LinkStatistics linkStatisticsDetail(Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
+	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
 }

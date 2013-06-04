@@ -5,7 +5,7 @@ var ServerMap = $.Class({
 			"sBigFont" : "12pt Helvetica, Arial, sans-serif",
 			"sSmallFont" : "11pt Helvetica, Arial, sans-serif",
 			"htNodeBackgroundColor" : { 0: "rgba(136, 194, 251, 0)", 0.5: "rgba(64, 169, 253, 0.1)", 1: "rgba(122, 231, 255, 0)"},
-			"sImageDir" : './images/icons',
+			"sImageDir" : './images/icons/',
 			"htIcons" : {
 				'APACHE' : 'APACHE.png',
 				'ARCUS' : 'ARCUS.png',
@@ -48,6 +48,34 @@ var ServerMap = $.Class({
 					"margin" : 1
 				}
 			},
+			"htHighlightNode" : {
+				"normal" : {
+					"stroke" : "gray",
+					"strokeWidth" : 1
+				},
+				"to" : {
+					"stroke" : "blue",
+					"strokeWidth" : 3
+				},
+				"from" : {
+					"stroke" : "green",
+					"strokeWidth" : 3
+				}
+			},
+			"htHighlightLink" : {
+				"normal" : {
+					"stroke" : "gray",
+					"strokeWidth" : 1
+				},
+				"to" : {
+					"stroke" : "orange",
+					"strokeWidth" : 3
+				},
+				"from" : {
+					"stroke" : "red",
+					"strokeWidth" : 3
+				}
+			},
 			"fOnNodeClick" : function(eMouseEvent, htData) {
 				console.log("fOnNodeClick", eMouseEvent, htData);
 			},
@@ -72,7 +100,7 @@ var ServerMap = $.Class({
 
 	_initVariables : function(){
 		this.$ = go.GraphObject.make;
-		this._oDiagram = this.$(go.Diagram, this.option('sContainerId'));
+		this._oDiagram = this.$(go.Diagram, this.option('sContainerId'), { initialContentAlignment: go.Spot.Center,maxSelectionCount: 1 });
 		this._oNodeBackground = this.$(go.Brush, go.Brush.Linear, this.option('htNodeBackgroundColor'));
 	},
 
@@ -84,13 +112,16 @@ var ServerMap = $.Class({
 	      this.$(go.Adornment, go.Panel.Spot,
 	        this.$(go.Panel, go.Panel.Auto,
 	          this.$(go.Shape, "RoundedRectangle",
-	            { fill: null, stroke: "dodgerblue", strokeWidth: 8 }),
+	            { name: "NODE", fill: null, stroke: "dodgerblue", strokeWidth: 8 }),
 	          this.$(go.Placeholder)),
 	        this.$("Button",
 	            { alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopLeft,
-	              click: this._onNodeClick.bind(this) },  // define click behavior for this Button in the Adornment
-	            // $(go.TextBlock, "Info",  // the Button content
-	            //   { font: "bold 6pt sans-serif" }))
+	              click: this._onNodeClick.bind(this) },  // define click
+															// behavior for this
+															// Button in the
+															// Adornment
+	            // $(go.TextBlock, "Info", // the Button content
+	            // { font: "bold 6pt sans-serif" }))
 	            this.$(go.Shape, 
 	              { name : "SHAPE",
 	                figure : "BpmnEventConditional",
@@ -104,14 +135,15 @@ var ServerMap = $.Class({
 	    this._oDiagram.nodeTemplate =
 	      this.$(go.Node, go.Panel.Auto,
 	        {
-	    	  	/*selectionAdornmentTemplate: this._oDefaultAdornment,*/
+	    	  	/* selectionAdornmentTemplate: this._oDefaultAdornment, */
 	    	  	click : this._onNodeClick.bind(this),
 	        	contextClick : this._onNodeContextClick.bind(this)
 	        },
-	        // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.str ingify),
+	        // new go.Binding("location", "loc",
+			// go.Point.parse).makeTwoWay(go.Point.str ingify),
 	        // define the node's outer shape, which will surround the TextBlock
 	        this.$(go.Shape, new go.Binding("figure", "fig"),
-	          { fill: this._oNodeBackground, stroke: "gray",
+	          { name: "NODE", fill: this._oNodeBackground, stroke: "gray",
 	            portId: "", cursor: "pointer" }),
 	        this.$(go.Panel, go.Panel.Horizontal, {margin:4},
 	          this.$(go.Picture, 
@@ -134,12 +166,12 @@ var ServerMap = $.Class({
 		    this._oDiagram.nodeTemplateMap.add(sKey,
 		        this.$(go.Node, go.Panel.Auto,
 		        	{ 
-//			        	selectionAdornmentTemplate: this._oDefaultAdornment,
+// selectionAdornmentTemplate: this._oDefaultAdornment,
 		        		click : this._onNodeClick.bind(this),
 			        	contextClick : this._onNodeContextClick.bind(this)
 		        	},
 			        this.$(go.Shape, new go.Binding("figure", "fig"),
-		          	{ fill: this._oNodeBackground, stroke: "gray", portId: "", cursor: "pointer" }),
+		          	{ name: "NODE", fill: this._oNodeBackground, stroke: "gray", portId: "", cursor: "pointer" }),
 			        this.$(go.Panel, go.Panel.Horizontal, {margin:4},
 			        this.$(go.Picture, 
 			            { source : sImageDir + sVal, 
@@ -161,22 +193,32 @@ var ServerMap = $.Class({
 
 	_initLinkTemplates : function(){
     	this._oDefaultAdornmentForLink =
-	      this.$(go.Adornment, go.Panel.Spot,
-	        this.$(go.Panel, go.Panel.Auto,
-	          this.$(go.Placeholder))/*,
-	        this.$("Button",
-	            { alignment: go.Spot.TopLeft, alignmentFocus: go.Spot.BottomLeft,
-	              click: this._onLinkClick.bind(this)
-	            },  // define click behavior for this Button in the Adornment
-	            // $(go.TextBlock, "Info",  // the Button content
-	            //   { font: "bold 6pt sans-serif" }))
-	            this.$(go.Shape, 
-	              { name : "SHAPE",
-	                figure : "BpmnEventConditional",
-	                width : 15, height: 15,
-	                fill : this.$(go.Brush, go.Brush.Linear, { 0.0: "white", 1.0: "gray" }), strokeWidth : 1
-	              })
-	          )*/
+    		this.$(go.Adornment, go.Panel.Spot,
+    				this.$(go.Panel, go.Panel.Auto,
+    						this.$(go.Placeholder))/*
+													 * , this.$("Button", {
+													 * alignment:
+													 * go.Spot.TopLeft,
+													 * alignmentFocus:
+													 * go.Spot.BottomLeft,
+													 * click:
+													 * this._onLinkClick.bind(this) }, //
+													 * define click behavior for
+													 * this Button in the
+													 * Adornment //
+													 * $(go.TextBlock, "Info", //
+													 * the Button content // {
+													 * font: "bold 6pt
+													 * sans-serif" }))
+													 * this.$(go.Shape, { name :
+													 * "SHAPE", figure :
+													 * "BpmnEventConditional",
+													 * width : 15, height: 15,
+													 * fill : this.$(go.Brush,
+													 * go.Brush.Linear, { 0.0:
+													 * "white", 1.0: "gray" }),
+													 * strokeWidth : 1 }) )
+													 */
 	        // the button to create a "next" node, at the top-right corner
 	      );		
 
@@ -199,25 +241,28 @@ var ServerMap = $.Class({
 				// curve: go.Link.JumpGap
 				// curve: go.Link.Bezier
 	        };
-//	    option = {};
+// option = {};
 
 	    var htLinkTheme = this.option("htLinkTheme"),
 	    	htDefault = htLinkTheme.default;
 	    this._oDiagram.linkTemplate =
 	      this.$(go.Link,  // the whole link panel
-	        //{ routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
+	        // { routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength:
+			// 2 },
 	        option,
 	        new go.Binding("curviness", "curviness"),
 	        this.$(go.Shape,  // the link shape
-	          { isPanelMain: true,
+	          { name: "LINK", isPanelMain: true,
 	            stroke: "gray", strokeWidth: 1.5 }),
 	        this.$(go.Shape,  // the arrowhead
-	          { toArrow: "standard", fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
+	          { toArrow: "standard", fill: '#2F4F4F', // toArrow : kite,
+														// standard,
+														// OpenTriangle
 	            stroke: null, scale: 1.5 }),
 	        this.$(go.Panel, go.Panel.Auto,
 	          this.$(go.Shape,  // the link shape
 	            "RoundedRectangle",
-	            { fill: this.$(go.Brush, go.Brush.Linear, htDefault.background), stroke: htDefault.border,
+	            { name: "LINK2", fill: this.$(go.Brush, go.Brush.Linear, htDefault.background), stroke: htDefault.border,
 	            portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer" }),
 	          this.$(go.TextBlock,  // the label
 	            { textAlign: htDefault.align,
@@ -231,14 +276,18 @@ var ServerMap = $.Class({
 	    	if(sKey === "default") return;
 		    this._oDiagram.linkTemplateMap.add(sKey,
 		  	      this.$(go.Link,  // the whole link panel
-		  		        //{ routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
+		  		        // { routing: go.Link.Normal, curve: go.Link.Bezier,
+						// toShortLength: 2 },
 		  		        option,
 		  		        new go.Binding("curviness", "curviness"),
 		  		        this.$(go.Shape,  // the link shape
-		  		          { isPanelMain: true,
+		  		          { name: "LINK", isPanelMain: true,
 		  		           stroke: "gray", strokeWidth: 1.5 }),
 		  		        this.$(go.Shape,  // the arrowhead
-		  		          { toArrow: "standard", fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
+		  		          { toArrow: "standard", fill: '#2F4F4F', // toArrow :
+																	// kite,
+																	// standard,
+																	// OpenTriangle
 		  		            stroke: null, scale: 1.5 }),
 		  		        this.$(go.Panel, go.Panel.Auto,
 		  		          this.$(go.Shape,  // the link shape
@@ -262,28 +311,40 @@ var ServerMap = $.Class({
 	    this._oDiagram.allowDrop = false;		
 
 	    // read in the JSON-format data from the "mySavedModel" element
-	    this._oDiagram.initialAutoScale = go.Diagram.Uniform; // None, Uniform, UniformToFill
-	    // this._oDiagram.toolManager.linkingTool.direction = go.LinkingTool.ForwardsOnly;
+	    this._oDiagram.initialAutoScale = go.Diagram.Uniform; // None,
+																// Uniform,
+																// UniformToFill
+	    // this._oDiagram.toolManager.linkingTool.direction =
+		// go.LinkingTool.ForwardsOnly;
 	    this._oDiagram.toolManager.draggingTool.doCancel();
 	    this._oDiagram.toolManager.draggingTool.doDeactivate();
 	    this._oDiagram.initialContentAlignment = go.Spot.Center;
-	    this._oDiagram.layout = this.$(go.LayeredDigraphLayout, //{ isOngoing: false, layerSpacing: 50 });
-	      { //rdirection: 90,
+	    this._oDiagram.layout = this.$(go.LayeredDigraphLayout, // { isOngoing:
+																// false,
+																// layerSpacing:
+																// 50 });
+	      { // rdirection: 90,
 	           isOngoing: false,
 	           layerSpacing: 150,
 	           columnSpacing: 50,
 	           setsPortSpots: false,
-	          // packOption : 7 // 1(PackExpand), 2(PackStraighten), 4(PackMedian)의 합
+	          // packOption : 7 // 1(PackExpand), 2(PackStraighten),
+				// 4(PackMedian)의 합
 
-//	          direction : 0,
-//	          cycleRemoveOption : go.LayeredDigraphLayout.CycleDepthFirst,
-//	          layeringOption : go.LayeredDigraphLayout.LayerOptimalLinkLength,
-//	          initializeOption : go.LayeredDigraphLayout.InitDepthFirstOut,
-//	          aggressiveOption : go.LayeredDigraphLayout.AggressiveLess,
-//	          packOption : 7,
-//	          setsPortSpots : true
+// direction : 0,
+// cycleRemoveOption : go.LayeredDigraphLayout.CycleDepthFirst,
+// layeringOption : go.LayeredDigraphLayout.LayerOptimalLinkLength,
+// initializeOption : go.LayeredDigraphLayout.InitDepthFirstOut,
+// aggressiveOption : go.LayeredDigraphLayout.AggressiveLess,
+// packOption : 7,
+// setsPortSpots : true
 	      }
-	    );	    
+	    );
+	    
+	    var self = this;
+	    this._oDiagram.addDiagramListener("ChangedSelection", function() { 
+	    	self._updateHightlights(); 
+	    }); // whenever selection changes, run updateHighlights
 	},
 
 	load : function(str){
@@ -294,6 +355,131 @@ var ServerMap = $.Class({
 	clear : function(){
 		this._oDiagram.model = go.Model.fromJson({});
 	},
+	
+	_resetHighlights : function(){
+	      allNodes = this._oDiagram.nodes;
+	      allLinks = this._oDiagram.links;
+	      while (allNodes.next()) { allNodes.value.highlight = "normal"; }
+	      while (allLinks.next()) { allLinks.value.highlight = "normal"; }
+	},
+	
+	_updateHightlights : function(){
+		this._resetHighlights();
+		var sel = this._oDiagram.selection.first();
+		if(sel !== null){
+			if(sel instanceof go.Node){
+				this._linksTo(sel, 'to');
+				this._linksFrom(sel, 'from');
+			}else if(sel instanceof go.Link){
+				this._nodesTo(sel, 'to');
+				this._nodesFrom(sel, 'from');	
+			}
+		}	
+		
+	    // iterators containing all nodes and links in the diagram
+	    allNodes2 = this._oDiagram.nodes;
+	    allLinks2 = this._oDiagram.links;
+
+	    // give everything the appropriate highlighting ( color and width of
+		// stroke )
+	    // nodes, including groups
+	    while (allNodes2.next()) {
+	        var shp = allNodes2.value.findObject("NODE");
+//	        var grp = allNodes2.value.findObject("GROUPTEXT");
+	        var hl = allNodes2.value.highlight;
+//	        this._highlight(shp, grp, hl);
+	        this._highlight('node', shp, hl);
+	    }
+	    // links
+	    while (allLinks2.next()) {
+	        var shp = allLinks2.value.findObject("LINK");
+	        var shp2 = allLinks2.value.findObject("LINK2");
+//	        var arw = allLinks2.value.findObject("ARWSHAPE");
+	        var hl = allLinks2.value.highlight;
+//	        this._highlight(shp, arw, hl);
+	        this._highlight('link', shp, hl);
+	        console.log('shp2', shp2);
+	        this._highlight('link', shp2, hl);
+	    }		
+	},
+	
+	_highlight : function(type, shape, theme){
+		var htHighlight;
+		if(type === 'node'){
+			htHighlight = this.option('htHighlightNode');
+		}else if(type === 'link'){
+			htHighlight = this.option('htHighlightLink');
+		}
+		if(shape !== null){
+			if(htHighlight[theme]){
+				shape.stroke = htHighlight[theme].stroke;
+				shape.strokeWidth = parseInt(htHighlight[theme].strokeWidth, 10);
+			}
+		}
+	},
+//	// perform the actual highlighting
+//    _highlight : function(shp, type) {
+//    	var color;
+//    	var width = 3;
+//    	if (hl === 0) { color = "gray"; width = 1; }
+//    	else if (hl === 1) { color = "blue"; }
+//    	else if (hl === 2) { color = "green"; }
+//    	else if (hl === 3) { color = "orange"; }
+//    	else if (hl === 4) { color = "red"; }
+//    	else { color = "purple"; }
+//    	if(shp !== null){
+//	    	shp.stroke = color;
+//	    	shp.strokeWidth = width;
+//    	}
+////    	if (obj2 !== null) {
+////    		obj2.stroke = color;
+////    		obj2.fill = color;
+////    	}
+//    },
+    
+    // if the link connects to this node, highlight it
+    _linksTo : function(x, i) {
+        if (x instanceof go.Node) {
+          var links = x.findLinksInto();
+          while (links.next()) links.value.highlight = i; }
+    },
+
+    // if the link comes from this node, highlight it
+    _linksFrom : function(x, i) {
+        if (x instanceof go.Node) {
+          var links = x.findLinksOutOf();
+          while (links.next()) links.value.highlight = i; }
+    },    
+	
+    // if selected object is a link, highlight its fromNode, otherwise,
+	// highlight the fromNode of each link coming into the selected node
+    // return a List of the keys of the nodes
+    _nodesTo : function(x, i) {
+      var nodesToList = new go.List("string");
+      if (x instanceof go.Link) { x.fromNode.highlight = i; nodesToList.add(x.data.from); }
+      else {
+        var nodes = x.findNodesInto();
+        while (nodes.next()) {
+          nodes.value.highlight = i;
+          nodesToList.add(nodes.value.data.key);
+        }
+      }
+      return nodesToList;
+    },
+
+    // same as nodesTo, but from instead of to
+    _nodesFrom : function(x, i) {
+        var nodesFromList = new go.List("string");
+        if (x instanceof go.Link) { x.toNode.highlight = i; nodesFromList.add(x.data.to); }
+        else {
+          var nodes = x.findNodesOutOf();
+          while (nodes.next()) {
+            nodes.value.highlight = i;
+            nodesFromList.add(nodes.value.data.key);
+          }
+        }
+        return nodesFromList;
+    },	
 
 	_onNodeClick : function(e, obj){
 		var node = obj.part,

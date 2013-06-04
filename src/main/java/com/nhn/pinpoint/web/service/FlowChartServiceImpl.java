@@ -234,7 +234,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 	
 	@Override
-	public LinkStatistics linkStatisticsDetail(Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -248,7 +248,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 
-		LinkStatistics statistics = new LinkStatistics();
+		LinkStatistics statistics = new LinkStatistics(from, to);
 
 		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 		
@@ -308,7 +308,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
 		}
 
-		LinkStatistics statistics = new LinkStatistics();
+		LinkStatistics statistics = new LinkStatistics(from, to);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
 		statistics.setDefaultHistogramSlotList(ServiceType.findServiceType(destServiceType).getHistogram().getHistogramSlotList());
