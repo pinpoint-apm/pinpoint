@@ -1,1 +1,1 @@
-kill -9 `ps -ef | grep hippo-server | grep -v grep | awk '{ print $2 }'`
+kill -9 `ps -ef | grep pinpoint-collector | grep -v grep | awk '{ print $2 }'`

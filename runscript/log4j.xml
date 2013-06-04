@@ -8,7 +8,7 @@
         </layout>
     </appender>
 
-    <logger name="com.profiler" additivity="false">
+    <logger name="com.nhn.pinpoint.profiler" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="general"/>
     </logger>
