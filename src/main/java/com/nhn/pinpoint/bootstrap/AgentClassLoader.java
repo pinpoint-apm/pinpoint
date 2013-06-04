@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;

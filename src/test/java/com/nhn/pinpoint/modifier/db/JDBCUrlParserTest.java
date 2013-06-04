@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.modifier.db;
 
+import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
+import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

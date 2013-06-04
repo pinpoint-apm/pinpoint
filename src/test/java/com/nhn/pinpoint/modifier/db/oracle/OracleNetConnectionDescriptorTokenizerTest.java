@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.modifier.db.oracle;
 
-import com.nhn.pinpoint.modifier.db.oracle.OracleNetConnectionDescriptorTokenizer;
-import com.nhn.pinpoint.modifier.db.oracle.Token;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleNetConnectionDescriptorTokenizer;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.Token;
 import junit.framework.Assert;
 import org.junit.Test;
 

@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.modifier.db.oracle;
 
-import com.nhn.pinpoint.modifier.db.oracle.Description;
-import com.nhn.pinpoint.modifier.db.oracle.KeyValue;
-import com.nhn.pinpoint.modifier.db.oracle.OracleConnectionStringException;
-import com.nhn.pinpoint.modifier.db.oracle.OracleNetConnectionDescriptorParser;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.Description;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.KeyValue;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringException;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleNetConnectionDescriptorParser;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

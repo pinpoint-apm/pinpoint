@@ -2,6 +2,7 @@ package com.nhn.pinpoint.config;
 
 import java.io.IOException;
 
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import junit.framework.Assert;
 
 import org.junit.Test;
