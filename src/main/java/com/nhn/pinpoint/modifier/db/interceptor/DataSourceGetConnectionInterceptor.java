@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.modifier.db.interceptor;
 
-import com.nhn.pinpoint.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.util.InterceptorUtils;
+import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 
 import java.sql.Connection;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.

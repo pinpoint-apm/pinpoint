@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.context;
 
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.sender.DataSender;
 
 import java.util.ArrayList;

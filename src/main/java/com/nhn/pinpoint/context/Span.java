@@ -3,6 +3,7 @@ package com.nhn.pinpoint.context;
 import com.nhn.pinpoint.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.profiler.context.TraceID;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,10 +4,11 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.util.StringUtils;
+import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.context.AsyncTrace;
+import com.nhn.pinpoint.profiler.util.StringUtils;
 
 /**
  *

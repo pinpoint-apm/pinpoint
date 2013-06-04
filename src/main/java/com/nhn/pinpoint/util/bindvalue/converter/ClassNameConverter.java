@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.util.bindvalue.converter;
 
-import com.nhn.pinpoint.util.StringUtils;
+import com.nhn.pinpoint.profiler.util.StringUtils;
 
 public class ClassNameConverter implements Converter {
     @Override

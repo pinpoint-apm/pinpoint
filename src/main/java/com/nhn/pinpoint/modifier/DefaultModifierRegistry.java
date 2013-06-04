@@ -3,8 +3,8 @@ package com.nhn.pinpoint.modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.modifier.arcus.BaseOperationModifier;

@@ -3,18 +3,22 @@ package com.nhn.pinpoint.modifier.bloc.handler.interceptors;
 import java.util.Enumeration;
 import java.util.UUID;
 
-import com.nhn.pinpoint.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.context.*;
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.sampler.util.SamplingFlagUtils;
-import com.nhn.pinpoint.util.NumberUtils;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.context.Header;
+import com.nhn.pinpoint.profiler.context.Trace;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.context.TraceID;
+import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
+import com.nhn.pinpoint.profiler.util.NumberUtils;
 
 /**
  * @author netspider

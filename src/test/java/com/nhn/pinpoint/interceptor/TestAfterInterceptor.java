@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.interceptor;
 
+import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

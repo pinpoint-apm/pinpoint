@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.modifier.arcus;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
-import com.nhn.pinpoint.Agent;
+import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.modifier.arcus.interceptors.CacheManagerConstructInterceptor;
 

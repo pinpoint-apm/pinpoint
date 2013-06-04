@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.modifier.db.mysql;
 
-import com.nhn.pinpoint.Agent;
+import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
 
 import com.nhn.pinpoint.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 // TODO 추가 개발해야 될듯.
 public class MySQLResultSetModifier extends AbstractModifier {

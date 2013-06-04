@@ -7,10 +7,10 @@ import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.interceptor.Interceptor;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

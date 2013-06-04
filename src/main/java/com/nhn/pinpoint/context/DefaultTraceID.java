@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.context;
 
+import com.nhn.pinpoint.profiler.context.TraceID;
+
 import java.util.UUID;
 
 public class DefaultTraceID implements TraceID {

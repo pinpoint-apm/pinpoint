@@ -2,8 +2,8 @@ package com.nhn.pinpoint;
 
 
 import com.nhn.pinpoint.bootstrap.AgentClassLoader;
-import com.nhn.pinpoint.config.ProfilerConfig;
-import com.nhn.pinpoint.logging.LoggerBinder;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.logging.LoggerBinder;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class AgentClassLoaderTest {
 
 
         LoggerBinder loggerBinder = (LoggerBinder) agentClassLoader.initializeLoggerBinder();
-        com.nhn.pinpoint.logging.Logger test = loggerBinder.getLogger("test");
+        com.nhn.pinpoint.profiler.logging.Logger test = loggerBinder.getLogger("test");
         test.info("slf4j logger test");
 
     }

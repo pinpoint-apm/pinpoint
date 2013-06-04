@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.context;
 
+import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.sender.LoggingDataSender;
 
 /**

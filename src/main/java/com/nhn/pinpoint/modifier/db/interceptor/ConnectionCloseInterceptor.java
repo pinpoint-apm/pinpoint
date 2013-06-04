@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.modifier.db.interceptor;
 
-import com.nhn.pinpoint.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.interceptor.util.JDBCScope;
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.util.MetaObject;
+import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
 

@@ -1,18 +1,18 @@
 package com.nhn.pinpoint.modifier.db.interceptor;
 
 import java.sql.Connection;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
-import com.nhn.pinpoint.context.Trace;
-import com.nhn.pinpoint.context.TraceContext;
-import com.nhn.pinpoint.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.interceptor.util.JDBCScope;
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.modifier.db.DatabaseInfo;
-import com.nhn.pinpoint.util.MetaObject;
+import com.nhn.pinpoint.profiler.context.Trace;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
+import com.nhn.pinpoint.profiler.util.MetaObject;
 
 public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

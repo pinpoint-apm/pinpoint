@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.nhn.pinpoint.common.dto.thrift.RequestDataListThriftDTO;
 import com.nhn.pinpoint.common.dto.thrift.RequestDataThriftDTO;
-import com.nhn.pinpoint.config.ProfilerConstant;
-import com.nhn.pinpoint.util.NamedThreadLocal;
+import com.nhn.pinpoint.profiler.config.ProfilerConstant;
+import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
 import com.nhn.pinpoint.util.QueryStringUtil;
 
 @Deprecated

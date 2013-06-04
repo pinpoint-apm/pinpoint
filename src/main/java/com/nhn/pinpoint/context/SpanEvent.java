@@ -7,6 +7,7 @@ import com.nhn.pinpoint.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto.thrift.AgentKey;
 import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.profiler.context.TraceID;
 
 /**
  * Span represent RPC

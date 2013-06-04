@@ -1,12 +1,13 @@
 package com.nhn.pinpoint.sampler;
 
+import com.nhn.pinpoint.profiler.sampler.Sampler;
+
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  *
  */
-public class SamplingRateSampler implements Sampler{
+public class SamplingRateSampler implements Sampler {
 
     private final AtomicInteger counter = new AtomicInteger(0);
     private final int samplingRate;

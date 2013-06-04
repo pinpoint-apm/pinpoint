@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 

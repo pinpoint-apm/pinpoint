@@ -4,21 +4,23 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.mapping.ApiMappingTable;
-import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.context.BypassStorageFactory;
 import com.nhn.pinpoint.context.DefaultTraceContext;
 import com.nhn.pinpoint.context.TimeBaseStorageFactory;
-import com.nhn.pinpoint.context.TraceContext;
+import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerBinder;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerBinder;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.sampler.*;
 import com.nhn.pinpoint.sender.DataSender;
 import com.nhn.pinpoint.sender.UdpDataSender;
-import com.nhn.pinpoint.util.NetworkUtils;
+import com.nhn.pinpoint.profiler.util.NetworkUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
@@ -186,7 +188,7 @@ public class DefaultAgent implements Agent {
     public LoggerBinder initializeLogger() {
         Slf4jLoggerBinder binder = new Slf4jLoggerBinder();
         logger = binder.getLogger(DefaultAgent.class.getName());
-        com.nhn.pinpoint.logging.Logger logger = binder.getLogger(Slf4jLoggerBinder.class.getName());
+        Logger logger = binder.getLogger(Slf4jLoggerBinder.class.getName());
         logger.info("slf4jLoggerBinder initialized");
 
         // static LoggerFactory에 binder를 붙임.

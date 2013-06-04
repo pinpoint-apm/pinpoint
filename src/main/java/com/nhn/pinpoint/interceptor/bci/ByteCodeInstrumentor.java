@@ -2,7 +2,7 @@ package com.nhn.pinpoint.interceptor.bci;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 
 public interface ByteCodeInstrumentor {
 

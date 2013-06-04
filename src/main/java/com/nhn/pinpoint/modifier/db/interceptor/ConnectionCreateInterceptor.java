@@ -3,13 +3,13 @@ package com.nhn.pinpoint.modifier.db.interceptor;
 import java.sql.Connection;
 import java.util.Arrays;
 
-import com.nhn.pinpoint.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
-import com.nhn.pinpoint.logging.LoggerFactory;
-import com.nhn.pinpoint.util.InterceptorUtils;
-import com.nhn.pinpoint.util.MetaObject;
-import com.nhn.pinpoint.util.StringUtils;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.util.InterceptorUtils;
+import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.profiler.util.StringUtils;
 
 @Deprecated
 public class ConnectionCreateInterceptor implements StaticAroundInterceptor {

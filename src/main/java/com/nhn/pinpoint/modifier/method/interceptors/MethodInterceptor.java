@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.modifier.method.interceptors;
 
-import com.nhn.pinpoint.interceptor.*;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.context.Trace;
-import com.nhn.pinpoint.context.TraceContext;
+import com.nhn.pinpoint.profiler.context.Trace;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.interceptor.*;
 
 /**
  * 

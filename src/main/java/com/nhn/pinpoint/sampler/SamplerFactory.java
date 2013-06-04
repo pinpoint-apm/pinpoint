@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.sampler;
 
+import com.nhn.pinpoint.profiler.sampler.Sampler;
+
 /**
  *
  */

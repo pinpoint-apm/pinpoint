@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.context;
 
 import com.nhn.pinpoint.exception.PinPointException;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.context.TraceID;
 
 import java.util.Arrays;
 

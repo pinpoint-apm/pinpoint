@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.modifier.db.cubrid;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.config.ProfilerConstant;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.trace.DatabaseRequestTracer;
 import javassist.CtClass;
@@ -11,7 +11,7 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 public class CubridPreparedStatementModifier extends AbstractModifier {
 

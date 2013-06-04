@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.context;
 
-import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.sender.DataSender;
 
 /**

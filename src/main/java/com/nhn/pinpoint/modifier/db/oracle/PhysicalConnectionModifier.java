@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.modifier.db.oracle;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.interceptor.bci.Type;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.modifier.db.interceptor.ConnectionCloseInterceptor;
 import com.nhn.pinpoint.modifier.db.interceptor.PreparedStatementCreateInterceptor;

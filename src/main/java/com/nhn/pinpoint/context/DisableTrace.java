@@ -3,7 +3,11 @@ package com.nhn.pinpoint.context;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
-import com.nhn.pinpoint.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.context.AsyncTrace;
+import com.nhn.pinpoint.profiler.context.Trace;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.context.TraceID;
 
 import java.util.List;
 

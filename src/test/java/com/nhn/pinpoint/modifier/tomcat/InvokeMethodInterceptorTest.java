@@ -9,10 +9,10 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.context.Header;
+import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.context.MockTraceContextFactory;
-import com.nhn.pinpoint.context.TraceContext;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
 import org.junit.BeforeClass;
 import org.junit.Test;

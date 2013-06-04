@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.modifier.db.mssql;
 
-import com.nhn.pinpoint.Agent;
+import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -11,7 +11,7 @@ import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 public class MSSQLResultSetModifier extends AbstractModifier {
 

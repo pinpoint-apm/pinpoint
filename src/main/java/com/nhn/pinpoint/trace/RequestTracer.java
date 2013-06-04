@@ -7,7 +7,7 @@ import java.util.Set;
 import com.nhn.pinpoint.DefaultAgent;
 import com.nhn.pinpoint.common.dto.thrift.RequestDataListThriftDTO;
 import com.nhn.pinpoint.common.dto.thrift.RequestThriftDTO;
-import com.nhn.pinpoint.config.ProfilerConstant;
+import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 
 @Deprecated
 public class RequestTracer {

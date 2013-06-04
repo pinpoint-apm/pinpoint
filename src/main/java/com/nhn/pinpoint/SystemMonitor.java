@@ -11,10 +11,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import com.nhn.pinpoint.common.dto.thrift.JVMInfoThriftDTO;
-import com.nhn.pinpoint.config.ProfilerConfig;
-import com.nhn.pinpoint.context.TraceContext;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.sender.DataSender;
 import com.nhn.pinpoint.util.Assert;
 import com.sun.management.OperatingSystemMXBean;

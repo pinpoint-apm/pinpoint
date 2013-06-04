@@ -1,9 +1,9 @@
 package com.nhn.pinpoint;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.config.ProfilerConfig;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.modifier.Modifier;
 import com.nhn.pinpoint.modifier.ModifierRegistry;

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.modifier.db.mysql;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.interceptor.bci.*;
 import com.nhn.pinpoint.modifier.AbstractModifier;
 import com.nhn.pinpoint.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
@@ -10,8 +10,8 @@ import com.nhn.pinpoint.util.*;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 

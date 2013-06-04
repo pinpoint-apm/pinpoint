@@ -1,6 +1,10 @@
 package com.nhn.pinpoint.interceptor;
 
 import com.nhn.pinpoint.interceptor.bci.TestObject;
+import com.nhn.pinpoint.profiler.interceptor.AroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.InterceptorContext;
+import com.nhn.pinpoint.profiler.interceptor.InterceptorRegistry;
 import javassist.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -83,15 +87,15 @@ public class InterceptorRegistryTest {
        hello.addLocalVariable("result", object);
 
        hello.insertBefore("{" +
-               "ctx = new com.nhn.pinpoint.interceptor.InterceptorContext();" +
+               "ctx = new InterceptorContext();" +
                "ctx.setParameter($args);" +
 //               InterceptorRegistry.class.getName() + ".getInterceptor(\"a\").before(ctx);" +
-               "interceptor = (com.nhn.pinpoint.interceptor.AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(1);"+
+               "interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(1);"+
                "interceptor.before(ctx);" +
                "}");
         hello.addCatch("{" +
 //            " interceptor.after(ctx);"+
-//           " com.nhn.pinpoint.interceptor.AroundInterceptor a = (com.nhn.pinpoint.interceptor.AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
+//           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
            " throw $e;" +
            "}", throwable);
        hello.insertAfter("{" +
@@ -156,7 +160,7 @@ public class InterceptorRegistryTest {
     private String generatedAroundInterceptor(String className, String methodName) {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        sb.append("  ctx = new com.nhn.pinpoint.interceptor.InterceptorContext();");
+        sb.append("  ctx = new InterceptorContext();");
         sb.append("  ctx.setParameter($args);");
         sb.append("  ctx.setTarget(this);");
         sb.append(" ");
@@ -170,7 +174,7 @@ public class InterceptorRegistryTest {
 
         sb.append("}");
         sb.append("{");
-        sb.append("  interceptor = (com.nhn.pinpoint.interceptor.AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");");
+        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");");
         sb.append("  interceptor.before(ctx);");
         sb.append("  result = null;");
 //        println(sb, "before systemout \"ttt\"");

@@ -1,14 +1,14 @@
 package com.nhn.pinpoint.modifier;
 
-import com.nhn.pinpoint.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.Logger;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.interceptor.ServiceTypeSupport;
+import com.nhn.pinpoint.profiler.interceptor.ServiceTypeSupport;
 
-import com.nhn.pinpoint.Agent;
-import com.nhn.pinpoint.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 public abstract class AbstractModifier implements Modifier {
 

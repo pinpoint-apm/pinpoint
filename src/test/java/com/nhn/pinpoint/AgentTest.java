@@ -1,6 +1,6 @@
 package com.nhn.pinpoint;
 
-import com.nhn.pinpoint.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

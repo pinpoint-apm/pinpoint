@@ -1,8 +1,8 @@
 package com.nhn.pinpoint;
 
 import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
-import com.nhn.pinpoint.logging.Logger;
-import com.nhn.pinpoint.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.sender.DataSender;
 
 
