@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class InterceptorRegistry {
 
-    private static final Interceptor DUMMY = new LoggingInterceptor("com.profiler.interceptor.DUMMY");
+    private static final Interceptor DUMMY = new LoggingInterceptor("com.nhn.pinpoint.profiler.interceptor.DUMMY");
 
     public static final InterceptorRegistry REGISTRY = new InterceptorRegistry();
 
