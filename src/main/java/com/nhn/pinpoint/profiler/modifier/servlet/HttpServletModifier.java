@@ -36,8 +36,8 @@ public class HttpServletModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.servlet.interceptors.MethodInterceptor");
-			Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.servlet.interceptors.MethodInterceptor");
+			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.method.method.interceptors.MethodInterceptor");
+			Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.method.method.interceptors.MethodInterceptor");
 
 
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
