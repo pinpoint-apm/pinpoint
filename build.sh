@@ -1,9 +1,9 @@
 #server
 mvn clean eclipse:eclipse install package dependency:copy-dependencies -Dmaven.test.skip
 
-rm -fr ../hippo-testbed/hippo-server
-mkdir -p ../hippo-testbed/hippo-server/lib
+rm -fr ../pinpoint-testbed/pinpoint-collector
+mkdir -p ../pinpoint-testbed/pinpoint-collector/lib
 
-cp ./target/hippo-server-0.0.2.jar ../hippo-testbed/hippo-server
-cp ./target/dependency/*.jar ../hippo-testbed/hippo-server/lib
-cp ./runscript/* ../hippo-testbed/hippo-server
+cp ./target/pinpoint-collector-0.0.2.jar ../pinpoint-testbed/pinpoint-collector
+cp ./target/dependency/*.jar ../pinpoint-testbed/pinpoint-collector/lib
+cp ./runscript/* ../pinpoint-testbed/pinpoint-collector
