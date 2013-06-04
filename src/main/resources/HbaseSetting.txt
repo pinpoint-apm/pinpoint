@@ -1,5 +1,5 @@
-1. unzip hbase under ~/apps/hippo/
-2. make store under ~/apps/hippo/hbase
+1. unzip hbase under ~/apps/pinpoint/
+2. make store under ~/apps/pinpoint/hbase
 3. add below tag at hbase/conf/hbase-site.xml
 <configuration>
 	<property>
