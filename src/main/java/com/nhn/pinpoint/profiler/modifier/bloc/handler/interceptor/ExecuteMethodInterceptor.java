@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptors;
+package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor;
 
 import java.util.Enumeration;
 import java.util.UUID;

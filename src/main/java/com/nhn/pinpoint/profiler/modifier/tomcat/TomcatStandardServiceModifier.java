@@ -9,8 +9,8 @@ import com.nhn.pinpoint.profiler.LifeCycleEventListener;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.StandardServiceStartInterceptor;
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.StandardServiceStopInterceptor;
+import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStartInterceptor;
+import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStopInterceptor;
 
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 

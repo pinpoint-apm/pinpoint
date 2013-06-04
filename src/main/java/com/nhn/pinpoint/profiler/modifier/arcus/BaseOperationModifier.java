@@ -11,7 +11,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.interceptors.BaseOperationConstructInterceptor;
+import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationConstructInterceptor;
 
 /**
  * @author netspider
@@ -42,7 +42,7 @@ public class BaseOperationModifier extends AbstractModifier {
 
             aClass.addConstructorInterceptor(null, new BaseOperationConstructInterceptor());
 
-            Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
+            Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationTransitionStateInterceptor");
             aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor, Type.before);
 
             Interceptor cancelInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "BaseOperationCancelInterceptor");

@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.CatalinaAwaitInterceptor;
+import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor;
 
 /**
  * Tomcat startup정보를 Pinpoint서버로 전송하는 코드를 호출하기위한 modifier

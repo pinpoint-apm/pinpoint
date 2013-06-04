@@ -17,7 +17,7 @@ import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
+import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 
 public class InvokeMethodInterceptorTest {
     @BeforeClass

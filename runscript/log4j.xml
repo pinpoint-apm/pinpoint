@@ -17,22 +17,18 @@
 	</appender>
 
     <logger name="com.nhn.pinpoint" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-	<logger name="org.apache.zookeeper" additivity="false">
         <level value="INFO" />
         <appender-ref ref="console" />
     </logger>
-     
-	<logger name="com.profiler.sender" additivity="false">
-        <level value="ERROR" />
+
+
+	<logger name="com.nhn.pinpoint.profiler.sender" additivity="false">
+        <level value="WARN" />
         <appender-ref ref="console" />
     </logger> 
 
 	<root>
-		<level value="DEBUG" />
+		<level value="INFO" />
 		<appender-ref ref="console" />
 	</root>
 </log4j:configuration>

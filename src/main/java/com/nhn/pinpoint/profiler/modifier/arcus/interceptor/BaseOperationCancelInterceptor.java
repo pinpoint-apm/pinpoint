@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptors;
+package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.nhn.pinpoint.profiler.context.AsyncTrace;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;

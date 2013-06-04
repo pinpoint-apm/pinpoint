@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat.interceptors;
+package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.logging.Logger;

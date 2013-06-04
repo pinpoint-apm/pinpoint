@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.servlet.interceptors;
+package com.nhn.pinpoint.profiler.modifier.servlet.interceptor;
 
 import java.util.Enumeration;
 import java.util.UUID;

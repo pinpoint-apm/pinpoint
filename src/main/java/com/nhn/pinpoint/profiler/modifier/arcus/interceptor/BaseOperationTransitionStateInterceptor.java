@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptors;
+package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;

@@ -52,7 +52,7 @@ public class MethodModifier extends AbstractModifier {
 					continue;
 				}
 				
-				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptors.MethodInterceptor");
+				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
 //				setTraceContext(interceptor);
 
 				CtClass[] paramClass = m.getParameterTypes();

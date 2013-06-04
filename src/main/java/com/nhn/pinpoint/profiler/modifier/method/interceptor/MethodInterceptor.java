@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.method.interceptors;
+package com.nhn.pinpoint.profiler.modifier.method.interceptor;
 
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;

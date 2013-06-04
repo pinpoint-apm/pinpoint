@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.interceptors.CacheManagerConstructInterceptor;
+import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.CacheManagerConstructInterceptor;
 
 /**
  * @author netspider

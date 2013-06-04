@@ -36,7 +36,7 @@ public class StandardHostValveInvokeModifier extends AbstractModifier {
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor");
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor");
 
             InstrumentClass standardHostValve = byteCodeInstrumentor.getClass(javassistClassName);
             standardHostValve.addInterceptor("invoke", new String[]{"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, interceptor);

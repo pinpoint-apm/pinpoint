@@ -67,7 +67,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             return null;
         }
 
-//		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.profiler.modifier.db.mysql.interceptors.ExecuteMethodInterceptor");
+//		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.mysql.interceptor.ExecuteMethodInterceptor");
 //		if (interceptor == null) {
 //			return null;
 //		}
