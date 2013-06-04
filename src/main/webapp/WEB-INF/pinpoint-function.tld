@@ -6,7 +6,7 @@
 
 	<description>pinpoint Custom Tag Library</description>
 	<tlib-version>1.0</tlib-version>
-	<short-name>pinpoint</short-name>
+	<short-name>pcom.profiler.inpoint</short-name>
 	<uri>http://pinpoint.nhncorp.com/pinpoint</uri>
 
 	<function>
@@ -16,31 +16,4 @@
 		<function-signature>java.lang.String longToDateStr(long, java.lang.String)</function-signature>
 	</function>
 	
-	<function>
-		<description></description>
-		<name>longLongToUUID</name>
-		<function-class>com.nhn.pinpoint.common.util.AnnotationUtils</function-class>
-		<function-signature>java.lang.String longLongToUUID(long, long)</function-signature>
-	</function>
-
-	<function>
-		<description></description>
-		<name>sortAnnotationListByKey</name>
-		<function-class>com.nhn.pinpoint.common.util.AnnotationUtils</function-class>
-		<function-signature>void sortAnnotationListByKey(com.profiler.common.bo.Span)</function-signature>
-	</function>
-
-	<function>
-		<description></description>
-		<name>getDisplayMethod</name>
-		<function-class>com.nhn.pinpoint.common.util.AnnotationUtils</function-class>
-		<function-signature>java.lang.Object getDisplayMethod(com.profiler.common.bo.Span)</function-signature>
-	</function>
-	
-	<function>
-		<description></description>
-		<name>getDisplayArgument</name>
-		<function-class>com.nhn.pinpoint.web.utils.AnnotationUtils</function-class>
-		<function-signature>java.lang.Object getDisplayArgument(com.profiler.common.bo.Span)</function-signature>
-	</function>
 </taglib>
