@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="pinpoint_bootstrap_build" basedir=".">
-    <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
+    <property environment="env"/>
+
+    <property name="pinpoint.version" value="0.0.3-SNAPSHOT"/>
+
+    <property name="pinpoint.bootstrap.dependency.jar" value="pinpoint-bootstrap-${pinpoint.version}-jar-with-dependencies.jar"/>
+    <property name="pinpoint.bootstrap.jar" value="pinpoint-bootstrap-${pinpoint.version}.jar"/>
+
+
+    <property name="maven.dir" value="${env.M2_HOME}"/>
     <property name="agent.dir" value="${basedir}/../deploy/agent/agentlib/"/>
     <property name="target.dir" value="${basedir}/target/"/>
 
@@ -10,7 +18,7 @@
     </target>
 
     <target name="copy.agent">
-        <copy file="${target.dir}/pinpoint-bootstrap-0.0.3-SNAPSHOT.jar-with-dependencies.jar" tofile="${agent.dir}/pinpoint-bootstrap-0.0.3-SNAPSHOT.jar" overwrite="true">
+        <copy file="${target.dir}/${pinpoint.bootstrap.dependency.jar}" tofile="${agent.dir}/${pinpoint.bootstrap.jar}" overwrite="true">
         </copy>
     </target>
 
