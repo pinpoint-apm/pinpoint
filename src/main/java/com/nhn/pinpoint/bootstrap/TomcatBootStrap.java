@@ -16,7 +16,7 @@ public class TomcatBootStrap {
 
     private static final Logger logger = Logger.getLogger(TomcatBootStrap.class.getName());
 
-    public static final String BOOT_CLASS = "com.nhn.pinpoint.DefaultAgent";
+    public static final String BOOT_CLASS = "com.nhn.pinpoint.profiler.DefaultAgent";
 
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
