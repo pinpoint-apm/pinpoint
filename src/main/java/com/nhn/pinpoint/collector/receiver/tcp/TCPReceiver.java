@@ -14,7 +14,7 @@ import com.nhn.pinpoint.common.dto2.AgentInfoDTO;
 @Deprecated
 public class TCPReceiver extends Thread {
 
-	private static final Logger logger = LoggerFactory.getLogger("com.profiler.receiver.tcp.TCPReceiver");
+	private static final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
 	ServerSocket serverSocket = null;
 
