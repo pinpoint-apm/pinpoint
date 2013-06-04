@@ -60,6 +60,6 @@ public class DummyService {
 	private void ca() {
 		System.out.println("ca");
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:8080/mysqlsimple.hippo", new HashMap<String, Object>());
+		client.executeToBloc("http://localhost:8080/mysqlsimple.pinpoint", new HashMap<String, Object>());
 	}
 }

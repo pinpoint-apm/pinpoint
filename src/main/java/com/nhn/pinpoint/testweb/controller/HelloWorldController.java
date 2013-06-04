@@ -78,7 +78,7 @@ public class HelloWorldController implements DisposableBean {
 	public String arcus(Model model) {
 		Future<Boolean> future = null;
 		try {
-			future = arcus.set("hippo:testkey", 10, "Hello, Hippo.");
+			future = arcus.set("pinpoint:testkey", 10, "Hello, pinpoint.");
 			future.get(1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			if (future != null)
@@ -91,7 +91,7 @@ public class HelloWorldController implements DisposableBean {
 	public String memcached(Model model) {
 		Future<Boolean> future = null;
 		try {
-			future = memcached.set("hippo:testkey", 10, "Hello, Hippo.");
+			future = memcached.set("pinpoint:testkey", 10, "Hello, pinpoint.");
 			future.get(1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			if (future != null)
@@ -160,7 +160,7 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/remotecombination")
 	public String remotecombination(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:8080/combination.hippo", new HashMap<String, Object>());
+		client.executeToBloc("http://localhost:8080/combination.pinpoint", new HashMap<String, Object>());
 
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -179,7 +179,7 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/remotecombination2")
 	public String remotecombination2(Model model) throws MalformedURLException {
-        URL url = new URL("http://localhost:8080/combination2.hippo");
+        URL url = new URL("http://localhost:8080/combination2.pinpoint");
         HttpURLConnection request = null;
         try {
 			request = (HttpURLConnection) url.openConnection();
@@ -208,7 +208,7 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/remotemysql")
 	public String remotemysql(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:8080/mysql.hippo", new HashMap<String, Object>());
+		client.executeToBloc("http://localhost:8080/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -277,7 +277,7 @@ public class HelloWorldController implements DisposableBean {
 	public String arcustimeout(Model model) {
 		Future<Boolean> future = null;
 		try {
-			future = arcus.set("hippo:expect-timeout", 10, "Hello, Timeout.");
+			future = arcus.set("pinpoint:expect-timeout", 10, "Hello, Timeout.");
 			future.get(10L, TimeUnit.MICROSECONDS);
 		} catch (Exception e) {
 			if (future != null)
@@ -290,7 +290,7 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/remotesimple")
 	public String remotesimple(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://macpro:8080/mysql.hippo", new HashMap<String, Object>());
+		client.executeToBloc("http://macpro:8080/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 	

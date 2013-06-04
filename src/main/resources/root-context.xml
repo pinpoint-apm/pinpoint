@@ -19,11 +19,11 @@
     <bean id="mysqlDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
 
-        <!--<property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8"/>-->
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/pinpoint?characterEncoding=UTF-8"/>-->
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
-        <property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8"/>
+        <property name="url" value="jdbc:mysql://10.98.133.22:3306/pinpoint?characterEncoding=UTF-8"/>
         <property name="username" value="lucytest"/>
         <property name="password" value="testlucy"/>
 
@@ -51,7 +51,7 @@
     <bean id="oracleDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
 
-        <!--<property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8"/>-->
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/pinpoint?characterEncoding=UTF-8"/>-->
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
