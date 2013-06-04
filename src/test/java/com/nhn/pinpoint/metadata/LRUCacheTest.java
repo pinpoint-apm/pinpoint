@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.metadata;
 
+import com.nhn.pinpoint.profiler.metadata.LRUCache;
+import com.nhn.pinpoint.profiler.metadata.SqlObject;
 import junit.framework.Assert;
 import org.junit.Test;
 

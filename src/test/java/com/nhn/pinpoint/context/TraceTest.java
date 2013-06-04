@@ -2,10 +2,10 @@ package com.nhn.pinpoint.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.sender.DataSender;
+import com.nhn.pinpoint.profiler.context.*;
+import com.nhn.pinpoint.profiler.sender.DataSender;
 
-import com.nhn.pinpoint.sender.LoggingDataSender;
+import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.apache.thrift.TBase;
 import org.junit.Test;
 import org.slf4j.Logger;

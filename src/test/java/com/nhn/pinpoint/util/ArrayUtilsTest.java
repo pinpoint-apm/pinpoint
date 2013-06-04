@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.util;
 
+import com.nhn.pinpoint.profiler.util.ArrayUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

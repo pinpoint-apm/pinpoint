@@ -1,14 +1,15 @@
 package com.nhn.pinpoint.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
-import com.nhn.pinpoint.DefaultAgent;
+import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
 
-import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 
+import com.nhn.pinpoint.profiler.modifier.db.mysql.*;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.util.TestClassLoader;
 import org.junit.Assert;

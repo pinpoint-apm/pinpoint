@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.sampler;
 
 
+import com.nhn.pinpoint.profiler.sampler.SamplingRateSampler;
 import org.junit.Assert;
 import org.junit.Test;
 

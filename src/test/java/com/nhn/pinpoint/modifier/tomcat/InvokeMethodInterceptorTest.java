@@ -13,11 +13,11 @@ import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.context.MockTraceContextFactory;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.nhn.pinpoint.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
+import com.nhn.pinpoint.profiler.modifier.tomcat.interceptors.StandardHostValveInvokeInterceptor;
 
 public class InvokeMethodInterceptorTest {
     @BeforeClass

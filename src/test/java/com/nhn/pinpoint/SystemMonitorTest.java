@@ -1,10 +1,11 @@
 package com.nhn.pinpoint;
 
+import com.nhn.pinpoint.profiler.SystemMonitor;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.context.DefaultTraceContext;
-import com.nhn.pinpoint.sender.DataSender;
-import com.nhn.pinpoint.sender.LoggingDataSender;
+import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
+import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.Test;
 
 /**

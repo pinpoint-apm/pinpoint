@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.context;
 
+import com.nhn.pinpoint.profiler.context.CallStack;
+import com.nhn.pinpoint.profiler.context.DefaultTraceID;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

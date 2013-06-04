@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.context;
 
+import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
+import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.sender.LoggingDataSender;
+import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 
 /**
  *
