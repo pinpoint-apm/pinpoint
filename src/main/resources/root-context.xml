@@ -23,7 +23,7 @@
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
-        <property name="url" value="jdbc:mysql://10.98.133.22:3306/pinpoint?characterEncoding=UTF-8"/>
+        <property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8"/>
         <property name="username" value="lucytest"/>
         <property name="password" value="testlucy"/>
 
