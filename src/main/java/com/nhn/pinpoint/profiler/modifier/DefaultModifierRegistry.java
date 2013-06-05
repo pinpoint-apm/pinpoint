@@ -83,20 +83,20 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
 		addModifier(httpClient4Modifier);
 
+		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
+		addModifier(baseOperationModifier);
+		
 		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
 		addModifier(memcachedClientModifier);
 
 		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
 		addModifier(arcusClientModifier);
-
-		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
-		addModifier(baseOperationModifier);
-
-		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
-		addModifier(cacheManagerModifier);
 		
 		FutureModifier futureModifier = new FutureModifier(byteCodeInstrumentor, agent);
 		addModifier(futureModifier);
+
+		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
+		addModifier(cacheManagerModifier);
 
         // jdk HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);

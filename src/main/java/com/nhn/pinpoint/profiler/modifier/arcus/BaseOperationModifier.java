@@ -36,11 +36,11 @@ public class BaseOperationModifier extends AbstractModifier {
 
             aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 
+            /* Do not intercept
             aClass.addTraceVariable("__asyncTrace", "__setAsyncTrace", "__getAsyncTrace", "java.lang.Object");
 
             aClass.addConstructorInterceptor(null, new BaseOperationConstructInterceptor());
 
-            /* Do not intercept
             Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationTransitionStateInterceptor");
             aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor, Type.before);
 
