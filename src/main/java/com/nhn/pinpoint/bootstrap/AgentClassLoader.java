@@ -24,6 +24,9 @@ public class AgentClassLoader {
     private ContextClassLoaderExecuteTemplate executeTemplate;
 
     public AgentClassLoader(URL[] urls) {
+        if (urls == null) {
+            throw new NullPointerException("urls");
+        }
 
         ClassLoader classLoader = AgentClassLoader.class.getClassLoader();
 
