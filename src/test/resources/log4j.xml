@@ -28,14 +28,15 @@
     <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
-        <appender-ref ref="dailyRollingFile" />
+        <!-- testcase용은 파일로 남길 필요가 없음. -->
+        <!--<appender-ref ref="dailyRollingFile" />-->
     </logger>
 
 
-
     <root>
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="console" />
-        <appender-ref ref="dailyRollingFile" />
+        <!-- testcase용은 파일로 남길 필요가 없음. -->
+        <!--<appender-ref ref="dailyRollingFile" />-->
     </root>
 </log4j:configuration>
