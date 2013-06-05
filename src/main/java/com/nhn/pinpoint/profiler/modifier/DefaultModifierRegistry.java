@@ -9,6 +9,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.FutureModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
@@ -28,18 +29,19 @@ import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModi
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
+import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.gc.RuntimeModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.FilterModifier;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatStandardServiceModifier;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 
 public class DefaultModifierRegistry implements ModifierRegistry {
 
@@ -92,6 +94,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
 		addModifier(cacheManagerModifier);
+		
+		FutureModifier futureModifier = new FutureModifier(byteCodeInstrumentor, agent);
+		addModifier(futureModifier);
 
         // jdk HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);

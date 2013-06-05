@@ -36,15 +36,12 @@ public class ArcusClientModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.SetCacheManagerInterceptor");
+            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
             aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor,  Type.before);
-
-//            Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.ApiInterceptor");
-//        	aClass.addInterceptor("asyncBopGet", new String[]{"java.lang.String", "long", "boolean"}, apiInterceptor, Type.around);
         	
-//        	// 모든 public 메소드에 ApiInterceptor를 적용한다.
+        	// 모든 public 메소드에 ApiInterceptor를 적용한다.
             for (Entry<String, String[]> e : getCandidates(null).entrySet()) {
-            	Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.ApiInterceptor");
+            	Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
             	aClass.addInterceptor(e.getKey(), e.getValue(), apiInterceptor, Type.around);
             }
             

@@ -41,10 +41,10 @@ public class BaseOperationModifier extends AbstractModifier {
             aClass.addConstructorInterceptor(null, new BaseOperationConstructInterceptor());
 
             /* Do not intercept
-            Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.BaseOperationTransitionStateInterceptor");
+            Interceptor transitionStateInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationTransitionStateInterceptor");
             aClass.addInterceptor("transitionState", new String[]{"net.spy.memcached.ops.OperationState"}, transitionStateInterceptor, Type.before);
 
-            Interceptor cancelInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.BaseOperationCancelInterceptor");
+            Interceptor cancelInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationCancelInterceptor");
             aClass.addInterceptor("cancel", null, cancelInterceptor, Type.after);
             */
 
