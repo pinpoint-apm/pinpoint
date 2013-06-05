@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.logging.LoggerBinder;
 
 /**
  *
@@ -21,4 +22,6 @@ public interface Agent {
     Object getByteCodeInstrumentor();
 
     ProfilerConfig getProfilerConfig();
+
+    LoggerBinder initializeLogger();
 }

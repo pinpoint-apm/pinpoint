@@ -69,7 +69,7 @@ public class AgentClassLoader {
 
     public Object initializeLoggerBinder() {
         if (agentBootStrap != null) {
-            return reflectionInvoke(this.agentBootStrap, "initializeLoggerBinder", null, null);
+            return reflectionInvoke(this.agentBootStrap, "initializeLogger", null, null);
         }
         return null;
     }
