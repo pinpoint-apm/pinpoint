@@ -34,10 +34,14 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 	private final CountDownLatch startLatch = new CountDownLatch(1);
 
 	public MultiplexedUDPReceiver(GenericApplicationContext context) {
-		this.context = context;
-		this.socket = createSocket(TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
-		this.multiplexedPacketHandler = this.context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
-	}
+        this(context, TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
+    }
+
+    public MultiplexedUDPReceiver(GenericApplicationContext context, int port) {
+        this.context = context;
+        this.socket = createSocket(port);
+        this.multiplexedPacketHandler = this.context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
+    }
 
 	private Thread ioThread = new Thread(MultiplexedUDPReceiver.class.getSimpleName()) {
 		@Override

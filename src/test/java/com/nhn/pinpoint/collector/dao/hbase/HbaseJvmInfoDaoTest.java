@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TSerializer;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,11 @@ public class HbaseJvmInfoDaoTest {
 		Assert.assertArrayEquals(Arrays.copyOfRange(rowKey, HBaseTables.AGENT_NAME_MAX_LEN, HBaseTables.AGENT_NAME_MAX_LEN + 8), Bytes.toBytes(dataTime));
 	}
 
+    // System data관련 테이블 아직 없음.
+    @Ignore
 	@Test
 	public void testInsert() throws Exception {
+
 		final JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
 		jvmInfoThriftDTO.setAgentId("test_agent");
 		jvmInfoThriftDTO.setDataTime(System.currentTimeMillis());

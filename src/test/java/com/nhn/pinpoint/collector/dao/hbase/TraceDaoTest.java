@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.nhn.pinpoint.collector.dao.hbase.HbaseTraceIndexDao;
+import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Result;
@@ -50,6 +51,9 @@ public class TraceDaoTest {
     @Qualifier("testTraceIndex")
     private HbaseTraceIndexDao traceIndex;
 
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
+
 
     //	@BeforeClass
     @Before
@@ -77,20 +81,25 @@ public class TraceDaoTest {
     RowMapper<byte[]> valueRowMapper = new RowMapper<byte[]>() {
         @Override
         public byte[] mapRow(Result result, int rowNum) throws Exception {
-            return result.value();
+            return result.getRow();
         }
     };
 
     @Test
     public void insertSpan() throws InterruptedException, UnsupportedEncodingException {
+
         final Span span = createSpan();
 
+        acceptedTimeService.accept();
         traceIndex.insert(span);
-        // TODO 서버가 받은 시간으로 변경해야 될듯.
-        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), HBaseTables.AGENT_NAME_MAX_LEN, span.getStartTime());
-        byte[] result = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), Bytes.toBytes("ID"), valueRowMapper);
 
-        Assert.assertArrayEquals(SpanUtils.getTraceId(span), result);
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        // 키를 꺼구로 돌려야 한다.
+        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), HBaseTables.AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(acceptedTime));
+        byte[] resultRowKey = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), SpanUtils.getTraceId(span), valueRowMapper);
+
+        // 결과값 비교가 애매함
+        Assert.assertArrayEquals(rowKey, resultRowKey);
     }
 
     private Span createSpan() {

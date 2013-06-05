@@ -14,7 +14,7 @@ import com.nhn.pinpoint.collector.dao.TraceIndexDao;
 
 public class HbaseTraceIndexDao implements TraceIndexDao {
 
-	String tableName = HBaseTables.TRACE_INDEX;
+	private String tableName = HBaseTables.TRACE_INDEX;
 
 	@Autowired
 	private HbaseOperations2 hbaseTemplate;
