@@ -177,6 +177,10 @@ function filterPassingTransaction(
 			destApplicationName,
 			prevFilter) {
 	
+	if (srcServiceType == "CLIENT") {
+		applicationName = srcApplicationName = destApplicationName;
+	}
+	
 	var params = {
 		"application" : applicationName,
 		"serviceType" : serviceType,
