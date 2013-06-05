@@ -23,9 +23,9 @@
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
-        <property name="url" value="jdbc:mysql://10.98.133.22:3306/hippo?characterEncoding=UTF-8"/>
-        <property name="username" value="lucytest"/>
-        <property name="password" value="testlucy"/>
+        <property name="url" value="jdbc:mysql://10.25.149.61:3306/pinpoint?characterEncoding=UTF-8"/>
+        <property name="username" value="pinpoint"/>
+        <property name="password" value="nhn!@#123"/>
 
         <property name="initialSize" value="30"></property>
         <property name="maxActive" value="30"></property>
@@ -40,8 +40,7 @@
         <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
         <property name="numTestsPerEvictionRun" value="6"></property>
         <property name="minEvictableIdleTimeMillis" value="-1"></property>
-        <!-- db_root가 없다고 하여 잠시 주석처리함.-->
-        <!--<property name="validationQuery" value="select 1 from db_root"></property>-->
+        <property name="validationQuery" value="select 1 from db_root"></property>
 
         <property name="poolPreparedStatements" value="true"></property>
         <property name="maxOpenPreparedStatements" value="50"></property>
