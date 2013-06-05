@@ -30,8 +30,8 @@ public class AgentClassLoaderTest {
         String projectDir = getProjectLibDir();
 
         logger.info("lib:" + projectDir);
-        URL[] lib = getLib(projectDir);
-        logger.info("lib list:" + Arrays.toString(lib));
+//        URL[] lib = getLib(projectDir);
+//        logger.info("lib list:" + Arrays.toString(lib));
 //        String testJar = "pinpointClassLoaderTest-1.0.jar";
 //        logger.info("load lib:" + testJar);
 //
@@ -42,8 +42,8 @@ public class AgentClassLoaderTest {
 //        String log4j = projectDir + File.separator + "log4j.xml";
 //        File log4jFile = new File(log4j);
 
-        AgentClassLoader agentClassLoader = new AgentClassLoader(lib);
-        agentClassLoader.setBootClass("com.profiler.boot.BootClassTest");
+        AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
+        agentClassLoader.setBootClass("com.nhn.pinpoint.boot.BootClassTest");
         agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig());
 
 

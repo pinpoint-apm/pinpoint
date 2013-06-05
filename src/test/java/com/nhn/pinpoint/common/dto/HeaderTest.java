@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.dto;
+package com.nhn.pinpoint.common.dto;
 
 import com.nhn.pinpoint.common.dto2.Header;
 import org.junit.Test;
