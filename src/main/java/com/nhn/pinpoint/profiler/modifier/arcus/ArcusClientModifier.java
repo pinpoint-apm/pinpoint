@@ -1,14 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
-
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import java.util.Map.Entry;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.Type;
+import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
@@ -26,7 +26,8 @@ public class ArcusClientModifier extends AbstractModifier {
     public String getTargetClass() {
         return "net/spy/memcached/ArcusClient";
     }
-
+    
+    
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. " + javassistClassName);
@@ -35,9 +36,18 @@ public class ArcusClientModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
+            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.SetCacheManagerInterceptor");
             aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor,  Type.before);
 
+//            Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.ApiInterceptor");
+//        	aClass.addInterceptor("asyncBopGet", new String[]{"java.lang.String", "long", "boolean"}, apiInterceptor, Type.around);
+        	
+//        	// 모든 public 메소드에 ApiInterceptor를 적용한다.
+            for (Entry<String, String[]> e : getCandidates(null).entrySet()) {
+            	Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.modifier.arcus.interceptors.ApiInterceptor");
+            	aClass.addInterceptor(e.getKey(), e.getValue(), apiInterceptor, Type.around);
+            }
+            
             return aClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
@@ -46,4 +56,5 @@ public class ArcusClientModifier extends AbstractModifier {
             return null;
         }
     }
+
 }
