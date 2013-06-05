@@ -54,12 +54,12 @@ var ServerMap = $.Class({
 					"strokeWidth" : 1
 				},
 				"to" : {
-					"stroke" : "blue",
-					"strokeWidth" : 3
+					"stroke" : "#28a1f7",
+					"strokeWidth" : 1
 				},
 				"from" : {
-					"stroke" : "green",
-					"strokeWidth" : 3
+					"stroke" : "#f77128",
+					"strokeWidth" : 1
 				}
 			},
 			"htHighlightLink" : {
@@ -68,12 +68,12 @@ var ServerMap = $.Class({
 					"strokeWidth" : 1
 				},
 				"to" : {
-					"stroke" : "orange",
-					"strokeWidth" : 3
+					"stroke" : "#28a1f7",
+					"strokeWidth" : 1
 				},
 				"from" : {
-					"stroke" : "red",
-					"strokeWidth" : 3
+					"stroke" : "#f77128",
+					"strokeWidth" : 1
 				}
 			},
 			"fOnNodeClick" : function(eMouseEvent, htData) {
@@ -107,35 +107,16 @@ var ServerMap = $.Class({
 	_initNodeTemplates : function(){
 		var sImageDir = this.option('sImageDir'),
 			htIcons = this.option('htIcons');
-
-		this._oDefaultAdornment =
-	      this.$(go.Adornment, go.Panel.Spot,
-	        this.$(go.Panel, go.Panel.Auto,
-	          this.$(go.Shape, "RoundedRectangle",
-	            { name: "NODE", fill: null, stroke: "dodgerblue", strokeWidth: 8 }),
-	          this.$(go.Placeholder)),
-	        this.$("Button",
-	            { alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopLeft,
-	              click: this._onNodeClick.bind(this) },  // define click
-															// behavior for this
-															// Button in the
-															// Adornment
-	            // $(go.TextBlock, "Info", // the Button content
-	            // { font: "bold 6pt sans-serif" }))
-	            this.$(go.Shape, 
-	              { name : "SHAPE",
-	                figure : "BpmnEventConditional",
-	                width : 15, height: 15,
-	                fill : this.$(go.Brush, go.Brush.Linear, { 0.0: "white", 1.0: "gray" }), strokeWidth : 1
-	              })
-	          )
-	        // the button to create a "next" node, at the top-right corner
-	      );		
+	
+		this._oDefaultAdornment = this.$(go.Adornment, go.Panel.Auto,
+                    this.$(go.Shape, "Rectangle",
+                      { fill: null, stroke: "green", strokeWidth: 3 }),
+                    this.$(go.Placeholder));
 
 	    this._oDiagram.nodeTemplate =
 	      this.$(go.Node, go.Panel.Auto,
 	        {
-	    	  	/* selectionAdornmentTemplate: this._oDefaultAdornment, */
+	    	  	selectionAdornmentTemplate: this._oDefaultAdornment,
 	    	  	click : this._onNodeClick.bind(this),
 	        	contextClick : this._onNodeContextClick.bind(this)
 	        },
@@ -166,7 +147,7 @@ var ServerMap = $.Class({
 		    this._oDiagram.nodeTemplateMap.add(sKey,
 		        this.$(go.Node, go.Panel.Auto,
 		        	{ 
-// selectionAdornmentTemplate: this._oDefaultAdornment,
+		        		selectionAdornmentTemplate: this._oDefaultAdornment,
 		        		click : this._onNodeClick.bind(this),
 			        	contextClick : this._onNodeContextClick.bind(this)
 		        	},
@@ -192,39 +173,10 @@ var ServerMap = $.Class({
 	},
 
 	_initLinkTemplates : function(){
-    	this._oDefaultAdornmentForLink =
-    		this.$(go.Adornment, go.Panel.Spot,
-    				this.$(go.Panel, go.Panel.Auto,
-    						this.$(go.Placeholder))/*
-													 * , this.$("Button", {
-													 * alignment:
-													 * go.Spot.TopLeft,
-													 * alignmentFocus:
-													 * go.Spot.BottomLeft,
-													 * click:
-													 * this._onLinkClick.bind(this) }, //
-													 * define click behavior for
-													 * this Button in the
-													 * Adornment //
-													 * $(go.TextBlock, "Info", //
-													 * the Button content // {
-													 * font: "bold 6pt
-													 * sans-serif" }))
-													 * this.$(go.Shape, { name :
-													 * "SHAPE", figure :
-													 * "BpmnEventConditional",
-													 * width : 15, height: 15,
-													 * fill : this.$(go.Brush,
-													 * go.Brush.Linear, { 0.0:
-													 * "white", 1.0: "gray" }),
-													 * strokeWidth : 1 }) )
-													 */
-	        // the button to create a "next" node, at the top-right corner
-	      );		
 
 	    var htLinkType = this.option('htLinkType');
 	    var option = { selectionAdorned: true,
-				selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
+//				selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
 	    		click : this._onLinkClick.bind(this),
 				contextClick : this._onLinkContextClick.bind(this),
 				layerName: "Foreground",
