@@ -333,7 +333,12 @@ $(document).ready(function () {
 		-->
 		<br/>
 		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
+		{{if sourceinfo.serviceType == "CLIENT"}}
+		<a href="#" onclick="showRequests('{{= targetinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= targetinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
+		{{/if}}
+		{{if sourceinfo.serviceType != "CLIENT"}}
 		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
+		{{/if}}
 	</div>
 </script>
 <script id="LinkContextInfoBox" type="text/x-jquery-tmpl">

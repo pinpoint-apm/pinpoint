@@ -41,7 +41,7 @@ public class FromToFilter implements Filter {
 
 		if (ServiceType.findServiceType(fromServiceCode) == ServiceType.CLIENT || ServiceType.findServiceType(fromServiceCode) == ServiceType.USER) {
 			for (SpanBo span : transaction) {
-				if (toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
+				if (span.isRoot() && toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
 					include = true;
 					break;
 				}
