@@ -10,7 +10,7 @@ mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.t
 rm -fr ../pinpoint-testbed/agent
 mkdir -p ../pinpoint-testbed/agent/lib
 
-cp ./target/pinpoint-bootstrap-0.0.3-SNAPSHOT-jar-with-dependencies.jar ../pinpoint-testbed/agent/pinpoint-profiler-bootstrap-0.0.3-SNAPSHOT.jar
+cp ./target/pinpoint-bootstrap-0.0.3-SNAPSHOT-jar-with-dependencies.jar ../pinpoint-testbed/agent/pinpoint-bootstrap-0.0.3-SNAPSHOT.jar
 
 cp ../pinpoint-profiler/target/pinpoint-profiler-0.0.3-SNAPSHOT.jar ../pinpoint-testbed/agent/lib
 cp ../pinpoint-profiler/target/dependency/javassist-3.16.1-GA.jar ../pinpoint-testbed/agent/lib
