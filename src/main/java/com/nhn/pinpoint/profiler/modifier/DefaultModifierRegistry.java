@@ -33,7 +33,6 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
-import com.nhn.pinpoint.profiler.modifier.gc.RuntimeModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.FilterModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
