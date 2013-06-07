@@ -42,7 +42,7 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 
 			return aClass.toBytecode();
 		} catch (InstrumentException e) {
-			e.printStackTrace();
+			logger.warn("HttpURLConnectionModifier fail. Caused:", e.getMessage(), e);
 			return null;
 		}
 	}
