@@ -3,5 +3,5 @@
 
 # common lib
 ./makethrift.sh
-mvn clean eclipse:eclipse package install -Dmaven.test.skip
+mvn clean eclipse:eclipse package dependency:copy-dependencies install -Dmaven.test.skip
 #cp ./target/pinpoint-commons-0.0.2.jar ../pinpoint-testbed/pinpoint-server
