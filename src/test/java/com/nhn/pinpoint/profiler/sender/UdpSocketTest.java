@@ -18,7 +18,7 @@ public class UdpSocketTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     // 기본포트와 충돌나서 + 5함
-    private static int PORT = 9993+5;
+    private int PORT = 10000;
     // The correct maximum UDP message size is 65507, as determined by the following formula:
     // 0xffff - (sizeof(IP Header) + sizeof(UDP Header)) = 65535-(20+8) = 65507
     private static int AcceptedSize = 65507;
@@ -35,9 +35,11 @@ public class UdpSocketTest {
     }
 
     @After
-    public void setDown() {
+    public void setDown() throws InterruptedException {
         close(sender);
         close(receiver);
+        // testcase가 연속적으로 돌면 포트 충돌이 발생하여 증가시킴
+        PORT++;
     }
 
     private void close(DatagramSocket socket) {
@@ -45,6 +47,7 @@ public class UdpSocketTest {
             return;
         }
         socket.close();
+
     }
 
     private DatagramPacket newDatagramPacket(int size) {

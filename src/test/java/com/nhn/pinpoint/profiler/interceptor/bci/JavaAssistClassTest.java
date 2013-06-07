@@ -19,7 +19,7 @@ public class JavaAssistClassTest {
     public void testBeforeAddInterceptor() throws Exception {
 
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
-        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("TestObject");
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
 
         TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
         String methodName = "callA";
@@ -31,7 +31,7 @@ public class JavaAssistClassTest {
         callA.invoke(testObject);
 
         Assert.assertEquals(interceptor.call, 1);
-        Assert.assertEquals(interceptor.className, "TestObject");
+        Assert.assertEquals(interceptor.className, "com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
         Assert.assertEquals(interceptor.methodName, methodName);
         Assert.assertEquals(interceptor.args, null);
         Assert.assertEquals(interceptor.target, testObject);
@@ -42,7 +42,7 @@ public class JavaAssistClassTest {
     public void testBeforeAddInterceptorFormContextClassLoader() throws Exception {
 
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
-        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("TestObjectContextClassLoader");
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
 
         TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
         String methodName = "callA";
@@ -54,7 +54,7 @@ public class JavaAssistClassTest {
         callA.invoke(testObject);
 
         Assert.assertEquals(interceptor.call, 1);
-        Assert.assertEquals(interceptor.className, "TestObjectContextClassLoader");
+        Assert.assertEquals(interceptor.className, "com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         Assert.assertEquals(interceptor.methodName, methodName);
         Assert.assertEquals(interceptor.args, null);
         Assert.assertEquals(interceptor.target, testObject);
@@ -66,7 +66,7 @@ public class JavaAssistClassTest {
         // TODO aClass.addInterceptorCallByContextClassLoader 코드의 테스트 케이스도 추가해야함.
 
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
-        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("TestObject2");
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.nhn.pinpoint.profiler.interceptor.bci.TestObject2");
 
         TestAfterInterceptor callaInterceptor = new TestAfterInterceptor();
         String callA = "callA";
@@ -83,7 +83,7 @@ public class JavaAssistClassTest {
         Object result = callAMethod.invoke(testObject);
 
         Assert.assertEquals(callaInterceptor.call, 1);
-        Assert.assertEquals(callaInterceptor.className, "TestObject2");
+        Assert.assertEquals(callaInterceptor.className, "com.nhn.pinpoint.profiler.interceptor.bci.TestObject2");
         Assert.assertEquals(callaInterceptor.methodName, callA);
         Assert.assertNull(callaInterceptor.args);
         Assert.assertEquals(callaInterceptor.target, testObject);
@@ -93,7 +93,7 @@ public class JavaAssistClassTest {
         callBMethod.invoke(testObject);
 
         Assert.assertEquals(callbInterceptor.call, 1);
-        Assert.assertEquals(callbInterceptor.className, "TestObject2");
+        Assert.assertEquals(callbInterceptor.className, "com.nhn.pinpoint.profiler.interceptor.bci.TestObject2");
         Assert.assertEquals(callbInterceptor.methodName, callB);
         Assert.assertNull(callbInterceptor.args);
         Assert.assertEquals(callbInterceptor.target, testObject);
@@ -110,7 +110,7 @@ public class JavaAssistClassTest {
     @Test
     public void testLog() throws Exception {
         ByteCodeInstrumentor javaAssistByteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
-        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("TestLog");
+        InstrumentClass aClass = javaAssistByteCodeInstrumentor.getClass("com.nhn.pinpoint.profiler.interceptor.bci.TestLog");
 
         aClass.addDebugLogBeforeAfterMethod();
         aClass.addDebugLogBeforeAfterConstructor();
