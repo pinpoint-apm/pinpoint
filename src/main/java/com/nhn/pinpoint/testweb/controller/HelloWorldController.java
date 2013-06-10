@@ -50,7 +50,7 @@ public class HelloWorldController implements DisposableBean {
 
 	private void randomSlowMethod() {
 		try {
-			Thread.sleep((new Random().nextInt(5)) * 1000L);
+			Thread.sleep((new Random().nextInt(3)) * 1000L);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -179,9 +179,9 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/remotecombination2")
 	public String remotecombination2(Model model) throws MalformedURLException {
-        URL url = new URL("http://localhost:8080/combination2.pinpoint");
-        HttpURLConnection request = null;
-        try {
+		URL url = new URL("http://localhost:8080/combination2.pinpoint");
+		HttpURLConnection request = null;
+		try {
 			request = (HttpURLConnection) url.openConnection();
 			request.setRequestMethod("GET");
 			request.setRequestProperty("Content-type", "text/xml; charset=UTF-8");
@@ -195,12 +195,12 @@ public class HelloWorldController implements DisposableBean {
 			reader.close();
 
 		} catch (Exception e) {
-            e.printStackTrace();
+			e.printStackTrace();
 		} finally {
-            if(request != null) {
-                request.disconnect();
-            }
-        }
+			if (request != null) {
+				request.disconnect();
+			}
+		}
 
 		return "remotecombination";
 	}
@@ -214,11 +214,25 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/combination")
 	public String combination(Model model) {
-		mysql(model);
-		arcus(model);
-		memcached(model);
+		try {
+			mysql(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-//		randomSlowMethod();
+		try {
+			arcus(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			memcached(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		randomSlowMethod();
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
@@ -232,9 +246,23 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/combination2")
 	public String combination2(Model model) {
-		mysql(model);
-		arcus(model);
-		memcached(model);
+		try {
+			mysql(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			arcus(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			memcached(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		randomSlowMethod();
 
@@ -293,7 +321,7 @@ public class HelloWorldController implements DisposableBean {
 		client.executeToBloc("http://macpro:8080/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
-	
+
 	@Override
 	public void destroy() throws Exception {
 		arcus.shutdown();
