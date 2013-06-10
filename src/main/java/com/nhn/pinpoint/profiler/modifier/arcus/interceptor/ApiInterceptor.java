@@ -108,14 +108,12 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		
 		// find the target node
 		Operation op = (Operation) getOperation.invoke(((Future<?>)result));
-		String hostport = null;
 		if (op != null) {
 			MemcachedNode handlingNode = op.getHandlingNode();
 			SocketAddress socketAddress = handlingNode.getSocketAddress();
 			if (socketAddress instanceof InetSocketAddress) {
 				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				hostport = address.getHostName() + ":" + address.getPort();
-				trace.recordEndPoint(hostport);
+				trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
 			}
 		} else {
 			logger.info("operation not found");
@@ -124,10 +122,10 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		// determine the service type
 		String serviceCode = (String) getServiceCode.invoke(target);
 		if (serviceCode != null) {
-			trace.recordDestinationId(serviceCode + "-" + hostport);
+			trace.recordDestinationId(serviceCode);
 			trace.recordServiceType(ServiceType.ARCUS);
 		} else {
-			trace.recordDestinationId(hostport);
+			trace.recordDestinationId("MEMCACHED");
 			trace.recordServiceType(ServiceType.MEMCACHED);
 		}
 		
