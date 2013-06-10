@@ -72,6 +72,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 				} else {
 					sb.append(args[i].toString());
 				}
+			} else {
+				sb.append(args[i].toString());
 			}
 			sb.append(" ");
 		}
