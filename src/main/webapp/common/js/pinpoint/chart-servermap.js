@@ -612,6 +612,12 @@ var mergeUnknown = function(data) {
 		}
 		
 		if (newLink) {
+			if ((newLink.error / newLink.text * 100) > 10) {
+				newLink.category = "bad";
+			} else {
+				newLink.category = "default";
+			}
+			console.log(newLink);
 			newLinkList.push(newLink);
 		}
 	});
