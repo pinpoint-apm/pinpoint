@@ -84,10 +84,10 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 		String serviceCode = (String) getServiceCode.invoke((Operation)op);
 		if (serviceCode != null) {
 			trace.recordDestinationId(serviceCode);
-			trace.recordServiceType(ServiceType.ARCUS);
+			trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
 		} else {
 			trace.recordDestinationId("MEMCACHED");
-			trace.recordServiceType(ServiceType.MEMCACHED);
+			trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
 		}
 		
 		trace.recordException(op.getException());

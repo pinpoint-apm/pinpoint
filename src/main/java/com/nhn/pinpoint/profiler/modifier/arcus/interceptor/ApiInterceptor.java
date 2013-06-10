@@ -65,7 +65,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 					} else {
 						sb.append(args[i].toString());
 					}
-				} else if (args[i] instanceof Byte[]) {
+				} else if (args[i] instanceof byte[]) {
 					// TODO eflag는 실제 값을 보여줘야 할까?
 					int len = ((byte[]) args[i]).length;
 					sb.append("[bytes:" + len + "]");
