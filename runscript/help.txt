@@ -1,13 +1,7 @@
-#
-# tomcat
-#
-export HIPPO_AGENT_HOME="/home1/irteam/apps/hippo/agent"
-JAVA_OPTS="$JAVA_OPTS -javaagent:$HIPPO_AGENT_HOME/hippo-profiler-bootstrap-0.0.2.jar -Dhippo.agentId=apigw-t -Dhippo.applicationName=apigw-t"
 
 #
-# BLOC
+# add below JVM options to TOMCAT-HOME/bin/catalina.sh
 #
-export HIPPO_AGENT_HOME="/home1/irteam/apps/hippo/agent"
-JAVA_OPTS="$JAVA_OPTS -javaagent:$HIPPO_AGENT_HOME/hippo-profiler-bootstrap-0.0.2.jar -Dhippo.agentId=apigw-t -Dhippo.applicationName=apigw-t"
-
-# BLOC 설정은 hippo.config에 설정한다.
+PINPOINT_AGENT_HOME="/home1/irteam/apps/pinpoint/agent"
+PINPOINT_VERSION="0.0.3-SNAPSHOT"
+JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar -Dpinpoint.agentId=YOUR-UNIQUE-AGENT-ID -Dpinpoint.applicationName=YOUR-APPLICATION-NAME"
