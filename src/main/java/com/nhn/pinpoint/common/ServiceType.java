@@ -44,8 +44,10 @@ public enum ServiceType {
     SPRING_MVC((short) 5051, "SPRING", false, false, false, Histogram.NORMAL),
 
     // memory cache  8000
-    MEMCACHED((short) 8050, "MEMCACHED", true, true, false, Histogram.FAST),
+    MEMCACHED((short) 8050, "MEMCACHED", true, true, true, Histogram.FAST),
+    MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, true, Histogram.FAST),
     ARCUS((short) 8100, "ARCUS", true, true, false, Histogram.FAST),
+    ARCUS_FUTURE_GET((short) 8101, "ARCUS", true, false, true, Histogram.FAST),
 
     // connector류
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, Histogram.NORMAL),
