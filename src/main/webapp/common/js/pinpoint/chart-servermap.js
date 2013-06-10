@@ -561,6 +561,7 @@ var mergeUnknown = function(data) {
 					newNode = {
 				    	"id" : newNodeKey,
 				    	"key" : newNodeKey,
+				    	"textArr" : [],
 					    "text" : "",
 					    "hosts" : [],
 					    "category" : "UNKNOWN_GROUP",
@@ -585,7 +586,7 @@ var mergeUnknown = function(data) {
 				}
 				
 				// fill the new node/link informations.
-				newNode.text += link.targetinfo.applicationName + " (" + link.text + ")\n";
+				newNode.textArr.push({ 'count' : link.text, 'applicationName' : link.targetinfo.applicationName});
 
 				newLink.text += link.text;
 				newLink.error += link.error;
@@ -608,6 +609,14 @@ var mergeUnknown = function(data) {
 		});
 		
 		if (newNode) {
+			newNode.textArr.sort(function(e1, e2) {
+				return e2.count - e1.count;
+			});
+
+			$.each(newNode.textArr, function(i, e) {
+				newNode.text += e.applicationName + " (" + e.count + ")\n";
+			});
+			
 			newNodeList.push(newNode);
 		}
 		
@@ -617,7 +626,6 @@ var mergeUnknown = function(data) {
 			} else {
 				newLink.category = "default";
 			}
-			console.log(newLink);
 			newLinkList.push(newLink);
 		}
 	});
