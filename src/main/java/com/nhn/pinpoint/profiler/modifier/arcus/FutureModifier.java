@@ -25,7 +25,7 @@ public class FutureModifier extends AbstractModifier implements MultipleModifier
     }
 
     public String getTargetClass() {
-        return getTargetClasses()[0];
+        return null;
     }
     
     public String[] getTargetClasses() {

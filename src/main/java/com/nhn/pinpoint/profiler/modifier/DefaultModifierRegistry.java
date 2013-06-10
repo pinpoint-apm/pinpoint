@@ -64,9 +64,22 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addModifier(Modifier modifier) {
-		Modifier old = registry.put(modifier.getTargetClass(), modifier);
-		if (old != null) {
-			throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+		// FIXME 동일한 Modifier를 여러 클래스에 적용. 다시 디자인 하는 것이 좋을 듯.
+		if (modifier instanceof MultipleModifier
+			&& ((MultipleModifier) modifier).getTargetClasses() != null) {
+			for (String targetClass : ((MultipleModifier) modifier).getTargetClasses()) {
+				Modifier old = registry.put(targetClass, modifier);
+				if (old != null) {
+					throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + targetClass);
+				}
+			}
+		}
+
+		if (modifier.getTargetClass() != null) {
+			Modifier old = registry.put(modifier.getTargetClass(), modifier);
+			if (old != null) {
+				throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+			}
 		}
 	}
 	

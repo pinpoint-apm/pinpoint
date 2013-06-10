@@ -22,8 +22,6 @@ public class AddOpInterceptor implements SimpleAroundInterceptor {
 	private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");
 	private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);
 
-	private final String MEMCACHED = "MEMCACHED";
-
 	@Override
 	public void before(Object target, Object[] args) {
 		if (isDebug) {
@@ -32,11 +30,6 @@ public class AddOpInterceptor implements SimpleAroundInterceptor {
 
 		String serviceCode = getServiceCode.invoke((MemcachedClient) target);
 		Operation op = (Operation) args[1];
-
-		if (target instanceof MemcachedClient) {
-			if (serviceCode == null)
-				serviceCode = MEMCACHED;
-		}
 
 		setServiceCode.invoke(op, serviceCode);
 	}

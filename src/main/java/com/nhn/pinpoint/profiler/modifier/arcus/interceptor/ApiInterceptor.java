@@ -55,7 +55,30 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<args.length; i++) {
 			sb.append(i).append(":");
-			sb.append(args[i].toString());
+			if (args[i] == null) {
+				sb.append("<null> ");
+				continue;
+			}
+			if (i > 0) {
+				if (args[i] instanceof String) {
+					int len = ((String) args[i]).length();
+					if (len > 16) {
+						sb.append("<strlen:" + len + ">");
+					} else {
+						sb.append(args[i].toString());
+					}
+				} else if (args[i] instanceof Byte[]) {
+					int len = ((byte[]) args[i]).length;
+					if (len > 32) {
+						sb.append("<bytes:" + len + ">");
+					} else {
+						// TODO eflag?
+						sb.append(args[i].toString());
+					}
+				} else {
+					sb.append(args[i].toString());
+				}
+			}
 			sb.append(" ");
 		}
 		return sb.toString();
