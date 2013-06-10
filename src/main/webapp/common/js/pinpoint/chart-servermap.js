@@ -376,7 +376,8 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				'TOMCAT' : 'TOMCAT.png',
 				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
 				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
-				'USER' : 'USER.png'
+				'USER' : 'USER.png',
+				'ORACLE' : 'ORACLE.png'
 			},
 			"htLinkTheme" : {
 				"default" : {
