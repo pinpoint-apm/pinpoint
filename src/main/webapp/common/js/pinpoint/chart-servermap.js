@@ -418,10 +418,10 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				}
 			},
 			fOnNodeContextClick : function(e, data) {
-				nodeContextClickHandler(e, query, data, "#" + containerId);
+				// nodeContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkContextClick : function(e, data) {
-				linkContextClickHandler(e, query, data, "#" + containerId);
+				// linkContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);
