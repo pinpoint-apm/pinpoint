@@ -6,6 +6,7 @@ function nodeStatistics() {
 	
 }
 
+
 function linkStatistics(
 		begin,
 		end,
@@ -13,6 +14,8 @@ function linkStatistics(
 		srcApplicationName,
 		destServiceType,
 		destApplicationName) {
+	
+	var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
 	
 	var params = {
 		"from" : begin,
@@ -44,13 +47,15 @@ function linkStatistics(
 			chart.stacked(true);
 			
 			chart.xAxis.tickFormat(function(d) {
-				return d3.time.format('%x %H:%M')(new Date(d));
+				return d3.time.format('%H:%M')(new Date(d));
 			});
 
 			// chart.yAxis.tickFormat(d3.format(',.2f'));
 			chart.yAxis.tickFormat(function(d) {
 				return d;
 			});
+			
+			chart.color([myColors[4], myColors[0]]);
 
 			d3.select('#linkInfoDetails .linkInfoSFChart svg')
 				.datum(data)
@@ -88,6 +93,8 @@ function linkStatistics(
 				return d;
 			});
 			
+			chart.color(myColors);
+			
 			d3.select('#linkInfoDetails .linkInfoBarChart svg')
 					.datum(data)
 					.transition()
@@ -119,7 +126,9 @@ function linkStatistics(
 			chart.yAxis.tickFormat(function(d) {
 				return d;
 			});
-						
+			
+			chart.color(myColors);
+			
 			d3.select('#linkInfoDetails .linkInfoChart svg')
 			.datum(data)
 			.transition()
@@ -135,7 +144,7 @@ function linkStatistics(
 	$("#statisticsProgressbar").show();
 	getLinkStatisticsData(params, function(query, result) {
 		$("#statisticsProgressbar").hide();
-		showFailedRateChart(result.timeseriesFailRate);
+		// showFailedRateChart(result.timeseriesFailRate);
 		showSummary(result.histogramSummary);
 		showTimeseriesHistogram(result.timeseriesHistogram);
 	});
@@ -409,10 +418,10 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				}
 			},
 			fOnNodeContextClick : function(e, data) {
-				// nodeContextClickHandler(e, query, data, "#" + containerId);
+				nodeContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkContextClick : function(e, data) {
-				// linkContextClickHandler(e, query, data, "#" + containerId);
+				linkContextClickHandler(e, query, data, "#" + containerId);
 			},
 			fOnLinkClick : function(e, data) {
 				linkClickHandler(e, query, data, "#" + containerId);

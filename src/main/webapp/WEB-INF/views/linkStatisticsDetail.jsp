@@ -57,7 +57,10 @@
 			<c:choose>
 				<c:when test="${slot.key == 2147483646}">"key" : "Slow",</c:when>
 				<c:when test="${slot.key == 2147483647}">"key" : "Failed",</c:when>
-				<c:otherwise>"key" : "<= ${slot.key}ms",</c:otherwise>
+				<c:otherwise>
+					<c:if test="${slot.key >= 1000}">"key" : "${slot.key / 1000}s",</c:if>
+					<c:if test="${slot.key < 1000}">"key" : "${slot.key}ms",</c:if>
+				</c:otherwise>
 			</c:choose>
 			"values" : [
 				<c:forEach var="entry" items="${timeseriesValue[slot.value]}" varStatus="mapStatus">

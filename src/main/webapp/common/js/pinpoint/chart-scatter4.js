@@ -171,7 +171,7 @@ function makeScatter(title, start, end, targetId, w, h) {
         alert("Can't draw scatter. Not supported browser.");
     }
     
-    var yAxisMAX = 2000;
+    var yAxisMAX = 10000;
     var date = new Date();
 
     if (oScatterChart != null) {

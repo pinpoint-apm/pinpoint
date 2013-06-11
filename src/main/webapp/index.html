@@ -140,7 +140,7 @@
 		<div id="linkInfoDetails">
 			<div class='info'></div>
 			<div class='linkInfoChart' style='width:100%;display:none'>
-				Timeseries response histogram
+				Response histogram
 				<svg style='height:200px' />
 			</div>
 			<div class='linkInfoBarChart' style='width:100%;display:none'>
@@ -148,7 +148,7 @@
 				<svg style='height:150px' />
 			</div>
 			<div class='linkInfoSFChart' style='width:100%;display:none'>
-				Timeseries failure rate
+				Failure rate
 				<svg style='height:150px' />
 			</div>
 		</div>
@@ -273,9 +273,13 @@ $(document).ready(function () {
 	<div class="NodeInfoBox">
 		{{if category != "UNKNOWN_GROUP"}}
 		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
+		<!--
 		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions map</a>
-		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions list</a>
-		<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
+		-->
+			{{if terminal == "false" && category != "UNKNOWN_CLOUD"}}
+			<br/><a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction list</a>
+			<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
+			{{/if}}
 		<br/>
 		{{/if}}
 		{{if category == "UNKNOWN_GROUP"}}
@@ -304,8 +308,10 @@ $(document).ready(function () {
 				<li>
 					<span class="label label-success">OK</span>
 					{{= value.agentId}}
+					<!--
 					<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
 					<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
+					-->
 				</li>
 				{{/each}}
 			</ul>
@@ -352,6 +358,7 @@ $(document).ready(function () {
 </script>
 <script id="ApplicationContextInfoBox" type="text/x-jquery-tmpl">
 	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
+		<!--
 			Application
 				<ul>
 					<li>{{= text}}</li>
@@ -385,11 +392,14 @@ $(document).ready(function () {
 					{{/each}}
 				</ul>
 			{{/if}}
-			<hr/>
+		-->
+			<br/>
 
+		<!--
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transactions</a><br/>
+		-->
+			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction list</a><br/>
 			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
-			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
 
 		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="pinpoint-action-icon icon-question-sign"></i></button>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()"><i class="pinpoint-action-icon icon-remove"></i></button>
