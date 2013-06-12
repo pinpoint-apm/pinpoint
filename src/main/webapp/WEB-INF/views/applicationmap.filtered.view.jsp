@@ -146,7 +146,7 @@ $(document).ready(function () {
 				<li>Failed : {{= error}}</li>
 			</ul>
 			<hr/>
-			<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', '{{= query.filter}}');">Scan passing transactions</a><br/>
+			<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', '{{= query.filter}}');">Scan passing transaction</a><br/>
 			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
@@ -188,7 +188,7 @@ $(document).ready(function () {
 			{{/if}}
 			<hr/>
 
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transactions</a><br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transaction</a><br/>
 			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= query.filter}}');">Transaction response scatter chart</a><br/>
 			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
 
