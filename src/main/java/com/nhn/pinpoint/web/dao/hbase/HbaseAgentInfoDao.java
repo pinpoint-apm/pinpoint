@@ -4,19 +4,21 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
+import com.nhn.pinpoint.web.mapper.AgentInfoMapper;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
+import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+
+import java.util.List;
 
 /**
  *
@@ -28,6 +30,29 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    private RowMapper<List<AgentInfoBo>> agentInfoMapper = new AgentInfoMapper();
+
+    /**
+     * agentId, startTime을 기반으로 유니크한 AgentInfo를 찾아낸다.
+     * @param agentId
+     * @param startTime
+     * @return
+     */
+    @Override
+    public List<AgentInfoBo> getAgentInfo(final String agentId, final long startTime) {
+
+        byte[] agentIdBytes = Bytes.toBytes(agentId);
+        long reverseStartTime = TimeUtils.reverseCurrentTimeMillis(startTime);
+        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseStartTime);
+
+        Get get = new Get(rowKey);
+        get.addFamily(HBaseTables.AGENTINFO_CF_INFO);
+
+        List<AgentInfoBo> agentInfoBoList = hbaseOperations2.get(HBaseTables.AGENTINFO, get, agentInfoMapper);
+
+        return agentInfoBoList;
+    }
 
     /**
      * currentTime에서 가장 근접한 시간의 agent startTime을 find한다.
@@ -53,7 +78,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                         byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                         AgentInfoBo agentInfoBo = new AgentInfoBo();
                         agentInfoBo.setAgentId(agentId);
-                        agentInfoBo.setTimestamp(startTime);
+                        agentInfoBo.setStartTime(startTime);
                         agentInfoBo.readValue(value);
                         
                         logger.debug("agent:{} startTime find {}", agentId, startTime);

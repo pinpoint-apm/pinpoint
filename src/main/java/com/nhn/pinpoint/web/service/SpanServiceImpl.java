@@ -91,7 +91,7 @@ public class SpanServiceImpl implements SpanService {
 
 				AgentInfoBo agentInfoBo = null;
 				try {
-					agentInfoBo = findAgentInfoBoBeforeStartTime(spanAlign);
+					agentInfoBo = getAgentInfoBo(spanAlign);
 					logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
 				} catch (AgentIdNotFoundException ex) {
 					AnnotationBo agentInfoNotFound = new AnnotationBo();
@@ -104,7 +104,7 @@ public class SpanServiceImpl implements SpanService {
 				// TODO 일단 시간까지 조회는 하지 말고 하자.
 				// 미리 sqlMetaDataList를 indentifier로 필터치는 로직이 더 좋을것으로 생각됨.
 				int hashCode = (Integer) sqlIdAnnotation.getValue();
-				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentInfoBo.getAgentId(), hashCode, agentInfoBo.getTimestamp());
+				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentInfoBo.getAgentId(), hashCode, agentInfoBo.getStartTime());
 				int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -208,7 +208,7 @@ public class SpanServiceImpl implements SpanService {
 
 				AgentInfoBo agentInfoBo = null;
 				try {
-					agentInfoBo = findAgentInfoBoBeforeStartTime(spanAlign);
+					agentInfoBo = getAgentInfoBo(spanAlign);
 					logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
 				} catch (AgentIdNotFoundException ex) {
 					AnnotationBo agentInfoNotFound = new AnnotationBo();
@@ -219,7 +219,8 @@ public class SpanServiceImpl implements SpanService {
 				}
 
 				int apiId = (Integer) apiIdAnnotation.getValue();
-				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentInfoBo.getAgentId(), agentInfoBo.getIdentifier(), apiId, agentInfoBo.getTimestamp());
+                // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
+				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentInfoBo.getAgentId(), agentInfoBo.getIdentifier(), apiId, agentInfoBo.getStartTime());
 				int size = apiMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -251,14 +252,18 @@ public class SpanServiceImpl implements SpanService {
 		});
 	}
 
-	private AgentInfoBo findAgentInfoBoBeforeStartTime(SpanAlign spanAlign) {
+	private AgentInfoBo getAgentInfoBo(SpanAlign spanAlign) {
 		String agentId = getAgentId(spanAlign);
-		long startTime = spanAlign.getSpanBo().getStartTime();
-		AgentInfoBo agentInfoBeforeStartTime = agentInfoDao.findAgentInfoBeforeStartTime(agentId, startTime);
-		if (agentInfoBeforeStartTime == null) {
-			throw new AgentIdNotFoundException(agentId, startTime);
+		long agentStartTime = spanAlign.getSpanBo().getAgentStartTime();
+
+		List<AgentInfoBo> agentInfoBo = agentInfoDao.getAgentInfo(agentId, agentStartTime);
+		if (agentInfoBo == null || agentInfoBo.size() == 0) {
+			throw new AgentIdNotFoundException(agentId, agentStartTime);
 		}
-		return agentInfoBeforeStartTime;
+        // 현재는 qualifier에 고정된 상수를 집어 넣으므로 한상 1개 만존재하므로 0으로 검색하면 된다.
+        // span에는 identifier가 없고,
+        // 만약 2개 이상의 starttime을 가진 agentInfo가 존재한다면 동시에 같은 id를 가진 agent가 스타트된것을 확인하는 정도의 기능이 가능한다.
+		return agentInfoBo.get(0);
 	}
 
 	private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {

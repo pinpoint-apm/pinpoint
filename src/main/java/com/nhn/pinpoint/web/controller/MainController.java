@@ -47,7 +47,7 @@ public class MainController {
 	public String agentStatus(Model model, HttpServletResponse response, @RequestParam("agentId") String agentId) {
 		AgentInfoBo agentInfo = monitor.getAgentInfo(agentId);
 
-		long gap = System.currentTimeMillis() - agentInfo.getTimestamp();
+		long gap = System.currentTimeMillis() - agentInfo.getStartTime();
 		
 		model.addAttribute("gap", gap);
 		model.addAttribute("agentinfo", agentInfo);
