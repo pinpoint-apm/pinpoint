@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pinpoint-testweb</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
-    <name>PINPOINT TEST Web</name>
+    <version>0.0.4-SNAPSHOT</version>
+    <name>pinpoint test web</name>
     <packaging>war</packaging>
 
     <repositories>
@@ -113,10 +113,12 @@
             <artifactId>cubrid-jdbc</artifactId>
             <version>8.4.1.2032</version>
         </dependency>
+
         <dependency>
             <groupId>oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>11.1.0.7.0</version>
+            <version>11.2.0.3.0</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- web -->
