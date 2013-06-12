@@ -125,7 +125,7 @@
 	</div>
 	<div class="chart-right">
 		<div id="scatterChartContainer" style="display:none;">
-			<span onclick="" style="text-decoration:underline;cursor:pointer">Show all transactions</span>
+			<span onclick="" style="text-decoration:underline;cursor:pointer">Show all transaction</span>
 			&nbsp;&nbsp;&nbsp;
 			<i class="icon-fullscreen" onclick="expandScatter($(this));" onmouseover="$(this).tooltip('show');" title="Expand to new popup window." style="cursor:pointer;"></i>
 			&nbsp;&nbsp;&nbsp;
@@ -274,11 +274,11 @@ $(document).ready(function () {
 		{{if category != "UNKNOWN_GROUP"}}
 		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
 		<!--
-		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transactions map</a>
+		<br/><a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction map</a>
 		-->
 			{{if terminal == "false" && category != "UNKNOWN_CLOUD"}}
 			<br/><a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction list</a>
-			<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transactions response scatter chart</a>
+			<br/><a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction response scatter chart</a>
 			{{/if}}
 		<br/>
 		{{/if}}
@@ -338,12 +338,12 @@ $(document).ready(function () {
 		</ul>
 		-->
 		<br/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transaction map</a><br/>
 		{{if sourceinfo.serviceType == "CLIENT"}}
-		<a href="#" onclick="showRequests('{{= targetinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= targetinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
+		<a href="#" onclick="showRequests('{{= targetinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= targetinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transaction list</a>
 		{{/if}}
 		{{if sourceinfo.serviceType != "CLIENT"}}
-		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
+		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transaction list</a>
 		{{/if}}
 	</div>
 </script>
@@ -351,8 +351,8 @@ $(document).ready(function () {
 	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
 		<br/>
 		<br/>
-		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transactions map</a><br/>
-		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transactions list</a>
+		<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', null);">Passing transaction map</a><br/>
+		<a href="#" onclick="showRequests('{{= sourceinfo.applicationName}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= sourceinfo.serviceType}}|{{= sourceinfo.applicationName}}|{{= targetinfo.serviceType}}|{{= targetinfo.applicationName}}');">Passing transaction list</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
@@ -396,7 +396,7 @@ $(document).ready(function () {
 			<br/>
 
 		<!--
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transactions</a><br/>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transaction</a><br/>
 		-->
 			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction list</a><br/>
 			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction response scatter chart</a><br/>
@@ -413,7 +413,7 @@ $(document).ready(function () {
 					<li>Sorry. Not implemented.</li>
 				</ul>
 			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Show transactions</a>
+			<a href="#" onclick="alert('Sorry. Not implemented.');">Show transaction</a>
 		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
 	</div>
 </script>
