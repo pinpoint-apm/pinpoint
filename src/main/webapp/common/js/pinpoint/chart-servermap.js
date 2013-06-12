@@ -60,7 +60,7 @@ function linkStatistics(
 			d3.select('#linkInfoDetails .linkInfoSFChart svg')
 				.datum(data)
 				.transition()
-				.duration(500)
+				.duration(0)
 				.call(chart);
 
 			nv.utils.windowResize(chart.update);
@@ -98,7 +98,7 @@ function linkStatistics(
 			d3.select('#linkInfoDetails .linkInfoBarChart svg')
 					.datum(data)
 					.transition()
-					.duration(500)
+					.duration(0)
 					.call(chart);
 	
 			nv.utils.windowResize(chart.update);
@@ -132,7 +132,7 @@ function linkStatistics(
 			d3.select('#linkInfoDetails .linkInfoChart svg')
 			.datum(data)
 			.transition()
-			.duration(500)
+			.duration(0)
 			.call(chart);
 			
 			nv.utils.windowResize(chart.update);
