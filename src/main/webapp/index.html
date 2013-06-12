@@ -13,7 +13,7 @@
     <link href="/common/css/pinpoint/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
     <link href="/common/js/nvd3/nv.d3.css" rel="stylesheet"/>
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
+    <link href="/select2/select2.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -246,18 +246,20 @@ $(document).ready(function () {
 		target.attr("disabled", null);
 		
 		var formatOptionText = function(state) {
+			if (!state.id) return state.text;
 			var chunk = state.text.split("@");
 			if (chunk.length > 1) {
 				return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
 			} else {
-				return state;
+				return state.text;
 			}
 		}
           
 	    target.select2({
 			placeholder: "Select an application.",
 			formatResult: formatOptionText,
-			formatSelection: formatOptionText
+			formatSelection: formatOptionText,
+		    escapeMarkup: function(m) { return m; }
 		});
 		
 	    // 임시.
