@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pinpoint-web</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>pinpoint-web</name>
     <packaging>war</packaging>
 
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
@@ -214,7 +214,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -482,7 +482,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
