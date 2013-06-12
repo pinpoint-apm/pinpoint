@@ -15,7 +15,7 @@ public class AgentInfoBo {
     private String agentId;
     private String applicationName;
     private boolean isAlive;
-    private long timestamp;
+    private long startTime;
     private short identifier;
 
     public AgentInfoBo(AgentInfo agentInfo) {
@@ -25,7 +25,7 @@ public class AgentInfoBo {
         this.agentId = agentInfo.getAgentId();
         this.applicationName = agentInfo.getApplicationName();
         this.isAlive = agentInfo.isIsAlive();
-        this.timestamp = agentInfo.getTimestamp();
+        this.startTime = agentInfo.getTimestamp();
         this.identifier = agentInfo.getIdentifier();
     }
 
@@ -80,12 +80,12 @@ public class AgentInfoBo {
         isAlive = alive;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     public short getIdentifier() {
@@ -150,7 +150,7 @@ public class AgentInfoBo {
 		sb.append("\t\"ip\" : \"").append(ip).append("\",");
 		sb.append("\t\"ports\" : \"").append(ports).append("\",");
 		sb.append("\t\"agentId\" : \"").append(agentId).append("\",");
-		sb.append("\t\"uptime\" : \"").append(timestamp).append("\"");
+		sb.append("\t\"uptime\" : \"").append(startTime).append("\"");
 		sb.append("}");
 		
 		return sb.toString();
@@ -165,7 +165,7 @@ public class AgentInfoBo {
                 ", agentId='" + agentId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", isAlive=" + isAlive +
-                ", timestamp=" + timestamp +
+                ", startTime=" + startTime +
                 ", identifier=" + identifier +
                 '}';
     }
