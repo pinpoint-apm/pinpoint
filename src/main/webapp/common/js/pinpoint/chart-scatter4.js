@@ -191,7 +191,7 @@ function makeScatter(title, start, end, targetId, w, h) {
         nYMin: 0, nYMax: yAxisMAX,
         nZMin: 0, nZMax: 5,
         nBubbleSize: 3,
-		sXLabel : '(time)',
+		sXLabel : '',
 		sYLabel : '(ms)',
 		sTitle : title,
         htTypeAndColor : {
