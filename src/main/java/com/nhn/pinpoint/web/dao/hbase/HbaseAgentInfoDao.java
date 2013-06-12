@@ -62,6 +62,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      * @return
      */
     @Override
+    @Deprecated
     public AgentInfoBo findAgentInfoBeforeStartTime(final String agentId, final long currentTime) {
         // TODO cache를 걸어야 될듯 하다.
         Scan scan = createScan(agentId, currentTime);
