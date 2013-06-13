@@ -273,7 +273,7 @@ $(document).ready(function () {
 </script>
 <script id="NodeInfoBox" type="text/x-jquery-tmpl">
 	<div class="NodeInfoBox">
-		{{if category != "UNKNOWN_GROUP"}}
+		{{if category != "UNKNOWN_GROUP" && category != "USER"}}
 		<img src="/images/icons/{{= category}}.png" width="20" height="10" /> {{= text}} ({{= category}})
 			{{if terminal == "false" && category != "UNKNOWN_CLOUD"}}
 			<br/><a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Passing transaction list</a>
@@ -282,9 +282,8 @@ $(document).ready(function () {
 		<br/>
 		{{/if}}
 
-		{{if category == "UNKNOWN_GROUP"}}
-			GROUP정보 조회 아직 지원하지 않습니다.<br/>
-			옵션에서 merge unknown을 해제하고 조회하세요.
+		{{if category == "USER"}}
+		<img src="/images/icons/USER.png" width="20" height="10" /> {{= category}}
 		{{/if}}
 
 		{{if hosts.length > 0}}
