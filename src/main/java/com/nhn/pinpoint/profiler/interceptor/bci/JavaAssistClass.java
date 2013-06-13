@@ -25,6 +25,9 @@ public class JavaAssistClass implements InstrumentClass {
         this.ctClass = ctClass;
     }
 
+    public boolean isInterface() {
+        return this.ctClass.isInterface();
+    }
 
     @Override
     public boolean insertCodeBeforeConstructor(String[] args, String code) {

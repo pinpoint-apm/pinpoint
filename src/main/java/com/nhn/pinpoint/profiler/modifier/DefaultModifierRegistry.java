@@ -24,11 +24,7 @@ import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLStatementModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.*;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
@@ -173,8 +169,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Modifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlNonRegisteringDriverModifier);
 
+        // Mysql Dirver가 5.0.x에서 5.1.x로 버전업되면서 MySql Driver가 호환성을 깨버려서 호환성 보정작업을 해야함.
+        // MySql 5.1.x드라이버사용시 Driver가 리턴하는 Connection이 com.mysql.jdbc.Connection에서 com.mysql.jdbc.JDBC4Connection으로 변경되었음.
+        // http://devcafe.nhncorp.com/Lucy/forum/342628
 		Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlConnectionImplModifier);
+
+        Modifier mysqlConnectionModifier = new MySQLConnectionModifier(byteCodeInstrumentor, agent);
+        addModifier(mysqlConnectionModifier);
 
 		Modifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlStatementModifier);

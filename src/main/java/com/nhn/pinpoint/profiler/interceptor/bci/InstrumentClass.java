@@ -6,6 +6,8 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 
 public interface InstrumentClass {
 
+    boolean isInterface();
+
 	boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
 
 	boolean insertCodeAfterMethod(String methodName, String[] args, String code);
