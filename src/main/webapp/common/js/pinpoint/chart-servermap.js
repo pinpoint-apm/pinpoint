@@ -1,11 +1,11 @@
 var oServerMap = null;
 var FILTER_DELIMETER = "^";
 var FILTER_ENTRY_DELIMETER = "|";
+var SERVERMAP_METHOD_CACHE = {};
 
 function nodeStatistics() {
 	
 }
-
 
 function linkStatistics(
 		begin,
@@ -365,7 +365,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 
 	if ($('#mergeUnknown').data('selected')) {
 	// if ($('#mergeUnknown').is(':checked')) {
-		mergeUnknown(data);
+		mergeUnknown(query, data);
 	}
 
 	replaceClientToUser(data);
@@ -508,7 +508,8 @@ var replaceClientToUser = function(data) {
 	});
 }
 
-var mergeUnknown = function(data) {
+var mergeUnknown = function(query, data) {
+	SERVERMAP_METHOD_CACHE = {};
 	var nodes = data.applicationMapData.nodeDataArray;
 	var links = data.applicationMapData.linkDataArray;
 	
@@ -590,7 +591,7 @@ var mergeUnknown = function(data) {
 							"text" : 0,
 							"error" : 0,
 							"slow" : 0,
-							"rawhistogram" : [],
+							"rawdata" : [],
 							"histogram" : {}
 					};
 				}
@@ -603,7 +604,24 @@ var mergeUnknown = function(data) {
 				newLink.slow += link.slow;
 				newLink.sourceinfo.push(link.sourceinfo);
 				newLink.targetinfo.push(link.targetinfo);
-				newLink.rawhistogram.push(link.histogram);
+				
+				var newRawData = {
+					"id" : link.id,
+					"from" : link.from,
+					"to" : link.to,
+					"sourceinfo" : link.sourceinfo,
+					"targetinfo" : link.targetinfo,
+					"text" : 0,
+					"count" : link.text,
+					"error" : link.error,
+					"slow" : link.slow,
+					"histogram" : link.histogram
+				};
+				newLink.rawdata[link.targetinfo.applicationName] = newRawData; 
+				
+				SERVERMAP_METHOD_CACHE[link.targetinfo.applicationName] = function() {
+					linkClickHandler(null, query, newRawData);
+				}
 
 				$.each(link.histogram, function(key, value) {
 					if (newLink.histogram[key]) {
@@ -707,62 +725,38 @@ var linkContextClickHandler = function(e, query, data, containerId) {
 }
 
 var nodeClickHandler = function(e, query, data, containerId) {
+	console.log("nodeClickHandler query", query);
+	console.log("nodeClickHandler data", data);
 	emptyDetailPanel();
-	
 	data.query = query;
-	var htOffset = $(containerId).offset();
-	var template;
-	if (data.category == "CLIENT") {
-		template = $('#ClientContextInfoBox');
-	} else if (data.category == "UNKNOWN_GROUP") {
-		template = $('#UnknownGroupContextInfoBox');
+	
+	if(data.category == "UNKNOWN_GROUP") {
+		$('#nodeInfoDetails .info').append($('#UnknownNodeInfoBox').tmpl(data));
 	} else {
-		template = $('#ApplicationContextInfoBox');
+		$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
 	}
-	
-	var box = template
-				.tmpl(data)
-				.css({'top':e.pageY - htOffset.top, 'left':e.pageX - htOffset.left, 'z-index':300})
-				.addClass('nodeinfo')
-				.addClass('nodeinfo' + data.id);
-	
-	$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
 }
 
 var linkClickHandler = function(e, query, data, containerId) {
-	console.log("link data", data);
-	
+	console.log("linkClickHandler query", query);
+	console.log("linkClickHandler data", data);
 	emptyDetailPanel();
-	
-	// rawhistogram이 있는 녀석은 상세정보 조회 불가.
-	// TODO rawhistogram말고 다른 정보로 판단하도록 수정하기.
-	if (data.rawhistogram) {
-		$('#linkInfoDetails .info').text("merge된 연결선은 상세정보를 조회할 수 없습니다. 맵 옵션에서 'merge unknown'을 해제하고 조회하세요.");	
-		return;
-	}
-	
-	/*
-	if (data.sourceinfo.serviceType == "CLIENT") {
-		$('#linkInfoDetails .info').text("CLIENT 정보는 아직 제공하지 않습니다.");	
-		return;
-	}
-	*/
-	
 	data.query = query;
-	$('#linkInfoDetails .info').append($('#LinkInfoBox').tmpl(data));
-
-	linkStatistics(	query.from,
-					query.to,
-					data.sourceinfo.serviceTypeCode,
-					data.sourceinfo.applicationName,
-					data.targetinfo.serviceTypeCode,
-					data.targetinfo.applicationName);
-
-	/*
-	showLinkHistogramDetailed();
-	showLinkHistogramSum();
-	showLinkSuccessOrFailedDetailed();
-	*/
+	
+	// TODO rawdata 다른 정보로 판단하도록 수정하기.
+	if (data.rawdata) {
+		// $('#linkInfoDetails .info').text("merge된 연결선은 상세정보를 조회할 수 없습니다. 맵 옵션에서 'merge unknown'을 해제하고 조회하세요.");
+		$('#linkInfoDetails .info').append($('#UnknownLinkInfoBox').tmpl(data));
+		return;
+	} else {
+		$('#linkInfoDetails .info').append($('#LinkInfoBox').tmpl(data));
+		linkStatistics(	query.from,
+						query.to,
+						data.sourceinfo.serviceTypeCode,
+						data.sourceinfo.applicationName,
+						data.targetinfo.serviceTypeCode,
+						data.targetinfo.applicationName);		
+	}
 }
 
 var emptyDetailPanel = function() {

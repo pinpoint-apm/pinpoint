@@ -315,9 +315,9 @@ var ServerMap = $.Class({
 	      while (allLinks.next()) { allLinks.value.highlight = "normal"; }
 	},
 	
-	_updateHightlights : function(){
+	_updateHightlights : function(sel){
 		this._resetHighlights();
-		var sel = this._oDiagram.selection.first();
+		sel = sel || this._oDiagram.selection.first();
 		if(sel !== null){
 			if(sel instanceof go.Node){
 				this._linksTo(sel, 'to');
@@ -331,9 +331,7 @@ var ServerMap = $.Class({
 	    // iterators containing all nodes and links in the diagram
 	    allNodes2 = this._oDiagram.nodes;
 	    allLinks2 = this._oDiagram.links;
-
-	    // give everything the appropriate highlighting ( color and width of
-		// stroke )
+	    
 	    // nodes, including groups
 	    while (allNodes2.next()) {
 	        var shp = allNodes2.value.findObject("NODE");
@@ -350,9 +348,39 @@ var ServerMap = $.Class({
 	        var hl = allLinks2.value.highlight;
 //	        this._highlight(shp, arw, hl);
 	        this._highlight('link', shp, hl);
-	        console.log('shp2', shp2);
 	        this._highlight('link', shp2, hl);
 	    }		
+	},
+	
+	highlightNodeByKey : function(sKey){
+		var node = this._oDiagram.findNodeForKey(sKey);
+		if(node){
+			var part = this._oDiagram.findPartForKey(sKey);
+			this._oDiagram.select(part);
+			this._updateHightlights(node);	
+		}
+	},
+	
+	highlightLinkByFromTo : function(from, to){
+		var htLink = this._getLinkObjectByFromTo(from, to);
+		if(htLink){
+			var link = this._oDiagram.findLinkForData(htLink);
+			var part = this._oDiagram.findPartForData(htLink);
+			this._oDiagram.select(part);
+			this._updateHightlights(link);
+		}
+	},
+	
+	_getLinkObjectByFromTo : function(from, to){
+		var aLink = this._oDiagram.model.linkDataArray;
+		for(var i=0, len=aLink.length; i<len; i++){
+			var htLink = aLink[i];
+			console.log(htLink.from, from ,"&&", htLink.to, to);
+			if(htLink.from == from && htLink.to == to){
+				return htLink;
+			}
+		}
+		return false;
 	},
 	
 	_highlight : function(type, shape, theme){
