@@ -10,7 +10,7 @@
     <property name="pinpoint.profiler.jar" value="pinpoint-profiler-${pinpoint.version}.jar"/>
 
     <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
-    <property name="agent.agent.lib.dir" value="${basedir}/../deploy/pinpoint-agent/lib"/>
+    <property name="agent.lib.dir" value="${basedir}/../deploy/pinpoint-agent/lib"/>
     <property name="target.dir" value="${basedir}/target/"/>
 
     <target name="deploy" depends="mvn.build.install, copy.agent">
