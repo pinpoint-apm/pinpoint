@@ -52,6 +52,9 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 	}
     
     String getAnnotation(Object[] args) {
+    	if (args == null) {
+    		return "";
+    	}
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<args.length; i++) {
 			sb.append(i).append(":");
