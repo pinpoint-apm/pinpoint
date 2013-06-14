@@ -17,41 +17,54 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class ArcusClientModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(ArcusClientModifier.class.getName());
+	private final Logger logger = LoggerFactory
+			.getLogger(ArcusClientModifier.class.getName());
 
-    public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
-    }
+	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
+			Agent agent) {
+		super(byteCodeInstrumentor, agent);
+	}
 
-    public String getTargetClass() {
-        return "net/spy/memcached/ArcusClient";
-    }
-    
-    
-    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
-        }
+	public String getTargetClass() {
+		return "net/spy/memcached/ArcusClient";
+	}
 
-        try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+	public byte[] modify(ClassLoader classLoader, String javassistClassName,
+			ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+		if (logger.isInfoEnabled()) {
+			logger.info("Modifing. " + javassistClassName);
+		}
 
-            Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
-            aClass.addInterceptor("setCacheManager", new String[]{"net.spy.memcached.CacheManager"}, setCacheManagerInterceptor,  Type.before);
-        	
-        	// 모든 public 메소드에 ApiInterceptor를 적용한다.
-            for (Entry<String, String[]> e : getCandidates(null).entrySet()) {
-            	Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
-            	aClass.addInterceptor(e.getKey(), e.getValue(), apiInterceptor, Type.around);
-            }
-            
-            return aClass.toBytecode();
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn( e.getMessage(), e);
-            }
-            return null;
-        }
-    }
+		try {
+			InstrumentClass aClass = byteCodeInstrumentor
+					.getClass(javassistClassName);
+
+			Interceptor setCacheManagerInterceptor = byteCodeInstrumentor
+					.newInterceptor(
+							classLoader,
+							protectedDomain,
+							"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
+			aClass.addInterceptor("setCacheManager",
+					new String[] { "net.spy.memcached.CacheManager" },
+					setCacheManagerInterceptor, Type.before);
+
+			// 모든 public 메소드에 ApiInterceptor를 적용한다.
+			String[] ignored = new String[] { "__", "shutdown" };
+			for (Entry<String, String[]> e : getCandidates(ignored).entrySet()) {
+				Interceptor apiInterceptor = byteCodeInstrumentor
+						.newInterceptor(classLoader, protectedDomain,
+								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
+				aClass.addInterceptor(e.getKey(), e.getValue(), apiInterceptor,
+						Type.around);
+			}
+
+			return aClass.toBytecode();
+		} catch (Exception e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn(e.getMessage(), e);
+			}
+			return null;
+		}
+	}
 
 }

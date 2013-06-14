@@ -110,16 +110,18 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, getAnnotation(args));
 		
 		// find the target node
-		Operation op = (Operation) getOperation.invoke(((Future<?>)result));
-		if (op != null) {
-			MemcachedNode handlingNode = op.getHandlingNode();
-			SocketAddress socketAddress = handlingNode.getSocketAddress();
-			if (socketAddress instanceof InetSocketAddress) {
-				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+		if (result instanceof Future) {
+			Operation op = (Operation) getOperation.invoke(((Future<?>)result));
+			if (op != null) {
+				MemcachedNode handlingNode = op.getHandlingNode();
+				SocketAddress socketAddress = handlingNode.getSocketAddress();
+				if (socketAddress instanceof InetSocketAddress) {
+					InetSocketAddress address = (InetSocketAddress) socketAddress;
+					trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+				}
+			} else {
+				logger.info("operation not found");
 			}
-		} else {
-			logger.info("operation not found");
 		}
 		
 		// determine the service type

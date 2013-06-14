@@ -49,21 +49,30 @@ public abstract class AbstractModifier implements Modifier {
     /**
      * 대상 클래스의 모든 public 메소드 정보를 반환한다.
      * (이곳에 있는게 맞나?)
-     * @param filters 필터링할 메소드를 정규식 형태로 지정한다. 
+     * @param ignoredPrefixes 필터링할 메소드의 prefix를 지정한다. 
      * @return
      */
-    public Map<String, String[]> getCandidates(String[] filters) {
+    public Map<String, String[]> getCandidates(String[] ignoredPrefixes) {
     	Map<String, String[]> candidates = new HashMap<String, String[]>();
     	
     	try {
     		InstrumentClass aClass = byteCodeInstrumentor.getClass(getTargetClass().replace("/", "."));
     		CtMethod[] declaredMethods = aClass.getDeclaredMethods();
     		for (CtMethod m : declaredMethods) {
-    			if (m.getModifiers() != javassist.Modifier.PUBLIC || m.getName().startsWith("__")) {
+    			// TODO 필터 좀더 강화해야 함
+    			boolean ignored = false;
+    			if (m.getModifiers() != javassist.Modifier.PUBLIC) {
+    				ignored = true;
+    			}
+    			for (String ignoredPrefix : ignoredPrefixes) {
+    				if (m.getName().startsWith(ignoredPrefix)) {
+    					ignored = true;
+    					break;
+    				}
+    			}
+    			if (ignored) {
     				continue;
     			}
-    			// TODO 필터 처리 필요
-    			// ...
     			String methodName = m.getName();
     			CtClass[] paramTypes = m.getParameterTypes();
     			List<String> params = new ArrayList<String>(5);
