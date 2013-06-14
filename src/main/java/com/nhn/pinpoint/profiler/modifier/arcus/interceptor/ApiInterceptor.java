@@ -41,10 +41,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("TraceID not exist. start new trace.");
-            }
-			trace = traceContext.newTraceObject();
+			return;
 		}
 		
 		trace.traceBlockBegin();
