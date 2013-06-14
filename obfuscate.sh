@@ -12,7 +12,7 @@ cp $HOME/pinpoint-testbed/agent/pinpoint-bootstrap-$VERSION.jar $HOME/pinpoint-t
 cp $HOME/pinpoint-testbed/agent/lib/pinpoint-profiler-$VERSION.jar $HOME/pinpoint-testbed/agent-org/
 
 echo "Obfuscating"
-proguard.sh @proguard.conf
+proguard.sh @proguard-$VERSION.conf
 
 echo "Replace original"
 cp $HOME/pinpoint-testbed/agent-obfuscated/pinpoint-bootstrap-$VERSION.jar $HOME/pinpoint-testbed/agent/
