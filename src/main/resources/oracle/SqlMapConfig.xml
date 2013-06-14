@@ -4,5 +4,5 @@
     "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<sqlMap resource="sql-member.xml" />
+	<sqlMap resource="oracle/test-sql.xml" />
 </sqlMapConfig>

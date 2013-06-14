@@ -3,7 +3,7 @@ package com.nhn.pinpoint.testweb.service;
 /**
  *
  */
-public interface OracleService {
+public interface MySqlService {
 
     int selectOne();
 

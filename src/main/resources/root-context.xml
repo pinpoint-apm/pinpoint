@@ -96,7 +96,7 @@
     <!-- ============================================================= -->
     <bean id="mysqlSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
         <property name="dataSource" ref="mysqlDatasource"/>
-        <property name="configLocation" value="classpath:SqlMapConfig.xml"/>
+        <property name="configLocation" value="classpath:mysql/SqlMapConfig.xml"/>
     </bean>
 
     <bean id="mysqlSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
@@ -110,7 +110,7 @@
     <!-- oracle -->
     <bean id="oracleSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
         <property name="dataSource" ref="oracleDatasource"/>
-        <property name="configLocation" value="classpath:oracle/OracleSqlMapConfig.xml"/>
+        <property name="configLocation" value="classpath:oracle/SqlMapConfig.xml"/>
     </bean>
 
     <bean id="oracleSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">

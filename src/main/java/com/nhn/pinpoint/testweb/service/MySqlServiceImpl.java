@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.testweb.service;
 
-import com.nhn.pinpoint.testweb.repository.OracleDao;
+import com.nhn.pinpoint.testweb.repository.MySqlDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,18 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Service
-@Transactional("oracleTransactionManager")
-public class OracleServiceImpl implements OracleService {
+@Transactional("mysqlTransactionManager")
+public class MySqlServiceImpl implements MySqlService {
+
     @Autowired
-    private OracleDao oracleDao;
+    private MySqlDao mysqlDao;
 
     @Override
     public int selectOne() {
-        return oracleDao.selectOne();
+        return mysqlDao.selectOne();
     }
 
     @Override
     public void createStatement() {
-        oracleDao.createStatement();
+        mysqlDao.createStatement();
     }
 }

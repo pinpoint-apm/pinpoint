@@ -3,7 +3,8 @@ package com.nhn.pinpoint.testweb.repository;
 /**
  *
  */
-public interface OracleDao {
+public interface MySqlDao {
+
     int selectOne();
 
     void createStatement();
