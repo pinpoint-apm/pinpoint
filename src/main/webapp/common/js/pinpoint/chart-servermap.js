@@ -619,6 +619,10 @@ var mergeUnknown = function(query, data) {
 				};
 				newLink.rawdata[link.targetinfo.applicationName] = newRawData; 
 				
+				/*
+				 * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
+				 * onclick="SERVERMAP_METHOD_CACHE['{{= value.applicationName}}']();" 으로 호출함.
+				 */
 				SERVERMAP_METHOD_CACHE[link.targetinfo.applicationName] = function() {
 					linkClickHandler(null, query, newRawData);
 				}
@@ -644,7 +648,8 @@ var mergeUnknown = function(query, data) {
 			$.each(newNode.textArr, function(i, e) {
 				newNode.text += e.applicationName + " (" + e.count + ")\n";
 			});
-			
+
+			console.log("newNode", newNode);
 			newNodeList.push(newNode);
 		}
 		
@@ -654,6 +659,20 @@ var mergeUnknown = function(query, data) {
 			} else {
 				newLink.category = "default";
 			}
+			
+			// targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
+			newLink.targetinfo.sort(function(e1, e2) {
+				var err1 = newLink.rawdata[e1.applicationName].error;
+				var err2 = newLink.rawdata[e2.applicationName].error;
+				
+				if (err1 + err2 > 0) {
+					return err2 - err1;
+				} else {
+					return newLink.rawdata[e2.applicationName].count - newLink.rawdata[e1.applicationName].count;
+				}
+			});
+			
+			console.log("newLink", newLink);
 			newLinkList.push(newLink);
 		}
 	});
