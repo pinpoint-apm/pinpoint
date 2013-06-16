@@ -447,6 +447,21 @@ var serverMapCallback = function(query, data, ignoreCache) {
 		});
 	}
     oServerMap.load(data.applicationMapData);
+
+    try {
+        var selectedNode = (function() {
+        	for(var i = 0; i < data.applicationMapData.nodeDataArray.length; i++) {
+        		var e = data.applicationMapData.nodeDataArray[i];
+        		if (e.text == query.applicationName && e.serviceTypeCode == query.serviceType) {
+        			return e;
+        		}
+        	}
+        })();
+        oServerMap.highlightNodeByKey(selectedNode.key);
+        nodeClickHandler(null, query, selectedNode);
+	} catch (e) {
+		console.log(e);
+	}
 };
 
 function showServerMap(applicationName, serviceType, from, to, period, usePeriod, filterText, hideIndirectAccess, cb) {
