@@ -113,7 +113,7 @@ public class DefaultTraceContext implements TraceContext {
         checkBeforeTraceObject();
         // datasender연결 부분 수정 필요.
         boolean sampling = this.sampler.isSampling();
-        if(sampling) {
+        if (sampling) {
             DefaultTrace trace = new DefaultTrace();
             Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);

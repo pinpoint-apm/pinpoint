@@ -35,18 +35,18 @@ public class OracleDriverModifier  extends AbstractModifier {
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass oracleDriver = byteCodeInstrumentor.getClass(javassistClassName);
 
 
             Interceptor createConnection = new DriverConnectInterceptor();
             String[] params = new String[]{
                     "java.lang.String", "java.util.Properties"
             };
-            mysqlConnection.addInterceptor("connect", params, createConnection);
+            oracleDriver.addInterceptor("connect", params, createConnection);
 
             printClassConvertComplete(javassistClassName);
 
-            return mysqlConnection.toBytecode();
+            return oracleDriver.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);

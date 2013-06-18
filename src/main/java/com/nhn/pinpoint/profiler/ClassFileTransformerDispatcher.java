@@ -46,6 +46,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
                 return classFileBuffer;
             }
         }
+
         if (classLoader == agentClassLoader) {
             // agent의 clssLoader에 로드된 클래스는 스킵한다.
             return null;
