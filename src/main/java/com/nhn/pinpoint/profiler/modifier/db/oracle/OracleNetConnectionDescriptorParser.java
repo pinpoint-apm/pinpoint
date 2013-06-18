@@ -87,7 +87,7 @@ public class OracleNetConnectionDescriptorParser {
         // =
         this.tokenizer.checkEqualToken();
 
-        // value 비교 reduece
+        // value 비교 reduce
         boolean nonTerminalValue = false;
         while(true) {
             Token token = this.tokenizer.lookAheadToken();

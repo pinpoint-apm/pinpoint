@@ -7,6 +7,7 @@ public class DepthScope {
 
     private final NamedThreadLocal<Integer> scope;
 
+    // ZERO일 경우의 객체 생성을 줄이기 위해 상수화
     public static final Integer ZERO = 0;
     public static final Integer NULL = -1;
 
