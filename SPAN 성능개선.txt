@@ -15,3 +15,7 @@ jdbc url이 중복되고 있어 개선하면 데이터 사이즈가 상당히 �
 
 jdbc에서 rpc name제거시.
 1865
+
+-Xms512m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=128m
+
+com.nhn.pinpoint.collector.TomcatProfileDataReceiverMain
