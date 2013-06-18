@@ -50,13 +50,25 @@ public class PreparedStatementUtils {
                 if (method.getReturnType() != void.class) {
                     continue;
                 }
-                if (method.getExceptionTypes().equals(SQLException.class)) {
+                // sql exception을 던지는지 본다.
+                if (!throwSqlException(method)) {
                     continue;
                 }
                 bindMethod.add(method);
             }
         }
         return Collections.unmodifiableList(bindMethod);
+    }
+
+    private static boolean throwSqlException(Method method) {
+        Class<?>[] exceptionTypes = method.getExceptionTypes();
+        if (exceptionTypes.length == 1) {
+            Class<?> exceptionType = exceptionTypes[0];
+            if (exceptionType.equals(SQLException.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
