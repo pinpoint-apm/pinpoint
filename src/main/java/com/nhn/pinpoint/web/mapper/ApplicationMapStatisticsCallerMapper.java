@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
 
 /**
  * 
@@ -24,16 +24,16 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<String, ApplicationStatistics>> {
+public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<String, TransactionFlowStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public Map<String, ApplicationStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public Map<String, TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
 		KeyValue[] keyList = result.raw();
 
 		// key of map is destApplicationName.
-		Map<String, ApplicationStatistics> stat = new HashMap<String, ApplicationStatistics>();
+		Map<String, TransactionFlowStatistics> stat = new HashMap<String, TransactionFlowStatistics>();
 
 		// key of map is destApplicationName
 		Map<String, Set<String>> calleeAppHostMap = new HashMap<String, Set<String>>();
@@ -68,14 +68,14 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			}
 
 			if (stat.containsKey(id)) {
-				ApplicationStatistics statistics = stat.get(id);
+				TransactionFlowStatistics statistics = stat.get(id);
 				if (isError) {
 					statistics.getHistogram().addSample((short) -1, requestCount);
 				} else {
 					statistics.getHistogram().addSample(histogramSlot, requestCount);
 				}
 			} else {
-				ApplicationStatistics statistics = new ApplicationStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+				TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
 				if (isError) {
 					statistics.getHistogram().addSample((short) -1, requestCount);
 				} else {
@@ -86,7 +86,7 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 		}
 
 		// statistics에 dest host정보 삽입.
-		for (Entry<String, ApplicationStatistics> entry : stat.entrySet()) {
+		for (Entry<String, TransactionFlowStatistics> entry : stat.entrySet()) {
 			entry.getValue().addToHosts(calleeAppHostMap.get(entry.getKey()));
 		}
 

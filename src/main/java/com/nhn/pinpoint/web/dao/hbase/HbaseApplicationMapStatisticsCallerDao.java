@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -39,17 +39,17 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 	@Autowired
 	@Qualifier("applicationMapStatisticsCallerMapper")
-	private RowMapper<Map<String, ApplicationStatistics>> applicationMapStatisticsCallerMapper;
+	private RowMapper<Map<String, TransactionFlowStatistics>> applicationMapStatisticsCallerMapper;
 
 	@Override
-	public Map<String, ApplicationStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
+	public Map<String, TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
 		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
-		List<Map<String, ApplicationStatistics>> found = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
+		List<Map<String, TransactionFlowStatistics>> found = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
-		Map<String, ApplicationStatistics> result = new HashMap<String, ApplicationStatistics>();
+		Map<String, TransactionFlowStatistics> result = new HashMap<String, TransactionFlowStatistics>();
 
-		for (Map<String, ApplicationStatistics> map : found) {
-			for (Entry<String, ApplicationStatistics> entry : map.entrySet()) {
+		for (Map<String, TransactionFlowStatistics> map : found) {
+			for (Entry<String, TransactionFlowStatistics> entry : map.entrySet()) {
 				if (result.containsKey(entry.getKey())) {
 					result.get(entry.getKey()).mergeWith(entry.getValue());
 				} else {

@@ -12,7 +12,7 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
  * @author netspider
  * 
  */
-public class ApplicationStatistics {
+public class TransactionFlowStatistics {
 
 	private String id;
 	private String from;
@@ -23,7 +23,7 @@ public class ApplicationStatistics {
 	private final Set<String> toHosts;
 	private final Set<AgentInfoBo> toAgents;
 
-	public ApplicationStatistics(String from, short fromServiceType, String to, short toServiceType) {
+	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
 		this.from = from;
 		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
 		this.to = to;
@@ -82,7 +82,7 @@ public class ApplicationStatistics {
 		this.toHosts.clear();
 	}
 
-	public ApplicationStatistics mergeWith(ApplicationStatistics applicationStatistics) {
+	public TransactionFlowStatistics mergeWith(TransactionFlowStatistics applicationStatistics) {
 		if (this.equals(applicationStatistics)) {
 			histogram.mergeWith(applicationStatistics.getHistogram());
 			return this;
@@ -138,7 +138,7 @@ public class ApplicationStatistics {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApplicationStatistics other = (ApplicationStatistics) obj;
+		TransactionFlowStatistics other = (TransactionFlowStatistics) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

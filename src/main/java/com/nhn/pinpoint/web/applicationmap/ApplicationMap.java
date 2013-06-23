@@ -23,12 +23,12 @@ public class ApplicationMap {
 
 	private boolean built = false;
 
-	private final Set<ApplicationStatistics> data;
+	private final Set<TransactionFlowStatistics> data;
 	private final Set<String> applicationNames = new HashSet<String>();
 	private final Map<String, Application> applications = new HashMap<String, Application>();
 	private final Map<String, ApplicationRelation> relations = new HashMap<String, ApplicationRelation>();
 
-	public ApplicationMap(Set<ApplicationStatistics> data) {
+	public ApplicationMap(Set<TransactionFlowStatistics> data) {
 		this.data = data;
 	}
 
@@ -51,7 +51,7 @@ public class ApplicationMap {
 			return this;
 
 		// extract application
-		for (ApplicationStatistics stat : data) {
+		for (TransactionFlowStatistics stat : data) {
 			if (!stat.getFromServiceType().isRpcClient()) {
 				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null, null));
 			}
@@ -70,7 +70,7 @@ public class ApplicationMap {
 		}
 
 		// extract relation
-		for (ApplicationStatistics stat : data) {
+		for (TransactionFlowStatistics stat : data) {
 			Application from = findApplication(stat.getFrom(), stat.getFromServiceType());
 			Application to = findApplication(stat.getTo(), stat.getToServiceType());
 
