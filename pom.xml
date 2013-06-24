@@ -19,11 +19,6 @@
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
         <repository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Maven Repository Group</name>
-            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-        </repository>
-        <repository>
             <id>nhn</id>
             <url>http://repo.nhncorp.com/maven2/</url>
         </repository>
