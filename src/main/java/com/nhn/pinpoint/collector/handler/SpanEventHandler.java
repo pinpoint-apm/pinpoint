@@ -3,6 +3,7 @@ package com.nhn.pinpoint.collector.handler;
 import java.net.DatagramPacket;
 
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -23,7 +24,10 @@ public class SpanEventHandler implements Handler {
 
     @Autowired
     private TracesDao traceDao;
-
+    
+    @Autowired
+    private ApplicationStatisticsDao applicationMapStatisticsDao;
+    
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
 
@@ -55,6 +59,9 @@ public class SpanEventHandler implements Handler {
             // if terminal update statistics
             int elapsed = spanEvent.getEndElapsed();
             boolean hasException = SpanEventUtils.hasException(spanEvent);
+            
+            // application으로 들어오는 통계 정보 저장.
+            applicationMapStatisticsDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
             
             // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
             // 내가 호출한 정보 저장. (span이 호출한 spanevent)

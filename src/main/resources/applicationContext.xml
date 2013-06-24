@@ -53,6 +53,7 @@
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseClientStatisticsDao"></bean>
 	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCallerDao"></bean>
 	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCalleeDao"></bean>
+	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationStatisticsDao"></bean>
 	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseHostApplicationMapDao"></bean>
 
     <bean id="applicationNameMapper" class="com.nhn.pinpoint.collector.dao.mapper.ApplicationNameMapper"></bean>

@@ -3,22 +3,23 @@ package com.nhn.pinpoint.collector.handler;
 import java.net.DatagramPacket;
 import java.util.List;
 
-import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
-import com.nhn.pinpoint.collector.dao.TraceIndexDao;
-import com.nhn.pinpoint.collector.dao.TracesDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
+import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
+import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
+import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
+import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
+import com.nhn.pinpoint.collector.dao.TraceIndexDao;
+import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto2.thrift.Span;
 import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
-import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
 
 public class SpanHandler implements Handler {
 
@@ -38,6 +39,9 @@ public class SpanHandler implements Handler {
 
 	// @Autowired
 	// private ClientStatisticsDao clientStatisticsDao;
+    
+    @Autowired
+    private ApplicationStatisticsDao applicationMapStatisticsDao;
     
     @Autowired
     private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
@@ -67,6 +71,9 @@ public class SpanHandler implements Handler {
             // businessTransactionStatistics.update(span);
 
 			if (span.getParentSpanId() == -1) {
+				// application으로 들어오는 통계 정보 저장.
+				applicationMapStatisticsDao.update(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+				
 				// TODO error가 있으면 getErr값이 0보다 큰가??
 				// clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
                 applicationMapStatisticsCalleeDao.update(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
@@ -101,6 +108,9 @@ public class SpanHandler implements Handler {
                     // if terminal update statistics
 					int elapsed = spanEvent.getEndElapsed();
                     boolean hasException = SpanEventUtils.hasException(spanEvent);
+                    
+                    // application으로 들어오는 통계 정보 저장.
+                    applicationMapStatisticsDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
                     
                     // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
                     // 내가 호출한 정보 저장. (span이 호출한 spanevent)
