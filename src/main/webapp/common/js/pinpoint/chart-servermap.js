@@ -841,7 +841,7 @@ var nodeClickHandler = function(e, query, data, containerId) {
 		$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
 	}
 	
-	if (!data.rawdata && data.category != "USER") {
+	if (!data.rawdata && data.category != "USER" && data.category != "UNKNOWN_GROUP") {
 		applicationStatistics(query.from, query.to, data.text, data.serviceTypeCode);
 	}
 }
