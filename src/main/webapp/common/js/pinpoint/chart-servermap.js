@@ -2,9 +2,61 @@ var oServerMap = null;
 var FILTER_DELIMETER = "^";
 var FILTER_ENTRY_DELIMETER = "|";
 var SERVERMAP_METHOD_CACHE = {};
+var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
 
-function nodeStatistics() {
+function applicationStatistics(begin, end, applicationName, serviceType) {
+	var params = {
+		"from" : begin,
+		"to" : end,
+		"applicationName" : applicationName,
+		"serviceType" : serviceType
+	}
 	
+	var showSummary = function(data) {
+		$("#linkInfoDetails .linkInfoBarChart").show();
+		nv.addGraph(function() {
+			var chart = nv.models.discreteBarChart().x(function(d) {
+				return d.label;
+			}).y(function(d) {
+				return d.value;
+			}).staggerLabels(false).tooltips(false).showValues(true);
+	
+			chart.xAxis.tickFormat(function(d) {
+				if($.isNumeric(d)) {
+					return (d >= 1000) ? d / 1000 + "s" : d + "ms";
+				}
+				return d;
+			});
+			
+			chart.yAxis.tickFormat(function(d) {
+				return d;
+			});
+			
+			chart.valueFormat(function(d) {
+				return d;
+			});
+			
+			chart.color(myColors);
+			
+			d3.select('#linkInfoDetails .linkInfoBarChart svg')
+					.datum(data)
+					.transition()
+					.duration(0)
+					.call(chart);
+	
+			nv.utils.windowResize(chart.update);
+	
+			return chart;
+		});
+	}
+	
+	$("#statisticsProgressbar").show();
+	getApplicationStatisticsData(params, function(query, result) {
+		$("#statisticsProgressbar").hide();
+		console.log(query);
+		console.log(result);
+		showSummary(result.histogramSummary);
+	});
 }
 
 function linkStatistics(
@@ -14,8 +66,6 @@ function linkStatistics(
 		srcApplicationName,
 		destServiceType,
 		destApplicationName) {
-	
-	var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
 	
 	var params = {
 		"from" : begin,
@@ -202,6 +252,27 @@ function filterPassingTransaction(
 					+ destApplicationName
 	}
 	window.open("/filtermap.pinpoint?" + decodeURIComponent($.param(params)), "");
+}
+
+function getApplicationStatisticsData(query, callback) {
+	jQuery.ajax({
+		type : 'GET',
+		url : '/applicationStatistics.pinpoint',
+		cache : false,
+		dataType: 'json',
+		data : {
+			from : query.from,
+			to : query.to,
+			applicationName : query.applicationName,
+			serviceType : query.serviceType
+		},
+		success : function(result) {
+			callback(query, result);
+		},
+		error : function(xhr, status, error) {
+			console.log("ERROR", status, error);
+		}
+	});
 }
 
 function getLinkStatisticsData(query, callback) {
@@ -768,6 +839,10 @@ var nodeClickHandler = function(e, query, data, containerId) {
 		$('#nodeInfoDetails .info').append($('#UnknownNodeInfoBox').tmpl(data));
 	} else {
 		$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
+	}
+	
+	if (!data.rawdata && data.category != "USER") {
+		applicationStatistics(query.from, query.to, data.text, data.serviceTypeCode);
 	}
 }
 

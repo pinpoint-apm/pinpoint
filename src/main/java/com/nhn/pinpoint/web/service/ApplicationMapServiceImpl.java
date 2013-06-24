@@ -11,16 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
+import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
 import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.web.dao.ApplicationStatisticsDao;
 import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * 
@@ -42,6 +44,9 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 	@Autowired
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+	
+	@Autowired
+	private ApplicationStatisticsDao applicationStatisticsDao;
 
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
@@ -260,5 +265,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
 		
 		return map;
+	}
+
+	@Override
+	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceType, long from, long to) {
+		return applicationStatisticsDao.selectApplicationStatistics(applicationName, serviceType, from, to);
 	}
 }
