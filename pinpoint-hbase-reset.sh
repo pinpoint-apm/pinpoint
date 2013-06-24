@@ -13,6 +13,7 @@ disable 'BusinessTransactionStatistics'
 disable 'ClientStatistics'
 disable 'ApplicationMapStatisticsCaller'
 disable 'ApplicationMapStatisticsCallee'
+disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
 
 drop 'AgentInfo'
@@ -29,6 +30,7 @@ drop 'BusinessTransactionStatistics'
 drop 'ClientStatistics'
 drop 'ApplicationMapStatisticsCaller'
 drop 'ApplicationMapStatisticsCallee'
+drop 'ApplicationStatistics'
 drop 'HostApplicationMap'
 
 create 'AgentInfo', { NAME => 'Info' }
@@ -42,6 +44,7 @@ create 'Traces', { NAME => 'Span' , TTL => 604800000  }, { NAME => 'Annotation' 
 create 'SystemInfo', { NAME => 'JVM' , TTL => 604800000  }
 create 'ApplicationMapStatisticsCaller', { NAME => 'Counter' }
 create 'ApplicationMapStatisticsCallee', { NAME => 'Counter' }
+create 'ApplicationStatistics', { NAME => 'Counter' }
 create 'HostApplicationMap', { NAME => 'Map' }
 
 list

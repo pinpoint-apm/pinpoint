@@ -9,35 +9,13 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 
 /**
  * <pre>
- * columnName format = SERVICETYPE(2bytes) + SLOT(2bytes) + APPNAMELEN(2bytes) + APPLICATIONNAME(str) + HOST(str)
+ * columnName format = SLOT(2bytes) + agentId(str)
  * </pre>
  * 
  * @author netspider
  * 
  */
-public class ApplicationMapStatisticsUtils {
-
-	public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, int elapsed, boolean isError) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName must not be null");
-		}
-		if (destHost == null) {
-			// throw new NullPointerException("destHost must not be null");
-			destHost = "";
-		}
-		byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
-		byte[] slotNumber;
-		if (isError) {
-			slotNumber = HBaseTables.TERMINAL_STATISTICS_CQ_ERROR_SLOT;
-		} else {
-			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
-		}
-		byte[] applicationNameBytes = Bytes.toBytes(applicationName);
-		byte[] applicationNameLenBytes = Bytes.toBytes((short) applicationNameBytes.length);
-		byte[] destHostBytes = Bytes.toBytes(destHost);
-
-		return BytesUtils.concat(serviceTypeBytes, slotNumber, applicationNameLenBytes, applicationNameBytes, destHostBytes);
-	}
+public class ApplicationStatisticsUtils {
 	
 	public static byte[] makeColumnName(short serviceType, String agentId, int elapsed, boolean isError) {
 		if (agentId == null) {
@@ -61,10 +39,6 @@ public class ApplicationMapStatisticsUtils {
 		return Bytes.toBytes(slotTime);
 	}
 
-	public static short getDestServiceTypeFromColumnName(byte[] bytes) {
-		return BytesUtils.bytesToShort(bytes, 0);
-	}
-
 	/**
 	 * 
 	 * @param bytes
@@ -75,21 +49,7 @@ public class ApplicationMapStatisticsUtils {
 	 * </pre>
 	 */
 	public static short getHistogramSlotFromColumnName(byte[] bytes) {
-		return BytesUtils.bytesToShort(bytes, 2);
-	}
-
-	public static String getDestApplicationNameFromColumnName(byte[] bytes) {
-		return new String(bytes, 6, BytesUtils.bytesToShort(bytes, 4)).trim();
-	}
-
-	public static String getHost(byte[] bytes) {
-		int offset = 6 + BytesUtils.bytesToShort(bytes, 4);
-
-		if (offset == bytes.length) {
-			return null;
-		}
-
-		return new String(bytes, offset, bytes.length - offset).trim();
+		return BytesUtils.bytesToShort(bytes, 0);
 	}
 
 	/**
