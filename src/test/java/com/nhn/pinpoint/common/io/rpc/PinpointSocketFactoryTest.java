@@ -40,8 +40,9 @@ public class PinpointSocketFactoryTest {
             socket.send(new byte[20]);
             MessageFuture request = socket.request(new byte[10]);
             socket.sendSync(new byte[20]);
+            Thread.sleep(1000);
 
-            StreamChannelFuture streamChannel = socket.createStreamChannel();
+//            StreamChannelFuture streamChannel = socket.createStreamChannel();
 
             socket.close();
         } finally {

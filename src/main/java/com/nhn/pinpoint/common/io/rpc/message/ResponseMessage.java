@@ -3,12 +3,10 @@ package com.nhn.pinpoint.common.io.rpc.message;
 /**
  *
  */
-public class DefaultMessage implements Message {
-    private int type;
+public class ResponseMessage implements Message {
     private byte[] message;
 
-    public DefaultMessage(int type) {
-        this.type = type;
+    public ResponseMessage() {
     }
 
     public void setMessage(byte[] payload) {

@@ -16,7 +16,6 @@ public class SocketClientPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("encoder", new Encoder());
         pipeline.addLast("decoder", new Decoder());
-
         return pipeline;
     }
 }

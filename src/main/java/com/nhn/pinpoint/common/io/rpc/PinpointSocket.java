@@ -2,39 +2,43 @@ package com.nhn.pinpoint.common.io.rpc;
 
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  */
-public class PinpointSocket {
+public class PinpointSocket  {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     // 0 핸드쉐이크 안함.. 1은 동작중, 2는 closed
     private static final int STATE_INIT = 0;
     private static final int STATE_RUN = 1;
     private static final int STATE_CLOSED = 2;
+
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
-    private final AtomicInteger messageId = new AtomicInteger();
-
-    private ConcurrentMap<Integer, MessageFuture> requestMap = new ConcurrentHashMap<Integer, MessageFuture>();
-
     private Channel channel;
+    private SocketRequestHandler socketRequestHandler;
 
-    public PinpointSocket(Channel channel) {
-        this.channel = channel;
-        open();
+    public PinpointSocket() {
+        this.socketRequestHandler = new SocketRequestHandler();
     }
 
-    private void open() {
+
+    void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    void open() {
         // 핸드쉐이크를 하면 open 해야됨.
         if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
-            throw new IllegalStateException("invalid open state");
+            throw new IllegalStateException("invalid open state:" + state.get());
         }
     }
 
@@ -52,6 +56,14 @@ public class PinpointSocket {
             channelFuture.await(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new SocketException(e);
+        }
+        if (!channelFuture.isSuccess()) {
+            final Throwable cause = channelFuture.getCause();
+            throw new SocketException(cause);
+        } else {
+            // 3초에도 io가 안끝나면 timeout인가?
+            throw new SocketException("io timeout");
         }
     }
 
@@ -69,18 +81,23 @@ public class PinpointSocket {
         ensureOpen();
 
         RequestPacket request = new RequestPacket(bytes);
-        MessageFuture messageFuture = registerRequest(request);
-        this.channel.write(request);
-        return messageFuture ;
+        final MessageFuture messageFuture = this.socketRequestHandler.register(request);
+
+        ChannelFuture write = this.channel.write(request);
+        write.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {
+                    Throwable cause = future.getCause();
+                    messageFuture.setFailure(cause);
+                }
+            }
+        });
+
+        return messageFuture;
     }
 
-    private MessageFuture registerRequest(RequestPacket request) {
-        int requestId = this.messageId.getAndIncrement();
-        request.setRequestId(requestId);
-        MessageFuture future = new MessageFuture();
-        this.requestMap.put(requestId, future);
-        return future;
-    }
+
 
     public StreamChannelFuture createStreamChannel() {
         ensureOpen();
@@ -98,8 +115,12 @@ public class PinpointSocket {
         if (!state.compareAndSet(STATE_RUN, STATE_CLOSED)) {
             return;
         }
-
+        // hand shake close
+        this.socketRequestHandler.close();
         this.channel.close();
     }
 
+    ChannelHandler getSocketRequestHandler() {
+        return this.socketRequestHandler;
+    }
 }

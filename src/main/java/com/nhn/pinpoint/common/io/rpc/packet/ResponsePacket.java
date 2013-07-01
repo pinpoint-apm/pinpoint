@@ -43,11 +43,36 @@ public class ResponsePacket extends AbstractPacket{
         return ChannelBuffers.wrappedBuffer(header, payloadWrap);
     }
 
+
+    public static ResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
+        if (buffer.readableBytes() < 8) {
+            buffer.resetReaderIndex();
+            return null;
+        }
+
+        final int messageId = buffer.readInt();
+        ChannelBuffer payload = PayloadPacket.readPayload(buffer);
+        if (payload == null) {
+            return null;
+        }
+        ResponsePacket responsePacket = new ResponsePacket(payload.array());
+        responsePacket.setRequestId(messageId);
+
+        return responsePacket;
+
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("ResponsePacket");
         sb.append("{requestId=").append(requestId);
+        sb.append(", ");
+        if (payload == null) {
+            sb.append("payload=null");
+        } else {
+            sb.append("payloadLength=").append(payload.length);
+        }
         sb.append('}');
         return sb.toString();
     }

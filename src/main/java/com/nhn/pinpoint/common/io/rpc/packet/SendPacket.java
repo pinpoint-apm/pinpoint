@@ -33,4 +33,18 @@ public class SendPacket extends AbstractPacket {
         return new SendPacket(payload.array());
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(64);
+        sb.append("SendPacket");
+        if (payload == null) {
+            sb.append("{payload=null}");
+        } else {
+            sb.append("{payloadLength=").append(payload.length);
+            sb.append('}');
+        }
+
+        return sb.toString();
+    }
+
 }

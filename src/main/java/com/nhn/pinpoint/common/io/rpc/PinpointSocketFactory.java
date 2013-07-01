@@ -4,6 +4,8 @@ package com.nhn.pinpoint.common.io.rpc;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import java.net.InetSocketAddress;
@@ -20,7 +22,6 @@ public class PinpointSocketFactory {
 
     private volatile boolean released;
     private ClientBootstrap bootstrap;
-    private Channel channel;
 
 
     public PinpointSocketFactory() {
@@ -68,21 +69,37 @@ public class PinpointSocketFactory {
     public PinpointSocket connect(String host, int port) throws SocketException {
         InetSocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
+
+        final PinpointSocket pinpointSocket = new PinpointSocket();
+        connectFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    Channel channel = future.getChannel();
+                    ChannelPipeline pipeline = channel.getPipeline();
+                    pipeline.addLast("requestHandler", pinpointSocket.getSocketRequestHandler());
+                }
+            }
+        });
         // connectTimeout이 있어서 그냥 기다리면됨.
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
             throw new SocketException("connect fail.", connectFuture.getCause());
         }
-        channel = connectFuture.getChannel();
-        return new PinpointSocket(channel);
+        Channel channel = connectFuture.getChannel();
+        pinpointSocket.setChannel(channel);
+        pinpointSocket.open();
+        return pinpointSocket;
     }
 
 
-    public synchronized void release() {
-        if (released) {
-            return;
+    public void release() {
+        synchronized (this) {
+            if (released) {
+                return;
+            }
+            released = true;
         }
-        released = true;
 
         if (bootstrap != null) {
             bootstrap.releaseExternalResources();

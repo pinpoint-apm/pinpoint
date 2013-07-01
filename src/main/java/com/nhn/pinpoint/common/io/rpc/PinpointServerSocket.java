@@ -1,8 +1,13 @@
 package com.nhn.pinpoint.common.io.rpc;
 
+import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.ResponsePacket;
+import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
@@ -11,8 +16,9 @@ import java.util.concurrent.Executors;
 /**
  *
  */
-public class PinpointServerSocket {
+public class PinpointServerSocket extends SimpleChannelHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()*2;
 
@@ -32,12 +38,12 @@ public class PinpointServerSocket {
     }
 
     private void addPipeline(ServerBootstrap bootstrap) {
-        ServerPipelineFactory serverPipelineFactory = new ServerPipelineFactory();
+        ServerPipelineFactory serverPipelineFactory = new ServerPipelineFactory(this);
         bootstrap.setPipelineFactory(serverPipelineFactory);
     }
 
     public void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
-        if (channelPipelineFactory ==null) {
+        if (channelPipelineFactory == null) {
             throw new NullPointerException("channelPipelineFactory");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
@@ -63,10 +69,36 @@ public class PinpointServerSocket {
         return new ServerBootstrap(nioClientSocketChannelFactory);
     }
 
-    public void messageReceived() {
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        Object message = e.getMessage();
+        if (message instanceof SendPacket) {
+            handleSend((SendPacket) message, e.getChannel());
+        } else if (message instanceof RequestPacket) {
+            handleRequest((RequestPacket) message, e.getChannel());
+        } else {
+            logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
+        }
 
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        logger.error("Unexpected Exception happened. event:{}", e, e.getCause());
+        e.getChannel().close();
+    }
+
+    private void handleSend(SendPacket sendPacket, Channel channel) {
+        logger.debug("sendPacket:{} channel:{}", sendPacket, channel);
+
+    }
+
+    private void handleRequest(RequestPacket requestPacket, Channel channel) {
+        logger.debug("requestPacket:{} channel:{}", requestPacket, channel);
+
+        ResponsePacket responsePacket = new ResponsePacket(requestPacket.getPayload(), requestPacket.getRequestId());
+        channel.write(responsePacket);
+    }
 
     public void bind(String host, int port) throws SocketException {
         if (released) {

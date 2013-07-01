@@ -18,6 +18,7 @@ public class MessageFuture {
     private volatile boolean ready = false;
 
     private Message message;
+    private Throwable cause;
 
 
     public MessageFuture() {
@@ -62,5 +63,9 @@ public class MessageFuture {
         long waitTime = this.createTime + timeOut;
         long currentTime = System.currentTimeMillis();
         return waitTime - currentTime;
+    }
+
+    public void setFailure(Throwable cause) {
+        this.cause = cause;
     }
 }

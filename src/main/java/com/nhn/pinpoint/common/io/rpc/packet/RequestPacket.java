@@ -44,15 +44,6 @@ public class RequestPacket extends AbstractPacket {
         return ChannelBuffers.wrappedBuffer(header, payloadWrap);
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("RequestPacket");
-        sb.append("{requestId=").append(requestId);
-        sb.append('}');
-        return sb.toString();
-    }
-
 
     public static RequestPacket readBuffer(short packetType, ChannelBuffer buffer) {
         if (buffer.readableBytes() < 8) {
@@ -60,17 +51,29 @@ public class RequestPacket extends AbstractPacket {
             return null;
         }
 
-        int messageIdIndex = buffer.readerIndex();
-        buffer.skipBytes(4);
-
-        ChannelBuffer payload = PayloadPacket.readPayload(buffer);
+        final int messageId = buffer.readInt();
+        final ChannelBuffer payload = PayloadPacket.readPayload(buffer);
         if (payload == null) {
             return null;
         }
-        int messageId = buffer.getInt(messageIdIndex);
-        RequestPacket requestPacket = new RequestPacket(payload.array());
+        final RequestPacket requestPacket = new RequestPacket(payload.array());
         requestPacket.setRequestId(messageId);
-
         return requestPacket;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("RequestPacket");
+        sb.append("{requestId=").append(requestId);
+        sb.append(", ");
+        if (payload == null) {
+            sb.append("payload=null");
+        } else {
+            sb.append("payloadLength=").append(payload.length);
+        }
+        sb.append('}');
+        return sb.toString();
+    }
+
 }
