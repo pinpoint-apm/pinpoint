@@ -58,12 +58,18 @@ public class PinpointSocket  {
             Thread.currentThread().interrupt();
             throw new SocketException(e);
         }
-        if (!channelFuture.isSuccess()) {
-            final Throwable cause = channelFuture.getCause();
-            throw new SocketException(cause);
+        boolean success = channelFuture.isSuccess();
+        if (success) {
+            return;
         } else {
-            // 3초에도 io가 안끝나면 timeout인가?
-            throw new SocketException("io timeout");
+            final Throwable cause = channelFuture.getCause();
+            if (cause != null) {
+                throw new SocketException(cause);
+            } else {
+                // 3초에도 io가 안끝나면 무조껀 timeout인가?
+                boolean cancel = channelFuture.cancel();
+                throw new SocketException("io timeout");
+            }
         }
     }
 

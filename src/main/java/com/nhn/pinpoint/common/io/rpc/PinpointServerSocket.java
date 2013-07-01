@@ -27,7 +27,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private Channel serverChannel;
 
-    private MessageListener listener;
+    private ServerMessageListener listener = new SimpleSeverMessageListener();
 
 
     public PinpointServerSocket() {
@@ -73,9 +73,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Object message = e.getMessage();
         if (message instanceof SendPacket) {
-            handleSend((SendPacket) message, e.getChannel());
+            listener.handleSend((SendPacket) message, e.getChannel());
         } else if (message instanceof RequestPacket) {
-            handleRequest((RequestPacket) message, e.getChannel());
+            listener.handleRequest((RequestPacket) message, e.getChannel());
         } else {
             logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
         }
@@ -88,17 +88,6 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         e.getChannel().close();
     }
 
-    private void handleSend(SendPacket sendPacket, Channel channel) {
-        logger.debug("sendPacket:{} channel:{}", sendPacket, channel);
-
-    }
-
-    private void handleRequest(RequestPacket requestPacket, Channel channel) {
-        logger.debug("requestPacket:{} channel:{}", requestPacket, channel);
-
-        ResponsePacket responsePacket = new ResponsePacket(requestPacket.getPayload(), requestPacket.getRequestId());
-        channel.write(responsePacket);
-    }
 
     public void bind(String host, int port) throws SocketException {
         if (released) {
