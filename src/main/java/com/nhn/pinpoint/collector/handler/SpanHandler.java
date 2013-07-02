@@ -70,10 +70,10 @@ public class SpanHandler implements Handler {
             applicationTraceIndexDao.insert(span);
             // businessTransactionStatistics.update(span);
 
+            // application으로 들어오는 통계 정보 저장.
+            applicationMapStatisticsDao.update(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+            
 			if (span.getParentSpanId() == -1) {
-				// application으로 들어오는 통계 정보 저장.
-				applicationMapStatisticsDao.update(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
-				
 				// TODO error가 있으면 getErr값이 0보다 큰가??
 				// clientStatisticsDao.update(span.getApplicationId(), ServiceType.CLIENT.getCode(), span.getElapsed(), span.getErr() > 0);
                 applicationMapStatisticsCalleeDao.update(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
