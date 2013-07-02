@@ -47,6 +47,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         Configuration configuration = getConfiguration();
         Assert.notNull(configuration, " a valid configuration is required");
         this.pooledHTableFactory = new PooledHTableFactory(configuration, poolSize);
+        this.setTableFactory(pooledHTableFactory);
     }
 
     @Override
