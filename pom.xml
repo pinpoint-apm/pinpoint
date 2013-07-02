@@ -197,77 +197,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-            <version>0.0.4-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>lucy-npc</artifactId>
-            <version>1.5.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>arcus</groupId>-->
-            <!--<artifactId>arcus-spring</artifactId>-->
-            <!--<version>0.3.5</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<artifactId>arcus-client</artifactId>-->
-                    <!--<groupId>arcus</groupId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<artifactId>spring-context</artifactId>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>arcus</groupId>-->
-            <!--<artifactId>arcus-client</artifactId>-->
-            <!--<version>1.6.2.1</version>-->
-        <!--</dependency>-->
-
-
-        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>servlet-api</artifactId>
             <version>6.0.35</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.20</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>1.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>cubrid</groupId>
-            <artifactId>cubrid-jdbc</artifactId>
-            <version>8.4.1.2032</version>
         </dependency>
 
         <!-- web -->
@@ -281,23 +214,8 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.ibatis</groupId>
-            <artifactId>com.springsource.com.ibatis</artifactId>
-            <version>2.3.4.726</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>com.springsource.javax.inject</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+        
         <!-- Spring depedencies -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-oxm</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -308,11 +226,6 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-instrument</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -345,39 +258,12 @@
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
 
         <!-- Caching dependecies -->
 		<dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>2.5.0</version>
-        </dependency>
-        
-        <!-- DBMS dependecies -->
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-            <version>1.1</version>
         </dependency>
 
         <!--jackson jsonMapper. hbase에서 일단 필요함. -->
@@ -410,7 +296,6 @@
             <!--<version>1.9.10</version>-->
         </dependency>
 
-
         <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -438,8 +323,31 @@
             <scope>runtime</scope>
         </dependency>
 
-
         <!-- Test dependencies -->
+		<dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-profiler</artifactId>
+            <version>0.0.4-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-collector</artifactId>
+            <version>0.0.4-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+		<dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.3</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -458,14 +366,6 @@
             <version>1.8.4</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-collector</artifactId>
-            <version>0.0.4-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
@@ -481,15 +381,9 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.6.9</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<artifactId>com.springsource.javax.mail</artifactId>-->
-        <!--<groupId>javax.mail</groupId>-->
-        <!--<version>1.4.1</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
-
         <resources>
             <resource>
                 <directory>${basedir}/src/main/java</directory>
