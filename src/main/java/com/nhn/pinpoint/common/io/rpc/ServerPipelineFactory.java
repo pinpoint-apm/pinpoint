@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.message.Decoder;
-import com.nhn.pinpoint.common.io.rpc.message.Encoder;
+import com.nhn.pinpoint.common.io.rpc.codec.Decoder;
+import com.nhn.pinpoint.common.io.rpc.codec.Encoder;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;

@@ -17,7 +17,7 @@ public class RequestPacket extends AbstractPacket {
         super(payload);
     }
 
-    public RequestPacket(byte[] payload, int requestId) {
+    public RequestPacket(int requestId, byte[] payload) {
         super(payload);
         this.requestId = requestId;
     }

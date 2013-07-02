@@ -1,71 +1,191 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.message.Message;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.TimerTask;
 
 /**
  *
  */
-public class MessageFuture {
+public class MessageFuture implements TimerTask {
 
-    private CountDownLatch latch = new CountDownLatch(1);
+    private long timeoutMillis;
+    private int waiters = 0;
 
-    private long timeOut = 3000;
-    private long createTime;
-
-    private volatile boolean ready = false;
+    private boolean ready = false;
+    private int requestId;
 
     private Message message;
     private Throwable cause;
 
+    private Timeout timeout;
+    private FailureHandle failureHandle;
+    private MessageFutureListener listener;
 
-    public MessageFuture() {
+
+    public MessageFuture(int requestId) {
+        this.requestId = requestId;
     }
 
-    public void markTime() {
-        createTime = System.currentTimeMillis();
+    public MessageFuture(int requestId, long timeoutMillis) {
+        this.requestId = requestId;
+        this.timeoutMillis = timeoutMillis;
     }
 
-    public Message getMessage() {
+    public synchronized Message getMessage() {
+        if (this.cause != null) {
+            throw new SocketException(cause);
+        }
         return message;
     }
 
-    public void readyMessage(Message message) {
-        if (ready) {
-            throw new IllegalStateException("already ready state");
-        }
-        this.ready = true;
-        this.message = message;
-        this.latch.countDown();
+    public synchronized Throwable getCause() {
+        return cause;
     }
 
-    public void awaitTimeout() {
-        if (ready) {
-            return;
-        }
-        long timeout = getTimeout();
-        if (timeout <= 0 ) {
-            // 이미 시간지남.
+    public synchronized boolean isReady() {
+        return ready;
+    }
+
+    public synchronized boolean isSuccess() {
+        return ready && cause == null;
+    }
+
+    public boolean setMessage(Message message) {
+        synchronized (this) {
+            if (ready) {
+                return false;
+            }
             this.ready = true;
-            return;
+
+            this.message = message;
+            if (waiters > 0) {
+                notifyAll();
+            }
         }
-        try {
-            latch.await(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        cancelTimout();
+        notifyListener();
+        return true;
+
+    }
+
+    public boolean setFailure(Throwable cause) {
+        synchronized (this) {
+            if (ready) {
+                return false;
+            }
+            this.ready = true;
+
+            this.cause = cause;
+
+            if (waiters > 0) {
+                notifyAll();
+            }
+        }
+
+        cancelTimout();
+        notifyFailureHandle();
+        notifyListener();
+        return true;
+    }
+
+    private boolean fireTimeout() {
+        synchronized (this) {
+            if (ready) {
+                return false;
+            }
+            this.ready = true;
+
+            this.cause = new RuntimeException("timeout");
+
+            if (waiters > 0) {
+                notifyAll();
+            }
+        }
+
+        notifyFailureHandle();
+        notifyListener();
+        return true;
+    }
+
+    private void cancelTimout() {
+        if (timeout != null) {
+            timeout.cancel();
+            timeout = null;
+        }
+    }
+
+    private void notifyListener() {
+        if (listener != null) {
+            listener.onComplete(this);
+            listener = null;
+        }
+    }
+
+    private void notifyFailureHandle() {
+        // 이미 timeout 되서 들어오기 때문에 tieout.cancel시킬필요가 없음.
+        if (failureHandle != null) {
+            failureHandle.handleFailure(this.requestId);
+            failureHandle = null;
+        }
+    }
+
+    public void setListener(MessageFutureListener listener) {
+        boolean alreadyReady = false;
+        synchronized (this) {
+            if (ready) {
+                alreadyReady = true;
+            } else {
+                this.listener = listener;
+            }
+
+        }
+        if (alreadyReady) {
+            listener.onComplete(this);
+        }
+    }
+
+    public boolean await(long timeoutMillis) {
+        return await0(timeoutMillis);
+    }
+
+    public boolean await() {
+        return await0(this.timeoutMillis);
+    }
+
+    private boolean await0(long timeoutMillis) {
+        if (timeoutMillis < 0) {
+            throw new IllegalArgumentException("timeoutMillis must not be negative :" + timeoutMillis);
+        }
+
+        synchronized (this) {
+            if (ready) {
+                return true;
+            }
+
+            try {
+                this.waiters++;
+                wait(timeoutMillis);
+                return ready;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return ready;
+            } finally {
+                this.waiters--;
+            }
         }
     }
 
 
-    long getTimeout() {
-        long waitTime = this.createTime + timeOut;
-        long currentTime = System.currentTimeMillis();
-        return waitTime - currentTime;
+    @Override
+    public void run(Timeout timeout) throws Exception {
+        this.fireTimeout();
     }
 
-    public void setFailure(Throwable cause) {
-        this.cause = cause;
+    public void setTimeout(Timeout timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setFailureHandle(FailureHandle failureHandle) {
+        this.failureHandle = failureHandle;
     }
 }

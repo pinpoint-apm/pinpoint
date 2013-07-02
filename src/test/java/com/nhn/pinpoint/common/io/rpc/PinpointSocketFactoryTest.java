@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,14 @@ public class PinpointSocketFactoryTest {
             PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
 
             socket.send(new byte[20]);
-            MessageFuture request = socket.request(new byte[10]);
+            byte[] bytes = new byte[10];
+            bytes[0] = 1;
+            MessageFuture request = socket.request(bytes);
+            request.await();
+            Message message = request.getMessage();
+            Assert.assertArrayEquals(message.getMessage(), bytes);
             socket.sendSync(new byte[20]);
-            Thread.sleep(1000);
+
 
 //            StreamChannelFuture streamChannel = socket.createStreamChannel();
 

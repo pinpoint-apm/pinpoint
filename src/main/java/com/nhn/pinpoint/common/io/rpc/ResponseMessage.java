@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.io.rpc.message;
+package com.nhn.pinpoint.common.io.rpc;
 
 /**
  *

@@ -6,6 +6,6 @@ import org.jboss.netty.channel.MessageEvent;
 /**
  *
  */
-public interface MessageListener {
-    void messageReceived(ChannelHandlerContext ctx, MessageEvent e);
+public interface MessageFutureListener {
+    void onComplete(MessageFuture messageFuture);
 }

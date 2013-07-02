@@ -25,6 +25,7 @@ public class PinpointSocket  {
 
     private Channel channel;
     private SocketRequestHandler socketRequestHandler;
+    private long timeoutMillis = 3000;
 
     public PinpointSocket() {
         this.socketRequestHandler = new SocketRequestHandler();
@@ -87,7 +88,7 @@ public class PinpointSocket  {
         ensureOpen();
 
         RequestPacket request = new RequestPacket(bytes);
-        final MessageFuture messageFuture = this.socketRequestHandler.register(request);
+        final MessageFuture messageFuture = this.socketRequestHandler.register(request, this.timeoutMillis);
 
         ChannelFuture write = this.channel.write(request);
         write.addListener(new ChannelFutureListener() {
@@ -95,6 +96,7 @@ public class PinpointSocket  {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
                     Throwable cause = future.getCause();
+                    // io write fail
                     messageFuture.setFailure(cause);
                 }
             }

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.io.rpc.message;
+package com.nhn.pinpoint.common.io.rpc.codec;
 
 import com.nhn.pinpoint.common.io.rpc.packet.*;
 import org.jboss.netty.buffer.ChannelBuffer;
