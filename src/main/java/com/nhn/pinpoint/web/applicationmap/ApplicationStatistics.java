@@ -71,7 +71,7 @@ public class ApplicationStatistics {
 	}
 
 	public ApplicationStatistics mergeWith(ApplicationStatistics applicationStatistics) {
-		if (this.equals(applicationStatistics)) {
+		//if (this.equals(applicationStatistics)) {
 			successCount += applicationStatistics.getSuccessCount();
 			failedCount += applicationStatistics.getFailedCount();
 			hosts.addAll(applicationStatistics.getHosts());
@@ -81,9 +81,9 @@ public class ApplicationStatistics {
 			}
 
 			return this;
-		} else {
-			throw new IllegalArgumentException("Can't merge with different link.");
-		}
+		//} else {
+		//	throw new IllegalArgumentException("Can't merge with different link.");
+		//}
 	}
 
 	public void makeId() {

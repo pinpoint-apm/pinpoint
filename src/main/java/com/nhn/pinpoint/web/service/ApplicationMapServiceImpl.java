@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -268,7 +270,33 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	}
 
 	@Override
-	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceType, long from, long to) {
-		return applicationStatisticsDao.selectApplicationStatistics(applicationName, serviceType, from, to);
+	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceTypeCode, long from, long to) {
+		// TODO hmm.. client가 여러 종류 있을 수 있는데...
+		if (serviceTypeCode == ServiceType.UNKNOWN_CLOUD.getCode()) {
+			serviceTypeCode = ServiceType.HTTP_CLIENT.getCode();
+		}
+
+		logger.debug("fetch application statistics {}, {}", applicationName, ServiceType.findServiceType(serviceTypeCode));
+		ApplicationStatistics statistics = applicationStatisticsDao.selectApplicationStatistics(applicationName, serviceTypeCode, from, to);		
+		
+		List<Short> serviceTypeCodeList = new ArrayList<Short>();
+		if (ServiceType.findServiceType(serviceTypeCode).isWas()) {
+			serviceTypeCodeList.add(ServiceType.HTTP_CLIENT.getCode());
+
+			logger.debug("find applicationName {}", applicationName);
+			Application app = hostApplicationMapDao.findApplicationName(applicationName, from, to);
+			if (app != null) {
+				applicationName = app.getApplicationName();
+				logger.debug("   replace applicationName {} {}", applicationName, serviceTypeCode);
+			}
+		}
+		
+		for (short svcType : serviceTypeCodeList) {
+			logger.debug("fetch application statistics {}, {}", applicationName, ServiceType.findServiceType(svcType));
+			ApplicationStatistics stat = applicationStatisticsDao.selectApplicationStatistics(applicationName, svcType, from, to);
+			statistics.mergeWith(stat);
+		}
+
+		return statistics;
 	}
 }
