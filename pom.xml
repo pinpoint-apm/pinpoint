@@ -375,14 +375,9 @@
         
         <!-- DBMS dependecies -->
         <dependency>
-            <artifactId>com.springsource.javax.persistence</artifactId>
-            <groupId>javax.persistence</groupId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <artifactId>com.springsource.javax.transaction</artifactId>
             <groupId>javax.transaction</groupId>
-            <version>1.1.0</version>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
         </dependency>
 
         <!--jackson jsonMapper. hbase에서 일단 필요함. -->
