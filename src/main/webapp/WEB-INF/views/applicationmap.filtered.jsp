@@ -22,7 +22,6 @@
 				<c:choose>
 					<c:when test="${node.serviceType.desc == 'CLIENT'}">"fig" : "Ellipse"</c:when>
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
-					<c:when test="${node.serviceType.desc == 'UNKNOWN_CLOUD'}">"fig" : "Cloud"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>
 			} <c:if test="${!status.last}">,</c:if>
