@@ -16,7 +16,7 @@ public class SocketRequestHandler extends SimpleChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final RequestMap requestMap = new RequestMap();
+    private final RequestProcessor requestProcessor = new RequestProcessor();
 
     public SocketRequestHandler() {
     }
@@ -28,7 +28,7 @@ public class SocketRequestHandler extends SimpleChannelHandler {
             final ResponsePacket responsePacket = (ResponsePacket) message;
 
             final int requestId = responsePacket.getRequestId();
-            final MessageFuture messageFuture = requestMap.removeMessageFuture(requestId);
+            final MessageFuture messageFuture = requestProcessor.removeMessageFuture(requestId);
             if (messageFuture == null) {
                 logger.warn("messageFuture not found:{}, channel:{}", responsePacket, e.getChannel());
                 return;
@@ -40,12 +40,14 @@ public class SocketRequestHandler extends SimpleChannelHandler {
             response.setMessage(responsePacket.getPayload());
             messageFuture.setMessage(response);
             return;
-        } else {
-            if (message instanceof RequestPacket) {
+        }
+        else if (message instanceof RequestPacket) {
                 RequestPacket rp = (RequestPacket) message;
                 // connector로 들어오는 request 메시지를 핸들링을 해야 함.
-            }
-            logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+            return;
+        }
+        else {
+           logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
         }
     }
 
@@ -57,11 +59,11 @@ public class SocketRequestHandler extends SimpleChannelHandler {
 
 
     public MessageFuture register(RequestPacket requestPacket, long timeoutMillis) {
-        return  this.requestMap.registerRequest(requestPacket, timeoutMillis);
+        return  this.requestProcessor.registerRequest(requestPacket, timeoutMillis);
     }
 
     public void close() {
-        this.requestMap.close();
+        this.requestProcessor.close();
     }
 }
 

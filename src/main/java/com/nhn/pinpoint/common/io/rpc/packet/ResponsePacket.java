@@ -6,7 +6,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class ResponsePacket extends AbstractPacket{
+public class ResponsePacket extends BasicPacket {
     private int requestId;
 
     public ResponsePacket() {
@@ -33,18 +33,16 @@ public class ResponsePacket extends AbstractPacket{
     public ChannelBuffer toBuffer() {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-        header.writeShort(PacketHeader.APPLICATION_RESPONSE);
+        header.writeShort(PacketType.APPLICATION_RESPONSE);
         header.writeInt(requestId);
-        // 이건 payload 헤더이긴하다.
-        header.writeInt(payload.length);
 
-        ChannelBuffer payloadWrap = ChannelBuffers.wrappedBuffer(payload);
-
-        return ChannelBuffers.wrappedBuffer(header, payloadWrap);
+        return PayloadPacket.appendPayload(header, payload);
     }
 
 
     public static ResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PacketType.APPLICATION_RESPONSE;
+
         if (buffer.readableBytes() < 8) {
             buffer.resetReaderIndex();
             return null;

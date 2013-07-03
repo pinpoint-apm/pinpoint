@@ -6,66 +6,64 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class RequestPacket extends BasicPacket {
+public class StreamClosePacket extends BasicPacket implements StreamPacket {
+    private int channelId;
 
-    private int requestId;
-
-    public RequestPacket() {
+    public StreamClosePacket(int channelId) {
+        this.channelId = channelId;
     }
 
-    public RequestPacket(byte[] payload) {
+    public StreamClosePacket(byte[] payload) {
         super(payload);
     }
 
-    public RequestPacket(int requestId, byte[] payload) {
+    public StreamClosePacket(int channelId, byte[] payload) {
         super(payload);
-        this.requestId = requestId;
+        this.channelId = channelId;
+    }
+    @Override
+    public int getChannelId() {
+        return channelId;
     }
 
-    public int getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
+    public void setChannelId(int channelId) {
+        this.channelId = channelId;
     }
 
     @Override
     public ChannelBuffer toBuffer() {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-        header.writeShort(PacketType.APPLICATION_REQUEST);
-        header.writeInt(requestId);
-
+        header.writeShort(PacketType.APPLICATION_STREAM_CLOSE);
+        header.writeInt(channelId);
 
         return PayloadPacket.appendPayload(header, payload);
-
     }
 
 
-    public static RequestPacket readBuffer(short packetType, ChannelBuffer buffer) {
-        assert packetType == PacketType.APPLICATION_REQUEST;
+    public static StreamClosePacket readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PacketType.APPLICATION_STREAM_CLOSE;
 
         if (buffer.readableBytes() < 8) {
             buffer.resetReaderIndex();
             return null;
         }
 
-        final int messageId = buffer.readInt();
+        final int streamId = buffer.readInt();
         final ChannelBuffer payload = PayloadPacket.readPayload(buffer);
         if (payload == null) {
             return null;
         }
-        final RequestPacket requestPacket = new RequestPacket(payload.array());
-        requestPacket.setRequestId(messageId);
-        return requestPacket;
+        final StreamClosePacket streamClosePacket = new StreamClosePacket(payload.array());
+        streamClosePacket.setChannelId(streamId);
+        return streamClosePacket;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("RequestPacket");
-        sb.append("{requestId=").append(requestId);
+        sb.append("StreamClosePacket");
+        sb.append("{channelId=").append(channelId);
         sb.append(", ");
         if (payload == null) {
             sb.append("payload=null");
@@ -75,5 +73,4 @@ public class RequestPacket extends BasicPacket {
         sb.append('}');
         return sb.toString();
     }
-
 }

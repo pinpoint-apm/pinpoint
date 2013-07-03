@@ -25,10 +25,13 @@ public class PinpointSocket  {
 
     private Channel channel;
     private SocketRequestHandler socketRequestHandler;
+    private StreamPacketDispatcher streamPacketDispatcher;
+
     private long timeoutMillis = 3000;
 
     public PinpointSocket() {
         this.socketRequestHandler = new SocketRequestHandler();
+        this.streamPacketDispatcher = new StreamPacketDispatcher();
     }
 
 
@@ -37,10 +40,15 @@ public class PinpointSocket  {
     }
 
     void open() {
+        if (this.channel == null) {
+            throw new PinpointSocketException("channel is null");
+        }
+
         // 핸드쉐이크를 하면 open 해야됨.
         if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
             throw new IllegalStateException("invalid open state:" + state.get());
         }
+        this.streamPacketDispatcher.setChannel(channel);
     }
 
     public void send(byte[] bytes) {
@@ -57,7 +65,7 @@ public class PinpointSocket  {
             channelFuture.await(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new SocketException(e);
+            throw new PinpointSocketException(e);
         }
         boolean success = channelFuture.isSuccess();
         if (success) {
@@ -65,11 +73,10 @@ public class PinpointSocket  {
         } else {
             final Throwable cause = channelFuture.getCause();
             if (cause != null) {
-                throw new SocketException(cause);
+                throw new PinpointSocketException(cause);
             } else {
-                // 3초에도 io가 안끝나면 무조껀 timeout인가?
-                boolean cancel = channelFuture.cancel();
-                throw new SocketException("io timeout");
+                // 3초에도 io가 안끝나면 일단 timeout인가?
+                throw new PinpointSocketException("io timeout");
             }
         }
     }
@@ -107,15 +114,19 @@ public class PinpointSocket  {
 
 
 
-    public StreamChannelFuture createStreamChannel() {
+    public StreamChannelFuture createStreamChannel(byte[] bytes) {
         ensureOpen();
-        return new StreamChannelFuture();
+
+        StreamChannel streamChannel = this.streamPacketDispatcher.createStreamChannel();
+        streamChannel.open(bytes);
+        StreamChannelFuture streamChannelFuture = new StreamChannelFuture(streamChannel);
+        return streamChannelFuture;
     }
 
 
     private void ensureOpen() {
         if (state.get() != STATE_RUN) {
-            throw new SocketException("already closed");
+            throw new PinpointSocketException("already closed");
         }
     }
 

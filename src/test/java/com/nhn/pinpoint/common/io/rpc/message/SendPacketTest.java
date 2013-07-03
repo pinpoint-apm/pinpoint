@@ -1,7 +1,10 @@
 package com.nhn.pinpoint.common.io.rpc.message;
 
+import com.nhn.pinpoint.common.io.rpc.packet.Packet;
+import com.nhn.pinpoint.common.io.rpc.packet.PacketType;
 import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -10,9 +13,15 @@ import org.junit.Test;
 public class SendPacketTest {
     @Test
     public void testToBuffer() throws Exception {
-        SendPacket packetSend = new SendPacket(new byte[10]);
+        byte[] bytes = new byte[10];
+        SendPacket packetSend = new SendPacket(bytes);
 
         ChannelBuffer channelBuffer = packetSend.toBuffer();
-        System.out.println(channelBuffer);
+
+        short packetType = channelBuffer.readShort();
+        SendPacket packet = (SendPacket) SendPacket.readBuffer(packetType, channelBuffer);
+        Assert.assertArrayEquals(bytes, packet.getPayload());
+
+
     }
 }

@@ -2,11 +2,15 @@ package com.nhn.pinpoint.common.io.rpc;
 
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class MessageFuture implements TimerTask {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageFuture.class);
 
     private long timeoutMillis;
     private int waiters = 0;
@@ -33,7 +37,7 @@ public class MessageFuture implements TimerTask {
 
     public synchronized Message getMessage() {
         if (this.cause != null) {
-            throw new SocketException(cause);
+            throw new PinpointSocketException(cause);
         }
         return message;
     }
@@ -95,41 +99,48 @@ public class MessageFuture implements TimerTask {
             }
             this.ready = true;
 
-            this.cause = new RuntimeException("timeout");
+            this.cause = new PinpointSocketException("timeout");
 
             if (waiters > 0) {
                 notifyAll();
             }
         }
-
+        // 이미 timeout 되서 들어오기 때문에 tieout.cancel시킬필요가 없음.
         notifyFailureHandle();
         notifyListener();
         return true;
     }
 
     private void cancelTimout() {
+        final Timeout timeout = this.timeout;
         if (timeout != null) {
             timeout.cancel();
-            timeout = null;
+            this.timeout = null;
         }
     }
 
     private void notifyListener() {
+        MessageFutureListener listener = this.listener;
         if (listener != null) {
-            listener.onComplete(this);
-            listener = null;
+            fireOnComplete(listener);
+            this.listener = null;
         }
     }
 
     private void notifyFailureHandle() {
-        // 이미 timeout 되서 들어오기 때문에 tieout.cancel시킬필요가 없음.
+
+        FailureHandle failureHandle = this.failureHandle;
         if (failureHandle != null) {
             failureHandle.handleFailure(this.requestId);
-            failureHandle = null;
+            this.failureHandle = null;
         }
     }
 
-    public void setListener(MessageFutureListener listener) {
+    public boolean setListener(MessageFutureListener listener) {
+        if (listener == null) {
+            throw new NullPointerException("listener");
+        }
+
         boolean alreadyReady = false;
         synchronized (this) {
             if (ready) {
@@ -139,8 +150,20 @@ public class MessageFuture implements TimerTask {
             }
 
         }
+
         if (alreadyReady) {
+            fireOnComplete(listener);
+        }
+        return !alreadyReady;
+    }
+
+    private boolean fireOnComplete(MessageFutureListener listener) {
+        try {
             listener.onComplete(this);
+            return true;
+        } catch (Throwable th) {
+            logger.warn("MessageFutureListener.onComplete() fail Caused:{}", th.getMessage(), th);
+            return false;
         }
     }
 

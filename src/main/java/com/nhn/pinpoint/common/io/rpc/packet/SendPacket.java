@@ -6,7 +6,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class SendPacket extends AbstractPacket {
+public class SendPacket extends BasicPacket {
 
 
     public SendPacket() {
@@ -19,17 +19,19 @@ public class SendPacket extends AbstractPacket {
     @Override
     public ChannelBuffer toBuffer() {
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4);
-        header.writeShort(PacketHeader.APPLICATION_SEND);
-        // 이건 payload 헤더이긴하다.
-        header.writeInt(payload.length);
+        header.writeShort(PacketType.APPLICATION_SEND);
 
-        ChannelBuffer payloadWrap = ChannelBuffers.wrappedBuffer(payload);
 
-        return ChannelBuffers.wrappedBuffer(header, payloadWrap);
+        return PayloadPacket.appendPayload(header, payload);
     }
 
     public static Packet readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PacketType.APPLICATION_SEND;
+
         ChannelBuffer payload = PayloadPacket.readPayload(buffer);
+        if (payload == null) {
+            return null;
+        }
         return new SendPacket(payload.array());
     }
 

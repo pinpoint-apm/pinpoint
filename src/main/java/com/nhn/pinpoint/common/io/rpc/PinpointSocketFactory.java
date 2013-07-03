@@ -66,7 +66,7 @@ public class PinpointSocketFactory {
     }
 
 
-    public PinpointSocket connect(String host, int port) throws SocketException {
+    public PinpointSocket connect(String host, int port) throws PinpointSocketException {
         InetSocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
 
@@ -84,7 +84,7 @@ public class PinpointSocketFactory {
         // connectTimeout이 있어서 그냥 기다리면됨.
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
-            throw new SocketException("connect fail.", connectFuture.getCause());
+            throw new PinpointSocketException("connect fail.", connectFuture.getCause());
         }
         Channel channel = connectFuture.getChannel();
         pinpointSocket.setChannel(channel);

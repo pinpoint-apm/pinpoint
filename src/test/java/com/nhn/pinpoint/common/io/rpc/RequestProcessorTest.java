@@ -9,17 +9,17 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class RequestMapTest {
+public class RequestProcessorTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Test
     public void testRegisterRequest() throws Exception {
-        RequestMap requestMap = new RequestMap(10);
+        RequestProcessor requestProcessor = new RequestProcessor(10);
         try {
             RequestPacket packet = new RequestPacket(new byte[0]);
-            MessageFuture messageFuture = requestMap.registerRequest(packet, 50);
+            MessageFuture messageFuture = requestProcessor.registerRequest(packet, 50);
             Thread.sleep(200);
 
             Assert.assertTrue(messageFuture.isReady());
@@ -27,26 +27,26 @@ public class RequestMapTest {
             Assert.assertTrue(messageFuture.getCause().getMessage().contains("timeout"));
             logger.debug(messageFuture.getCause().getMessage());
         } finally {
-            requestMap.close();
+            requestProcessor.close();
         }
 
     }
 
     @Test
     public void testRemoveMessageFuture() throws Exception {
-        RequestMap requestMap = new RequestMap(10);
+        RequestProcessor requestProcessor = new RequestProcessor(10);
         try {
             RequestPacket packet = new RequestPacket(1, new byte[0]);
-            MessageFuture messageFuture = requestMap.registerRequest(packet, 2000);
+            MessageFuture messageFuture = requestProcessor.registerRequest(packet, 2000);
 
             messageFuture.setFailure(new RuntimeException());
 
-            MessageFuture nullFuture = requestMap.removeMessageFuture(packet.getRequestId());
+            MessageFuture nullFuture = requestProcessor.removeMessageFuture(packet.getRequestId());
             Assert.assertNull(nullFuture);
 
 
         } finally {
-            requestMap.close();
+            requestProcessor.close();
         }
 
     }

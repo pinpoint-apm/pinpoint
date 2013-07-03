@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.codec.Decoder;
-import com.nhn.pinpoint.common.io.rpc.codec.Encoder;
+import com.nhn.pinpoint.common.io.rpc.codec.PacketDecoder;
+import com.nhn.pinpoint.common.io.rpc.codec.PacketEncoder;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -23,8 +23,8 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeline = Channels.pipeline();
 
-        pipeline.addLast("decoder", new Decoder());
-        pipeline.addLast("encoder", new Encoder());
+        pipeline.addLast("decoder", new PacketDecoder());
+        pipeline.addLast("encoder", new PacketEncoder());
         pipeline.addLast("handler", serverSocket);
 
         return pipeline;

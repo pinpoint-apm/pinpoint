@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class Encoder extends OneToOneEncoder {
+public class PacketEncoder extends OneToOneEncoder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override

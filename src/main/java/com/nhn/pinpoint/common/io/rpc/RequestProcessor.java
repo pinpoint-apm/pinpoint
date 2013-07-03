@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class RequestMap implements FailureHandle {
+public class RequestProcessor implements FailureHandle {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -26,11 +26,11 @@ public class RequestMap implements FailureHandle {
     // Timer를 factory로 옮겨야 되나?
     private final HashedWheelTimer timer;
 
-    public RequestMap() {
+    public RequestProcessor() {
         this(100);
     }
 
-    public RequestMap(long timeoutTickDuration) {
+    public RequestProcessor(long timeoutTickDuration) {
         timer = new HashedWheelTimer(timeoutTickDuration, TimeUnit.MILLISECONDS);
         timer.start();
     }
@@ -45,7 +45,7 @@ public class RequestMap implements FailureHandle {
 
         final MessageFuture old = this.requestMap.put(requestId, future);
         if (old != null) {
-            throw new SocketException("unexpected error. old future exist:" + old + " id:" + requestId);
+            throw new PinpointSocketException("unexpected error. old future exist:" + old + " id:" + requestId);
         }
         // future가 실패하였을 경우 requestMap에서 빠르게 지울수 있도록 핸들을 넣는다.
         future.setFailureHandle(this);
@@ -60,7 +60,7 @@ public class RequestMap implements FailureHandle {
             future.setTimeout(timeout);
         } catch (IllegalStateException e) {
             // timer가 shutdown되었을 경우인데. 이것은 socket이 closed되었다는 의미뿐이 없을거임..
-            future.setFailure(new SocketException("socket closed")) ;
+            future.setFailure(new PinpointSocketException("socket closed")) ;
         }
     }
 
@@ -73,11 +73,12 @@ public class RequestMap implements FailureHandle {
     }
 
     public void close() {
-        SocketException closed = new SocketException("connection closed");
+        final PinpointSocketException closed = new PinpointSocketException("connection closed");
 
+        final HashedWheelTimer timer = this.timer;
         if (timer != null) {
             Set<Timeout> stop = timer.stop();
-            for (Timeout timeout :stop) {
+            for (Timeout timeout : stop) {
                 MessageFuture future = (MessageFuture)timeout.getTask();
                 future.setFailure(closed);
             }

@@ -5,14 +5,14 @@ import com.nhn.pinpoint.common.io.rpc.packet.Packet;
 /**
  *
  */
-public abstract class AbstractPacket implements Packet {
+public abstract class BasicPacket implements Packet {
 
     protected byte[] payload;
 
-    protected AbstractPacket() {
+    protected BasicPacket() {
     }
 
-    public AbstractPacket(byte[] payload) {
+    public BasicPacket(byte[] payload) {
         if (payload == null) {
             throw new NullPointerException("payload");
         }

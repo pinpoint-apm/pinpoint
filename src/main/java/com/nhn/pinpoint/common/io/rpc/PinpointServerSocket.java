@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
@@ -89,7 +88,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
 
-    public void bind(String host, int port) throws SocketException {
+    public void bind(String host, int port) throws PinpointSocketException {
         if (released) {
             return;
         }

@@ -10,7 +10,9 @@ import org.springframework.data.hadoop.hbase.*;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  *
@@ -22,8 +24,24 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     private PooledHTableFactory pooledHTableFactory;
     private int poolSize = PooledHTableFactory.DEFAULT_POOL_SIZE;
 
+    private ExecutorService executor = newCachedThreadPool();
+
     public HbaseTemplate2() {
     }
+
+    public ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, 128,
+                60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+    }
+
+//    public Executor getExecutor() {
+//        return executor;
+//    }
+
+//    public void setExecutor(Executor executor) {
+//        this.executor = executor;
+//    }
 
     public HbaseTemplate2(Configuration configuration) {
         Assert.notNull(configuration);
@@ -54,6 +72,16 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void destroy() throws Exception {
         if (pooledHTableFactory != null) {
             this.pooledHTableFactory.destroy();
+        }
+
+        final ExecutorService executor = this.executor;
+        if (executor != null) {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(2000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -104,6 +132,60 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> List<T> find(String tableName, final Scan scan, final RowMapper<T> action) {
         return find(tableName, scan, new RowMapperResultsExtractor<T>(action));
     }
+
+//    public class ParallelScan<T> {
+//        private String tableName;
+//        private Scan scan;
+//        private RowMapper<T> mapper;
+//
+//        public String getTableName() {
+//            return tableName;
+//        }
+//
+//        public void setTableName(String tableName) {
+//            this.tableName = tableName;
+//        }
+//
+//        public Scan getScan() {
+//            return scan;
+//        }
+//
+//        public void setScan(Scan scan) {
+//            this.scan = scan;
+//        }
+//
+//        public RowMapper<T> getMapper() {
+//            return mapper;
+//        }
+//
+//        public void setMapper(RowMapper<T> action) {
+//            this.mapper = action;
+//        }
+//    }
+//
+//    /**
+//     * sanner를 병렬로 돌리기 위한 api
+//     * scanner 구현 자체가 얼마나 병렬인지 애매해서 무조껀 만들기도 그러니 일단 주석처리.
+//     * @return
+//     */
+//    public <T> List<Future<List<T>>> findParallel(final ParallelScan<T> parallelScans) {
+//        Callable<List<T>> tCallable = new Callable<List<T>>() {
+//            @Override
+//            public List<T> call() throws Exception {
+//                return find(parallelScans.getTableName(), parallelScans.getScan(), parallelScans.getMapper());
+//            }
+//        };
+//        ArrayList<Callable<List<T>>> callables = new ArrayList<Callable<List<T>>>();
+//        callables.add(tCallable);
+//
+//        List<Future<List<T>>> futures = null;
+//        try {
+//            futures = this.executor.invokeAll(callables);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//        return futures;
+//    }
 
     @Override
     public <T> T get(String tableName, String rowName, final RowMapper<T> mapper) {

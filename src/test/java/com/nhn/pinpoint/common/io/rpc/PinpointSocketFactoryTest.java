@@ -20,7 +20,7 @@ public class PinpointSocketFactoryTest {
         try {
             pinpointSocketFactory.connect("localhost", 10234);
             Assert.fail();
-        } catch (SocketException e) {
+        } catch (PinpointSocketException e) {
 
         } finally {
             pinpointSocketFactory.release();
