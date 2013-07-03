@@ -687,8 +687,9 @@ var mergeUnknown = function(query, data) {
 				return e2.count - e1.count;
 			});
 
+			var nodeCount = newNode.textArr.length - 1;
 			$.each(newNode.textArr, function(i, e) {
-				newNode.text += e.applicationName + " (" + e.count + ")\n";
+				newNode.text += e.applicationName + " (" + e.count + ")" + (i < nodeCount ? "\n" : "");
 			});
 
 			console.log("newNode", newNode);
