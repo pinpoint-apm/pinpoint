@@ -31,10 +31,10 @@ public class TransactionFlowStatistics {
 		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
 		this.toHosts = new HashSet<String>();
 		this.toAgents = new HashSet<AgentInfoBo>();
-		pack();
+		makeId();
 	}
 
-	public void pack() {
+	public void makeId() {
 		this.id = from + fromServiceType + to + toServiceType;
 	}
 
@@ -64,18 +64,22 @@ public class TransactionFlowStatistics {
 
 	public void setFrom(String from) {
 		this.from = from;
+		makeId();
 	}
 
 	public void setTo(String to) {
 		this.to = to;
+		makeId();
 	}
 
 	public void setFromServiceType(ServiceType fromServiceType) {
 		this.fromServiceType = fromServiceType;
+		makeId();
 	}
 
 	public void setToServiceType(ServiceType toServiceType) {
 		this.toServiceType = toServiceType;
+		makeId();
 	}
 	
 	public void clearHosts() {
