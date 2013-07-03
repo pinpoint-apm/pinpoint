@@ -18,12 +18,14 @@ import com.nhn.pinpoint.common.HistogramSlot;
  */
 public class LinkStatistics {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private static final int SUCCESS = 0;
-	private static final int FAILED = 1;
-	private static final int SLOW = Integer.MAX_VALUE - 1;
-	private static final int ERROR = Integer.MAX_VALUE;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final long ONE_MINUTE = 60000L;
+	private final long SIX_HOURS = 8640000L;
+	private final long ONE_DAY = 34560000L;
+
+	private static final int SLOT_SLOW = Integer.MAX_VALUE - 1;
+	private static final int SLOT_ERROR = Integer.MAX_VALUE;
 
 	/**
 	 * <pre>
@@ -33,51 +35,49 @@ public class LinkStatistics {
 	 */
 	private final SortedMap<Integer, Long> histogramSummary = new TreeMap<Integer, Long>();;
 
-	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
-	
-	// index = slot index, key = timestamp, value = value 
-	private final List<SortedMap<Long, Long>> timeseriesValue = new ArrayList<SortedMap<Long,Long>>();
-	
 	/**
 	 * <pre>
-	 * key = timeslot
-	 * value = long[0]:success, long[1]:failed
+	 * index = responseTimeslot index,
+	 * value = key=timestamp, value=value
 	 * </pre>
 	 */
-	private final Map<Long, Long[]> timeseriesFaileureHistogram = new TreeMap<Long, Long[]>();;
-
-	private long successCount = 0;
-	private long failedCount = 0;
-	private final List<Integer> histogramSlotList = new ArrayList<Integer>();
+	private final List<SortedMap<Long, Long>> timeseriesValueList = new ArrayList<SortedMap<Long, Long>>();
+	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
 
 	private final long from;
 	private final long to;
+
+	private long successCount = 0;
+	private long failedCount = 0;
 
 	public LinkStatistics(long from, long to) {
 		this.from = from;
 		this.to = to;
 	}
-	
-	private long valueSteps() {
-		long diff = (to - from);
-		long step;
 
-		long SIX_HOURS = 6 * 24 * 60 * 1000;
-		long ONE_DAY = 24 * 24 * 60 * 1000;
+	private long refineTimestamp(long timestamp) {
+		long time = timestamp / getSlotSize() * getSlotSize();
+		logger.debug("refine timestamp before={}, after={}", timestamp, time);
+		return time;
+	}
+
+	private long getSlotSize() {
+		long diff = to - from;
+		long size;
 
 		if (diff < SIX_HOURS) {
-			step = 5 * 60 * 1000L;
+			size = ONE_MINUTE * 5L;
 		} else if (diff < ONE_DAY) {
-			step = 10 * 60 * 1000L;
+			size = ONE_MINUTE * 10L;
 		} else if (diff < ONE_DAY * 2) {
-			step = 15 * 60 * 1000L;
+			size = ONE_MINUTE * 15L;
 		} else {
-			step = 20 * 60 * 1000L;
+			size = ONE_MINUTE * 20L;
 		}
 
-		logger.debug("step=" + step);
-		
-		return step;
+		logger.debug("slot size=" + size);
+
+		return size;
 	}
 
 	/**
@@ -85,15 +85,15 @@ public class LinkStatistics {
 	 * 
 	 * @return
 	 */
-	private SortedMap<Long, Long> makeDefaultTimeseriesValues() {
+	private SortedMap<Long, Long> makeEmptyTimeseriesValueMap() {
 		SortedMap<Long, Long> map = new TreeMap<Long, Long>();
-		long step = valueSteps();
-		for (long time = from; time <= to; time += step) {
+		long slotSize = getSlotSize();
+		for (long time = from; time <= to; time += slotSize) {
 			map.put(time, 0L);
 		}
 		return map;
 	}
-	
+
 	/**
 	 * histogram slot을 설정하면 view에서 값이 없는 slot의 값을 0으로 보여줄 수 있다. 설정되지 않으면 key를
 	 * 몰라서 보여주지 못함. 입력된 값만 보이게 됨.
@@ -105,41 +105,31 @@ public class LinkStatistics {
 			throw new IllegalStateException("Can't set slot list while containing the data.");
 		}
 
-		histogramSlotList.clear();
 		histogramSummary.clear();
 		timeseriesSlotIndex.clear();
-		timeseriesValue.clear();
-		timeseriesFaileureHistogram.clear();
+		timeseriesValueList.clear();
 
-		// -1 is failed
-		histogramSlotList.add(ERROR);
-		histogramSummary.put(ERROR, 0L);
-
-		// 0 is slow
-		histogramSlotList.add(SLOW);
-		histogramSummary.put(SLOW, 0L);
+		histogramSummary.put(SLOT_SLOW, 0L);
+		histogramSummary.put(SLOT_ERROR, 0L);
 
 		for (HistogramSlot slot : slotList) {
-			histogramSlotList.add(slot.getSlotTime());
 			histogramSummary.put(slot.getSlotTime(), 0L);
 			timeseriesSlotIndex.put(slot.getSlotTime(), timeseriesSlotIndex.size());
-			timeseriesValue.add(makeDefaultTimeseriesValues());
+			timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 		}
-		
-		timeseriesSlotIndex.put(SLOW, timeseriesSlotIndex.size());
-		timeseriesSlotIndex.put(ERROR, timeseriesSlotIndex.size());
-		timeseriesValue.add(makeDefaultTimeseriesValues());
-		timeseriesValue.add(makeDefaultTimeseriesValues());
-		
-		long step = valueSteps();
-		for (long time = from; time <= to; time += step) {
-			timeseriesFaileureHistogram.put(time, new Long[] { 0L, 0L });
-		}
+
+		timeseriesSlotIndex.put(SLOT_SLOW, timeseriesSlotIndex.size());
+		timeseriesSlotIndex.put(SLOT_ERROR, timeseriesSlotIndex.size());
+
+		timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+		timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 	}
 
 	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean failed) {
 		logger.info("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + failed);
-		
+
+		timestamp = refineTimestamp(timestamp);
+
 		if (failed) {
 			failedCount += callCount;
 		} else {
@@ -148,62 +138,40 @@ public class LinkStatistics {
 
 		// TODO 이렇게 하는게 뭔가 좋지 않은것 같음.
 		if (responseTimeslot == -1) {
-			responseTimeslot = ERROR;
+			responseTimeslot = SLOT_ERROR;
 		} else if (responseTimeslot == 0) {
-			responseTimeslot = SLOW;
+			responseTimeslot = SLOT_SLOW;
 		}
 
 		// add summary
 		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
 		histogramSummary.put(responseTimeslot, value);
 
-		// add timeseries histogram
-		// error:-1, slow:0가 아닌경우.
-		// if (responseTimeslot != ERROR && responseTimeslot != SLOW) {
-			for (int i = 0; i < timeseriesValue.size(); i++) {
-				SortedMap<Long, Long> map = timeseriesValue.get(i);
+		/**
+		 * <pre>
+		 * timeseriesValueList의 구조는..
+		 * list[respoinse_slot_no + 0] = value<timestamp, call count> 
+		 * list[respoinse_slot_no + 1] = value<timestamp, call count> 
+		 * list[respoinse_slot_no + N] = value<timestamp, call count>
+		 * </pre>
+		 */
+		for (int i = 0; i < timeseriesValueList.size(); i++) {
+			SortedMap<Long, Long> map = timeseriesValueList.get(i);
 
-				// 다른 slot에도 같은 시간이 존재해야한다.
-				if (i == timeseriesSlotIndex.get(responseTimeslot)) {
-					long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
-					map.put(timestamp, v);
-				} else {
-					if (!map.containsKey(timestamp)) {
-						map.put(timestamp, 0L);
-					}
+			// 다른 slot에도 같은 시간이 존재해야한다.
+			if (i == timeseriesSlotIndex.get(responseTimeslot)) {
+				long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
+				map.put(timestamp, v);
+			} else {
+				if (!map.containsKey(timestamp)) {
+					map.put(timestamp, 0L);
 				}
 			}
-		// }
-		
-		// add failure rate histogram
-		if (timeseriesFaileureHistogram.containsKey(timestamp)) {
-			Long[] array = timeseriesFaileureHistogram.get(timestamp);
-
-			if (failed) {
-				array[FAILED] += callCount;
-			} else {
-				array[SUCCESS] += callCount;
-			}
-		} else {
-			Long[] array = new Long[2];
-			array[SUCCESS] = 0L;
-			array[FAILED] = 0L;
-
-			if (failed) {
-				array[FAILED] += callCount;
-			} else {
-				array[SUCCESS] += callCount;
-			}
-			timeseriesFaileureHistogram.put(timestamp, array);
 		}
 	}
 
 	public Map<Integer, Long> getHistogramSummary() {
 		return histogramSummary;
-	}
-
-	public Map<Long, Long[]> getTimeseriesFaileureHistogram() {
-		return timeseriesFaileureHistogram;
 	}
 
 	public long getSuccessCount() {
@@ -214,24 +182,24 @@ public class LinkStatistics {
 		return failedCount;
 	}
 
-	public int getSlow() {
-		return SLOW;
-	}
-
-	public int getError() {
-		return ERROR;
-	}
-
 	public SortedMap<Integer, Integer> getTimeseriesSlotIndex() {
 		return timeseriesSlotIndex;
 	}
 
 	public List<SortedMap<Long, Long>> getTimeseriesValue() {
-		return timeseriesValue;
+		return timeseriesValueList;
+	}
+
+	public int getSlow() {
+		return SLOT_SLOW;
+	}
+
+	public int getError() {
+		return SLOT_ERROR;
 	}
 
 	@Override
 	public String toString() {
-		return "LinkStatistics [histogramSummary=" + histogramSummary + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", timeseriesValue=" + timeseriesValue + ", timeseriesFaileureHistogram=" + timeseriesFaileureHistogram + ", successCount=" + successCount + ", failedCount=" + failedCount + ", histogramSlotList=" + histogramSlotList + "]";
+		return "LinkStatistics [histogramSummary=" + histogramSummary + ", timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", from=" + from + ", to=" + to + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
 	}
 }

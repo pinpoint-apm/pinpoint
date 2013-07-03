@@ -75,49 +75,6 @@ function linkStatistics(
 		"destServiceType" : destServiceType,
 		"destApplicationName" : destApplicationName
 	}
-
-	var showFailedRateChart = function(data) {
-		$("#linkInfoDetails .linkInfoSFChart").show();
-		nv.addGraph(function() {
-//			var chart = nv.models.stackedAreaChart().x(function(d) {
-			var chart = nv.models.multiBarChart().x(function(d) {
-				return d[0];
-			}).y(function(d) {
-				return d[1];
-			}).clipEdge(true).color(function(d) {
-				if (d.key == "Success") {
-					return "green";
-				} else if (d.key == "Failed") {
-					return "red";
-				} else {
-					return nv.utils.getColor(d);
-				}
-			}).showControls(false);//.style('expand').showControls(false);
-
-			chart.stacked(true);
-			
-			chart.xAxis.tickFormat(function(d) {
-				return d3.time.format('%H:%M')(new Date(d));
-			});
-
-			// chart.yAxis.tickFormat(d3.format(',.2f'));
-			chart.yAxis.tickFormat(function(d) {
-				return d;
-			});
-			
-			chart.color([myColors[4], myColors[0]]);
-
-			d3.select('#linkInfoDetails .linkInfoSFChart svg')
-				.datum(data)
-				.transition()
-				.duration(0)
-				.call(chart);
-
-			nv.utils.windowResize(chart.update);
-
-			return chart;
-		});
-	};
 	
 	var showSummary = function(data) {
 		$("#linkInfoDetails .linkInfoBarChart").show();
@@ -194,7 +151,6 @@ function linkStatistics(
 	$("#statisticsProgressbar").show();
 	getLinkStatisticsData(params, function(query, result) {
 		$("#statisticsProgressbar").hide();
-		// showFailedRateChart(result.timeseriesFailRate);
 		showSummary(result.histogramSummary);
 		showTimeseriesHistogram(result.timeseriesHistogram);
 	});

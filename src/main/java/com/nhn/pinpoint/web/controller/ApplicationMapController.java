@@ -134,8 +134,6 @@ public class ApplicationMapController {
 		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
 		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex().entrySet().iterator());
 		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
-		model.addAttribute("timeseriesSuccessHistogram", linkStatistics.getTimeseriesFaileureHistogram().entrySet().iterator());
-		model.addAttribute("timeseriesFaileureHistogram", linkStatistics.getTimeseriesFaileureHistogram().entrySet().iterator());
 
 		return "linkStatisticsDetail";
 	}

@@ -36,22 +36,6 @@
 		}
 		</c:if>
 	],
-	"timeseriesFailRate" : [
-		<c:if test="${linkStatistics.failedCount > 0 or linkStatistics.successCount > 0}">
-		{ 
-			"key" : "Failed", 
-			"values" : [ <c:forEach items="${timeseriesFaileureHistogram}" var="item" varStatus="status">
-				[ ${item.key}, ${item.value[1]} ]<c:if test="${!status.last}">,</c:if></c:forEach>
-			]
-		},
-		{
-			"key" : "Success", 
-			"values" : [ <c:forEach items="${timeseriesSuccessHistogram}" var="item" varStatus="status">
-				[ ${item.key}, ${item.value[0]} ]<c:if test="${!status.last}">,</c:if></c:forEach>
-			]
-		}
-		</c:if>
-	],
 	"timeseriesHistogram" : [ <c:forEach items="${timeseriesSlotIndex}" var="slot" varStatus="status">
 		{
 			<c:choose>
