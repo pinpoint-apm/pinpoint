@@ -90,6 +90,18 @@
           		${filter}
           	</p>
           </li>
+          <li class="divider-vertical"></li>
+          <li class="">
+			<div class="btn-group">
+			  <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+			    options
+			    <span class="caret"></span>
+			  </a>
+			  <ul class="dropdown-menu">
+				<li><a href="#" id="mergeUnknown" data-selected="true"><i class="icon-ok"></i> Merge unknowns</a></li>
+			  </ul>
+			</div>
+          </li>
         </ul>
       </div>
     </div>
@@ -127,6 +139,8 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
+	$("#mergeUnknown").bind('click', toggleMergeUnknowns);
+	
 	showServerMap("${applicationName}", "${serviceType}", ${from}, ${to}, 0, false, "${filterText}", false, function() {
 		$("#progressbar").hide();
 	});
