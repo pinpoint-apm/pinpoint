@@ -10,7 +10,7 @@ public class AgentIdNodeSelector implements NodeSelector {
 
     @Override
     public String getServerId(SpanBo span) {
-        return span.getEndPoint();
+        return span.getAgentId();
     }
 
     @Override
