@@ -160,7 +160,7 @@ public class ServerCallTree {
 		// add client to servers
 		for (Entry<String, ClientStatistics> entry : clientRequests.entrySet()) {
 			ClientStatistics client = entry.getValue();
-			Server server = new Server(client.getId(), client.getTo(), null, ServiceType.findServiceType(client.getToServiceType()));
+			Server server = new Server(client.getId(), client.getTo(), null, ServiceType.USER);
 			servers.put(server.getId(), server);
 		}
 
