@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,10 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.MonitorService;
+import com.nhn.pinpoint.web.vo.AgentStatus;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * 
@@ -44,13 +47,15 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "/agentStatus", method = RequestMethod.GET)
-	public String agentStatus(Model model, HttpServletResponse response, @RequestParam("agentId") String agentId) {
-		AgentInfoBo agentInfo = monitor.getAgentInfo(agentId);
+	public String agentStatus(Model model, HttpServletResponse response, @RequestParam("agentId") List<String> agentIdList) {
+		SortedMap<String, AgentStatus> statusMap = new TreeMap<String, AgentStatus>();
 
-		long gap = System.currentTimeMillis() - agentInfo.getStartTime();
-		
-		model.addAttribute("gap", gap);
-		model.addAttribute("agentinfo", agentInfo);
+		for (String agentId : agentIdList) {
+			AgentInfoBo agentInfo = monitor.getAgentInfo(agentId);
+			statusMap.put(agentId, new AgentStatus(agentInfo));
+		}
+
+		model.addAttribute("statusMap", statusMap);
 
 		return "agentstatus";
 	}
