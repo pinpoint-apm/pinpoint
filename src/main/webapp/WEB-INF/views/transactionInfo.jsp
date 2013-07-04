@@ -279,7 +279,7 @@
 	</div>
 	
 	<div class="tab-pane" id="ServerMap">
-		<div id="servermap" style="width:1000px;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
+		<div id="servermap" style="width:90%;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
 	</div>
 	
 	<div class="tab-pane" id="Timeline">
