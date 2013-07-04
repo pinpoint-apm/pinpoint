@@ -444,7 +444,14 @@
    				    {
    				    	"id" : ${status.count},
    				    	"key" : ${status.count},
-   					    "text" : "${node}",
+   				    	<c:choose>
+   				    		<c:when test="${node.serviceType.desc == 'USER'}">
+   					    	"text" : "USER",
+   				    		</c:when>
+   				    		<c:otherwise>
+   					    	"text" : "${node}",
+   				    		</c:otherwise>
+   				    	</c:choose>
    					    "hosts" : [
    					    <c:forEach items="${node.hosts}" var="host" varStatus="status2">
    					        "${host}"

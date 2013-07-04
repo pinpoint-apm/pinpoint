@@ -162,7 +162,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 			if (!span.isRoot()) {
 				continue;
 			}
-			ClientStatistics stat = new ClientStatistics(span.getApplicationId(), span.getServiceType().getCode());
+			ClientStatistics stat = new ClientStatistics(span.getApplicationId(), ServiceType.USER.getCode());
 			stat.getHistogram().addSample(span.getElapsed());
 			serverCallTree.addClientStatistics(stat);
 		}
