@@ -95,12 +95,20 @@
           <li class="">
 			<div class="btn-group">
 			  <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-			    options
+			    map options
 			    <span class="caret"></span>
 			  </a>
 			  <ul class="dropdown-menu">
 				<li><a href="#" id="mergeUnknown" data-selected="true"><i class="icon-ok"></i> Merge unknowns</a></li>
 				<li><a href="#" id="hideIndirectAccess" data-selected="false"><i class="icon-ok icon-white"></i> Hide indirect access</a></li>
+				<li class="divider"></li>
+				<li class="dropdown-submenu">
+    				<a tabindex="-1" href="#">Label text type</a>
+    				<ul class="dropdown-menu">
+						<li><a href="#" class="labelTextType" data-type="count" data-selected="true"><i class="icon-ok"></i> Total request count</a></li>
+						<li><a href="#" class="labelTextType" data-type="tps" data-selected="false"><i class="icon-ok icon-white"></i> TPS</a></li>
+					</ul>
+				</li>
 			  </ul>
 			</div>
           </li>
