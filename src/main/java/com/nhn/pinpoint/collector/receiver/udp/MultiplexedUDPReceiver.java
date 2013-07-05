@@ -7,7 +7,6 @@ import com.nhn.pinpoint.collector.util.PacketUtils;
 import org.jboss.netty.handler.timeout.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.GenericApplicationContext;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -27,7 +26,6 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
     private DatagramSocket socket = null;
 
-    private GenericApplicationContext context;
     private MultiplexedPacketHandler multiplexedPacketHandler;
 
     private long rejectedExecutionCount = 0;
