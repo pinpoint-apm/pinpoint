@@ -28,15 +28,14 @@ public class Server {
 		logger.info("Initializing server components.");
 		context = createContext();
 
-		boolean successfullyStarted = true;
-
-		logger.info("Starting MultiplexedUDPReceiver receive UDP Thread.");
+        logger.info("Starting MultiplexedUDPReceiver receive UDP Thread.");
         MultiplexedPacketHandler multiplexedPacketHandlerBean = ApplicationContextUtils.getMultiplexedPacketHandler(context);
         mulplexDataReceiver = new MultiplexedUDPReceiver(multiplexedPacketHandlerBean);
-		Future<Boolean> startFuture = mulplexDataReceiver.start();
+        Future<Boolean> startFuture = mulplexDataReceiver.start();
 
-		try {
-			successfullyStarted &= startFuture.get();
+        boolean successfullyStarted = true;
+        try {
+			successfullyStarted = startFuture.get();
 		} catch (Exception e) {
 			startFuture.cancel(true);
 			logger.error("Failed to start multiplexDataReceiver.");
