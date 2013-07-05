@@ -3,8 +3,6 @@ package com.nhn.pinpoint.collector.receiver.udp;
 import java.util.concurrent.Future;
 
 import com.nhn.pinpoint.collector.config.TomcatProfilerReceiverConfig;
-import com.nhn.pinpoint.collector.receiver.udp.DataReceiver;
-import com.nhn.pinpoint.collector.receiver.udp.MultiplexedUDPReceiver;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -17,8 +15,10 @@ public class MultiplexedUDPReceiverTest {
 	public void startStop() {
 		try {
 			GenericApplicationContext context = ApplicationContextUtils.createContext();
+            MultiplexedPacketHandler multiplexedPacketHandler = ApplicationContextUtils.getMultiplexedPacketHandler(context);
+
             // local에서 기본포트로 테스트 하면 포트 출돌로 에러남.
-			DataReceiver receiver = new MultiplexedUDPReceiver(context, TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT+10);
+			DataReceiver receiver = new MultiplexedUDPReceiver(multiplexedPacketHandler, TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT+10);
 			Future<Boolean> startLatch = receiver.start();
 
 			startLatch.get();

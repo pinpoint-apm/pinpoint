@@ -3,6 +3,8 @@ package com.nhn.pinpoint.collector;
 import java.util.concurrent.Future;
 
 import com.nhn.pinpoint.collector.receiver.udp.DataReceiver;
+import com.nhn.pinpoint.collector.receiver.udp.MultiplexedPacketHandler;
+import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -29,7 +31,8 @@ public class Server {
 		boolean successfullyStarted = true;
 
 		logger.info("Starting MultiplexedUDPReceiver receive UDP Thread.");
-		mulplexDataReceiver = new MultiplexedUDPReceiver(context);
+        MultiplexedPacketHandler multiplexedPacketHandlerBean = ApplicationContextUtils.getMultiplexedPacketHandler(context);
+        mulplexDataReceiver = new MultiplexedUDPReceiver(multiplexedPacketHandlerBean);
 		Future<Boolean> startFuture = mulplexDataReceiver.start();
 
 		try {
