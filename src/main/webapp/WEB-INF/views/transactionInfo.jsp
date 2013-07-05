@@ -162,6 +162,10 @@
 </head>
 <body>
 
+<button id="btnResize" class="btn btn-small" type="button" style="display:none; position:absolute; top:0px; left:0px;font-size:10px;">
+	<i class="icon-resize-vertical"></i>
+</button>
+
 <h3>Application : ${applicationName}</h3>
 <h5>TraceId : ${traceId.formatString}</h5>
 <h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
@@ -540,6 +544,10 @@
     $(document).ready(function () {
         $('#chartTabs a:first').tab('show');
         $('#traceTabs a:first').tab('show');
+        if (!top.btnResize) {
+        	$('#btnResize').bind('click', top.resizeFrame);
+        	$('#btnResize').show();
+        }
     });
 </script>
 </body>
