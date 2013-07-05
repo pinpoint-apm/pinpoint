@@ -2,6 +2,8 @@ package com.nhn.pinpoint.common.io.rpc;
 
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.StreamCreatePacket;
+import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -75,7 +77,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             listener.handleSend((SendPacket) message, e.getChannel());
         } else if (message instanceof RequestPacket) {
             listener.handleRequest((RequestPacket) message, e.getChannel());
-        } else {
+        } else if(message instanceof StreamPacket) {
+            listener.handleStream((StreamPacket) message, e.getChannel());
+        }
+        else {
             logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
         }
 

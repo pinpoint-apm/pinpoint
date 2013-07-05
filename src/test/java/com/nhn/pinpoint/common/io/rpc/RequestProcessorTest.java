@@ -19,13 +19,13 @@ public class RequestProcessorTest {
         RequestProcessor requestProcessor = new RequestProcessor(10);
         try {
             RequestPacket packet = new RequestPacket(new byte[0]);
-            MessageFuture messageFuture = requestProcessor.registerRequest(packet, 50);
+            Future future = requestProcessor.registerRequest(packet, 50);
             Thread.sleep(200);
 
-            Assert.assertTrue(messageFuture.isReady());
-            Assert.assertFalse(messageFuture.isSuccess());
-            Assert.assertTrue(messageFuture.getCause().getMessage().contains("timeout"));
-            logger.debug(messageFuture.getCause().getMessage());
+            Assert.assertTrue(future.isReady());
+            Assert.assertFalse(future.isSuccess());
+            Assert.assertTrue(future.getCause().getMessage().contains("timeout"));
+            logger.debug(future.getCause().getMessage());
         } finally {
             requestProcessor.close();
         }
@@ -37,11 +37,11 @@ public class RequestProcessorTest {
         RequestProcessor requestProcessor = new RequestProcessor(10);
         try {
             RequestPacket packet = new RequestPacket(1, new byte[0]);
-            MessageFuture messageFuture = requestProcessor.registerRequest(packet, 2000);
+            DefaultFuture future = requestProcessor.registerRequest(packet, 2000);
 
-            messageFuture.setFailure(new RuntimeException());
+            future.setFailure(new RuntimeException());
 
-            MessageFuture nullFuture = requestProcessor.removeMessageFuture(packet.getRequestId());
+            Future nullFuture = requestProcessor.removeMessageFuture(packet.getRequestId());
             Assert.assertNull(nullFuture);
 
 

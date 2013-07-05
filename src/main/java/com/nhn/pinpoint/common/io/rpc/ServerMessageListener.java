@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.*;
 import org.jboss.netty.channel.Channel;
 
 /**
@@ -12,8 +11,8 @@ public interface ServerMessageListener {
 
     void handleRequest(RequestPacket requestPacket, Channel channel);
 
-    void handleStreamCreate();
-    void handleStreamMessage();
-    void handleStreamClosed();
+    void handleStream(StreamPacket requestPacket, Channel channel);
+
+
 
 }

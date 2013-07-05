@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.*;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +24,11 @@ public class SimpleSeverMessageListener implements ServerMessageListener {
         channel.write(responsePacket);
     }
 
+
     @Override
-    public void handleStreamCreate() {
+    public void handleStream(StreamPacket streamPacket, Channel channel) {
 
     }
 
-    @Override
-    public void handleStreamMessage() {
 
-    }
-
-    @Override
-    public void handleStreamClosed() {
-
-    }
 }

@@ -16,13 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class RequestProcessor implements FailureHandle {
+public class RequestProcessor  {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicInteger requestId = new AtomicInteger(1);
 
-    private final ConcurrentMap<Integer, MessageFuture> requestMap = new ConcurrentHashMap<Integer, MessageFuture>();
+    private final ConcurrentMap<Integer, DefaultFuture<ResponseMessage>> requestMap = new ConcurrentHashMap<Integer, DefaultFuture<ResponseMessage>>();
     // Timer를 factory로 옮겨야 되나?
     private final HashedWheelTimer timer;
 
@@ -36,25 +36,43 @@ public class RequestProcessor implements FailureHandle {
     }
 
 
-    public MessageFuture registerRequest(final RequestPacket request, long timeoutMillis) {
+    public DefaultFuture<ResponseMessage> registerRequest(final RequestPacket request, long timeoutMillis) {
         // shutdown check
         final int requestId = getNextRequestId();
         request.setRequestId(requestId);
 
-        final MessageFuture future = new MessageFuture(requestId, timeoutMillis);
+        final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>(timeoutMillis);
 
-        final MessageFuture old = this.requestMap.put(requestId, future);
+        final Future old = this.requestMap.put(requestId, future);
         if (old != null) {
             throw new PinpointSocketException("unexpected error. old future exist:" + old + " id:" + requestId);
         }
         // future가 실패하였을 경우 requestMap에서 빠르게 지울수 있도록 핸들을 넣는다.
-        future.setFailureHandle(this);
+        FailureEventHandler removeTable = createFailureEventHandler(requestId);
+        future.setFailureEventHandler(removeTable);
 
         addTimeoutTask(timeoutMillis, future);
         return future;
     }
 
-    private void addTimeoutTask(long timeoutMillis, MessageFuture future) {
+    private FailureEventHandler createFailureEventHandler(final int requestId) {
+        FailureEventHandler failureEventHandler = new FailureEventHandler() {
+            @Override
+            public boolean fireFailure() {
+                DefaultFuture<ResponseMessage> future = RequestProcessor.this.removeMessageFuture(requestId);
+                if (future != null) {
+                    // 정확하게 지워짐.
+                    return true;
+                }
+                return false;
+            }
+        };
+        return failureEventHandler;
+    }
+
+
+
+    private void addTimeoutTask(long timeoutMillis, DefaultFuture future) {
         try {
             Timeout timeout = timer.newTimeout(future, timeoutMillis, TimeUnit.MILLISECONDS);
             future.setTimeout(timeout);
@@ -68,23 +86,24 @@ public class RequestProcessor implements FailureHandle {
         return this.requestId.getAndIncrement();
     }
 
-    public MessageFuture removeMessageFuture(int requestId) {
+    public DefaultFuture<ResponseMessage> removeMessageFuture(int requestId) {
         return this.requestMap.remove(requestId);
     }
 
     public void close() {
         final PinpointSocketException closed = new PinpointSocketException("connection closed");
 
+        // close의 동시성 타이밍을 좀더 좋게 맞출수는 없나?
         final HashedWheelTimer timer = this.timer;
         if (timer != null) {
             Set<Timeout> stop = timer.stop();
             for (Timeout timeout : stop) {
-                MessageFuture future = (MessageFuture)timeout.getTask();
+                DefaultFuture future = (DefaultFuture)timeout.getTask();
                 future.setFailure(closed);
             }
         }
 
-        for (Map.Entry<Integer, MessageFuture> entry : requestMap.entrySet()) {
+        for (Map.Entry<Integer, DefaultFuture<ResponseMessage>> entry : requestMap.entrySet()) {
             entry.getValue().setFailure(closed);
         }
         this.requestMap.clear();
@@ -92,8 +111,4 @@ public class RequestProcessor implements FailureHandle {
 
     }
 
-    @Override
-    public void handleFailure(int requestId) {
-        removeMessageFuture(requestId);
-    }
 }

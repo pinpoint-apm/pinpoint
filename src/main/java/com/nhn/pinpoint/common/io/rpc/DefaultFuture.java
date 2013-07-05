@@ -8,60 +8,62 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class MessageFuture implements TimerTask {
+public class DefaultFuture<T> implements TimerTask, Future<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageFuture.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
     private long timeoutMillis;
     private int waiters = 0;
 
     private boolean ready = false;
-    private int requestId;
 
-    private Message message;
+    private T object;
     private Throwable cause;
 
     private Timeout timeout;
-    private FailureHandle failureHandle;
-    private MessageFutureListener listener;
+    private FailureEventHandler failureEventHandler;
+    private FutureListener<T> listener;
 
 
-    public MessageFuture(int requestId) {
-        this.requestId = requestId;
+    public DefaultFuture() {
+        this(3000);
     }
 
-    public MessageFuture(int requestId, long timeoutMillis) {
-        this.requestId = requestId;
+    public DefaultFuture(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
-    public synchronized Message getMessage() {
+    @Override
+    public synchronized T getObject() {
         if (this.cause != null) {
             throw new PinpointSocketException(cause);
         }
-        return message;
+        return object;
     }
 
+    @Override
     public synchronized Throwable getCause() {
         return cause;
     }
 
+    @Override
     public synchronized boolean isReady() {
         return ready;
     }
 
+    @Override
     public synchronized boolean isSuccess() {
         return ready && cause == null;
     }
 
-    public boolean setMessage(Message message) {
+    public boolean setObject(T message) {
         synchronized (this) {
             if (ready) {
                 return false;
             }
             this.ready = true;
 
-            this.message = message;
+            this.object = message;
             if (waiters > 0) {
                 notifyAll();
             }
@@ -120,23 +122,24 @@ public class MessageFuture implements TimerTask {
     }
 
     private void notifyListener() {
-        MessageFutureListener listener = this.listener;
+        FutureListener<T> listener = this.listener;
         if (listener != null) {
             fireOnComplete(listener);
             this.listener = null;
         }
     }
 
-    private void notifyFailureHandle() {
+    protected void notifyFailureHandle() {
 
-        FailureHandle failureHandle = this.failureHandle;
-        if (failureHandle != null) {
-            failureHandle.handleFailure(this.requestId);
-            this.failureHandle = null;
+        FailureEventHandler failureEventHandler = this.failureEventHandler;
+        if (failureEventHandler != null) {
+            failureEventHandler.fireFailure();
+            this.failureEventHandler = null;
         }
     }
 
-    public boolean setListener(MessageFutureListener listener) {
+    @Override
+    public boolean setListener(FutureListener<T> listener) {
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -157,20 +160,22 @@ public class MessageFuture implements TimerTask {
         return !alreadyReady;
     }
 
-    private boolean fireOnComplete(MessageFutureListener listener) {
+    private boolean fireOnComplete(FutureListener<T> listener) {
         try {
             listener.onComplete(this);
             return true;
         } catch (Throwable th) {
-            logger.warn("MessageFutureListener.onComplete() fail Caused:{}", th.getMessage(), th);
+            logger.warn("FutureListener.onComplete() fail Caused:{}", th.getMessage(), th);
             return false;
         }
     }
 
+    @Override
     public boolean await(long timeoutMillis) {
         return await0(timeoutMillis);
     }
 
+    @Override
     public boolean await() {
         return await0(this.timeoutMillis);
     }
@@ -208,7 +213,7 @@ public class MessageFuture implements TimerTask {
         this.timeout = timeout;
     }
 
-    public void setFailureHandle(FailureHandle failureHandle) {
-        this.failureHandle = failureHandle;
+    public void setFailureEventHandler(FailureEventHandler failureEventHandler) {
+        this.failureEventHandler = failureEventHandler;
     }
 }

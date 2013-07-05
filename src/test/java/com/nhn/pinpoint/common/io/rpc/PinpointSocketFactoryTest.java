@@ -40,14 +40,17 @@ public class PinpointSocketFactoryTest {
             socket.send(new byte[20]);
             byte[] bytes = new byte[10];
             bytes[0] = 1;
-            MessageFuture request = socket.request(bytes);
+            Future<ResponseMessage> request = socket.request(bytes);
             request.await();
-            Message message = request.getMessage();
+            ResponseMessage message = request.getObject();
             Assert.assertArrayEquals(message.getMessage(), bytes);
             socket.sendSync(new byte[20]);
 
 
-//            StreamChannelFuture streamChannel = socket.createStreamChannel();
+            StreamChannel streamChannel = socket.createStreamChannel();
+            Future<StreamChannel> open = streamChannel.open(new byte[10]);
+            open.await();
+
 
             socket.close();
         } finally {

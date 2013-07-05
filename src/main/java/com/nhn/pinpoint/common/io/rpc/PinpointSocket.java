@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.common.io.rpc;
 
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.StreamCreateResultPacket;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class PinpointSocket  {
+public class PinpointSocket extends SimpleChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,14 +26,14 @@ public class PinpointSocket  {
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
     private Channel channel;
-    private SocketRequestHandler socketRequestHandler;
-    private StreamPacketDispatcher streamPacketDispatcher;
+    private SocketRequestHandler requestResponseManager;
+    private StreamChannelManager streamChannelManager;
 
     private long timeoutMillis = 3000;
 
     public PinpointSocket() {
-        this.socketRequestHandler = new SocketRequestHandler();
-        this.streamPacketDispatcher = new StreamPacketDispatcher();
+        this.requestResponseManager = new SocketRequestHandler();
+        this.streamChannelManager = new StreamChannelManager();
     }
 
 
@@ -48,7 +50,7 @@ public class PinpointSocket  {
         if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
             throw new IllegalStateException("invalid open state:" + state.get());
         }
-        this.streamPacketDispatcher.setChannel(channel);
+        this.streamChannelManager.setChannel(channel);
     }
 
     public void send(byte[] bytes) {
@@ -91,11 +93,11 @@ public class PinpointSocket  {
         return this.channel.write(send);
     }
 
-    public MessageFuture request(byte[] bytes) {
+    public Future<ResponseMessage> request(byte[] bytes) {
         ensureOpen();
 
         RequestPacket request = new RequestPacket(bytes);
-        final MessageFuture messageFuture = this.socketRequestHandler.register(request, this.timeoutMillis);
+        final DefaultFuture<ResponseMessage> messageFuture = this.requestResponseManager.register(request, this.timeoutMillis);
 
         ChannelFuture write = this.channel.write(request);
         write.addListener(new ChannelFutureListener() {
@@ -114,13 +116,38 @@ public class PinpointSocket  {
 
 
 
-    public StreamChannelFuture createStreamChannel(byte[] bytes) {
+    public StreamChannel createStreamChannel() {
         ensureOpen();
 
-        StreamChannel streamChannel = this.streamPacketDispatcher.createStreamChannel();
-        streamChannel.open(bytes);
-        StreamChannelFuture streamChannelFuture = new StreamChannelFuture(streamChannel);
-        return streamChannelFuture;
+        StreamChannel streamChannel = this.streamChannelManager.createStreamChannelFuture();
+        return streamChannel;
+    }
+
+
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        final Object message = e.getMessage();
+        if (message instanceof ResponsePacket) {
+            requestResponseManager.messageReceived((ResponsePacket) message, e.getChannel());
+            return;
+        }
+        else if (message instanceof RequestPacket) {
+            requestResponseManager.messageReceived((RequestPacket) message, e.getChannel());
+            // connector로 들어오는 request 메시지를 핸들링을 해야 함.
+            return;
+        } else if(message instanceof StreamCreateResultPacket) {
+            streamChannelManager.messageReceived((StreamCreateResultPacket)message, e.getChannel());
+            return;
+        }
+        else {
+            logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        logger.error("UnexpectedError happened. event:{}", e, e.getCause());
+
     }
 
 
@@ -135,11 +162,8 @@ public class PinpointSocket  {
             return;
         }
         // hand shake close
-        this.socketRequestHandler.close();
+        this.requestResponseManager.close();
         this.channel.close();
     }
 
-    ChannelHandler getSocketRequestHandler() {
-        return this.socketRequestHandler;
-    }
 }

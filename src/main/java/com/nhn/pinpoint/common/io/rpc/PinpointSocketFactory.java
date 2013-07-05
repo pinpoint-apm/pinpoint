@@ -74,11 +74,10 @@ public class PinpointSocketFactory {
         connectFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    Channel channel = future.getChannel();
-                    ChannelPipeline pipeline = channel.getPipeline();
-                    pipeline.addLast("requestHandler", pinpointSocket.getSocketRequestHandler());
-                }
+                // connect에 성공하든 실패하던 다 보는게 더 좋을듯하다.
+                Channel channel = future.getChannel();
+                ChannelPipeline pipeline = channel.getPipeline();
+                pipeline.addLast("logic", pinpointSocket);
             }
         });
         // connectTimeout이 있어서 그냥 기다리면됨.
