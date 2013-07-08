@@ -5,10 +5,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BytesUtils {
+public final class BytesUtils {
     public static final int SHORT_BYTE_LENGTH = 2;
     public static final int INT_BYTE_LENGTH = 4;
     public static final int LONG_BYTE_LENGTH = 8;
+    public static final int LONG_LONG_BYTE_LENGTH = 16;
 
     private static final byte[] EMPTY_BYTES = new byte[0];
     private static final String UTF8 = "UTF-8";
@@ -24,7 +25,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < 16) {
+        if (buf.length < LONG_LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("Illegal buf size.");
         }
         final long[] result = new long[2];
@@ -39,7 +40,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 8) {
+        if (buf.length < offset + LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
         }
 
@@ -58,7 +59,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 4) {
+        if (buf.length < offset + INT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
         }
 
@@ -74,7 +75,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 2) {
+        if (buf.length < offset + SHORT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
         }
 
@@ -91,7 +92,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < 8) {
+        if (buf.length < LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
         }
 
@@ -114,7 +115,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < 16) {
+        if (buf.length < LONG_LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
         }
 
@@ -137,7 +138,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 8) {
+        if (buf.length < offset + LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
         }
         buf[offset++] = (byte) (value >> 56);
@@ -162,7 +163,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 2) {
+        if (buf.length < offset + SHORT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
         }
         buf[offset++] = (byte) (value >> 8);
@@ -173,7 +174,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + 4) {
+        if (buf.length < offset + LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
         }
         buf[offset++] = (byte) (value >> 24);
@@ -207,7 +208,7 @@ public class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < 16) {
+        if (buf.length < LONG_LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
         }
         writeSecondLong0(value, buf);
