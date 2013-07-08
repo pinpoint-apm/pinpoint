@@ -1,9 +1,12 @@
 package com.nhn.pinpoint.common.io.rpc;
 
+import com.nhn.pinpoint.common.io.rpc.packet.PacketType;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamCreatePacket;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,6 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class StreamChannel {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final int NONE = 0;
     // OPEN 호출
     private static final int OPEN = 1;
@@ -21,14 +27,14 @@ public class StreamChannel {
     // 닫힘
     private static final int CLOSED = 4;
 
-    private AtomicInteger state = new AtomicInteger(NONE);
+    private final AtomicInteger state = new AtomicInteger(NONE);
 
     private final int channelId;
 
 
     private StreamChannelManager streamChannelManager;
 
-//    private DefaultFuture<StreamChannel> openLatch = new DefaultFuture<StreamChannel>(0);
+    private DefaultFuture<StreamCreateResponse> openLatch;
 
     public StreamChannel(int channelId) {
         this.channelId = channelId;
@@ -38,14 +44,14 @@ public class StreamChannel {
         return channelId;
     }
 
-    public Future<StreamChannel> open(byte[] bytes) {
+    public Future<StreamCreateResponse> open(byte[] bytes) {
         if (!state.compareAndSet(NONE, OPEN)) {
-            throw new IllegalStateException("invalid state");
+            throw new IllegalStateException("invalid state:" + state.get());
         }
         StreamCreatePacket streamCreatePacket = new StreamCreatePacket(channelId, bytes);
 
-        final DefaultFuture<StreamChannel> future = new DefaultFuture<StreamChannel>();
-        future.setFailureEventHandler(new FailureEventHandler() {
+        this.openLatch = new DefaultFuture<StreamCreateResponse>();
+        openLatch.setFailureEventHandler(new FailureEventHandler() {
             @Override
             public boolean fireFailure() {
                 streamChannelManager.closeChannel(channelId);
@@ -66,7 +72,7 @@ public class StreamChannel {
         if (!state.compareAndSet(OPEN, OPEN_AWAIT)) {
             throw new IllegalStateException("invalid state");
         }
-        return future;
+        return openLatch;
     }
 
     public void setStreamResponseListener() {
@@ -74,12 +80,47 @@ public class StreamChannel {
     }
 
     public boolean receiveStreamPacket(StreamPacket packet) {
+        final short packetType = packet.getPacketType();
+        switch (packetType) {
+            case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
+                logger.info("APPLICATION_STREAM_CREATE_SUCCESS");
+                StreamCreateResponse success = new StreamCreateResponse(true);
+                success.setMessage(packet.getPayload());
+                return openChannel(RUN, success);
+            case PacketType.APPLICATION_STREAM_CREATE_FAIL:
+                logger.info("APPLICATION_STREAM_CREATE_FAIL");
+                StreamCreateResponse failResult = new StreamCreateResponse(false);
+                failResult.setMessage(packet.getPayload());
+                return openChannel(CLOSED, failResult);
+        }
+        return false;
+    }
 
-        return true;
+    private boolean openChannel(int channelState, StreamCreateResponse streamCreateResponse) {
+        if (state.compareAndSet(OPEN_AWAIT, channelState)) {
+            notifyOpenResult(streamCreateResponse);
+            return true;
+        } else {
+            logger.info("invalid stream channel state:{}", state.get());
+            return false;
+        }
     }
 
 
-    public synchronized void close() {
+    private boolean notifyOpenResult(StreamCreateResponse failResult) {
+        DefaultFuture<StreamCreateResponse> openLatch = this.openLatch;
+        if (openLatch != null) {
+            return openLatch.setObject(failResult);
+        }
+        return false;
+    }
+
+
+
+    public void close() {
+        if (!state.compareAndSet(RUN, CLOSED)) {
+            return;
+        }
         StreamChannelManager streamChannelManager = this.streamChannelManager;
         if (streamChannelManager != null) {
             streamChannelManager.closeChannel(channelId);

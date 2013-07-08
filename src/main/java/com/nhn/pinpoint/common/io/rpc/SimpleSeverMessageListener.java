@@ -27,7 +27,12 @@ public class SimpleSeverMessageListener implements ServerMessageListener {
 
     @Override
     public void handleStream(StreamPacket streamPacket, Channel channel) {
-
+        logger.debug("streamPacket:{} channel:{}", streamPacket, channel);
+        if (streamPacket instanceof StreamCreatePacket) {
+            StreamCreatePacket streamCreatePacket = (StreamCreatePacket) streamPacket;
+            StreamCreateSuccessPacket success = new StreamCreateSuccessPacket(streamCreatePacket.getChannelId(), streamCreatePacket.getPayload()) ;
+            channel.write(success);
+        }
     }
 
 

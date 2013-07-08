@@ -30,6 +30,11 @@ public class ResponsePacket extends BasicPacket {
     }
 
     @Override
+    public short getPacketType() {
+        return PacketType.APPLICATION_RESPONSE;
+    }
+
+    @Override
     public ChannelBuffer toBuffer() {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);

@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.packet.StreamCreateResultPacket;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -72,7 +71,7 @@ public class StreamChannelManager {
         this.channel = channel;
     }
 
-    public void messageReceived(StreamCreateResultPacket streamCreateResult, Channel channel) {
+    public void messageReceived(StreamPacket streamCreateResult, Channel channel) {
         int channelId = streamCreateResult.getChannelId();
         StreamChannel streamChannel = findStreamChannel(channelId);
         streamChannel.receiveStreamPacket(streamCreateResult);

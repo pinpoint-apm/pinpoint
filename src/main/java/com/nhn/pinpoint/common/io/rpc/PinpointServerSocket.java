@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.StreamCreatePacket;
-import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.*;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -73,23 +70,32 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Object message = e.getMessage();
-        if (message instanceof SendPacket) {
-            listener.handleSend((SendPacket) message, e.getChannel());
-        } else if (message instanceof RequestPacket) {
-            listener.handleRequest((RequestPacket) message, e.getChannel());
-        } else if(message instanceof StreamPacket) {
-            listener.handleStream((StreamPacket) message, e.getChannel());
+        if (message instanceof Packet) {
+            final Packet packet = (Packet) message;
+            final short packetType = packet.getPacketType();
+            switch (packetType) {
+                case PacketType.APPLICATION_SEND:
+                    listener.handleSend((SendPacket) message, e.getChannel());
+                    return;
+                case PacketType.APPLICATION_REQUEST:
+                    listener.handleRequest((RequestPacket) message, e.getChannel());
+                    return;
+                case PacketType.APPLICATION_STREAM_CREATE:
+                case PacketType.APPLICATION_STREAM_CLOSE:
+                case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
+                case PacketType.APPLICATION_STREAM_CREATE_FAIL:
+                case PacketType.APPLICATION_STREAM_RESPONSE:
+                    listener.handleStream((StreamPacket) message, e.getChannel());
+                    return;
+                default:
+                    logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
+            }
         }
-        else {
-            logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
-        }
-
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("Unexpected Exception happened. event:{}", e, e.getCause());
-        e.getChannel().close();
     }
 
 
@@ -97,6 +103,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         if (released) {
             return;
         }
+
         InetSocketAddress address = new InetSocketAddress(host, port);
         this.serverChannel = bootstrap.bind(address);
     }
@@ -110,6 +117,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             }
             released = true;
         }
+
+
         if (serverChannel !=null) {
             ChannelFuture close = serverChannel.close();
             close.awaitUninterruptibly();

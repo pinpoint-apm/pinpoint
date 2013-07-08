@@ -17,6 +17,11 @@ public class SendPacket extends BasicPacket {
     }
 
     @Override
+    public short getPacketType() {
+        return PacketType.APPLICATION_SEND;
+    }
+
+    @Override
     public ChannelBuffer toBuffer() {
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4);
         header.writeShort(PacketType.APPLICATION_SEND);

@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.common.io.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
-import com.nhn.pinpoint.common.io.rpc.packet.StreamCreateResultPacket;
+import com.nhn.pinpoint.common.io.rpc.packet.*;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +51,16 @@ public class PinpointSocket extends SimpleChannelHandler {
     }
 
     public void send(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
         send0(bytes);
     }
 
     public void sendSync(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
         ChannelFuture write = send0(bytes);
         await(write);
     }
@@ -84,9 +87,6 @@ public class PinpointSocket extends SimpleChannelHandler {
     }
 
     private ChannelFuture send0(byte[] bytes) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
         ensureOpen();
         SendPacket send = new SendPacket(bytes);
 
@@ -94,6 +94,10 @@ public class PinpointSocket extends SimpleChannelHandler {
     }
 
     public Future<ResponseMessage> request(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+
         ensureOpen();
 
         RequestPacket request = new RequestPacket(bytes);
@@ -115,7 +119,6 @@ public class PinpointSocket extends SimpleChannelHandler {
     }
 
 
-
     public StreamChannel createStreamChannel() {
         ensureOpen();
 
@@ -127,20 +130,28 @@ public class PinpointSocket extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         final Object message = e.getMessage();
-        if (message instanceof ResponsePacket) {
-            requestResponseManager.messageReceived((ResponsePacket) message, e.getChannel());
-            return;
-        }
-        else if (message instanceof RequestPacket) {
-            requestResponseManager.messageReceived((RequestPacket) message, e.getChannel());
-            // connector로 들어오는 request 메시지를 핸들링을 해야 함.
-            return;
-        } else if(message instanceof StreamCreateResultPacket) {
-            streamChannelManager.messageReceived((StreamCreateResultPacket)message, e.getChannel());
-            return;
-        }
-        else {
-            logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+        if (message instanceof Packet) {
+            Packet packet = (Packet) message;
+            final short packetType = packet.getPacketType();
+            // 점프 테이블로 교체.
+            switch (packetType) {
+                case PacketType.APPLICATION_RESPONSE:
+                    requestResponseManager.messageReceived((ResponsePacket) message, e.getChannel());
+                    return;
+                case PacketType.APPLICATION_REQUEST:
+                    requestResponseManager.messageReceived((RequestPacket) message, e.getChannel());
+                    return;
+                    // connector로 들어오는 request 메시지를 핸들링을 해야 함.
+                case PacketType.APPLICATION_STREAM_CREATE:
+                case PacketType.APPLICATION_STREAM_CLOSE:
+                case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
+                case PacketType.APPLICATION_STREAM_CREATE_FAIL:
+                case PacketType.APPLICATION_STREAM_RESPONSE:
+                    streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
+                    return;
+                default:
+                    logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+            }
         }
     }
 

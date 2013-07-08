@@ -48,8 +48,12 @@ public class PinpointSocketFactoryTest {
 
 
             StreamChannel streamChannel = socket.createStreamChannel();
-            Future<StreamChannel> open = streamChannel.open(new byte[10]);
+            byte[] openBytes = new byte[31];
+            Future<StreamCreateResponse> open = streamChannel.open(new byte[31]);
             open.await();
+            StreamCreateResponse response = open.getObject();
+            Assert.assertTrue(response.isSuccess());
+            Assert.assertArrayEquals(response.getMessage(), openBytes);
 
 
             socket.close();

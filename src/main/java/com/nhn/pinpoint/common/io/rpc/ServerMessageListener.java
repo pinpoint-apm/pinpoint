@@ -13,6 +13,4 @@ public interface ServerMessageListener {
 
     void handleStream(StreamPacket requestPacket, Channel channel);
 
-
-
 }

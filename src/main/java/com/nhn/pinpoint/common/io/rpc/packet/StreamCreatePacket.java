@@ -6,11 +6,10 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class StreamCreatePacket extends BasicPacket implements StreamPacket {
-    private int channelId;
+public class StreamCreatePacket extends BasicStreamPacket {
 
     public StreamCreatePacket(int channelId) {
-        this.channelId = channelId;
+        super(channelId);
     }
 
     public StreamCreatePacket(byte[] payload) {
@@ -18,17 +17,13 @@ public class StreamCreatePacket extends BasicPacket implements StreamPacket {
     }
 
     public StreamCreatePacket(int channelId, byte[] payload) {
-        super(payload);
-        this.channelId = channelId;
+        super(channelId, payload);
     }
+
 
     @Override
-    public int getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(int channelId) {
-        this.channelId = channelId;
+    public short getPacketType() {
+        return PacketType.APPLICATION_STREAM_CREATE;
     }
 
     @Override

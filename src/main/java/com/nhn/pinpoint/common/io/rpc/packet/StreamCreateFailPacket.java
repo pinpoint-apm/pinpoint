@@ -6,39 +6,40 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class StreamClosePacket extends BasicStreamPacket {
+public class StreamCreateFailPacket extends BasicStreamPacket {
 
-    public StreamClosePacket(int channelId) {
+    private int channelId;
+
+    public StreamCreateFailPacket(int channelId) {
         super(channelId);
     }
 
-    public StreamClosePacket(byte[] payload) {
+    public StreamCreateFailPacket(byte[] payload) {
         super(payload);
     }
 
-    public StreamClosePacket(int channelId, byte[] payload) {
+    public StreamCreateFailPacket(int channelId, byte[] payload) {
         super(channelId, payload);
     }
 
-
     @Override
     public short getPacketType() {
-        return PacketType.APPLICATION_STREAM_CLOSE;
+        return PacketType.APPLICATION_STREAM_CREATE_FAIL;
     }
 
     @Override
     public ChannelBuffer toBuffer() {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-        header.writeShort(PacketType.APPLICATION_STREAM_CLOSE);
+
+        header.writeShort(PacketType.APPLICATION_STREAM_CREATE_FAIL);
         header.writeInt(channelId);
 
         return PayloadPacket.appendPayload(header, payload);
     }
 
-
-    public static StreamClosePacket readBuffer(short packetType, ChannelBuffer buffer) {
-        assert packetType == PacketType.APPLICATION_STREAM_CLOSE;
+    public static StreamCreateFailPacket readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PacketType.APPLICATION_STREAM_CREATE_FAIL;
 
         if (buffer.readableBytes() < 8) {
             buffer.resetReaderIndex();
@@ -50,15 +51,16 @@ public class StreamClosePacket extends BasicStreamPacket {
         if (payload == null) {
             return null;
         }
-        final StreamClosePacket streamClosePacket = new StreamClosePacket(payload.array());
-        streamClosePacket.setChannelId(streamId);
-        return streamClosePacket;
+        final StreamCreateFailPacket streamCreatePacket = new StreamCreateFailPacket(payload.array());
+        streamCreatePacket.setChannelId(streamId);
+        return streamCreatePacket;
     }
+
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("StreamClosePacket");
+        sb.append("StreamCreateFailPacket");
         sb.append("{channelId=").append(channelId);
         sb.append(", ");
         if (payload == null) {
@@ -69,4 +71,5 @@ public class StreamClosePacket extends BasicStreamPacket {
         sb.append('}');
         return sb.toString();
     }
+
 }

@@ -67,11 +67,11 @@ public class PacketDecoder extends FrameDecoder {
 
 
     private Object readStreamCreateSuccess(short packetType, ChannelBuffer buffer) {
-        return StreamCreateResultPacket.readBuffer(packetType, buffer, true);
+        return StreamCreateSuccessPacket.readBuffer(packetType, buffer);
     }
 
     private Object readStreamCreateFail(short packetType, ChannelBuffer buffer) {
-        return StreamCreateResultPacket.readBuffer(packetType, buffer, false);
+        return StreamCreateFailPacket.readBuffer(packetType, buffer);
     }
 
     private Object readStreamResponse(short packetType, ChannelBuffer buffer) {
