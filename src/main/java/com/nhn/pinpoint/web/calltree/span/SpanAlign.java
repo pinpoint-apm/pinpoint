@@ -13,6 +13,7 @@ public class SpanAlign {
 	private SpanBo spanBo;
 	private SpanEventBo spanEventBo;
 	private boolean span = true;
+	private boolean hasChild = false;
 
 	@Deprecated
 	public SpanAlign(int depth, SpanBo spanBo) {
@@ -74,7 +75,15 @@ public class SpanAlign {
 		return spanEventBo;
 	}
 
-    @Override
+    public boolean isHasChild() {
+		return hasChild;
+	}
+
+	public void setHasChild(boolean hasChild) {
+		this.hasChild = hasChild;
+	}
+
+	@Override
     public String toString() {
         return "SpanAlign{" +
                 "depth=" + depth +

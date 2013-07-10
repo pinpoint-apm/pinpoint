@@ -141,8 +141,8 @@
 <h3>Application : ${applicationName}</h3>
 <!-- 
 <h5>TraceId : ${traceId.formatString}</h5>
-<h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
 -->
+<h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
@@ -188,17 +188,19 @@
 					</c:if>
 					<c:choose>
 						<c:when test="${record.title == 'Exception'}">
-		                	<tr class="error" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+		                	<tr class="error" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
 						</c:when>
 						<c:when test="${record.focused}">
-			                <tr class="info" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+			                <tr class="info" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
 						</c:when>
 						<c:otherwise>
-							<tr data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+							<tr data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
 						</c:otherwise>                
 					</c:choose>
 
-					<td class="method"><c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if> ${record.title}</td>
+					<td class="method">
+						${record.title}
+					</td>
 					<td class="arguments">${record.arguments}</td>
                     <td class="exectime">
                     	<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>

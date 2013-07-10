@@ -131,7 +131,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         for (AnnotationBo ann : annotationBoList) {
             AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
             if (annotation.isViewInRecordSet()) {
-                Record record = new Record(depth, id++, pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null);
+                Record record = new Record(depth, id++, pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
                 recordList.add(record);
             }
         }
@@ -140,7 +140,7 @@ public class RecordSetServiceImpl implements RecordSetService {
     }
 
     private Record createParameterRecord(int depth, int id, int pId, String method, String argument) {
-       Record record = new Record(depth, id, pId, false, method, argument, 0L, 0L, null, null, null, null);
+       Record record = new Record(depth, id, pId, false, method, argument, 0L, 0L, null, null, null, null, false);
        return record;
     }
 
@@ -180,13 +180,13 @@ public class RecordSetServiceImpl implements RecordSetService {
                 String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
                 if (method !=  null) {
                     ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
                     record.setSimpleClassName(apiDescription.getSimpleClassName());
                     record.setFullApiDescription(method);
                     recordList.add(record);
                 } else {
                     AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
                     record.setSimpleClassName("");
                     record.setFullApiDescription("");
                     recordList.add(record);
@@ -212,7 +212,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                     long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                     long elapsed = spanEventBo.getEndElapsed();
 
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
                     record.setSimpleClassName(apiDescription.getSimpleClassName());
                     record.setFullApiDescription(method);
 
@@ -224,7 +224,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                     long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                     long elapsed = spanEventBo.getEndElapsed();
 
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
                     record.setSimpleClassName("");
                     record.setFullApiDescription(method);
 

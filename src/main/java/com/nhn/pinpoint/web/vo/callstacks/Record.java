@@ -28,8 +28,9 @@ public class Record {
 	private final boolean excludeFromTimeline;
 
     private boolean focused;
+    private boolean hasChild;
 
-	public Record(int tab, int id, int pId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId) {
+	public Record(int tab, int id, int pId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
 		this.tab = tab;
 		this.id = id;
 		this.pId = pId;
@@ -46,6 +47,7 @@ public class Record {
         this.destinationId = destinationId;
 
 		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
+		this.hasChild = hasChild;
 	}
 
 	public int getId() {
@@ -118,7 +120,6 @@ public class Record {
 		return excludeFromTimeline;
 	}
 
-
     public String getSimpleClassName() {
         return simpleClassName;
     }
@@ -143,6 +144,10 @@ public class Record {
         this.focused = focused;
     }
 
+    public boolean getHasChild() {
+    	return hasChild;
+    }
+    
     @Override
 	public String toString() {
 		return "Record [tab=" + tab + ", method=" + method + ", title=" + title + ", arguments=" + arguments + ", begin=" + begin + ", elapsed=" + elapsed + ", agent=" + agent + ", service=" + service + "]";

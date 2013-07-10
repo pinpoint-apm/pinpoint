@@ -61,12 +61,14 @@ public class SpanAligner2 {
             return;
         }
         
+        element.setHasChild(true);
+        
         int lastChildSequence = sequence;
 		for (SpanEventBo spanEventBo : spanEventBoList) {
 			if (spanEventBo.getDepth() != -1) {
 				depth = spanDepth + spanEventBo.getDepth() + 1;
 			}
-
+			
 			lastChildSequence++;
 			
 			SpanAlign sa = new SpanAlign(depth, lastChildSequence, sequence, parentSpan, spanEventBo);
