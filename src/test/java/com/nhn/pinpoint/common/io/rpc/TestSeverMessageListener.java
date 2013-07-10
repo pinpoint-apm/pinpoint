@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class SimpleSeverMessageListener implements ServerMessageListener {
+public class TestSeverMessageListener implements ServerMessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -26,13 +26,18 @@ public class SimpleSeverMessageListener implements ServerMessageListener {
 
 
     @Override
-    public void handleStream(StreamPacket streamPacket, Channel channel) {
-        logger.debug("streamPacket:{} channel:{}", streamPacket, channel);
+    public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
+        logger.debug("streamPacket:{} channel:{}", streamPacket, streamChannel);
         if (streamPacket instanceof StreamCreatePacket) {
-            StreamCreatePacket streamCreatePacket = (StreamCreatePacket) streamPacket;
-            StreamCreateSuccessPacket success = new StreamCreateSuccessPacket(streamCreatePacket.getChannelId(), streamCreatePacket.getPayload()) ;
-            channel.write(success);
+            streamChannel.sendOpenResult(true, streamPacket.getPayload());
+            streamChannel.sendStreamMessage(new byte[1]);
+            streamChannel.sendStreamMessage(new byte[2]);
+            streamChannel.sendStreamMessage(new byte[3]);
+
+        }  else if(streamPacket instanceof StreamClosePacket) {
+            // 채널 종료해야 함.
         }
+
     }
 
 

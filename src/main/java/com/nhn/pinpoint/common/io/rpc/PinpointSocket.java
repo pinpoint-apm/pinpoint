@@ -24,13 +24,13 @@ public class PinpointSocket extends SimpleChannelHandler {
 
     private Channel channel;
     private SocketRequestHandler requestResponseManager;
-    private StreamChannelManager streamChannelManager;
+    private ClientStreamChannelManager clientStreamChannelManager;
 
     private long timeoutMillis = 3000;
 
     public PinpointSocket() {
         this.requestResponseManager = new SocketRequestHandler();
-        this.streamChannelManager = new StreamChannelManager();
+        this.clientStreamChannelManager = new ClientStreamChannelManager();
     }
 
 
@@ -47,7 +47,7 @@ public class PinpointSocket extends SimpleChannelHandler {
         if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
             throw new IllegalStateException("invalid open state:" + state.get());
         }
-        this.streamChannelManager.setChannel(channel);
+
     }
 
     public void send(byte[] bytes) {
@@ -122,7 +122,7 @@ public class PinpointSocket extends SimpleChannelHandler {
     public StreamChannel createStreamChannel() {
         ensureOpen();
 
-        StreamChannel streamChannel = this.streamChannelManager.createStreamChannelFuture();
+        StreamChannel streamChannel = this.clientStreamChannelManager.createStreamChannel(channel);
         return streamChannel;
     }
 
@@ -147,10 +147,10 @@ public class PinpointSocket extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
+                    clientStreamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 default:
-                    logger.error("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+                    logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
             }
         }
     }

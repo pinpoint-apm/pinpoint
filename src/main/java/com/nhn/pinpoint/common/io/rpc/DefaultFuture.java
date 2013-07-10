@@ -17,7 +17,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
 
     private boolean ready = false;
 
-    private T object;
+    private T result;
     private Throwable cause;
 
     private Timeout timeout;
@@ -34,11 +34,11 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     }
 
     @Override
-    public synchronized T getObject() {
+    public synchronized T getResult() {
         if (this.cause != null) {
             throw new PinpointSocketException(cause);
         }
-        return object;
+        return result;
     }
 
     @Override
@@ -56,14 +56,14 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
         return ready && cause == null;
     }
 
-    public boolean setObject(T message) {
+    public boolean setResult(T message) {
         synchronized (this) {
             if (ready) {
                 return false;
             }
             this.ready = true;
 
-            this.object = message;
+            this.result = message;
             if (waiters > 0) {
                 notifyAll();
             }

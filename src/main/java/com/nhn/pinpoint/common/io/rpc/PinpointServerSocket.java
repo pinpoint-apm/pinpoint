@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.common.io.rpc;
 
 import com.nhn.pinpoint.common.io.rpc.packet.*;
+import com.nhn.pinpoint.common.io.rpc.util.CpuUtils;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -17,15 +18,16 @@ import java.util.concurrent.Executors;
 public class PinpointServerSocket extends SimpleChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//    private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()*2;
+    private static final int WORKER_COUNT = CpuUtils.workerCount();
 
     private volatile boolean released;
     private ServerBootstrap bootstrap;
 
     private Channel serverChannel;
 
-    private ServerMessageListener listener = new SimpleSeverMessageListener();
+    private ServerMessageListener messageListener = new EmptySeverMessageListener();
 
 
     public PinpointServerSocket() {
@@ -40,11 +42,15 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         bootstrap.setPipelineFactory(serverPipelineFactory);
     }
 
-    public void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
+    void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
         if (channelPipelineFactory == null) {
             throw new NullPointerException("channelPipelineFactory");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
+    }
+
+    public void setMessageListener(ServerMessageListener messageListener) {
+        this.messageListener = messageListener;
     }
 
     private void setOptions(ServerBootstrap bootstrap) {
@@ -73,29 +79,70 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         if (message instanceof Packet) {
             final Packet packet = (Packet) message;
             final short packetType = packet.getPacketType();
+            final Channel channel = e.getChannel();
             switch (packetType) {
                 case PacketType.APPLICATION_SEND:
-                    listener.handleSend((SendPacket) message, e.getChannel());
+                    logger.debug("messsageReceived:{} channel:{}", message, channel);
+                    messageListener.handleSend((SendPacket) message, channel);
                     return;
                 case PacketType.APPLICATION_REQUEST:
-                    listener.handleRequest((RequestPacket) message, e.getChannel());
+                    logger.debug("messsageReceived:{} channel:{}", message, channel);
+                    messageListener.handleRequest((RequestPacket) message, e.getChannel());
                     return;
                 case PacketType.APPLICATION_STREAM_CREATE:
                 case PacketType.APPLICATION_STREAM_CLOSE:
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    listener.handleStream((StreamPacket) message, e.getChannel());
+                    logger.debug("messsageReceived:{} channel:{}", message, channel);
+                    handleStreamPacket((StreamPacket) message, e.getChannel());
                     return;
                 default:
-                    logger.error("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
+                    logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
             }
+        } else {
+            logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
         }
+    }
+
+    private void handleStreamPacket(StreamPacket packet, Channel channel) {
+        ChannelContext context = (ChannelContext) channel.getAttachment();
+        if (packet instanceof StreamCreatePacket) {
+            try {
+                ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
+                boolean success = streamChannel.receiveChannelCreate((StreamCreatePacket) packet);
+                if (success) {
+                    messageListener.handleStream(packet, streamChannel);
+                }
+
+            } catch (PinpointSocketException e) {
+                logger.warn("channel create fail. channel:{} Caused:{}", channel, e);
+            }
+        }  else if(packet instanceof StreamClosePacket) {
+            ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
+            boolean close = streamChannel.close();
+            if (close) {
+                messageListener.handleStream(packet, streamChannel);
+            } else {
+                logger.warn("invalid streamClosePacket. already close. channel:{} Caused:{}", channel);
+            }
+        } else {
+            logger.warn("invalid streamPacket. channel:{} Caused:{}", channel);
+        }
+    }
+
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        e.getChannel().setAttachment(new ChannelContext());
+        super.channelConnected(ctx, e);
+
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("Unexpected Exception happened. event:{}", e, e.getCause());
+        Channel channel = e.getChannel();
+        channel.close();
     }
 
 
@@ -109,9 +156,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
 
-
-    public void release() {
-        synchronized (this){
+    public void close() {
+        synchronized (this) {
             if (released) {
                 return;
             }
@@ -119,7 +165,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
 
 
-        if (serverChannel !=null) {
+        if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
             close.awaitUninterruptibly();
             serverChannel = null;

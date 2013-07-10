@@ -30,7 +30,7 @@ public class SocketRequestHandler {
 
         ResponseMessage response = new ResponseMessage();
         response.setMessage(responsePacket.getPayload());
-        future.setObject(response);
+        future.setResult(response);
     }
 
     public void messageReceived(RequestPacket requestPacket, Channel channel) {

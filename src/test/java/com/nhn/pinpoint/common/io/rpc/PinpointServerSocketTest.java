@@ -21,7 +21,7 @@ public class PinpointServerSocketTest {
         socket.close();
 
         Thread.sleep(1000);
-        pinpointServerSocket.release();
+        pinpointServerSocket.close();
     }
 
 
