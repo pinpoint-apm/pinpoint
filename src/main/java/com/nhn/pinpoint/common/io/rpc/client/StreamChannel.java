@@ -1,5 +1,6 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.client;
 
+import com.nhn.pinpoint.common.io.rpc.*;
 import com.nhn.pinpoint.common.io.rpc.packet.PacketType;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamCreatePacket;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.client;
 
 
 import com.nhn.pinpoint.common.io.rpc.codec.PacketDecoder;

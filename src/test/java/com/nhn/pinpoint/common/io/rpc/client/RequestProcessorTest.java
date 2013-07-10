@@ -1,5 +1,8 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.client;
 
+import com.nhn.pinpoint.common.io.rpc.DefaultFuture;
+import com.nhn.pinpoint.common.io.rpc.Future;
+import com.nhn.pinpoint.common.io.rpc.client.RequestProcessor;
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
 import org.junit.Assert;
 import org.junit.Test;

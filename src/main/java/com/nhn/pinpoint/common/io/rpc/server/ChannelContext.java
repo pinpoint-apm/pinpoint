@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.server;
 
 import org.jboss.netty.channel.Channel;
 

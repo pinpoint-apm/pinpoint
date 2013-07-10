@@ -1,5 +1,6 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.client;
 
+import com.nhn.pinpoint.common.io.rpc.*;
 import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
@@ -43,7 +44,7 @@ public class RequestProcessor  {
 
         final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>(timeoutMillis);
 
-        final Future old = this.requestMap.put(requestId, future);
+        final DefaultFuture old = this.requestMap.put(requestId, future);
         if (old != null) {
             throw new PinpointSocketException("unexpected error. old future exist:" + old + " id:" + requestId);
         }

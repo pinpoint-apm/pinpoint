@@ -1,13 +1,12 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.server;
 
-import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.common.io.rpc.PinpointSocketException;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *

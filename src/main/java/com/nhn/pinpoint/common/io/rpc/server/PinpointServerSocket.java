@@ -1,5 +1,6 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.server;
 
+import com.nhn.pinpoint.common.io.rpc.PinpointSocketException;
 import com.nhn.pinpoint.common.io.rpc.packet.*;
 import com.nhn.pinpoint.common.io.rpc.util.CpuUtils;
 import org.jboss.netty.bootstrap.ServerBootstrap;

@@ -1,5 +1,6 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.client;
 
+import com.nhn.pinpoint.common.io.rpc.PinpointSocketException;
 import com.nhn.pinpoint.common.io.rpc.packet.StreamPacket;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;

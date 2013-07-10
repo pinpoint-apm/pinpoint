@@ -216,4 +216,15 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     public void setFailureEventHandler(FailureEventHandler failureEventHandler) {
         this.failureEventHandler = failureEventHandler;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("DefaultFuture");
+        sb.append("{ready=").append(ready);
+        sb.append(", result=").append(result);
+        sb.append(", cause=").append(cause);
+        sb.append('}');
+        return sb.toString();
+    }
 }

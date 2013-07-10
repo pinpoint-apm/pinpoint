@@ -4,6 +4,7 @@ package com.nhn.pinpoint.common.io.rpc;
  *
  */
 public interface Future<T> {
+
     T getResult();
 
     Throwable getCause();

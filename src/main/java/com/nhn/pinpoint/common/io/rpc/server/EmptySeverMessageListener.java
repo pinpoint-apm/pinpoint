@@ -1,6 +1,8 @@
-package com.nhn.pinpoint.common.io.rpc;
+package com.nhn.pinpoint.common.io.rpc.server;
 
 import com.nhn.pinpoint.common.io.rpc.packet.*;
+import com.nhn.pinpoint.common.io.rpc.server.ServerMessageListener;
+import com.nhn.pinpoint.common.io.rpc.server.ServerStreamChannel;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
