@@ -10,17 +10,18 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class EmptySeverMessageListener implements ServerMessageListener {
+public class SimpleLoggingSeverMessageListener implements ServerMessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void handleSend(SendPacket sendPacket, Channel channel) {
+    public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        logger.info("handlerSend");
 
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, Channel channel) {
+    public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
         logger.info("handlerRequest");
     }
 

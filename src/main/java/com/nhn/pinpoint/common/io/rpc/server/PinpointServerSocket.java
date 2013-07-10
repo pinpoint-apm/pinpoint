@@ -28,7 +28,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private Channel serverChannel;
 
-    private ServerMessageListener messageListener = new EmptySeverMessageListener();
+    private ServerMessageListener messageListener = new SimpleLoggingSeverMessageListener();
 
 
     public PinpointServerSocket() {
@@ -51,6 +51,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     public void setMessageListener(ServerMessageListener messageListener) {
+        if (messageListener == null) {
+            throw new NullPointerException("messageListener");
+        }
         this.messageListener = messageListener;
     }
 
@@ -81,21 +84,23 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             final Packet packet = (Packet) message;
             final short packetType = packet.getPacketType();
             final Channel channel = e.getChannel();
+            logger.debug("messageReceived:{} channel:{}", message, channel);
             switch (packetType) {
-                case PacketType.APPLICATION_SEND:
-                    logger.debug("messsageReceived:{} channel:{}", message, channel);
-                    messageListener.handleSend((SendPacket) message, channel);
+                case PacketType.APPLICATION_SEND: {
+                    SocketChannel socketChannel = getChannelContext(e.getChannel()).getSocketChannel();
+                    messageListener.handleSend((SendPacket) message, socketChannel);
                     return;
-                case PacketType.APPLICATION_REQUEST:
-                    logger.debug("messsageReceived:{} channel:{}", message, channel);
-                    messageListener.handleRequest((RequestPacket) message, e.getChannel());
+                }
+                case PacketType.APPLICATION_REQUEST: {
+                    SocketChannel socketChannel = getChannelContext(e.getChannel()).getSocketChannel();
+                    messageListener.handleRequest((RequestPacket) message, socketChannel);
                     return;
+                }
                 case PacketType.APPLICATION_STREAM_CREATE:
                 case PacketType.APPLICATION_STREAM_CLOSE:
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    logger.debug("messsageReceived:{} channel:{}", message, channel);
                     handleStreamPacket((StreamPacket) message, e.getChannel());
                     return;
                 default:
@@ -107,7 +112,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
-        ChannelContext context = (ChannelContext) channel.getAttachment();
+        ChannelContext context = getChannelContext(channel);
         if (packet instanceof StreamCreatePacket) {
             try {
                 ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
@@ -119,7 +124,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             } catch (PinpointSocketException e) {
                 logger.warn("channel create fail. channel:{} Caused:{}", channel, e);
             }
-        }  else if(packet instanceof StreamClosePacket) {
+        } else if(packet instanceof StreamClosePacket) {
             ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
             boolean close = streamChannel.close();
             if (close) {
@@ -132,11 +137,25 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
     }
 
+
+
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        e.getChannel().setAttachment(new ChannelContext());
+        prepareChannel(e.getChannel());
         super.channelConnected(ctx, e);
+    }
 
+    private ChannelContext getChannelContext(Channel channel) {
+        return (ChannelContext) channel.getAttachment();
+    }
+
+    private void prepareChannel(Channel channel) {
+        ChannelContext channelContext = new ChannelContext();
+
+        SocketChannel socketChannel = new SocketChannel(channel);
+        channelContext.setSocketChannel(socketChannel);
+
+        channel.setAttachment(new ChannelContext());
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.nhn.pinpoint.common.io.rpc.server;
 
 import com.nhn.pinpoint.common.io.rpc.TestByteUtils;
 import com.nhn.pinpoint.common.io.rpc.packet.*;
-import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +19,15 @@ public class TestSeverMessageListener implements ServerMessageListener {
     private List<byte[]> sendMessageList = new ArrayList<byte[]>();
 
     @Override
-    public void handleSend(SendPacket sendPacket, Channel channel) {
+    public void handleSend(SendPacket sendPacket, SocketChannel channel) {
         logger.debug("sendPacket:{} channel:{}", sendPacket, channel);
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, Channel channel) {
+    public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
         logger.debug("requestPacket:{} channel:{}", requestPacket, channel);
-        ResponsePacket responsePacket = new ResponsePacket(requestPacket.getPayload(), requestPacket.getRequestId());
-        channel.write(responsePacket);
+
+        channel.sendResponseMessage(requestPacket.getRequestId(), requestPacket.getPayload());
     }
 
 

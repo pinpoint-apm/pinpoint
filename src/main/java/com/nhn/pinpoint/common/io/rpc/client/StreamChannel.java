@@ -34,7 +34,7 @@ public class StreamChannel {
 
     private final int channelId;
 
-    private ClientStreamChannelManager clientStreamChannelManager;
+    private StreamChannelManager streamChannelManager;
 
     private StreamChannelMessageListener streamChannelMessageListener;
 
@@ -63,7 +63,7 @@ public class StreamChannel {
         openLatch.setFailureEventHandler(new FailureEventHandler() {
             @Override
             public boolean fireFailure() {
-                clientStreamChannelManager.closeChannel(channelId);
+                streamChannelManager.closeChannel(channelId);
                 return false;
             }
         });
@@ -139,16 +139,16 @@ public class StreamChannel {
         if (!state.compareAndSet(RUN, CLOSED)) {
             return false;
         }
-        ClientStreamChannelManager clientStreamChannelManager = this.clientStreamChannelManager;
-        if (clientStreamChannelManager != null) {
-            clientStreamChannelManager.closeChannel(channelId);
-            this.clientStreamChannelManager = null;
+        StreamChannelManager streamChannelManager = this.streamChannelManager;
+        if (streamChannelManager != null) {
+            streamChannelManager.closeChannel(channelId);
+            this.streamChannelManager = null;
         }
         return true;
     }
 
-    public void setClientStreamChannelManager(ClientStreamChannelManager clientStreamChannelManager) {
-        this.clientStreamChannelManager = clientStreamChannelManager;
+    public void setStreamChannelManager(StreamChannelManager streamChannelManager) {
+        this.streamChannelManager = streamChannelManager;
     }
 
     @Override

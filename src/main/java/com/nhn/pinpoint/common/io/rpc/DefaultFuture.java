@@ -68,7 +68,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
                 notifyAll();
             }
         }
-        cancelTimout();
+        cancelTimeout();
         notifyListener();
         return true;
 
@@ -88,7 +88,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
             }
         }
 
-        cancelTimout();
+        cancelTimeout();
         notifyFailureHandle();
         notifyListener();
         return true;
@@ -113,7 +113,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
         return true;
     }
 
-    private void cancelTimout() {
+    private void cancelTimeout() {
         final Timeout timeout = this.timeout;
         if (timeout != null) {
             timeout.cancel();

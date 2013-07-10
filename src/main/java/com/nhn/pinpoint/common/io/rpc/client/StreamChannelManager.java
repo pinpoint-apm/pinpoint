@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class ClientStreamChannelManager {
+public class StreamChannelManager {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -26,13 +26,12 @@ public class ClientStreamChannelManager {
         StreamChannel streamChannel = new StreamChannel(channelId);
         streamChannel.setChannel(channel);
 
-
         StreamChannel old = channelMap.put(channelId, streamChannel);
         if (old != null) {
             throw new PinpointSocketException("already channelId exist:" + channelId + " streamChannel:" + old);
         }
         // handle을 붙여서 리턴.
-        streamChannel.setClientStreamChannelManager(this);
+        streamChannel.setStreamChannelManager(this);
 
         return streamChannel;
     }

@@ -28,13 +28,13 @@ public class PinpointSocket extends SimpleChannelHandler {
 
     private Channel channel;
     private SocketRequestHandler requestResponseManager;
-    private ClientStreamChannelManager clientStreamChannelManager;
+    private StreamChannelManager streamChannelManager;
 
     private long timeoutMillis = 3000;
 
     public PinpointSocket() {
         this.requestResponseManager = new SocketRequestHandler();
-        this.clientStreamChannelManager = new ClientStreamChannelManager();
+        this.streamChannelManager = new StreamChannelManager();
     }
 
 
@@ -61,24 +61,24 @@ public class PinpointSocket extends SimpleChannelHandler {
         send0(bytes);
     }
 
-    public void sendSync(byte[] bytes) {
+    public boolean sendSync(byte[] bytes) {
         if (bytes == null) {
             throw new NullPointerException("bytes");
         }
         ChannelFuture write = send0(bytes);
-        await(write);
+        return await(write);
     }
 
-    private void await(ChannelFuture channelFuture) {
+    private boolean await(ChannelFuture channelFuture) {
         try {
             channelFuture.await(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new PinpointSocketException(e);
+            return channelFuture.isSuccess();
         }
         boolean success = channelFuture.isSuccess();
         if (success) {
-            return;
+            return true;
         } else {
             final Throwable cause = channelFuture.getCause();
             if (cause != null) {
@@ -126,7 +126,7 @@ public class PinpointSocket extends SimpleChannelHandler {
     public StreamChannel createStreamChannel() {
         ensureOpen();
 
-        StreamChannel streamChannel = this.clientStreamChannelManager.createStreamChannel(channel);
+        StreamChannel streamChannel = this.streamChannelManager.createStreamChannel(channel);
         return streamChannel;
     }
 
@@ -151,7 +151,7 @@ public class PinpointSocket extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    clientStreamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
+                    streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());

@@ -16,7 +16,7 @@ public class ResponsePacket extends BasicPacket {
         super(payload);
     }
 
-    public ResponsePacket(byte[] payload, int requestId) {
+    public ResponsePacket(int requestId, byte[] payload) {
         super(payload);
         this.requestId = requestId;
     }
