@@ -125,21 +125,22 @@ public class RecordSetServiceImpl implements RecordSetService {
         return ObjectUtils.toString(displayArgument.getValue());
     }
 
-    private List<Record> createAnnotationRecord(int depth, List<AnnotationBo> annotationBoList) {
+    private List<Record> createAnnotationRecord(int depth, Integer id, int pId, List<AnnotationBo> annotationBoList) {
         List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
         for (AnnotationBo ann : annotationBoList) {
             AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
             if (annotation.isViewInRecordSet()) {
-                Record record = new Record(depth, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null);
+                Record record = new Record(depth, id++, pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null);
                 recordList.add(record);
             }
         }
+        
         return recordList;
     }
 
-    private Record createParameterRecord(int depth, String method, String argument) {
-       Record record = new Record(depth, false, method, argument, 0L, 0L, null, null, null, null);
+    private Record createParameterRecord(int depth, int id, int pId, String method, String argument) {
+       Record record = new Record(depth, id, pId, false, method, argument, 0L, 0L, null, null, null, null);
        return record;
     }
 
@@ -163,6 +164,10 @@ public class RecordSetServiceImpl implements RecordSetService {
 
     private List<Record> populateSpanRecord(List<SpanAlign> spanAlignList) {
         List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
+
+        // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
+        Integer annotationSeq = spanAlignList.size() + 1;
+        
         for (SpanAlign spanAlign : spanAlignList) {
             if (spanAlign.isSpan()) {
                 SpanBo spanBo = spanAlign.getSpanBo();
@@ -175,22 +180,22 @@ public class RecordSetServiceImpl implements RecordSetService {
                 String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
                 if (method !=  null) {
                     ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                    Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
                     record.setSimpleClassName(apiDescription.getSimpleClassName());
                     record.setFullApiDescription(method);
                     recordList.add(record);
                 } else {
                     AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                    Record record = new Record(spanAlign.getDepth(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null);
                     record.setSimpleClassName("");
                     record.setFullApiDescription("");
                     recordList.add(record);
                 }
 
-                List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBo.getAnnotationBoList());
+				List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, annotationSeq++, spanAlign.getSequence(), spanBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
                 if (spanBo.getRemoteAddr() != null) {
-                    Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
+                    Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, annotationSeq++, spanAlign.getSequence(), "REMOTE_ADDRESS", spanBo.getRemoteAddr());
                     recordList.add(remoteAddress);
                 }
             } else {
@@ -207,7 +212,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                     long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                     long elapsed = spanEventBo.getEndElapsed();
 
-                    Record record = new Record(spanAlign.getDepth(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
                     record.setSimpleClassName(apiDescription.getSimpleClassName());
                     record.setFullApiDescription(method);
 
@@ -219,14 +224,14 @@ public class RecordSetServiceImpl implements RecordSetService {
                     long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                     long elapsed = spanEventBo.getEndElapsed();
 
-                    Record record = new Record(spanAlign.getDepth(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
+                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), spanAlign.getParentSequence(), true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId);
                     record.setSimpleClassName("");
                     record.setFullApiDescription(method);
 
                     recordList.add(record);
                 }
 
-                List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanEventBo.getAnnotationBoList());
+                List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, annotationSeq++, spanAlign.getSequence(), spanEventBo.getAnnotationBoList());
                 recordList.addAll(annotationRecord);
             }
         }

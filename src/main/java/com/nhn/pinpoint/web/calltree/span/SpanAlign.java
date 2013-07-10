@@ -8,18 +8,39 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class SpanAlign {
 	private int depth;
+	private int sequence;
+	private int parentSequence;
 	private SpanBo spanBo;
 	private SpanEventBo spanEventBo;
 	private boolean span = true;
 
+	@Deprecated
 	public SpanAlign(int depth, SpanBo spanBo) {
 		this.depth = depth;
 		this.spanBo = spanBo;
 		this.span = true;
 	}
+	
+	public SpanAlign(int depth, SpanBo spanBo, int sequence, int pSequence) {
+		this.depth = depth;
+		this.sequence = sequence;
+		this.parentSequence = pSequence;
+		this.spanBo = spanBo;
+		this.span = true;
+	}
 
+	@Deprecated
 	public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
 		this.depth = depth;
+		this.spanBo = spanBo;
+		this.spanEventBo = spanEventBo;
+		this.span = false;
+	}
+	
+	public SpanAlign(int depth, int sequence, int pSequence, SpanBo spanBo, SpanEventBo spanEventBo) {
+		this.depth = depth;
+		this.sequence = sequence;
+		this.parentSequence = pSequence;
 		this.spanBo = spanBo;
 		this.spanEventBo = spanEventBo;
 		this.span = false;
@@ -35,6 +56,14 @@ public class SpanAlign {
 
 	public int getDepth() {
 		return depth;
+	}
+
+	public int getSequence() {
+		return sequence;
+	}
+
+	public int getParentSequence() {
+		return parentSequence;
 	}
 
 	public SpanBo getSpanBo() {

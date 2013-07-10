@@ -50,6 +50,14 @@
     <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.ServerMap.js"></script>
     
+    <!-- grid -->
+    <link type="text/css" rel="stylesheet" href="/common/js/pinpoint/grid/flexigrid.css" />
+	<link type="text/css" rel="stylesheet" href="/common/js/pinpoint/grid/jquery.treetable.css" />
+	<link type="text/css" rel="stylesheet" href="/common/js/pinpoint/grid/jquery.treetable.theme.simple.css" />
+	<script type="text/javascript" src="/common/js/pinpoint/grid/flexigrid.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/grid/jquery.treetable.js"></script>
+	<script type="text/javascript" src="/common/js/pinpoint/grid/jquery.TreeGridTable.js"></script>
+    
     <!-- help -->
     <script type="text/javascript" src="/common/js/pinpoint/help.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/message.js"></script>
@@ -71,91 +79,55 @@
 		    padding-right:30px;
 		}
         #callStacks TH {
-            padding: 3px;
-            font-size:12px;
             text-align:center;
         }
         
         #callStacks TD {
-            padding-left: 4px;
-            padding-top: 0px;
-            padding-bottom: 0px;
-            font-size:11px;
-        }
-
-        #callStacks .seq {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align:center;
-        }
-        
-        #callStacks .seq.info {
-        	border-right:0px;
+            font-family:consolas;
         }
         
         #callStacks .method {
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 300px;
             white-space: nowrap;
-            font-family:consolas;
-            font-weight:normal;
-        }
-        
-        #callStacks .method.info {
-            font-weight:normal;
-            border-left:0px;
         }
 
         #callStacks .arguments {
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
             white-space: nowrap;
-            font-family:consolas;
         }
 
         #callStacks .exectime {
-            min-width:80px;
             text-align: center;
-            width:80px;
         }
         
         #callStacks .exectime.info {
-        	border-left:0px;
         }
         
         #callStacks .time {
             text-align: right;
-            padding-right: 10px;
-            width:60px;
         }
         
         #callStacks .gap {
             text-align: right;
-            padding-right: 10px;
-            width:40px;
         }
         
         #callStacks .gap.info {
-        	border-left:0px;
         }
         
         #callStacks .service {
-            width:110px;
 			overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         #callStacks .agent {
-            width:110px;
 			overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
         #callStacks .bar {
-            width: 100px;
             vertical-align: middle;
         }
     </style>
@@ -167,9 +139,10 @@
 </button>
 
 <h3>Application : ${applicationName}</h3>
+<!-- 
 <h5>TraceId : ${traceId.formatString}</h5>
 <h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
-  	<br/>
+-->
 
 <ul class="nav nav-tabs" id="traceTabs">
 	<li><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
@@ -181,102 +154,72 @@
 <div class="tab-content">
 	<div class="tab-pane active" id="CallStacks">
 		<!-- begin new call stack -->
-	    <table id="callStacks" class="table table-bordered table-hover sortable resizable">
+	    <table id="callStacks">
 	        <thead>
 	        <tr>
-	        	<th class="sorttable_numeric">Seq</th>
-	            <th class="sorttable_nosort">Exec Time</th>
-	            <th class="sorttable_nosort">Gap</th>
-	            <th class="sorttable_nosort">Method</th>
-	            <th class="sorttable_nosort">Argument</th>
-	            <th class="sorttable_numeric">Time[ms]</th>
-	            <th class="sorttable_nosort">Time[%]</th>
-                <th class="sorttable_nosort">Class</th>
-	            <th class="sorttable_nosort">ApiType</th>
-	            <th class="sorttable_nosort">Agent</th>
+	            <th width="500">Method</th>
+	            <th width="400">Argument</th>
+	            <th width="80">Exec Time</th>
+	            <th width="50">Gap</th>
+	            <th width="50">Time[ms]</th>
+	            <th width="100">Time[%]</th>
+                <th>Class</th>
+	            <th>ApiType</th>
+	            <th>Agent</th>
 	        </tr>
 	        </thead>
 	        <tbody>
-	        <c:set var="startTime" scope="page" value="${callstackStart}"/>
-	        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
-	        <c:set var="seq" scope="page" value="0"/>
-			<c:set var="gap" scope="page" value="0"/>
-	        
-	        <c:forEach items="${callstack}" var="record" varStatus="status">
-	            <c:set var="depth" scope="page" value="${span.depth}"/>
-	            <c:if test="${record.method}">
-	            	<c:if test="${not status.first}">
-               			<c:set var="gap" scope="page" value="${record.begin - begin}"/>
-               		</c:if>
-	                <c:set var="begin" scope="page" value="${record.begin}"/>
-	                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
-               	</c:if>
-                
-				<c:if test="${status.first}">
-					<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
-				</c:if>
+		        <c:set var="startTime" scope="page" value="${callstackStart}"/>
+		        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
+		        <c:set var="seq" scope="page" value="0"/>
+				<c:set var="gap" scope="page" value="0"/>
+		        
+		        <c:forEach items="${callstack}" var="record" varStatus="status">
+		            <c:set var="depth" scope="page" value="${span.depth}"/>
+		            <c:if test="${record.method}">
+		            	<c:if test="${not status.first}">
+	               			<c:set var="gap" scope="page" value="${record.begin - begin}"/>
+	               		</c:if>
+		                <c:set var="begin" scope="page" value="${record.begin}"/>
+		                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
+	               	</c:if>
+					<c:if test="${status.first}">
+						<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
+					</c:if>
+					<c:choose>
+						<c:when test="${record.title == 'Exception'}">
+		                	<tr class="error" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+						</c:when>
+						<c:when test="${record.focused}">
+			                <tr class="info" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+						</c:when>
+						<c:otherwise>
+							<tr data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method}">
+						</c:otherwise>                
+					</c:choose>
 
-				<c:choose>
-					<c:when test="${record.title == 'Exception'}">
-	                	<tr class="error">
-					</c:when>
-					<c:when test="${record.focused}">
-		                <tr class="info">
-					</c:when>
-					<c:otherwise>
-						<tr>
-					</c:otherwise>                
-				</c:choose>
-				                
-                	<c:if test="${record.method}">
-	                	<c:set var="seq" scope="page" value="${seq + 1}"/>
-	                	<td sorttable_customkey="${status.count}" class="seq">${seq}</td>
-	                    <td class="exectime">
-	                    	<c:if test="${record.method}">
-	                    		${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}
-	                    	</c:if>
-	                    </td>
-	                    <td class="gap"><fmt:formatNumber value="${gap}" type="number" /></td>
-	                    <td class="method">
-                    </c:if>
-                    
-                	<c:if test="${not record.method}">
-	                	<td sorttable_customkey="${status.count}" class="seq info"></td>
-	                    <td class="exectime info">
-	                    	<c:if test="${record.method}">
-	                    		${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}
-	                    	</c:if>
-	                    </td>
-	                    <td class="gap info"></td>
-	                    <td class="method">
-                    </c:if>
-
-                    	<c:if test="${record.tab > 1}">
-                        	<c:forEach begin="2" end="${record.tab}">&nbsp;&nbsp;</c:forEach>
-                        </c:if>
-                        <c:choose>
-                        	<c:when test="${not record.method}"><i class="icon-info-sign"></i></c:when>
-                        	<c:otherwise> </c:otherwise>
-                        </c:choose>
-						${record.title}
+					<td class="method"><c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if> ${record.title}</td>
+					<td class="arguments">${record.arguments}</td>
+                    <td class="exectime">
+                    	<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>
                     </td>
+                    <td class="gap"><fmt:formatNumber value="${gap}" type="number" /></td>
                     
-                    <td class="arguments">${record.arguments}</td>
-                    <td class="time" sorttable_customkey="${record.elapsed}">
+                    <td class="time">
                     	<c:if test="${record.method}">
                     	<fmt:formatNumber type="number" value="${record.elapsed}"/>
                     	</c:if>
                     </td>
                     <td class="bar">
                     	<c:if test="${record.method}">
-                        <div style="height:10px;width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
+                        <div style="height:8px;width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
                     	</c:if>
                     </td>
                     <td class="simpleClassName">${record.simpleClassName}</td>
                     <td class="apiType">${record.apiType}</td>
                     <td class="agent">${record.agent}</td>
                 </tr>
-	        </c:forEach>
+	        	</c:forEach>
 	        </tbody>
 	    </table>
 	    <!-- end of new call stack -->
@@ -548,6 +491,11 @@
         	$('#btnResize').bind('click', top.resizeFrame);
         	$('#btnResize').show();
         }
+        
+        var oTreeGridTable = new TreeGridTable({
+			tableId : "callStacks",
+			height : "600"
+		});
     });
 </script>
 </body>

@@ -10,6 +10,8 @@ import com.nhn.pinpoint.common.ServiceType;
  */
 public class Record {
 	private final int tab;
+	private final int id;
+	private final int pId;
 	private final boolean method;
 
 	private final String title;
@@ -27,8 +29,10 @@ public class Record {
 
     private boolean focused;
 
-	public Record(int tab, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId) {
+	public Record(int tab, int id, int pId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId) {
 		this.tab = tab;
+		this.id = id;
+		this.pId = pId;
 		this.method = method;
 
 		this.title = title;
@@ -42,6 +46,14 @@ public class Record {
         this.destinationId = destinationId;
 
 		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public int getpId() {
+		return pId;
 	}
 
 	public int getTab() {
