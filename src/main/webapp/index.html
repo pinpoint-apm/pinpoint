@@ -227,7 +227,7 @@ $(document).ready(function () {
     	showServerMap(Nav.getApplicationName(), Nav.getServiceType(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow(), null, Nav.isHideIndirectAccess(), function() { $("#progressbar").hide(); });
     	showResponseScatter(Nav.getApplicationName(), Nav.getQueryStartTime(), Nav.getQueryEndTime(), Nav.getQueryPeriod(), Nav.isQueryFromNow());
     }
-    
+	
 	$.getJSON("/applications.pinpoint", function(json) {
         var target = $("#application");
         
@@ -239,25 +239,24 @@ $(document).ready(function () {
 		target.empty();
 		var optionsHTML = [];
 		$(json).each(function(i, e) {
-			optionsHTML.push('<option value="');
-			optionsHTML.push(e.applicationName);
-			optionsHTML.push("@");
-			optionsHTML.push(e.code);
-			optionsHTML.push('"');
-			optionsHTML.push((json.length == 1) ? ' selected>' : '>');
-			optionsHTML.push(e.applicationName);
-			optionsHTML.push("@");
-			optionsHTML.push(e.serviceType);
-			optionsHTML.push('</option>');
+			var opt = $(document.createElement("option"));
+			opt.attr("value", e.applicationName + "@" + e.code);
+			if (json.length == 1) {
+				opt.attr("selected", "selected");
+			}
+			opt.text(e.applicationName + "@" + e.serviceType);
+			target.append(opt);
 		});
-		target.append(optionsHTML.join(''));
+		
 		target.attr("disabled", null);
 		
 		var formatOptionText = function(state) {
 			if (!state.id) return state.text;
 			var chunk = state.text.split("@");
 			if (chunk.length > 1) {
-				return "<img class='flag' src='/images/icons/" + chunk[1] + ".png'/> " + chunk[0];
+				var img = document.createElement("img");
+				img.src = "/images/icons/" + chunk[1] + ".png";
+				return img.outerHTML + chunk[0];
 			} else {
 				return state.text;
 			}
