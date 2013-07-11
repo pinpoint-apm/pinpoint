@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.common.rpc.message;
 
-import com.nhn.pinpoint.common.io.rpc.packet.Packet;
-import com.nhn.pinpoint.common.io.rpc.packet.PacketType;
-import com.nhn.pinpoint.common.io.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.rpc.packet.Packet;
+import com.nhn.pinpoint.common.rpc.packet.PacketType;
+import com.nhn.pinpoint.common.rpc.packet.SendPacket;
+import com.nhn.pinpoint.common.rpc.packet.SendPacket;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.common.rpc.client;
 
-import com.nhn.pinpoint.common.io.rpc.DefaultFuture;
-import com.nhn.pinpoint.common.io.rpc.Future;
-import com.nhn.pinpoint.common.io.rpc.client.RequestProcessor;
-import com.nhn.pinpoint.common.io.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.common.rpc.DefaultFuture;
+import com.nhn.pinpoint.common.rpc.Future;
+import com.nhn.pinpoint.common.rpc.client.RequestProcessor;
+import com.nhn.pinpoint.common.rpc.packet.RequestPacket;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

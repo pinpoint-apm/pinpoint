@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.common.rpc.client;
 
-import com.nhn.pinpoint.common.rpc.packet.PacketType;
-import com.nhn.pinpoint.common.rpc.packet.StreamCreatePacket;
-import com.nhn.pinpoint.common.rpc.packet.StreamPacket;
-import com.nhn.pinpoint.common.rpc.packet.StreamResponsePacket;
+import com.nhn.pinpoint.common.rpc.packet.*;
 import com.nhn.pinpoint.common.rpc.DefaultFuture;
 import com.nhn.pinpoint.common.rpc.FailureEventHandler;
 import com.nhn.pinpoint.common.rpc.Future;
@@ -139,14 +136,24 @@ public class StreamChannel {
 
 
     public boolean close() {
-        if (!state.compareAndSet(RUN, CLOSED)) {
+        if(!closeInternal()) {
             return false;
         }
+
         StreamChannelManager streamChannelManager = this.streamChannelManager;
         if (streamChannelManager != null) {
             streamChannelManager.closeChannel(channelId);
             this.streamChannelManager = null;
         }
+        return true;
+    }
+
+    boolean closeInternal() {
+        if (!state.compareAndSet(RUN, CLOSED)) {
+            return false;
+        }
+        StreamClosePacket closePacket = new StreamClosePacket(this.channelId);
+        this.channel.write(closePacket);
         return true;
     }
 

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.rpc.server;
 
 import com.nhn.pinpoint.common.rpc.DiscardPipelineFactory;
-import com.nhn.pinpoint.common.io.rpc.server.PinpointServerSocket;
+import com.nhn.pinpoint.common.rpc.server.PinpointServerSocket;
 import org.junit.Test;
 
 import java.net.Socket;

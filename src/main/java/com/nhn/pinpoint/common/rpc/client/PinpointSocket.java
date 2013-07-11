@@ -23,18 +23,16 @@ public class PinpointSocket extends SimpleChannelHandler {
     private static final int STATE_INIT = 0;
     private static final int STATE_RUN = 1;
     private static final int STATE_CLOSED = 2;
+//    이 상태가 있어야 되나?
+//    private static final int STATE_ERROR_CLOSED = 3;
 
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
-    private Channel channel;
-    private SocketRequestHandler requestResponseManager;
-    private StreamChannelManager streamChannelManager;
+    private volatile Channel channel;
 
     private long timeoutMillis = 3000;
 
     public PinpointSocket() {
-        this.requestResponseManager = new SocketRequestHandler();
-        this.streamChannelManager = new StreamChannelManager();
     }
 
 
@@ -46,12 +44,25 @@ public class PinpointSocket extends SimpleChannelHandler {
         if (this.channel == null) {
             throw new PinpointSocketException("channel is null");
         }
+        ChannelContext context = createContext();
+        channel.setAttachment(context);
 
         // 핸드쉐이크를 하면 open 해야됨.
         if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
             throw new IllegalStateException("invalid open state:" + state.get());
         }
 
+    }
+
+    private ChannelContext createContext() {
+        ChannelContext channelContext = new ChannelContext();
+
+        RequestManager requestManager = new RequestManager();
+        channelContext.setRequestManager(requestManager);
+
+        StreamChannelManager streamChannelManager = new StreamChannelManager();
+        channelContext.setStreamChannelManager(streamChannelManager);
+        return channelContext;
     }
 
     public void send(byte[] bytes) {
@@ -105,7 +116,9 @@ public class PinpointSocket extends SimpleChannelHandler {
         ensureOpen();
 
         RequestPacket request = new RequestPacket(bytes);
-        final DefaultFuture<ResponseMessage> messageFuture = this.requestResponseManager.register(request, this.timeoutMillis);
+
+        final Channel channel = this.channel;
+        final DefaultFuture<ResponseMessage> messageFuture = getRequestManger(channel).register(request, this.timeoutMillis);
 
         ChannelFuture write = this.channel.write(request);
         write.addListener(new ChannelFutureListener() {
@@ -122,28 +135,41 @@ public class PinpointSocket extends SimpleChannelHandler {
         return messageFuture;
     }
 
+    private ChannelContext getChannelContext(Channel channel) {
+        return (ChannelContext) channel.getAttachment();
+    }
+
+    private RequestManager getRequestManger(Channel channel) {
+        return getChannelContext(channel).getRequestManager();
+    }
+
+    private StreamChannelManager getStreamChannelManager(Channel channel) {
+        return getChannelContext(channel).getStreamChannelManager();
+    }
+
 
     public StreamChannel createStreamChannel() {
         ensureOpen();
 
-        StreamChannel streamChannel = this.streamChannelManager.createStreamChannel(channel);
-        return streamChannel;
+        final Channel channel = this.channel;
+        return getStreamChannelManager(channel).createStreamChannel(channel);
     }
 
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         final Object message = e.getMessage();
+        final ChannelContext channelContext = getChannelContext(e.getChannel());
         if (message instanceof Packet) {
             Packet packet = (Packet) message;
             final short packetType = packet.getPacketType();
             // 점프 테이블로 교체.
             switch (packetType) {
                 case PacketType.APPLICATION_RESPONSE:
-                    requestResponseManager.messageReceived((ResponsePacket) message, e.getChannel());
+                    channelContext.getRequestManager().messageReceived((ResponsePacket) message, e.getChannel());
                     return;
                 case PacketType.APPLICATION_REQUEST:
-                    requestResponseManager.messageReceived((RequestPacket) message, e.getChannel());
+                    channelContext.getRequestManager().messageReceived((RequestPacket) message, e.getChannel());
                     return;
                     // connector로 들어오는 request 메시지를 핸들링을 해야 함.
                 case PacketType.APPLICATION_STREAM_CREATE:
@@ -151,7 +177,7 @@ public class PinpointSocket extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
+                    channelContext.getStreamChannelManager().messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
@@ -162,12 +188,25 @@ public class PinpointSocket extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("UnexpectedError happened. event:{}", e, e.getCause());
+        state.set(STATE_CLOSED);
+        e.getChannel().close();
 
     }
 
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        int currentState = state.get();
+        if (currentState == STATE_CLOSED) {
+            return;
+        }
+        if (currentState == STATE_RUN) {
+            logger.info("unexpectedChannelClosed reconnect channel:{} Cauesed:{}", e.getChannel());
+        }
+    }
 
     private void ensureOpen() {
-        if (state.get() != STATE_RUN) {
+        final int currentState = state.get();
+        if (currentState != STATE_RUN) {
             throw new PinpointSocketException("already closed");
         }
     }
@@ -177,8 +216,12 @@ public class PinpointSocket extends SimpleChannelHandler {
             return;
         }
         // hand shake close
-        this.requestResponseManager.close();
-        this.channel.close();
+        Channel channel = this.channel;
+        ChannelContext ctx = getChannelContext(channel);
+
+        ctx.getRequestManager().close();
+        ctx.getStreamChannelManager().close();
+        channel.close();
     }
 
 }

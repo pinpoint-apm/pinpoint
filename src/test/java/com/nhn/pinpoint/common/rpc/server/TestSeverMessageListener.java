@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.rpc.server;
 
 import com.nhn.pinpoint.common.rpc.TestByteUtils;
-import com.nhn.pinpoint.common.io.rpc.packet.*;
+import com.nhn.pinpoint.common.rpc.packet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

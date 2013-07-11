@@ -1,9 +1,8 @@
 package com.nhn.pinpoint.common.rpc.client;
 
-import com.nhn.pinpoint.common.io.rpc.server.PinpointServerSocket;
+import com.nhn.pinpoint.common.rpc.*;
+import com.nhn.pinpoint.common.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.common.rpc.server.TestSeverMessageListener;
-import com.nhn.pinpoint.common.rpc.RecordedStreamChannelMessageListener;
-import com.nhn.pinpoint.common.rpc.TestByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

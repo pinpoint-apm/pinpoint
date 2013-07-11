@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class SocketRequestHandler {
+public class RequestManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final RequestProcessor requestProcessor = new RequestProcessor();
 
-    public SocketRequestHandler() {
+    public RequestManager() {
     }
 
     public void messageReceived(ResponsePacket responsePacket, Channel channel) {

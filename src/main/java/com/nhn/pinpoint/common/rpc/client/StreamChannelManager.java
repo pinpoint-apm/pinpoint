@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.common.rpc.client;
 
+import com.nhn.pinpoint.common.rpc.DefaultFuture;
 import com.nhn.pinpoint.common.rpc.PinpointSocketException;
+import com.nhn.pinpoint.common.rpc.ResponseMessage;
 import com.nhn.pinpoint.common.rpc.packet.StreamPacket;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,6 +51,15 @@ public class StreamChannelManager {
     public boolean closeChannel(int channelId) {
         StreamChannel remove = this.channelMap.remove(channelId);
         return remove != null;
+    }
+
+    public void close() {
+        ConcurrentMap<Integer, StreamChannel> channelMap = this.channelMap;
+        for (Map.Entry<Integer, StreamChannel> entry : channelMap.entrySet()) {
+            //
+            entry.getValue().closeInternal();
+        }
+        channelMap.clear();
     }
 
 

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.rpc;
 
-import com.nhn.pinpoint.common.io.rpc.client.StreamChannel;
-import com.nhn.pinpoint.common.io.rpc.client.StreamChannelMessageListener;
+import com.nhn.pinpoint.common.rpc.client.StreamChannel;
+import com.nhn.pinpoint.common.rpc.client.StreamChannelMessageListener;
 
 import java.util.ArrayList;
 import java.util.Collections;

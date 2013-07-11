@@ -155,7 +155,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         SocketChannel socketChannel = new SocketChannel(channel);
         channelContext.setSocketChannel(socketChannel);
 
-        channel.setAttachment(new ChannelContext());
+        channel.setAttachment(channelContext);
     }
 
     @Override
