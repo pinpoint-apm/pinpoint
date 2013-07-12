@@ -220,7 +220,10 @@ public class PinpointSocket extends SimpleChannelHandler {
             return;
         }
         // hand shake close
-        Channel channel = this.channel;
+        final Channel channel = this.channel;
+        ClosePacket closePacket = new ClosePacket();
+        channel.write(closePacket);
+
         ChannelContext ctx = getChannelContext(channel);
 
         ctx.getRequestManager().close();

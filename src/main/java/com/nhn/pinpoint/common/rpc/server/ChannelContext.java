@@ -13,6 +13,8 @@ public class ChannelContext {
 
     private final SocketChannel socketChannel;
 
+    private volatile boolean closePacketReceived;
+
     public ChannelContext(Channel channel) {
         if (channel == null) {
             throw new NullPointerException("channel");
@@ -40,4 +42,11 @@ public class ChannelContext {
         return socketChannel;
     }
 
+    public boolean isClosePacketReceived() {
+        return closePacketReceived;
+    }
+
+    public void closePacketReceived() {
+        this.closePacketReceived = true;
+    }
 }

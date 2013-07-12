@@ -22,4 +22,9 @@ public class PacketType {
     public static final short APPLICATION_STREAM_RESPONSE = 20;
 
 
+    public static final short CONTROL_CLOSE = 100;
+    public static final short CONTROL_CLOSE_REQUEST = 101;
+
+
+    public static final int PACKET_HEADER_PACKET_TYPE_SIZE = 2;
 }

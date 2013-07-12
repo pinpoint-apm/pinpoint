@@ -103,12 +103,25 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_RESPONSE:
                     handleStreamPacket((StreamPacket) message, channel);
                     return;
+
+                case PacketType.CONTROL_CLOSE: {
+                    closeChannel(channel);
+                    return;
+                }
                 default:
                     logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
             }
         } else {
             logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
         }
+    }
+
+    private void closeChannel(Channel channel) {
+        logger.debug("received closePacket {}", channel);
+        ChannelContext channelContext = getChannelContext(channel);
+        channelContext.closePacketReceived();
+
+        channel.close();
     }
 
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
@@ -158,6 +171,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
 
         final ChannelContext channelContext = getChannelContext(channel);
+        if (!channelContext.isClosePacketReceived()) {
+            logger.info("Unexpected Client channelClosed {}", channel);
+        }
         channelContext.closeAllStreamChannel();
     }
 
