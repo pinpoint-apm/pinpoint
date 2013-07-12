@@ -7,24 +7,37 @@ import org.jboss.netty.channel.Channel;
  */
 public class ChannelContext {
 
-    private final ServerStreamChannelManager clientStreamChannelManager = new ServerStreamChannelManager();
+    private final ServerStreamChannelManager streamChannelManager;
 
-    private SocketChannel socketChannel;
+    private final Channel channel;
+
+    private final SocketChannel socketChannel;
+
+    public ChannelContext(Channel channel) {
+        if (channel == null) {
+            throw new NullPointerException("channel");
+        }
+        this.channel = channel;
+        this.socketChannel = new SocketChannel(channel);
+        this.streamChannelManager = new ServerStreamChannelManager(channel);
+    }
 
 
     public ServerStreamChannel getStreamChannel(int channelId) {
-        return clientStreamChannelManager.findStreamChannel(channelId);
+        return streamChannelManager.findStreamChannel(channelId);
     }
 
-    public ServerStreamChannel createChannel(int channelId, Channel channel) {
-        return clientStreamChannelManager.createStreamChannel(channelId, channel);
+    public ServerStreamChannel createStreamChannel(int channelId) {
+        return streamChannelManager.createStreamChannel(channelId);
+    }
+
+
+    public void closeAllStreamChannel() {
+        streamChannelManager.closeInternal();
     }
 
     public SocketChannel getSocketChannel() {
         return socketChannel;
     }
 
-    public void setSocketChannel(SocketChannel socketChannel) {
-        this.socketChannel = socketChannel;
-    }
 }

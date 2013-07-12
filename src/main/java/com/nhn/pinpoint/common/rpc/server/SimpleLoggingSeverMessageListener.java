@@ -15,19 +15,19 @@ public class SimpleLoggingSeverMessageListener implements ServerMessageListener 
 
     @Override
     public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-        logger.info("handlerSend");
+        logger.info("handlerSend {}", sendPacket);
 
     }
 
     @Override
     public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-        logger.info("handlerRequest");
+        logger.info("handlerRequest {}", requestPacket);
     }
 
 
     @Override
     public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-        logger.info("handlerStream");
+        logger.info("handlerStream {}", streamChannel);
     }
 
 

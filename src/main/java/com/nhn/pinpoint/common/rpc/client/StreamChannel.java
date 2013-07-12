@@ -89,25 +89,40 @@ public class StreamChannel {
         final short packetType = packet.getPacketType();
         switch (packetType) {
             case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
-                logger.info("APPLICATION_STREAM_CREATE_SUCCESS");
+                logger.debug("APPLICATION_STREAM_CREATE_SUCCESS {}", channel);
                 StreamCreateResponse success = new StreamCreateResponse(true);
                 success.setMessage(packet.getPayload());
                 return openChannel(RUN, success);
 
             case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-                logger.info("APPLICATION_STREAM_CREATE_FAIL");
+                logger.debug("APPLICATION_STREAM_CREATE_FAIL {}", channel);
                 StreamCreateResponse failResult = new StreamCreateResponse(false);
                 failResult.setMessage(packet.getPayload());
                 return openChannel(CLOSED, failResult);
 
-            case PacketType.APPLICATION_STREAM_RESPONSE:
-                logger.info("APPLICATION_STREAM_RESPONSE");
+            case PacketType.APPLICATION_STREAM_RESPONSE: {
+                logger.debug("APPLICATION_STREAM_RESPONSE {}", channel);
 
                 StreamResponsePacket streamResponsePacket = (StreamResponsePacket) packet;
                 StreamChannelMessageListener streamChannelMessageListener = this.streamChannelMessageListener;
                 if (streamChannelMessageListener != null) {
-                    streamChannelMessageListener.handleStream(this, streamResponsePacket.getPayload());
+                    streamChannelMessageListener.handleStreamResponse(this, streamResponsePacket.getPayload());
                 }
+                return true;
+            }
+            case PacketType.APPLICATION_STREAM_CLOSE: {
+                logger.debug("APPLICATION_STREAM_CLOSE {}", channel);
+
+                this.closeInternal();
+
+                StreamClosePacket streamClosePacket = (StreamClosePacket) packet;
+                StreamChannelMessageListener streamChannelMessageListener = this.streamChannelMessageListener;
+                if (streamChannelMessageListener != null) {
+                    streamChannelMessageListener.handleClose(this, streamClosePacket.getPayload());
+                }
+
+                return true;
+            }
         }
         return false;
     }
@@ -136,24 +151,30 @@ public class StreamChannel {
 
 
     public boolean close() {
-        if(!closeInternal()) {
-            return false;
-        }
-
-        StreamChannelManager streamChannelManager = this.streamChannelManager;
-        if (streamChannelManager != null) {
-            streamChannelManager.closeChannel(channelId);
-            this.streamChannelManager = null;
-        }
-        return true;
+        return close0(true);
     }
 
+
+
     boolean closeInternal() {
+        return close0(false);
+    }
+
+    private boolean close0(boolean safeClose) {
         if (!state.compareAndSet(RUN, CLOSED)) {
             return false;
         }
-        StreamClosePacket closePacket = new StreamClosePacket(this.channelId);
-        this.channel.write(closePacket);
+
+        if (safeClose) {
+            StreamClosePacket closePacket = new StreamClosePacket(this.channelId);
+            this.channel.write(closePacket);
+
+            StreamChannelManager streamChannelManager = this.streamChannelManager;
+            if (streamChannelManager != null) {
+                streamChannelManager.closeChannel(channelId);
+                this.streamChannelManager = null;
+            }
+        }
         return true;
     }
 
@@ -169,20 +190,30 @@ public class StreamChannel {
         StreamChannel that = (StreamChannel) o;
 
         if (channelId != that.channelId) return false;
+        if (channel != null ? !channel.equals(that.channel) : that.channel != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return channelId;
+        int result = channelId;
+        result = 31 * result + (channel != null ? channel.hashCode() : 0);
+        return result;
     }
-
 
     public void setStreamChannelMessageListener(StreamChannelMessageListener streamChannelMessageListener) {
         this.streamChannelMessageListener = streamChannelMessageListener;
     }
 
-
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("StreamChannel");
+        sb.append("{channelId=").append(channelId);
+        sb.append(", channel=").append(channel);
+        sb.append('}');
+        return sb.toString();
+    }
 }
 

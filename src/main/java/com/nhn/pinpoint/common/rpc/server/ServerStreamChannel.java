@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.common.rpc.server;
 
-import com.nhn.pinpoint.common.rpc.packet.StreamCreateFailPacket;
-import com.nhn.pinpoint.common.rpc.packet.StreamCreatePacket;
-import com.nhn.pinpoint.common.rpc.packet.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.common.rpc.packet.StreamResponsePacket;
+import com.nhn.pinpoint.common.rpc.packet.*;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,13 +91,27 @@ public class ServerStreamChannel {
 
 
     public boolean close() {
+        return close0(true);
+    }
+
+    boolean closeInternal() {
+        return close0(false);
+    }
+
+    private boolean close0(boolean safeClose) {
         if (!state.compareAndSet(RUN, CLOSED)) {
             return false;
         }
-        ServerStreamChannelManager serverStreamChannelManager = this.serverStreamChannelManager;
-        if (serverStreamChannelManager != null) {
-            serverStreamChannelManager.closeChannel(channelId);
-            this.serverStreamChannelManager = null;
+
+        if (safeClose) {
+            StreamClosePacket streamClosePacket = new StreamClosePacket(channelId);
+            this.channel.write(streamClosePacket);
+
+            ServerStreamChannelManager serverStreamChannelManager = this.serverStreamChannelManager;
+            if (serverStreamChannelManager != null) {
+                serverStreamChannelManager.closeChannel(channelId);
+                this.serverStreamChannelManager = null;
+            }
         }
         return true;
     }

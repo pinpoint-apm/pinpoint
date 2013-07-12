@@ -42,10 +42,16 @@ public class TestSeverMessageListener implements ServerMessageListener {
             sendStreamMessage(streamChannel);
             sendStreamMessage(streamChannel);
 
+            sendClose(streamChannel);
         }  else if(streamPacket instanceof StreamClosePacket) {
             // 채널 종료해야 함.
         }
 
+    }
+
+    private void sendClose(ServerStreamChannel streamChannel) {
+        sendMessageList.add(new byte[0]);
+        streamChannel.close();
     }
 
     private void sendStreamMessage(ServerStreamChannel streamChannel) {

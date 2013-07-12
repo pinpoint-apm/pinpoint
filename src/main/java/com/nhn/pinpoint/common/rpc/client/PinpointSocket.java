@@ -120,7 +120,7 @@ public class PinpointSocket extends SimpleChannelHandler {
         final Channel channel = this.channel;
         final DefaultFuture<ResponseMessage> messageFuture = getRequestManger(channel).register(request, this.timeoutMillis);
 
-        ChannelFuture write = this.channel.write(request);
+        ChannelFuture write = channel.write(request);
         write.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -135,17 +135,6 @@ public class PinpointSocket extends SimpleChannelHandler {
         return messageFuture;
     }
 
-    private ChannelContext getChannelContext(Channel channel) {
-        return (ChannelContext) channel.getAttachment();
-    }
-
-    private RequestManager getRequestManger(Channel channel) {
-        return getChannelContext(channel).getRequestManager();
-    }
-
-    private StreamChannelManager getStreamChannelManager(Channel channel) {
-        return getChannelContext(channel).getStreamChannelManager();
-    }
 
 
     public StreamChannel createStreamChannel() {
@@ -195,14 +184,29 @@ public class PinpointSocket extends SimpleChannelHandler {
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        logger.debug("channelClosed {}", e.getChannel());
         int currentState = state.get();
         if (currentState == STATE_CLOSED) {
             return;
         }
         if (currentState == STATE_RUN) {
-            logger.info("unexpectedChannelClosed reconnect channel:{} Cauesed:{}", e.getChannel());
+            logger.info("unexpectedChannelClosed reconnect channel:{} state:{}", e.getChannel(), state.get());
+
         }
     }
+
+    private ChannelContext getChannelContext(Channel channel) {
+        return (ChannelContext) channel.getAttachment();
+    }
+
+    private RequestManager getRequestManger(Channel channel) {
+        return getChannelContext(channel).getRequestManager();
+    }
+
+    private StreamChannelManager getStreamChannelManager(Channel channel) {
+        return getChannelContext(channel).getStreamChannelManager();
+    }
+
 
     private void ensureOpen() {
         final int currentState = state.get();

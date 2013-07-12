@@ -115,7 +115,7 @@ public class PinpointSocketFactoryTest {
             byte[] openBytes = TestByteUtils.createRandomByte(30);
 
             // 현재 서버에서 3번 보내게 되어 있음.
-            RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(3);
+            RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
             streamChannel.setStreamChannelMessageListener(clientListener);
 
             Future<StreamCreateResponse> open = streamChannel.open(openBytes);
@@ -128,6 +128,7 @@ public class PinpointSocketFactoryTest {
             List<byte[]> receivedMessage = clientListener.getReceivedMessage();
             List<byte[]> sendMessage = testSeverMessageListener.getSendMessage();
 
+            // 한개는 close 패킷임.
             Assert.assertEquals(receivedMessage.size(), sendMessage.size());
             for(int i =0; i<receivedMessage.size(); i++) {
                 Assert.assertArrayEquals(receivedMessage.get(i), sendMessage.get(i));

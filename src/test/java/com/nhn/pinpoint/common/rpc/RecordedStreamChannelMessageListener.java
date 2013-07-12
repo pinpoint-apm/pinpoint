@@ -2,6 +2,8 @@ package com.nhn.pinpoint.common.rpc;
 
 import com.nhn.pinpoint.common.rpc.client.StreamChannel;
 import com.nhn.pinpoint.common.rpc.client.StreamChannelMessageListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +16,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RecordedStreamChannelMessageListener implements StreamChannelMessageListener {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final CountDownLatch latch;
 
-    private List<byte[]> receivedMessageList = Collections.synchronizedList(new ArrayList<byte[]>());
+    private final List<byte[]> receivedMessageList = Collections.synchronizedList(new ArrayList<byte[]>());
 
     public RecordedStreamChannelMessageListener(int receiveMessageCount) {
         this.latch = new CountDownLatch(receiveMessageCount);
@@ -24,7 +28,15 @@ public class RecordedStreamChannelMessageListener implements StreamChannelMessag
 
 
     @Override
-    public void handleStream(StreamChannel streamChannel, byte[] bytes) {
+    public void handleStreamResponse(StreamChannel streamChannel, byte[] bytes) {
+        logger.info("handleStreamResponse {}, {}", streamChannel, bytes.length);
+        receivedMessageList.add(bytes);
+        latch.countDown();
+    }
+
+    @Override
+    public void handleClose(StreamChannel streamChannel, byte[] bytes) {
+        logger.info("handleClose {}, {}", streamChannel, bytes.length);
         receivedMessageList.add(bytes);
         latch.countDown();
     }

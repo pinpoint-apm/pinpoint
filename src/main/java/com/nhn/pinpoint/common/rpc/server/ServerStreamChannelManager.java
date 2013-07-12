@@ -5,6 +5,7 @@ import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -13,14 +14,19 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ServerStreamChannelManager {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
+    private final Channel channel;
     private final ConcurrentMap<Integer, ServerStreamChannel> channelMap = new ConcurrentHashMap<Integer, ServerStreamChannel>();
 
+    public ServerStreamChannelManager(Channel channel) {
+        if (channel == null) {
+            throw new NullPointerException("channel");
+        }
+        this.channel = channel;
+    }
 
-    public ServerStreamChannel createStreamChannel(int channelId, Channel channel) {
-
+    public ServerStreamChannel createStreamChannel(int channelId) {
         ServerStreamChannel streamChannel = new ServerStreamChannel(channelId);
         streamChannel.setChannel(channel);
 
@@ -45,4 +51,15 @@ public class ServerStreamChannelManager {
     }
 
 
+    public void closeInternal() {
+        final boolean debugEnabled = logger.isDebugEnabled();
+        for (Map.Entry<Integer, ServerStreamChannel> streamChannel : this.channelMap.entrySet()) {
+            streamChannel.getValue().closeInternal();
+            if (debugEnabled) {
+                logger.debug("ServerStreamChannel.closeInternal() id:{}, {}", streamChannel.getKey(), channel);
+            }
+        }
+
+
+    }
 }

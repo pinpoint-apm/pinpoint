@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.common.rpc.server;
 
 import com.nhn.pinpoint.common.rpc.PinpointSocketException;
-import com.nhn.pinpoint.common.rpc.util.CpuUtils;
 import com.nhn.pinpoint.common.rpc.packet.*;
+import com.nhn.pinpoint.common.rpc.util.CpuUtils;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -87,12 +87,12 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             logger.debug("messageReceived:{} channel:{}", message, channel);
             switch (packetType) {
                 case PacketType.APPLICATION_SEND: {
-                    SocketChannel socketChannel = getChannelContext(e.getChannel()).getSocketChannel();
+                    SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
                     messageListener.handleSend((SendPacket) message, socketChannel);
                     return;
                 }
                 case PacketType.APPLICATION_REQUEST: {
-                    SocketChannel socketChannel = getChannelContext(e.getChannel()).getSocketChannel();
+                    SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
                     messageListener.handleRequest((RequestPacket) message, socketChannel);
                     return;
                 }
@@ -101,7 +101,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    handleStreamPacket((StreamPacket) message, e.getChannel());
+                    handleStreamPacket((StreamPacket) message, channel);
                     return;
                 default:
                     logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
@@ -114,8 +114,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
         ChannelContext context = getChannelContext(channel);
         if (packet instanceof StreamCreatePacket) {
+            logger.debug("StreamCreate {}, streamId:{}", channel, packet.getChannelId());
             try {
-                ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
+                ServerStreamChannel streamChannel = context.createStreamChannel(packet.getChannelId());
                 boolean success = streamChannel.receiveChannelCreate((StreamCreatePacket) packet);
                 if (success) {
                     messageListener.handleStream(packet, streamChannel);
@@ -124,8 +125,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             } catch (PinpointSocketException e) {
                 logger.warn("channel create fail. channel:{} Caused:{}", channel, e);
             }
-        } else if(packet instanceof StreamClosePacket) {
-            ServerStreamChannel streamChannel = context.createChannel(packet.getChannelId(), channel);
+        } else if (packet instanceof StreamClosePacket) {
+            logger.debug("StreamDestroy {}, streamId:{}", channel, packet.getChannelId());
+            ServerStreamChannel streamChannel = context.getStreamChannel(packet.getChannelId());
             boolean close = streamChannel.close();
             if (close) {
                 messageListener.handleStream(packet, streamChannel);
@@ -133,16 +135,30 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 logger.warn("invalid streamClosePacket. already close. channel:{} Caused:{}", channel);
             }
         } else {
-            logger.warn("invalid streamPacket. channel:{} Caused:{}", channel);
+            logger.warn("invalid streamPacket. channel:{}", channel);
         }
     }
 
 
-
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        prepareChannel(e.getChannel());
+        final Channel channel = e.getChannel();
+        if (logger.isDebugEnabled()) {
+            logger.debug("channelConnected {}", channel);
+        }
+        prepareChannel(channel);
         super.channelConnected(ctx, e);
+    }
+
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        final Channel channel = e.getChannel();
+        if (logger.isDebugEnabled()) {
+            logger.debug("channelClosed {}", channel);
+        }
+
+        final ChannelContext channelContext = getChannelContext(channel);
+        channelContext.closeAllStreamChannel();
     }
 
     private ChannelContext getChannelContext(Channel channel) {
@@ -150,10 +166,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void prepareChannel(Channel channel) {
-        ChannelContext channelContext = new ChannelContext();
-
-        SocketChannel socketChannel = new SocketChannel(channel);
-        channelContext.setSocketChannel(socketChannel);
+        ChannelContext channelContext = new ChannelContext(channel);
 
         channel.setAttachment(channelContext);
     }
