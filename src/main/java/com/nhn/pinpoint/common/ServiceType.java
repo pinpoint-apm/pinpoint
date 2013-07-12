@@ -56,7 +56,10 @@ public enum ServiceType {
     private final short code;
     private final String desc;
     private final boolean terminal;
+    
+    // TODO rpc 호출에 대해서만 통계정보를 남길 것이니, rpc()로 바꾸는건 어떨지???
     private final boolean recordStatistics;
+    
     // DetinationId를 포함시켜 api를 출력하지 여부
     private final boolean includeDestinationId;
     private final Histogram histogram;
@@ -92,6 +95,7 @@ public enum ServiceType {
         return !terminal && !isRpcClient() && code > 1000;
     }
 
+    // TODO rpc 호출에 대해서만 통계정보를 남길 것이니, isRpc()로 바꾸는건 어떨지???
     public boolean isRecordStatistics() {
         return recordStatistics;
     }

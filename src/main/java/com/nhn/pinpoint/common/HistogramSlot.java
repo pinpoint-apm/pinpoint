@@ -15,6 +15,7 @@ public class HistogramSlot {
         this.responseCode = responseCode;
     }
 
+    // TODO : int를 short으로 바꿔야할 듯...
     public int getSlotTime() {
         return slotTime;
     }
