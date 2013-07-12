@@ -300,7 +300,7 @@ function getLastServerMapData2(query, callback) {
 function getFilteredServerMapData(query, callback) {
     jQuery.ajax({
     	type : 'GET',
-    	url : '/getFilteredServerMapData.pinpoint',
+    	url : '/getFilteredServerMapData2.pinpoint',
     	cache : false,
     	dataType: 'json',
     	data : {

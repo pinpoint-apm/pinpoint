@@ -50,6 +50,10 @@
     <script type="text/javascript" src="/common/js/pinpoint/servermap/canvas.roundRect.js"></script>
     <script type="text/javascript" src="/common/js/pinpoint/servermap/jquery.ServerMap.js"></script>
     
+	<script type="text/javascript" src="/common/js/nvd3/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/common/js/nvd3/nv.d3.js"></script>
+    <script type="text/javascript" src="/common/js/pinpoint/chart-stacked.js"></script>
+    
     <!-- requests list -->
     <script type="text/javascript" src="/common/js/pinpoint/chart-transactions.js"></script>
     

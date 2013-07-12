@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AnnotationBo;
+import com.nhn.pinpoint.common.bo.SpanBo;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
+import com.nhn.pinpoint.web.applicationmap.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.NodeSelector;
@@ -23,16 +32,12 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.mapper.SpanMapper;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TraceId;
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author netspider
@@ -91,26 +96,27 @@ public class FlowChartServiceImpl implements FlowChartService {
 	/**
 	 * filtered application map
 	 */
+	@Deprecated
 	@Override
 	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
-		List<SpanBo> transaction = new ArrayList<SpanBo>();
+		List<SpanBo> filteredTransaction = new ArrayList<SpanBo>();
 		for (List<SpanBo> t : transactionList) {
 			if (filter.include(t)) {
 				for (SpanBo span : t) {
-					transaction.add(span);
+					filteredTransaction.add(span);
 				}
 			}
 		}
 		
-		Set<String> endPoints = createUniqueEndpoint(transaction);
-		ServerCallTree tree = createServerCallTree(transaction, new ApplicationIdNodeSelector());
+		Set<String> endPoints = createUniqueEndpoint(filteredTransaction);
+		ServerCallTree tree = createServerCallTree(filteredTransaction, new ApplicationIdNodeSelector());
 		
 		// subSpan에서 record할 데이터만 골라낸다.
-		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(transaction, endPoints);
+		List<SpanEventBo> spanEventBoList = findRecordStatisticsSpanEventData(filteredTransaction, endPoints);
 		
 		tree.addSpanEventList(spanEventBoList);
 		tree.build();
@@ -330,5 +336,122 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 		return statistics;
+	}
+	
+	/**
+	 * filtered application map
+	 */
+	@Override
+	public ApplicationMap selectApplicationMap(Set<TraceId> traceIdSet, Filter filter) {
+		StopWatch watch = new StopWatch();
+		watch.start();
+
+		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
+
+		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
+		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
+		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
+
+		// 통계정보로 변환한다.
+		for (List<SpanBo> transaction : transactionList) {
+			if (!filter.include(transaction)) {
+				continue;
+			}
+
+			transactionSpanMap.clear();
+			for (SpanBo span : transaction) {
+				transactionSpanMap.put(span.getSpanId(), span);
+			}
+
+			for (SpanBo span : transaction) {
+				String from, to;
+				ServiceType fromServiceType, toServiceType;
+				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
+
+				if (span.isRoot() || parentSpan == null) {
+					from = ServiceType.CLIENT.toString() + "-" + span.getApplicationId();
+					fromServiceType = ServiceType.CLIENT;
+				} else {
+					from = parentSpan.getApplicationId();
+					fromServiceType = parentSpan.getServiceType();
+				}
+
+				to = span.getApplicationId();
+				toServiceType = span.getServiceType();
+
+				if(!toServiceType.isRecordStatistics()) {
+					continue;
+				}
+				
+				String statId = TransactionFlowStatistics.makeId(from, fromServiceType, to, toServiceType);
+				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
+
+				// histogram
+				ResponseHistogram histogram = stat.getHistogram();
+				int slot = toServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
+				histogram.addSample((short) slot, 1);
+				
+				// TODO host 정보 추가.
+				// blah blah
+				
+				// TODO agent 정보추가.
+				// blah blah
+
+				statisticsData.add(stat);
+				statisticsMap.put(statId, stat);
+				
+				/**
+				 * span event의 statistics추가.
+				 */
+				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+				if (spanEventBoList == null || spanEventBoList.isEmpty()) {
+					continue;
+				}
+				from = span.getApplicationId();
+				fromServiceType = span.getServiceType();
+				
+				for (SpanEventBo spanEvent : spanEventBoList) {
+					to = spanEvent.getDestinationId();
+					toServiceType = spanEvent.getServiceType();
+
+					if(!toServiceType.isRecordStatistics()) {
+						continue;
+					}
+					
+					// rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
+					// 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
+					if (toServiceType.isRpcClient()) {
+						if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
+							continue;
+						} else {
+							toServiceType = ServiceType.UNKNOWN_CLOUD;
+						}
+					}
+
+					String statId2 = TransactionFlowStatistics.makeId(from, fromServiceType, to, toServiceType);
+					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
+					
+					ResponseHistogram histogram2 = stat2.getHistogram();
+					int slot2 = toServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
+					histogram2.addSample((short) slot2, 1);
+					
+					// TODO host 정보 추가.
+					// blah blah
+					
+					// TODO agent 정보추가.
+					// blah blah
+					
+					statisticsData.add(stat2);
+					statisticsMap.put(statId2, stat2);
+				}
+			}
+		}
+		
+		ApplicationMap map = new ApplicationMap(statisticsData).build();
+
+		watch.stop();
+		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
+
+		return map;
 	}
 }

@@ -88,6 +88,7 @@ public class ApplicationMapController {
 		return "applicationmap.filtered.view";
 	}
 
+	@Deprecated
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
 	public String getFilteredServerMapData(Model model,
 											HttpServletResponse response,
@@ -105,6 +106,27 @@ public class ApplicationMapController {
 		model.addAttribute("filter", filter);
 
 		return "applicationmap.filtered";
+	}
+	
+	@RequestMapping(value = "/getFilteredServerMapData2", method = RequestMethod.GET)
+	public String getFilteredServerMapData2(Model model,
+											HttpServletResponse response,
+											@RequestParam("application") String applicationName, 
+											@RequestParam("serviceType") short serviceType,
+											@RequestParam("from") long from,
+											@RequestParam("to") long to,
+											@RequestParam(value = "filter", required = false) String filterText) {
+		
+		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Filter filter = FilterBuilder.build(filterText);
+		
+		ApplicationMap map = flow.selectApplicationMap(traceIdSet, filter);
+		
+		model.addAttribute("nodes", map.getNodes());
+		model.addAttribute("links", map.getLinks());
+		model.addAttribute("filter", filter);
+
+		return "applicationmap.filtered2";
 	}
 	
 	// 선택한 연결선을 통과하는 요청의 통계 정보 조회.

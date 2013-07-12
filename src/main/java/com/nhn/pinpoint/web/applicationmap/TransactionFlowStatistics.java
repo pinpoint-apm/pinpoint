@@ -31,11 +31,19 @@ public class TransactionFlowStatistics {
 		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
 		this.toHosts = new HashSet<String>();
 		this.toAgents = new HashSet<AgentInfoBo>();
-		makeId();
+		this.id = makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
+	}
+
+	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
+		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
+	}
+
+	public static String makeId(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
+		return from + fromServiceType + to + toServiceType;
 	}
 
 	public void makeId() {
-		this.id = from + fromServiceType + to + toServiceType;
+		this.id = makeId(from, fromServiceType, to, toServiceType);
 	}
 
 	public String getId() {
@@ -81,7 +89,7 @@ public class TransactionFlowStatistics {
 		this.toServiceType = toServiceType;
 		makeId();
 	}
-	
+
 	public void clearHosts() {
 		this.toHosts.clear();
 	}
@@ -100,7 +108,7 @@ public class TransactionFlowStatistics {
 			this.toHosts.addAll(hosts);
 		}
 	}
-	
+
 	public void addToHost(String host) {
 		if (host != null) {
 			this.toHosts.add(host);
@@ -111,16 +119,22 @@ public class TransactionFlowStatistics {
 		return toHosts;
 	}
 
+	public void addToAgent(AgentInfoBo agentInfo) {
+		if (agentInfo != null) {
+			this.toAgents.add(agentInfo);
+		}
+	}
+	
 	public void addToAgents(Set<AgentInfoBo> agentInfo) {
 		if (agentInfo != null) {
 			this.toAgents.addAll(agentInfo);
 		}
 	}
-	
+
 	public Set<AgentInfoBo> getToAgents() {
 		return toAgents;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ApplicationStatistics [id=" + id + ", from=" + from + ", fromServiceType=" + fromServiceType + ", to=" + to + ", toServiceType=" + toServiceType + ", histogram=" + histogram + ", toHosts=" + toHosts + "]";
