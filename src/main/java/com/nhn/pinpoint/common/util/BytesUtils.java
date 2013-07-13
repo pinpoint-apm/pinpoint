@@ -174,7 +174,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < offset + LONG_BYTE_LENGTH) {
+        if (buf.length < offset + INT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
         }
         buf[offset++] = (byte) (value >> 24);
@@ -187,7 +187,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (buf.length < 8) {
+        if (buf.length < LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
         }
         writeFirstLong0(value, buf);
@@ -236,21 +236,21 @@ public final class BytesUtils {
     }
 
     public static byte[] add(final byte[] preFix, final long postfix) {
-        byte[] buf = new byte[preFix.length + 8];
+        byte[] buf = new byte[preFix.length + LONG_BYTE_LENGTH];
         System.arraycopy(preFix, 0, buf, 0, preFix.length);
         writeLong(postfix, buf, preFix.length);
         return buf;
     }
 
     public static byte[] add(final byte[] preFix, final short postfix) {
-        byte[] buf = new byte[preFix.length + 2];
+        byte[] buf = new byte[preFix.length + SHORT_BYTE_LENGTH];
         System.arraycopy(preFix, 0, buf, 0, preFix.length);
         writeShort(postfix, buf, preFix.length);
         return buf;
     }
 
     public static byte[] add(final int preFix, final short postFix) {
-        byte[] buf = new byte[4 + 2];
+        byte[] buf = new byte[INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
         writeInt(preFix, buf, 0);
         writeShort(postFix, buf, 4);
         return buf;
@@ -258,7 +258,7 @@ public final class BytesUtils {
 
 
     public static byte[] add(final long preFix, final short postFix) {
-        byte[] buf = new byte[8 + 2];
+        byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH];
         writeLong(preFix, buf, 0);
         writeShort(postFix, buf, 8);
         return buf;
