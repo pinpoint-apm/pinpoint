@@ -1,9 +1,11 @@
-$.extend($.tmpl.tag, {
-    "var": {
-        open: "var $1;"
-    }
-});
-$.extend($.tmpl.tag, { "eval": { open: "$1;"} });
+if ($.tmpl) {
+	$.extend($.tmpl.tag, {
+	    "var": {
+	        open: "var $1;"
+	    }
+	});
+	$.extend($.tmpl.tag, { "eval": { open: "$1;"} });
+}
 
 function openTrace(uuid, timestamp) {
     window.open("/transactionInfo.pinpoint?traceId=" + uuid + "&focusTimestamp=" + timestamp);
