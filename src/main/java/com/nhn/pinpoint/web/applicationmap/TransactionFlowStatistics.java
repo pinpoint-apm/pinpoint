@@ -31,19 +31,15 @@ public class TransactionFlowStatistics {
 		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
 		this.toHosts = new HashSet<String>();
 		this.toAgents = new HashSet<AgentInfoBo>();
-		this.id = makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
+		this.id = TransactionFlowStatisticsUtils.makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
 	}
 
 	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
 		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
 	}
 
-	public static String makeId(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
-		return from + fromServiceType + to + toServiceType;
-	}
-
 	public void makeId() {
-		this.id = makeId(from, fromServiceType, to, toServiceType);
+		this.id = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
 	}
 
 	public String getId() {

@@ -22,6 +22,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.applicationmap.ResponseHistogram;
 import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatisticsUtils;
 import com.nhn.pinpoint.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.NodeSelector;
@@ -32,7 +33,6 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.mapper.SpanMapper;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
@@ -383,7 +383,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 					continue;
 				}
 				
-				String statId = TransactionFlowStatistics.makeId(from, fromServiceType, to, toServiceType);
+				String statId = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
 				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
 
 				// histogram
@@ -428,7 +428,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 						}
 					}
 
-					String statId2 = TransactionFlowStatistics.makeId(from, fromServiceType, to, toServiceType);
+					String statId2 = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
 					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
 					
 					ResponseHistogram histogram2 = stat2.getHistogram();
