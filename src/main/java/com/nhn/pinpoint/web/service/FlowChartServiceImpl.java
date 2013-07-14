@@ -16,6 +16,7 @@ import org.springframework.util.StopWatch;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
@@ -27,6 +28,7 @@ import com.nhn.pinpoint.web.calltree.server.AgentIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ApplicationIdNodeSelector;
 import com.nhn.pinpoint.web.calltree.server.NodeSelector;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
+import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
@@ -61,6 +63,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 	
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+
+	@Autowired
+	private AgentInfoDao agentInfoDao;
 	
 	@Override
 	public List<Application> selectAllApplicationNames() {
@@ -351,6 +356,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
+		Map<String, AgentInfoBo> agentInfoCache = new HashMap<String, AgentInfoBo>();
 
 		// 통계정보로 변환한다.
 		for (List<SpanBo> transaction : transactionList) {
@@ -391,14 +397,27 @@ public class FlowChartServiceImpl implements FlowChartService {
 				int slot = toServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
 				histogram.addSample((short) slot, 1);
 				
-				// TODO host 정보 추가.
-				// blah blah
+				// host 정보 추가.
+				stat.addToHost(span.getEndPoint());
 				
-				// TODO agent 정보추가.
-				// blah blah
+				// agent 정보추가.
+				String agentId = span.getAgentId();
+				AgentInfoBo agentInfo = null;
+				if (agentInfoCache.containsKey(agentId)) {
+					agentInfo = agentInfoCache.get(agentId);
+				} else {
+					agentInfo = agentInfoDao.findAgentInfoBeforeStartTime(agentId, span.getCollectorAcceptTime());
+//					if (agentInfoList.size() > 0) {
+//						agentInfo = agentInfoList.get(0);
+//					}
+					agentInfoCache.put(agentId, agentInfo);
+				}
+				stat.addToAgent(agentInfo);
 
 				statisticsData.add(stat);
 				statisticsMap.put(statId, stat);
+				
+				// TODO timeseries statistics추가.
 				
 				/**
 				 * span event의 statistics추가.
@@ -436,13 +455,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 					histogram2.addSample((short) slot2, 1);
 					
 					// TODO host 정보 추가.
-					// blah blah
+					stat2.addToHost(spanEvent.getEndPoint());
 					
-					// TODO agent 정보추가.
-					// blah blah
+					// agent 정보추가.
+					// destination의 agent정보 알 수 없음.
 					
 					statisticsData.add(stat2);
 					statisticsMap.put(statId2, stat2);
+					
+					// TODO timeseries statistics추가.
 				}
 			}
 		}
