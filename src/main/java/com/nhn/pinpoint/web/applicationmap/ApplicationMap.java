@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 
 /**
  * Application map
@@ -28,6 +29,8 @@ public class ApplicationMap {
 	private final Map<String, Application> applications = new HashMap<String, Application>();
 	private final Map<String, ApplicationRelation> relations = new HashMap<String, ApplicationRelation>();
 
+	private TimeseriesResponses timeseriesResponses;
+	
 	public ApplicationMap(Set<TransactionFlowStatistics> data) {
 		this.data = data;
 	}
@@ -124,5 +127,13 @@ public class ApplicationMap {
 			logger.debug("Add relation. {}", relation);
 			relations.put(relation.getId(), relation);
 		}
+	}
+
+	public TimeseriesResponses getTimeseriesResponses() {
+		return timeseriesResponses;
+	}
+
+	public void setTimeseriesResponses(TimeseriesResponses timeseriesResponses) {
+		this.timeseriesResponses = timeseriesResponses;
 	}
 }

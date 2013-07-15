@@ -4,6 +4,116 @@ var FILTER_ENTRY_DELIMETER = "|";
 var SERVERMAP_METHOD_CACHE = {};
 var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
 
+var showApplicationStatisticsSummary = function(data) {
+	$("#linkInfoDetails .linkInfoBarChart").show();
+	nv.addGraph(function() {
+		var chart = nv.models.discreteBarChart().x(function(d) {
+			return d.label;
+		}).y(function(d) {
+			return d.value;
+		}).staggerLabels(false).tooltips(false).showValues(true);
+
+		chart.xAxis.tickFormat(function(d) {
+			if($.isNumeric(d)) {
+				return (d >= 1000) ? d / 1000 + "s" : d + "ms";
+			}
+			return d;
+		});
+		
+		chart.yAxis.tickFormat(function(d) {
+			return d;
+		});
+		
+		chart.valueFormat(function(d) {
+			return d;
+		});
+		
+		chart.color(myColors);
+		
+		d3.select('#linkInfoDetails .linkInfoBarChart svg')
+				.datum(data)
+				.transition()
+				.duration(0)
+				.call(chart);
+
+		nv.utils.windowResize(chart.update);
+
+		return chart;
+	});
+}
+
+var showLinkStatisticsSummary = function(data) {
+	$("#linkInfoDetails .linkInfoBarChart").show();
+	nv.addGraph(function() {
+		var chart = nv.models.discreteBarChart().x(function(d) {
+			return d.label;
+		}).y(function(d) {
+			return d.value;
+		}).staggerLabels(false).tooltips(false).showValues(true);
+
+		chart.xAxis.tickFormat(function(d) {
+			if($.isNumeric(d)) {
+				return (d >= 1000) ? d / 1000 + "s" : d + "ms";
+			}
+			return d;
+		});
+		
+		chart.yAxis.tickFormat(function(d) {
+			return d;
+		});
+		
+		chart.valueFormat(function(d) {
+			return d;
+		});
+		
+		chart.color(myColors);
+		
+		d3.select('#linkInfoDetails .linkInfoBarChart svg')
+				.datum(data)
+				.transition()
+				.duration(0)
+				.call(chart);
+
+		nv.utils.windowResize(chart.update);
+
+		return chart;
+	});
+}
+
+var showLinkStatisticsTimeseriesHistogram = function(data) {
+	$("#linkInfoDetails .linkInfoChart").show();
+	nv.addGraph(function() {
+//		var chart = nv.models.stackedAreaChart().x(function(d) {
+		var chart = nv.models.multiBarChart().x(function(d) {
+			return d[0];
+		}).y(function(d) {
+			return d[1];
+		}).clipEdge(true).showControls(false);
+		
+		chart.stacked(true);
+		
+		chart.xAxis.tickFormat(function(d) {
+			return d3.time.format('%H:%M')(new Date(d));
+		});
+		
+		chart.yAxis.tickFormat(function(d) {
+			return d;
+		});
+		
+		chart.color(myColors);
+		
+		d3.select('#linkInfoDetails .linkInfoChart svg')
+		.datum(data)
+		.transition()
+		.duration(0)
+		.call(chart);
+		
+		nv.utils.windowResize(chart.update);
+		
+		return chart;
+	});
+}; 
+
 function applicationStatistics(begin, end, applicationName, serviceType) {
 	var params = {
 		"from" : begin,
@@ -12,50 +122,12 @@ function applicationStatistics(begin, end, applicationName, serviceType) {
 		"serviceType" : serviceType
 	}
 	
-	var showSummary = function(data) {
-		$("#linkInfoDetails .linkInfoBarChart").show();
-		nv.addGraph(function() {
-			var chart = nv.models.discreteBarChart().x(function(d) {
-				return d.label;
-			}).y(function(d) {
-				return d.value;
-			}).staggerLabels(false).tooltips(false).showValues(true);
-	
-			chart.xAxis.tickFormat(function(d) {
-				if($.isNumeric(d)) {
-					return (d >= 1000) ? d / 1000 + "s" : d + "ms";
-				}
-				return d;
-			});
-			
-			chart.yAxis.tickFormat(function(d) {
-				return d;
-			});
-			
-			chart.valueFormat(function(d) {
-				return d;
-			});
-			
-			chart.color(myColors);
-			
-			d3.select('#linkInfoDetails .linkInfoBarChart svg')
-					.datum(data)
-					.transition()
-					.duration(0)
-					.call(chart);
-	
-			nv.utils.windowResize(chart.update);
-	
-			return chart;
-		});
-	}
-	
 	$("#statisticsProgressbar").show();
 	getApplicationStatisticsData(params, function(query, result) {
 		$("#statisticsProgressbar").hide();
 		console.log(query);
 		console.log(result);
-		showSummary(result.histogramSummary);
+		showApplicationStatisticsSummary(result.histogramSummary);
 	});
 }
 
@@ -76,83 +148,11 @@ function linkStatistics(
 		"destApplicationName" : destApplicationName
 	}
 	
-	var showSummary = function(data) {
-		$("#linkInfoDetails .linkInfoBarChart").show();
-		nv.addGraph(function() {
-			var chart = nv.models.discreteBarChart().x(function(d) {
-				return d.label;
-			}).y(function(d) {
-				return d.value;
-			}).staggerLabels(false).tooltips(false).showValues(true);
-	
-			chart.xAxis.tickFormat(function(d) {
-				if($.isNumeric(d)) {
-					return (d >= 1000) ? d / 1000 + "s" : d + "ms";
-				}
-				return d;
-			});
-			
-			chart.yAxis.tickFormat(function(d) {
-				return d;
-			});
-			
-			chart.valueFormat(function(d) {
-				return d;
-			});
-			
-			chart.color(myColors);
-			
-			d3.select('#linkInfoDetails .linkInfoBarChart svg')
-					.datum(data)
-					.transition()
-					.duration(0)
-					.call(chart);
-	
-			nv.utils.windowResize(chart.update);
-	
-			return chart;
-		});
-	}
-
-	var showTimeseriesHistogram = function(data) {
-		$("#linkInfoDetails .linkInfoChart").show();
-		nv.addGraph(function() {
-//			var chart = nv.models.stackedAreaChart().x(function(d) {
-			var chart = nv.models.multiBarChart().x(function(d) {
-				return d[0];
-			}).y(function(d) {
-				return d[1];
-			}).clipEdge(true).showControls(false);
-			
-			chart.stacked(true);
-			
-			chart.xAxis.tickFormat(function(d) {
-				return d3.time.format('%H:%M')(new Date(d));
-			});
-			
-			chart.yAxis.tickFormat(function(d) {
-				return d;
-			});
-			
-			chart.color(myColors);
-			
-			d3.select('#linkInfoDetails .linkInfoChart svg')
-			.datum(data)
-			.transition()
-			.duration(0)
-			.call(chart);
-			
-			nv.utils.windowResize(chart.update);
-			
-			return chart;
-		});
-	}; 
-	
 	$("#statisticsProgressbar").show();
 	getLinkStatisticsData(params, function(query, result) {
 		$("#statisticsProgressbar").hide();
-		showSummary(result.histogramSummary);
-		showTimeseriesHistogram(result.timeseriesHistogram);
+		showLinkStatisticsSummary(result.histogramSummary);
+		showLinkStatisticsTimeseriesHistogram(result.timeseriesHistogram);
 	});
 }
 
@@ -444,32 +444,32 @@ var serverMapCallback = function(query, data, ignoreCache) {
 					"margin" : 1
 				}
 			},
-			fOnNodeContextClick : function(e, data) {
-				// nodeContextClickHandler(e, query, data, "#" + containerId);
+			fOnNodeContextClick : function(e, d) {
+				// nodeContextClickHandler(e, query, d, "#" + containerId);
 			},
-			fOnLinkContextClick : function(e, data) {
-				// linkContextClickHandler(e, query, data, "#" + containerId);
+			fOnLinkContextClick : function(e, d) {
+				// linkContextClickHandler(e, query, d, "#" + containerId);
 			},
-			fOnLinkClick : function(e, data) {
-				linkClickHandler(e, query, data, "#" + containerId);
+			fOnLinkClick : function(e, d) {
+				linkClickHandler(e, query, d, data, "#" + containerId);
 			},
-			fOnNodeClick : function(e, data) {
-				nodeClickHandler(e, query, data, "#" + containerId);
+			fOnNodeClick : function(e, d) {
+				nodeClickHandler(e, query, d, data, "#" + containerId);
 			}
 	    });
 	} else {
 		oServerMap.option({
-			fOnNodeContextClick : function(e, data) {
-				nodeContextClickHandler(e, query, data, "#" + containerId);
+			fOnNodeContextClick : function(e, d) {
+				nodeContextClickHandler(e, query, d, "#" + containerId);
 			},
-			fOnLinkContextClick : function(e, data) {
-				linkContextClickHandler(e, query, data, "#" + containerId);
+			fOnLinkContextClick : function(e, d) {
+				linkContextClickHandler(e, query, d, "#" + containerId);
 			},
-			fOnLinkClick : function(e, data) {
-				linkClickHandler(e, query, data, "#" + containerId);
+			fOnLinkClick : function(e, d) {
+				linkClickHandler(e, query, d, data, "#" + containerId);
 			},
-			fOnNodeClick : function(e, data) {
-				nodeClickHandler(e, query, data, "#" + containerId);
+			fOnNodeClick : function(e, d) {
+				nodeClickHandler(e, query, d, data, "#" + containerId);
 			}
 		});
 	}
@@ -791,6 +791,13 @@ var nodeClickHandler = function(e, query, data, containerId) {
 	console.log("nodeClickHandler data", data);
 	emptyDetailPanel();
 	data.query = query;
+
+	// filter가 적용된 경우.
+	if (query.filter) {
+		console.log("filtered", data);
+		// TODO node의 정보 보여주기.
+		// return;
+	}
 	
 	if(data.category == "UNKNOWN_GROUP") {
 		$('#nodeInfoDetails .info').append($('#UnknownNodeInfoBox').tmpl(data));
@@ -798,16 +805,27 @@ var nodeClickHandler = function(e, query, data, containerId) {
 		$('#nodeInfoDetails .info').append($('#NodeInfoBox').tmpl(data));
 	}
 	
+	// USER, GROUP을 제외하고 application 통계정보 조회.
 	if (!data.rawdata && data.category != "USER" && data.category != "UNKNOWN_GROUP") {
 		applicationStatistics(query.from, query.to, data.text, data.serviceTypeCode);
 	}
 }
 
-var linkClickHandler = function(e, query, data, containerId) {
+var linkClickHandler = function(e, query, data, fetchedData, containerId) {
 	console.log("linkClickHandler query", query);
 	console.log("linkClickHandler data", data);
+	console.log("linkClickHandler fetchedData", fetchedData);
+	
 	emptyDetailPanel();
 	data.query = query;
+
+	// filter가 적용된 경우.
+	if (query.filter) {
+		var key = data.sourceinfo.applicationName + data.sourceinfo.serviceType + data.targetinfo.applicationName + data.targetinfo.serviceType;
+		// TODO display chart.
+		// TODO 차트 컴포넌트가 변경될 수 있어서 더이상 개발은 하지 않겠다. ㅎ
+		// return;
+	}
 	
 	// TODO rawdata 다른 정보로 판단하도록 수정하기.
 	if (data.rawdata) {
@@ -816,6 +834,7 @@ var linkClickHandler = function(e, query, data, containerId) {
 		return;
 	} else {
 		$('#linkInfoDetails .info').append($('#LinkInfoBox').tmpl(data));
+		// dest가 GROUP이 아닌 경우에는 link 통계정보 조회.
 		linkStatistics(	query.from,
 						query.to,
 						data.sourceinfo.serviceTypeCode,

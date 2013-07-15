@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.HistogramSlot;
+import com.nhn.pinpoint.web.util.TimeWindowUtils;
 
 /**
  * 
@@ -19,10 +20,6 @@ import com.nhn.pinpoint.common.HistogramSlot;
 public class LinkStatistics {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	private final long ONE_MINUTE = 60000L;
-	private final long SIX_HOURS = 8640000L;
-	private final long ONE_DAY = 34560000L;
 
 	private static final int SLOT_SLOW = Integer.MAX_VALUE - 1;
 	private static final int SLOT_ERROR = Integer.MAX_VALUE;
@@ -55,31 +52,6 @@ public class LinkStatistics {
 		this.to = to;
 	}
 
-	private long refineTimestamp(long timestamp) {
-		long time = timestamp / getSlotSize() * getSlotSize();
-		logger.debug("refine timestamp before={}, after={}", timestamp, time);
-		return time;
-	}
-
-	private long getSlotSize() {
-		long diff = to - from;
-		long size;
-
-		if (diff < SIX_HOURS) {
-			size = ONE_MINUTE * 5L;
-		} else if (diff < ONE_DAY) {
-			size = ONE_MINUTE * 10L;
-		} else if (diff < ONE_DAY * 2) {
-			size = ONE_MINUTE * 15L;
-		} else {
-			size = ONE_MINUTE * 20L;
-		}
-
-		logger.debug("slot size=" + size);
-
-		return size;
-	}
-
 	/**
 	 * timeseries 기본값 채운다. 빈 공간은 그냥 적당히 채워준다. 모두 채우면 느리니까..
 	 * 
@@ -87,8 +59,8 @@ public class LinkStatistics {
 	 */
 	private SortedMap<Long, Long> makeEmptyTimeseriesValueMap() {
 		SortedMap<Long, Long> map = new TreeMap<Long, Long>();
-		long slotSize = getSlotSize();
-		for (long time = from; time <= to; time += slotSize) {
+		long windowSize = TimeWindowUtils.getWindowSize(from, to);
+		for (long time = from; time <= to; time += windowSize) {
 			map.put(time, 0L);
 		}
 		return map;
@@ -128,7 +100,7 @@ public class LinkStatistics {
 	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean failed) {
 		logger.info("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + failed);
 
-		timestamp = refineTimestamp(timestamp);
+		timestamp = TimeWindowUtils.refineTimestamp(from, to, timestamp);
 
 		if (failed) {
 			failedCount += callCount;

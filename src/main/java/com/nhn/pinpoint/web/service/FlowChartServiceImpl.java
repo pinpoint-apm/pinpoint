@@ -39,6 +39,7 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 import com.nhn.pinpoint.web.vo.TraceId;
 
 /**
@@ -347,7 +348,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(Set<TraceId> traceIdSet, Filter filter) {
+	public ApplicationMap selectApplicationMap(Set<TraceId> traceIdSet, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -358,6 +359,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
 		Map<String, AgentInfoBo> agentInfoCache = new HashMap<String, AgentInfoBo>();
 
+		TimeseriesResponses tr = new TimeseriesResponses(from, to);
+		
 		// 통계정보로 변환한다.
 		for (List<SpanBo> transaction : transactionList) {
 			if (!filter.include(transaction)) {
@@ -370,31 +373,31 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 
 			for (SpanBo span : transaction) {
-				String from, to;
-				ServiceType fromServiceType, toServiceType;
+				String src, dest;
+				ServiceType srcServiceType, destServiceType;
 				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
 
 				if (span.isRoot() || parentSpan == null) {
-					from = ServiceType.CLIENT.toString() + "-" + span.getApplicationId();
-					fromServiceType = ServiceType.CLIENT;
+					src = ServiceType.CLIENT.toString() + "-" + span.getApplicationId();
+					srcServiceType = ServiceType.CLIENT;
 				} else {
-					from = parentSpan.getApplicationId();
-					fromServiceType = parentSpan.getServiceType();
+					src = parentSpan.getApplicationId();
+					srcServiceType = parentSpan.getServiceType();
 				}
 
-				to = span.getApplicationId();
-				toServiceType = span.getServiceType();
+				dest = span.getApplicationId();
+				destServiceType = span.getServiceType();
 
-				if(!toServiceType.isRecordStatistics()) {
+				if(!destServiceType.isRecordStatistics()) {
 					continue;
 				}
 				
-				String statId = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
-				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
+				String statId = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
+				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
 
 				// histogram
 				ResponseHistogram histogram = stat.getHistogram();
-				int slot = toServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
+				int slot = destServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
 				histogram.addSample((short) slot, 1);
 				
 				// host 정보 추가.
@@ -406,10 +409,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 				if (agentInfoCache.containsKey(agentId)) {
 					agentInfo = agentInfoCache.get(agentId);
 				} else {
-					agentInfo = agentInfoDao.findAgentInfoBeforeStartTime(agentId, span.getCollectorAcceptTime());
-//					if (agentInfoList.size() > 0) {
-//						agentInfo = agentInfoList.get(0);
-//					}
+					List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, span.getAgentStartTime());
+					if (!agentInfoList.isEmpty()) {
+						agentInfo = agentInfoList.get(0);
+					}
 					agentInfoCache.put(agentId, agentInfo);
 				}
 				stat.addToAgent(agentInfo);
@@ -418,6 +421,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				statisticsMap.put(statId, stat);
 				
 				// TODO timeseries statistics추가.
+				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				
 				/**
 				 * span event의 statistics추가.
@@ -426,32 +430,32 @@ public class FlowChartServiceImpl implements FlowChartService {
 				if (spanEventBoList == null || spanEventBoList.isEmpty()) {
 					continue;
 				}
-				from = span.getApplicationId();
-				fromServiceType = span.getServiceType();
+				src = span.getApplicationId();
+				srcServiceType = span.getServiceType();
 				
 				for (SpanEventBo spanEvent : spanEventBoList) {
-					to = spanEvent.getDestinationId();
-					toServiceType = spanEvent.getServiceType();
+					dest = spanEvent.getDestinationId();
+					destServiceType = spanEvent.getServiceType();
 
-					if(!toServiceType.isRecordStatistics()) {
+					if(!destServiceType.isRecordStatistics()) {
 						continue;
 					}
 					
 					// rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
 					// 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
-					if (toServiceType.isRpcClient()) {
+					if (destServiceType.isRpcClient()) {
 						if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
 							continue;
 						} else {
-							toServiceType = ServiceType.UNKNOWN_CLOUD;
+							destServiceType = ServiceType.UNKNOWN_CLOUD;
 						}
 					}
 
-					String statId2 = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
-					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(from, fromServiceType, to, toServiceType));
+					String statId2 = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
+					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
 					
 					ResponseHistogram histogram2 = stat2.getHistogram();
-					int slot2 = toServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
+					int slot2 = destServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
 					histogram2.addSample((short) slot2, 1);
 					
 					// TODO host 정보 추가.
@@ -464,12 +468,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 					statisticsMap.put(statId2, stat2);
 					
 					// TODO timeseries statistics추가.
+					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed() , 1L);
 				}
 			}
 		}
 		
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
 
+		map.setTimeseriesResponses(tr);
+		
 		watch.stop();
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
 

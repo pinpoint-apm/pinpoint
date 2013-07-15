@@ -16,7 +16,8 @@
     <link href="/common/css/pinpoint/sorttable.css" rel="stylesheet"/>
     <link href="/common/css/pinpoint/scatter.css" rel="stylesheet"/>
     <link href="/common/css/datepicker.css" rel="stylesheet"/>
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
+    <link href="/common/js/nvd3/nv.d3.css" rel="stylesheet"/>
+    <link href="/select2/select2.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -137,6 +138,25 @@
 			<a href=""><i class="icon-download-alt" onmouseover="$(this).tooltip('show');" title="Download as PNG image format file." style="cursor:pointer;"></i></a>
 			<div id="scatterchart"></div>
 		</div>
+		<div id="statisticsProgressbar" style="display:none;"><img src="/images/ajaxloader.gif" /></div>
+		<div id="nodeInfoDetails">
+			<div class='info'></div>
+		</div>
+		<div id="linkInfoDetails">
+			<div class='info'></div>
+			<div class='linkInfoChart' style='width:100%;display:none'>
+				Response histogram (UNDERCONSTRUCTION)
+				<svg style='height:200px' />
+			</div>
+			<div class='linkInfoBarChart' style='width:100%;display:none'>
+				Response histogram summary (UNDERCONSTRUCTION)
+				<svg style='height:150px' />
+			</div>
+			<div class='linkInfoSFChart' style='width:100%;display:none'>
+				Failure rate (UNDERCONSTRUCTION)
+				<svg style='height:150px' />
+			</div>
+		</div>
 	</div>
 </div>
 <!-- END OF BODY -->
@@ -148,123 +168,27 @@ $(document).ready(function () {
 	showServerMap("${applicationName}", "${serviceType}", ${from}, ${to}, 0, false, "${filterText}", false, function() {
 		$("#progressbar").hide();
 	});
+	
 	showResponseScatter("${applicationName}", ${from}, ${to}, 0, false, "${filterText}");
 });
 </script>
+<script id="NodeInfoBox" type="text/x-jquery-tmpl">
+	<div class="NodeInfoBox">NodeInfoBox
+	</div>
+</script>
 <script id="LinkInfoBox" type="text/x-jquery-tmpl">
-	<div class="LinkInfoBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Response statistics
-			<ul>
-				{{var lastKey=''}}
-				{{each(key, value) histogram}}
-				<li>&lt;= {{= key}}ms : {{= value}}</li>
-				{{eval lastKey=key}}
-				{{/each}}
-				<li>&gt; {{= lastKey}}ms : {{= slow}}</li>
-				<li>Failed : {{= error}}</li>
-			</ul>
-			<hr/>
-			<a href="#" onclick="filterPassingTransaction('{{= sourceinfo.applicationName}}', '{{= query.serviceType}}', {{= query.from}}, {{= query.to}}, '{{= sourceinfo.serviceType}}', '{{= sourceinfo.applicationName}}', '{{= targetinfo.serviceType}}', '{{= targetinfo.applicationName}}', '{{= query.filter}}');">Scan passing transaction</a><br/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Passing transaction list</a>
-		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
+	<div class="LinkInfoBox">LinkInfoBox
 	</div>
 </script>
-<script id="ApplicationBox" type="text/x-jquery-tmpl">
-	<div class="ServerBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Application
-				<ul>
-					<li>{{= text}}</li>
-				</ul>
-			Application Type
-				<ul>
-					<li>{{= category}}</li>
-				</ul>
-			{{if hosts.length > 0}}
-			Hosts
-				<ul>
-					{{each(key, value) hosts}}
-						<li>
-							<span class="label label-success">OK</span>
-							{{= value}}
-							<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank">(NSight)</a>
-						</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-			{{if agents.length > 0}}
-			Server instances
-				<ul>
-					{{each(key, value) agents}}
-					<li>
-						<span class="label label-success">OK</span>
-						{{= value.agentId}}
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
-					</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-			<hr/>
 
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Scan passing transaction</a><br/>
-			<a href="#" onclick="showResponseScatter('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}}, '{{= query.filter}}');">Transaction response scatter chart</a><br/>
-			<a href="#" onclick="showRequests('{{= text}}', {{= query.from}}, {{= query.to}}, {{= query.period}}, {{= query.usePeriod}});">Transaction list</a>
-
-		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="pinpoint-action-icon icon-question-sign"></i></button>
-		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()"><i class="pinpoint-action-icon icon-remove"></i></button>
+<script id="UnknownNodeInfoBox" type="text/x-jquery-tmpl">
+	<div class="UnknownNodeInfoBox">UnknownNodeInfoBox
+		 
 	</div>
 </script>
-<script id="ClientBox" type="text/x-jquery-tmpl">
-	<div class="ApplicationBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Clients
-			Calls
-				<ul>
-					<li>Sorry. Not implemented.</li>
-				</ul>
-			<hr/>
-			<a href="#" onclick="alert('Sorry. Not implemented.');">Show transactions</a>
-		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()">X</button>
-	</div>
-</script>
-<script id="UnknownGroupBox" type="text/x-jquery-tmpl">
-	<div class="UnknownGroupBox" style="position:absolute;border:1px solid #000;background:#fff;padding:5px 10px;-webkit-border-radius: 5px;z-index:3;">
-			Application Group
-				<ul>
-					{{each(index, value) text.split('\n')}}
-					<li>{{= value}}</li>
-					{{/each}}
-				</ul>
-			Group Type
-				<ul>
-					<li>UNKNOWN</li>
-				</ul>
-			{{if hosts.length > 0}}
-			Hosts
-				<ul>
-					{{each(key, value) hosts}}
-						<li>
-							<span class="label label-success">OK</span>
-							{{= value}}
-							<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank">(NSight)</a>
-						</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-			{{if agents.length > 0}}
-			Server instances
-				<ul>
-					{{each(key, value) agents}}
-					<li>
-						<span class="label label-success">OK</span>
-						{{= value.agentId}}
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
-					</li>
-					{{/each}}
-				</ul>
-			{{/if}}
-		<button style="position:absolute;top:2px;right:34px;" onClick="man('applicationmap');"><i class="pinpoint-action-icon icon-question-sign"></i></button>
-		<button style="position:absolute;top:2px;right:2px;" onClick="$(this).parent().remove()"><i class="pinpoint-action-icon icon-remove"></i></button>
+<script id="UnknownLinkInfoBox" type="text/x-jquery-tmpl">
+	<div class="UnknownLinkInfoBox">UnknownLinkInfoBox
+	 
 	</div>
 </script>
 </body>

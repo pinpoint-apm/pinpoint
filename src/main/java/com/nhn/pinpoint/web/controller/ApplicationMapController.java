@@ -120,11 +120,12 @@ public class ApplicationMapController {
 		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 		Filter filter = FilterBuilder.build(filterText);
 		
-		ApplicationMap map = flow.selectApplicationMap(traceIdSet, filter);
+		ApplicationMap map = flow.selectApplicationMap(traceIdSet, from, to, filter);
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
 		model.addAttribute("filter", filter);
+		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
 
 		return "applicationmap.filtered2";
 	}
