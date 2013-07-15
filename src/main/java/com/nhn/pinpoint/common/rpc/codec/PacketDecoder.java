@@ -43,7 +43,7 @@ public class PacketDecoder extends FrameDecoder {
             case PacketType.CONTROL_CLOSE:
                 return readControlClose(packetType, buffer);
         }
-        logger.error("invalid packetType received. packetType:{}, connection:{}", packetType, channel.getRemoteAddress());
+        logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
         return null;
     }
