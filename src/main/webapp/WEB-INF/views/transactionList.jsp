@@ -10,13 +10,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/common/css/bootstrap/bootstrap.css" rel="stylesheet">
-    <link href="/common/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/common/css/pinpoint/pinpoint.css" rel="stylesheet"/>
-    <link href="/common/css/pinpoint/sorttable.css" rel="stylesheet"/>
-    <link href="/common/css/pinpoint/scatter.css" rel="stylesheet"/>
-    <link href="/common/css/datepicker.css" rel="stylesheet"/>
-    <link href="/select2/select2-customized.css" rel="stylesheet"/>
+     <link href="/components/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/components/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>
+    <link href="/components/pinpoint/css/pinpoint.css" rel="stylesheet"/>
+    <link href="/components/pinpoint-scatter/css/scatter.css" rel="stylesheet"/>
+    <link href="/components/sorttable/sorttable.css" rel="stylesheet"/>
+    <link href="/components/select2/select2.css" rel="stylesheet"/>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -24,22 +23,28 @@
     <![endif]-->
 
 	<!-- commons -->    
-    <script type="text/javascript" src="/common/js/jquery/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="/common/js/jquery/jquery-ui-1.10.2.js"></script>
-    <script type="text/javascript" src="/common/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/common/js/bootstrap-datepicker.js"></script>
-	<script type="text/javascript" src="/common/js/modernizr-2.6.2.min.js"></script>
-    <script type="text/javascript" src="/common/js/date.js"></script>
-    <script type="text/javascript" src="/common/js/pinpoint/pinpoint.js"></script>
-    <script type="text/javascript" src="/select2/select2.js"></script>
-	<script type="text/javascript" src="/common/js/sorttable.js"></script>
+    <script type="text/javascript" src="/components/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/components/jquery-ui/jquery-ui-1.10.2.js"></script>
+	<script type="text/javascript" src="/components/jquery-class/jquery.Class.js"></script>
+    <script type="text/javascript" src="/components/jquery-template/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/components/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/components/bootstrap-datepicker/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="/components/modernizer/modernizr-2.6.2.min.js"></script>
+	<script type="text/javascript" src="/components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="/components/select2/select2.js"></script>
+    <script type="text/javascript" src="/components/sorttable/sorttable.js"></script>
+    <script type="text/javascript" src="/components/utils/date.js"></script>
+    <script type="text/javascript" src="/components/pinpoint/pinpoint.js"></script>
+    <script type="text/javascript" src="/components/pinpoint/navigationbar.js"></script>
     
     <!-- scatter chart -->
-    <script type="text/javascript" src="/common/js/pinpoint/chart-scatter3.js"></script>
-	<script type="text/javascript" src="/common/js/pinpoint/scatter/underscore-min.js"></script>
-	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.Class.js"></script>
-	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.dragToSelect.js"></script>
-	<script type="text/javascript" src="/common/js/pinpoint/scatter/jquery.BigScatterChart.js"></script>
+	<script type="text/javascript" src="/components/jquery-dragtoselect/jquery.dragToSelect.js"></script>
+	<script type="text/javascript" src="/components/pinpoint-scatter/jquery.BigScatterChart.js"></script>
+    <script type="text/javascript" src="/components/pinpoint/chart-scatter3.js"></script>
+    
+    <!-- help -->
+    <script type="text/javascript" src="/components/pinpoint/help.js"></script>
+    <script type="text/javascript" src="/components/pinpoint/message.js"></script>
     
     <style type="text/css">
     body {

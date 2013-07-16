@@ -1,0 +1,96 @@
+@charset UTF-8;
+.flexigrid{font-family:Arial, Helvetica, sans-serif;font-size:11px;position:relative;border:0 solid #eee;overflow:hidden;color:#000}
+.flexigrid.hideBody{height:26px!important;border-bottom:1px solid #ccc}
+.ie6fullwidthbug{border-right:0 solid #ccc;padding-right:2px}
+.flexigrid div.nDiv{background:#eee url(images/line.gif) repeat-y -1px top;border:1px solid #ccc;border-top:0;overflow:auto;left:0;position:absolute;z-index:999;float:left}
+.flexigrid div.nDiv table{margin:2px}
+.flexigrid div.hDivBox{float:left;padding-right:40px}
+.flexigrid div.bDiv table{margin-bottom:10px;border-bottom:1px solid #ccc}
+.flexigrid div.bDiv table.autoht{border-bottom:0;margin-bottom:0}
+.flexigrid div.nDiv td{border:1px solid #eee;cursor:default;padding:2px 3px}
+.flexigrid div.nDiv tr:hover td,.flexigrid div.nDiv tr.ndcolover td{background:#d5effc url(images/hl.png) repeat-x top;border:1px solid #a8d8eb}
+.flexigrid div.nDiv td.ndcol1{border-right:1px solid #ccc}
+.flexigrid div.nDiv td.ndcol2{border-left:1px solid #fff;padding-right:10px}
+.flexigrid div.nDiv tr:hover td.ndcol1,.flexigrid div.nDiv tr.ndcolover td.ndcol1{border-right:1px solid #d2e3ec}
+.flexigrid div.nDiv tr:hover td.ndcol2,.flexigrid div.nDiv tr.ndcolover td.ndcol2{border-left:1px solid #eef8ff}
+.flexigrid div.nBtn{position:absolute;height:24px;width:14px;z-index:900;background:#fafafa url(images/fhbg.gif) repeat-x bottom;border:0 solid #ccc;border-left:1px solid #ccc;top:0;left:0;margin-top:1px;cursor:pointer;display:none}
+.flexigrid div.nBtn div{height:24px;width:12px;border-left:1px solid #fff;float:left;background:url(images/ddn.png) no-repeat center}
+.flexigrid div.nBtn.srtd{background:url(images/wbg.gif) repeat-x 0 -1px}
+.flexigrid div.mDiv{background:url(images/wbg.gif) repeat-x top;border:1px solid #ccc;border-bottom:0;border-top:0;font-weight:700;display:block;overflow:hidden;white-space:nowrap;position:relative}
+.flexigrid div.mDiv div{white-space:nowrap;padding:6px}
+.flexigrid div.mDiv div.ptogtitle{position:absolute;top:4px;right:3px;height:16px;width:16px;overflow:hidden;border:1px solid #ccc;cursor:pointer;padding:0}
+.flexigrid div.mDiv div.ptogtitle:hover{background-position:left -2px;border-color:#bbb}
+.flexigrid div.mDiv div.ptogtitle span{display:block;border-left:1px solid #eee;border-top:1px solid #fff;border-bottom:1px solid #ddd;width:14px;height:14px;background:url(images/uup.png) no-repeat center}
+.flexigrid div.mDiv div.ptogtitle.vsble span{background:url(images/ddn.png) no-repeat center}
+.flexigrid div.tDiv /*toolbar*/{background:#fafafa url(images/bg.gif) repeat-x top;position:relative;border:1px solid #ccc;border-bottom:0;overflow:hidden}
+.flexigrid div.tDiv2{float:left;clear:both;padding:1px}
+.flexigrid div.sDiv /*toolbar*/{background:#fafafa url(images/bg.gif) repeat-x top;position:relative;border:1px solid #ccc;border-top:0;overflow:hidden;display:none}
+.flexigrid div.sDiv2{float:left;clear:both;width:1024px;padding:5px}
+.flexigrid div.sDiv2 input,.flexigrid div.sDiv2 select{vertical-align:middle}
+.flexigrid div.btnseparator{float:left;height:22px;border-left:1px solid #ccc;border-right:1px solid #fff;margin:1px}
+.flexigrid div.fbutton{float:left;display:block;cursor:pointer;padding:1px}
+.flexigrid div.fbutton div{float:left;padding:1px 3px}
+.flexigrid div.fbutton span{float:left;display:block;padding:3px}
+.flexigrid div.fbutton:hover,.flexigrid div.fbutton.fbOver{border:1px solid #ccc;padding:0}
+.flexigrid div.fbutton:hover div,.flexigrid div.fbutton.fbOver div{border-left:1px solid #fff;border-top:1px solid #fff;border-right:1px solid #eee;border-bottom:1px solid #eee;padding:0 2px}
+.flexigrid div.hDiv{background:#fafafa url(images/fhbg.gif) repeat-x bottom;position:relative;border:1px solid #ccc;border-bottom:0;overflow:hidden}
+.flexigrid div.hDiv table{border-right:1px solid #fff}
+.flexigrid div.cDrag{float:left;position:absolute;z-index:2;overflow:visible}
+.flexigrid div.cDrag div{float:left;background:none;display:block;position:absolute;height:24px;width:5px;cursor:col-resize}
+.flexigrid div.cDrag div:hover,.flexigrid div.cDrag div.dragging{background:url(images/line.gif) repeat-y 2px center}
+.flexigrid div.iDiv{border:1px solid #316ac5;position:absolute;overflow:visible;background:none}
+.flexigrid div.iDiv input,.flexigrid div.iDiv select,.flexigrid div.iDiv textarea{font-family:Arial, Helvetica, sans-serif;font-size:11px}
+.flexigrid div.iDiv input.tb{border:0;width:100%;height:100%;background:none;padding:0}
+.flexigrid div.bDiv{border:1px solid #ccc;border-top:0;background:#fff;overflow:auto;position:relative}
+.flexigrid div.hGrip{position:absolute;top:0;right:0;height:5px;width:5px;background:url(images/line.gif) repeat-x center;margin-right:1px;cursor:col-resize}
+.flexigrid div.hGrip:hover,.flexigrid div.hGrip.hgOver{border-right:1px solid #999;margin-right:0}
+.flexigrid div.vGrip{height:5px;overflow:hidden;position:relative;background:#fafafa url(images/wbg.gif) repeat-x 0 -1px;border:1px solid #ccc;border-top:0;text-align:center;cursor:row-resize}
+.flexigrid div.vGrip span{display:block;width:20px;height:1px;overflow:hidden;border-top:1px solid #aaa;border-bottom:1px solid #aaa;background:none;margin:1px auto}
+.flexigrid div.hDiv th,.flexigrid div.bDiv td
+/* common cell properties*/{text-align:left;border-right:1px solid #ddd;border-left:1px solid #fff;overflow:hidden;vertical-align:top!important;padding-left:0;padding-right:0}
+.flexigrid div.hDiv th div,.flexigrid div.bDiv td div,div.colCopy div
+/* common inner cell properties*/{border-left:0 solid #fff;padding:5px}
+.flexigrid div.hDiv th,div.colCopy{font-weight:400;height:24px;cursor:default;white-space:nowrap;overflow:hidden}
+div.colCopy{font-family:Arial, Helvetica, sans-serif;font-size:11px;background:#fafafa url(images/fhbg.gif) repeat-x bottom;border:1px solid #ccc;border-bottom:0;overflow:hidden}
+.flexigrid div.hDiv th.sorted{background:url(images/wbg.gif) repeat-x 0 -1px;border-bottom:0 solid #ccc}
+.flexigrid div.hDiv th.thOver div,.flexigrid div.hDiv th.sorted.thOver div{border-bottom:1px solid orange;padding-bottom:4px}
+.flexigrid div.hDiv th.sorted div{border-bottom:0 solid #ccc;padding-bottom:5px}
+.flexigrid div.hDiv th.thMove{background:#fff;color:#fff}
+.flexigrid div.hDiv th.sorted.thMove div{border-bottom:1px solid #fff;padding-bottom:4px}
+.flexigrid div.hDiv th.thMove div{background:#fff!important}
+.flexigrid div.hDiv th div.sdesc{background:url(images/dn.png) no-repeat center top}
+.flexigrid div.hDiv th div.sasc{background:url(images/up.png) no-repeat center top}
+.flexigrid div.bDiv td{border-bottom:1px solid #fff;vertical-align:top;white-space:nowrap}
+.flexigrid span.cdropleft{display:block;background:url(images/prev.gif) no-repeat -4px center;width:24px;height:24px;position:relative;top:-24px;margin-bottom:-24px;z-index:3}
+.flexigrid div.hDiv span.cdropright{display:block;background:url(images/next.gif) no-repeat 12px center;width:24px;height:24px;float:right;position:relative;top:-24px;margin-bottom:-24px}
+.flexigrid div.bDiv td div{border-top:0 solid #fff;padding-bottom:4px}
+.flexigrid tr td.sorted{background:#f3f3f3;border-right:1px solid #ddd;border-bottom:1px solid #f3f3f3}
+.flexigrid tr.erow td{background:#f7f7f7;border-bottom:1px solid #f7f7f7}
+.flexigrid tr.erow td.sorted{background:#e3e3e3;border-bottom:1px solid #e3e3e3}
+.flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td{background:#d9ebf5;border-left:1px solid #eef8ff;border-bottom:1px dotted #a8d8eb}
+.flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td{background:#d5effc url(images/hl.png) repeat-x top;border-right:1px solid #d2e3ec;border-left:1px solid #eef8ff;border-bottom:1px solid #a8d8eb}
+.flexigrid.novstripe .bDiv table{border-bottom:1px solid #ccc;border-right:1px solid #ccc}
+.flexigrid.novstripe div.bDiv td{border-right-color:#fff}
+.flexigrid.novstripe div.bDiv tr.erow td.sorted{border-right-color:#e3e3e3}
+.flexigrid.novstripe div.bDiv tr td.sorted{border-right-color:#f3f3f3}
+.flexigrid.novstripe div.bDiv tr.erow td{border-right-color:#f7f7f7;border-left-color:#f7f7f7}
+.flexigrid.novstripe div.bDiv tr.trSelected:hover td,.flexigrid.novstripe div.bDiv tr.trSelected:hover td.sorted,.flexigrid.novstripe div.bDiv tr.trOver.trSelected td.sorted,.flexigrid.novstripe div.bDiv tr.trOver.trSelected td,.flexigrid.novstripe tr.trSelected td.sorted,.flexigrid.novstripe tr.trSelected td{border-right:1px solid #06F;border-left:1px solid #06F}
+.flexigrid.novstripe div.bDiv tr.trOver td,.flexigrid.novstripe div.bDiv tr:hover td{border-left-color:#d9ebf5;border-right-color:#d9ebf5}
+.flexigrid div.pDiv{background:url(images/wbg.gif) repeat-x 0 -1px;border:1px solid #ccc;border-top:0;overflow:hidden;white-space:nowrap;position:relative}
+.flexigrid div.pDiv div.pDiv2{float:left;width:1024px;margin:3px 3px 3px -2px}
+div.pGroup{float:left;background:none;height:24px;margin:0 5px}
+.flexigrid div.pDiv .pPageStat,.flexigrid div.pDiv .pcontrol{position:relative;top:5px;overflow:visible}
+.flexigrid div.pDiv input{vertical-align:text-top;position:relative;top:-5px}
+.flexigrid div.pDiv div.pButton{float:left;width:22px;height:22px;border:0;cursor:pointer;overflow:hidden}
+.flexigrid div.pDiv div.pButton:hover,.flexigrid div.pDiv div.pButton.pBtnOver{width:20px;height:20px;border:1px solid #ccc;cursor:pointer}
+.flexigrid div.pDiv div.pButton span{width:20px;height:20px;display:block;float:left}
+.flexigrid div.pDiv div.pButton:hover span,.flexigrid div.pDiv div.pButton.pBtnOver span{width:19px;height:19px;border-top:1px solid #fff;border-left:1px solid #fff}
+.flexigrid .pSearch{background:url(images/magnifier.png) no-repeat center}
+.flexigrid .pFirst{background:url(images/first.gif) no-repeat center}
+.flexigrid .pPrev{background:url(images/prev.gif) no-repeat center}
+.flexigrid .pNext{background:url(images/next.gif) no-repeat center}
+.flexigrid .pLast{background:url(images/last.gif) no-repeat center}
+.flexigrid .pReload{background:url(images/load.png) no-repeat center}
+.flexigrid .pReload.loading{background:url(images/load.gif) no-repeat center}
+.flexigrid.ie div.hDiv th div,.flexigrid.ie div.bDiv td div,div.colCopy.ie div
+/* common inner cell properties*/{overflow:hidden}
