@@ -38,7 +38,6 @@
     <script type="text/javascript" src="/components/pinpoint/chart-scatter4.js"></script>
     
     <!-- help -->
-    <script type="text/javascript" src="/components/pinpoint/help.js"></script>
     <script type="text/javascript" src="/components/pinpoint/message.js"></script>
     
     <style type="text/css">

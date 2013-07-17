@@ -58,7 +58,6 @@
     <!-- link info chart -->
     <script type="text/javascript" src="/components/d3/d3.v2.min.js"></script>
     <script type="text/javascript" src="/components/nvd3/nv.d3.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/chart-stacked.js"></script>
     
     <!-- grid -->
 	<script type="text/javascript" src="/components/jquery-flexigrid/js/flexigrid.js"></script>
@@ -70,7 +69,6 @@
     <script type="text/javascript" src="/components/pinpoint/chart-transactions.js"></script>
     
     <!-- help -->
-    <script type="text/javascript" src="/components/pinpoint/help.js"></script>
     <script type="text/javascript" src="/components/pinpoint/message.js"></script>
     
     <script type="text/javascript">
