@@ -147,11 +147,7 @@
 				<svg style='height:200px' />
 			</div>
 			<div class='linkInfoBarChart' style='width:100%;display:none'>
-				Response histogram summary (UNDERCONSTRUCTION)
-				<svg style='height:150px' />
-			</div>
-			<div class='linkInfoSFChart' style='width:100%;display:none'>
-				Failure rate (UNDERCONSTRUCTION)
+				Response histogram summary
 				<svg style='height:150px' />
 			</div>
 		</div>

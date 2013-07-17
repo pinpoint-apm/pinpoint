@@ -796,7 +796,7 @@ var nodeClickHandler = function(e, query, data, containerId) {
 	if (query.filter) {
 		console.log("filtered", data);
 		// TODO node의 정보 보여주기.
-		// return;
+		return;
 	}
 	
 	if(data.category == "UNKNOWN_GROUP") {
@@ -822,9 +822,19 @@ var linkClickHandler = function(e, query, data, fetchedData, containerId) {
 	// filter가 적용된 경우.
 	if (query.filter) {
 		var key = data.sourceinfo.applicationName + data.sourceinfo.serviceType + data.targetinfo.applicationName + data.targetinfo.serviceType;
+		
+		var histogram = { "key" : "Responsetime Histogram", "values" : [] };
+		$.each(data.histogram, function(k, v) {
+			histogram.values.push({ "label" : k, "value" : v });
+		});
+		histogram.values.push({ "label" : "Failed", "value" : data.error });		
+		histogram.values.push({ "label" : "Slow", "value" : data.slow });
+		
+		showLinkStatisticsSummary([histogram]);
+
 		// TODO display chart.
 		// TODO 차트 컴포넌트가 변경될 수 있어서 더이상 개발은 하지 않겠다. ㅎ
-		// return;
+		return;
 	}
 	
 	// TODO rawdata 다른 정보로 판단하도록 수정하기.
@@ -850,9 +860,7 @@ var emptyDetailPanel = function() {
 	
 	$("#linkInfoDetails .linkInfoBarChart").hide();
 	$("#linkInfoDetails .linkInfoChart").hide();
-	$("#linkInfoDetails .linkInfoSFChart").hide();
 	
 	$("#linkInfoDetails .linkInfoBarChart svg").empty();
 	$("#linkInfoDetails .linkInfoChart svg").empty();
-	$("#linkInfoDetails .linkInfoSFChart svg").empty();
 }
