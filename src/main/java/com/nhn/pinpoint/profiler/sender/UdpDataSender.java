@@ -7,11 +7,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
@@ -29,6 +30,8 @@ public class UdpDataSender implements DataSender, Runnable {
     private final boolean isWarn = logger.isWarnEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
+
+    private ThreadFactory threadFactory = new PinpointThreadFactory("UdpDataSender-IoThread", true);
 
 	private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(1024);
 
@@ -62,9 +65,7 @@ public class UdpDataSender implements DataSender, Runnable {
 	}
 
 	private Thread createIoThread() {
-		Thread thread = new Thread(this);
-		thread.setName(ProductInfo.CAMEL_NAME + "-UdpDataSender-IoThread");
-		thread.setDaemon(true);
+		Thread thread = threadFactory.newThread(this);
 		thread.start();
 		return thread;
 	}
@@ -133,7 +134,7 @@ public class UdpDataSender implements DataSender, Runnable {
 
 	public void run() {
         Thread thread = Thread.currentThread();
-        logger.info("{}(\"{}\") started.", thread.getName(), thread.getId());
+        logger.info("{}-({}) started.", thread.getName(), thread.getId());
 		doSend();
 	}
 	private void doSend() {

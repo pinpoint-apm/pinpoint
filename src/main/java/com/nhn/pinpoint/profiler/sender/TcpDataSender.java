@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.common.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.common.rpc.client.SocketHandler;
 import com.nhn.pinpoint.common.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.profiler.context.Thriftable;
 import org.apache.thrift.TBase;
@@ -14,7 +14,7 @@ public class TcpDataSender implements DataSender {
 
     public TcpDataSender(String host, int port) {
         pinpointSocketFactory = new PinpointSocketFactory();
-        PinpointSocket socket = pinpointSocketFactory.connect(host, port);
+        SocketHandler socket = pinpointSocketFactory.connectSocketHandler(host, port);
     }
 
     @Override
