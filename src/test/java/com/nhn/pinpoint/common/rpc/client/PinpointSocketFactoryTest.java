@@ -22,7 +22,7 @@ public class PinpointSocketFactoryTest {
     public void connectFail() {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         try {
-            pinpointSocketFactory.connect("localhost", 10234);
+            pinpointSocketFactory.connectSocketHandler("localhost", 10234);
             Assert.fail();
         } catch (PinpointSocketException e) {
 
@@ -58,11 +58,10 @@ public class PinpointSocketFactoryTest {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         try {
             PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
-
+            logger.info("send1");
             socket.send(new byte[20]);
+            logger.info("send2");
             socket.sendSync(new byte[20]);
-
-
 
             socket.close();
         } finally {

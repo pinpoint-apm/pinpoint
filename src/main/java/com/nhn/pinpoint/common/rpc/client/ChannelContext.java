@@ -6,14 +6,14 @@ package com.nhn.pinpoint.common.rpc.client;
 public class ChannelContext {
     private RequestManager requestManager;
     private StreamChannelManager streamChannelManager;
-    private PinpointSocket pinpointSocket;
+    private SocketHandler socketHandler;
 
-    public PinpointSocket getPinpointSocket() {
-        return pinpointSocket;
+    public SocketHandler getSocketHandler() {
+        return socketHandler;
     }
 
-    public void setPinpointSocket(PinpointSocket pinpointSocket) {
-        this.pinpointSocket = pinpointSocket;
+    public void setSocketHandler(SocketHandler socketHandler) {
+        this.socketHandler = socketHandler;
     }
 
     public RequestManager getRequestManager() {
