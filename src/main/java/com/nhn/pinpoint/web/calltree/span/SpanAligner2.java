@@ -50,20 +50,21 @@ public class SpanAligner2 {
 		return list;
 	}
 
-	private void populate(SpanBo parentSpan, int spanDepth, int sequence, int pSequence, List<SpanAlign> container) {
+	private int populate(SpanBo parentSpan, int spanDepth, int sequence, int pSequence, List<SpanAlign> container) {
 		int depth = spanDepth + 1;
 
-		SpanAlign element = new SpanAlign(depth, parentSpan, ++sequence, pSequence);
+		int lastChildSequence = sequence;
+		
+		SpanAlign element = new SpanAlign(depth, parentSpan, ++lastChildSequence, pSequence);
 		container.add(element);
 
 		List<SpanEventBo> spanEventBoList = parentSpan.getSpanEventBoList();
         if (spanEventBoList == null) {
-            return;
+            return sequence;
         }
         
         element.setHasChild(true);
         
-        int lastChildSequence = sequence;
 		for (SpanEventBo spanEventBo : spanEventBoList) {
 			if (spanEventBo.getDepth() != -1) {
 				depth = spanDepth + spanEventBo.getDepth() + 1;
@@ -77,8 +78,10 @@ public class SpanAligner2 {
 			// TODO spanEvent이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
 			int nextSpanId = spanEventBo.getNextSpanId();
 			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
-				populate(spanMap.get(nextSpanId), depth, lastChildSequence, lastChildSequence, container);
+				lastChildSequence = populate(spanMap.get(nextSpanId), depth, lastChildSequence, lastChildSequence, container);
 			}
 		}
+		
+		return lastChildSequence;
 	}
 }

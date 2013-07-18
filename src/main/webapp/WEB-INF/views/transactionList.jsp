@@ -10,12 +10,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-     <link href="/components/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="/components/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/components/pinpoint/css/pinpoint.css" rel="stylesheet"/>
-    <link href="/components/pinpoint-scatter/css/scatter.css" rel="stylesheet"/>
-    <link href="/components/sorttable/sorttable.css" rel="stylesheet"/>
-    <link href="/components/select2/select2.css" rel="stylesheet"/>
+	<link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap-responsive.css" />
+    <link type="text/css" rel="stylesheet" href="/components/pinpoint/css/pinpoint.css" />
+    <link type="text/css" rel="stylesheet" href="/components/pinpoint-scatter/css/scatter.css" />
+    <link type="text/css" rel="stylesheet" href="/components/sorttable/sorttable.css" />
+    <link type="text/css" rel="stylesheet" href="/components/select2/select2.css" />
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>

@@ -10,14 +10,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/components/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="/components/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>
-    <link href="/components/pinpoint/css/pinpoint.css" rel="stylesheet"/>
-    <link href="/components/pinpoint-scatter/css/scatter.css" rel="stylesheet"/>
-    <link href="/components/bootstrap-datepicker/bootstrap-datepicker.css" rel="stylesheet"/>
-    <link href="/components/nvd3/nv.d3.css" rel="stylesheet"/>
-    <link href="/components/select2/select2.css" rel="stylesheet"/>
-
+    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap-responsive.css" />
+    <link type="text/css" rel="stylesheet" href="/components/pinpoint/css/pinpoint.css" />
+    <link type="text/css" rel="stylesheet" href="/components/pinpoint-scatter/css/scatter.css" />
+    <link type="text/css" rel="stylesheet" href="/components/bootstrap-datepicker/bootstrap-datepicker.css" />
+    <link type="text/css" rel="stylesheet" href="/components/nvd3/nv.d3.css" />
+    <link type="text/css" rel="stylesheet" href="/components/select2/select2.css" />
 	<link type="text/css" rel="stylesheet" href="/components/pinpoint-grid/jquery.TreeGridTable.css" />
 	<link type="text/css" rel="stylesheet" href="/components/jquery-flexigrid/css/flexigrid.css" />
 	<link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.css" />
@@ -160,7 +159,6 @@
 	<li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
 	<li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
 </ul>
-
 <div class="tab-content">
 	<div class="tab-pane active" id="CallStacks">
 		<!-- begin new call stack -->
@@ -196,26 +194,44 @@
 					<c:if test="${status.first}">
 						<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
 					</c:if>
+					
 					<c:choose>
-						<c:when test="${record.title == 'Exception'}">
-		                	<tr class="error" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
-						</c:when>
-						<c:when test="${record.focused}">
-			                <tr class="info" data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
+						<c:when test="${record.pId > 0}">
+							<c:set var="pid" value="${record.pId}" />
 						</c:when>
 						<c:otherwise>
-							<tr data-tt-id="${record.id}" data-tt-parent-id="<c:if test="${record.pId > 0}">${record.pId}</c:if>" data-tt-branch="${record.method && record.hasChild}">
+							<c:set var="pid" value="" />
+						</c:otherwise>                
+					</c:choose>
+					
+					<c:choose>
+						<c:when test="${record.title == 'Exception'}">
+							<!-- data-tt-branch="${record.method && record.hasChild}" -->
+		                	<tr class="error" data-tt-id="${record.id}" data-tt-parent-id="${pid}" data-tt-branch="${record.method && record.hasChild}">
+						</c:when>
+						<c:when test="${record.focused}">
+			                <tr class="info" data-tt-id="${record.id}" data-tt-parent-id="${pid}" data-tt-branch="${record.method && record.hasChild}">
+						</c:when>
+						<c:otherwise>
+							<tr data-tt-id="${record.id}" data-tt-parent-id="${pid}" data-tt-branch="${record.method && record.hasChild}">
 						</c:otherwise>                
 					</c:choose>
 
 					<td class="method">
+						<!-- 
+						t=${record.tab} | i=${record.id} | p=${pid} | b=${record.method && record.hasChild} | 
+						-->
 						${record.title}
 					</td>
 					<td class="arguments">${record.arguments}</td>
                     <td class="exectime">
                     	<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>
                     </td>
-                    <td class="gap"><fmt:formatNumber value="${gap}" type="number" /></td>
+                    <td class="gap">
+                    	<c:if test="${record.method}">
+                    	<fmt:formatNumber value="${gap}" type="number" />
+                    	</c:if>
+                   	</td>
                     
                     <td class="time">
                     	<c:if test="${record.method}">
