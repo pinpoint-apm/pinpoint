@@ -550,7 +550,21 @@
     			}
     	    });
     	}
-        oServerMap.load(data.applicationMapData);    	
+        oServerMap.load(data.applicationMapData);
+        
+        try {
+            var selectedNode = (function() {
+            	for(var i = 0; i < data.applicationMapData.nodeDataArray.length; i++) {
+            		var e = data.applicationMapData.nodeDataArray[i];
+            		if (e.text == "${recordSet.applicationId}") {
+            			return e;
+            		}
+            	}
+            })();
+            oServerMap.highlightNodeByKey(selectedNode.key);
+    	} catch (e) {
+    		console.log(e);
+    	}
     });
     
     $(document).ready(function () {
