@@ -497,6 +497,8 @@
     		oServerMap = new ServerMap({
     	        sContainerId : containerId,
     			"sImageDir" : '/images/icons/',
+    			"sBigFont" : "12pt calibri, Helvetica, Arial, sans-serif",
+    			"sSmallFont" : "11pt calibri, Helvetica, Arial, sans-serif",
     			"htIcons" : {
     				'APACHE' : 'APACHE.png',
     				'ARCUS' : 'ARCUS.png',
@@ -508,7 +510,37 @@
     				'TOMCAT' : 'TOMCAT.png',
     				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
     				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
-    				'USER' : 'USER.png'
+    				'USER' : 'USER.png',
+    				'ORACLE' : 'ORACLE.png'
+    			},
+    			"htLinkTheme" : {
+    				"default" : {
+    					"background" : { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 1)"},
+    					"border" : "gray",
+    					"font" : "10pt calibri, helvetica, arial, sans-serif",
+    					"color" : "#000000", //"#919191",
+    					"align" : "center",
+    					"margin" : 1
+    				},
+    				"good" : {
+    					// "background" : { 0: "rgb(240, 1, 240)", 0.3: "rgb(240, 1, 240)", 1: "rgba(240, 1, 240, 1)"},
+    					"background" : { 0: "#2CA02C"},
+    					"border" : "green",
+    					"font" : "10pt calibri, helvetica, arial, sans-serif",
+    					"color" : "#919191",
+    					"align" : "center",
+    					"margin" : 1
+    				},
+    				"bad" : {
+    					// "background" : { 0: "rgb(214, 27, 28)", 0.3: "rgb(214, 27, 28)", 1: "rgba(214, 27, 28, 1)"},
+    					// "background" : { 0: "#D62728" },
+    					"background" : { 0: "rgba(200, 27, 28, 1)" },
+    					"border" : "#FFFFFF",
+    					"font" : "10pt calibri, helvetica, arial, sans-serif",
+    					"color" : "#FFFFFF",
+    					"align" : "center",
+    					"margin" : 1
+    				}
     			},
     			fOnNodeClick : function(e, data) {
     				// nodeClickHandler(e, data, "#" + containerId);
