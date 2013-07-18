@@ -401,6 +401,8 @@ var serverMapCallback = function(query, data, ignoreCache) {
 		oServerMap = new ServerMap({
 	        sContainerId : containerId,
 			"sImageDir" : '/images/icons/',
+			"sBigFont" : "12pt calibri, Helvetica, Arial, sans-serif",
+			"sSmallFont" : "11pt calibri, Helvetica, Arial, sans-serif",
 			"htIcons" : {
 				'APACHE' : 'APACHE.png',
 				'ARCUS' : 'ARCUS.png',
@@ -420,7 +422,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 					"background" : { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 1)"},
 					"border" : "gray",
 					"font" : "10pt calibri, helvetica, arial, sans-serif",
-					"color" : "#919191",
+					"color" : "#000000", //"#919191",
 					"align" : "center",
 					"margin" : 1
 				},
