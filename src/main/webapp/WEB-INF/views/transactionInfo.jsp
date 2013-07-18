@@ -95,6 +95,14 @@
             font-family:consolas;
         }
         
+        #callStacks .error {
+        	background-color:#FF8F8B;
+        }
+        
+        #callStacks .info {
+        	background-color:#F7E259;
+        }
+        
         #callStacks .method {
             overflow: hidden;
             text-overflow: ellipsis;
@@ -221,6 +229,7 @@
 						<!-- 
 						t=${record.tab} | i=${record.id} | p=${pid} | b=${record.method && record.hasChild} | 
 						-->
+						<c:if test="${not record.method}"><i class="icon-info-sign"></i></c:if>
 						${record.title}
 					</td>
 					<td class="arguments">${record.arguments}</td>
