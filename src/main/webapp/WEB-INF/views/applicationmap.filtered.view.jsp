@@ -84,7 +84,7 @@
           <li class="divider-vertical"></li>
           <li class="">
           	<p class="navbar-text">
-	      	<fmt:formatDate value="${fromDate}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${toDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
+	      	<fmt:formatDate value="${fromDate}" pattern="yyyy/MM/dd HH:mm:ss"/> ~ <fmt:formatDate value="${toDate}" pattern="yyyy/MM/dd HH:mm:ss"/>
 	      	</p>
           </li>
           <li class="divider-vertical"></li>
