@@ -19,9 +19,9 @@ function formatDate(date, ignoreSeconds) {
 	var dateStr = [];
 	
 	dateStr.push(date.getFullYear());
-	dateStr.push("-");
+	dateStr.push("/");
 	dateStr.push(padZero(date.getMonth())); 
-	dateStr.push("-");
+	dateStr.push("/");
 	dateStr.push(padZero(date.getDate()));
 	dateStr.push(" ");
 	dateStr.push(padZero(date.getHours())); 
