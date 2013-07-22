@@ -86,8 +86,8 @@ public class TimeseriesResponses {
 
 		long value = list.get(index) + count;
 
-		list.add(index, value);
-
+		list.set(index, value);
+		
 		values.put(id, list);
 	}
 

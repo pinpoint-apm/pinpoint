@@ -420,8 +420,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 				statisticsData.add(stat);
 				statisticsMap.put(statId, stat);
 				
-				// TODO timeseries statistics추가.
+				// link timeseries statistics추가.
 				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+				
+				// application timeseries statistics
+				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				
 				/**
 				 * span event의 statistics추가.
@@ -458,7 +461,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 					int slot2 = destServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
 					histogram2.addSample((short) slot2, 1);
 					
-					// TODO host 정보 추가.
+					// host 정보 추가.
 					stat2.addToHost(spanEvent.getEndPoint());
 					
 					// agent 정보추가.
@@ -467,8 +470,11 @@ public class FlowChartServiceImpl implements FlowChartService {
 					statisticsData.add(stat2);
 					statisticsMap.put(statId2, stat2);
 					
-					// TODO timeseries statistics추가.
+					// link timeseries statistics추가.
 					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed() , 1L);
+					
+					// application timeseries statistics
+					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				}
 			}
 		}
