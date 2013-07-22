@@ -166,13 +166,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
-        if (logger.isDebugEnabled()) {
-            logger.debug("channelClosed {}", channel);
-        }
-
         final ChannelContext channelContext = getChannelContext(channel);
         if (!channelContext.isClosePacketReceived()) {
-            logger.info("Unexpected Client channelClosed {}", channel);
+            logger.warn("Unexpected Client channelClosed {}", channel);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("channelClosed {}", channel);
+            }
         }
         channelContext.closeAllStreamChannel();
     }

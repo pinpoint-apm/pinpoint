@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
+@Deprecated
 public class RequestProcessor  {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

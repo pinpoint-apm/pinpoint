@@ -26,6 +26,8 @@ public class PinpointSocketFactory {
 
     private volatile boolean released;
     private ClientBootstrap bootstrap;
+
+    private long reconnectDelay = 3000;
     private ScheduledExecutorService reconnector;
 
 
@@ -99,19 +101,19 @@ public class PinpointSocketFactory {
         ChannelFuture connectFuture = bootstrap.connect(address);
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
+            connectFuture.getChannel().close();
             throw new PinpointSocketException("connect fail.", connectFuture.getCause());
         }
         Channel channel = connectFuture.getChannel();
-        SocketHandler socketHandler = getPinpointSocket(channel);
+        SocketHandler socketHandler = getSocketHandler(channel);
         socketHandler.setPinpointSocketFactory(this);
         socketHandler.setSocketAddress(address);
         socketHandler.open();
         return socketHandler;
     }
 
-    private SocketHandler getPinpointSocket(Channel channel) {
-        ChannelContext context = (ChannelContext) channel.getAttachment();
-        return context.getSocketHandler();
+    private SocketHandler getSocketHandler(Channel channel) {
+        return (SocketHandler) channel.getAttachment();
     }
 
     ChannelFuture connectAsync(SocketAddress address) {
@@ -125,7 +127,7 @@ public class PinpointSocketFactory {
     }
 
     private void reconnect(ReconnectEvent reconnectEvent) {
-        reconnector.schedule(reconnectEvent, 3000, TimeUnit.MILLISECONDS);
+        reconnector.schedule(reconnectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
     }
 
     private class ReconnectEvent implements Runnable {
@@ -152,7 +154,7 @@ public class PinpointSocketFactory {
                     if (future.isSuccess()) {
                         Channel channel = future.getChannel();
                         logger.warn("reconnect success {}, {}", socketAddress, channel);
-                        SocketHandler socketHandler = getPinpointSocket(channel);
+                        SocketHandler socketHandler = getSocketHandler(channel);
                         socketHandler.setPinpointSocketFactory(PinpointSocketFactory.this);
                         pinpointSocket.replaceSocketHandler(socketHandler);
                     } else {

@@ -26,7 +26,7 @@ public class SocketHandler extends SimpleChannelHandler {
     private static final int STATE_CLOSED = 2;
     private static final int STATE_RECONNECT = 3;
 //    이 상태가 있어야 되나?
-//    private static final int STATE_ERROR_CLOSED = 3;
+//    private static final int STATE_ERROR_CLOSED = 4;
 
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
@@ -37,6 +37,10 @@ public class SocketHandler extends SimpleChannelHandler {
     private PinpointSocketFactory pinpointSocketFactory;
     private SocketAddress socketAddress;
     private volatile PinpointSocket pinpointSocket;
+
+    private RequestManager requestManager = new RequestManager();
+    private StreamChannelManager streamChannelManager = new StreamChannelManager();
+
 
     public SocketHandler() {
     }
@@ -55,9 +59,7 @@ public class SocketHandler extends SimpleChannelHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("channelOpen {}", channel);
         }
-        ChannelContext context = createContext();
-        context.setSocketHandler(this);
-        channel.setAttachment(context);
+        channel.setAttachment(this);
         this.channel = channel;
     }
 
@@ -74,16 +76,6 @@ public class SocketHandler extends SimpleChannelHandler {
         }
     }
 
-    private ChannelContext createContext() {
-        ChannelContext channelContext = new ChannelContext();
-
-        RequestManager requestManager = new RequestManager();
-        channelContext.setRequestManager(requestManager);
-
-        StreamChannelManager streamChannelManager = new StreamChannelManager();
-        channelContext.setStreamChannelManager(streamChannelManager);
-        return channelContext;
-    }
 
     public void send(byte[] bytes) {
         if (bytes == null) {
@@ -133,12 +125,17 @@ public class SocketHandler extends SimpleChannelHandler {
             throw new NullPointerException("bytes");
         }
 
-        ensureOpen();
+        boolean run = isRun();
+        if (!run) {
+            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
+            closedException.setFailure(new PinpointSocketException("invalid state:" + state.get()));
+            return closedException;
+        }
 
         RequestPacket request = new RequestPacket(bytes);
 
         final Channel channel = this.channel;
-        final DefaultFuture<ResponseMessage> messageFuture = getRequestManger(channel).register(request, this.timeoutMillis);
+        final DefaultFuture<ResponseMessage> messageFuture = this.requestManager.register(request, this.timeoutMillis);
 
         ChannelFuture write = channel.write(request);
         write.addListener(new ChannelFutureListener() {
@@ -160,24 +157,23 @@ public class SocketHandler extends SimpleChannelHandler {
         ensureOpen();
 
         final Channel channel = this.channel;
-        return getStreamChannelManager(channel).createStreamChannel(channel);
+        return this.streamChannelManager.createStreamChannel(channel);
     }
 
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         final Object message = e.getMessage();
-        final ChannelContext channelContext = getChannelContext(e.getChannel());
         if (message instanceof Packet) {
             Packet packet = (Packet) message;
             final short packetType = packet.getPacketType();
             // 점프 테이블로 교체.
             switch (packetType) {
                 case PacketType.APPLICATION_RESPONSE:
-                    channelContext.getRequestManager().messageReceived((ResponsePacket) message, e.getChannel());
+                    this.requestManager.messageReceived((ResponsePacket) message, e.getChannel());
                     return;
                 case PacketType.APPLICATION_REQUEST:
-                    channelContext.getRequestManager().messageReceived((RequestPacket) message, e.getChannel());
+                    this.requestManager.messageReceived((RequestPacket) message, e.getChannel());
                     return;
                 // connector로 들어오는 request 메시지를 핸들링을 해야 함.
                 case PacketType.APPLICATION_STREAM_CREATE:
@@ -185,7 +181,7 @@ public class SocketHandler extends SimpleChannelHandler {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    channelContext.getStreamChannelManager().messageReceived((StreamPacket) message, e.getChannel());
+                    this.streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
@@ -224,25 +220,26 @@ public class SocketHandler extends SimpleChannelHandler {
     }
 
 
-    private ChannelContext getChannelContext(Channel channel) {
-        return (ChannelContext) channel.getAttachment();
-    }
-
-    private RequestManager getRequestManger(Channel channel) {
-        return getChannelContext(channel).getRequestManager();
-    }
-
-    private StreamChannelManager getStreamChannelManager(Channel channel) {
-        return getChannelContext(channel).getStreamChannelManager();
-    }
-
 
     private void ensureOpen() {
         final int currentState = state.get();
-        if (currentState != STATE_RUN) {
-            logger.info("state{}", currentState);
-            throw new PinpointSocketException("already closed");
+        if (currentState == STATE_RUN) {
+            return;
         }
+        if (currentState == STATE_CLOSED) {
+            throw new PinpointSocketException("already closed");
+        } else if(currentState == STATE_RECONNECT) {
+            throw new PinpointSocketException("reconnecting...");
+        }
+        throw new PinpointSocketException("invalid socket state:" + currentState);
+    }
+
+    private boolean isRun() {
+        final int currentState = state.get();
+        if (currentState != STATE_RUN) {
+            return false;
+        }
+        return true;
     }
 
     public void close() {
@@ -254,10 +251,8 @@ public class SocketHandler extends SimpleChannelHandler {
         ClosePacket closePacket = new ClosePacket();
         channel.write(closePacket);
 
-        ChannelContext ctx = getChannelContext(channel);
-
-        ctx.getRequestManager().close();
-        ctx.getStreamChannelManager().close();
+        this.requestManager.close();
+        this.streamChannelManager.close();
         channel.close();
     }
 
