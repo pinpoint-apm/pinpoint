@@ -5,6 +5,7 @@ var SERVERMAP_METHOD_CACHE = {};
 var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
 
 var showApplicationStatisticsSummary = function(data) {
+	console.log("showApplicationStatisticsSummary", data);
 	$("#linkInfoDetails .linkInfoBarChart").show();
 	nv.addGraph(function() {
 		var chart = nv.models.discreteBarChart().x(function(d) {
@@ -43,6 +44,7 @@ var showApplicationStatisticsSummary = function(data) {
 }
 
 var showLinkStatisticsSummary = function(data) {
+	console.log("showLinkStatisticsSummary", data);
 	$("#linkInfoDetails .linkInfoBarChart").show();
 	nv.addGraph(function() {
 		var chart = nv.models.discreteBarChart().x(function(d) {
@@ -81,6 +83,7 @@ var showLinkStatisticsSummary = function(data) {
 }
 
 var showLinkStatisticsTimeseriesHistogram = function(data) {
+	console.log("showLinkStatisticsTimeseriesHistogram", data);
 	$("#linkInfoDetails .linkInfoChart").show();
 	nv.addGraph(function() {
 //		var chart = nv.models.stackedAreaChart().x(function(d) {
