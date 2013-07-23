@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -20,15 +19,7 @@ public class SocketHandler extends SimpleChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // 0 핸드쉐이크 안함.. 1은 동작중, 2는 closed
-    private static final int STATE_INIT = 0;
-    private static final int STATE_RUN = 1;
-    private static final int STATE_CLOSED = 2;
-    private static final int STATE_RECONNECT = 3;
-//    이 상태가 있어야 되나?
-//    private static final int STATE_ERROR_CLOSED = 4;
-
-    private final AtomicInteger state = new AtomicInteger(STATE_INIT);
+    private final State state = new State();
 
     private volatile Channel channel;
 
@@ -64,9 +55,10 @@ public class SocketHandler extends SimpleChannelHandler {
     }
 
     public void open() {
-        if (!(this.state.compareAndSet(STATE_INIT, STATE_RUN))) {
-            throw new IllegalStateException("invalid open state:" + state.get());
+        if (!state.changeRun()) {
+            throw new IllegalStateException("invalid open state:" + state.getString());
         }
+        requestManager.timerStart();
     }
 
     @Override
@@ -128,7 +120,7 @@ public class SocketHandler extends SimpleChannelHandler {
         boolean run = isRun();
         if (!run) {
             DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
-            closedException.setFailure(new PinpointSocketException("invalid state:" + state.get() + " channel:" + channel));
+            closedException.setFailure(new PinpointSocketException("invalid state:" + state.getString() + " channel:" + channel));
             return closedException;
         }
 
@@ -192,7 +184,7 @@ public class SocketHandler extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("UnexpectedError happened. event:{}", e, e.getCause());
-        state.set(STATE_CLOSED);
+        state.setState(State.CLOSED);
         Channel channel = e.getChannel();
         if (channel.isConnected()) {
             channel.close();
@@ -203,16 +195,16 @@ public class SocketHandler extends SimpleChannelHandler {
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         logger.debug("channelClosed {}", e.getChannel());
-        int currentState = state.get();
-        if (currentState == STATE_CLOSED) {
+        int currentState = state.getState();
+        if (currentState == State.CLOSED) {
             logger.debug("channelClosed state:CLOSED {}", e.getValue());
             return;
         }
-        if (currentState == STATE_RUN || currentState == STATE_RECONNECT) {
-            if (currentState == STATE_RUN) {
-                state.set(STATE_RECONNECT);
+        if (currentState == State.RUN || currentState == State.RECONNECT) {
+            if (currentState == State.RUN) {
+                state.setState(State.RECONNECT);
             }
-            logger.info("UnexpectedChannelClosed. reconnect channel:{}, {}, state:{}", new Object[] {e.getChannel(), socketAddress, state.get()});
+            logger.info("UnexpectedChannelClosed. reconnect channel:{}, {}, state:{}", new Object[] {e.getChannel(), socketAddress, state.getString()});
 
             this.pinpointSocketFactory.reconnect(this.pinpointSocket, this.socketAddress);
             return;
@@ -222,28 +214,28 @@ public class SocketHandler extends SimpleChannelHandler {
 
 
     private void ensureOpen() {
-        final int currentState = state.get();
-        if (currentState == STATE_RUN) {
+        final int currentState = state.getState();
+        if (currentState == State.RUN) {
             return;
         }
-        if (currentState == STATE_CLOSED) {
+        if (currentState == State.CLOSED) {
             throw new PinpointSocketException("already closed");
-        } else if(currentState == STATE_RECONNECT) {
+        } else if(currentState == State.RECONNECT) {
             throw new PinpointSocketException("reconnecting...");
         }
         throw new PinpointSocketException("invalid socket state:" + currentState);
     }
 
     private boolean isRun() {
-        final int currentState = state.get();
-        if (currentState != STATE_RUN) {
+        final int currentState = state.getState();
+        if (currentState != State.RUN) {
             return false;
         }
         return true;
     }
 
     public void close() {
-        if (!state.compareAndSet(STATE_RUN, STATE_CLOSED)) {
+        if (!state.changeClosed()) {
             return;
         }
         // hand shake close

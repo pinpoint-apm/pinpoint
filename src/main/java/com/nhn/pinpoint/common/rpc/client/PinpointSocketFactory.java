@@ -14,7 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -83,9 +86,9 @@ public class PinpointSocketFactory {
 
     public PinpointSocket connect(String host, int port) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
-        SocketHandler pinpoint = connectSocketHandler(address);
+        SocketHandler socketHandler = connectSocketHandler(address);
 
-        PinpointSocket pinpointSocket = new PinpointSocket(pinpoint);
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
         return pinpointSocket;
     }
 
@@ -166,16 +169,15 @@ public class PinpointSocketFactory {
                         socketHandler.open();
                         pinpointSocket.replaceSocketHandler(socketHandler);
                     } else {
-                        logger.warn("reconnect fail. {} Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
-                        reconnect(pinpointSocket, socketAddress);
+                        if (!pinpointSocket.isClosed()) {
+                            logger.warn("reconnect fail. {} Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
+                            reconnect(pinpointSocket, socketAddress);
+                        }
                     }
                 }
             });
         }
     }
-
-
-
 
 
     public void release() {

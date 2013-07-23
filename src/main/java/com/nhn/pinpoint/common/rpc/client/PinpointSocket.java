@@ -54,4 +54,8 @@ public class PinpointSocket {
         closed = true;
         socketHandler.close();
     }
+
+    public boolean isClosed() {
+        return closed;
+    }
 }

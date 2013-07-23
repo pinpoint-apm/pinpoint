@@ -39,6 +39,9 @@ public class RequestManager {
 
     public RequestManager(long timeoutTickDuration) {
         timer = new HashedWheelTimer(timeoutTickDuration, TimeUnit.MILLISECONDS);
+    }
+
+    public void timerStart() {
         timer.start();
     }
 

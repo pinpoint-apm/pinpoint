@@ -3,10 +3,13 @@ package com.nhn.pinpoint.common.rpc.client;
 import com.nhn.pinpoint.common.rpc.DefaultFuture;
 import com.nhn.pinpoint.common.rpc.Future;
 import com.nhn.pinpoint.common.rpc.packet.RequestPacket;
+import org.jboss.netty.util.HashedWheelTimer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -31,7 +34,6 @@ public class RequestManagerTest {
         } finally {
             requestManager.close();
         }
-
     }
 
     @Test
@@ -51,6 +53,14 @@ public class RequestManagerTest {
             requestManager.close();
         }
 
+    }
+
+//    @Test
+    public void testTimerStartTiming() throws InterruptedException {
+        HashedWheelTimer timer = new HashedWheelTimer(1000, TimeUnit.MILLISECONDS);
+        timer.start();
+        // start해야 타이머가 thread가 동작한다.
+        timer.stop();
     }
 
     @Test

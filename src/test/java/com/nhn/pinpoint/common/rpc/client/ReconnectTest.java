@@ -25,7 +25,6 @@ public class ReconnectTest {
     @Test
     public void reconnect() throws IOException, InterruptedException {
         PinpointServerSocket serverSocket = new PinpointServerSocket();
-//        ss.setPipelineFactory(new DiscardPipelineFactory());
         serverSocket.bind("localhost", PORT);
 
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
@@ -62,9 +61,49 @@ public class ReconnectTest {
             pinpointSocketFactory.release();
         }
 
+    }
 
+    @Test
+    public void reconnect2() throws IOException, InterruptedException {
+        PinpointServerSocket serverSocket = new PinpointServerSocket();
+        serverSocket.bind("localhost", PORT);
+
+        final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(1000);
+
+        PinpointServerSocket newServerSocket = null;
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
+            serverSocket.close();
+            logger.info("server.close()---------------------------");
+            Thread.sleep(1000);
+            try {
+                Future<ResponseMessage> response = socket.request(new byte[10]);
+                response.await();
+                ResponseMessage result = response.getResult();
+                Assert.fail("expected:exception");
+            } catch (Exception e) {
+                // 기대된 에러라 skip
+            }
+
+            newServerSocket = new PinpointServerSocket();
+            newServerSocket.bind("localhost", 10234);
+            logger.info("bind server---------------------------");
+
+            Thread.sleep(3000);
+            logger.info("request server---------------------------");
+            Future<ResponseMessage> response = socket.request(new byte[10]);
+            response.await();
+            ResponseMessage result = response.getResult();
+        } finally {
+            if (newServerSocket != null) {
+                newServerSocket.close();
+            }
+            pinpointSocketFactory.release();
+        }
 
     }
+
 
 
 
