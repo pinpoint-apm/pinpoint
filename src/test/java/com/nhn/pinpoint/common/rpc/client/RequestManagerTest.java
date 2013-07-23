@@ -2,7 +2,6 @@ package com.nhn.pinpoint.common.rpc.client;
 
 import com.nhn.pinpoint.common.rpc.DefaultFuture;
 import com.nhn.pinpoint.common.rpc.Future;
-import com.nhn.pinpoint.common.rpc.client.RequestProcessor;
 import com.nhn.pinpoint.common.rpc.packet.RequestPacket;
 import org.junit.Assert;
 import org.junit.Test;

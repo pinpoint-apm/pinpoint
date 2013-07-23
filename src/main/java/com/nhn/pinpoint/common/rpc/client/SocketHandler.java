@@ -128,7 +128,7 @@ public class SocketHandler extends SimpleChannelHandler {
         boolean run = isRun();
         if (!run) {
             DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
-            closedException.setFailure(new PinpointSocketException("invalid state:" + state.get()));
+            closedException.setFailure(new PinpointSocketException("invalid state:" + state.get() + " channel:" + channel));
             return closedException;
         }
 

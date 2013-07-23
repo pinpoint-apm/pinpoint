@@ -32,7 +32,7 @@ public class PinpointSocketFactory {
 
 
     public PinpointSocketFactory() {
-        ClientBootstrap bootstrap = createBootStrap(1, 1);
+        ClientBootstrap bootstrap = createBootStrap(1, 2);
         setOptions(bootstrap);
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
@@ -63,6 +63,14 @@ public class PinpointSocketFactory {
 
     public int getConnectTimeout() {
         return (Integer) bootstrap.getOption(CONNECT_TIMEOUT_MILLIS);
+    }
+
+    public long getReconnectDelay() {
+        return reconnectDelay;
+    }
+
+    public void setReconnectDelay(long reconnectDelay) {
+        this.reconnectDelay = reconnectDelay;
     }
 
     private ClientBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -132,14 +140,14 @@ public class PinpointSocketFactory {
 
     private class ReconnectEvent implements Runnable {
 
+        private final Logger logger = LoggerFactory.getLogger(getClass());
+        private final PinpointSocket pinpointSocket;
+        private final SocketAddress socketAddress;
+
         private ReconnectEvent(PinpointSocket pinpointSocket, SocketAddress socketAddress) {
             this.pinpointSocket = pinpointSocket;
             this.socketAddress = socketAddress;
         }
-
-        private Logger logger = LoggerFactory.getLogger(getClass());
-        private final PinpointSocket pinpointSocket;
-        private final SocketAddress socketAddress;
 
         @Override
         public void run() {
@@ -150,17 +158,16 @@ public class PinpointSocketFactory {
             channelFuture.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    logger.warn("try reconnect {}", socketAddress);
                     if (future.isSuccess()) {
                         Channel channel = future.getChannel();
                         logger.warn("reconnect success {}, {}", socketAddress, channel);
                         SocketHandler socketHandler = getSocketHandler(channel);
                         socketHandler.setPinpointSocketFactory(PinpointSocketFactory.this);
+                        socketHandler.open();
                         pinpointSocket.replaceSocketHandler(socketHandler);
                     } else {
-                        ReconnectEvent reconnectEvent = new ReconnectEvent(pinpointSocket, socketAddress);
-                        logger.warn("reconnect fail. {} Sleep(3000) Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
-                        reconnect(reconnectEvent);
+                        logger.warn("reconnect fail. {} Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
+                        reconnect(pinpointSocket, socketAddress);
                     }
                 }
             });
@@ -182,8 +189,8 @@ public class PinpointSocketFactory {
         if (bootstrap != null) {
             bootstrap.releaseExternalResources();
         }
-        List<Runnable> reconnecExevent = this.reconnector.shutdownNow();
-        // 추가 처리 필요.
+        List<Runnable> reconnectEvent = this.reconnector.shutdownNow();
+
 
     }
 }

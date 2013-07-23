@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -152,12 +153,20 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
     }
 
+    @Override
+    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        final Channel channel = e.getChannel();
+        if (logger.isDebugEnabled()) {
+            logger.debug("server channelOpen {}", channel);
+        }
+        super.channelOpen(ctx, e);
+    }
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         if (logger.isDebugEnabled()) {
-            logger.debug("channelConnected {}", channel);
+            logger.debug("server channelConnected {}", channel);
         }
         prepareChannel(channel);
         super.channelConnected(ctx, e);
@@ -171,7 +180,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             logger.warn("Unexpected Client channelClosed {}", channel);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("channelClosed {}", channel);
+                logger.debug("server channelClosed {}", channel);
             }
         }
         channelContext.closeAllStreamChannel();
@@ -216,11 +225,12 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
         if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
-            close.awaitUninterruptibly();
+            close.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
             serverChannel = null;
         }
         if (bootstrap != null) {
             bootstrap.releaseExternalResources();
+            bootstrap = null;
         }
     }
 }

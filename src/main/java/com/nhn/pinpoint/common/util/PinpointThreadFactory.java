@@ -43,11 +43,12 @@ public class PinpointThreadFactory implements ThreadFactory {
     private String createThreadName() {
         StringBuilder buffer = new StringBuilder(32);
         buffer.append("Pinpoint(");
-        buffer.append(factoryName);
-        buffer.append("-");
         buffer.append(threadName);
-        buffer.append(")-");
+        buffer.append('-');
+        buffer.append(factoryName);
+        buffer.append('-');
         buffer.append(THREAD_NUMBER.getAndIncrement());
+        buffer.append(')');
         return buffer.toString();
     }
 

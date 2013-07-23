@@ -29,7 +29,7 @@ public class PinpointSocket {
             socketHandler.close();
             return;
         }
-        logger.info("replaceSocketHandler");
+        logger.info("replaceSocketHandler:{}", socketHandler);
         this.socketHandler = socketHandler;
     }
 
@@ -42,6 +42,7 @@ public class PinpointSocket {
     }
 
     public Future<ResponseMessage> request(byte[] bytes) {
+        logger.info("socketHandler:{},", socketHandler);
         return socketHandler.request(bytes);
     }
 
