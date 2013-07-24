@@ -39,11 +39,9 @@ public class RequestManager {
 
     public RequestManager(long timeoutTickDuration) {
         timer = new HashedWheelTimer(timeoutTickDuration, TimeUnit.MILLISECONDS);
+        // 구지 start를 안함. 어차피 newTimeout호출하면 start체크하니. reqeust response있을때 자동으로 시작될거라 그게 더 나은듯.
     }
 
-    public void timerStart() {
-        timer.start();
-    }
 
 
     private FailureEventHandler createFailureEventHandler(final int requestId) {
@@ -63,6 +61,9 @@ public class RequestManager {
 
 
     private void addTimeoutTask(long timeoutMillis, DefaultFuture future) {
+        if (future == null) {
+            throw new NullPointerException("future");
+        }
         try {
             Timeout timeout = timer.newTimeout(future, timeoutMillis, TimeUnit.MILLISECONDS);
             future.setTimeout(timeout);

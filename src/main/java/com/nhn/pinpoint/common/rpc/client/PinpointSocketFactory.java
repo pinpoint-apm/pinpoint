@@ -8,21 +8,25 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
 public class PinpointSocketFactory {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
@@ -31,7 +35,7 @@ public class PinpointSocketFactory {
     private ClientBootstrap bootstrap;
 
     private long reconnectDelay = 3000;
-    private ScheduledExecutorService reconnector;
+    private HashedWheelTimer reconnector;
 
 
     public PinpointSocketFactory() {
@@ -39,7 +43,8 @@ public class PinpointSocketFactory {
         setOptions(bootstrap);
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
-        this.reconnector = Executors.newScheduledThreadPool(1, PinpointThreadFactory.createThreadFactory("socket-reconnector", true));
+        this.reconnector = new HashedWheelTimer(100, TimeUnit.MILLISECONDS);
+        this.reconnector.start();
     }
 
     private void addPipeline(ClientBootstrap bootstrap) {
@@ -78,6 +83,7 @@ public class PinpointSocketFactory {
 
     private ClientBootstrap createBootStrap(int bossCount, int workerCount) {
         // profiler, collector,
+        logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
         ExecutorService boss = Executors.newFixedThreadPool(bossCount, PinpointThreadFactory.createThreadFactory("socket-boss", true));
         ExecutorService worker = Executors.newFixedThreadPool(workerCount, PinpointThreadFactory.createThreadFactory("socket-worker", true));
         NioClientSocketChannelFactory nioClientSocketChannelFactory = new NioClientSocketChannelFactory(boss, worker);
@@ -92,14 +98,15 @@ public class PinpointSocketFactory {
         return pinpointSocket;
     }
 
-
-    SocketHandler connectSocketHandler(String host, int port) throws PinpointSocketException {
-        if (host == null) {
-            throw new NullPointerException("host");
-        }
+    public PinpointSocket scheduledConnect(String host, int port) {
         SocketAddress address = new InetSocketAddress(host, port);
-        return connectSocketHandler0(address);
+
+        PinpointSocket pinpointSocket = new PinpointSocket();
+        reconnect(pinpointSocket, address);
+
+        return pinpointSocket;
     }
+
 
     SocketHandler connectSocketHandler(SocketAddress address) {
         if (address == null) {
@@ -110,6 +117,7 @@ public class PinpointSocketFactory {
 
     public SocketHandler connectSocketHandler0(SocketAddress address) {
         ChannelFuture connectFuture = bootstrap.connect(address);
+
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
             connectFuture.getChannel().close();
@@ -123,6 +131,7 @@ public class PinpointSocketFactory {
         return socketHandler;
     }
 
+
     private SocketHandler getSocketHandler(Channel channel) {
         return (SocketHandler) channel.getAttachment();
     }
@@ -132,28 +141,28 @@ public class PinpointSocketFactory {
     }
 
     public void reconnect(final PinpointSocket pinpointSocket, final SocketAddress socketAddress) {
-        ReconnectEvent reconnectEvent = new ReconnectEvent(pinpointSocket, socketAddress);
-        reconnect(reconnectEvent);
+        ConnectEvent connectEvent = new ConnectEvent(pinpointSocket, socketAddress);
+        reconnect(connectEvent);
         return;
     }
 
-    private void reconnect(ReconnectEvent reconnectEvent) {
-        reconnector.schedule(reconnectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
+    private void reconnect(ConnectEvent connectEvent) {
+        reconnector.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
     }
 
-    private class ReconnectEvent implements Runnable {
+    private class ConnectEvent implements TimerTask {
 
         private final Logger logger = LoggerFactory.getLogger(getClass());
         private final PinpointSocket pinpointSocket;
         private final SocketAddress socketAddress;
 
-        private ReconnectEvent(PinpointSocket pinpointSocket, SocketAddress socketAddress) {
+        private ConnectEvent(PinpointSocket pinpointSocket, SocketAddress socketAddress) {
             this.pinpointSocket = pinpointSocket;
             this.socketAddress = socketAddress;
         }
 
         @Override
-        public void run() {
+        public void run(Timeout timeout) {
 
             logger.warn("try reconnect {}", socketAddress);
 
@@ -169,6 +178,7 @@ public class PinpointSocketFactory {
                         socketHandler.open();
                         pinpointSocket.replaceSocketHandler(socketHandler);
                     } else {
+                        future.getChannel().close();
                         if (!pinpointSocket.isClosed()) {
                             logger.warn("reconnect fail. {} Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
                             reconnect(pinpointSocket, socketAddress);
@@ -177,6 +187,7 @@ public class PinpointSocketFactory {
                 }
             });
         }
+
     }
 
 
@@ -191,8 +202,7 @@ public class PinpointSocketFactory {
         if (bootstrap != null) {
             bootstrap.releaseExternalResources();
         }
-        List<Runnable> reconnectEvent = this.reconnector.shutdownNow();
-
-
+        Set<Timeout> stop = this.reconnector.stop();
+//        stop 뭔가 취소를 해야 되나??
     }
 }

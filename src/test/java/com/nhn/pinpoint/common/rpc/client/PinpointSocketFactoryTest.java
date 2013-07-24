@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 
 
@@ -22,7 +23,8 @@ public class PinpointSocketFactoryTest {
     public void connectFail() {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         try {
-            pinpointSocketFactory.connectSocketHandler("localhost", 10234);
+            InetSocketAddress address = new InetSocketAddress("localhost", 10234);
+            pinpointSocketFactory.connectSocketHandler(address);
             Assert.fail();
         } catch (PinpointSocketException e) {
 

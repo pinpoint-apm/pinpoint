@@ -58,7 +58,7 @@ public class SocketHandler extends SimpleChannelHandler {
         if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
-        requestManager.timerStart();
+
     }
 
     @Override
