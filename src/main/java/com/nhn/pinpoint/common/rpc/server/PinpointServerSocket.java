@@ -29,8 +29,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private Channel serverChannel;
 
-    private ServerMessageListener messageListener = new SimpleLoggingSeverMessageListener();
-
+    private ServerMessageListener messageListener = SimpleLoggingSeverMessageListener.LISTENER;
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);

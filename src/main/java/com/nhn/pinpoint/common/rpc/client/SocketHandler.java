@@ -197,7 +197,7 @@ public class SocketHandler extends SimpleChannelHandler {
         logger.debug("channelClosed {}", e.getChannel());
         int currentState = state.getState();
         if (currentState == State.CLOSED) {
-            logger.debug("channelClosed state:CLOSED {}", e.getValue());
+            logger.debug("channelClosed state:{} {}", state.getString(currentState), ctx.getChannel());
             return;
         }
         if (currentState == State.RUN || currentState == State.RECONNECT) {

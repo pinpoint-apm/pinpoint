@@ -37,18 +37,21 @@ public class State {
     public void setState(int state) {
         this.state.set(state);
     }
-
-    public String getString() {
-        switch (state.get()) {
-            case 0:
+    public String getString(int stateCode) {
+        switch (stateCode) {
+            case INIT:
                 return "INIT";
-            case 1:
+            case RUN:
                 return "RUN";
-            case 2:
+            case CLOSED:
                 return "CLOSED";
-            case 3:
+            case RECONNECT:
                 return "RECONNECT";
         }
         return "UNKNOWN";
+    }
+
+    public String getString() {
+        return getString(state.get());
     }
 }

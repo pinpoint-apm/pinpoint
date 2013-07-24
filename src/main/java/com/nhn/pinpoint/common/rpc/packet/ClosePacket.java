@@ -38,4 +38,9 @@ public class ClosePacket extends BasicPacket {
         return requestPacket;
 
     }
+
+    @Override
+    public String toString() {
+        return "ClosePacket";
+    }
 }

@@ -13,6 +13,8 @@ public class SimpleLoggingSeverMessageListener implements ServerMessageListener 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final SimpleLoggingSeverMessageListener LISTENER = new SimpleLoggingSeverMessageListener();
+
     @Override
     public void handleSend(SendPacket sendPacket, SocketChannel channel) {
         logger.info("handlerSend {}", sendPacket);

@@ -2,8 +2,10 @@ package com.nhn.pinpoint.common.rpc.client;
 
 import com.nhn.pinpoint.common.rpc.Future;
 import com.nhn.pinpoint.common.rpc.ResponseMessage;
+import com.nhn.pinpoint.common.rpc.TestByteUtils;
 import com.nhn.pinpoint.common.rpc.server.PinpointServerSocket;
-import junit.framework.Assert;
+import com.nhn.pinpoint.common.rpc.server.TestSeverMessageListener;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,10 +27,12 @@ public class ReconnectTest {
     @Test
     public void reconnect() throws IOException, InterruptedException {
         PinpointServerSocket serverSocket = new PinpointServerSocket();
+        serverSocket.setMessageListener(new TestSeverMessageListener());
         serverSocket.bind("localhost", PORT);
 
+
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setReconnectDelay(1000);
+        pinpointSocketFactory.setReconnectDelay(500);
 
         PinpointServerSocket newServerSocket = null;
         try {
@@ -46,6 +50,7 @@ public class ReconnectTest {
             }
 
             newServerSocket = new PinpointServerSocket();
+            newServerSocket.setMessageListener(new TestSeverMessageListener());
             newServerSocket.bind("localhost", 10234);
             logger.info("bind server---------------------------");
 
@@ -54,6 +59,7 @@ public class ReconnectTest {
             Future<ResponseMessage> response = socket.request(new byte[10]);
             response.await();
             ResponseMessage result = response.getResult();
+            socket.close();
         } finally {
             if (newServerSocket != null) {
                 newServerSocket.close();
@@ -64,41 +70,26 @@ public class ReconnectTest {
     }
 
     @Test
-    public void reconnect2() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = new PinpointServerSocket();
-        serverSocket.bind("localhost", PORT);
-
+    public void scheduledConnect() throws IOException, InterruptedException {
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setReconnectDelay(1000);
+        pinpointSocketFactory.setReconnectDelay(2000);
 
-        PinpointServerSocket newServerSocket = null;
         try {
-            PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
-            serverSocket.close();
-            logger.info("server.close()---------------------------");
-            Thread.sleep(1000);
-            try {
-                Future<ResponseMessage> response = socket.request(new byte[10]);
-                response.await();
-                ResponseMessage result = response.getResult();
-                Assert.fail("expected:exception");
-            } catch (Exception e) {
-                // 기대된 에러라 skip
-            }
+            PinpointSocket socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
 
-            newServerSocket = new PinpointServerSocket();
-            newServerSocket.bind("localhost", 10234);
-            logger.info("bind server---------------------------");
+            PinpointServerSocket serverSocket = new PinpointServerSocket();
+            serverSocket.setMessageListener(new TestSeverMessageListener());
+            serverSocket.bind("localhost", 10234);
 
             Thread.sleep(3000);
             logger.info("request server---------------------------");
-            Future<ResponseMessage> response = socket.request(new byte[10]);
+            byte[] randomByte = TestByteUtils.createRandomByte(10);
+            Future<ResponseMessage> response = socket.request(randomByte);
             response.await();
             ResponseMessage result = response.getResult();
+            Assert.assertArrayEquals(randomByte, result.getMessage());
+            socket.close();
         } finally {
-            if (newServerSocket != null) {
-                newServerSocket.close();
-            }
             pinpointSocketFactory.release();
         }
 
