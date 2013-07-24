@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
@@ -33,15 +33,21 @@ public class TomcatConnectorModifier extends AbstractModifier {
         }
         try {
 			// initialize()할 때 protocol과 port번호를 저장해둔다.
+			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", new Object[] { agent }, new Class[] { Agent.class });
+			InstrumentClass connector = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-                    "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", new Object[]{agent}, new Class[] {Agent.class});
-            InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
-            aClass.addInterceptor("initialize", null, interceptor);
+			// Tomcat 6
+			if (connector.hasDeclaredMethod("initialize", null)) {
+				connector.addInterceptor("initialize", null, interceptor);
+			}
+			// Tomcat 7
+			else if (connector.hasDeclaredMethod("initInternal", null)) {
+				connector.addInterceptor("initInternal", null, interceptor);
+			}
 
-            printClassConvertComplete(javassistClassName);
+			printClassConvertComplete(javassistClassName);
 
-            return aClass.toBytecode();
+			return connector.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);

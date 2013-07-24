@@ -48,4 +48,6 @@ public interface InstrumentClass {
 	public CtMethod[] getDeclaredMethods();
 	
 	public boolean isInterceptable();
+	
+	boolean hasDeclaredMethod(String methodName, String[] args);
 }

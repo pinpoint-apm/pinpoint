@@ -644,4 +644,15 @@ public class JavaAssistClass implements InstrumentClass {
 	public boolean isInterceptable() {
 		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
 	}
+
+	@Override
+	public boolean hasDeclaredMethod(String methodName, String[] args) {
+		try {
+			CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
+			CtMethod m = ctClass.getDeclaredMethod(methodName, params);
+			return m != null;
+		} catch (NotFoundException e) {
+			return false;
+		}
+	}
 }

@@ -40,15 +40,21 @@ public class TomcatStandardServiceModifier extends AbstractModifier {
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-            InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
 
-            LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);
-            StandardServiceStartInterceptor start = new StandardServiceStartInterceptor(lifeCycleEventListener);
-            standardService.addInterceptor("start", null, start);
-
-            StandardServiceStopInterceptor stop = new StandardServiceStopInterceptor(lifeCycleEventListener);
-            standardService.addInterceptor("stop", null, stop);
-
+			LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);
+			
+			// Tomcat 6
+			if (standardService.hasDeclaredMethod("start", null) && standardService.hasDeclaredMethod("stop", null)) {
+				standardService.addInterceptor("start", null, new StandardServiceStartInterceptor(lifeCycleEventListener));
+				standardService.addInterceptor("stop", null, new StandardServiceStopInterceptor(lifeCycleEventListener));
+			}
+			// Tomcat 7
+			else if (standardService.hasDeclaredMethod("startInternal", null) && standardService.hasDeclaredMethod("stopInternal", null)) {
+				standardService.addInterceptor("startInternal", null, new StandardServiceStartInterceptor(lifeCycleEventListener));
+				standardService.addInterceptor("stopInternal", null, new StandardServiceStopInterceptor(lifeCycleEventListener));
+			}
+			
             return standardService.toBytecode();
         } catch (InstrumentException e) {
             logger.warn("modify fail. Cause:" + e.getMessage(), e);
