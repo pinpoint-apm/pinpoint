@@ -22,6 +22,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
@@ -146,13 +147,23 @@ public class DefaultAgent implements Agent {
             logger.info("CATALINA_HOME={}", catalinaHome);
         }
 
-        if (profilerConfig.getServiceType() == ServiceType.BLOC) {
-            return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
-        } else {
-            return new String[] { catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar" };
-        }
+        File f1 = new File(catalinaHome + "/server/lib/catalina.jar");
+        File f2 = new File(catalinaHome + "/common/lib/servlet-api.jar");
+        
+        // TODO 이 방법이 최선인가?? 모르겠음.
+		if (f1.exists() && f2.exists() && f1.isFile() && f2.isFile()) {
+			// BLOC
+			return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
+		} else {
+			if (profilerConfig.getServiceType() == ServiceType.BLOC) {
+				// BLOC
+				return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
+			} else {
+				// TOMCAT
+				return new String[] { catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar" };
+			}
+		}
     }
-
 
     private AgentInfo createAgentInfo() {
         String ip = getServerInfo().getHostip();
