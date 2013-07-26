@@ -2,18 +2,15 @@ package com.nhn.pinpoint.collector.handler;
 
 import java.net.DatagramPacket;
 
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
-import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
-import com.nhn.pinpoint.collector.dao.TracesDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
 
 /**
  * subspan represent terminal spans.
@@ -26,13 +23,16 @@ public class SpanEventHandler implements Handler {
     private TracesDao traceDao;
     
     @Autowired
-    private ApplicationStatisticsDao applicationMapStatisticsDao;
+    private StatisticsHandler statisticsHandler;
     
-	@Autowired
-	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
-
-	@Autowired
-	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+//	@Autowired
+//	private ApplicationStatisticsDao applicationMapStatisticsDao;
+//	
+//	@Autowired
+//	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+//	
+//	@Autowired
+//	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
 
     @Override
     public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
@@ -61,15 +61,17 @@ public class SpanEventHandler implements Handler {
             boolean hasException = SpanEventUtils.hasException(spanEvent);
             
             // application으로 들어오는 통계 정보 저장.
-            applicationMapStatisticsDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateApplication(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            // applicationMapStatisticsDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
             
             // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
             // 내가 호출한 정보 저장. (span이 호출한 spanevent)
-			applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(),
-                    spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCallee(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+			// applicationMapStatisticsCalleeDao.update(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
 
 			// 나를 호출한 정보 저장 (spanevent를 호출한 span)
-			applicationMapStatisticsCallerDao.update(spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanEvent.getParentEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCaller(spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanEvent.getParentEndPoint(), elapsed, hasException);
+			// applicationMapStatisticsCallerDao.update(spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanEvent.getParentEndPoint(), elapsed, hasException);
         } catch (Exception e) {
             logger.warn("SpanEvent handle error " + e.getMessage(), e);
         }
