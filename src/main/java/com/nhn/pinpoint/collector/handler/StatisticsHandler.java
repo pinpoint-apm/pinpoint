@@ -1,7 +1,8 @@
 package com.nhn.pinpoint.collector.handler;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class StatisticsHandler {
 	@Autowired
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
 
-	private final ExecutorService executor = Executors.newFixedThreadPool(3);
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
 
 	private static final class Worker implements Runnable {
 		private final CachedStatisticsDao dao;
@@ -41,36 +42,27 @@ public class StatisticsHandler {
 
 		@Override
 		public void run() {
-			while (true) {
-				dao.flushAll();
-				try {
-					Thread.sleep(1000L);
-				} catch (InterruptedException e) {
-				}
-			}
+			dao.flushAll();
 		}
 	}
 
 	public void initialize() {
-		executor.execute(new Worker(applicationMapStatisticsCalleeDao));
-		executor.execute(new Worker(applicationMapStatisticsCallerDao));
-		executor.execute(new Worker(applicationMapStatisticsDao));
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				logger.debug("Flush all statistics.");
-				if (applicationMapStatisticsDao != null) {
-					applicationMapStatisticsDao.flushAll();
-				}
-				if (applicationMapStatisticsCallerDao != null) {
-					applicationMapStatisticsCallerDao.flushAll();
-				}
-				if (applicationMapStatisticsCalleeDao != null) {
-					applicationMapStatisticsCalleeDao.flushAll();
-				}
-			}
-		}));
+		executor.scheduleAtFixedRate(new Worker(applicationMapStatisticsCalleeDao), 0L, 1000L, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(new Worker(applicationMapStatisticsCallerDao), 0L, 1000L, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(new Worker(applicationMapStatisticsDao), 0L, 1000L, TimeUnit.MILLISECONDS);
+	}
+
+	public void shutdown() {
+		logger.debug("Flush all statistics.");
+		if (applicationMapStatisticsDao != null) {
+			applicationMapStatisticsDao.flushAll();
+		}
+		if (applicationMapStatisticsCallerDao != null) {
+			applicationMapStatisticsCallerDao.flushAll();
+		}
+		if (applicationMapStatisticsCalleeDao != null) {
+			applicationMapStatisticsCalleeDao.flushAll();
+		}
 	}
 
 	public void updateCallee(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {

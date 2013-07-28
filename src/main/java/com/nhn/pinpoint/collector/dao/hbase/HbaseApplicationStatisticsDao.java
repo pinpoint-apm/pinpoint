@@ -77,7 +77,7 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 
 		List<Value> itemList = cache.getItems();
 		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 
@@ -89,7 +89,7 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 
 		List<Value> itemList = cache.getAllItems();
 		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 }

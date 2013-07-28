@@ -86,7 +86,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 		}
 		List<Value> itemList = cache.getItems();
 		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 
@@ -98,7 +98,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 		List<Value> itemList = cache.getAllItems();
 		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 }

@@ -2,13 +2,12 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.annotation.concurrent.NotThreadSafe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.primitives.Bytes;
 
@@ -17,18 +16,55 @@ import com.google.common.primitives.Bytes;
  * @author netspider
  * 
  */
-@NotThreadSafe
 public class StatisticsCache {
 
 	final long threshold = 10L;
+	final ConcurrentMap<Key, Value> cache = new ConcurrentHashMap<Key, Value>(1024);
 
-	final Map<Key, Value> c1 = new HashMap<Key, Value>(1024);
-	final Map<Key, Value> c2 = new HashMap<Key, Value>(1024);
+	public long add(byte[] rowKey, byte[] columnName, long value) {
+		Key key = new Key(Bytes.concat(rowKey, columnName));
+		Value v = cache.putIfAbsent(key, new Value(rowKey, columnName, value));
+		if (v != null) {
+			return v.addValue(value);
+		} else {
+			return value;
+		}
+	}
 
-	boolean master = true;
+	public List<Value> getItems() {
+		List<Value> result = new ArrayList<Value>();
 
-	private static class Key {
-		byte[] v;
+		Set<Entry<Key, Value>> entrySet = cache.entrySet();
+
+		for (Entry<Key, Value> entry : entrySet) {
+			Key key = entry.getKey();
+			Value value = entry.getValue();
+
+			if (value.getLongValue() < threshold) {
+				continue;
+			}
+
+			result.add(cache.remove(key));
+		}
+
+		return result;
+	}
+
+	public List<Value> getAllItems() {
+		List<Value> result = new ArrayList<Value>();
+		Set<Entry<Key, Value>> entrySet = cache.entrySet();
+		for (Entry<Key, Value> entry : entrySet) {
+			result.add(cache.remove(entry.getKey()));
+		}
+		return result;
+	}
+
+	public int size() {
+		return cache.size();
+	}
+
+	public static class Key {
+		final byte[] v;
 
 		public Key(byte[] v) {
 			this.v = v;
@@ -62,16 +98,15 @@ public class StatisticsCache {
 		}
 	}
 
-	@NotThreadSafe
 	public static class Value {
-		byte[] rowKey;
-		byte[] columnName;
-		long value;
+		final byte[] rowKey;
+		final byte[] columnName;
+		final AtomicLong value;
 
 		public Value(byte[] rowKey, byte[] columnName, long value) {
 			this.rowKey = rowKey;
 			this.columnName = columnName;
-			this.value = value;
+			this.value = new AtomicLong(value);
 		}
 
 		public byte[] getRowKey() {
@@ -82,66 +117,20 @@ public class StatisticsCache {
 			return columnName;
 		}
 
-		public long getValue() {
+		public AtomicLong getValue() {
 			return value;
 		}
 
-		public void addValue(long value) {
-			this.value += value;
-		}
-	}
-
-	private Map<Key, Value> getMaster() {
-		return (master) ? c1 : c2;
-	}
-
-	private Map<Key, Value> getSlave() {
-		return (master) ? c2 : c1;
-	}
-
-	public void add(byte[] rowKey, byte[] columnName, long value) {
-		Key key = new Key(Bytes.concat(rowKey, columnName));
-		Map<Key, Value> c = getMaster();
-		if (c.containsKey(key)) {
-			c.get(key).addValue(value);
-		} else {
-			c.put(key, new Value(rowKey, columnName, value));
-		}
-	}
-
-	public List<Value> getItems() {
-		getSlave().clear();
-		master ^= true;
-
-		List<Value> list = new ArrayList<Value>();
-
-		Set<Entry<Key, Value>> entrySet = getSlave().entrySet();
-		for (Entry<Key, Value> entry : entrySet) {
-			Value itm = entry.getValue();
-			if (threshold < itm.getValue()) {
-				list.add(itm);
-			} else {
-				add(itm.getRowKey(), itm.getColumnName(), itm.getValue());
-			}
+		public long popLongValue() {
+			return value.getAndSet(0L);
 		}
 
-		getSlave().clear();
-		return list;
-	}
-
-	public List<Value> getAllItems() {
-		getSlave().clear();
-		master ^= true;
-
-		List<Value> list = new ArrayList<Value>();
-
-		Set<Entry<Key, Value>> entrySet = getSlave().entrySet();
-		for (Entry<Key, Value> entry : entrySet) {
-			Value itm = entry.getValue();
-			list.add(itm);
+		public long getLongValue() {
+			return value.get();
 		}
 
-		getSlave().clear();
-		return list;
+		public long addValue(long value) {
+			return this.value.addAndGet(value);
+		}
 	}
 }

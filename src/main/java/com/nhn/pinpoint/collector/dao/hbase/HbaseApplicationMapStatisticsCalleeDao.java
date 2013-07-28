@@ -82,7 +82,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 		List<Value> itemList = cache.getItems();
 		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 
@@ -94,12 +94,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 		List<Value> itemList1 = cache.getAllItems();
 		for (Value item : itemList1) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 		
 		List<Value> itemList2 = cache.getAllItems();
 		for (Value item : itemList2) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getValue());
+			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, item.getColumnName(), item.getLongValue());
 		}
 	}
 }
