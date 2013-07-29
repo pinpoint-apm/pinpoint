@@ -36,8 +36,6 @@ public class OracleResultSetModifier extends AbstractModifier {
         try {
             CtClass cc = null;
 
-            updateNextMethod(cc);
-            updateCloseMethod(cc);
 
             printClassConvertComplete(javassistClassName);
 
@@ -50,13 +48,5 @@ public class OracleResultSetModifier extends AbstractModifier {
         return null;
     }
 
-    private void updateNextMethod(CtClass cc) throws Exception {
-        CtMethod method = cc.getDeclaredMethod("next", null);
-        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
-    }
 
-    private void updateCloseMethod(CtClass cc) throws Exception {
-        CtMethod method = cc.getDeclaredMethod("close", null);
-        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); }");
-    }
 }

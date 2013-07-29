@@ -106,17 +106,5 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
     }
 
 
-    private void updateConstructor(CtClass cc) throws Exception {
-        CtConstructor[] constructorList = cc.getConstructors();
-        if (constructorList.length == 3) {
-            for (CtConstructor constructor : constructorList) {
-                CtClass params[] = constructor.getParameterTypes();
-                if (params.length == 3) {
-                    constructor.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
-                }
-            }
-        }
-    }
-
 
 }
