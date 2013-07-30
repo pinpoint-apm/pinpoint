@@ -2,8 +2,10 @@ package com.nhn.pinpoint.collector.handler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,8 @@ public class StatisticsHandler {
 	@Autowired
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
 
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
+    private final ThreadFactory threadFactory = PinpointThreadFactory.createThreadFactory(this.getClass().getSimpleName());
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3, threadFactory);
 
 	private static final class Worker implements Runnable {
 		private final CachedStatisticsDao dao;
@@ -53,7 +56,10 @@ public class StatisticsHandler {
 	}
 
 	public void shutdown() {
-		logger.debug("Flush all statistics.");
+
+        shutdownExecutor();
+
+        logger.debug("Flush all statistics.");
 		if (applicationMapStatisticsDao != null) {
 			applicationMapStatisticsDao.flushAll();
 		}
@@ -63,9 +69,19 @@ public class StatisticsHandler {
 		if (applicationMapStatisticsCalleeDao != null) {
 			applicationMapStatisticsCalleeDao.flushAll();
 		}
+
 	}
 
-	public void updateCallee(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+    private void shutdownExecutor() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(3, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void updateCallee(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
 		applicationMapStatisticsCalleeDao.update(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
 	}
 
