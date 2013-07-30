@@ -51,7 +51,8 @@ public enum ServiceType {
 
     // connector류
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, Histogram.NORMAL),
-    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, Histogram.NORMAL);
+    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, Histogram.NORMAL),
+	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, Histogram.NORMAL);
 
     private final short code;
     private final String desc;

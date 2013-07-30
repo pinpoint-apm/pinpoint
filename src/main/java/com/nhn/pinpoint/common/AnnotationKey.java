@@ -40,6 +40,9 @@ public enum AnnotationKey {
     HTTP_PARAM(41, "http.params"),
 
     ARCUS_COMMAND(50, "arcus.command"),
+    
+    NPC_URL(60, "npc.url"),
+    NPC_PARAM(61, "npc.params"),
 
     ARGS0(-1, "args[0]"),
     ARGS1(-2, "args[1]"),
