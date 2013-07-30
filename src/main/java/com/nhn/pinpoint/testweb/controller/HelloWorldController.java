@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +32,8 @@ import com.nhn.pinpoint.testweb.service.DummyService;
 import com.nhn.pinpoint.testweb.service.MemberService;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
+import com.nhncorp.lucy.net.invoker.InvocationFuture;
+import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
 @Controller
 public class HelloWorldController implements DisposableBean {
@@ -241,6 +245,8 @@ public class HelloWorldController implements DisposableBean {
 		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
 
+		npc(model);
+		
 		return "combination";
 	}
 
@@ -320,6 +326,26 @@ public class HelloWorldController implements DisposableBean {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://macpro:8080/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
+	}
+
+	@RequestMapping(value = "/npc")
+	public String npc(Model model) {
+		try {
+			InetSocketAddress serverAddress = new InetSocketAddress("0.0.0.0", 5000);
+			NpcHessianConnector connector = new NpcHessianConnector(serverAddress, true);
+
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("message", "hello pinpoint");
+
+			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+
+			future.await();
+
+			Object result = future.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "npc";
 	}
 
 	@Override
