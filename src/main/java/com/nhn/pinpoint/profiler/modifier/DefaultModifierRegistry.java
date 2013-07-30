@@ -14,6 +14,7 @@ import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.npc.NpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -250,5 +251,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor, agent);
 		addModifier(dbcpPoolModifier);
+	}
+	
+	public void addNpcModifier() {
+		addModifier(new NpcHessianConnectorModifier(byteCodeInstrumentor, agent));
 	}
 }

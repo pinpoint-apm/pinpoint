@@ -100,6 +100,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // bloc
         modifierRepository.addBLOCModifier();
 
+        // npc
+        modifierRepository.addNpcModifier();
+        
         return modifierRepository;
     }
 
