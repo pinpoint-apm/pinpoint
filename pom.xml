@@ -86,7 +86,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>3.1.11</version>
+            <version>5.1.20</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>cubrid</groupId>
             <artifactId>cubrid-jdbc</artifactId>
-            <version>8.4.1.2032</version>
+            <version>8.4.3.1005</version>
         </dependency>
 
         <dependency>
@@ -327,6 +327,15 @@
         </testResources>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+        
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>

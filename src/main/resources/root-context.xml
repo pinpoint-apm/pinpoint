@@ -14,9 +14,16 @@
 
     <import resource="applicationContext-datasource.xml"/>
 
-
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+    <bean id="jdbcTemplateMysql" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
         <constructor-arg name="dataSource" ref="mysqlDatasource"/>
+    </bean>
+    
+    <bean id="jdbcTemplateCubrid" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="cubridDatasource"/>
+    </bean>
+    
+    <bean id="jdbcTemplateOracle" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="oracleDatasource"/>
     </bean>
 
     <!-- ============================================================= -->
@@ -47,6 +54,20 @@
 
     <bean id="oracleTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="oracleDatasource"/>
+    </bean>
+    
+    <!-- cubrid -->
+    <bean id="cubridSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="cubridDatasource"/>
+        <property name="configLocation" value="classpath:cubrid/SqlMapConfig.xml"/>
+    </bean>
+
+    <bean id="cubridSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="cubridSqlMapClient"/>
+    </bean>
+
+    <bean id="cubridTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="cubridDatasource"/>
     </bean>
 
 </beans>

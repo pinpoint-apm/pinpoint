@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.testweb.repository;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +13,19 @@ import com.nhn.pinpoint.testweb.domain.Member;
 public class MemberDaoIbatis implements MemberDao {
 
 	@Autowired
-    @Qualifier("mysqlSqlMapClientTemplate")
-    private SqlMapClientTemplate sqlMapClientTemplate;
+	@Qualifier("mysqlSqlMapClientTemplate")
+	private SqlMapClientTemplate sqlMapClientTemplate;
 
 	public void add(Member member) {
 		sqlMapClientTemplate.insert("add", member);
 	}
 
-    @Override
-    public void addStatement(Member member) {
-        sqlMapClientTemplate.insert("addStatement", member);
-    }
+	@Override
+	public void addStatement(Member member) {
+		sqlMapClientTemplate.insert("addStatement", member);
+	}
 
-    public void delete(int id) {
+	public void delete(int id) {
 		sqlMapClientTemplate.delete("delete", id);
 	}
 

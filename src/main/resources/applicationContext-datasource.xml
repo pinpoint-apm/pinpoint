@@ -17,7 +17,6 @@
         <property name="driverClass" value="com.mysql.jdbc.Driver" />
     -->
 
-
     <bean id="mysqlDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
 
@@ -78,16 +77,19 @@
 
         <property name="poolPreparedStatements" value="true"></property>
         <property name="maxOpenPreparedStatements" value="50"></property>
-
     </bean>
-
 
     <bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="url" value="jdbc:sqlserver://10.64.80.37:1433;DatabaseName=test"/>
         <property name="username" value="netspider"/>
         <property name="password" value="chitty!!"/>
-    </bean>
-
-
+    </bean> 
+    
+	<bean id="cubridDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="cubrid.jdbc.driver.CUBRIDDriver"/>
+		<property name="url" value="jdbc:cubrid:10.101.57.233:30102:pinpoint:::"/>
+		<property name="username" value="dba"/>
+		<property name="password" value="nhn!@#123"/>
+	</bean>
 </beans>

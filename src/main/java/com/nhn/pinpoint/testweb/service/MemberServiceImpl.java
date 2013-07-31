@@ -2,7 +2,6 @@ package com.nhn.pinpoint.testweb.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.testweb.repository.MemberDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
