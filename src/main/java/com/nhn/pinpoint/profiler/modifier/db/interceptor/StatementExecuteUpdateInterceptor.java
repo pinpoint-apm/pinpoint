@@ -48,7 +48,7 @@ public class StatementExecuteUpdateInterceptor implements SimpleAroundIntercepto
         try {
             DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
 
-            trace.recordServiceType(databaseInfo.getType());
+            trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
