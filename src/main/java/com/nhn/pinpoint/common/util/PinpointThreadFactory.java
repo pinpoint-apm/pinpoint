@@ -16,6 +16,10 @@ public class PinpointThreadFactory implements ThreadFactory {
     private boolean daemon;
 
 
+    public PinpointThreadFactory() {
+        this("Pinpoint", false);
+    }
+
     public PinpointThreadFactory(String threadName) {
         this(threadName, false);
     }
@@ -24,10 +28,16 @@ public class PinpointThreadFactory implements ThreadFactory {
         if (threadName == null) {
             throw new NullPointerException("threadName");
         }
-        this.factoryName = Integer.toString(FACTORY_NUMBER.getAndIncrement());
         this.threadName = threadName;
+        this.factoryName = Integer.toString(FACTORY_NUMBER.getAndIncrement());
         this.daemon = daemon;
+    }
 
+    public void setThreadName(String threadName) {
+        if (threadName == null) {
+            throw new NullPointerException("threadName");
+        }
+        this.threadName = threadName;
     }
 
     @Override

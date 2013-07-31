@@ -11,4 +11,8 @@ public class PacketUtils {
         byte[] source = packet.getData();
         return Arrays.copyOfRange(source, packetOffset + startOffset, packetLength);
     }
+
+    public static byte[] sliceData(byte[] packet, int startOffset, int length) {
+        return Arrays.copyOfRange(packet, startOffset, length);
+    }
 }

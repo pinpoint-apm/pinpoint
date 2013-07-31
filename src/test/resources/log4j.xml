@@ -32,6 +32,13 @@
         <!--<appender-ref ref="dailyRollingFile" />-->
     </logger>
 
+    <logger name="org.jboss.netty" additivity="false">
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
+        <!-- testcase용은 파일로 남길 필요가 없음. -->
+        <!--<appender-ref ref="dailyRollingFile" />-->
+    </logger>
+
 
     <root>
         <level value="INFO" />
