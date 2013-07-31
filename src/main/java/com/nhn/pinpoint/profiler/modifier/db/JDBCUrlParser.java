@@ -1,5 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
@@ -7,9 +12,6 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.Description;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.KeyValue;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringException;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleNetConnectionDescriptorParser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -30,6 +32,9 @@ public class JDBCUrlParser {
         }
         if (driverTypeCheck(lowCaseURL, "oracle")) {
             return parseOracle(url);
+        }
+        if (driverTypeCheck(lowCaseURL, "cubrid")) {
+        	return parseCubrid(url);
         }
         return createUnknownDataBase(url);
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
@@ -187,6 +192,79 @@ public class JDBCUrlParser {
         String normalizedUrl = maker.clear().before('?').value();
         return new DatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
+    
+    /*
+	private DatabaseInfo parseCubrid(String url) {
+		// jdbc:cubrid:10.101.57.233:30102:pinpoint:::
+		StringMaker maker = new StringMaker(url);
+		maker.after("jdbc:cubrid:");
+		// 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
+		// mm db? 의 경우도 고려해야 될듯하다.
+		String host = maker.after("//").before('/').value();
+		List<String> hostList = new ArrayList<String>(1);
+		hostList.add(host);
+		// String port = maker.next().after(':').before('/').value();
 
+		String databaseId = maker.next().afterLast('/').before('?').value();
+		String normalizedUrl = maker.clear().before('?').value();
+		
+		return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+	}
+	*/
+	
+	private DatabaseInfo parseCubrid(String url) {
+		final String default_hostname = "localhost";
+		final int default_port = 30000;
+		final String default_user = "public";
+		final String default_password = "";
 
+		final String URL_PATTERN = "jdbc:cubrid(-oracle|-mysql)?:([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
+
+		Pattern pattern = Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(url);
+
+		if (!matcher.find()) {
+			return createUnknownDataBase(url);
+		}
+
+		String host = matcher.group(2);
+		String portString = matcher.group(3);
+		String db = matcher.group(4);
+		String user = matcher.group(5);
+		String pass = matcher.group(6);
+		String prop = matcher.group(7);
+		int port = default_port;
+
+		String resolvedUrl;
+
+		if (host == null || host.length() == 0) {
+			host = default_hostname;
+		}
+
+		if (portString == null || portString.length() == 0) {
+			port = default_port;
+		} else {
+			port = Integer.parseInt(portString);
+		}
+
+		if (user == null) {
+			user = default_user;
+		}
+		
+		if (pass == null) {
+			pass = default_password;
+		}
+
+		resolvedUrl = "jdbc:cubrid:" + host + ":" + port + ":" + db + ":" + user + ":********:";
+
+		StringMaker maker = new StringMaker(url);
+		String normalizedUrl = maker.clear().before('?').value();
+
+		List<String> hostList = new ArrayList<String>(1);
+		hostList.add(host);
+
+		// alt host는 제외.
+
+		return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+	}
 }
