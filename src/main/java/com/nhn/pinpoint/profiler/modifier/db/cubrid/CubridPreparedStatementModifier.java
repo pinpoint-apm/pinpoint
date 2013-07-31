@@ -1,76 +1,86 @@
 package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.List;
+
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.config.ProfilerConstant;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
+import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
+import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-
-import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
+import com.nhn.pinpoint.profiler.util.ExcludeBindVariableFilter;
+import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
+import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 
 public class CubridPreparedStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(CubridPreparedStatementModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(CubridPreparedStatementModifier.class.getName());
 
-    public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
-    }
+	private final String[] excludes = new String[] { "setRowId", "setNClob", "setSQLXML" };
 
-    public String getTargetClass() {
-        return "cubrid/jdbc/driver/CUBRIDPreparedStatement";
-    }
+	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+		super(byteCodeInstrumentor, agent);
+	}
 
-    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
-        }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
+	public String getTargetClass() {
+		return "cubrid/jdbc/driver/CUBRIDPreparedStatement";
+	}
 
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-        try {
-            CtClass cc = null;
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+		if (logger.isInfoEnabled()) {
+			logger.info("Modifing. " + javassistClassName);
+		}
+		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+		try {
+			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            updateExecuteQueryMethod(cc);
-            updateConstructor(cc);
+			preparedStatementClass.addInterceptor("execute", null, new PreparedStatementExecuteQueryInterceptor());
+			preparedStatementClass.addInterceptor("executeQuery", null, new PreparedStatementExecuteQueryInterceptor());
+			preparedStatementClass.addInterceptor("executeUpdate", null, new PreparedStatementExecuteQueryInterceptor());
 
-            printClassConvertComplete(javassistClassName);
+			preparedStatementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
+			preparedStatementClass.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");
+			preparedStatementClass.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");
 
-            return cc.toBytecode();
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
-        return null;
-    }
+			bindVariableIntercept(preparedStatementClass, classLoader, protectedDomain);
 
-    private void updateConstructor(CtClass cc) throws Exception {
-        CtConstructor[] constructorList = cc.getConstructors();
+			return preparedStatementClass.toBytecode();
+		} catch (InstrumentException e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+			}
+			return null;
+		}
+	}
 
-        for (CtConstructor constructor : constructorList) {
-            CtClass params[] = constructor.getParameterTypes();
+	private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+		ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
+		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 
-            if (params.length > 2) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("{");
-                sb.append("if($2 instanceof cubrid.jdbc.jci.UStatement) { ");
-                sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2.getQuery());");
-                sb.append("}}");
-
-                constructor.insertBefore(sb.toString());
-            }
-        }
-    }
-
-    private void updateExecuteQueryMethod(CtClass cc) throws Exception {
-        CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
-        serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
-    }
+		Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
+		int interceptorId = -1;
+		for (Method method : bindMethod) {
+			String methodName = method.getName();
+			String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
+			try {
+				if (interceptorId == -1) {
+					interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
+				} else {
+					preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
+				}
+			} catch (NotFoundInstrumentException e) {
+				// bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
+				if (logger.isTraceEnabled()) {
+					logger.trace("bindVariable api not found. Cause:" + e.getMessage(), e);
+				}
+			}
+		}
+	}
 }

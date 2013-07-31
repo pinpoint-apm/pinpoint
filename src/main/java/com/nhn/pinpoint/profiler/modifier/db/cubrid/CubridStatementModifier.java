@@ -1,84 +1,60 @@
 package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 
+import java.security.ProtectionDomain;
+
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.config.ProfilerConstant;
-import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
+import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
-import javassist.CtClass;
-import javassist.CtMethod;
-
-import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
 
 public class CubridStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(CubridStatementModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(CubridStatementModifier.class.getName());
 
-    public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
-    }
+	public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+		super(byteCodeInstrumentor, agent);
+	}
 
-    public String getTargetClass() {
-        return "cubrid/jdbc/driver/CUBRIDStatement";
-    }
+	public String getTargetClass() {
+		return "cubrid/jdbc/driver/CUBRIDStatement";
+	}
 
-    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
-        }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+		if (logger.isInfoEnabled()) {
+			logger.info("Modifing. " + javassistClassName);
+		}
+		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+		try {
+			InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
+			statementClass.addInterceptor("executeQuery", new String[] { "java.lang.String" }, new StatementExecuteQueryInterceptor());
 
-        StaticAroundInterceptor interceptor = new StaticAroundInterceptor() {
-            @Override
-            public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-                DatabaseRequestTracer.putSqlQuery(ProfilerConstant.REQ_DATA_TYPE_DB_QUERY, (String) args[0]);
-            }
+			// TODO 이거 고쳐야 됨.
+			Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+			statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String" }, executeUpdate1);
 
-            @Override
-            public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-                DatabaseRequestTracer.put(ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY);
-                ;
-            }
-        };
+			Interceptor executeUpdate2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+			statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String", "int" }, executeUpdate2);
 
-        try {
-            // TODO  추가로 고쳐야 될듯.
-            InstrumentClass aClass = this.byteCodeInstrumentor.getClass(javassistClassName);
-            aClass.addInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor);
-            printClassConvertComplete(javassistClassName);
-            CtClass cc = null;
+			Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+			statementClass.addInterceptor("execute", new String[] { "java.lang.String" }, executeUpdate3);
 
-            updateExecuteQueryMethod(cc);
+			Interceptor executeUpdate4 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+			statementClass.addInterceptor("execute", new String[] { "java.lang.String", "int" }, executeUpdate4);
 
+			statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
 
-            return cc.toBytecode();
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
-        return null;
-    }
-
-    private void updateExecuteQueryMethod(CtClass cc) throws Exception {
-        CtClass[] params = new CtClass[1];
-        params[0] = null;
-        CtMethod method = cc.getDeclaredMethod("executeQuery", params);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append(DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$1);");
-        sb.append(DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + ");");
-        sb.append("}");
-
-        method.insertAfter(sb.toString());
-    }
+			return statementClass.toBytecode();
+		} catch (InstrumentException e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+			}
+			return null;
+		}
+	}
 }

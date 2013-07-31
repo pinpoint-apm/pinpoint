@@ -15,6 +15,8 @@ import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.NpcHessianConnectorModifier;
+import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
@@ -228,19 +230,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addCubridDriver() {
-
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
-		Modifier cubridStatementModifier = new CubridStatementModifier(byteCodeInstrumentor, agent);
-		addModifier(cubridStatementModifier);
-
-		Modifier cubridPreparedStatementModifier = new CubridPreparedStatementModifier(byteCodeInstrumentor, agent);
-		addModifier(cubridPreparedStatementModifier);
-
-		Modifier cubridResultSetModifier = new CubridResultSetModifier(byteCodeInstrumentor, agent);
-		addModifier(cubridResultSetModifier);
-
-		Modifier cubridUStatementModifier = new CubridUStatementModifier(byteCodeInstrumentor, agent);
-		addModifier(cubridUStatementModifier);
+		addModifier(new CubridConnectionModifier(byteCodeInstrumentor, agent));
+		addModifier(new CubridDriverModifier(byteCodeInstrumentor, agent));
+		addModifier(new CubridStatementModifier(byteCodeInstrumentor, agent));
+		addModifier(new CubridPreparedStatementModifier(byteCodeInstrumentor, agent));
+		addModifier(new CubridResultSetModifier(byteCodeInstrumentor, agent));
+		addModifier(new CubridUStatementModifier(byteCodeInstrumentor, agent));
 	}
 
 	private void addDbcpDriver() {
