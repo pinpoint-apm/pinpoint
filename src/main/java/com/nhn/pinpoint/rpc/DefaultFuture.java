@@ -185,6 +185,8 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
             throw new IllegalArgumentException("timeoutMillis must not be negative :" + timeoutMillis);
         }
 
+        boolean interrupted = false;
+
         synchronized (this) {
             if (ready) {
                 return true;
@@ -193,14 +195,18 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
             try {
                 this.waiters++;
                 wait(timeoutMillis);
-                return ready;
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return ready;
+                interrupted = true;
             } finally {
                 this.waiters--;
             }
         }
+
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
+        return ready;
+
     }
 
 
@@ -210,10 +216,16 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     }
 
     public void setTimeout(Timeout timeout) {
+        if (timeout == null) {
+            throw new NullPointerException("timeout");
+        }
         this.timeout = timeout;
     }
 
     public void setFailureEventHandler(FailureEventHandler failureEventHandler) {
+        if (failureEventHandler == null) {
+            throw new NullPointerException("failureEventHandler");
+        }
         this.failureEventHandler = failureEventHandler;
     }
 
