@@ -31,6 +31,9 @@ public class FixedPool<T> {
     }
 
     public void returnObject(T t) {
+        if (t == null) {
+            return;
+        }
         factory.beforeReturn(t);
         queue.offer(t);
     }

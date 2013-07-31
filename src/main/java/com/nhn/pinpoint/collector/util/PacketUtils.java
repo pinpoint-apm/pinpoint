@@ -15,4 +15,11 @@ public class PacketUtils {
         }
         return Bytes.toStringBinary(datagramPacket.getData(), 0, datagramPacket.getLength());
     }
+
+    public static String dumpByteArray(byte[] bytes) {
+        if (bytes == null) {
+            return "null";
+        }
+        return Bytes.toStringBinary(bytes, 0, bytes.length);
+    }
 }

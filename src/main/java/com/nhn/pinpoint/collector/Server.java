@@ -2,16 +2,17 @@ package com.nhn.pinpoint.collector;
 
 import java.util.concurrent.Future;
 
+import com.nhn.pinpoint.collector.config.CollectorConfiguration;
+import com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver;
 import com.nhn.pinpoint.collector.receiver.udp.DataReceiver;
-import com.nhn.pinpoint.collector.receiver.udp.MultiplexedPacketHandler;
+import com.nhn.pinpoint.collector.receiver.DispatchHandler;
+import com.nhn.pinpoint.collector.receiver.udp.UDPReceiver;
 import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
-
-import com.nhn.pinpoint.collector.receiver.udp.MultiplexedUDPReceiver;
 
 public class Server {
 
@@ -21,17 +22,35 @@ public class Server {
 		new Server().start();
 	}
 
-	private DataReceiver mulplexDataReceiver;
-	GenericApplicationContext context;
+	private DataReceiver udpDataReceiver;
+    private TCPReceiver tcpReceiver;
+	private GenericApplicationContext context;
 
 	public void start() {
 		logger.info("Initializing server components.");
-		context = createContext();
+        try {
+            context = createContext();
+            DispatchHandler dispatchHandler = ApplicationContextUtils.getDispatchHandler(context);
 
-        logger.info("Starting MultiplexedUDPReceiver receive UDP Thread.");
-        MultiplexedPacketHandler multiplexedPacketHandlerBean = ApplicationContextUtils.getMultiplexedPacketHandler(context);
-        mulplexDataReceiver = new MultiplexedUDPReceiver(multiplexedPacketHandlerBean);
-        Future<Boolean> startFuture = mulplexDataReceiver.start();
+
+            CollectorConfiguration configuration = new CollectorConfiguration();
+            configuration.readConfigFile();
+
+            tcpServerStart(configuration, dispatchHandler);
+            udpServerStart(configuration, dispatchHandler);
+        } catch (Exception ex) {
+            logger.error("pinpoint collector start fail. Caused:{}", ex.getMessage(), ex);
+            shutdown();
+            return;
+        }
+
+        addShutdownHook();
+	}
+
+    private void udpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+        logger.info("Starting UDPReceiver.");
+        udpDataReceiver = new UDPReceiver(dispatchHandler, configuration.getCollectorUdpListenPort());
+        Future<Boolean> startFuture = udpDataReceiver.start();
 
         boolean successfullyStarted = true;
         try {
@@ -41,16 +60,20 @@ public class Server {
 			logger.error("Failed to start multiplexDataReceiver.");
 		}
 
-		if (successfullyStarted) {
-			logger.info("Server started successfully.");
-		} else {
-			logger.warn("Server started incompletely.");
-		}
+        if (successfullyStarted) {
+            logger.info("Server started successfully.");
+        } else {
+            logger.warn("Server started incompletely.");
+        }
+    }
 
-		addShutdownHook();
-	}
+    private void tcpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+        logger.info("Starting TCPReceiver.");
+        tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getCollectorTcpListenPort());
+        tcpReceiver.start();
+    }
 
-	private GenericApplicationContext createContext() {
+    private GenericApplicationContext createContext() {
 		GenericXmlApplicationContext context = new GenericXmlApplicationContext();
 		ClassPathResource resource = new ClassPathResource("applicationContext.xml");
 		context.load(resource);
@@ -62,10 +85,16 @@ public class Server {
 	}
 
 	private void shutdown() {
-		if (mulplexDataReceiver != null) {
-			logger.info("Shutdown MultiplexedUDPReceiver Receive UDP Thread.");
-			mulplexDataReceiver.shutdown();
-			logger.info("Shutdown MultiplexedUDPReceiver complete.");
+        if(tcpReceiver != null) {
+            logger.info("Shutdown TCPReceiver.");
+            tcpReceiver.stop();
+            logger.info("Shutdown TCPReceiver complete.");
+        }
+
+		if (udpDataReceiver != null) {
+			logger.info("Shutdown UDPReceiver.");
+			udpDataReceiver.shutdown();
+			logger.info("Shutdown UDPReceiver complete.");
 		}
 		if (context != null) {
 			context.close();
