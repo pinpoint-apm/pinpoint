@@ -413,6 +413,7 @@ public class SpanEventBo implements Span {
 
 		sb.append(this.getClass().getName()).append("={");
 		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
+		sb.append("\n\tserviceType=").append(serviceType);
 		sb.append("\n\tmostTraceId=").append(mostTraceId).append(", leastTraceId=").append(leastTraceId);
 		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
 		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
