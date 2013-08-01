@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
-            <version>1.5.10</version>
+            <version>1.5.18</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
