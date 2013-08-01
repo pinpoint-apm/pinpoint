@@ -60,17 +60,17 @@ public class NpcHessianConnectorModifier extends AbstractModifier {
 			Interceptor connectInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.ConnectInterceptor");
 			connectorClass.addInterceptor("connect", new String[] { "boolean" }, connectInterceptor);
 
-			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
-			connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.lang.Object[]" }, interceptor);
+			// Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
+			// connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.lang.Object[]" }, interceptor);
 
 			Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
 			connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, interceptor1);
 
-			Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
-			connectorClass.addInterceptor("execute", new String[] { "java.lang.String", "java.lang.String", "java.lang.Object[]" }, interceptor2);
+			// Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
+			// connectorClass.addInterceptor("execute", new String[] { "java.lang.String", "java.lang.String", "java.lang.Object[]" }, interceptor2);
 
-			Interceptor interceptor3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
-			connectorClass.addInterceptor("execute", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, interceptor3);
+			// Interceptor interceptor3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
+			// connectorClass.addInterceptor("execute", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, interceptor3);
 
 			connectorClass.addConstructorInterceptor(new String[] { "java.net.InetSocketAddress", "boolean", "boolean", "boolean", "java.nio.charset.Charset", "long" }, new NpcHessianConnectorInterceptor());
 			connectorClass.addConstructorInterceptor(new String[] { "java.net.InetSocketAddress", "com.nhncorp.lucy.npc.connector.ConnectionFactory" }, new NpcHessianConnectorInterceptor());
