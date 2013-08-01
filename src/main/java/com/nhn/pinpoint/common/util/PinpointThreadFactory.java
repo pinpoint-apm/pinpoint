@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PinpointThreadFactory implements ThreadFactory {
 
     private final static AtomicInteger FACTORY_NUMBER = new AtomicInteger(0);
-    private final AtomicInteger THREAD_NUMBER = new AtomicInteger(0);
+    private final AtomicInteger threadNumber = new AtomicInteger(0);
 
     private String factoryName;
     private String threadName;
@@ -57,7 +57,7 @@ public class PinpointThreadFactory implements ThreadFactory {
         buffer.append('-');
         buffer.append(factoryName);
         buffer.append('-');
-        buffer.append(THREAD_NUMBER.getAndIncrement());
+        buffer.append(threadNumber.getAndIncrement());
         buffer.append(')');
         return buffer.toString();
     }
