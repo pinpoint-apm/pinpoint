@@ -57,6 +57,9 @@ public class NpcHessianConnectorModifier extends AbstractModifier {
 
 			connectorClass.addTraceVariable("__serverAddress", "__setServerAddress", "__getServerAddress", "java.net.InetSocketAddress");
 
+			Interceptor connectInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.ConnectInterceptor");
+			connectorClass.addInterceptor("connect", new String[] { "boolean" }, connectInterceptor);
+
 			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
 			connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.lang.Object[]" }, interceptor);
 
@@ -74,7 +77,7 @@ public class NpcHessianConnectorModifier extends AbstractModifier {
 
 			return connectorClass.toBytecode();
 		} catch (Throwable e) {
-			logger.warn("httpclient4 modifier error. Caused:{}", e.getMessage(), e);
+			logger.warn(this.getClass().getSimpleName() + " modifier error. Caused:{}", e.getMessage(), e);
 			return null;
 		}
 	}
