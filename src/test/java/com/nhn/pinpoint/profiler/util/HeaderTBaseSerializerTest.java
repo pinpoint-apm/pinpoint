@@ -30,12 +30,12 @@ public class HeaderTBaseSerializerTest {
         jvmInfoThriftDTO.setActiveThreadCount(activeThreadount);
         String agentId = "agentId";
         jvmInfoThriftDTO.setAgentId(agentId);
-        byte[] serialize = serializer.serialize(header, jvmInfoThriftDTO);
+        byte[] serialize = serializer.serialize(jvmInfoThriftDTO);
         dump(serialize);
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         TBaseLocator locator = new DefaultTBaseLocator();
-        JVMInfoThriftDTO deserialize = (JVMInfoThriftDTO) deserializer.deserialize(locator, serialize);
+        JVMInfoThriftDTO deserialize = (JVMInfoThriftDTO) deserializer.deserialize(serialize);
         logger.info("deserialize:" + deserialize.getClass());
 
         Assert.assertEquals(deserialize.getActiveThreadCount(), activeThreadount);

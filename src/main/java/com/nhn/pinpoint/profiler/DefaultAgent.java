@@ -19,6 +19,7 @@ import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
 
@@ -89,7 +90,7 @@ public class DefaultAgent implements Agent {
         this.agentId = getId("pinpoint.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
         this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
 
-        this.priorityDataSender = createDataSender();
+        this.priorityDataSender = createTcpDataSender();
         this.dataSender = createDataSender();
         this.startTime = System.currentTimeMillis();
 
@@ -109,6 +110,8 @@ public class DefaultAgent implements Agent {
 
         SingletonHolder.INSTANCE = this;
     }
+
+
 
     private void dumpSystemProperties() {
         if (logger.isInfoEnabled()) {
@@ -243,8 +246,12 @@ public class DefaultAgent implements Agent {
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
+    private TcpDataSender createTcpDataSender() {
+        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
+    }
+
     private UdpDataSender createDataSender() {
-        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorServerPort());
+        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
     }
 
     private String getId(String key, String defaultValue, int maxlen) {
