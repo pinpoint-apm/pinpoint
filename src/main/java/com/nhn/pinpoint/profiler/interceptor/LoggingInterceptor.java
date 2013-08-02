@@ -16,29 +16,29 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
 
 	@Override
 	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+		if (logger.isLoggable(Level.FINE)) {
+			logger.fine("before " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
 		}
 	}
 
 	@Override
 	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+		if (logger.isLoggable(Level.FINE)) {
+			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
 		}
 	}
 
     @Override
     public void before(Object target, Object[] args) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("before " + StringUtils.toString(target) + " args:" + Arrays.toString(args) );
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("before " + StringUtils.toString(target) + " args:" + Arrays.toString(args) );
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result) {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("after " + StringUtils.toString(target) + " args:" + Arrays.toString(args) + " result:" + result);
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("after " + StringUtils.toString(target) + " args:" + Arrays.toString(args) + " result:" + result);
         }
     }
 

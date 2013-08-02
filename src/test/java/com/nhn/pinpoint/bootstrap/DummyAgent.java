@@ -20,37 +20,33 @@ public class DummyAgent implements Agent {
 
     @Override
     public void start() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void started() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void stop() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void addConnector(String protocol, int port) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public TraceContext getTraceContext() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public Object getByteCodeInstrumentor() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public ProfilerConfig getProfilerConfig() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override

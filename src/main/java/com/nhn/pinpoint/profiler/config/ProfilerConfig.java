@@ -286,8 +286,8 @@ public class ProfilerConfig {
         return "ProfilerConfig{" +
                 "\n profileEnable=" + profileEnable +
                 "\n collectorServerIp='" + collectorServerIp + '\'' +
-                "\n collectorUdpServerPort=" + collectorUdpServerPort +
                 "\n collectorTcpServerPort=" + collectorTcpServerPort +
+                "\n collectorUdpServerPort=" + collectorUdpServerPort +
                 "\n jdbcProfile=" + jdbcProfile +
                 "\n jdbcProfileMySql=" + jdbcProfileMySql +
                 "\n jdbcProfileMsSql=" + jdbcProfileMsSql +
