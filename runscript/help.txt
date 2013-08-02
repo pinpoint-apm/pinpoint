@@ -2,6 +2,8 @@
 #
 # add below JVM options to TOMCAT-HOME/bin/catalina.sh
 #
-PINPOINT_AGENT_HOME="/home1/irteam/apps/pinpoint/agent"
-PINPOINT_VERSION="0.0.3-SNAPSHOT"
-JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar -Dpinpoint.agentId=YOUR-UNIQUE-AGENT-ID -Dpinpoint.applicationName=YOUR-APPLICATION-NAME"
+if [ "$1" != "stop" ] ; then
+	PINPOINT_AGENT_HOME="/home1/irteam/apps/pinpoint/agent"
+	PINPOINT_VERSION="0.0.3-SNAPSHOT"
+	JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar -Dpinpoint.agentId=YOUR-UNIQUE-AGENT-ID -Dpinpoint.applicationName=YOUR-APPLICATION-NAME"
+fi
