@@ -28,7 +28,12 @@ public class FixedPool<T> {
     }
 
     public T getObject() {
-        return queue.poll();
+        T object = queue.poll();
+        if (object == null) {
+            // 동적생성wm.
+            return factory.create();
+        }
+        return object;
     }
 
     public void returnObject(T t) {

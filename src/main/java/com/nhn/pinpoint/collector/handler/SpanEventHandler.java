@@ -15,7 +15,7 @@ import com.nhn.pinpoint.common.util.SpanEventUtils;
 /**
  * subspan represent terminal spans.
  */
-public class SpanEventHandler implements Handler {
+public class SpanEventHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -35,7 +35,7 @@ public class SpanEventHandler implements Handler {
 //	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
 
     @Override
-    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+    public void handler(TBase<?, ?> tbase) {
 
         if (!(tbase instanceof SpanEvent)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());

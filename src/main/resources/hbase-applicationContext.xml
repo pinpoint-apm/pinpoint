@@ -27,5 +27,7 @@
 
     <bean id="hbaseTemplate" class="com.nhn.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"></property>
+        <!-- hbase pool 사이즈 동적설정이 필요함. -->
+        <!--<property name="poolSize" value="1024"></property>-->
     </bean>
 </beans>

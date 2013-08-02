@@ -27,7 +27,7 @@
 
     <import resource="classpath:hbase-applicationContext.xml"></import>
 
-    <bean id="MultiplexedPacketHandler" class="com.nhn.pinpoint.collector.receiver.udp.MultiplexedPacketHandler"></bean>
+    <bean id="DispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"></bean>
 
     <bean id="JvmDataHandler" class="com.nhn.pinpoint.collector.handler.JVMDataHandler"/>
     <bean id="SpanHandler" class="com.nhn.pinpoint.collector.handler.SpanHandler"/>

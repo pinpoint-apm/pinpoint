@@ -1,9 +1,15 @@
 package com.nhn.pinpoint.collector.receiver.udp;
 
-import com.nhn.pinpoint.collector.config.TomcatProfilerReceiverConfig;
+import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
 import com.nhn.pinpoint.collector.util.FixedPool;
 import com.nhn.pinpoint.collector.util.PacketUtils;
+import com.nhn.pinpoint.common.dto2.Header;
+import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.common.util.ExecutorFactory;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
 import org.jboss.netty.handler.timeout.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,43 +21,49 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MultiplexedUDPReceiver implements DataReceiver {
+public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private final ThreadPoolExecutor worker = (ThreadPoolExecutor) Executors.newFixedThreadPool(512);
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-UDP-Worker");
 
-    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(),1024);
+    private int threadSize = 512;
+    private int workerQueueSize = 1024 * 5;
+
+    // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
+    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
+
+    // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
+    // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
+    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), threadSize + workerQueueSize);
 
     private DatagramSocket socket = null;
 
-    private MultiplexedPacketHandler multiplexedPacketHandler;
+    private DispatchHandler dispatchHandler;
 
-    private long rejectedExecutionCount = 0;
+    private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
     private final CountDownLatch startLatch = new CountDownLatch(1);
 
-    public MultiplexedUDPReceiver(MultiplexedPacketHandler multiplexedPacketHandler) {
-        this(multiplexedPacketHandler, TomcatProfilerReceiverConfig.SERVER_UDP_LISTEN_PORT);
-    }
-
-    public MultiplexedUDPReceiver(MultiplexedPacketHandler multiplexedPacketHandler, int port) {
-        if (multiplexedPacketHandler == null) {
-            throw new NullPointerException("multiplexedPacketHandler");
+    public UDPReceiver(DispatchHandler dispatchHandler, int port) {
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler");
         }
         this.socket = createSocket(port);
-        this.multiplexedPacketHandler = multiplexedPacketHandler;
+        this.dispatchHandler = dispatchHandler;
     }
 
-    private Thread ioThread = new Thread(MultiplexedUDPReceiver.class.getSimpleName()) {
+    private Thread ioThread = THREAD_FACTORY.newThread(new Runnable() {
         @Override
         public void run() {
             receive();
         }
-    };
+    });
+
 
     public void receive() {
         if (logger.isInfoEnabled()) {
@@ -73,11 +85,11 @@ public class MultiplexedUDPReceiver implements DataReceiver {
             try {
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
-                rejectedExecutionCount++;
-                if (rejectedExecutionCount > 1000) {
-                    logger.warn("RejectedExecutionCount=1000");
-                    rejectedExecutionCount = 0;
-                }
+                final int error = rejectedExecutionCount.getAndIncrement();
+                final int mod = 10;
+                if ((error % mod) == 0) {
+                    logger.warn("RejectedExecutionCount={}", error);
+                 }
             }
         }
     }
@@ -121,6 +133,7 @@ public class MultiplexedUDPReceiver implements DataReceiver {
     private DatagramSocket createSocket(int port) {
         try {
             DatagramSocket so = new DatagramSocket(port);
+
             so.setSoTimeout(1000 * 10);
             return so;
         } catch (SocketException ex) {
@@ -198,13 +211,32 @@ public class MultiplexedUDPReceiver implements DataReceiver {
 
         @Override
         public void run() {
+            // thread local로 캐쉬할까? 근데 worker라서 별로 영향이 없을거 같음.
+            HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
             try {
-                multiplexedPacketHandler.handlePacket(packet);
-                // packet에 대한 캐쉬를 해야 될듯.
-                // packet.return(); 등등
+                TBase<?, ?> tBase = deserializer.deserialize(packet.getData());
+                // dispatch는 비지니스 로직 실행을 의미.
+                dispatchHandler.dispatch(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
+            } catch (TException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e});
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
+                }
+            } catch (Exception e) {
+                // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e});
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
+                }
             } finally {
                 datagramPacketPool.returnObject(packet);
             }
         }
+
+
     }
 }

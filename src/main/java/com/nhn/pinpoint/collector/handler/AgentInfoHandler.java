@@ -12,7 +12,7 @@ import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
 import com.nhn.pinpoint.collector.dao.AgentInfoDao;
 import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
 
-public class AgentInfoHandler implements Handler {
+public class AgentInfoHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
 
@@ -25,7 +25,7 @@ public class AgentInfoHandler implements Handler {
 	@Autowired
 	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+	public void handler(TBase<?, ?> tbase) {
 		if (!(tbase instanceof AgentInfo)) {
 			logger.warn("invalid tbase:{}", tbase);
 			return;

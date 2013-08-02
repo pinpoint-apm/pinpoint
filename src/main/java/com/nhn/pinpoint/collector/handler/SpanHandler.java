@@ -18,7 +18,7 @@ import com.nhn.pinpoint.common.dto2.thrift.Span;
 import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 
-public class SpanHandler implements Handler {
+public class SpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -52,7 +52,7 @@ public class SpanHandler implements Handler {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
     
-    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+    public void handler(TBase<?, ?> tbase) {
 
         if (!(tbase instanceof Span)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());

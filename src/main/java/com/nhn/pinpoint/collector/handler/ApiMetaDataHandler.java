@@ -12,7 +12,7 @@ import java.net.DatagramPacket;
 /**
  *
  */
-public class ApiMetaDataHandler implements Handler {
+public class ApiMetaDataHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -20,14 +20,14 @@ public class ApiMetaDataHandler implements Handler {
 	private ApiMetaDataDao sqlMetaDataDao;
 
 	@Override
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+	public void handler(TBase<?, ?> tbase) {
 		if (!(tbase instanceof ApiMetaData)) {
 			logger.warn("invalid tbase:{}", tbase);
 			return;
 		}
 		
 		ApiMetaData apiMetaData = (ApiMetaData) tbase;
-		
+
 		if (logger.isInfoEnabled()) {
 			logger.info("Received ApiMetaData{}", apiMetaData);
 		}

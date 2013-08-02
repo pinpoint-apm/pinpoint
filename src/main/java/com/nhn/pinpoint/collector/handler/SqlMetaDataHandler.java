@@ -13,14 +13,14 @@ import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
 /**
  *
  */
-public class SqlMetaDataHandler implements Handler {
+public class SqlMetaDataHandler implements SimpleHandler {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private SqlMetaDataDao sqlMetaDataDao;
 
 	@Override
-	public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+	public void handler(TBase<?, ?> tbase) {
 		if (!(tbase instanceof SqlMetaData)) {
 			logger.warn("invalid tbase:{}", tbase);
 			return;

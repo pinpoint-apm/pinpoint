@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.spring;
 
-import com.nhn.pinpoint.collector.receiver.udp.MultiplexedPacketHandler;
+import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -16,8 +16,8 @@ public class ApplicationContextUtils {
         return createContext0("applicationContext.xml");
     }
 
-    public static MultiplexedPacketHandler getMultiplexedPacketHandler(AbstractApplicationContext context) {
-        return context.getBean("MultiplexedPacketHandler", MultiplexedPacketHandler.class);
+    public static DispatchHandler getDispatchHandler(AbstractApplicationContext context) {
+        return context.getBean("DispatchHandler", DispatchHandler.class);
     }
 
     private static GenericApplicationContext createContext0(String contextClassPath) {

@@ -18,7 +18,7 @@ public class JVMDataHandler implements Handler {
     @Autowired
     private JvmInfoDao jvmInfoDao;
 
-    public void handler(TBase<?, ?> tbase, DatagramPacket datagramPacket) {
+    public void handler(TBase<?, ?> tbase, byte[] packet, int offset, int length) {
         if (!(tbase instanceof JVMInfoThriftDTO)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
         }
@@ -30,7 +30,7 @@ public class JVMDataHandler implements Handler {
                 logger.info("Received JVM={}", dto);
             }
 
-            byte[] bytes = PacketUtils.sliceData(datagramPacket, Header.HEADER_SIZE);
+            byte[] bytes = PacketUtils.sliceData(packet, Header.HEADER_SIZE, length);
 
             jvmInfoDao.insert(dto, bytes);
         } catch (Exception e) {

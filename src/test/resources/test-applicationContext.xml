@@ -28,7 +28,6 @@
         <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
     </bean>
 
-    <bean class="com.nhn.pinpoint.common.io.DefaultTBaseLocator"></bean>
 
     <bean id="testTraceIndex" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceIndexDao">
         <property name="tableName" value="TestTraceIndex"/>
