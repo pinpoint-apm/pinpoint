@@ -13,6 +13,7 @@ public class HeaderTBaseDeserializer {
     private final TProtocol protocol_;
     private final TMemoryInputTransport trans_;
 
+    private final TBaseLocator locator = new DefaultTBaseLocator();
     /**
      * Create a new TDeserializer that uses the TBinaryProtocol by default.
      */
@@ -35,10 +36,9 @@ public class HeaderTBaseDeserializer {
     /**
      * Deserialize the Thrift object from a byte array.
      *
-     * @param locator The object to read into
      * @param bytes   The array to read from
      */
-    public TBase<?, ?> deserialize(TBaseLocator locator, byte[] bytes) throws TException {
+    public TBase<?, ?> deserialize(byte[] bytes) throws TException {
         try {
             trans_.reset(bytes);
             Header header = readHeader();

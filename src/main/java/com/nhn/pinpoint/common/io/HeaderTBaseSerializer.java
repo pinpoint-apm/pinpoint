@@ -1,8 +1,7 @@
 package com.nhn.pinpoint.common.io;
 
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
 
+import com.nhn.pinpoint.common.dto2.Header;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -11,7 +10,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
 
-import com.nhn.pinpoint.common.dto2.Header;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java
@@ -23,7 +22,7 @@ public class HeaderTBaseSerializer {
      * This is the byte array that data is actually serialized into
      */
     // udp 패킷 사이즈에 최대 맞춤.
-    private final ByteArrayOutputStream baos_ = new ByteArrayOutputStream(1024 * 64);
+    private final UnsafeByteArrayOutputStream baos_ = new UnsafeByteArrayOutputStream(1024 * 64);
 
     /**
      * This transport wraps that byte array
@@ -40,9 +39,10 @@ public class HeaderTBaseSerializer {
      */
     public HeaderTBaseSerializer() {
 
-//		this(new TBinaryProtocol.Factory());
-        this(new TCompactProtocol.Factory());
+        this(new TCompactProtocol.Factory(), new DefaultTBaseLocator());
     }
+
+    private TBaseLocator locator;
 
     /**
      * Create a new TSerializer. It will use the TProtocol specified by the
@@ -50,8 +50,9 @@ public class HeaderTBaseSerializer {
      *
      * @param protocolFactory Factory to create a protocol
      */
-    public HeaderTBaseSerializer(TProtocolFactory protocolFactory) {
+    public HeaderTBaseSerializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
         protocol_ = protocolFactory.getProtocol(transport_);
+        this.locator = locator;
     }
 
     /**
@@ -62,11 +63,18 @@ public class HeaderTBaseSerializer {
      * @param base The object to serialize
      * @return Serialized object in byte[] format
      */
-    public byte[] serialize(Header header, TBase<?, ?> base) throws TException {
+    public byte[] serialize(TBase<?, ?> base) throws TException {
+        final Header header = locator.headerLookup(base);
         baos_.reset();
         writeHeader(header);
         base.write(protocol_);
-        return baos_.toByteArray();
+//        return baos_.toByteArray();
+        return baos_.getInterBuffer();
+    }
+
+    public int getInterBufferSize() {
+
+        return baos_.size();
     }
 
     private void writeHeader(Header header) throws TException {
@@ -86,9 +94,9 @@ public class HeaderTBaseSerializer {
      * @param charset Valid JVM charset
      * @return Serialized object as a String
      */
-    public String toString(Header header, TBase<?, ?> base, String charset) throws TException {
+    public String toString(TBase<?, ?> base, String charset) throws TException {
         try {
-            return new String(serialize(header, base), charset);
+            return new String(serialize(base), charset);
         } catch (UnsupportedEncodingException uex) {
             throw new TException("JVM DOES NOT SUPPORT ENCODING: " + charset);
         }
@@ -101,7 +109,7 @@ public class HeaderTBaseSerializer {
      * @param base The object to serialize
      * @return Serialized object as a String
      */
-    public String toString(Header header, TBase<?, ?> base) throws TException {
-        return new String(serialize(header, base));
+    public String toString(TBase<?, ?> base) throws TException {
+        return new String(serialize(base));
     }
 }
