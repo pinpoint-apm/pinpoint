@@ -27,13 +27,12 @@ public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-UDP-Worker");
+//    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-UDP-Io");
 
     private int threadSize = 512;
     private int workerQueueSize = 1024 * 5;
-
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
-    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
+    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
@@ -57,7 +56,7 @@ public class UDPReceiver implements DataReceiver {
         this.dispatchHandler = dispatchHandler;
     }
 
-    private Thread ioThread = THREAD_FACTORY.newThread(new Runnable() {
+    private Thread ioThread = new PinpointThreadFactory("Pinpoint-UDP-Io").newThread(new Runnable() {
         @Override
         public void run() {
             receive();
