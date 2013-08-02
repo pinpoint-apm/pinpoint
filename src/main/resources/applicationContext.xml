@@ -36,7 +36,7 @@
     <bean id="SpanChunkHandler" class="com.nhn.pinpoint.collector.handler.SpanChunkHandler"/>
     <bean id="SqlMetaDataHandler" class="com.nhn.pinpoint.collector.handler.SqlMetaDataHandler"/>
     <bean id="ApiMetaDataHandler" class="com.nhn.pinpoint.collector.handler.ApiMetaDataHandler"/>
-    <bean id="StatisticsHandler" class="com.nhn.pinpoint.collector.handler.StatisticsHandler" init-method="initialize" destroy-method="shutdown"/>
+    <bean id="StatisticsHandler" class="com.nhn.pinpoint.collector.handler.StatisticsHandler"/>
 
     <bean class="com.nhn.pinpoint.common.io.DefaultTBaseLocator"></bean>
 
@@ -52,13 +52,13 @@
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApiMetaDataDao"></bean>
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseBusinessTransactionStatisticsDao"></bean>
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseClientStatisticsDao"></bean>
-	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCallerDao">
+	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCallerDao" id="applicationMapStatisticsCallerDao">
 		<beans:constructor-arg name="useBulk" value="true" />
 	</bean>
-	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCalleeDao">
+	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationMapStatisticsCalleeDao" id="applicationMapStatisticsCalleeDao">
 		<beans:constructor-arg name="useBulk" value="true" />
 	</bean>
-	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationStatisticsDao">
+	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseApplicationStatisticsDao" id="applicationMapStatisticsDao">
 		<beans:constructor-arg name="useBulk" value="true" />
 	</bean>
 	<bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseHostApplicationMapDao"></bean>
@@ -66,4 +66,14 @@
     <bean id="applicationNameMapper" class="com.nhn.pinpoint.collector.dao.mapper.ApplicationNameMapper"></bean>
 
     <bean id="acceptedTimeService" class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
+    
+    <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
+    	<beans:property name="cachedStatisticsDaoList">
+    		<beans:list>
+    			<beans:ref bean="applicationMapStatisticsDao"/>
+    			<beans:ref bean="applicationMapStatisticsCalleeDao"/>
+    			<beans:ref bean="applicationMapStatisticsCallerDao"/>
+    		</beans:list>
+    	</beans:property>
+    </bean>
 </beans>
