@@ -13,6 +13,9 @@ mkdir -p ../pinpoint-testbed/agent/lib
 
 cp ./target/pinpoint-bootstrap-$VERSION-jar-with-dependencies.jar ../pinpoint-testbed/agent/pinpoint-bootstrap-$VERSION.jar
 
+cp ../pinpoint-rpc/target/pinpoint-rpc-$VERSION.jar ../pinpoint-testbed/agent/lib
+cp ../pinpoint-rpc/target/dependency/netty-3.6.6.Final.jar ../pinpoint-testbed/agent/lib
+
 cp ../pinpoint-profiler/target/pinpoint-profiler-$VERSION.jar ../pinpoint-testbed/agent/lib
 cp ../pinpoint-profiler/target/dependency/javassist-3.16.1-GA.jar ../pinpoint-testbed/agent/lib
 cp ../pinpoint-profiler/target/dependency/libthrift-0.9.0.jar ../pinpoint-testbed/agent/lib
