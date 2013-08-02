@@ -29,8 +29,10 @@ public class SocketHandler extends SimpleChannelHandler {
     private SocketAddress socketAddress;
     private volatile PinpointSocket pinpointSocket;
 
-    private RequestManager requestManager = new RequestManager();
-    private StreamChannelManager streamChannelManager = new StreamChannelManager();
+    private final RequestManager requestManager = new RequestManager();
+    private final StreamChannelManager streamChannelManager = new StreamChannelManager();
+
+    private final ChannelFutureListener writeFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.");
 
 
     public SocketHandler() {
@@ -68,6 +70,14 @@ public class SocketHandler extends SimpleChannelHandler {
         }
     }
 
+    public void sendPing() {
+        if (!this.state.isRun()) {
+            return;
+        }
+        logger.debug("sendPing {}", channel);
+        ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
+        write.addListener(writeFailFutureListener);
+    }
 
     public void send(byte[] bytes) {
         if (bytes == null) {
@@ -191,18 +201,20 @@ public class SocketHandler extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("UnexpectedError happened. event:{}", e, e.getCause());
-        state.setState(State.CLOSED);
-        Channel channel = e.getChannel();
-        if (channel.isConnected()) {
-            channel.close();
-        }
+        // error가 발생하였을 경우의 동작을 더 정확히 해야 될듯함.
+//          아래처럼 하면 상대방이 그냥 죽었을때 reconnet가 안됨.
+//        state.setClosed();
+//        Channel channel = e.getChannel();
+//        if (channel.isConnected()) {
+//            channel.close();
+//        }
 
     }
 
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         logger.debug("channelClosed {}", e.getChannel());
-        int currentState = state.getState();
+        final int currentState = state.getState();
         if (currentState == State.CLOSED) {
             logger.debug("channelClosed state:{} {}", state.getString(currentState), ctx.getChannel());
             return;
@@ -233,26 +245,38 @@ public class SocketHandler extends SimpleChannelHandler {
         throw new PinpointSocketException("invalid socket state:" + currentState);
     }
 
-    private boolean isRun() {
-        final int currentState = state.getState();
-        if (currentState != State.RUN) {
-            return false;
-        }
-        return true;
+
+    boolean isRun() {
+        return state.isRun();
+    }
+
+    boolean isClosed() {
+        return state.isClosed();
     }
 
     public void close() {
-        if (!state.changeClosed()) {
+        int currentState = this.state.getState();
+        if (currentState == State.CLOSED) {
             return;
         }
+        if (!this.state.changeClosed(currentState)) {
+            return;
+        }
+
         // hand shake close
         final Channel channel = this.channel;
-        ClosePacket closePacket = new ClosePacket();
-        channel.write(closePacket);
+        sendClosedPacket(channel);
 
         this.requestManager.close();
         this.streamChannelManager.close();
         channel.close();
+    }
+
+    private void sendClosedPacket(Channel channel) {
+        ClosePacket closePacket = new ClosePacket();
+        ChannelFuture write = channel.write(closePacket);
+        // write패킷이 io에 써질때까지는 대기를 해야 함.
+        write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
     }
 
 

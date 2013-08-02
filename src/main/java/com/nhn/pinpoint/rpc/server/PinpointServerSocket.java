@@ -64,8 +64,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
         // buffer
-        bootstrap.setOption("child.sendBufferSize", 4096 * 2);
-        bootstrap.setOption("child.receiveBufferSize", 4096 * 2);
+        bootstrap.setOption("child.sendBufferSize", 1024 * 64);
+        bootstrap.setOption("child.receiveBufferSize", 1024 * 64);
+
     }
 
 

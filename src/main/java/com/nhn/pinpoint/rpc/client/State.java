@@ -21,8 +21,20 @@ public class State {
         return this.state.get();
     }
 
+    public boolean isRun() {
+        return state.get() == RUN;
+    }
+
+    public boolean isClosed() {
+        return state.get() == CLOSED;
+    }
+
     public boolean changeRun() {
         return this.state.compareAndSet(INIT, RUN);
+    }
+
+    public boolean changeClosed(int before) {
+        return this.state.compareAndSet(before, CLOSED);
     }
 
     public boolean changeClosed() {

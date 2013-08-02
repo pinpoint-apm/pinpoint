@@ -52,6 +52,23 @@ public class PinpointSocketFactoryTest {
     }
 
     @Test
+    public void ping() throws IOException, InterruptedException {
+        PinpointServerSocket ss = new PinpointServerSocket();
+        ss.bind("127.0.0.1", 10234);
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setPingDelay(100);
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+            Thread.sleep(2000);
+            socket.close();
+        } finally {
+            pinpointSocketFactory.release();
+            ss.close();
+        }
+
+    }
+
+    @Test
     public void sendSync() throws IOException, InterruptedException {
         PinpointServerSocket ss = new PinpointServerSocket();
 //        ss.setPipelineFactory(new DiscardPipelineFactory());

@@ -42,14 +42,28 @@ public class PacketDecoder extends FrameDecoder {
 
             case PacketType.CONTROL_CLOSE:
                 return readControlClose(packetType, buffer);
+            case PacketType.CONTROL_PING:
+                return readPing(packetType, buffer);
+            case PacketType.CONTROL_PONG:
+                return readPong(packetType, buffer);
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
         return null;
     }
 
+
+
     private Object readControlClose(short packetType, ChannelBuffer buffer) {
         return ClosePacket.readBuffer(packetType, buffer);
+    }
+
+    private Object readPong(short packetType, ChannelBuffer buffer) {
+        return PongPacket.readBuffer(packetType, buffer);
+    }
+
+    private Object readPing(short packetType, ChannelBuffer buffer) {
+        return PingPacket.readBuffer(packetType, buffer);
     }
 
 

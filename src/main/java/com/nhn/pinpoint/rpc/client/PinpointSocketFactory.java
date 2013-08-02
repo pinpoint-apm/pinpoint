@@ -10,6 +10,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import java.net.SocketAddress;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +37,9 @@ public class PinpointSocketFactory {
     private ClientBootstrap bootstrap;
 
     private long reconnectDelay = 3000;
-    private HashedWheelTimer reconnector;
+    private Timer timer;
+    // ping은 5분 주기
+    private long pingDelay = 1000*60*5;
 
 
     public PinpointSocketFactory() {
@@ -43,8 +47,14 @@ public class PinpointSocketFactory {
         setOptions(bootstrap);
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
-        this.reconnector = new HashedWheelTimer(100, TimeUnit.MILLISECONDS);
-        this.reconnector.start();
+        this.timer = createTimer();
+    }
+
+    private Timer createTimer() {
+        ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName() + "Timer");
+        HashedWheelTimer timer = new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS);
+        timer.start();
+        return timer;
     }
 
     private void addPipeline(ClientBootstrap bootstrap) {
@@ -61,8 +71,9 @@ public class PinpointSocketFactory {
         bootstrap.setOption("tcpNoDelay", true);
         bootstrap.setOption("keepAlive", true);
         // buffer
-        bootstrap.setOption("sendBufferSize", 4096 * 2);
-        bootstrap.setOption("receiveBufferSize", 4096 * 2);
+        bootstrap.setOption("sendBufferSize", 1024 * 64);
+        bootstrap.setOption("receiveBufferSize", 1024 * 64);
+        bootstrap.setOption("receiveBufferSize", 1024 * 64);
     }
 
     public void setConnectTimeout(int connectTimeout) {
@@ -79,6 +90,14 @@ public class PinpointSocketFactory {
 
     public void setReconnectDelay(long reconnectDelay) {
         this.reconnectDelay = reconnectDelay;
+    }
+
+    public long getPingDelay() {
+        return pingDelay;
+    }
+
+    public void setPingDelay(long pingDelay) {
+        this.pingDelay = pingDelay;
     }
 
     private ClientBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -147,7 +166,7 @@ public class PinpointSocketFactory {
     }
 
     private void reconnect(ConnectEvent connectEvent) {
-        reconnector.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
+        timer.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
     }
 
     private class ConnectEvent implements TimerTask {
@@ -190,6 +209,22 @@ public class PinpointSocketFactory {
 
     }
 
+    void registerPing(final PinpointSocket socket) {
+        if (socket.isClosed()) {
+            return;
+        }
+        TimerTask pingTask = new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (socket.isClosed()) {
+                    return;
+                }
+                socket.sendPing();
+            }
+        };
+        timer.newTimeout(pingTask, pingDelay, TimeUnit.MILLISECONDS);
+    }
+
 
     public void release() {
         synchronized (this) {
@@ -202,7 +237,7 @@ public class PinpointSocketFactory {
         if (bootstrap != null) {
             bootstrap.releaseExternalResources();
         }
-        Set<Timeout> stop = this.reconnector.stop();
+        Set<Timeout> stop = this.timer.stop();
 //        stop 뭔가 취소를 해야 되나??
     }
 }

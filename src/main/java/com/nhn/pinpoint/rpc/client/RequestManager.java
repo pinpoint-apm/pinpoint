@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.rpc.client;
 
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.FailureEventHandler;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
@@ -9,6 +10,7 @@ import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,19 +28,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RequestManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("RequestManager-Timer");
 
     private final AtomicInteger requestId = new AtomicInteger(1);
 
     private final ConcurrentMap<Integer, DefaultFuture<ResponseMessage>> requestMap = new ConcurrentHashMap<Integer, DefaultFuture<ResponseMessage>>();
     // Timer를 factory로 옮겨야 되나?
-    private final HashedWheelTimer timer;
+    private final Timer timer;
 
     public RequestManager() {
         this(100);
     }
 
     public RequestManager(long timeoutTickDuration) {
-        timer = new HashedWheelTimer(timeoutTickDuration, TimeUnit.MILLISECONDS);
+        timer = new HashedWheelTimer(THREAD_FACTORY, timeoutTickDuration, TimeUnit.MILLISECONDS);
         // 구지 start를 안함. 어차피 newTimeout호출하면 start체크하니. reqeust response있을때 자동으로 시작될거라 그게 더 나은듯.
     }
 
@@ -123,10 +127,10 @@ public class RequestManager {
 
 
     public void close() {
-        final PinpointSocketException closed = new PinpointSocketException("connection closed");
+        final PinpointSocketException closed = new PinpointSocketException("socket closed");
 
         // close의 동시성 타이밍을 좀더 좋게 맞출수는 없나?
-        final HashedWheelTimer timer = this.timer;
+        final Timer timer = this.timer;
         if (timer != null) {
             Set<Timeout> stop = timer.stop();
             for (Timeout timeout : stop) {

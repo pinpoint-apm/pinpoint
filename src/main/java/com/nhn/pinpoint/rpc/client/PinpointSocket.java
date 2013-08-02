@@ -67,7 +67,6 @@ public class PinpointSocket {
     }
 
 
-
     public StreamChannel createStreamChannel() {
         // 실패를 리턴하는 StreamChannel을 던져야 되는데. StreamChannel을 interface로 변경해야 됨.
         // 일단 그냥 ex를 던지도록 하겠음.
@@ -87,9 +86,25 @@ public class PinpointSocket {
         }
     }
 
+    void sendPing() {
+        SocketHandler handler = this.socketHandler;
+        if (handler == null) {
+            return;
+        }
+        handler.sendPing();
+    }
+
     public void close() {
-        closed = true;
-        socketHandler.close();
+        synchronized (this) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+        }
+        SocketHandler socketHandler = this.socketHandler;
+        if (socketHandler != null) {
+            socketHandler.close();
+        }
     }
 
     public boolean isClosed() {
