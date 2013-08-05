@@ -50,11 +50,10 @@ public class UDPReceiver implements DataReceiver {
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
-    private final CountDownLatch startLatch = new CountDownLatch(1);
 
     public UDPReceiver(DispatchHandler dispatchHandler, int port) {
         if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler");
+            throw new NullPointerException("dispatchHandler must not be null");
         }
         this.socket = createSocket(port);
         this.dispatchHandler = dispatchHandler;
@@ -69,7 +68,7 @@ public class UDPReceiver implements DataReceiver {
     }
 
 
-    public void receive() {
+    private void receive() {
         if (logger.isInfoEnabled()) {
             logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalSocketAddress(), Thread.currentThread().getName());
         }
@@ -121,10 +120,10 @@ public class UDPReceiver implements DataReceiver {
                 }
             }
         } catch (IOException e) {
-            if (state.get() == false) {
+            if (!state.get()) {
                 // shutdown
             } else {
-                logger.error(e.getMessage(), e);
+                logger.error("IoError, Caused:", e.getMessage(), e);
             }
             return null;
         } finally {
@@ -138,8 +137,8 @@ public class UDPReceiver implements DataReceiver {
     private DatagramSocket createSocket(int port) {
         try {
             DatagramSocket so = new DatagramSocket(port);
-            so.setReceiveBufferSize(1024 * 64);
-            so.setSoTimeout(1000 * 10);
+            so.setReceiveBufferSize(1024 * 64 * 16);
+            so.setSoTimeout(1000 * 5);
             return so;
         } catch (SocketException ex) {
             throw new RuntimeException("Socket create Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
@@ -181,7 +180,7 @@ public class UDPReceiver implements DataReceiver {
     private void shutdownExecutor(ExecutorService executor, String executorName) {
         executor.shutdown();
         try {
-            executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
+            executor.awaitTermination(1000*10, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             logger.info("{}.shutdown() Interrupted", executorName, e);
             Thread.currentThread().interrupt();
