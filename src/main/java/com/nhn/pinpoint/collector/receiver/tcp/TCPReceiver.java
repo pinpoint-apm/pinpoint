@@ -38,6 +38,9 @@ public class TCPReceiver {
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
     public TCPReceiver(DispatchHandler dispatchHandler, int port) {
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler must not be null");
+        }
         this.pinpointServerSocket = new PinpointServerSocket();
         this.dispatchHandler = dispatchHandler;
         this.port = port;
