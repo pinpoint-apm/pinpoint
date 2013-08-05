@@ -14,8 +14,11 @@ public class CollectorConfiguration {
 
     private static final String CONFIG_FILE_PROPERTY_NAME = "pinpointserver.config";
 
-    public int collectorTcpListenPort = 9994;
-    public int collectorUdpListenPort = 9995;
+    private int collectorTcpListenPort = 9994;
+    private int collectorUdpListenPort = 9995;
+
+    private int udpWorkerThread = 512;
+    private int udpWorkerQueueSize = 1024 * 5;
 
     public int getCollectorTcpListenPort() {
         return collectorTcpListenPort;
@@ -23,6 +26,14 @@ public class CollectorConfiguration {
 
     public int getCollectorUdpListenPort() {
         return collectorUdpListenPort;
+    }
+
+    public int getUdpWorkerThread() {
+        return udpWorkerThread;
+    }
+
+    public int getUdpWorkerQueueSize() {
+        return udpWorkerQueueSize;
     }
 
     public void readConfigFile() {
@@ -46,6 +57,10 @@ public class CollectorConfiguration {
     private void setPropertyValues(Properties properties) {
         this.collectorTcpListenPort = readInt(properties, "collectorTcpListenPort", collectorTcpListenPort);
         this.collectorUdpListenPort = readInt(properties, "collectorUdpListenPort", collectorUdpListenPort);
+
+        this.udpWorkerThread = readInt(properties, "udpWorkerThread", udpWorkerThread);
+        this.udpWorkerQueueSize = readInt(properties, "udpWorkerQueueSize", udpWorkerQueueSize);
+
         logger.info("Pinpoint configuration successfully loaded.");
     }
 
@@ -63,6 +78,8 @@ public class CollectorConfiguration {
         final StringBuilder sb = new StringBuilder("CollectorConfiguration{");
         sb.append("collectorTcpListenPort=").append(collectorTcpListenPort);
         sb.append(", collectorUdpListenPort=").append(collectorUdpListenPort);
+        sb.append(", udpWorkerThread=").append(udpWorkerThread);
+        sb.append(", udpWorkerQueueSize=").append(udpWorkerQueueSize);
         sb.append('}');
         return sb.toString();
     }

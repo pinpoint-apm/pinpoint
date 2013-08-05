@@ -29,14 +29,14 @@ public class UDPReceiver implements DataReceiver {
 
 //    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-UDP-Io");
 
-    private int threadSize = 512;
+    private int workerThreadSize = 512;
     private int workerQueueSize = 1024 * 5;
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
-    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
+    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
-    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), threadSize + workerQueueSize);
+    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), workerThreadSize + workerQueueSize);
 
     private DatagramSocket socket = null;
 
@@ -54,6 +54,14 @@ public class UDPReceiver implements DataReceiver {
         }
         this.socket = createSocket(port);
         this.dispatchHandler = dispatchHandler;
+    }
+
+    public void setWorkerQueueSize(int workerQueueSize) {
+        this.workerQueueSize = workerQueueSize;
+    }
+
+    public void setWorkerThreadSize(int workerThreadSize) {
+        this.workerThreadSize = workerThreadSize;
     }
 
     private Thread ioThread = new PinpointThreadFactory("Pinpoint-UDP-Io").newThread(new Runnable() {
@@ -84,11 +92,11 @@ public class UDPReceiver implements DataReceiver {
             try {
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
-                final int error = rejectedExecutionCount.getAndIncrement();
+                final int error = rejectedExecutionCount.incrementAndGet();
                 final int mod = 10;
                 if ((error % mod) == 0) {
                     logger.warn("RejectedExecutionCount={}", error);
-                 }
+                }
             }
         }
     }
@@ -132,7 +140,7 @@ public class UDPReceiver implements DataReceiver {
     private DatagramSocket createSocket(int port) {
         try {
             DatagramSocket so = new DatagramSocket(port);
-
+            so.setReceiveBufferSize(1024 * 64);
             so.setSoTimeout(1000 * 10);
             return so;
         } catch (SocketException ex) {

@@ -49,7 +49,8 @@ public class Server {
 
     private void udpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
         logger.info("Starting UDPReceiver.");
-        udpDataReceiver = new UDPReceiver(dispatchHandler, configuration.getCollectorUdpListenPort());
+        this.udpDataReceiver = crateUdpReceiver(configuration, dispatchHandler);
+
         Future<Boolean> startFuture = udpDataReceiver.start();
 
         boolean successfullyStarted = true;
@@ -65,6 +66,15 @@ public class Server {
         } else {
             logger.warn("Server started incompletely.");
         }
+    }
+
+    private UDPReceiver crateUdpReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+
+        // 옵션 설정.
+        UDPReceiver udpDataReceiver = new UDPReceiver(dispatchHandler, configuration.getCollectorUdpListenPort());
+        udpDataReceiver.setWorkerThreadSize(configuration.getUdpWorkerThread());
+        udpDataReceiver.setWorkerQueueSize(configuration.getUdpWorkerQueueSize());
+        return udpDataReceiver;
     }
 
     private void tcpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
