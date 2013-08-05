@@ -246,11 +246,12 @@ public class DefaultAgent implements Agent {
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
-    private TcpDataSender createTcpDataSender() {
-        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
+    private DataSender createTcpDataSender() {
+//        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
+        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
     }
 
-    private UdpDataSender createDataSender() {
+    private DataSender createDataSender() {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
     }
 
