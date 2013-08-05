@@ -49,23 +49,12 @@ public class Server {
 
     private void udpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
         logger.info("Starting UDPReceiver.");
+        // 여기서 Exception이 날수 있음.
         this.udpDataReceiver = crateUdpReceiver(configuration, dispatchHandler);
+        // 여기서 Exception이 날수 있음.
+        this.udpDataReceiver.start();
 
-        Future<Boolean> startFuture = udpDataReceiver.start();
-
-        boolean successfullyStarted = true;
-        try {
-			successfullyStarted = startFuture.get();
-		} catch (Exception e) {
-			startFuture.cancel(true);
-			logger.error("Failed to start multiplexDataReceiver.");
-		}
-
-        if (successfullyStarted) {
-            logger.info("Server started successfully.");
-        } else {
-            logger.warn("Server started incompletely.");
-        }
+        logger.info("Server started successfully.");
     }
 
     private UDPReceiver crateUdpReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {

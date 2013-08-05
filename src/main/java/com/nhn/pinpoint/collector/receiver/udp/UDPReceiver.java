@@ -7,7 +7,7 @@ import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.dto2.Header;
 import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.rpc.util.CpuUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.jboss.netty.handler.timeout.TimeoutException;
@@ -31,14 +31,18 @@ public class UDPReceiver implements DataReceiver {
 
     private int workerThreadSize = 512;
     private int workerQueueSize = 1024 * 5;
+
+    private int ioThreadSize = CpuUtils.workerCount();
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
+    private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
-    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), workerThreadSize + workerQueueSize);
+    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPoolSize());
 
-    private DatagramSocket socket = null;
+
+    private volatile DatagramSocket socket = null;
 
     private DispatchHandler dispatchHandler;
 
@@ -64,20 +68,12 @@ public class UDPReceiver implements DataReceiver {
         this.workerThreadSize = workerThreadSize;
     }
 
-    private Thread ioThread = new PinpointThreadFactory("Pinpoint-UDP-Io").newThread(new Runnable() {
-        @Override
-        public void run() {
-            receive();
-        }
-    });
-
 
     public void receive() {
         if (logger.isInfoEnabled()) {
-            logger.info("Waiting agent data on {}", this.socket.getLocalSocketAddress());
+            logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalSocketAddress(), Thread.currentThread().getName());
         }
-
-        startLatch.countDown();
+        final boolean debugEnabled = logger.isDebugEnabled();
 
         // 종료 처리필요.
         while (state.get()) {
@@ -85,10 +81,9 @@ public class UDPReceiver implements DataReceiver {
             if (packet == null) {
                 continue;
             }
-            if (logger.isDebugEnabled()) {
+            if (debugEnabled) {
                 logger.debug("pool getActiveCount:{}", worker.getActiveCount());
             }
-
             try {
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
@@ -98,6 +93,9 @@ public class UDPReceiver implements DataReceiver {
                     logger.warn("RejectedExecutionCount={}", error);
                 }
             }
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("stop ioThread localAddress:{}, IoThread:{}", this.socket.getLocalSocketAddress(), Thread.currentThread().getName());
         }
     }
 
@@ -118,7 +116,7 @@ public class UDPReceiver implements DataReceiver {
             if (logger.isDebugEnabled()) {
                 logger.debug("DatagramPacket SocketAddress:{} read size:{}", packet.getSocketAddress(), packet.getLength());
                 if (logger.isTraceEnabled()) {
-                     // dump packet은 데이터가 많을것이니 trace로
+                    // dump packet은 데이터가 많을것이니 trace로
                     logger.trace("dump packet:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
             }
@@ -148,48 +146,26 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
+    private int getPoolSize() {
+        return workerThreadSize + workerQueueSize + ioThreadSize;
+    }
+
     @Override
-    public Future<Boolean> start() {
-        if (socket != null) {
-            this.ioThread.start();
-            logger.info("UDP Packet reader started.");
-
-            return new Future<Boolean>() {
-                @Override
-                public boolean isDone() {
-                    return state.get();
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return !state.get();
-                }
-
-                @Override
-                public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-                    if (!startLatch.await(timeout, unit)) {
-                        throw new TimeoutException();
-                    } else {
-                        return state.get();
-                    }
-                }
-
-                @Override
-                public Boolean get() throws InterruptedException, ExecutionException {
-                    return get(3000L, TimeUnit.MILLISECONDS);
-                }
-
-                @Override
-                public boolean cancel(boolean ign) {
-                    if (ign) {
-                        shutdown();
-                    }
-                    return !state.get();
-                }
-            };
-        } else {
+    public void start() {
+        if (socket == null) {
             throw new RuntimeException("socket create fail");
         }
+
+        logger.info("UDP Packet reader:{} started.", CpuUtils.workerCount());
+        for (int i = 0; i < CpuUtils.workerCount(); i++) {
+            io.execute(new Runnable() {
+                @Override
+                public void run() {
+                    receive();
+                }
+            });
+        }
+
     }
 
     @Override
@@ -198,10 +174,16 @@ public class UDPReceiver implements DataReceiver {
         state.set(false);
         // 그냥 닫으면 되는건지?
         socket.close();
-        worker.shutdown();
+        shutdownExecutor(io, "IoExecutor");
+        shutdownExecutor(worker, "WorkerExecutor");
+    }
+
+    private void shutdownExecutor(ExecutorService executor, String executorName) {
+        executor.shutdown();
         try {
-            worker.awaitTermination(10, TimeUnit.SECONDS);
+            executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            logger.info("{}.shutdown() Interrupted", executorName, e);
             Thread.currentThread().interrupt();
         }
     }
