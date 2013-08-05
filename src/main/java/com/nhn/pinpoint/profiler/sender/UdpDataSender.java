@@ -49,7 +49,7 @@ public class UdpDataSender extends AbstractQueueingDataSender implements DataSen
             DatagramSocket datagramSocket = new DatagramSocket();
 
 			datagramSocket.setSoTimeout(1000 * 5);
-            datagramSocket.setSendBufferSize(1024 * 64);
+            datagramSocket.setSendBufferSize(1024 * 64 * 16);
 
 			InetSocketAddress serverAddress = new InetSocketAddress(host, port);
 			datagramSocket.connect(serverAddress);
