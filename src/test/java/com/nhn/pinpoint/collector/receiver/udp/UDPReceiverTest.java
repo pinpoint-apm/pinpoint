@@ -13,7 +13,7 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
 
-public class MultiplexedUDPReceiverTest {
+public class UDPReceiverTest {
 	@Test
 	public void startStop() {
 		try {
