@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.receiver.udp;
+package com.nhn.pinpoint.collector.receiver;
 
 
 public interface DataReceiver {

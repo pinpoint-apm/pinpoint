@@ -1,10 +1,8 @@
 package com.nhn.pinpoint.collector;
 
-import java.util.concurrent.Future;
-
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver;
-import com.nhn.pinpoint.collector.receiver.udp.DataReceiver;
+import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.receiver.udp.UDPReceiver;
 import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
@@ -30,11 +28,8 @@ public class Server {
 		logger.info("Initializing server components.");
         try {
             context = createContext();
+            CollectorConfiguration configuration = context.getBean("collectorConfiguration", CollectorConfiguration.class);
             DispatchHandler dispatchHandler = ApplicationContextUtils.getDispatchHandler(context);
-
-
-            CollectorConfiguration configuration = new CollectorConfiguration();
-            configuration.readConfigFile();
 
             tcpServerStart(configuration, dispatchHandler);
             udpServerStart(configuration, dispatchHandler);
@@ -60,9 +55,7 @@ public class Server {
     private UDPReceiver crateUdpReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
 
         // 옵션 설정.
-        UDPReceiver udpDataReceiver = new UDPReceiver(dispatchHandler, configuration.getCollectorUdpListenPort());
-        udpDataReceiver.setWorkerThreadSize(configuration.getUdpWorkerThread());
-        udpDataReceiver.setWorkerQueueSize(configuration.getUdpWorkerQueueSize());
+        UDPReceiver udpDataReceiver = new UDPReceiver(dispatchHandler, configuration);
         return udpDataReceiver;
     }
 

@@ -4,15 +4,23 @@ import com.nhn.pinpoint.common.util.PropertyUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
 import java.util.Properties;
 
-public class CollectorConfiguration {
+public class CollectorConfiguration implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String CONFIG_FILE_PROPERTY_NAME = "pinpointserver.config";
+    private static final String CONFIG_FILE_NAME = "pinpoint-collector.properties";
+
+    private Properties properties;
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
 
     private int collectorTcpListenPort = 9994;
     private int collectorUdpListenPort = 9995;
@@ -20,26 +28,54 @@ public class CollectorConfiguration {
     private int udpWorkerThread = 512;
     private int udpWorkerQueueSize = 1024 * 5;
 
+    private int udpReceiveBufferSize = 1024 * 4096;
+
     public int getCollectorTcpListenPort() {
         return collectorTcpListenPort;
+    }
+
+    public void setCollectorTcpListenPort(int collectorTcpListenPort) {
+        this.collectorTcpListenPort = collectorTcpListenPort;
     }
 
     public int getCollectorUdpListenPort() {
         return collectorUdpListenPort;
     }
 
+    public void setCollectorUdpListenPort(int collectorUdpListenPort) {
+        this.collectorUdpListenPort = collectorUdpListenPort;
+    }
+
     public int getUdpWorkerThread() {
         return udpWorkerThread;
+    }
+
+    public void setUdpWorkerThread(int udpWorkerThread) {
+        this.udpWorkerThread = udpWorkerThread;
     }
 
     public int getUdpWorkerQueueSize() {
         return udpWorkerQueueSize;
     }
 
+    public void setUdpWorkerQueueSize(int udpWorkerQueueSize) {
+        this.udpWorkerQueueSize = udpWorkerQueueSize;
+    }
+
+    public int getUdpReceiveBufferSize() {
+        return udpReceiveBufferSize;
+    }
+
+    public void setUdpReceiveBufferSize(int udpReceiveBufferSize) {
+        this.udpReceiveBufferSize = udpReceiveBufferSize;
+    }
+
+
     public void readConfigFile() {
-        String configFileName = System.getProperty(CONFIG_FILE_PROPERTY_NAME);
+        //    testcase와 같이 단독으로 사용할 경우 해당 api를 사용하면 좋을듯. testcase에서 쓸려면 classpath를 읽도록 고쳐야 될거임.
+        String configFileName = System.getProperty(CONFIG_FILE_NAME);
         if (configFileName == null) {
-            logger.warn("Property is not set. Using default values. PROPERTY_NAME={}, defaultValue={}", CONFIG_FILE_PROPERTY_NAME, this);
+            logger.warn("Property is not set. Using default values. PROPERTY_NAME={}, defaultValue={}", CONFIG_FILE_NAME, this);
             return;
         }
 
@@ -54,13 +90,20 @@ public class CollectorConfiguration {
 
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(properties);
+
+        setPropertyValues(this.properties);
+    }
+
     private void setPropertyValues(Properties properties) {
         this.collectorTcpListenPort = readInt(properties, "collectorTcpListenPort", collectorTcpListenPort);
         this.collectorUdpListenPort = readInt(properties, "collectorUdpListenPort", collectorUdpListenPort);
 
         this.udpWorkerThread = readInt(properties, "udpWorkerThread", udpWorkerThread);
         this.udpWorkerQueueSize = readInt(properties, "udpWorkerQueueSize", udpWorkerQueueSize);
-
+        this.udpReceiveBufferSize = readInt(properties, "udpSocketReceiverBufferSize", udpReceiveBufferSize);
         logger.info("Pinpoint configuration successfully loaded.");
     }
 
@@ -83,4 +126,6 @@ public class CollectorConfiguration {
         sb.append('}');
         return sb.toString();
     }
+
+
 }

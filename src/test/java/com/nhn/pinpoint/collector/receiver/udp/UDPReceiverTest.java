@@ -2,9 +2,9 @@ package com.nhn.pinpoint.collector.receiver.udp;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.concurrent.Future;
 
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
+import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import junit.framework.Assert;
 
@@ -22,9 +22,11 @@ public class UDPReceiverTest {
 
             // local에서 기본포트로 테스트 하면 포트 출돌로 에러남.
             CollectorConfiguration config = new CollectorConfiguration();
-			DataReceiver receiver = new UDPReceiver(multiplexedPacketHandler, config.getCollectorUdpListenPort() +10);
+            config.setCollectorUdpListenPort(config.getCollectorUdpListenPort());
+            config.setUdpWorkerThread(1);
+            config.setUdpWorkerQueueSize(1);
+			DataReceiver receiver = new UDPReceiver(multiplexedPacketHandler, config);
 			receiver.start();
-
 
 			receiver.shutdown();
 			context.close();

@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.collector.receiver.udp;
 
+import com.nhn.pinpoint.collector.config.CollectorConfiguration;
+import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
 import com.nhn.pinpoint.collector.util.FixedPool;
@@ -10,15 +12,11 @@ import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.jboss.netty.handler.timeout.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,20 +25,18 @@ public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-//    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-UDP-Io");
+    // ioThread 사이즈를 늘리거는 생각보다 효용이 별로임.
+    private int ioThreadSize = CpuUtils.cpuCount();
+    private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
 
     private int workerThreadSize = 512;
     private int workerQueueSize = 1024 * 5;
-
-    // ioThread 사이즈를 늘리거는 그렇게 효용이 없음.
-    private int ioThreadSize = CpuUtils.cpuCount();
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
-    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
-    private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
+    private final ThreadPoolExecutor worker;
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
-    private final FixedPool<DatagramPacket> datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPoolSize());
+    private final FixedPool<DatagramPacket> datagramPacketPool;
 
 
     private volatile DatagramSocket socket = null;
@@ -52,12 +48,15 @@ public class UDPReceiver implements DataReceiver {
     private AtomicBoolean state = new AtomicBoolean(true);
 
 
-    public UDPReceiver(DispatchHandler dispatchHandler, int port) {
+    public UDPReceiver(DispatchHandler dispatchHandler, CollectorConfiguration configuration) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
-        this.socket = createSocket(port);
+        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpReceiveBufferSize());
         this.dispatchHandler = dispatchHandler;
+
+        this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPacketPoolSize(configuration));
+        this.worker = ExecutorFactory.newFixedThreadPool(configuration.getUdpWorkerThread(), configuration.getUdpWorkerQueueSize(), "Pinpoint-UDP-Worker", true);
     }
 
     public void setWorkerQueueSize(int workerQueueSize) {
@@ -71,8 +70,9 @@ public class UDPReceiver implements DataReceiver {
 
     private void receive() {
         if (logger.isInfoEnabled()) {
-            logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalSocketAddress(), Thread.currentThread().getName());
+            logger.info("start ioThread localAddress:{}, IoThread:{}", socket.getLocalAddress(), Thread.currentThread().getName());
         }
+        final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
         final boolean debugEnabled = logger.isDebugEnabled();
 
         // 종료 처리필요.
@@ -95,7 +95,7 @@ public class UDPReceiver implements DataReceiver {
             }
         }
         if (logger.isInfoEnabled()) {
-            logger.info("stop ioThread localAddress:{}, IoThread:{}", this.socket.getLocalSocketAddress(), Thread.currentThread().getName());
+            logger.info("stop ioThread localAddress:{}, IoThread:{}", localSocketAddress, Thread.currentThread().getName());
         }
     }
 
@@ -135,10 +135,10 @@ public class UDPReceiver implements DataReceiver {
         return packet;
     }
 
-    private DatagramSocket createSocket(int port) {
+    private DatagramSocket createSocket(int port, int receiveBufferSize) {
         try {
             DatagramSocket so = new DatagramSocket(port);
-            so.setReceiveBufferSize(1024 * 64 * 1024);
+            so.setReceiveBufferSize(receiveBufferSize);
             so.setSoTimeout(1000 * 5);
             return so;
         } catch (SocketException ex) {
@@ -146,8 +146,8 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private int getPoolSize() {
-        return workerThreadSize + workerQueueSize + ioThreadSize;
+    private int getPacketPoolSize(CollectorConfiguration configuration) {
+        return configuration.getUdpWorkerThread() + configuration.getUdpWorkerQueueSize() + ioThreadSize;
     }
 
     @Override
@@ -157,7 +157,7 @@ public class UDPReceiver implements DataReceiver {
         }
 
         logger.info("UDP Packet reader:{} started.", CpuUtils.workerCount());
-        for (int i = 0; i < CpuUtils.workerCount(); i++) {
+        for (int i = 0; i < ioThreadSize; i++) {
             io.execute(new Runnable() {
                 @Override
                 public void run() {
