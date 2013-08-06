@@ -34,6 +34,8 @@ public interface TraceContext {
 
     ParsingResult parseSql(String sql);
 
+    DatabaseInfo parseJdbcUrl(String sql);
+
     TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, short flags);
 
     void disableSampling();
