@@ -9,9 +9,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap.css" />
-    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap-responsive.css" />
-    <link type="text/css" rel="stylesheet" href="/components/sorttable/sorttable.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/bootstrap/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/bootstrap/css/bootstrap-responsive.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/sorttable/sorttable.css" />
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -19,10 +19,10 @@
     <![endif]-->
 
 	<!-- commons -->    
-    <script type="text/javascript" src="/components/jquery/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="/components/sorttable/sorttable.js"></script>
-	<script type="text/javascript" src="/components/utils/date.format.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/pinpoint.js"></script>
+    <script type="text/javascript" src="/components_v1/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/components_v1/sorttable/sorttable.js"></script>
+	<script type="text/javascript" src="/components_v1/utils/date.format.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/pinpoint.js"></script>
     
     <style type="text/css">
 	html, body {

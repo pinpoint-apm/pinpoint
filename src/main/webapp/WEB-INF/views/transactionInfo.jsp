@@ -10,17 +10,17 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap.css" />
-    <link type="text/css" rel="stylesheet" href="/components/bootstrap/css/bootstrap-responsive.css" />
-    <link type="text/css" rel="stylesheet" href="/components/pinpoint/css/pinpoint.css" />
-    <link type="text/css" rel="stylesheet" href="/components/pinpoint-scatter/css/scatter.css" />
-    <link type="text/css" rel="stylesheet" href="/components/bootstrap-datepicker/bootstrap-datepicker.css" />
-    <link type="text/css" rel="stylesheet" href="/components/nvd3/nv.d3.css" />
-    <link type="text/css" rel="stylesheet" href="/components/select2/select2.css" />
-	<link type="text/css" rel="stylesheet" href="/components/pinpoint-grid/jquery.TreeGridTable.css" />
-	<link type="text/css" rel="stylesheet" href="/components/jquery-flexigrid/css/flexigrid.css" />
-	<link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.css" />
-	<link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.theme.simple.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/bootstrap/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/bootstrap/css/bootstrap-responsive.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/pinpoint/css/pinpoint.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/pinpoint-scatter/css/scatter.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/bootstrap-datepicker/bootstrap-datepicker.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/nvd3/nv.d3.css" />
+    <link type="text/css" rel="stylesheet" href="/components_v1/select2/select2.css" />
+	<link type="text/css" rel="stylesheet" href="/components_v1/pinpoint-grid/jquery.TreeGridTable.css" />
+	<link type="text/css" rel="stylesheet" href="/components_v1/jquery-flexigrid/css/flexigrid.css" />
+	<link type="text/css" rel="stylesheet" href="/components_v1/jquery-treetable/stylesheets/jquery.treetable.css" />
+	<link type="text/css" rel="stylesheet" href="/components_v1/jquery-treetable/stylesheets/jquery.treetable.theme.simple.css" />
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -28,47 +28,47 @@
     <![endif]-->
 
 	<!-- commons -->    
-    <script type="text/javascript" src="/components/jquery/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="/components/jquery-ui/jquery-ui-1.10.2.js"></script>
-	<script type="text/javascript" src="/components/jquery-class/jquery.Class.js"></script>
-    <script type="text/javascript" src="/components/jquery-template/jquery.tmpl.min.js"></script>
-    <script type="text/javascript" src="/components/bootstrap/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/components/bootstrap-datepicker/bootstrap-datepicker.js"></script>
-	<script type="text/javascript" src="/components/modernizer/modernizr-2.6.2.min.js"></script>
-	<script type="text/javascript" src="/components/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="/components/select2/select2.js"></script>
-    <script type="text/javascript" src="/components/utils/date.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/pinpoint.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/navigationbar.js"></script>
+    <script type="text/javascript" src="/components_v1/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/components_v1/jquery-ui/jquery-ui-1.10.2.js"></script>
+	<script type="text/javascript" src="/components_v1/jquery-class/jquery.Class.js"></script>
+    <script type="text/javascript" src="/components_v1/jquery-template/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/components_v1/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/components_v1/bootstrap-datepicker/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="/components_v1/modernizer/modernizr-2.6.2.min.js"></script>
+	<script type="text/javascript" src="/components_v1/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="/components_v1/select2/select2.js"></script>
+    <script type="text/javascript" src="/components_v1/utils/date.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/pinpoint.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/navigationbar.js"></script>
     
     <!-- scatter chart -->
-	<script type="text/javascript" src="/components/jquery-dragtoselect/jquery.dragToSelect.js"></script>
-	<script type="text/javascript" src="/components/pinpoint-scatter/jquery.BigScatterChart.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/chart-scatter4.js"></script>
+	<script type="text/javascript" src="/components_v1/jquery-dragtoselect/jquery.dragToSelect.js"></script>
+	<script type="text/javascript" src="/components_v1/pinpoint-scatter/jquery.BigScatterChart.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/chart-scatter4.js"></script>
     
 	<!-- server map -->
-    <script type="text/javascript" src="/components/gojs/go.js"></script>
-    <script type="text/javascript" src="/components/pinpoint-servermap/Point2D.js"></script>
-    <script type="text/javascript" src="/components/pinpoint-servermap/intersection.js"></script>
-    <script type="text/javascript" src="/components/pinpoint-servermap/canvas.roundRect.js"></script>
-    <script type="text/javascript" src="/components/pinpoint-servermap/jquery.ServerMap.js"></script>
-    <script type="text/javascript" src="/components/pinpoint/chart-servermap.js"></script>
+    <script type="text/javascript" src="/components_v1/gojs/go.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint-servermap/Point2D.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint-servermap/intersection.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint-servermap/canvas.roundRect.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint-servermap/jquery.ServerMap.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/chart-servermap.js"></script>
     
     <!-- link info chart -->
-    <script type="text/javascript" src="/components/d3/d3.v2.min.js"></script>
-    <script type="text/javascript" src="/components/nvd3/nv.d3.js"></script>
+    <script type="text/javascript" src="/components_v1/d3/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/components_v1/nvd3/nv.d3.js"></script>
     
     <!-- grid -->
-	<script type="text/javascript" src="/components/jquery-flexigrid/js/flexigrid.js"></script>
-	<script type="text/javascript" src="/components/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
-	<script type="text/javascript" src="/components/pinpoint-grid/jquery.TreeGridTable.js"></script>
+	<script type="text/javascript" src="/components_v1/jquery-flexigrid/js/flexigrid.js"></script>
+	<script type="text/javascript" src="/components_v1/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
+	<script type="text/javascript" src="/components_v1/pinpoint-grid/jquery.TreeGridTable.js"></script>
     
     
     <!-- requests list -->
-    <script type="text/javascript" src="/components/pinpoint/chart-transactions.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/chart-transactions.js"></script>
     
     <!-- help -->
-    <script type="text/javascript" src="/components/pinpoint/message.js"></script>
+    <script type="text/javascript" src="/components_v1/pinpoint/message.js"></script>
     
     <script type="text/javascript">
         function showDetail(id) {
