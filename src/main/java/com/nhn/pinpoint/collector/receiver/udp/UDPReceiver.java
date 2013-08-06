@@ -32,7 +32,8 @@ public class UDPReceiver implements DataReceiver {
     private int workerThreadSize = 512;
     private int workerQueueSize = 1024 * 5;
 
-    private int ioThreadSize = CpuUtils.workerCount();
+    // ioThread 사이즈를 늘리거는 그렇게 효용이 없음.
+    private int ioThreadSize = CpuUtils.cpuCount();
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerQueueSize, "Pinpoint-UDP-Worker", true);
     private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
@@ -137,7 +138,7 @@ public class UDPReceiver implements DataReceiver {
     private DatagramSocket createSocket(int port) {
         try {
             DatagramSocket so = new DatagramSocket(port);
-            so.setReceiveBufferSize(1024 * 64 * 16);
+            so.setReceiveBufferSize(1024 * 64 * 1024);
             so.setSoTimeout(1000 * 5);
             return so;
         } catch (SocketException ex) {
