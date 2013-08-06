@@ -4,7 +4,7 @@ import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
+import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 

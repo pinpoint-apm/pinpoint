@@ -16,7 +16,7 @@ import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
+import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {

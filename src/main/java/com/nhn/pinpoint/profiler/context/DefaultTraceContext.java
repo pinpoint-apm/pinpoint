@@ -13,6 +13,7 @@ import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.metadata.LRUCache;
 import com.nhn.pinpoint.profiler.metadata.Result;
 import com.nhn.pinpoint.profiler.metadata.StringCache;
+import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.util.Assert;
@@ -47,6 +48,8 @@ public class DefaultTraceContext implements TraceContext {
     private final SqlParser sqlParser = new SqlParser();
 
     private final StringCache apiCache = new StringCache();
+
+    private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
     private Sampler sampler;
 
@@ -230,6 +233,10 @@ public class DefaultTraceContext implements TraceContext {
         return parsingResult;
     }
 
+    @Override
+    public DatabaseInfo parseJdbcUrl(String url) {
+        return this.jdbcUrlParser.parse(url);
+    }
 
     public void setPriorityDataSender(DataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;

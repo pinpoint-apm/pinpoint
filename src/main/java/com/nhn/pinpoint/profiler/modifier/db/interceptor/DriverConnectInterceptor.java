@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.profiler.modifier.db.DatabaseInfo;
+import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 import com.nhn.pinpoint.profiler.util.MetaObject;
@@ -24,8 +24,6 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
-
-    private JDBCUrlParser urlParser = new JDBCUrlParser();
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -85,7 +83,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     }
 
     private DatabaseInfo createDatabaseInfo(String url) {
-        DatabaseInfo databaseInfo = urlParser.parse(url);
+        DatabaseInfo databaseInfo = traceContext.parseJdbcUrl(url);
         if (logger.isDebugEnabled()) {
             logger.debug("parse DatabaseInfo:" + databaseInfo);
         }
