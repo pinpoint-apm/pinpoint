@@ -168,6 +168,13 @@
             </exclusions>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.sematext.hbasewd</groupId>
+            <artifactId>hbasewd</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>

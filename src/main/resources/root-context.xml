@@ -21,4 +21,17 @@
     <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
+
+
+    <bean id="traceIdRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg>
+            <ref bean="hasher"></ref>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
+        <constructor-arg>
+            <value type="int">32</value>
+        </constructor-arg>
+    </bean>
 </beans>

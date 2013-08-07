@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -25,7 +26,6 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.common.util.TraceIdUtils;
 
 /**
  *
@@ -46,7 +46,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	@Qualifier("traceIndexScatterMapper")
 	private RowMapper<List<Dot>> traceIndexScatterMapper;
 
-	private int scanCacheSize = 200;
+    @Autowired
+    @Qualifier("traceIdRowKeyDistributor")
+    private AbstractRowKeyDistributor traceIdRowKeyDistributor;
+
+	private int scanCacheSize = 256;
+
+    private static int DISTRIBUTED_HASH_SIZE = 1;
 
 	public void setScanCacheSize(int scanCacheSize) {
 		this.scanCacheSize = scanCacheSize;
@@ -54,19 +60,20 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public List<List<TraceId>> scanTraceIndex(String applicationName, long start, long end) {
+        logger.debug("scanTraceIndex");
 		Scan scan = createScan(applicationName, start, end);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIndexMapper);
+		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexMapper);
 	}
 
-	@Override
-	public List<List<List<TraceId>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
-		final List<Scan> multiScan = new ArrayList<Scan>(applicationNames.length);
-		for (String agent : applicationNames) {
-			Scan scan = createScan(agent, start, end);
-			multiScan.add(scan);
-		}
-		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, multiScan, traceIndexMapper);
-	}
+//	@Override
+//	public List<List<List<TraceId>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
+//		final List<Scan> multiScan = new ArrayList<Scan>(applicationNames.length);
+//		for (String agent : applicationNames) {
+//			Scan scan = createScan(agent, start, end);
+//			multiScan.add(scan);
+//		}
+//		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, multiScan, traceIndexMapper);
+//	}
 
 	private Scan createScan(String agent, long start, long end) {
 		Scan scan = new Scan();
@@ -90,15 +97,17 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public List<List<Dot>> scanTraceScatter(String applicationName, long start, long end) {
+        logger.debug("scanTraceScatter");
 		Scan scan = createScan(applicationName, start, end);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIndexScatterMapper);
+        return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexScatterMapper);
 	}
 
 	@Override
 	public List<Dot> scanTraceScatter2(String applicationName, long start, long end, final int limit) {
-		Scan scan = createScan(applicationName, start, end);
+        logger.debug("scanTraceScatter2");
+        Scan scan = createScan(applicationName, start, end);
 
-		List<Dot> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, new ResultsExtractor<List<Dot>>() {
+        List<Dot> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, new ResultsExtractor<List<Dot>>() {
 			@Override
 			public List<Dot> extractData(ResultScanner results) throws Exception {
 				List<Dot> list = new ArrayList<Dot>();
@@ -106,22 +115,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 					if (result == null) {
 						continue;
 					}
-
-					KeyValue[] raw = result.raw();
-					for (KeyValue kv : raw) {
-						byte[] v = kv.getValue();
-
-						int elapsed = BytesUtils.bytesToInt(v, 0);
-						int exceptionCode = BytesUtils.bytesToInt(v, 4);
-
-						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24));
-
-						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-						String traceId = TraceIdUtils.formatString(tid[0], tid[1]);
-
-						Dot dot = new Dot(traceId, acceptedTime, elapsed, exceptionCode);
-						list.add(dot);
-					}
+                    // index를 사용하지 않아 그냥 0 넣음.
+                    List<Dot> dots = traceIndexScatterMapper.mapRow(result, 0);
+                    list.addAll(dots);
 
 					if (list.size() >= limit) {
 						break;
@@ -135,9 +131,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public List<TraceId> scanTraceScatterTraceIdList(String applicationName, long start, long end, final int limit) {
+        logger.debug("scanTraceScatterTraceIdList");
 		Scan scan = createScan(applicationName, start, end);
 
-		List<TraceId> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, new ResultsExtractor<List<TraceId>>() {
+		List<TraceId> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, new ResultsExtractor<List<TraceId>>() {
 			@Override
 			public List<TraceId> extractData(ResultScanner results) throws Exception {
 				List<TraceId> list = new ArrayList<TraceId>();
@@ -149,7 +146,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 					KeyValue[] raw = result.raw();
 					for (KeyValue kv : raw) {
 						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24));
+						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24+DISTRIBUTED_HASH_SIZE));
 						list.add(new TraceIdWithTime(tid[0], tid[1], acceptedTime));
 					}
 

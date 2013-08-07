@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.common.util.TraceIdUtils;
 import org.apache.hadoop.hbase.KeyValue;
@@ -19,6 +20,9 @@ import com.nhn.pinpoint.common.util.BytesUtils;
  */
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
+
+    private static final int DISTRIBUTED_HASH_SIZE = 1;
+
 	@Override
 	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
 		if (result == null) {
@@ -35,7 +39,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 			int elapsed = BytesUtils.bytesToInt(v, 0);
 			int exceptionCode = BytesUtils.bytesToInt(v, 4);
 
-			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24));
+			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), HBaseTables.APPLICATION_NAME_MAX_LEN + DISTRIBUTED_HASH_SIZE));
 
 			long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
 			String traceId = TraceIdUtils.formatString(tid[0], tid[1]);
