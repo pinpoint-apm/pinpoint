@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.collector.receiver.udp;
 
+import com.codahale.metrics.Timer;
+import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
@@ -24,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Timer timer = StatServer.registry.timer(UDPReceiver.class.getSimpleName() + "-timer");
 
     // ioThread 사이즈를 늘리거는 생각보다 효용이 별로임.
     private int ioThreadSize = CpuUtils.cpuCount();
@@ -200,6 +203,8 @@ public class UDPReceiver implements DataReceiver {
 
         @Override
         public void run() {
+        	Timer.Context time = timer.time();
+        	
             // thread local로 캐쉬할까? 근데 worker라서 별로 영향이 없을거 같음.
             HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
             try {
@@ -223,6 +228,8 @@ public class UDPReceiver implements DataReceiver {
                 }
             } finally {
                 datagramPacketPool.returnObject(packet);
+                // exception 난 경우는 어떻게 해야 하지?
+                time.stop();
             }
         }
 

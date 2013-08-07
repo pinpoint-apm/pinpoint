@@ -23,6 +23,7 @@ public class Server {
 	private DataReceiver udpDataReceiver;
     private TCPReceiver tcpReceiver;
 	private GenericApplicationContext context;
+	private StatServer statServer;
 
 	public void start() {
 		logger.info("Initializing server components.");
@@ -33,6 +34,7 @@ public class Server {
 
             tcpServerStart(configuration, dispatchHandler);
             udpServerStart(configuration, dispatchHandler);
+            statServerStart(configuration);
         } catch (Exception ex) {
             logger.error("pinpoint collector start fail. Caused:{}", ex.getMessage(), ex);
             shutdown();
@@ -42,6 +44,11 @@ public class Server {
         addShutdownHook();
 	}
 
+	private void statServerStart(CollectorConfiguration configuration) {
+		statServer = new StatServer(configuration.getCollectorStatListenPort());
+		statServer.start();
+	}
+	
     private void udpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
         logger.info("Starting UDPReceiver.");
         // 여기서 Exception이 날수 있음.
@@ -87,6 +94,12 @@ public class Server {
 			logger.info("Shutdown UDPReceiver.");
 			udpDataReceiver.shutdown();
 			logger.info("Shutdown UDPReceiver complete.");
+		}
+		
+		if (statServer != null) {
+			logger.info("Sutdown StatServer.");
+			statServer.shutdown();
+			logger.info("Shutdown StatServer complete.");
 		}
 		if (context != null) {
 			context.close();

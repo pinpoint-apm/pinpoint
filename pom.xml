@@ -9,6 +9,8 @@
 
     <properties>
         <spring-version>3.1.2.RELEASE</spring-version>
+        <metrics.version>3.0.1</metrics.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
     </properties>
 
     <repositories>
@@ -320,6 +322,33 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+		<!-- serving performance metrics -->
+		<dependency>
+			<groupId>com.codahale.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>${metrics.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.codahale.metrics</groupId>
+			<artifactId>metrics-jvm</artifactId>
+			<version>${metrics.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.codahale.metrics</groupId>
+			<artifactId>metrics-servlets</artifactId>
+			<version>${metrics.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${jetty.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>${jetty.version}</version>
+		</dependency>
     </dependencies>
 
     <build>

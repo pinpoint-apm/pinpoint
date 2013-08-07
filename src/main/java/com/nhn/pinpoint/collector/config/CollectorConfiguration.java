@@ -24,12 +24,13 @@ public class CollectorConfiguration implements InitializingBean {
 
     private int collectorTcpListenPort = 9994;
     private int collectorUdpListenPort = 9995;
+    private int collectorStatListenPort = 9996;
 
     private int udpWorkerThread = 512;
     private int udpWorkerQueueSize = 1024 * 5;
 
     private int udpReceiveBufferSize = 1024 * 4096;
-
+    
     public int getCollectorTcpListenPort() {
         return collectorTcpListenPort;
     }
@@ -45,8 +46,16 @@ public class CollectorConfiguration implements InitializingBean {
     public void setCollectorUdpListenPort(int collectorUdpListenPort) {
         this.collectorUdpListenPort = collectorUdpListenPort;
     }
+    
+    public int getCollectorStatListenPort() {
+		return collectorStatListenPort;
+	}
 
-    public int getUdpWorkerThread() {
+	public void setCollectorStatListenPort(int collectorStatListenPort) {
+		this.collectorStatListenPort = collectorStatListenPort;
+	}
+
+	public int getUdpWorkerThread() {
         return udpWorkerThread;
     }
 
@@ -100,6 +109,7 @@ public class CollectorConfiguration implements InitializingBean {
     private void setPropertyValues(Properties properties) {
         this.collectorTcpListenPort = readInt(properties, "collectorTcpListenPort", collectorTcpListenPort);
         this.collectorUdpListenPort = readInt(properties, "collectorUdpListenPort", collectorUdpListenPort);
+        this.collectorStatListenPort = readInt(properties, "collectorStatListenPort", collectorStatListenPort);
 
         this.udpWorkerThread = readInt(properties, "udpWorkerThread", udpWorkerThread);
         this.udpWorkerQueueSize = readInt(properties, "udpWorkerQueueSize", udpWorkerQueueSize);
@@ -121,6 +131,7 @@ public class CollectorConfiguration implements InitializingBean {
         final StringBuilder sb = new StringBuilder("CollectorConfiguration{");
         sb.append("collectorTcpListenPort=").append(collectorTcpListenPort);
         sb.append(", collectorUdpListenPort=").append(collectorUdpListenPort);
+        sb.append(", collectorStatListenPort=").append(collectorStatListenPort);
         sb.append(", udpWorkerThread=").append(udpWorkerThread);
         sb.append(", udpWorkerQueueSize=").append(udpWorkerQueueSize);
         sb.append('}');
