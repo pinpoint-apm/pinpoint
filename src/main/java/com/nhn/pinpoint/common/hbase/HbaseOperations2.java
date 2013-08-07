@@ -2,6 +2,7 @@ package com.nhn.pinpoint.common.hbase;
 
 import java.util.List;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
@@ -72,6 +73,10 @@ public interface HbaseOperations2 extends HbaseOperations {
     <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
 
     <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
+
+    <T> List<T> find(String tableName, final Scan scan, AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
+
+    <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
 
     void increment(String tableName, final Increment increment);
 

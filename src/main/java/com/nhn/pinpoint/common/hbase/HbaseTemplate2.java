@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.common.hbase;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.*;
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.hadoop.hbase.*;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -384,6 +387,70 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     @Override
     public <T> List<List<T>> find(String tableName, List<Scan> scans, RowMapper<T> action) {
         return find(tableName, scans, new RowMapperResultsExtractor<T>(action));
+    }
+
+    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
+        final RowMapperResultsExtractor<T> resultsExtractor = new RowMapperResultsExtractor<T>(action);
+        return execute(tableName, new TableCallback<List<T>>() {
+            @Override
+            public List<T> doInTable(HTableInterface htable) throws Throwable {
+                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                try {
+                    return resultsExtractor.extractData(scanner);
+                } finally {
+                    scanner.close();
+                }
+            }
+        });
+    }
+
+    @Override
+    public <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+
+        return execute(tableName, new TableCallback<T>() {
+            @Override
+            public T doInTable(HTableInterface htable) throws Throwable {
+                boolean debugEnabled = logger.isDebugEnabled();
+                long beforeCreateDistributeScan = 0;
+                if (debugEnabled) {
+                    beforeCreateDistributeScan = System.currentTimeMillis();
+                }
+                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                if (debugEnabled) {
+                    logger.debug("DistributeScanner createTime:{}", (System.currentTimeMillis() - beforeCreateDistributeScan));
+                }
+                long beforeDistributeScan = 0;
+                if (debugEnabled) {
+                    beforeDistributeScan = System.currentTimeMillis();
+                }
+                try {
+                    return action.extractData(scanner);
+                } finally {
+                    scanner.close();
+                    if (debugEnabled) {
+                        logger.debug("DistributeScanner scanTime:{}", (System.currentTimeMillis() - beforeDistributeScan));
+                    }
+                }
+            }
+        });
+    }
+
+    public ResultScanner createDistributeScanner(HTableInterface htable, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
+
+        Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
+        for(int i = 0; i < scans.length; i++) {
+            Scan scan = scans[i];
+            scan.setId(originalScan.getId() + "-" + i);
+            // caching만 넣으면 되나?
+            scan.setCaching(originalScan.getCaching());
+        }
+
+        ResultScanner[] scanner = new ResultScanner[scans.length];
+        for (int i = 0; i < scans.length; i++) {
+            scanner[i] = htable.getScanner(scans[i]);
+        }
+
+        return new DistributedScanner(rowKeyDistributor, scanner);
     }
 
     public void increment(String tableName, final Increment increment) {
