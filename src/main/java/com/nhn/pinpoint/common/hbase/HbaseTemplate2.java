@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.common.hbase;
 
+import com.nhn.pinpoint.common.util.StopWatch;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.conf.Configuration;
@@ -425,24 +426,24 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             @Override
             public T doInTable(HTableInterface htable) throws Throwable {
                 final boolean debugEnabled = logger.isDebugEnabled();
-                long beforeCreateDistributeScan = 0;
+                StopWatch watch = null;
                 if (debugEnabled) {
-                    beforeCreateDistributeScan = System.currentTimeMillis();
+                    watch = new StopWatch();
+                    watch.start();
                 }
                 ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
                 if (debugEnabled) {
-                    logger.debug("DistributeScanner createTime:{}", (System.currentTimeMillis() - beforeCreateDistributeScan));
+                    logger.debug("DistributeScanner createTime:{}", watch.stop());
                 }
-                long beforeDistributeScan = 0;
                 if (debugEnabled) {
-                    beforeDistributeScan = System.currentTimeMillis();
+                    watch.start();
                 }
                 try {
                     return action.extractData(scanner);
                 } finally {
                     scanner.close();
                     if (debugEnabled) {
-                        logger.debug("DistributeScanner scanTime:{}", (System.currentTimeMillis() - beforeDistributeScan));
+                        logger.debug("DistributeScanner scanTime:{}", watch.stop());
                     }
                 }
             }
