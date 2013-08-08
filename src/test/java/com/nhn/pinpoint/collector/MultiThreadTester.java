@@ -20,7 +20,7 @@ import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 
 public class MultiThreadTester {
 
-	private static final int TEST_COUNT = 10000000;
+	private static final int TEST_COUNT = 10000;
 	private static final int THREAD_COUNT = 256;
 
 	private static final byte[] ROW_KEY = "R".getBytes();
@@ -137,7 +137,7 @@ public class MultiThreadTester {
 
 	@Test
 	public void runTest() {
-		int testCount = 1;
+		int testCount = 10;
 		for (int i = 1; i <= testCount; i++) {
 			initialize();
 			doTest();
