@@ -29,8 +29,8 @@ public class CollectorConfiguration implements InitializingBean {
     private int udpWorkerThread = 512;
     private int udpWorkerQueueSize = 1024 * 5;
 
-    private int udpReceiveBufferSize = 1024 * 4096;
-    
+    private int udpSocketReceiveBufferSize = 1024 * 4096;
+
     public int getCollectorTcpListenPort() {
         return collectorTcpListenPort;
     }
@@ -71,12 +71,12 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpWorkerQueueSize = udpWorkerQueueSize;
     }
 
-    public int getUdpReceiveBufferSize() {
-        return udpReceiveBufferSize;
+    public int getUdpSocketReceiveBufferSize() {
+        return udpSocketReceiveBufferSize;
     }
 
-    public void setUdpReceiveBufferSize(int udpReceiveBufferSize) {
-        this.udpReceiveBufferSize = udpReceiveBufferSize;
+    public void setUdpSocketReceiveBufferSize(int udpSocketReceiveBufferSize) {
+        this.udpSocketReceiveBufferSize = udpSocketReceiveBufferSize;
     }
 
 
@@ -113,7 +113,7 @@ public class CollectorConfiguration implements InitializingBean {
 
         this.udpWorkerThread = readInt(properties, "udpWorkerThread", udpWorkerThread);
         this.udpWorkerQueueSize = readInt(properties, "udpWorkerQueueSize", udpWorkerQueueSize);
-        this.udpReceiveBufferSize = readInt(properties, "udpSocketReceiverBufferSize", udpReceiveBufferSize);
+        this.udpSocketReceiveBufferSize = readInt(properties, "udpSocketReceiveBufferSize", udpSocketReceiveBufferSize);
         logger.info("Pinpoint configuration successfully loaded.");
     }
 
@@ -134,9 +134,8 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", collectorStatListenPort=").append(collectorStatListenPort);
         sb.append(", udpWorkerThread=").append(udpWorkerThread);
         sb.append(", udpWorkerQueueSize=").append(udpWorkerQueueSize);
+        sb.append(", udpSocketReceiveBufferSize=").append(udpSocketReceiveBufferSize);
         sb.append('}');
         return sb.toString();
     }
-
-
 }

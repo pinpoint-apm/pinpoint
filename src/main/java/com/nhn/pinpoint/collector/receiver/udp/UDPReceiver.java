@@ -55,7 +55,7 @@ public class UDPReceiver implements DataReceiver {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
-        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpReceiveBufferSize());
+        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpSocketReceiveBufferSize());
         this.dispatchHandler = dispatchHandler;
 
         this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPacketPoolSize(configuration));
