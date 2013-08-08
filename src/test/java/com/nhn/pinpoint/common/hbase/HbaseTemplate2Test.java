@@ -54,7 +54,7 @@ public class HbaseTemplate2Test {
             hbaseTemplate2.put("NOT_EXIST", new byte[0], "familyName".getBytes(), "columnName".getBytes(), new byte[0]);
             Assert.fail("exceptions");
         } catch (HbaseSystemException e) {
-            if (!(e.getCause() instanceof TableNotFoundException)) {
+            if (!(e.getCause().getCause() instanceof TableNotFoundException)) {
 
                 System.out.println(e.getCause());
                 Assert.fail("unexpected exception :" + e.getCause());
