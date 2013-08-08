@@ -3,13 +3,13 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER;
 
-import java.util.List;
-
+import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.FlushHandler;
 import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.ServiceType;
@@ -42,9 +42,19 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 	public HbaseApplicationMapStatisticsCallerDao(boolean useBulk) {
 		this.useBulk = useBulk;
-		this.cache = (useBulk) ? new StatisticsCache() : null;
+		this.cache = (useBulk) ? new StatisticsCache(new FlushHandler() {
+			@Override
+			public void handleValue(Value value) {
+				hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, value.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, value.getColumnName(), value.getLongValue());
+			}
+
+			@Override
+			public void handleValue(Increment increment) {
+				hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, increment);
+			}
+		}) : null;
 	}
-	
+
 	@Override
 	public void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
 		if (calleeApplicationName == null) {
@@ -78,27 +88,12 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, rowKey, APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, columnName, 1L);
 		}
 	}
-	
-	@Override
-	public void flush() {
-		if (!useBulk) {
-			throw new IllegalStateException();
-		}
-		List<Value> itemList = cache.getItems();
-		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getLongValue());
-		}
-	}
 
 	@Override
 	public void flushAll() {
 		if (!useBulk) {
 			throw new IllegalStateException();
 		}
-
-		List<Value> itemList = cache.getAllItems();
-		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, item.getRowKey(), APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, item.getColumnName(), item.getLongValue());
-		}
+		cache.flushAll();
 	}
 }

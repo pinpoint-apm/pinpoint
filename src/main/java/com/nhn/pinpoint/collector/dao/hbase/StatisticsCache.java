@@ -2,12 +2,20 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.hadoop.hbase.client.Increment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Bytes;
 
@@ -18,49 +26,153 @@ import com.google.common.primitives.Bytes;
  */
 public class StatisticsCache {
 
-	final long threshold = 10L;
-	final ConcurrentMap<Key, Value> cache = new ConcurrentHashMap<Key, Value>(1024);
+	public static interface FlushHandler {
+		public void handleValue(Value value);
 
-	public long add(byte[] rowKey, byte[] columnName, long value) {
-		Key key = new Key(Bytes.concat(rowKey, columnName));
-		Value v = cache.putIfAbsent(key, new Value(rowKey, columnName, value));
-		if (v != null) {
-			return v.addValue(value);
-		} else {
-			return value;
+		public void handleValue(Increment increment);
+	}
+
+	private final int bufferSize = 512;
+	private final int cacheSize;
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final FlushHandler flushHandler;
+	private final ConcurrentMap<Key, Value> cache;
+
+	// TODO buffer를 threadlocal에 보관하지 않고 thread id 별 map에 보관해도 문제 없을 듯.
+	private final ThreadLocal<Map<Key, Value>> bufferMap = new ThreadLocal<Map<Key, Value>>();
+	private final List<Map<Key, Value>> bufferList = new ArrayList<Map<Key, Value>>();
+
+	private final Lock bufferListLock = new ReentrantLock();
+	private final Lock cacheLock = new ReentrantLock();
+
+	public StatisticsCache(FlushHandler flushHandler) {
+		this(5000, flushHandler);
+	}
+
+	public StatisticsCache(int cacheSize, FlushHandler flushHandler) {
+		this.cacheSize = cacheSize;
+		this.flushHandler = flushHandler;
+		this.cache = new ConcurrentHashMap<Key, Value>(cacheSize);
+	}
+
+	private Map<Key, Value> getLocalBuffer() {
+		Map<Key, Value> buffer = bufferMap.get();
+		if (buffer == null) {
+			buffer = new HashMap<StatisticsCache.Key, StatisticsCache.Value>(bufferSize);
+			bufferList.add(buffer);
+			bufferMap.set(buffer);
+		}
+		return buffer;
+	}
+
+	private void addValues(Map<Key, Value> valueMap) {
+		try {
+			cacheLock.lock();
+			for (Entry<Key, Value> entry : valueMap.entrySet()) {
+				Key key = entry.getKey();
+				Value value = cache.get(key);
+				if (value == null) {
+					value = entry.getValue();
+				} else {
+					value.addValue(entry.getValue().getLongValue());
+				}
+				cache.put(key, value);
+			}
+		} finally {
+			cacheLock.unlock();
 		}
 	}
 
-	public List<Value> getItems() {
-		List<Value> result = new ArrayList<Value>();
+	private void drainLocalBuffer() {
+		Map<Key, Value> buffer = bufferMap.get();
+		if (buffer != null) {
+			addValues(buffer);
+			buffer.clear();
+		}
+	}
 
-		Set<Entry<Key, Value>> entrySet = cache.entrySet();
+	private void drainAllLocalBuffer() {
+		try {
+			bufferListLock.lock();
+			for (Map<Key, Value> buffer : bufferList) {
+				if (buffer == null) {
+					continue;
+				}
+				addValues(buffer);
+				buffer.clear();
+			}
+		} finally {
+			bufferListLock.unlock();
+		}
+	}
 
-		for (Entry<Key, Value> entry : entrySet) {
-			Key key = entry.getKey();
-			Value value = entry.getValue();
+	public void add(byte[] rowKey, byte[] columnName, long value) {
+		try {
+			Key key = new Key(Bytes.concat(rowKey, columnName));
 
-			if (value.getLongValue() < threshold) {
-				continue;
+			if (add(key, rowKey, columnName, value)) {
+				return;
+			}
+			flush();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private boolean add(Key key, byte[] rowKey, byte[] columnName, long value) {
+		Map<Key, Value> buffer = getLocalBuffer();
+
+		Value bufferValue = buffer.get(key);
+
+		if (bufferValue == null) {
+			bufferValue = new Value(rowKey, columnName, value);
+			buffer.put(key, bufferValue);
+		} else {
+			bufferValue.addValue(value);
+		}
+
+		return (buffer.size() < bufferSize);
+	}
+
+	private void flushCache(int checkSize) {
+		try {
+			cacheLock.lock();
+
+			if (cache.size() <= checkSize) {
+				return;
 			}
 
-			result.add(cache.remove(key));
+			Set<Entry<Key, Value>> entrySet = cache.entrySet();
+			for (Entry<Key, Value> entry : entrySet) {
+				Value v = cache.remove(entry.getKey());
+				if (v != null) {
+					flushHandler.handleValue(v);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			cacheLock.unlock();
 		}
-
-		return result;
 	}
 
-	public List<Value> getAllItems() {
-		List<Value> result = new ArrayList<Value>();
-		Set<Entry<Key, Value>> entrySet = cache.entrySet();
-		for (Entry<Key, Value> entry : entrySet) {
-			result.add(cache.remove(entry.getKey()));
-		}
-		return result;
+	public void flush() {
+		drainLocalBuffer();
+		flushCache(cacheSize);
+	}
+
+	public void flushAll() {
+		drainAllLocalBuffer();
+		flushCache(0);
 	}
 
 	public int size() {
 		return cache.size();
+	}
+
+	public boolean isEmpty() {
+		return cache.isEmpty();
 	}
 
 	public static class Key {

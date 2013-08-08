@@ -3,13 +3,13 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS_CF_COUNTER;
 
-import java.util.List;
-
+import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
+import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.FlushHandler;
 import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.ServiceType;
@@ -42,9 +42,19 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 
 	public HbaseApplicationStatisticsDao(boolean useBulk) {
 		this.useBulk = useBulk;
-		this.cache = (useBulk) ? new StatisticsCache() : null;
+		this.cache = (useBulk) ? new StatisticsCache(new FlushHandler() {
+			@Override
+			public void handleValue(Value value) {
+				hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, value.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, value.getColumnName(), value.getLongValue());
+			}
+
+			@Override
+			public void handleValue(Increment increment) {
+				hbaseTemplate.increment(APPLICATION_STATISTICS, increment);
+			}
+		}) : null;
 	}
-	
+
 	@Override
 	public void update(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
 		if (applicationName == null) {
@@ -70,26 +80,10 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 	}
 
 	@Override
-	public void flush() {
-		if (!useBulk) {
-			throw new IllegalStateException();
-		}
-
-		List<Value> itemList = cache.getItems();
-		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getLongValue());
-		}
-	}
-
-	@Override
 	public void flushAll() {
 		if (!useBulk) {
 			throw new IllegalStateException();
 		}
-
-		List<Value> itemList = cache.getAllItems();
-		for (Value item : itemList) {
-			hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, item.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, item.getColumnName(), item.getLongValue());
-		}
+		cache.flushAll();
 	}
 }

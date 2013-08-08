@@ -1,13 +1,18 @@
 package com.nhn.pinpoint.collector;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Assert;
 
+import org.apache.hadoop.hbase.client.Increment;
 import org.junit.Test;
 
 import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache;
@@ -15,69 +20,128 @@ import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 
 public class MultiThreadTester {
 
-	private static final int THREAD_COUNT = 100;
+	private static final int TEST_COUNT = 10000000;
+	private static final int THREAD_COUNT = 256;
 
-	private final CountDownLatch startLatch = new CountDownLatch(1);
-	private final CountDownLatch stopLatch = new CountDownLatch(1);
+	private static final byte[] ROW_KEY = "R".getBytes();
+	private static final byte[] COLUMN_NAME = "C".getBytes();
 
-	private final StatisticsCache cache = new StatisticsCache();
+	private ExecutorService executor;
+	private AtomicLong resultValue;
+	private CountDownLatch startLatch;
+	private CountDownLatch stopLatch;
+	private StatisticsCache cache;
+
+	public void initialize() {
+		if (executor != null) {
+			executor.shutdownNow();
+		}
+
+		executor = Executors.newFixedThreadPool(THREAD_COUNT, new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable runnable) {
+				Thread t = new Thread(runnable);
+				t.setName("UnitTest");
+				t.setDaemon(true);
+				return t;
+			}
+		});
+
+		resultValue = new AtomicLong(0);
+
+		startLatch = new CountDownLatch(1);
+		stopLatch = new CountDownLatch(THREAD_COUNT);
+		cache = new StatisticsCache(100, new StatisticsCache.FlushHandler() {
+			@Override
+			public void handleValue(Value value) {
+				resultValue.addAndGet(value.getLongValue());
+			}
+
+			@Override
+			public void handleValue(Increment increment) {
+				Map<byte[], NavigableMap<byte[], Long>> familyMap = increment.getFamilyMap();
+				for (Entry<byte[], NavigableMap<byte[], Long>> entry : familyMap.entrySet()) {
+					NavigableMap<byte[], Long> innerMap = entry.getValue();
+					for (Entry<byte[], Long> innerEntry : innerMap.entrySet()) {
+						resultValue.addAndGet(innerEntry.getValue());
+					}
+				}
+			}
+		});
+
+	}
 
 	private class Worker implements Runnable {
-
-		private int id;
-
-		public Worker(int id) {
-			this.id = id;
-		}
+		private int count = 0;
 
 		@Override
 		public void run() {
 			try {
 				startLatch.await();
-			} catch (InterruptedException e) {
-				Assert.fail(e.getMessage());
-			}
 
-			Random random = new Random();
+				Random random = new Random();
 
-			// DO JOB
-			while (true) {
-				if (id == 0) {
-					List<Value> items;
-					if (random.nextBoolean()) {
-						items = cache.getItems();
-					} else {
-						items = cache.getAllItems();
+				while (true) {
+					if (count >= TEST_COUNT) {
+						break;
 					}
-					for (Value v : items) {
-						Assert.assertNotNull(v);
-					}
-				} else if (id == 1) {
-					System.out.println(cache.size());
-				} else {
+
 					byte[] b = new byte[1];
 					random.nextBytes(b);
 					cache.add(b, b, 1L);
+					count++;
 				}
+			} catch (Exception e) {
+				Assert.fail(e.getMessage());
+			} finally {
+				cache.flush();
+				stopLatch.countDown();
 			}
 		}
 	}
 
-	private final ExecutorService executor = Executors.newFixedThreadPool(1024);
-
-	@Test
-	public void runTest() {
+	public void doTest() {
 		for (int i = 0; i < THREAD_COUNT; i++) {
-			executor.execute(new Worker(i));
+			executor.submit(new Worker());
 		}
+
+		long start = System.currentTimeMillis();
 		startLatch.countDown();
+
 		try {
 			stopLatch.await();
 		} catch (InterruptedException e) {
 			Assert.fail(e.getMessage());
 		}
 
-		System.out.println("DONE");
+		try {
+			Thread.sleep(1000L);
+		} catch (InterruptedException e) {
+			Assert.fail(e.getMessage());
+		}
+
+		cache.flushAll();
+
+		long elapsed = System.currentTimeMillis() - start;
+
+		System.out.println("");
+		System.out.println("-----------------------------------");
+		System.out.println("TEST COUNT=" + TEST_COUNT);
+		System.out.println("RESULT EXPECTED=" + TEST_COUNT * THREAD_COUNT);
+		System.out.println("RESULT=" + resultValue.get());
+		System.out.println("ELAPSED=" + elapsed + "ms");
+		System.out.println("-----------------------------------");
+
+		Assert.assertEquals(TEST_COUNT * THREAD_COUNT, resultValue.get());
 	}
 
+	@Test
+	public void runTest() {
+		int testCount = 1;
+		for (int i = 1; i <= testCount; i++) {
+			initialize();
+			doTest();
+			System.out.println("PASSED (" + i + "/" + testCount + ")");
+		}
+	}
 }

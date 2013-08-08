@@ -116,6 +116,10 @@
             <version>0.94.1</version>
             <exclusions>
                 <exclusion>
+                    <artifactId>netty</artifactId>
+                    <groupId>org.jboss.netty</groupId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>jetty</artifactId>
                 </exclusion>

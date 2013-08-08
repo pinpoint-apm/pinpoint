@@ -6,7 +6,5 @@ package com.nhn.pinpoint.collector.dao;
  * 
  */
 public interface CachedStatisticsDao {
-	void flush();
-
 	void flushAll();
 }
