@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -263,11 +262,11 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> get(String tableName, final List<Get> gets, final RowMapper<T> mapper) {
+    public <T> List<T> get(String tableName, final List<Get> getList, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
-                Result[] result = htable.get(gets);
+                Result[] result = htable.get(getList);
                 List<T> list = new ArrayList<T>(result.length);
                 for (int i = 0; i < result.length; i++) {
                     T t = mapper.mapRow(result[i], i);
@@ -365,12 +364,12 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+    public <T> List<T> find(String tableName, final List<Scan> scanList, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
-                List<T> result = new ArrayList<T>(scans.size());
-                for (Scan scan : scans) {
+                List<T> result = new ArrayList<T>(scanList.size());
+                for (Scan scan : scanList) {
                     ResultScanner scanner = htable.getScanner(scan);
                     try {
                         T t = action.extractData(scanner);
@@ -385,12 +384,27 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<List<T>> find(String tableName, List<Scan> scans, RowMapper<T> action) {
-        return find(tableName, scans, new RowMapperResultsExtractor<T>(action));
+    public <T> List<List<T>> find(String tableName, List<Scan> scanList, RowMapper<T> action) {
+        return find(tableName, scanList, new RowMapperResultsExtractor<T>(action));
     }
 
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
-        final RowMapperResultsExtractor<T> resultsExtractor = new RowMapperResultsExtractor<T>(action);
+        final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<T>(action);
+        return execute(tableName, new TableCallback<List<T>>() {
+            @Override
+            public List<T> doInTable(HTableInterface htable) throws Throwable {
+                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                try {
+                    return resultsExtractor.extractData(scanner);
+                } finally {
+                    scanner.close();
+                }
+            }
+        });
+    }
+
+    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action) {
+        final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit);
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
@@ -410,7 +424,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(HTableInterface htable) throws Throwable {
-                boolean debugEnabled = logger.isDebugEnabled();
+                final boolean debugEnabled = logger.isDebugEnabled();
                 long beforeCreateDistributeScan = 0;
                 if (debugEnabled) {
                     beforeCreateDistributeScan = System.currentTimeMillis();

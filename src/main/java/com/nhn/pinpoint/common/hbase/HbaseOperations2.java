@@ -76,6 +76,8 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     <T> List<T> find(String tableName, final Scan scan, AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
 
+    <T> List<T> find(String tableName, final Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action);
+
     <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
 
     void increment(String tableName, final Increment increment);
