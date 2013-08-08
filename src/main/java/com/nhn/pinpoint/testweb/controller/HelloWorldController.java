@@ -27,13 +27,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import perftest.LevelManager;
+
 import com.nhn.pinpoint.testweb.domain.Member;
 import com.nhn.pinpoint.testweb.service.DummyService;
 import com.nhn.pinpoint.testweb.service.MemberService;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
 import com.nhncorp.lucy.net.invoker.InvocationFuture;
-import com.nhncorp.lucy.npc.connector.KeepAliveNpcHessianConnector;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
 @Controller
@@ -41,10 +42,12 @@ public class HelloWorldController implements DisposableBean {
 
 	private final ArcusClient arcus;
 	private final MemcachedClient memcached;
+	private final LevelManager levelManager;
 
 	public HelloWorldController() throws IOException {
 		arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
 		memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11211"));
+		levelManager = new LevelManager();
 	}
 
 	@Autowired
@@ -348,6 +351,12 @@ public class HelloWorldController implements DisposableBean {
 			e.printStackTrace();
 		}
 		return "npc";
+	}
+	
+	@RequestMapping(value = "/perftest")
+	public String perfTest(Model model) {
+		levelManager.traverse();
+		return "perftest";
 	}
 
 	@Override
