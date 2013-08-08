@@ -34,15 +34,19 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 		List<Dot> list = new ArrayList<Dot>(raw.length);
 
 		for (KeyValue kv : raw) {
-			byte[] v = kv.getValue();
+            final byte[] buffer = kv.getBuffer();
 
-			int elapsed = BytesUtils.bytesToInt(v, 0);
-			int exceptionCode = BytesUtils.bytesToInt(v, 4);
+            final int valueOffset = kv.getValueOffset();
+            int elapsed = BytesUtils.bytesToInt(buffer, valueOffset);
+			int exceptionCode = BytesUtils.bytesToInt(buffer, valueOffset + BytesUtils.INT_BYTE_LENGTH);
 
-			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), HBaseTables.APPLICATION_NAME_MAX_LEN + DISTRIBUTED_HASH_SIZE));
+            long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + DISTRIBUTED_HASH_SIZE);
+			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
 
-			long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-			String traceId = TraceIdUtils.formatString(tid[0], tid[1]);
+            final int qualifierOffset = kv.getQualifierOffset();
+            long mostId = BytesUtils.bytesToLong(buffer, qualifierOffset);
+            long leastId = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH);
+			String traceId = TraceIdUtils.formatString(mostId, leastId);
 
              Dot dot = new Dot(traceId, acceptedTime, elapsed, exceptionCode);
             list.add(dot);
