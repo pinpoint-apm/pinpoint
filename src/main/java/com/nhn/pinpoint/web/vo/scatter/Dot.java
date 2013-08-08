@@ -40,9 +40,14 @@ public class Dot {
 		return timestamp;
 	}
 
-	@Override
-	public String toString() {
-
-		return "Dot [exceptionCode=" + exceptionCode + ", executionTime=" + executionTime + ", timestamp=" + timestamp + ", traceId=" + traceId + "]";
-	}
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Dot{");
+        sb.append("traceId='").append(traceId).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", executionTime=").append(executionTime);
+        sb.append(", exceptionCode=").append(exceptionCode);
+        sb.append('}');
+        return sb.toString();
+    }
 }

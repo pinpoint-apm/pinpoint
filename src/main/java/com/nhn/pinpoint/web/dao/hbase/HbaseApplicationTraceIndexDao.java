@@ -107,26 +107,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         logger.debug("scanTraceScatter2");
         Scan scan = createScan(applicationName, start, end);
 
-        List<Dot> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, new ResultsExtractor<List<Dot>>() {
-			@Override
-			public List<Dot> extractData(ResultScanner results) throws Exception {
-				List<Dot> list = new ArrayList<Dot>();
-				for (Result result : results) {
-					if (result == null) {
-						continue;
-					}
-                    // index를 사용하지 않아 그냥 0 넣음.
-                    List<Dot> dots = traceIndexScatterMapper.mapRow(result, 0);
-                    list.addAll(dots);
-
-					if (list.size() >= limit) {
-						break;
-					}
-				}
-				return list;
-			}
-		});
-		return list;
+        List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper);
+        List<Dot> mergeList = new ArrayList<Dot>(limit + 10);
+        for(List<Dot> dotList: dotListList) {
+            mergeList.addAll(dotList);
+        }
+        return mergeList;
 	}
 
 	@Override
@@ -146,7 +132,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 					KeyValue[] raw = result.raw();
 					for (KeyValue kv : raw) {
 						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24+DISTRIBUTED_HASH_SIZE));
+						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24 + DISTRIBUTED_HASH_SIZE));
 						list.add(new TraceIdWithTime(tid[0], tid[1], acceptedTime));
 					}
 
