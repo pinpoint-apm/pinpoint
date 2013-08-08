@@ -15,7 +15,7 @@ public final class BytesUtils {
     private static final String UTF8 = "UTF-8";
 
     public static byte[] longLongToBytes(final long value1, final long value2) {
-        final byte[] buffer = new byte[16];
+        final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH];
         writeFirstLong0(value1, buffer);
         writeSecondLong0(value2, buffer);
         return buffer;
