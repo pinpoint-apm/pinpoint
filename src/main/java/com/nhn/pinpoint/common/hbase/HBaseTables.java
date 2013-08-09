@@ -11,19 +11,21 @@ public class HBaseTables {
     public static final byte[] SYSTEMINFO_CF_JVM = Bytes.toBytes("JVM");
     public static final byte[] SYSTEMINFO_CN_INFO = Bytes.toBytes("info");
 
+    @Deprecated
     public static final String TRACE_INDEX = "TraceIndex";
-    public static final byte[] TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
+    @Deprecated
+    public static final byte[] TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // Trace
+    @Deprecated
+    public static final int TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // Trace_Index hash size
 
     public static final String APPLICATION_TRACE_INDEX = "ApplicationTraceIndex";
-    public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
-
-    public static final String ROOT_TRACE_INDEX = "RootTraceIndex";
-    public static final byte[] ROOT_TRACE_INDEX_CF_TRACE = Bytes.toBytes("Trace");
+    public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
+    public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
     public static final String TRACES = "Traces";
-    public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("Span");
-    public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("Annotation");
-    public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("TerminalSpan");
+    public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("S");  //Span
+    public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
+    public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("T"); //TerminalSpan
 
     public static final String SERVERS_INDEX = "ServersIndex";
     public static final byte[] SERVERS_INDEX_CF_AGENTS = Bytes.toBytes("Agents");
