@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
+import org.springframework.stereotype.Service;
 
 /**
  * 
  * @author netspider
  * 
  */
+@Service
 public class StatisticsHandler {
 
 	@Autowired

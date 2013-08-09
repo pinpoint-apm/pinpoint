@@ -13,11 +13,13 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.TerminalSpanUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author netspider
  */
 @Deprecated
+@Repository
 public class HbaseTerminalStatisticsDao implements TerminalStatisticsDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

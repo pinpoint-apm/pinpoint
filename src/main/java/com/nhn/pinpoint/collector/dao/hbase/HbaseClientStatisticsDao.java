@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.util.ClientStatUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.collector.dao.ClientStatisticsDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import org.springframework.stereotype.Repository;
 
 /**
  * caller table로 통합됨.
@@ -21,6 +22,7 @@ import com.nhn.pinpoint.collector.util.AcceptedTimeService;
  * 
  */
 @Deprecated
+@Repository
 public class HbaseClientStatisticsDao implements ClientStatisticsDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

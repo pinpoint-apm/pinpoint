@@ -11,10 +11,12 @@ import com.nhn.pinpoint.common.dto2.thrift.SqlMetaData;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  */
+@Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

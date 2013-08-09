@@ -16,31 +16,31 @@ public class DispatchHandler {
 
 
     @Autowired()
-    @Qualifier("JvmDataHandler")
+    @Qualifier("JVMDataHandler")
     private Handler jvmDataHandler;
 
     @Autowired()
-    @Qualifier("SpanHandler")
+    @Qualifier("spanHandler")
     private SimpleHandler spanDataHandler;
 
     @Autowired()
-    @Qualifier("AgentInfoHandler")
+    @Qualifier("agentInfoHandler")
     private SimpleHandler agentInfoHandler;
 
     @Autowired()
-    @Qualifier("SpanEventHandler")
+    @Qualifier("spanEventHandler")
     private SimpleHandler spanEventHandler;
 
     @Autowired()
-    @Qualifier("SpanChunkHandler")
+    @Qualifier("spanChunkHandler")
     private SimpleHandler spanChunkHandler;
 
     @Autowired()
-    @Qualifier("SqlMetaDataHandler")
+    @Qualifier("sqlMetaDataHandler")
     private SimpleHandler sqlMetaDataHandler;
 
     @Autowired()
-    @Qualifier("ApiMetaDataHandler")
+    @Qualifier("apiMetaDataHandler")
     private SimpleHandler apiMetaDataHandler;
 
     @Autowired

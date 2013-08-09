@@ -13,10 +13,12 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.collector.dao.AgentInfoDao;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  */
+@Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

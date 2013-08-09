@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.common.dto2.thrift.SqlMetaData;
 import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
+import org.springframework.stereotype.Service;
 
 /**
  *
  */
+@Service
 public class SqlMetaDataHandler implements SimpleHandler {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 

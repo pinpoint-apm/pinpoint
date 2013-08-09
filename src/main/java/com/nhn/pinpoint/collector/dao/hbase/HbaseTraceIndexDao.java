@@ -12,8 +12,10 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.collector.dao.TraceIndexDao;
+import org.springframework.stereotype.Repository;
 
 @Deprecated
+@Repository
 public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	private String tableName = HBaseTables.TRACE_INDEX;

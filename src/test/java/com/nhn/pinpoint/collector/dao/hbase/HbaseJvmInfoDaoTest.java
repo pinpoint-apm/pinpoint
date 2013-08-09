@@ -2,7 +2,6 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import java.util.Arrays;
 
-import com.nhn.pinpoint.collector.dao.hbase.HbaseJvmInfoDao;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TSerializer;
@@ -11,7 +10,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -19,18 +17,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.io.TBaseLocator;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 // @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
-@ContextConfiguration("classpath:test-applicationContext.xml")
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class HbaseJvmInfoDaoTest {
 
 	@Autowired
 	private HbaseOperations2 hbaseOperations;
 
 	@Autowired
-	@Qualifier("testHbaseJvmInfoDaoTest")
 	private HbaseJvmInfoDao hbaseJvmInfoDao;
 
 

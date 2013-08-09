@@ -13,7 +13,9 @@ import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class HbaseJvmInfoDao implements JvmInfoDao {
 
 	@Autowired

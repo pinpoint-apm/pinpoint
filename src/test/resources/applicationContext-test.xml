@@ -14,6 +14,11 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
+    <context:annotation-config/>
+
+    <context:component-scan
+            base-package="com.nhn.pinpoint.collector.dao.hbase, com.nhn.pinpoint.collector.handler, com.nhn.pinpoint.collector.dao.mapper" />
+
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
@@ -23,7 +28,7 @@
         </property>
     </bean>
 
-    <import resource="classpath:hbase-applicationContext.xml"></import>
+    <import resource="classpath:applicationContext-hbase.xml"></import>
 
     <bean id="hBaseAdminTemplate" class="com.nhn.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
         <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
@@ -33,9 +38,6 @@
     <bean id="testTraceIndex" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceIndexDao">
         <property name="tableName" value="TestTraceIndex"/>
     </bean>
-
-    <bean id="testHbaseJvmInfoDaoTest" class="com.nhn.pinpoint.collector.dao.hbase.HbaseJvmInfoDao"></bean>
-    <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"></bean>
 
     <bean id="acceptedTimeService" class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
 

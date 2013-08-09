@@ -20,12 +20,14 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
 
+@Repository
 public class HbaseTraceDao implements TracesDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

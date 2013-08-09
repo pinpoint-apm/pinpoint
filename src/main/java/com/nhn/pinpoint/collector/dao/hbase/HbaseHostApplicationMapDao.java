@@ -18,11 +18,13 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.common.util.TimeUtils;
+import org.springframework.stereotype.Repository;
 
 /**
  * 
  * @author netspider
  */
+@Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

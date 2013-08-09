@@ -16,12 +16,14 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import org.springframework.stereotype.Repository;
 
 /**
  * appllication 통계
  * 
  * @author netspider
  */
+@Repository
 public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,26 +38,30 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 	private final StatisticsCache cache;
 
 	public HbaseApplicationStatisticsDao() {
-		this.useBulk = false;
-		this.cache = null;
+		this.useBulk = true;
+		this.cache = createCache();
 	}
 
 	public HbaseApplicationStatisticsDao(boolean useBulk) {
 		this.useBulk = useBulk;
-		this.cache = (useBulk) ? new StatisticsCache(new FlushHandler() {
-			@Override
-			public void handleValue(Value value) {
-				hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, value.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, value.getColumnName(), value.getLongValue());
-			}
-
-			@Override
-			public void handleValue(Increment increment) {
-				hbaseTemplate.increment(APPLICATION_STATISTICS, increment);
-			}
-		}) : null;
+		this.cache = (useBulk) ? createCache() : null;
 	}
 
-	@Override
+    private StatisticsCache createCache() {
+        return new StatisticsCache(new FlushHandler() {
+            @Override
+            public void handleValue(Value value) {
+                hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, value.getRowKey(), APPLICATION_STATISTICS_CF_COUNTER, value.getColumnName(), value.getLongValue());
+            }
+
+            @Override
+            public void handleValue(Increment increment) {
+                hbaseTemplate.increment(APPLICATION_STATISTICS, increment);
+            }
+        });
+    }
+
+    @Override
 	public void update(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
 		if (applicationName == null) {
 			throw new IllegalArgumentException("applicationName is null.");

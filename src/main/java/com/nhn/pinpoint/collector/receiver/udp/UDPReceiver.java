@@ -159,7 +159,7 @@ public class UDPReceiver implements DataReceiver {
             throw new RuntimeException("socket create fail");
         }
 
-        logger.info("UDP Packet reader:{} started.", CpuUtils.workerCount());
+        logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
             io.execute(new Runnable() {
                 @Override

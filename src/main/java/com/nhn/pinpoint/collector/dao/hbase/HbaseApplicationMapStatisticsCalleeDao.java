@@ -16,12 +16,14 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import org.springframework.stereotype.Repository;
 
 /**
  * 나를 호출한 application 통계 갱신
  * 
  * @author netspider
  */
+@Repository
 public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapStatisticsCalleeDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,26 +38,30 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	private final StatisticsCache cache;
 
 	public HbaseApplicationMapStatisticsCalleeDao() {
-		this.useBulk = false;
-		this.cache = null;
+		this.useBulk = true;
+		this.cache = createCache();
 	}
 
 	public HbaseApplicationMapStatisticsCalleeDao(boolean useBulk) {
 		this.useBulk = useBulk;
-		this.cache = (useBulk) ? new StatisticsCache(new FlushHandler() {
-			@Override
-			public void handleValue(Value value) {
-				hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, value.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, value.getColumnName(), value.getLongValue());
-			}
-
-			@Override
-			public void handleValue(Increment increment) {
-				hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLEE, increment);
-			}
-		}) : null;
+		this.cache = (useBulk) ? createCache() : null;
 	}
 
-	@Override
+    private StatisticsCache createCache() {
+        return new StatisticsCache(new FlushHandler() {
+            @Override
+            public void handleValue(Value value) {
+                hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, value.getRowKey(), APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, value.getColumnName(), value.getLongValue());
+            }
+
+            @Override
+            public void handleValue(Increment increment) {
+                hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLEE, increment);
+            }
+        });
+    }
+
+    @Override
 	public void update(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
 		if (calleeApplicationName == null) {
 			throw new IllegalArgumentException("calleeApplicationName is null.");

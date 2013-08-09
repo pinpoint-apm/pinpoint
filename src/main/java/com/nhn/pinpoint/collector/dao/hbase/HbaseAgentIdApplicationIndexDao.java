@@ -13,6 +13,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
+import org.springframework.stereotype.Repository;
 
 /**
  * find applicationname by agentId
@@ -20,6 +21,7 @@ import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
  * @author netspider
  * 
  */
+@Repository
 public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexDao {
 
 	@Autowired

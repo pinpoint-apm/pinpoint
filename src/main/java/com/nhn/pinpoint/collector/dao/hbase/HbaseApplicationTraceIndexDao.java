@@ -13,12 +13,14 @@ import com.nhn.pinpoint.common.dto2.thrift.Span;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
+import org.springframework.stereotype.Repository;
 
 /**
  * find traceids by application name
  * 
  * @author netspider
  */
+@Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Autowired

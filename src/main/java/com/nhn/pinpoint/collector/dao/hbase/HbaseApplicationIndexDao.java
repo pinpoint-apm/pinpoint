@@ -12,12 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import org.springframework.stereotype.Repository;
 
 /**
  * application names list.
  *
  * @author netspider
  */
+@Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

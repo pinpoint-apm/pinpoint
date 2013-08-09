@@ -13,11 +13,13 @@ import com.nhn.pinpoint.common.dto2.thrift.Span;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author netspider
  */
 @Deprecated
+@Repository
 public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactionStatisticsDao {
 
 	@Autowired

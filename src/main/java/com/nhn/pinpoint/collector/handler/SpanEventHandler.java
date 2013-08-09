@@ -9,10 +9,12 @@ import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * subspan represent terminal spans.
  */
+@Service
 public class SpanEventHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

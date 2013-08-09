@@ -12,10 +12,12 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto2.thrift.SpanChunk;
 import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
+import org.springframework.stereotype.Service;
 
 /**
  *
  */
+@Service
 public class SpanChunkHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
