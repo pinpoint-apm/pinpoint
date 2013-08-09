@@ -1,10 +1,12 @@
 package com.nhn.pinpoint.collector.util;
 
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.stereotype.Component;
 
 /**
  *
  */
+@Component
 public class ThreadLocalAcceptedTimeService implements AcceptedTimeService {
 
     private final ThreadLocal<Long> local = new NamedThreadLocal<Long>("AcceptedTimeService");

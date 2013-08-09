@@ -17,7 +17,10 @@
     <context:annotation-config/>
 
     <context:component-scan
-            base-package="com.nhn.pinpoint.collector.dao.hbase, com.nhn.pinpoint.collector.handler, com.nhn.pinpoint.collector.dao.mapper" />
+            base-package="com.nhn.pinpoint.collector.dao.hbase,
+                        com.nhn.pinpoint.collector.handler,
+                        com.nhn.pinpoint.collector.mapper
+                        com.nhn.pinpoint.collector.util" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -41,8 +44,6 @@
     <bean id="DispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"></bean>
 
 
-    <bean id="acceptedTimeService" class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
-    
     <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
     	<beans:property name="cachedStatisticsDaoList">
     		<beans:list>
@@ -53,15 +54,5 @@
     	</beans:property>
     </bean>
 
-    <bean id="rowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="hasher"></ref>
-        </constructor-arg>
-    </bean>
 
-    <bean id="hasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">32</value>
-        </constructor-arg>
-    </bean>
 </beans>

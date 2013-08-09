@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.dao.mapper;
+package com.nhn.pinpoint.collector.mapper;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;

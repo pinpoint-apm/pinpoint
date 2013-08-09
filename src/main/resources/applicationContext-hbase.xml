@@ -30,4 +30,16 @@
         <!-- hbase pool 사이즈 동적설정이 필요함. -->
         <property name="poolSize" value="${hbase.hTablePoolSize}"></property>
     </bean>
+
+    <bean id="rowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg>
+            <ref bean="hasher"></ref>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
+        <constructor-arg>
+            <value type="int">32</value>
+        </constructor-arg>
+    </bean>
 </beans>
