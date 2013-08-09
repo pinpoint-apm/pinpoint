@@ -21,8 +21,6 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
-    private static final int DISTRIBUTED_HASH_SIZE = 1;
-
 	@Override
 	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
 		if (result == null) {
@@ -40,7 +38,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
             int elapsed = BytesUtils.bytesToInt(buffer, valueOffset);
 			int exceptionCode = BytesUtils.bytesToInt(buffer, valueOffset + BytesUtils.INT_BYTE_LENGTH);
 
-            long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + DISTRIBUTED_HASH_SIZE);
+            long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
 			long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
 
             final int qualifierOffset = kv.getQualifierOffset();

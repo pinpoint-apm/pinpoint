@@ -52,8 +52,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	private int scanCacheSize = 256;
 
-    private static int DISTRIBUTED_HASH_SIZE = 1;
-
 	public void setScanCacheSize(int scanCacheSize) {
 		this.scanCacheSize = scanCacheSize;
 	}
@@ -132,7 +130,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 					KeyValue[] raw = result.raw();
 					for (KeyValue kv : raw) {
 						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24 + DISTRIBUTED_HASH_SIZE));
+						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24 + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE));
 						list.add(new TraceIdWithTime(tid[0], tid[1], acceptedTime));
 					}
 

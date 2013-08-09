@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -22,6 +22,7 @@ import com.nhn.pinpoint.common.util.SpanUtils;
  *
  */
 @Repository
+@Deprecated
 public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,8 +34,12 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Qualifier("traceIndexMapper")
 	private RowMapper<List<TraceId>> traceIndexMapper;
 
+    @Autowired
+    @Qualifier("traceIdRowKeyDistributor")
+    private AbstractRowKeyDistributor traceIdRowKeyDistributor;
+
 	// cache size를 지정해야 되는거 같음.??
-	private int scanCacheSize = 40;
+	private int scanCacheSize = 512;
 
 	public void setScanCacheSize(int scanCacheSize) {
 		this.scanCacheSize = scanCacheSize;
@@ -43,18 +48,18 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	@Override
 	public List<List<TraceId>> scanTraceIndex(String agent, long start, long end) {
 		Scan scan = createScan(agent, start, end);
-		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIndexMapper);
+		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexMapper);
 	}
 
-	@Override
-	public List<List<List<TraceId>>> multiScanTraceIndex(String[] agents, long start, long end) {
-		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
-		for (String agent : agents) {
-			Scan scan = createScan(agent, start, end);
-			multiScan.add(scan);
-		}
-		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, multiScan, traceIndexMapper);
-	}
+//	@Override
+//	public List<List<List<TraceId>>> multiScanTraceIndex(String[] agents, long start, long end) {
+//		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
+//		for (String agent : agents) {
+//			Scan scan = createScan(agent, start, end);
+//			multiScan.add(scan);
+//		}
+//		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, multiScan, traceIndexMapper);
+//	}
 
 	private Scan createScan(String agent, long start, long end) {
 		Scan scan = new Scan();
