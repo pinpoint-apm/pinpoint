@@ -129,9 +129,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 					KeyValue[] raw = result.raw();
 					for (KeyValue kv : raw) {
-						long[] tid = BytesUtils.bytesToLongLong(kv.getQualifier());
-						long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(kv.getRow(), 24 + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE));
-						list.add(new TraceIdWithTime(tid[0], tid[1], acceptedTime));
+                        TraceIdWithTime traceIdWithTime = createTraceIdWithTime(kv);
+                        list.add(traceIdWithTime);
 					}
 
 					if (list.size() >= limit) {
@@ -143,4 +142,16 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		});
 		return list;
 	}
+
+    private TraceIdWithTime createTraceIdWithTime(KeyValue kv) {
+        final byte[] buffer = kv.getBuffer();
+
+        long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
+        long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
+
+        final int qualifierOffset = kv.getQualifierOffset();
+        long mostTid = BytesUtils.bytesToLong(buffer, qualifierOffset);
+        long leastTid = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH);
+        return new TraceIdWithTime(mostTid, leastTid, acceptedTime);
+    }
 }
