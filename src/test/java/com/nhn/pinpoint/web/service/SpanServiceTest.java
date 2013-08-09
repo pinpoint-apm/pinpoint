@@ -34,7 +34,7 @@ import com.nhn.pinpoint.common.util.SpanUtils;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:test-web-applicationContext.xml")
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class SpanServiceTest {
 
 	@Autowired

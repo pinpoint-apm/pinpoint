@@ -15,12 +15,13 @@ import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:test-web-applicationContext.xml")
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class HbaseAgentInfoDaoTest {
 
 	@Autowired
 	private HbaseAgentInfoDao selectDao;
-	@Autowired
+
+    @Autowired
 	private com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao insertDao;
 
 	@Test

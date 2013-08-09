@@ -16,22 +16,25 @@
 
     <context:annotation-config/>
 
+    <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
+                                         com.nhn.pinpoint.web.service,
+                                         com.nhn.pinpoint.web.mapper" />
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:hbase.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="classpath:applicationContext-hbase.xml" />
+    <import resource="classpath:applicationContext-cache.xml" />
+
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"></bean>
     <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 
-
-    <bean id="traceIdRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="hasher"></ref>
-        </constructor-arg>
-    </bean>
-
-    <bean id="hasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg>
-            <value type="int">32</value>
-        </constructor-arg>
-    </bean>
 </beans>

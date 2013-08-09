@@ -14,6 +14,13 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
+    <context:annotation-config/>
+
+    <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
+                                         com.nhn.pinpoint.web.service,
+                                         com.nhn.pinpoint.web.mapper" />
+
+
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
@@ -22,34 +29,22 @@
         </property>
     </bean>
 
-    <import resource="classpath:hbase-applicationContext.xml"></import>
+    <import resource="classpath:applicationContext-hbase.xml"></import>
 
 
-    <bean class="com.nhn.pinpoint.common.io.DefaultTBaseLocator"></bean>
 
     <bean id="trace" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"></bean>
-
-
-    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseTraceDao"></bean>
-    <bean class="com.nhn.pinpoint.web.service.SpanServiceImpl"></bean>
-
-    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao"></bean>
-    <bean class="com.nhn.pinpoint.web.mapper.SqlMetaDataMapper"></bean>
-
-    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseAgentInfoDao"></bean>
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"></bean>
 
-    <bean class="com.nhn.pinpoint.web.dao.hbase.HbaseApiMetaDataDao"></bean>
 
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"></bean>
     <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
-    <!-- 노가다로 하는것 말고 좀더 자동으로 되게 개선이 필요함.-->
-    <bean id="sqlMetaDataMapper" class="com.nhn.pinpoint.web.mapper.SqlMetaDataMapper"></bean>
-    <bean id="apiMetaDataMapper" class="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper"></bean>
+
 
     <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
+
 
 </beans>
