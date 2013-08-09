@@ -33,8 +33,8 @@ public class SpanEventHandler implements SimpleHandler {
 		try {
 			SpanEvent spanEvent = (SpanEvent) tbase;
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SpanEvent={}", spanEvent);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Received SpanEvent={}", spanEvent);
 			}
 
 			traceDao.insertEvent(spanEvent);
@@ -62,7 +62,7 @@ public class SpanEventHandler implements SimpleHandler {
 			// 나를 호출한 정보 저장 (spanevent를 호출한 span)
 			statisticsHandler.updateCaller(spanEvent.getAgentKey().getApplicationName(), spanEvent.getParentServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), spanEvent.getParentEndPoint(), elapsed, hasException);
 		} catch (Exception e) {
-			logger.warn("SpanEvent handle error " + e.getMessage(), e);
+			logger.warn("SpanEvent handle error. Caused:{} ", e.getMessage(), e);
 		}
 	}
 }

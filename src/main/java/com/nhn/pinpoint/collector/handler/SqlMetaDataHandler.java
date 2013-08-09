@@ -29,7 +29,7 @@ public class SqlMetaDataHandler implements SimpleHandler {
 		SqlMetaData sqlMetaData = (SqlMetaData) tbase;
 		
 		if (logger.isInfoEnabled()) {
-			logger.info("Received SqlMetaData{}", sqlMetaData);
+			logger.info("Received SqlMetaData:{}", sqlMetaData);
 		}
 		
 		sqlMetaDataDao.insert(sqlMetaData);

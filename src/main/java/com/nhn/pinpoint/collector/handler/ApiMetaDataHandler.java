@@ -27,9 +27,9 @@ public class ApiMetaDataHandler implements SimpleHandler {
 		}
 		
 		ApiMetaData apiMetaData = (ApiMetaData) tbase;
-
+        // api 데이터는 중요한거니 그냥 info로 찍음.
 		if (logger.isInfoEnabled()) {
-			logger.info("Received ApiMetaData{}", apiMetaData);
+			logger.info("Received ApiMetaData={}", apiMetaData);
 		}
 		
 		sqlMetaDataDao.insert(apiMetaData);

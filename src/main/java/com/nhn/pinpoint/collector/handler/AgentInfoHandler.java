@@ -43,7 +43,7 @@ public class AgentInfoHandler implements SimpleHandler {
 			// agentid로 applicationname을 조회하기 위한 용도
 			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
 		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
+			logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
 		}
 	}
 }

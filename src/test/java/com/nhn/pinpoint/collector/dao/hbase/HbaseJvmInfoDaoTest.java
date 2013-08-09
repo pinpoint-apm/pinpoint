@@ -33,8 +33,6 @@ public class HbaseJvmInfoDaoTest {
 	@Qualifier("testHbaseJvmInfoDaoTest")
 	private HbaseJvmInfoDao hbaseJvmInfoDao;
 
-	@Autowired
-	TBaseLocator locator;
 
 	RowMapper<byte[]> valueRowMapper = new RowMapper<byte[]>() {
 		@Override

@@ -59,15 +59,13 @@ public class TraceDaoTest {
     @Before
     public void init() throws IOException {
         if (hBaseAdminTemplate == null) {
-            System.out.println("hBaseAdmin is null-------");
-            return;
+            throw new RuntimeException("hBaseAdminTemplate is required");
         }
         String tableName = traceIndex.getTableName();
 
         HTableDescriptor testTrace = new HTableDescriptor(traceIndex.getTableName());
         testTrace.addFamily(new HColumnDescriptor(TRACE));
         hBaseAdminTemplate.createTableIfNotExist(testTrace);
-
     }
 
     //	@AfterClass

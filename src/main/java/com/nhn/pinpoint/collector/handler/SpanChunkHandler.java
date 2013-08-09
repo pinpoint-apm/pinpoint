@@ -71,7 +71,7 @@ public class SpanChunkHandler implements SimpleHandler {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("SpanChunk handle error " + e.getMessage(), e);
+			logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
 		}
 	}
 }

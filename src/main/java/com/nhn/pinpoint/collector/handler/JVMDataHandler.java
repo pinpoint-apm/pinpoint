@@ -26,15 +26,15 @@ public class JVMDataHandler implements Handler {
         try {
             JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
 
-            if (logger.isInfoEnabled()) {
-                logger.info("Received JVM={}", dto);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received JVM={}", dto);
             }
 
             byte[] bytes = PacketUtils.sliceData(packet, Header.HEADER_SIZE, length);
 
             jvmInfoDao.insert(dto, bytes);
         } catch (Exception e) {
-            logger.warn("JVMData handle error. Caused:" + e.getMessage(), e);
+            logger.warn("JVMData handle error. Caused:{}", e.getMessage(), e);
         }
     }
 }

@@ -20,8 +20,8 @@ public class SpanHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private TraceIndexDao traceIndexDao;
+//	@Autowired
+//	private TraceIndexDao traceIndexDao;
 
 	@Autowired
 	private TracesDao traceDao;
@@ -44,12 +44,12 @@ public class SpanHandler implements SimpleHandler {
 		try {
 			Span span = (Span) tbase;
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Received SPAN={}", span);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Received SPAN={}", span);
 			}
 
 			traceDao.insert(span);
-			traceIndexDao.insert(span);
+//			traceIndexDao.insert(span);
 			applicationTraceIndexDao.insert(span);
 
 			// application으로 들어오는 통계 정보 저장.
@@ -79,7 +79,7 @@ public class SpanHandler implements SimpleHandler {
 
 			List<SpanEvent> spanEventList = span.getSpanEventList();
 			if (spanEventList != null) {
-				logger.info("handle spanEvent size:{}", spanEventList.size());
+				logger.debug("handle spanEvent size:{}", spanEventList.size());
 				// TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
 				for (SpanEvent spanEvent : spanEventList) {
 					ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
@@ -107,7 +107,7 @@ public class SpanHandler implements SimpleHandler {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("Span handle error " + e.getMessage(), e);
+			logger.warn("Span handle error. Caused:{}", e.getMessage(), e);
 		}
 	}
 }

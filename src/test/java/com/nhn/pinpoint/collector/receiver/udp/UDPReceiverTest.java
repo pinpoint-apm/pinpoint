@@ -22,7 +22,7 @@ public class UDPReceiverTest {
 
             // local에서 기본포트로 테스트 하면 포트 출돌로 에러남.
             CollectorConfiguration config = new CollectorConfiguration();
-            config.setCollectorUdpListenPort(config.getCollectorUdpListenPort());
+            config.setCollectorUdpListenPort(config.getCollectorUdpListenPort()+10);
             config.setUdpWorkerThread(1);
             config.setUdpWorkerQueueSize(1);
 			DataReceiver receiver = new UDPReceiver(multiplexedPacketHandler, config);
