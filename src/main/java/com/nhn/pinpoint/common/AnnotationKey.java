@@ -43,6 +43,7 @@ public enum AnnotationKey {
     
     NPC_URL(60, "npc.url"),
     NPC_PARAM(61, "npc.params"),
+    NPC_CONNECT_OPTION(62, "npc.connect.options"),
 
     ARGS0(-1, "args[0]"),
     ARGS1(-2, "args[1]"),
