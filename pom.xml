@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
-            <version>1.5.10</version>
+            <version>1.5.19</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

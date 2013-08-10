@@ -13,14 +13,17 @@ import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.profiler.util.MetaObject;
 
+/**
+ * based on NPC client 1.5.18
+ * 
+ * @author netspider
+ * 
+ */
 public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(ConnectInterceptor.class.getName());
 	private final boolean isDebug = logger.isDebugEnabled();
-
-	private final MetaObject<InetSocketAddress> getServerAddress = new MetaObject<InetSocketAddress>("__getServerAddress");
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
@@ -39,6 +42,8 @@ public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMeth
 			return;
 		}
 
+		com.nhncorp.lucy.npc.connector.NpcConnectorOption connectorOption = (com.nhncorp.lucy.npc.connector.NpcConnectorOption) args[0];
+
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
@@ -47,11 +52,12 @@ public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMeth
 
 		trace.recordServiceType(ServiceType.NPC_CLIENT);
 
-		InetSocketAddress serverAddress = getServerAddress.invoke(target);
+		InetSocketAddress serverAddress = connectorOption.getAddress();
 		int port = serverAddress.getPort();
 		trace.recordDestinationId(serverAddress.getHostName() + ((port > 0) ? ":" + port : ""));
 
 		trace.recordAttribute(AnnotationKey.NPC_URL, serverAddress.toString());
+		trace.recordAttribute(AnnotationKey.NPC_CONNECT_OPTION, connectorOption.toString());
 	}
 
 	@Override
@@ -65,6 +71,7 @@ public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMeth
 		if (trace == null) {
 			return;
 		}
+
 		trace.recordApi(descriptor);
 		trace.recordException(result);
 

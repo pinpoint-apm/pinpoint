@@ -17,16 +17,16 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  * 
  * @author netspider
  */
-public class NpcHessianConnectorModifier extends AbstractModifier {
+public class LightWeightNbfpConnectorModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(NpcHessianConnectorModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(LightWeightNbfpConnectorModifier.class.getName());
 
-	public NpcHessianConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+	public LightWeightNbfpConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
 	}
 
 	public String getTargetClass() {
-		return "com/nhncorp/lucy/npc/connector/NpcHessianConnector";
+		return "com/nhncorp/lucy/npc/connector/LightWeightNbfpConnector";
 	}
 
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -38,14 +38,15 @@ public class NpcHessianConnectorModifier extends AbstractModifier {
 		try {
 			InstrumentClass connectorClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-			// create connector
-			if (connectorClass.hasDeclaredMethod("createConnecor", new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" })) {
-				Interceptor connectInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
-				connectorClass.addInterceptor("createConnecor", new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" }, connectInterceptor);
-			}
+			// trace variables
+			connectorClass.addTraceVariable("_serverAddress", "__setServerAddress", "__getServerAddress", "java.net.InetSocketAddress");
+			
+			// constructor
+			Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.ConnectorConstructorInterceptor");
+			connectorClass.addConstructorInterceptor(new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" }, constructorInterceptor);
 
 			// invoke
-			Interceptor invokeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+			Interceptor invokeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
 			connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, invokeInterceptor);
 
 			return connectorClass.toBytecode();
