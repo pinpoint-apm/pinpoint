@@ -14,6 +14,9 @@ import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.npc.KeepAliveNpcHessianConnectorModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.npc.LightWeightConnectorModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.npc.NioNpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.NpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
@@ -27,7 +30,12 @@ import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLStatementModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.*;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
@@ -250,6 +258,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 	
 	public void addNpcModifier() {
+		addModifier(new KeepAliveNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
+		// addModifier(new LightWeightNbfpConnectorModifier(byteCodeInstrumentor, agent));
+		// addModifier(new LightWeightNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
+		addModifier(new LightWeightConnectorModifier(byteCodeInstrumentor, agent));
+		addModifier(new NioNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
 		addModifier(new NpcHessianConnectorModifier(byteCodeInstrumentor, agent));
 	}
 }

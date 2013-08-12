@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.connector.npc;
 
+import java.net.InetSocketAddress;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.Agent;
@@ -41,13 +42,21 @@ public class KeepAliveNpcHessianConnectorModifier extends AbstractModifier {
 			// trace variables
 			connectorClass.addTraceVariable("_serverAddress", "__setServerAddress", "__getServerAddress", "java.net.InetSocketAddress");
 
-			// constructor
+			// package constructor
 			Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.ConnectorConstructorInterceptor");
 			connectorClass.addConstructorInterceptor(new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" }, constructorInterceptor);
 
+			// public constructor
+			Interceptor constructorInterceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.ConnectorConstructorInterceptor");
+			connectorClass.addConstructorInterceptor(new String[] { "java.net.InetSocketAddress", "long", "long", "java.nio.charset.Charset" }, constructorInterceptor2);
+
 			// initializing connector
-			Interceptor initializeConnectorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+			Interceptor initializeConnectorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InitializeConnectorInterceptor");
 			connectorClass.addInterceptor("initializeConnector", null, initializeConnectorInterceptor);
+
+			// invokeImpl
+			Interceptor invokeImplInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+			connectorClass.addInterceptor("invokeImpl", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, invokeImplInterceptor);
 
 			// invoke
 			Interceptor invokeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");

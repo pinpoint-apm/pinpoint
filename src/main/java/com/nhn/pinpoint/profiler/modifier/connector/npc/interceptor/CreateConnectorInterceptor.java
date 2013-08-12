@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -16,9 +15,9 @@ import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
-public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class CreateConnectorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final Logger logger = LoggerFactory.getLogger(InvokeInterceptor.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(CreateConnectorInterceptor.class.getName());
 	private final boolean isDebug = logger.isDebugEnabled();
 
 	private final MetaObject<InetSocketAddress> getServerAddress = new MetaObject<InetSocketAddress>("__getServerAddress");
@@ -40,37 +39,11 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 			return;
 		}
 
-		String objectName;
-		String methodName;
-		Charset charset;
-		Object params;
-
-		if (args.length == 3) {
-			objectName = (String) args[0];
-			methodName = (String) args[1];
-			// TODO charset을 com.nhncorp.lucy.npc.connector.AbstractConnector.getDefaultCharset() 에서 조회 가능하긴 함.
-			charset = null;
-			params = args[2];
-		} else if (args.length == 4) {
-			objectName = (String) args[0];
-			methodName = (String) args[1];
-			charset = (Charset) args[2];
-			params = args[3];
-		}
-
-		//
-		// TODO add sampling logic here.
-		//
-
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
-
-		//
-		// TODO add pinpoint headers to the request message here.
-		//
 
 		trace.recordServiceType(ServiceType.NPC_CLIENT);
 
@@ -84,7 +57,6 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 	@Override
 	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
-			// result는 로깅하지 않는다.
 			logger.afterInterceptor(target, args);
 		}
 
