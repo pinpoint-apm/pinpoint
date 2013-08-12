@@ -414,6 +414,9 @@
                 <filtering>true</filtering>
                 <directory>${basedir}/src/main/resources</directory>
             </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources-${env}</directory>
+            </resource>
         </resources>
 
         <testResources>
@@ -504,4 +507,35 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Local server -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env>local</env>
+                <deploy-path>deploy</deploy-path>
+            </properties>
+        </profile>
+
+        <!-- Development server -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+            </properties>
+        </profile>
+
+        <!-- real server -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <env>release</env>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
