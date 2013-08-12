@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Bytes;
-import org.springframework.stereotype.Repository;
 
 /**
  * 
@@ -48,7 +47,7 @@ public class StatisticsCache {
 	private final Lock cacheLock = new ReentrantLock();
 
 	public StatisticsCache(FlushHandler flushHandler) {
-		this(5000, flushHandler);
+		this(1024, flushHandler);
 	}
 
 	public StatisticsCache(int cacheSize, FlushHandler flushHandler) {
@@ -61,7 +60,16 @@ public class StatisticsCache {
 		Map<Key, Value> buffer = bufferMap.get();
 		if (buffer == null) {
 			buffer = new HashMap<StatisticsCache.Key, StatisticsCache.Value>(bufferSize);
-			bufferList.add(buffer);
+
+			try {
+				bufferListLock.lock();
+				bufferList.add(buffer);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} finally {
+				bufferListLock.unlock();
+			}
+
 			bufferMap.set(buffer);
 		}
 		return buffer;
@@ -80,14 +88,18 @@ public class StatisticsCache {
 				}
 				cache.put(key, value);
 			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		} finally {
 			cacheLock.unlock();
 		}
 	}
 
 	private void drainLocalBuffer() {
+		logger.debug("drain local buffer");
+
 		Map<Key, Value> buffer = bufferMap.get();
-		if (buffer != null) {
+		if (buffer != null && buffer.size() >= bufferSize) {
 			addValues(buffer);
 			buffer.clear();
 		}
@@ -95,6 +107,8 @@ public class StatisticsCache {
 
 	private void drainAllLocalBuffer() {
 		try {
+			logger.debug("drain all local buffer");
+
 			bufferListLock.lock();
 			for (Map<Key, Value> buffer : bufferList) {
 				if (buffer == null) {
@@ -103,6 +117,8 @@ public class StatisticsCache {
 				addValues(buffer);
 				buffer.clear();
 			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		} finally {
 			bufferListLock.unlock();
 		}
@@ -143,6 +159,8 @@ public class StatisticsCache {
 			if (cache.size() <= checkSize) {
 				return;
 			}
+
+			logger.debug("flush cache");
 
 			Set<Entry<Key, Value>> entrySet = cache.entrySet();
 			for (Entry<Key, Value> entry : entrySet) {
