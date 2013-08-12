@@ -25,7 +25,7 @@
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>test-hbase.properties</value>
+                <value>hbase.properties</value>
                 <value>pinpoint-collector.properties</value>
             </list>
         </property>
