@@ -1,8 +1,14 @@
 VERSION="0.0.4-SNAPSHOT"
 DEPLOY_DIR="../pinpoint-testbed/pinpoint-collector"
 
+#profile
+PROFILE=""
+if [ "$1" != "" ] ; then
+	$PROFILE="-P$1"
+fi
+
 #server
-mvn clean eclipse:eclipse install package dependency:copy-dependencies -Dmaven.test.skip
+mvn clean eclipse:eclipse install package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
 
 rm -fr $DEPLOY_DIR
 mkdir -p $DEPLOY_DIR/lib
