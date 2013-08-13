@@ -1,14 +1,20 @@
 VERSION="0.0.4-SNAPSHOT"
 DEPLOY_DIR="../pinpoint-testbed/agent"
 
+#profile
+PROFILE=""
+if [ "$1" != "" ] ; then
+	$PROFILE="-P$1"
+fi
+
 # profiler
 pushd .
 cd ../pinpoint-profiler
-mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip -Dthrift.executable.property=/Users/netspider/DEV-TOOLS/thrift-0.9.0/bin/thrift
+mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip -Dthrift.executable.property=/Users/netspider/DEV-TOOLS/thrift-0.9.0/bin/thrift $PROFILE
 popd
 
 # bootstrap
-mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip
+mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
 
 rm -fr $DEPLOY_DIR
 mkdir -p $DEPLOY_DIR/lib
