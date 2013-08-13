@@ -414,7 +414,6 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -428,10 +427,21 @@
                     </excludes>
                 </configuration>
             </plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<excludes>
+						<exclude>**/applicationContext*.xml</exclude>
+						<exclude>**/pinpoint-collector.properties</exclude>
+						<exclude>**/hbase.properties</exclude>
+						<exclude>**/log4j.xml</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
         </plugins>
     </build>
-
 
     <profiles>
         <!-- Local server -->
