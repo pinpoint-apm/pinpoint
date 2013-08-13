@@ -13,3 +13,9 @@ fi
 
 # web ui
 mvn clean eclipse:eclipse package war:exploded -Dmaven.test.skip $PROFILE
+
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
