@@ -107,7 +107,7 @@ public class StatisticsCache {
 
 	private void drainAllLocalBuffer() {
 		try {
-			logger.debug("drain all local buffer");
+			logger.trace("drain all local buffer");
 
 			bufferListLock.lock();
 			for (Map<Key, Value> buffer : bufferList) {
@@ -160,7 +160,7 @@ public class StatisticsCache {
 				return;
 			}
 
-			logger.debug("flush cache");
+			logger.trace("flush cache");
 
 			Set<Entry<Key, Value>> entrySet = cache.entrySet();
 			for (Entry<Key, Value> entry : entrySet) {

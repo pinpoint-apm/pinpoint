@@ -16,6 +16,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NamedThreadLocal;
 
 import java.io.IOException;
 import java.net.*;
@@ -193,10 +194,16 @@ public class UDPReceiver implements DataReceiver {
 
     private class DispatchPacket implements Runnable {
         private final DatagramPacket packet;
+        private final ThreadLocal<HeaderTBaseDeserializer> deserializer = new NamedThreadLocal<HeaderTBaseDeserializer>("HeaderTBaseDeserializer") {
+            @Override
+            protected HeaderTBaseDeserializer initialValue() {
+                return new HeaderTBaseDeserializer();
+            }
+        };
 
         private DispatchPacket(DatagramPacket packet) {
             if (packet == null) {
-                throw new NullPointerException("packet");
+                throw new NullPointerException("packet must not be null");
             }
             this.packet = packet;
         }
@@ -205,8 +212,7 @@ public class UDPReceiver implements DataReceiver {
         public void run() {
         	Timer.Context time = timer.time();
         	
-            // thread local로 캐쉬할까? 근데 worker라서 별로 영향이 없을거 같음.
-            HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+            HeaderTBaseDeserializer deserializer = this.deserializer.get();
             try {
                 TBase<?, ?> tBase = deserializer.deserialize(packet.getData());
                 // dispatch는 비지니스 로직 실행을 의미.
