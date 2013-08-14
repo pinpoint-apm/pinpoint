@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.receiver.udp;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
@@ -28,6 +29,7 @@ public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final Timer timer = StatServer.registry.timer(UDPReceiver.class.getSimpleName() + "-timer");
+    private final Counter rejectedCounter = StatServer.registry.counter(UDPReceiver.class.getSimpleName() + "-rejected");
 
     // ioThread 사이즈를 늘리거는 생각보다 효용이 별로임.
     private int ioThreadSize = CpuUtils.cpuCount();
@@ -91,6 +93,7 @@ public class UDPReceiver implements DataReceiver {
             try {
                 worker.execute(new DispatchPacket(packet));
             } catch (RejectedExecutionException ree) {
+            	rejectedCounter.inc();
                 final int error = rejectedExecutionCount.incrementAndGet();
                 final int mod = 10;
                 if ((error % mod) == 0) {
