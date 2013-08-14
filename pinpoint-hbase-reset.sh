@@ -32,14 +32,14 @@ create 'AgentIdApplicationIndex', { NAME => 'Application' }
 create 'ApplicationIndex', { NAME => 'Agents' }
 create 'SqlMetaData', { NAME => 'Sql' }
 create 'ApiMetaData', { NAME => 'Api' }
-create 'TraceIndex', { NAME => 'I' , TTL => 604800000  }
-create 'ApplicationTraceIndex', { NAME => 'I' , TTL => 604800000  }
-create 'Traces', { NAME => 'S' , TTL => 604800000  }, { NAME => 'A' , TTL => 604800000  }, { NAME => 'T' , TTL => 604800000  }
-create 'SystemInfo', { NAME => 'JVM' , TTL => 604800000  }
-create 'ApplicationMapStatisticsCaller', { NAME => 'Counter' }
-create 'ApplicationMapStatisticsCallee', { NAME => 'Counter' }
-create 'ApplicationStatistics', { NAME => 'Counter' }
-create 'HostApplicationMap', { NAME => 'Map' }
+create 'TraceIndex', { NAME => 'I', TTL => 604800  }
+create 'ApplicationTraceIndex', { NAME => 'I', TTL => 604800  }
+create 'Traces', { NAME => 'S', TTL => 604800  }, { NAME => 'A', TTL => 604800  }, { NAME => 'T', TTL => 604800  }
+create 'SystemInfo', { NAME => 'JVM', TTL => 604800  }
+create 'ApplicationMapStatisticsCaller', { NAME => 'C', TTL => 604800, VERSION => 1 }
+create 'ApplicationMapStatisticsCallee', { NAME => 'C', TTL => 604800, VERSION => 1 }
+create 'ApplicationStatistics', { NAME => 'C', TTL => 604800, VERSION => 1 }
+create 'HostApplicationMap', { NAME => 'M', TTL => 604800, VERSION => 1 }
 
 list
 EOF

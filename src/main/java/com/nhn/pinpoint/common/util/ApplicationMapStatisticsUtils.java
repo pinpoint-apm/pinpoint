@@ -28,7 +28,7 @@ public class ApplicationMapStatisticsUtils {
 		byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
 		byte[] slotNumber;
 		if (isError) {
-			slotNumber = HBaseTables.TERMINAL_STATISTICS_CQ_ERROR_SLOT;
+			slotNumber = HBaseTables.STATISTICS_CQ_ERROR_SLOT;
 		} else {
 			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
 		}
@@ -45,7 +45,7 @@ public class ApplicationMapStatisticsUtils {
 		}
 		byte[] slotNumber;
 		if (isError) {
-			slotNumber = HBaseTables.TERMINAL_STATISTICS_CQ_ERROR_SLOT;
+			slotNumber = HBaseTables.STATISTICS_CQ_ERROR_SLOT;
 		} else {
 			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
 		}

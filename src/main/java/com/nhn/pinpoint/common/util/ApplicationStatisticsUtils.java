@@ -23,7 +23,7 @@ public class ApplicationStatisticsUtils {
 		}
 		byte[] slotNumber;
 		if (isError) {
-			slotNumber = HBaseTables.TERMINAL_STATISTICS_CQ_ERROR_SLOT;
+			slotNumber = HBaseTables.STATISTICS_CQ_ERROR_SLOT;
 		} else {
 			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
 		}

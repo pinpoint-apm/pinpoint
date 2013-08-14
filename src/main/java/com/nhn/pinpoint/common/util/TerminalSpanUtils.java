@@ -15,6 +15,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
  * @author netspider
  * 
  */
+@Deprecated
 public class TerminalSpanUtils {
 
 	public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, int elapsed, boolean isError) {

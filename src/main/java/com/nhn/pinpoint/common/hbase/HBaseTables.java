@@ -27,7 +27,9 @@ public class HBaseTables {
     public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
     public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("T"); //TerminalSpan
 
+    @Deprecated
     public static final String SERVERS_INDEX = "ServersIndex";
+    @Deprecated
     public static final byte[] SERVERS_INDEX_CF_AGENTS = Bytes.toBytes("Agents");
 
     public static final String APPLICATION_INDEX = "ApplicationIndex";
@@ -40,17 +42,27 @@ public class HBaseTables {
     public static final String AGENTID_APPLICATION_INDEX = "AgentIdApplicationIndex";
     public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
 
+    @Deprecated
     public static final String TERMINAL_STATISTICS = "TerminalStatistics";
+    @Deprecated
     public static final byte[] TERMINAL_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
+    @Deprecated
 	public static final byte[] TERMINAL_STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
 
+	@Deprecated
 	public static final String CLIENT_STATISTICS = "ClientStatistics";
+	@Deprecated
 	public static final byte[] CLIENT_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
+	@Deprecated
 	public static final byte[] CLIENT_STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
 
+	@Deprecated
 	public static final String BUSINESS_TRANSACTION_STATISTICS = "BusinessTransactionStatistics";
+	@Deprecated
 	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_NORMAL = Bytes.toBytes("Normal");
+	@Deprecated
 	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_SLOW = Bytes.toBytes("Slow");
+	@Deprecated
 	public static final byte[] BUSINESS_TRANSACTION_STATISTICS_CF_ERROR = Bytes.toBytes("Error");
 
     public static final String SQL_METADATA = "SqlMetaData";
@@ -60,14 +72,16 @@ public class HBaseTables {
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 
     public static final String APPLICATION_STATISTICS = "ApplicationStatistics";
-    public static final byte[] APPLICATION_STATISTICS_CF_COUNTER = Bytes.toBytes("Counter");
+    public static final byte[] APPLICATION_STATISTICS_CF_COUNTER = Bytes.toBytes("C");
     
 	public static final String APPLICATION_MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
-	public static final byte[] APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("Counter");
+	public static final byte[] APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
 	public static final String APPLICATION_MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
-	public static final byte[] APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("Counter");
+	public static final byte[] APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
 	
 	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
-	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("Map");
+	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
+	
+	public static final byte[] STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
 }
