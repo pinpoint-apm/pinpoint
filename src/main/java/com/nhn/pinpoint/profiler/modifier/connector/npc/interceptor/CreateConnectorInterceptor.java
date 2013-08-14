@@ -13,14 +13,12 @@ import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhncorp.lucy.npc.connector.NpcConnectorOption;
 
 public class CreateConnectorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(CreateConnectorInterceptor.class.getName());
 	private final boolean isDebug = logger.isDebugEnabled();
-
-	private final MetaObject<InetSocketAddress> getServerAddress = new MetaObject<InetSocketAddress>("__getServerAddress");
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
@@ -44,10 +42,11 @@ public class CreateConnectorInterceptor implements SimpleAroundInterceptor, Byte
 
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
-
 		trace.recordServiceType(ServiceType.NPC_CLIENT);
-
-		InetSocketAddress serverAddress = getServerAddress.invoke(target);
+		
+		NpcConnectorOption option = (NpcConnectorOption) args[0];
+		
+		InetSocketAddress serverAddress = option.getAddress();
 		int port = serverAddress.getPort();
 		trace.recordDestinationId(serverAddress.getHostName() + ((port > 0) ? ":" + port : ""));
 
