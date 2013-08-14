@@ -7,3 +7,9 @@ if [ "$1" != "stop" ] ; then
 	PINPOINT_VERSION="0.0.3-SNAPSHOT"
 	JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar -Dpinpoint.agentId=YOUR-UNIQUE-AGENT-ID -Dpinpoint.applicationName=YOUR-APPLICATION-NAME"
 fi
+
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.port=9991
+-Dcom.sun.management.jmxremote.local.only=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
