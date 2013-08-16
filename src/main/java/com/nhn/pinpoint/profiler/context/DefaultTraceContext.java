@@ -220,7 +220,7 @@ public class DefaultTraceContext implements TraceContext {
 
 
             SqlMetaData sqlMetaData = new SqlMetaData();
-            sqlMetaData.setAgentId(DefaultAgent.getInstance().getAgentId());
+            sqlMetaData.setAgentId(agentId);
             sqlMetaData.setAgentStartTime(DefaultAgent.getInstance().getStartTime());
 
             sqlMetaData.setHashCode(normalizedSql.hashCode());
