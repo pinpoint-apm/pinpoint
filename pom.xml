@@ -94,6 +94,11 @@
             <version>3.6.6.Final</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
 
         <!-- [Start] Compile Interceptors -->
         <dependency>
