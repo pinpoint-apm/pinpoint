@@ -99,6 +99,13 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
+cp ../pinpoint-profiler/target/dependency/guava-14.0.1.jar $DEPLOY_DIR/lib
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
+
 cp ../pinpoint-profiler/runscript/help.txt $DEPLOY_DIR
 rc=$?
 if [[ $rc != 0 ]] ; then
