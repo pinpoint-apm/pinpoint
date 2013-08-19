@@ -31,6 +31,12 @@
 	</style>
 </head>
 <body>
+
+<div class="progress progress-info" id="readProgress">
+  <div class="bar" style="width: 0%">fetched</div>
+  <div id="readmore">readmore</div>
+</div>
+
 <table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
 	<thead>
 	<tr>
@@ -61,11 +67,20 @@ function selectRow(row) {
 	return false;
 }
 
-$(document).ready(function () {
-	if(!parent.opener) {
-		return;
-	}
-	
+//
+// TODO prototype.
+//
+
+var fetchCount = 1;
+var MAX_FETCH_BLOCK_SIZE = 5;
+var lastFetchedIndex = 0;
+
+function fetchNext() {
+	console.log("fetch next");
+	fetchStart();
+}
+
+function fetchStart() {
 	var traces = parent.opener.selectdTracesBox[parent.window.name];
 	if (!traces) {
 		alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
@@ -75,25 +90,37 @@ $(document).ready(function () {
 	
 	var query = [];
 	var temp = {};
-	for (var i = 0; i < traces.length; i++) {
+	for (var i = lastFetchedIndex, j = 0; i < MAX_FETCH_BLOCK_SIZE * fetchCount && i < traces.length; i++, j++) {
 		if (i > 0) {
 			query.push("&");
 		}
-		query.push("tr");
-		query.push(i);
+		console.log(i, j, traces.length);
+		query.push("I");
+		query.push(j);
 		query.push("=");
 		query.push(traces[i].traceId);
 		
-		query.push("&ti");
-		query.push(i);
+		query.push("&T");
+		query.push(j);
 		query.push("=");
 		query.push(traces[i].x)
 		
-		query.push("&re");
-		query.push(i);
+		query.push("&R");
+		query.push(j);
 		query.push("=");
 		query.push(traces[i].y)
+		
+		lastFetchedIndex++;
 	}
+	
+	fetchCount++;
+	
+	if (i == traces.length) {
+		$("#readmore").hide();
+	}
+	
+	$("#readProgress .bar").text("fetched (" + i + " / " + traces.length + ")");
+	$("#readProgress .bar").css("width", i / traces.length * 100 + "%")
 	
 	var startTime = new Date().getTime();
 	
@@ -107,11 +134,21 @@ $(document).ready(function () {
 	})
 	.fail(function() {
 		alert("Failed to fetching the request informations.");
-	});
+	});	
+}
+
+$(document).ready(function () {
+	if(!parent.opener) {
+		return;
+	}
+	
+	fetchStart();
+	
+	$("#readmore").bind('click', fetchNext);
 });
 
 var writeContents = function(d) {
-	$("#selectedBusinessTransactionsDetail TBODY").empty();
+	// $("#selectedBusinessTransactionsDetail TBODY").empty();
 	
 	var data = d.metadata;
 	
@@ -124,7 +161,7 @@ var writeContents = function(d) {
 		}
 
 		html.push("<td style='padding-right:5px;text-align:right'>");
-		html.push(i + 1);
+		html.push(lastFetchedIndex - data.length + i + 1);
 		html.push("</td>");
 
 		html.push("<td sorttable_customkey='");

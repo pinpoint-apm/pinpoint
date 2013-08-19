@@ -181,9 +181,9 @@ public class ScatterChartController {
 	 */
 	@RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
 	public String transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
-		String TRACEID = "tr";
-		String TIME = "ti";
-		String RESPONSE_TIME = "re";
+		String TRACEID = "I";
+		String TIME = "T";
+		String RESPONSE_TIME = "R";
 
 		TransactionMetadataQuery query = new TransactionMetadataQuery();
 
