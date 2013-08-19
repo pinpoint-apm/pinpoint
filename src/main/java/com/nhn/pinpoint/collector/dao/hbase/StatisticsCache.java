@@ -2,7 +2,6 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,7 +58,7 @@ public class StatisticsCache {
 	private Map<Key, Value> getLocalBuffer() {
 		Map<Key, Value> buffer = bufferMap.get();
 		if (buffer == null) {
-			buffer = new HashMap<StatisticsCache.Key, StatisticsCache.Value>(bufferSize);
+			buffer = new ConcurrentHashMap<StatisticsCache.Key, StatisticsCache.Value>(bufferSize);
 
 			try {
 				bufferListLock.lock();
