@@ -15,7 +15,7 @@ public class ConcurrentCounterMap<T> {
 
     private final AtomicInteger entrySelector = new AtomicInteger(0);
 
-    private final Entry<T>[] entryArray = createEntry();
+    private final Entry<T>[] entryArray;
 
     public ConcurrentCounterMap() {
         this(16);
@@ -23,6 +23,7 @@ public class ConcurrentCounterMap<T> {
 
     public ConcurrentCounterMap(int concurrencyLevel) {
         this.concurrencyLevel = concurrencyLevel;
+        this.entryArray = createEntry();
     }
 
     private Entry<T>[] createEntry() {
@@ -36,7 +37,7 @@ public class ConcurrentCounterMap<T> {
     }
 
     private Entry<T> getEntry() {
-        final int mod = entrySelector.getAndIncrement() % concurrencyLevel;
+        final int mod = Math.abs(entrySelector.getAndIncrement() % concurrencyLevel);
         return entryArray[mod];
     }
 
@@ -45,24 +46,24 @@ public class ConcurrentCounterMap<T> {
         entry.increment(key, increment);
     }
 
-    public Map<T, MutableLong> remove() {
+    public Map<T, LongAdder> remove() {
         // copy 최대한 근처의 정합성을 맞추가 위해서 먼저 한번에 copy한다.
-        List<Map<T, MutableLong>> copy = new ArrayList<Map<T, MutableLong>>(entryArray.length);
+        List<Map<T, LongAdder>> copy = new ArrayList<Map<T, LongAdder>>(entryArray.length);
         for(int i = 0; i < entryArray.length; i++ ) {
             Entry<T> tEntry = entryArray[i];
-            Map<T, MutableLong> remove = tEntry.remove();
+            Map<T, LongAdder> remove = tEntry.remove();
             copy.add(remove);
         }
 
         // merge
-        Map<T, MutableLong> mergeMap = new HashMap<T, MutableLong>();
-        for (Map<T, MutableLong> mutableLongMap : copy) {
-            for (Map.Entry<T, MutableLong> entry : mutableLongMap.entrySet()) {
-                MutableLong mutableLong = mergeMap.get(entry.getKey());
-                if (mutableLong == null) {
+        Map<T, LongAdder> mergeMap = new HashMap<T, LongAdder>();
+        for (Map<T, LongAdder> mutableLongMap : copy) {
+            for (Map.Entry<T, LongAdder> entry : mutableLongMap.entrySet()) {
+                LongAdder longAdder = mergeMap.get(entry.getKey());
+                if (longAdder == null) {
                     mergeMap.put(entry.getKey(), entry.getValue());
                 } else {
-                    mutableLong.increment(entry.getValue().get());
+                    longAdder.increment(entry.getValue().get());
                 }
             }
         }
@@ -70,10 +71,10 @@ public class ConcurrentCounterMap<T> {
     }
 
 
-    public static class MutableLong {
+    public static class LongAdder {
         private long value = 0;
 
-        public MutableLong(long increase) {
+        public LongAdder(long increase) {
             this.value = increase;
         }
 
@@ -87,22 +88,22 @@ public class ConcurrentCounterMap<T> {
     }
 
     private static class Entry<T> {
-        private Map<T, MutableLong> map = new HashMap<T, MutableLong>();
+        private Map<T, LongAdder> map = new HashMap<T, LongAdder>();
 
         public synchronized void increment(T key, Long increment) {
-            MutableLong mutableLong = map.get(key);
-            if (mutableLong == null) {
-                map.put(key, new MutableLong(increment));
+            LongAdder longAdder = map.get(key);
+            if (longAdder == null) {
+                map.put(key, new LongAdder(increment));
             } else {
-                mutableLong.increment(increment);
+                longAdder.increment(increment);
             }
         }
 
-        public Map<T, MutableLong> remove() {
-            Map<T, MutableLong> old = null;
+        public Map<T, LongAdder> remove() {
+            Map<T, LongAdder> old = null;
             synchronized (this) {
                 old = this.map;
-                this.map = new HashMap<T, MutableLong>();
+                this.map = new HashMap<T, LongAdder>();
             }
             return old;
         }

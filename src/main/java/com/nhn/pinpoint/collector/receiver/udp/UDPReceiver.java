@@ -35,8 +35,6 @@ public class UDPReceiver implements DataReceiver {
     private int ioThreadSize = CpuUtils.cpuCount();
     private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
 
-    private int workerThreadSize = 512;
-    private int workerQueueSize = 1024 * 5;
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
     private final ThreadPoolExecutor worker;
 
@@ -65,14 +63,6 @@ public class UDPReceiver implements DataReceiver {
         this.worker = ExecutorFactory.newFixedThreadPool(configuration.getUdpWorkerThread(), configuration.getUdpWorkerQueueSize(), "Pinpoint-UDP-Worker", true);
     }
 
-    public void setWorkerQueueSize(int workerQueueSize) {
-        this.workerQueueSize = workerQueueSize;
-    }
-
-    public void setWorkerThreadSize(int workerThreadSize) {
-        this.workerThreadSize = workerThreadSize;
-    }
-
 
     private void receive() {
         if (logger.isInfoEnabled()) {
@@ -95,7 +85,7 @@ public class UDPReceiver implements DataReceiver {
             } catch (RejectedExecutionException ree) {
             	rejectedCounter.inc();
                 final int error = rejectedExecutionCount.incrementAndGet();
-                final int mod = 10;
+                final int mod = 100;
                 if ((error % mod) == 0) {
                     logger.warn("RejectedExecutionCount={}", error);
                 }

@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.util;
 
-import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -18,12 +17,12 @@ public class ConcurrentCounterMapTest {
         cache.increment("b", 5L);
 
 
-        Map<String,ConcurrentCounterMap.MutableLong> remove = cache.remove();
+        Map<String,ConcurrentCounterMap.LongAdder> remove = cache.remove();
         Assert.assertEquals(remove.get("a").get(), 3L);
         Assert.assertEquals(remove.get("b").get(), 5L);
 
         cache.increment("a", 1L);
-        Map<String, ConcurrentCounterMap.MutableLong> remove2 = cache.remove();
+        Map<String, ConcurrentCounterMap.LongAdder> remove2 = cache.remove();
         Assert.assertEquals(remove2.get("a").get(), 1L);
     }
 
