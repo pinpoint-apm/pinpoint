@@ -50,6 +50,10 @@
     	padding: 30px;
 	}
 	
+	.number {
+		text-align: right;
+	}
+	
 	@media(min-width:1100px){
 	  .table-container {
 	  	position:relative;
@@ -85,11 +89,14 @@
 	<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
 
 	<div style="width:800px;" class="progress progress-info" id="readProgress">
-	  <div class="bar" style="width: 40%">fetched</div>
+	  <div class="bar" style="width: 100%">fetched</div>
+	  <!--
+	  여기도 시간으로 나눠서 조회할 수 있도록 변경하기. 
 	  <div id="fetchButtons">
 	  	<span id="fetchMore" style="cursor:pointer;">fetch more</span> / 
 	  	<span id="fetchAll" style="cursor:pointer;">fetch all</span>
 	  </div>
+	  -->
 	</div>
 
 	<div style="width:800px;max-height:300px;overflow:scroll;">
@@ -98,19 +105,21 @@
 				<tr>
 					<th>URL</th>
 					<th class="sorttable_numeric">Calls</th>
-					<th class="sorttable_numeric">Avg</th>
-					<th class="sorttable_numeric">Min</th>
-					<th class="sorttable_numeric">Max</th>
+					<th class="sorttable_numeric">Error</th>
+					<th class="sorttable_numeric">Avg(ms)</th>
+					<th class="sorttable_numeric">Min(ms)</th>
+					<th class="sorttable_numeric">Max(ms)</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach items="${rpcList}" var="t" varStatus="status">
 				<tr style="cursor:pointer;" onclick="showRequestList(${status.count}, this);">
 					<td>${t.rpc}</td>
-					<td class="num" sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
-					<td class="num" sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" /></td>
-					<td class="num" sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
-					<td class="num" sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
+					<td style="text-align:right;" sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
+					<td style="text-align:right;" sorttable_customkey="${t.error}"><fmt:formatNumber value="${t.error}" type="number" /></td>
+					<td style="text-align:right;" sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" pattern="#,###" /></td>
+					<td style="text-align:right;" sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
+					<td style="text-align:right;" sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
 				</tr>
 				</c:forEach>
 			</tbody>

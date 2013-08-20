@@ -11,6 +11,7 @@ public class BusinessTransaction {
 	private final String rpc;
 
 	private int calls = 0;
+	private int error = 0;
 	private long totalTime = 0;
 	private long maxTime = 0;
 	private long minTime = 0;
@@ -25,6 +26,9 @@ public class BusinessTransaction {
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
         this.traces.add(trace);
 		calls++;
+		if(span.getException() > 0) {
+			error++;
+		}
 	}
 
 	public void add(SpanBo span) {
@@ -42,6 +46,10 @@ public class BusinessTransaction {
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
 		this.traces.add(trace);
 
+		if(span.getException() > 0) {
+			error++;
+		}
+		
 		//if (span.getParentSpanId() == -1) {
 			calls++;
 		//}
@@ -69,5 +77,9 @@ public class BusinessTransaction {
 
 	public long getMinTime() {
 		return minTime;
+	}
+	
+	public int getError() {
+		return error;
 	}
 }
