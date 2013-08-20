@@ -78,40 +78,45 @@
 <body>
 
 <div class="table-container">
-    <div class="table-left">
-		<h4>Application : ${applicationName}</h4>
-		<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
-		<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
-		<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
-		
-		<div style="max-height:300px;overflow:scroll;">
-			<table class="table table-bordered table-condensed table-hover sortable">
-				<thead>
-					<tr>
-						<th>URL</th>
-						<th class="sorttable_numeric">Calls</th>
-						<th class="sorttable_numeric">Avg</th>
-						<th class="sorttable_numeric">Min</th>
-						<th class="sorttable_numeric">Max</th>
-					</tr>
-				</thead>
-				<tbody>
-					<c:forEach items="${rpcList}" var="t" varStatus="status">
-					<tr style="cursor:pointer;" onclick="showRequestList(${status.count}, this);">
-						<td>${t.rpc}</td>
-						<td class="num" sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
-						<td class="num" sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" /></td>
-						<td class="num" sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
-						<td class="num" sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
-					</tr>
-					</c:forEach>
-				</tbody>
-			</table>
-		</div>
+
+	<h4>Application : ${applicationName}</h4>
+	<h5>Time : <fmt:formatDate value="${from}" pattern="yyyy-MM-dd HH:mm:ss"/> ~ <fmt:formatDate value="${to}" pattern="yyyy-MM-dd HH:mm:ss"/></h5>
+	<h5>Total URL count : <fmt:formatNumber value="${urlCount}" type="number" /></h5>
+	<h5>Total request count : <fmt:formatNumber value="${totalCount}" type="number" /></h5>
+
+	<div style="width:800px;" class="progress progress-info" id="readProgress">
+	  <div class="bar" style="width: 40%">fetched</div>
+	  <div id="fetchButtons">
+	  	<span id="fetchMore" style="cursor:pointer;">fetch more</span> / 
+	  	<span id="fetchAll" style="cursor:pointer;">fetch all</span>
+	  </div>
 	</div>
-	<div class="table-right">
-		<div id="scatterchart"></div>
+
+	<div style="width:800px;max-height:300px;overflow:scroll;">
+		<table class="table table-bordered table-condensed table-hover sortable">
+			<thead>
+				<tr>
+					<th>URL</th>
+					<th class="sorttable_numeric">Calls</th>
+					<th class="sorttable_numeric">Avg</th>
+					<th class="sorttable_numeric">Min</th>
+					<th class="sorttable_numeric">Max</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${rpcList}" var="t" varStatus="status">
+				<tr style="cursor:pointer;" onclick="showRequestList(${status.count}, this);">
+					<td>${t.rpc}</td>
+					<td class="num" sorttable_customkey="${t.calls}"><fmt:formatNumber value="${t.calls}" type="number" /></td>
+					<td class="num" sorttable_customkey="${t.totalTime / t.calls}"><fmt:formatNumber value="${t.totalTime / t.calls}" type="number" /></td>
+					<td class="num" sorttable_customkey="${t.minTime}"><fmt:formatNumber value="${t.minTime}" type="number" /></td>
+					<td class="num" sorttable_customkey="${t.maxTime}"><fmt:formatNumber value="${t.maxTime}" type="number" /></td>
+				</tr>
+				</c:forEach>
+			</tbody>
+		</table>
 	</div>
+	<div id="scatterchart"></div>
 </div>
 
 <script type="text/javascript">
@@ -125,23 +130,30 @@ function showRequestList(id, row) {
 	selectedRow = row;
 	$(row).css({'background-color':'#FFFF00'});
 	
-	drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 500, 450);
+	drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 800, 400);
 	updateScatter("", "", datamap[id]);
-		return false;
+	return false;
 }
+
+$(document).ready(function () {
+	drawScatter("${applicationName}", ${from.time}, ${to.time}, "scatterchart", 800, 400);
+	$.each(datamap, function(i, e) {
+		updateScatter("", "", e);
+	});
+});
 
 <c:forEach items="${requestList}" var="t" varStatus="status">
 datamap["${status.count}"] = [
-	    <c:forEach items="${t.traces}" var="trace" varStatus="status2">
-		{
-   			"x" : ${trace.startTime},
-   			"y" : ${trace.executionTime},
-   			"traceId" : "${trace.traceId}",
-   			"type" : <c:choose><c:when test="${trace.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
-   		}
-	    <c:if test="${!status2.last}">,</c:if>
-		</c:forEach>		
-    	];
+	<c:forEach items="${t.traces}" var="trace" varStatus="status2">
+	{
+	"x" : ${trace.startTime},
+	"y" : ${trace.executionTime},
+	"traceId" : "${trace.traceId}",
+	"type" : <c:choose><c:when test="${trace.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
+	}
+	<c:if test="${!status2.last}">,</c:if>
+	</c:forEach>		
+];
 </c:forEach>
 </script>
 </body>
