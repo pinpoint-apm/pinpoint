@@ -94,7 +94,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
         private String calleeHost;
         private int elapsed;
         private boolean isError;
-
+        // 주의 hash 값 캐시는 equals/hashCode 생성시 넣으면 안됨.
         private int hashCode;
 
         public CalleeKey(String calleeApplicationName, short calleeServiceType, long rowTimeSlot, short callerServiceType, String callerApplicationName, String calleeHost, int elapsed, boolean error) {
@@ -126,7 +126,6 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
             if (calleeServiceType != calleeKey.calleeServiceType) return false;
             if (callerServiceType != calleeKey.callerServiceType) return false;
             if (elapsed != calleeKey.elapsed) return false;
-            if (hashCode != calleeKey.hashCode) return false;
             if (isError != calleeKey.isError) return false;
             if (rowTimeSlot != calleeKey.rowTimeSlot) return false;
             if (calleeApplicationName != null ? !calleeApplicationName.equals(calleeKey.calleeApplicationName) : calleeKey.calleeApplicationName != null)
@@ -140,6 +139,9 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
         @Override
         public int hashCode() {
+            if (hashCode != 0 ) {
+                return hashCode;
+            }
             int result = calleeApplicationName != null ? calleeApplicationName.hashCode() : 0;
             result = 31 * result + (int) calleeServiceType;
             result = 31 * result + (int) (rowTimeSlot ^ (rowTimeSlot >>> 32));
@@ -148,7 +150,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
             result = 31 * result + (calleeHost != null ? calleeHost.hashCode() : 0);
             result = 31 * result + elapsed;
             result = 31 * result + (isError ? 1 : 0);
-            result = 31 * result + hashCode;
+            hashCode = result;
             return result;
         }
     }

@@ -13,11 +13,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.client.Increment;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache;
 import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 
+@Ignore
 public class MultiThreadTester {
 
 	private static final int TEST_COUNT = 10000;

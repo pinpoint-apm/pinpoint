@@ -197,6 +197,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
             result = 31 * result + (callerHost != null ? callerHost.hashCode() : 0);
             result = 31 * result + elapsed;
             result = 31 * result + (isError ? 1 : 0);
+
             return result;
         }
     }

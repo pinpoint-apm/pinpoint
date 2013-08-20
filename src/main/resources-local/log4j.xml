@@ -19,6 +19,11 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="com.nhn.pinpoint.collector.dao" additivity="false">
+        <level value="TRACE"/>
+        <appender-ref ref="console"/>
+    </logger>
+
 
     <logger name="org.apache.zookeeper" additivity="false">
         <level value="INFO"/>
