@@ -34,7 +34,10 @@
 
 <div class="progress progress-info" id="readProgress">
   <div class="bar" style="width: 0%">fetched</div>
-  <div id="readmore">readmore</div>
+  <div id="fetchButtons">
+  	<span id="fetchMore" style="cursor:pointer;">fetch more</span> / 
+  	<span id="fetchAll" style="cursor:pointer;">fetch all</span>
+  </div>
 </div>
 
 <table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
@@ -80,6 +83,11 @@ function fetchNext() {
 	fetchStart();
 }
 
+function fetchAll() {
+	MAX_FETCH_BLOCK_SIZE = 100000000;
+	fetchStart();
+}
+
 function fetchStart() {
 	var traces = parent.opener.selectdTracesBox[parent.window.name];
 	if (!traces) {
@@ -116,7 +124,7 @@ function fetchStart() {
 	fetchCount++;
 	
 	if (i == traces.length) {
-		$("#readmore").hide();
+		$("#fetchButtons").hide();
 	}
 	
 	$("#readProgress .bar").text("fetched (" + i + " / " + traces.length + ")");
@@ -144,7 +152,8 @@ $(document).ready(function () {
 	
 	fetchStart();
 	
-	$("#readmore").bind('click', fetchNext);
+	$("#fetchMore").bind('click', fetchNext);
+	$("#fetchAll").bind('click', fetchAll);
 });
 
 var writeContents = function(d) {
