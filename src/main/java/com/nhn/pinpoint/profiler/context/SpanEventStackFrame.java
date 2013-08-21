@@ -3,11 +3,11 @@ package com.nhn.pinpoint.profiler.context;
 /**
  *
  */
-public class SubStackFrame implements StackFrame {
+public class SpanEventStackFrame implements StackFrame {
     private SpanEvent spanEvent;
     private int stackId;
 
-    public SubStackFrame(SpanEvent spanEvent) {
+    public SpanEventStackFrame(SpanEvent spanEvent) {
         this.spanEvent = spanEvent;
     }
 

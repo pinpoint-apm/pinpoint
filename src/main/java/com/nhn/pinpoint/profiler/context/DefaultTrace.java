@@ -82,7 +82,7 @@ public final class DefaultTrace implements Trace {
 
     private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
-        SubStackFrame stackFrame = new SubStackFrame(spanEvent);
+        SpanEventStackFrame stackFrame = new SpanEventStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSequence(getSequence());
         return stackFrame;
@@ -129,7 +129,7 @@ public final class DefaultTrace implements Trace {
 
         if (latestStackIndex != currentStackIndex) {
             latestStackIndex = currentStackIndex;
-            SpanEvent spanEvent = ((SubStackFrame) stackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) stackFrame).getSpanEvent();
             spanEvent.setDepth(latestStackIndex);
         }
 
@@ -171,7 +171,7 @@ public final class DefaultTrace implements Trace {
         if (currentStackFrame instanceof RootStackFrame) {
             logSpan(((RootStackFrame) currentStackFrame).getSpan());
         } else {
-            logSpan(((SubStackFrame) currentStackFrame).getSpanEvent());
+            logSpan(((SpanEventStackFrame) currentStackFrame).getSpanEvent());
         }
     }
 
@@ -304,7 +304,7 @@ public final class DefaultTrace implements Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new TraceAnnotation(key, value));
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.addAnnotation(new TraceAnnotation(key, value));
         }
 
@@ -319,7 +319,7 @@ public final class DefaultTrace implements Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setServiceType(serviceType);
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setServiceType(serviceType);
         }
 
@@ -333,7 +333,7 @@ public final class DefaultTrace implements Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setRpc(rpc);
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setRpc(rpc);
         }
 
@@ -343,8 +343,8 @@ public final class DefaultTrace implements Trace {
     public void recordDestinationId(final String destinationId) {
         // TODO API 단일화 필요.                                                                                             
         StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof SubStackFrame) {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+        if (currentStackFrame instanceof SpanEventStackFrame) {
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setDestionationId(destinationId);
         }
     }
@@ -353,8 +353,8 @@ public final class DefaultTrace implements Trace {
     public void recordDestinationAddress(List<String> address) {
         // TODO API 단일화 필요.                                                                                             
         StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof SubStackFrame) {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+        if (currentStackFrame instanceof SpanEventStackFrame) {
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setDestinationAddress();
         }
     }
@@ -372,7 +372,7 @@ public final class DefaultTrace implements Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setEndPoint(endPoint);
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setEndPoint(endPoint);
         }
     }
@@ -395,7 +395,7 @@ public final class DefaultTrace implements Trace {
         if (currentStackFrame instanceof RootStackFrame) {
             logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setNextSpanId(spanId);
         }
     }
@@ -406,7 +406,7 @@ public final class DefaultTrace implements Trace {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.addAnnotation(new TraceAnnotation(key));
         } else {
-            SpanEvent spanEvent = ((SubStackFrame) currentStackFrame).getSpanEvent();
+            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.addAnnotation(new TraceAnnotation(key));
         }
 
