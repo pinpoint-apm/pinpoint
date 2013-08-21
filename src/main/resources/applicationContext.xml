@@ -41,7 +41,7 @@
 
     <import resource="classpath:applicationContext-hbase.xml"></import>
 
-    <bean id="DispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"></bean>
+    <bean id="dispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"></bean>
 
 
     <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">

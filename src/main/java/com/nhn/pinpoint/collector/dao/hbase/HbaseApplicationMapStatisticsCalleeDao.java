@@ -70,8 +70,9 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 		// make row key. rowkey는 나.
 		long acceptedTime = acceptedTimeService.getAcceptedTime();
 		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
-        short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
         RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
+
+        short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
         ColumnName callerColumnName = new CallColumnName(callerServiceType, callerApplicationName, calleeHost, callerSlotNumber);
 		if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);

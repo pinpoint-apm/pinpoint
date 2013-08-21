@@ -109,7 +109,7 @@ public class SpanHandler implements SimpleHandler {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("Span handle error. Caused:{}", e.getMessage(), e);
+			logger.warn("Span handle error. Caused:{}. Span:{}", new Object[] {e.getMessage(), tbase, e});
 		}
 	}
 }

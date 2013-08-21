@@ -206,8 +206,9 @@ public class UDPReceiver implements DataReceiver {
         	Timer.Context time = timer.time();
         	
             HeaderTBaseDeserializer deserializer = this.deserializer.get();
+            TBase<?, ?> tBase = null;
             try {
-                TBase<?, ?> tBase = deserializer.deserialize(packet.getData());
+                tBase = deserializer.deserialize(packet.getData());
                 // dispatch는 비지니스 로직 실행을 의미.
                 dispatchHandler.dispatch(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
@@ -220,7 +221,7 @@ public class UDPReceiver implements DataReceiver {
             } catch (Exception e) {
                 // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e});
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tbase:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e, tBase});
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));

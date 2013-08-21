@@ -17,7 +17,7 @@ public class ApplicationContextUtils {
     }
 
     public static DispatchHandler getDispatchHandler(AbstractApplicationContext context) {
-        return context.getBean("DispatchHandler", DispatchHandler.class);
+        return context.getBean("dispatchHandler", DispatchHandler.class);
     }
 
     private static GenericApplicationContext createContext0(String contextClassPath) {

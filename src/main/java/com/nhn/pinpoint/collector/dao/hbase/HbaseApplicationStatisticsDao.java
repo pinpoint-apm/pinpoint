@@ -68,6 +68,11 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 			logger.debug("[UpdatingApplicationMapStatistics] " + applicationName + ", " + ServiceType.findServiceType(serviceType) + ", " + agentId + ", " + elapsed + ", " + isError);
 		}
 
+        // agentId는 null이 될수 있음.
+        if (agentId == null) {
+            agentId = "";
+        }
+
 		// make row key. rowkey는 나.
 		long acceptedTime = acceptedTimeService.getAcceptedTime();
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
