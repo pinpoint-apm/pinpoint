@@ -80,7 +80,7 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
 
 		int port = host.getPort();
         String endpoint = getEndpoint(host.getHostName(), port);
-        trace.recordEndPoint(endpoint);
+
         trace.recordDestinationId(endpoint);
 
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());

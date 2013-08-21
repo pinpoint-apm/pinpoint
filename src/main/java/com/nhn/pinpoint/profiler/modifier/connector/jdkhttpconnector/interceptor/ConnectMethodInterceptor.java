@@ -70,7 +70,8 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
 		// TODO protocol은 어떻게 표기하지???
         String endpoint = getEndpoint(host, port);
-        trace.recordEndPoint(endpoint);
+//      DestinationId와 동일하므로 없는게 맞음.
+//        trace.recordEndPoint(endpoint);
 		trace.recordDestinationId(endpoint);
 
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getURL().toString());

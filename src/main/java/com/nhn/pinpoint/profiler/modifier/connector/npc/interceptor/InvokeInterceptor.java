@@ -76,7 +76,10 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 
 		InetSocketAddress serverAddress = getServerAddress.invoke(target);
 		int port = serverAddress.getPort();
-		trace.recordDestinationId(serverAddress.getHostName() + ((port > 0) ? ":" + port : ""));
+        String endPoint = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
+//      DestinationId와 동일하므로 없는게 맞음.
+//        trace.recordEndPoint(endPoint);
+		trace.recordDestinationId(endPoint);
 
 		trace.recordAttribute(AnnotationKey.NPC_URL, serverAddress.toString());
 	}

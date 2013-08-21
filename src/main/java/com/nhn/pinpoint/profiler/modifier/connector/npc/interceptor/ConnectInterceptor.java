@@ -54,7 +54,10 @@ public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMeth
 
 		InetSocketAddress serverAddress = connectorOption.getAddress();
 		int port = serverAddress.getPort();
-		trace.recordDestinationId(serverAddress.getHostName() + ((port > 0) ? ":" + port : ""));
+        String endpiont = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
+//      DestinationId와 동일하므로 없는게 맞음.
+//        trace.recordEndPoint(endpiont);
+		trace.recordDestinationId(endpiont);
 
 		trace.recordAttribute(AnnotationKey.NPC_URL, serverAddress.toString());
 		trace.recordAttribute(AnnotationKey.NPC_CONNECT_OPTION, connectorOption.toString());

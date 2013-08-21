@@ -49,7 +49,8 @@ public class InitializeConnectorInterceptor implements SimpleAroundInterceptor, 
 
 		InetSocketAddress serverAddress = getServerAddress.invoke(target);
 		int port = serverAddress.getPort();
-		trace.recordDestinationId(serverAddress.getHostName() + ((port > 0) ? ":" + port : ""));
+        String endPoint = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
+        trace.recordDestinationId(endPoint);
 
 		trace.recordAttribute(AnnotationKey.NPC_URL, serverAddress.toString());
 	}

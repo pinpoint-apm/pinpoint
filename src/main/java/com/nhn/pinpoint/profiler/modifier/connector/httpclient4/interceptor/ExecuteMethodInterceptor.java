@@ -81,7 +81,8 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         int port = host.getPort();
         String endpoint = getEndpoint(host.getHostName(), port);
-        trace.recordEndPoint(endpoint);
+//      DestinationId와 동일하므로 없는게 맞음.
+//        trace.recordEndPoint(endpoint);
         trace.recordDestinationId(endpoint);
 
         trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
