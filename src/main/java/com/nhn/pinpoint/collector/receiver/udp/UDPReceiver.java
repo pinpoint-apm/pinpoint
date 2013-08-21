@@ -221,7 +221,7 @@ public class UDPReceiver implements DataReceiver {
             } catch (Exception e) {
                 // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tbase:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e, tBase});
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), tBase, e});
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
