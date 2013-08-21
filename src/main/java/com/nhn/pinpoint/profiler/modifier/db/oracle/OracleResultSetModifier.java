@@ -5,9 +5,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
-import javassist.CtMethod;
 
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
 
 import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.logging.Logger;

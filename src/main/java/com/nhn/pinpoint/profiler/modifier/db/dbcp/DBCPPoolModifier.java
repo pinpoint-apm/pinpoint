@@ -5,7 +5,6 @@ import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -35,7 +34,6 @@ public class DBCPPoolModifier extends AbstractModifier {
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
             CtClass cc = null;
-            updateCloseMethod(cc);
 
             printClassConvertComplete(javassistClassName);
 
@@ -48,8 +46,4 @@ public class DBCPPoolModifier extends AbstractModifier {
         return null;
     }
 
-    private void updateCloseMethod(CtClass cc) throws Exception {
-        CtMethod method = cc.getDeclaredMethod("close", null);
-        method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_CLOSE_CONNECTION + "); }");
-    }
 }

@@ -5,7 +5,6 @@ import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
@@ -37,10 +36,6 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
         try {
             CtClass cc = null;
 
-            updateSetParameterMethod(cc);
-            updateExecuteQueryMethod(cc);
-            updateConstructor(cc);
-
             printClassConvertComplete(javassistClassName);
 
             return cc.toBytecode();
@@ -52,29 +47,7 @@ public class MSSQLPreparedStatementModifier extends AbstractModifier {
         return null;
     }
 
-    private void updateSetParameterMethod(CtClass cc) throws Exception {
-        CtClass[] params1 = new CtClass[5];
-        params1[0] = null;
-        params1[1] = null;
-        params1[2] = null;
-        params1[3] = null;
-        params1[4] = null;
-        CtMethod method = cc.getDeclaredMethod("setParameter", params1);
 
-        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".putSqlParam($1,$2);} ");
-    }
 
-    private void updateConstructor(CtClass cc) throws Exception {
-        CtConstructor[] constructorList = cc.getConstructors();
 
-        if (constructorList.length == 1) {
-            CtConstructor constructor = constructorList[0];
-            constructor.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putSqlQuery(" + ProfilerConstant.REQ_DATA_TYPE_DB_QUERY + ",$2); }");
-        }
-    }
-
-    private void updateExecuteQueryMethod(CtClass cc) throws Exception {
-        CtMethod serviceMethod = cc.getDeclaredMethod("execute", null);
-        serviceMethod.insertAfter("{" + DatabaseRequestTracer.FQCN + ".put(" + ProfilerConstant.REQ_DATA_TYPE_DB_EXECUTE_QUERY + "); }");
-    }
 }

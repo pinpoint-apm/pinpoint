@@ -1,13 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.db.dbcp;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
 import javassist.CtClass;
-import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.logging.Logger;
@@ -36,12 +33,10 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
         try {
             CtClass cc = null;
 
-            updateGetConnectionMethod(cc);
 
             printClassConvertComplete(javassistClassName);
-            byte[] bytes = cc.toBytecode();
-            cc.detach();
-            return bytes;
+
+            return null;
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
@@ -50,8 +45,4 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
         return null;
     }
 
-    private void updateGetConnectionMethod(CtClass cc) throws Exception {
-        CtMethod method = cc.getDeclaredMethod("getConnection", null);
-        method.insertAfter("{" + DatabaseRequestTracer.FQCN + ".putConnection(" + ProfilerConstant.REQ_DATA_TYPE_DB_GET_CONNECTION + ",$0.getUrl()); }");
-    }
 }

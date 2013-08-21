@@ -10,12 +10,9 @@ import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
-import com.nhn.pinpoint.profiler.trace.DatabaseRequestTracer;
 import com.nhn.pinpoint.profiler.util.ExcludeBindVariableFilter;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
-import javassist.CtClass;
-import javassist.CtConstructor;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;

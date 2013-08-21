@@ -32,12 +32,9 @@ public class MySQLResultSetModifier extends AbstractModifier {
 
     private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-//            CtClass cc = null;
 
-//            updateNextMethod(cc);
-//            updateCloseMethod(cc);
 
-//            printClassConvertComplete(javassistClassName);
+            printClassConvertComplete(javassistClassName);
 
             return null;
         } catch (Exception e) {
@@ -48,13 +45,4 @@ public class MySQLResultSetModifier extends AbstractModifier {
         return null;
     }
 
-//    private void updateNextMethod(CtClass cc) throws Exception {
-//        CtMethod method = cc.getDeclaredMethod("next", null);
-//        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".updateFetchCount(); }");
-//    }
-//
-//    private void updateCloseMethod(CtClass cc) throws Exception {
-//        CtMethod method = cc.getDeclaredMethod("close", null);
-//        method.insertBefore("{" + DatabaseRequestTracer.FQCN + ".addResultSetData(); }");
-//    }
 }
