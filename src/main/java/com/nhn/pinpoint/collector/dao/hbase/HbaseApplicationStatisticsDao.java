@@ -1,8 +1,10 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
+import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS_CF_COUNTER;
 
+import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import org.apache.hadoop.hbase.client.Increment;
@@ -20,6 +22,7 @@ import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,8 +41,13 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 	@Autowired
 	private AcceptedTimeService acceptedTimeService;
 
+    @Autowired
+    private RowKeyMerge rowKeyMerge;
+
 	private final boolean useBulk;
-    private final ConcurrentCounterMap<StatisticsKey> counter = new ConcurrentCounterMap<StatisticsKey>();
+    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
+
+
 
 	public HbaseApplicationStatisticsDao() {
 		this(true);
@@ -62,16 +70,19 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 
 		// make row key. rowkey는 나.
 		long acceptedTime = acceptedTimeService.getAcceptedTime();
-		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
+        long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
 
+        RowKey statisticsRowKey = new StatisticsRowKey(applicationName, serviceType, rowTimeSlot);
 
-		if (useBulk) {
-            StatisticsKey statisticsKey = new StatisticsKey(applicationName, serviceType, rowTimeSlot, serviceType, agentId, elapsed, isError);
+        short columnSlotNumber = ApplicationStatisticsUtils.getSlotNumber(serviceType, elapsed, isError);
+        ColumnName statisticsColumnName = new StatisticsColumnName(agentId, columnSlotNumber);
+
+        if (useBulk) {
+            RowInfo statisticsKey = new DefaultRowInfo(statisticsRowKey, statisticsColumnName);
             counter.increment(statisticsKey, 1L);
         } else {
-
-            final byte[] rowKey = ApplicationStatisticsUtils.makeRowKey(applicationName, serviceType, rowTimeSlot);
-            byte[] columnName = ApplicationStatisticsUtils.makeColumnName(serviceType, agentId, elapsed, isError);
+            final byte[] rowKey = statisticsRowKey.getRowKey();
+            byte[] columnName = statisticsColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
 	}
@@ -80,32 +91,7 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
         hbaseTemplate.incrementColumnValue(APPLICATION_STATISTICS, rowKey, APPLICATION_STATISTICS_CF_COUNTER, columnName, increment);
     }
 
-    public class StatisticsKey {
-        private String applicationName;
-        private short applicationType;
-        private long rowTimeSlot;
-        private short serviceType;
-        private String agentId;
-        private int elapsed;
-        private boolean isError;
 
-        public StatisticsKey(String applicationName, short applicationType, long rowTimeSlot, short serviceType, String agentId, int elapsed, boolean error) {
-            this.applicationName = applicationName;
-            this.applicationType = applicationType;
-            this.rowTimeSlot = rowTimeSlot;
-            this.serviceType = serviceType;
-            this.agentId = agentId;
-            this.elapsed = elapsed;
-            isError = error;
-        }
-        public byte[] getRowKey() {
-            return ApplicationStatisticsUtils.makeRowKey(applicationName, applicationType, rowTimeSlot);
-        }
-
-        public byte[] getColumnName() {
-            return ApplicationStatisticsUtils.makeColumnName(serviceType, agentId, elapsed, isError);
-        }
-    }
 
 	@Override
 	public void flushAll() {
@@ -113,14 +99,14 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 			throw new IllegalStateException();
 		}
 
-        logger.trace("flush StatisticsKey");
-        Map<StatisticsKey ,ConcurrentCounterMap.LongAdder> flush = this.counter.remove();
-        for (Map.Entry<StatisticsKey, ConcurrentCounterMap.LongAdder> entry : flush.entrySet()) {
-            StatisticsKey key = entry.getKey();
-            byte[] rowKey = key.getRowKey();
-            byte[] columnName = key.getColumnName();
-            long increment = entry.getValue().get();
-            increment(rowKey, columnName, increment);
+        Map<RowInfo, ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
+        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
+        if (merge.size() != 0) {
+            logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+        }
+        for (Increment increment: merge) {
+            // increment는 비동기 연산이 아니라 그냥 루프 돌려야 됨.
+            hbaseTemplate.increment(APPLICATION_STATISTICS, increment);
         }
 	}
 }

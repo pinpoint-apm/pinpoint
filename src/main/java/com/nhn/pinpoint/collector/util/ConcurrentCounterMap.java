@@ -48,26 +48,32 @@ public class ConcurrentCounterMap<T> {
 
     public Map<T, LongAdder> remove() {
         // copy 최대한 근처의 정합성을 맞추가 위해서 먼저 한번에 copy한다.
-        List<Map<T, LongAdder>> copy = new ArrayList<Map<T, LongAdder>>(entryArray.length);
-        for(int i = 0; i < entryArray.length; i++ ) {
-            Entry<T> tEntry = entryArray[i];
-            Map<T, LongAdder> remove = tEntry.remove();
-            copy.add(remove);
-        }
+        final List<Map<T, LongAdder>> copy = removeAll();
 
         // merge
-        Map<T, LongAdder> mergeMap = new HashMap<T, LongAdder>();
+        final Map<T, LongAdder> mergeMap = new HashMap<T, LongAdder>();
         for (Map<T, LongAdder> mutableLongMap : copy) {
             for (Map.Entry<T, LongAdder> entry : mutableLongMap.entrySet()) {
-                LongAdder longAdder = mergeMap.get(entry.getKey());
+                final T key = entry.getKey();
+                LongAdder longAdder = mergeMap.get(key);
                 if (longAdder == null) {
-                    mergeMap.put(entry.getKey(), entry.getValue());
+                    mergeMap.put(key, entry.getValue());
                 } else {
                     longAdder.increment(entry.getValue().get());
                 }
             }
         }
         return mergeMap;
+    }
+
+    private List<Map<T, LongAdder>> removeAll() {
+        final List<Map<T, LongAdder>> copy = new ArrayList<Map<T, LongAdder>>(entryArray.length);
+        for(int i = 0; i < entryArray.length; i++ ) {
+            Entry<T> tEntry = entryArray[i];
+            Map<T, LongAdder> remove = tEntry.remove();
+            copy.add(remove);
+        }
+        return copy;
     }
 
 

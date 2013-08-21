@@ -19,14 +19,24 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
  */
 public class AutoFlusher {
 
-	private static final Logger logger = LoggerFactory.getLogger("AutoFlusher");
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private ScheduledExecutorService executor;
+
+    private long flushPeriod = 1000;
 
 	@Autowired
 	private List<CachedStatisticsDao> cachedStatisticsDaoList;
 
-	private static final class Worker implements Runnable {
+    public long getFlushPeriod() {
+        return flushPeriod;
+    }
+
+    public void setFlushPeriod(long flushPeriod) {
+        this.flushPeriod = flushPeriod;
+    }
+
+    private static final class Worker implements Runnable {
 		private final CachedStatisticsDao dao;
 
 		public Worker(CachedStatisticsDao dao) {
@@ -47,7 +57,7 @@ public class AutoFlusher {
 		ThreadFactory threadFactory = PinpointThreadFactory.createThreadFactory(this.getClass().getSimpleName());
 		executor = Executors.newScheduledThreadPool(cachedStatisticsDaoList.size(), threadFactory);
 		for (CachedStatisticsDao dao : cachedStatisticsDaoList) {
-			executor.scheduleAtFixedRate(new Worker(dao), 0L, 1000L, TimeUnit.MILLISECONDS);
+			executor.scheduleAtFixedRate(new Worker(dao), 0L, flushPeriod, TimeUnit.MILLISECONDS);
 		}
 		logger.info("Auto flusher initialized.");
 	}
@@ -63,7 +73,7 @@ public class AutoFlusher {
 	private void shutdownExecutor() {
 		executor.shutdown();
 		try {
-			executor.awaitTermination(3, TimeUnit.SECONDS);
+			executor.awaitTermination(3000 + flushPeriod, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
