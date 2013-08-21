@@ -12,23 +12,23 @@ public class LRUCacheTest {
     @Test
     public void testPut() throws Exception {
         long cacheSize = 100;
-        LRUCache LRUCache = new LRUCache((int) cacheSize);
+        LRUCache cache = new LRUCache((int) cacheSize);
         Random random = new Random();
         for (int i = 0; i < 1000; i++) {
-            LRUCache.put(new SqlObject(String.valueOf(random.nextInt(100000))));
+            cache.put(String.valueOf(random.nextInt(100000)));
         }
 
-        long size = LRUCache.getSize();
+        long size = cache.getSize();
         Assert.assertEquals(size, cacheSize);
 
     }
 
     @Test
     public void testGetSize() throws Exception {
-        LRUCache cache = new LRUCache(2);
+        LRUCache<String> cache = new LRUCache<String>(2);
         Assert.assertEquals(cache.getSize(), 0);
 
-        SqlObject sqlObject = new SqlObject("test");
+        String sqlObject = "test";
 
         boolean hit = cache.put(sqlObject);
         Assert.assertTrue(hit);
@@ -39,10 +39,10 @@ public class LRUCacheTest {
         Assert.assertEquals(cache.getSize(), 1);
 //        "23 123";
 //        "DCArMlhwQO 7"
-        cache.put(new SqlObject("23 123"));
-        cache.put(new SqlObject("DCArMlhwQO 7"));
-        cache.put(new SqlObject("3"));
-        cache.put(new SqlObject("4"));
+        cache.put("23 123");
+        cache.put("DCArMlhwQO 7");
+        cache.put("3");
+        cache.put("4");
         Assert.assertEquals(cache.getSize(), 2);
 
 
