@@ -79,7 +79,7 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
 		int port = host.getPort();
-//		trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));
+		trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));
         trace.recordDestinationId(host.getHostName() + ((port > 0) ? ":" + port : ""));
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
 	}
