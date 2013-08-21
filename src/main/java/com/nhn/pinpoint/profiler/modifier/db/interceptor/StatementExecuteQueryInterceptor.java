@@ -75,18 +75,21 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
             return;
         }
 
-        trace.recordApi(descriptor);
-        trace.recordException(result);
-        if (args.length > 0) {
-            Object arg = args[0];
-            if (arg instanceof String) {
-                trace.recordSqlInfo((String) arg);
-                // TODO parsing result 추가 처리 고려
+        try {
+            trace.recordApi(descriptor);
+            trace.recordException(result);
+            if (args.length > 0) {
+                Object arg = args[0];
+                if (arg instanceof String) {
+                    trace.recordSqlInfo((String) arg);
+                    // TODO parsing result 추가 처리 고려
+                }
             }
-        }
 
-        trace.markAfterTime();
-        trace.traceBlockEnd();
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
 
     @Override

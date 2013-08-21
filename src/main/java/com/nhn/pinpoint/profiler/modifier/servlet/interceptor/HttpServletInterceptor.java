@@ -111,21 +111,24 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
         if (trace == null) {
             return;
         }
-        traceContext.detachTraceObject();
+        try {
+            traceContext.detachTraceObject();
 
-        HttpServletRequest request = (HttpServletRequest) args[0];
-        String parameters = getRequestParameter(request);
-        if (parameters != null && parameters.length() > 0) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            HttpServletRequest request = (HttpServletRequest) args[0];
+            String parameters = getRequestParameter(request);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            }
+
+
+            trace.recordApi(descriptor);
+
+            trace.recordException(result);
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
         }
-
-
-        trace.recordApi(descriptor);
-
-        trace.recordException(result);
-
-        trace.markAfterTime();
-        trace.traceBlockEnd();
     }
 
     private boolean samplingEnable(HttpServletRequest request) {

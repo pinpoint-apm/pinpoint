@@ -82,11 +82,14 @@ public class StatementExecuteUpdateInterceptor implements SimpleAroundIntercepto
             return;
         }
 
-        trace.recordException(result);
+        try {
+            trace.recordException(result);
 
-        // TODO 결과, 수행시간을.알수 있어야 될듯.
-        trace.markAfterTime();
-        trace.traceBlockEnd();
+            // TODO 결과, 수행시간을.알수 있어야 될듯.
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
 
     @Override

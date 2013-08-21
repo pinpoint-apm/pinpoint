@@ -64,11 +64,14 @@ public class InitializeConnectorInterceptor implements SimpleAroundInterceptor, 
 		if (trace == null) {
 			return;
 		}
-		trace.recordApi(descriptor);
-		trace.recordException(result);
+        try {
+            trace.recordApi(descriptor);
+            trace.recordException(result);
 
-		trace.markAfterTime();
-		trace.traceBlockEnd();
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
 	}
 
 	@Override

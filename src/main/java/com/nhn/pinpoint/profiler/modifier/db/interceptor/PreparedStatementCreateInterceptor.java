@@ -87,12 +87,15 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         if (trace == null) {
             return;
         }
-        trace.recordSqlParsingResult(parsingResult);
-        trace.recordException(result);
-        trace.recordApi(descriptor);
+        try {
+            trace.recordSqlParsingResult(parsingResult);
+            trace.recordException(result);
+            trace.recordApi(descriptor);
 
-        trace.markAfterTime();
-        trace.traceBlockEnd();
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
 
 

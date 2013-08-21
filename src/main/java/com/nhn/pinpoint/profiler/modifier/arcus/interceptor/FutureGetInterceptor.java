@@ -59,44 +59,47 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.info("trace not found");
+			logger.debug("trace not found");
 			return;
 		}
-		
-		trace.recordApi(methodDescriptor);
-		String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
-		trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
-		
-		// find the target node
-		Operation op = (Operation) getOperation.invoke(target);
-		if (op != null) {
-			MemcachedNode handlingNode = op.getHandlingNode();
-			SocketAddress socketAddress = handlingNode.getSocketAddress();
-			if (socketAddress instanceof InetSocketAddress) {
-				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-			}
-		} else {
-			logger.info("operation not found");
-		}
-		
-		// determine the service type
-		String serviceCode = (String) getServiceCode.invoke((Operation)op);
-		if (serviceCode != null) {
-			trace.recordDestinationId(serviceCode);
-			trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
-		} else {
-			trace.recordDestinationId("MEMCACHED");
-			trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
-		}
-		
-		trace.recordException(op.getException());
-		if (op.isCancelled()) {
-			trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
-		}
-		
-		trace.markAfterTime();
-		trace.traceBlockEnd();
+
+        try {
+            trace.recordApi(methodDescriptor);
+            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
+            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
+
+            // find the target node
+            Operation op = (Operation) getOperation.invoke(target);
+            if (op != null) {
+                MemcachedNode handlingNode = op.getHandlingNode();
+                SocketAddress socketAddress = handlingNode.getSocketAddress();
+                if (socketAddress instanceof InetSocketAddress) {
+                    InetSocketAddress address = (InetSocketAddress) socketAddress;
+                    trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                }
+            } else {
+                logger.info("operation not found");
+            }
+
+            // determine the service type
+            String serviceCode = (String) getServiceCode.invoke((Operation)op);
+            if (serviceCode != null) {
+                trace.recordDestinationId(serviceCode);
+                trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
+            } else {
+                trace.recordDestinationId("MEMCACHED");
+                trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
+            }
+
+            trace.recordException(op.getException());
+            if (op.isCancelled()) {
+                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+            }
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
     
     @Override

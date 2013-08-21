@@ -51,11 +51,14 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 			return;
 		}
 
-		trace.recordApi(descriptor);
-		trace.recordException(result);
+        try {
+            trace.recordApi(descriptor);
+            trace.recordException(result);
 
-		trace.markAfterTime();
-		trace.traceBlockEnd();
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
 	}
 
     public void setServiceType(ServiceType serviceType) {

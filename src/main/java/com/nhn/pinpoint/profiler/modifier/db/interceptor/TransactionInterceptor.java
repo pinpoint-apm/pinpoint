@@ -91,12 +91,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordApi(descriptor, arg);
             trace.recordException(result);
 
+            trace.markAfterTime();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
             }
         } finally {
-            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }
@@ -128,12 +128,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
             trace.recordApi(descriptor);
             trace.recordException(result);
 
+            trace.markAfterTime();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
             }
         } finally {
-            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }
@@ -172,12 +172,12 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
 //                trace.recordAttribute("Transaction", "rollback fail");
 //            }
             trace.recordException(result);
+            trace.markAfterTime();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
             }
         } finally {
-            trace.markAfterTime();
             trace.traceBlockEnd();
         }
     }

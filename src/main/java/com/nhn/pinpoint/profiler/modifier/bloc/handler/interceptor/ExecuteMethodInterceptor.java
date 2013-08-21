@@ -98,24 +98,27 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         if (trace == null) {
             return;
         }
-        traceContext.detachTraceObject();
+        try {
+            traceContext.detachTraceObject();
 
-        if (!trace.canSampled()) {
-            return;
+            if (!trace.canSampled()) {
+                return;
+            }
+
+            external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+            String parameters = getRequestParameter(request);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            }
+
+            trace.recordApi(descriptor);
+
+            trace.recordException(result);
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceRootBlockEnd();
         }
-
-        external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-        String parameters = getRequestParameter(request);
-        if (parameters != null && parameters.length() > 0) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-        }
-
-		trace.recordApi(descriptor);
-
-        trace.recordException(result);
-
-        trace.markAfterTime();
-        trace.traceRootBlockEnd();
     }
 
     private boolean samplingEnable(external.org.apache.coyote.Request request) {

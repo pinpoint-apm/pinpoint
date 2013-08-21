@@ -99,39 +99,41 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.info("trace not found");
+			logger.debug("trace not found");
 			return;
 		}
-		
-		trace.recordApi(methodDescriptor);
-		trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, getAnnotation(args));
-		
-		// find the target node
-		if (result instanceof Future) {
-			Operation op = (Operation) getOperation.invoke(((Future<?>)result));
-			if (op != null) {
-				MemcachedNode handlingNode = op.getHandlingNode();
-				SocketAddress socketAddress = handlingNode.getSocketAddress();
-				if (socketAddress instanceof InetSocketAddress) {
-					InetSocketAddress address = (InetSocketAddress) socketAddress;
-					trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-				}
-			} else {
-				logger.info("operation not found");
-			}
-		}
-		
-		// determine the service type
-		String serviceCode = (String) getServiceCode.invoke(target);
-		if (serviceCode != null) {
-			trace.recordDestinationId(serviceCode);
-			trace.recordServiceType(ServiceType.ARCUS);
-		} else {
-			trace.recordDestinationId("MEMCACHED");
-			trace.recordServiceType(ServiceType.MEMCACHED);
-		}
-		
-		trace.markAfterTime();
-		trace.traceBlockEnd();
+		try {
+            trace.recordApi(methodDescriptor);
+            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, getAnnotation(args));
+
+            // find the target node
+            if (result instanceof Future) {
+                Operation op = (Operation) getOperation.invoke(((Future<?>)result));
+                if (op != null) {
+                    MemcachedNode handlingNode = op.getHandlingNode();
+                    SocketAddress socketAddress = handlingNode.getSocketAddress();
+                    if (socketAddress instanceof InetSocketAddress) {
+                        InetSocketAddress address = (InetSocketAddress) socketAddress;
+                        trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                    }
+                } else {
+                    logger.info("operation not found");
+                }
+            }
+
+            // determine the service type
+            String serviceCode = (String) getServiceCode.invoke(target);
+            if (serviceCode != null) {
+                trace.recordDestinationId(serviceCode);
+                trace.recordServiceType(ServiceType.ARCUS);
+            } else {
+                trace.recordDestinationId("MEMCACHED");
+                trace.recordServiceType(ServiceType.MEMCACHED);
+            }
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
 }

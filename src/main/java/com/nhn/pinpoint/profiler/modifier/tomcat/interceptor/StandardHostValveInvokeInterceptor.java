@@ -123,24 +123,27 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         if (trace == null) {
             return;
         }
-        traceContext.detachTraceObject();
-        if (!trace.canSampled()) {
-            return;
+        try {
+            traceContext.detachTraceObject();
+            if (!trace.canSampled()) {
+                return;
+            }
+
+            HttpServletRequest request = (HttpServletRequest) args[0];
+            String parameters = getRequestParameter(request);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            }
+
+
+            trace.recordApi(descriptor);
+
+            trace.recordException(result);
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceRootBlockEnd();
         }
-
-        HttpServletRequest request = (HttpServletRequest) args[0];
-        String parameters = getRequestParameter(request);
-        if (parameters != null && parameters.length() > 0) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-        }
-
-
-        trace.recordApi(descriptor);
-
-        trace.recordException(result);
-
-        trace.markAfterTime();
-        trace.traceRootBlockEnd();
     }
 
     /**

@@ -67,19 +67,21 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
             return;
         }
 
-        trace.recordServiceType(databaseInfo.getType());
+        try {
+            trace.recordServiceType(databaseInfo.getType());
 
-        trace.recordEndPoint(databaseInfo.getMultipleHost());
-        trace.recordDestinationId(databaseInfo.getDatabaseId());
-        trace.recordDestinationAddress(databaseInfo.getHost());
+            trace.recordEndPoint(databaseInfo.getMultipleHost());
+            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            trace.recordDestinationAddress(databaseInfo.getHost());
 
 
+            trace.recordApi(descriptor, new Object[]{args[0]});
+            trace.recordException(result);
 
-        trace.recordApi(descriptor, new Object[]{args[0]});
-        trace.recordException(result);
-
-        trace.markAfterTime();
-        trace.traceBlockEnd();
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
     }
 
     private DatabaseInfo createDatabaseInfo(String url) {
