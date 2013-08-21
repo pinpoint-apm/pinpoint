@@ -52,6 +52,7 @@
     			<beans:ref bean="hbaseApplicationMapStatisticsCallerDao"/>
     		</beans:list>
     	</beans:property>
+        <property name="flushPeriod" value="${statistics.flushPeriod}"></property>
     </bean>
 
 

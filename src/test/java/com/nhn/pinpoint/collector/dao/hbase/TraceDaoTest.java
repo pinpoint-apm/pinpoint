@@ -12,10 +12,7 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,6 +32,7 @@ import com.nhn.pinpoint.common.util.SpanUtils;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration("classpath:applicationContext-test.xml")
+@Ignore
 public class TraceDaoTest {
 
     private static final String TRACE = "Trace";

@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.collector.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -16,6 +13,8 @@ public class ConcurrentCounterMap<T> {
     private final AtomicInteger entrySelector = new AtomicInteger(0);
 
     private final Entry<T>[] entryArray;
+
+    private static final Map EMPTY = Collections.emptyMap();
 
     public ConcurrentCounterMap() {
         this(16);
@@ -106,9 +105,12 @@ public class ConcurrentCounterMap<T> {
         }
 
         public Map<T, LongAdder> remove() {
-            Map<T, LongAdder> old = null;
+            Map<T, LongAdder> old;
             synchronized (this) {
                 old = this.map;
+                if (old.isEmpty()) {
+                    return EMPTY;
+                }
                 this.map = new HashMap<T, LongAdder>();
             }
             return old;
