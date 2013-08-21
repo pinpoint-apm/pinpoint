@@ -3,11 +3,7 @@ package com.nhn.pinpoint.common.hbase;
 import java.util.List;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Increment;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
 import org.springframework.data.hadoop.hbase.HbaseOperations;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -80,10 +76,10 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
 
-    void increment(String tableName, final Increment increment);
+    Result increment(String tableName, final Increment increment);
 
-    void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
+    long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
 
-    void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
+    long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
 
 }

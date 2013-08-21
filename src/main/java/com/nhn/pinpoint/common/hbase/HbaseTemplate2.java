@@ -468,32 +468,29 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return new DistributedScanner(rowKeyDistributor, scanner);
     }
 
-    public void increment(String tableName, final Increment increment) {
-        execute(tableName, new TableCallback() {
+    public Result increment(String tableName, final Increment increment) {
+        return execute(tableName, new TableCallback<Result>() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.increment(increment);
-                return null;
+            public Result doInTable(HTableInterface htable) throws Throwable {
+                return htable.increment(increment);
             }
         });
     }
 
-    public void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
-        execute(tableName, new TableCallback() {
+    public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
+        return execute(tableName, new TableCallback<Long>() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.incrementColumnValue(rowName, familyName, qualifier, amount);
-                return null;
+            public Long doInTable(HTableInterface htable) throws Throwable {
+                return htable.incrementColumnValue(rowName, familyName, qualifier, amount);
             }
         });
     }
 
-    public void incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
-        execute(tableName, new TableCallback() {
+    public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
+        return execute(tableName, new TableCallback<Long>() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL);
-                return null;
+            public Long doInTable(HTableInterface htable) throws Throwable {
+                return htable.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL);
             }
         });
     }

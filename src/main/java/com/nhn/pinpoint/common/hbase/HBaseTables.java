@@ -82,6 +82,7 @@ public class HBaseTables {
 	
 	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
 	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
-	
-	public static final byte[] STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes((short) -1);
+
+    public static final short STATISTICS_CQ_ERROR_SLOT_NUMBER = -1;
+    public static final byte[] STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes(STATISTICS_CQ_ERROR_SLOT_NUMBER);
 }
