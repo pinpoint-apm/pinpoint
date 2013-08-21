@@ -17,26 +17,30 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
  */
 public class ApplicationStatisticsUtils {
 	
-	public static byte[] makeColumnName(short serviceType, String agentId, int elapsed, boolean isError) {
+	public static byte[] makeColumnName(String agentId, short slotNumber) {
 		if (agentId == null) {
 			agentId = "";
 		}
-		byte[] slotNumber;
-		if (isError) {
-			slotNumber = HBaseTables.STATISTICS_CQ_ERROR_SLOT;
-		} else {
-			slotNumber = findResponseHistogramSlotNo(serviceType, elapsed);
-		}
-		byte[] agentIdBytes = Bytes.toBytes(agentId);
+		byte[] slotNumberBytes = Bytes.toBytes(slotNumber);
+        byte[] agentIdBytes = Bytes.toBytes(agentId);
 		
-		return BytesUtils.concat(slotNumber, agentIdBytes);
+		return BytesUtils.concat(slotNumberBytes, agentIdBytes);
 	}
 
-	private static byte[] findResponseHistogramSlotNo(short serviceType, int elapsed) {
+
+
+    public static short getSlotNumber(short serviceType, int elapsed, boolean isError) {
+        if (isError) {
+            return HBaseTables.STATISTICS_CQ_ERROR_SLOT_NUMBER;
+        } else {
+            return findResponseHistogramSlotNo(serviceType, elapsed);
+        }
+    }
+
+    private static short findResponseHistogramSlotNo(short serviceType, int elapsed) {
 		Histogram histogram = ServiceType.findServiceType(serviceType).getHistogram();
 		HistogramSlot histogramSlot = histogram.findHistogramSlot(elapsed);
-		short slotTime = (short) histogramSlot.getSlotTime();
-		return Bytes.toBytes(slotTime);
+		return (short) histogramSlot.getSlotTime();
 	}
 
 	/**
