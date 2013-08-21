@@ -80,11 +80,23 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
         int port = host.getPort();
-        trace.recordEndPoint(host.getHostName() + ((port > 0) ? ":" + port : ""));
-        trace.recordDestinationId(host.getHostName() +  ((port > 0) ? ":" + port : ""));
+        String endpoint = getEndpoint(host.getHostName(), port);
+        trace.recordEndPoint(endpoint);
+        trace.recordDestinationId(endpoint);
 
         trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
 
+    }
+
+    private String getEndpoint(String host, int port) {
+        if (port < 0) {
+            return host;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(host);
+        sb.append(':');
+        sb.append(port);
+        return sb.toString();
     }
 
     @Override

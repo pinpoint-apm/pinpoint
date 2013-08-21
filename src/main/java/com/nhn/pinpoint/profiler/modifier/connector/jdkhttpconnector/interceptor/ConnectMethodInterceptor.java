@@ -69,12 +69,25 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 		int port = request.getURL().getPort();
 
 		// TODO protocol은 어떻게 표기하지???
-		trace.recordDestinationId(host + ((port > 0) ? ":" + port : ""));
+        String endpoint = getEndpoint(host, port);
+        trace.recordEndPoint(endpoint);
+		trace.recordDestinationId(endpoint);
 
 		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getURL().toString());
 	}
 
-	@Override
+    private String getEndpoint(String host, int port) {
+        if (port < 0) {
+            return host;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(host);
+        sb.append(':');
+        sb.append(port);
+        return sb.toString();
+    }
+
+    @Override
 	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
 			// result는 로깅하지 않는다.
@@ -85,6 +98,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 		if (trace == null) {
 			return;
 		}
+
 		trace.recordApi(descriptor);
 		trace.recordException(result);
 
