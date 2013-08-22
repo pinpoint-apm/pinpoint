@@ -17,7 +17,7 @@ import java.util.Collection;
 /**
  *
  */
-public class TcpDataSender extends AbstractQueueingDataSender implements DataSender {
+public class TcpDataSender implements DataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -29,10 +29,13 @@ public class TcpDataSender extends AbstractQueueingDataSender implements DataSen
 
     private final SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
 
+    private AsyncQueueingExecutor executor;
+
     public TcpDataSender(String host, int port) {
-        super(1024, "TcpDataSender");
         pinpointSocketFactory = new PinpointSocketFactory();
         connect(host, port);
+
+        this.executor = getExecutor();
     }
 
     private void connect(String host, int port) {
@@ -49,9 +52,24 @@ public class TcpDataSender extends AbstractQueueingDataSender implements DataSen
         this.socket = pinpointSocketFactory.scheduledConnect(host, port);
     }
 
+    public AsyncQueueingExecutor getExecutor() {
+        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+        executor.setListener(new AsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Collection<Object> dtoList) {
+                sendPacketN(dtoList);
+            }
 
-    @Override
-    void sendPacketN(Collection<Object> dtoList) {
+            @Override
+            public void execute(Object dto) {
+                sendPacket(dto);
+            }
+        });
+        return executor;
+    }
+
+
+    private void sendPacketN(Collection<Object> dtoList) {
         Object[] dataList = dtoList.toArray();
 //          일단 single thread에서 하는거라 구지 복사 안해도 될것 같음.
 //        Object[] copy = Arrays.copyOf(original, original.length);
@@ -69,8 +87,7 @@ public class TcpDataSender extends AbstractQueueingDataSender implements DataSen
 
     }
 
-    @Override
-    void sendPacket(Object dto) {
+    private void sendPacket(Object dto) {
         TBase<?, ?> tBase;
         if (dto instanceof TBase) {
             tBase = (TBase<?, ?>) dto;
@@ -106,19 +123,20 @@ public class TcpDataSender extends AbstractQueueingDataSender implements DataSen
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        return putQueue(data);
+        return executor.execute(data);
     }
 
     @Override
     public boolean send(Thriftable thriftable) {
-        return putQueue(thriftable);
+        return executor.execute(thriftable);
     }
-
 
     @Override
     public void stop() {
-        super.stop();
+        executor.stop();
         socket.close();
         pinpointSocketFactory.release();
     }
+
+
 }

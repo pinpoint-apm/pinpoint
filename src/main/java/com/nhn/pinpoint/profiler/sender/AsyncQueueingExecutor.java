@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public abstract class AbstractQueueingDataSender implements Runnable {
+public class AsyncQueueingExecutor implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -20,21 +20,23 @@ public abstract class AbstractQueueingDataSender implements Runnable {
     private final PinpointThreadFactory threadFactory;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
     private final Thread ioThread;
-    private String senderName;
+    private String executorName;
 
     private final int maxDrainSize = 10;
     // 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
     private Collection<Object> drain = new UnsafeArrayCollection<Object>(maxDrainSize);
 
+    private AsyncQueueingExecutorListener listener;
 
-    public AbstractQueueingDataSender() {
-        this(1024, "Pinpoint-AbstractQueueingDataSender");
+
+    public AsyncQueueingExecutor() {
+        this(1024 * 5, "Pinpoint-AsyncQueueingExecutor");
     }
 
-    public AbstractQueueingDataSender(int queueSize, String senderName) {
-        this.senderName = senderName;
+    public AsyncQueueingExecutor(int queueSize, String executorName) {
+        this.executorName = executorName;
         this.queue = new LinkedBlockingQueue<Object>(queueSize);
-        this.threadFactory = new PinpointThreadFactory(senderName, true);
+        this.threadFactory = new PinpointThreadFactory(executorName, true);
         this.ioThread = this.createIoThread();
     }
 
@@ -52,10 +54,10 @@ public abstract class AbstractQueueingDataSender implements Runnable {
     public void run() {
         Thread thread = Thread.currentThread();
         logger.info("{}-({}) started.", thread.getName(), thread.getId());
-        doSend();
+        doExecute();
     }
 
-    protected void doSend() {
+    protected void doExecute() {
         drainStartEntry:
         while (true) {
             try {
@@ -66,7 +68,7 @@ public abstract class AbstractQueueingDataSender implements Runnable {
                 Collection<Object> dtoList = getDrainQueue();
                 int drainSize = takeN(dtoList, this.maxDrainSize);
                 if (drainSize > 0) {
-                    sendPacketN(dtoList);
+                    doExecute(dtoList);
                     continue;
                 }
 
@@ -77,12 +79,12 @@ public abstract class AbstractQueueingDataSender implements Runnable {
 
                     Object dto = takeOne();
                     if (dto != null) {
-                        sendPacket(dto);
+                        doExecute(dto);
                         continue drainStartEntry;
                     }
                 }
             } catch (Throwable th) {
-                logger.warn("{} doSend->Unexpected Error. Cause:{}", new Object[]{senderName, th.getMessage(), th});
+                logger.warn("{} doExecute(). Unexpected Error. Cause:{}", new Object[]{executorName, th.getMessage(), th});
             }
         }
         flushQueue();
@@ -102,7 +104,7 @@ public abstract class AbstractQueueingDataSender implements Runnable {
             if (debugEnabled) {
                 logger.debug("flushData size {}", drainSize);
             }
-            sendPacketN(dtoList);
+            doExecute(dtoList);
         }
     }
 
@@ -112,8 +114,6 @@ public abstract class AbstractQueueingDataSender implements Runnable {
         } catch (InterruptedException e) {
             // Thread.currentThread().interrupt();
             // 인터럽트 한번은 그냥 무시한다.
-
-
             return null;
         }
     }
@@ -122,32 +122,40 @@ public abstract class AbstractQueueingDataSender implements Runnable {
         return queue.drainTo(drain, maxDrainSize);
     }
 
-    protected boolean putQueue(Object data) {
+    public boolean execute(Object data) {
         final boolean warnEnabled = logger.isWarnEnabled();
         if (data == null) {
             if (warnEnabled) {
-                logger.warn("putQueue(). data is null");
+                logger.warn("execute(). data is null");
             }
             return false;
         }
         if (!isRun.get()) {
             if (warnEnabled) {
-                logger.warn("{} is shutdown. discard data:{}", this.senderName, data);
+                logger.warn("{} is shutdown. discard data:{}", this.executorName, data);
             }
             return false;
         }
         boolean offer = queue.offer(data);
         if (!offer) {
             if (warnEnabled) {
-                logger.warn("{} Drop data. queue is full. size:{}", this.senderName, queue.size());
+                logger.warn("{} Drop data. queue is full. size:{}", this.executorName, queue.size());
             }
         }
         return offer;
     }
 
-    abstract void sendPacketN(Collection<Object> dtoList);
+    public void setListener(AsyncQueueingExecutorListener listener) {
+        this.listener = listener;
+    }
 
-    abstract void sendPacket(Object dto);
+    private void doExecute(Collection<Object> dtoList) {
+        this.listener.execute(dtoList);
+    }
+
+    private void doExecute(Object dto) {
+        this.listener.execute(dto);
+    }
 
     public boolean isEmpty() {
         return queue.size() == 0;
@@ -168,10 +176,10 @@ public abstract class AbstractQueueingDataSender implements Runnable {
             ioThread.join(5000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            logger.info("{} stopped incompletely.", senderName);
+            logger.info("{} stopped incompletely.", executorName);
         }
 
-        logger.info("{} stopped.", senderName);
+        logger.info("{} stopped.", executorName);
     }
 
     Collection<Object> getDrainQueue() {

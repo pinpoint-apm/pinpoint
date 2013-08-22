@@ -18,7 +18,7 @@ import com.nhn.pinpoint.profiler.context.Thriftable;
 /**
  * @author netspider
  */
-public class UdpDataSender extends AbstractQueueingDataSender implements DataSender {
+public class UdpDataSender implements DataSender {
 
 	private final Logger logger = LoggerFactory.getLogger(UdpDataSender.class.getName());
     private final boolean isTrace = logger.isTraceEnabled();
@@ -31,20 +31,37 @@ public class UdpDataSender extends AbstractQueueingDataSender implements DataSen
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
+    private AsyncQueueingExecutor executor;
 
 	public UdpDataSender(String host, int port) {
-        super(1024, "UdpDataSender");
-
         if (host == null ) {
             throw new NullPointerException("host must not be null");
         }
+
 		// Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port);
+
+        this.executor = getExecutor();
 	}
 
+    private AsyncQueueingExecutor getExecutor() {
+        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, "Pinpoint-UdpDataExecutor");
+        executor.setListener(new AsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Collection<Object> dtoList) {
+                sendPacketN(dtoList);
+            }
 
-	private DatagramSocket createSocket(String host, int port) {
+            @Override
+            public void execute(Object dto) {
+                sendPacket(dto);
+            }
+        });
+        return executor;
+    }
+
+    private DatagramSocket createSocket(String host, int port) {
 		try {
             DatagramSocket datagramSocket = new DatagramSocket();
 
@@ -60,12 +77,17 @@ public class UdpDataSender extends AbstractQueueingDataSender implements DataSen
 	}
 
 	public boolean send(TBase<?, ?> data) {
-		return putQueue(data);
+		return executor.execute(data);
 	}
 
 	public boolean send(Thriftable thriftable) {
-		return putQueue(thriftable);
+		return executor.execute(thriftable);
 	}
+
+    @Override
+    public void stop() {
+        executor.stop();
+    }
 
 
     protected void sendPacketN(Collection<Object> dtoList) {
@@ -124,9 +146,5 @@ public class UdpDataSender extends AbstractQueueingDataSender implements DataSen
 			return null;
 		}
 	}
-
-    private int beforeSerializeLength() {
-        return serializer.getInterBufferSize();
-    }
 
 }

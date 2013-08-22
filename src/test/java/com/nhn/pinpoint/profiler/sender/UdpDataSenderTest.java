@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.sender;
 
 import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

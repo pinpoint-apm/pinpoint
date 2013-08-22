@@ -30,7 +30,7 @@ public class HeartBitChecker {
 
     public void start() {
         if (logger.isInfoEnabled()) {
-            logger.info("Send startup information to Pinpoint server via {}. agentInfo={}", dataSender.getClass().getSimpleName() + agentInfo);
+            logger.info("Send startup information to Pinpoint server via {}. agentInfo={}", dataSender.getClass().getSimpleName(), agentInfo);
         }
         dataSender.send(agentInfo);
         dataSender.send(agentInfo);
