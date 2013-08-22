@@ -44,11 +44,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 		// 매 번 넣을 필요 없음.
 		if (cache.containsKey(cacheKey)) {
-			logger.debug("Skip insert host-application map. host={}, applicationName={}, serviceType={}", new Object[] { host, applicationName, serviceType });
+			logger.debug("Skip insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
 			return;
 		}
 
-		logger.debug("Insert host-application map. host={}, applicationName={}, serviceType={}", new Object[] { host, applicationName, serviceType });
+		logger.debug("Insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
 
 		byte[] rowKey = Bytes.toBytes(TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(acceptedTimeService.getAcceptedTime())));
 		byte[] columnName = Bytes.toBytes(host);

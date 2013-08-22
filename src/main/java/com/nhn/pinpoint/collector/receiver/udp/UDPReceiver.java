@@ -247,7 +247,7 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
                 dispatchHandler.dispatch(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), e});
+                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
@@ -255,7 +255,7 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
             } catch (Exception e) {
                 // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", new Object[]{packet.getSocketAddress(), e.getMessage(), tBase, e});
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", packet.getSocketAddress(), e.getMessage(), tBase, e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
