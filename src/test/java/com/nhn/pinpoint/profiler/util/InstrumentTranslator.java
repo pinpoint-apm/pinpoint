@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class InstrumentTranslator implements Translator {
-    private final Logger logger = LoggerFactory.getLogger(InstrumentTranslator.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ConcurrentMap<String, Modifier> modifierMap = new ConcurrentHashMap<String, Modifier>();
 
@@ -38,7 +38,7 @@ public class InstrumentTranslator implements Translator {
         if(modifier == null) {
             return;
         }
-        logger.info("Modify loader:{}, name:{},  modifier{}", new Object[]{loader, classname, modifier});
+        logger.info("Modify loader:{}, name:{},  modifier{}", loader, classname, modifier);
 
         final Thread thread = Thread.currentThread();
         ClassLoader beforeClassLoader = thread.getContextClassLoader();
