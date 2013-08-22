@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
 import java.net.SocketAddress;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class TCPReceiver {
 
-	private static final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
+	private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
 	private final PinpointServerSocket pinpointServerSocket;
@@ -33,7 +34,7 @@ public class TCPReceiver {
     private int port;
 
     private int threadSize = 256;
-    private int workerQueueSize = 1024;
+    private int workerQueueSize = 1024 * 5;
 
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
@@ -52,7 +53,7 @@ public class TCPReceiver {
         this.pinpointServerSocket.setMessageListener(new ServerMessageListener() {
             @Override
             public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-                worker.execute(new Dispatch(sendPacket.getPayload(), channel.getRemoteAddress()));
+                receive(sendPacket, channel);
             }
 
             @Override
@@ -69,6 +70,15 @@ public class TCPReceiver {
 
 
 	}
+
+    private void receive(SendPacket sendPacket, SocketChannel channel) {
+        try {
+            worker.execute(new Dispatch(sendPacket.getPayload(), channel.getRemoteAddress()));
+        } catch (RejectedExecutionException e) {
+            // 이건 stack trace찍어 봤자임. 원인이 명확함. 어떤 메시지 에러인지 좀더 알기 쉽게 찍을 필요성이 있음.
+            logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
+        }
+    }
 
     private class Dispatch implements Runnable {
         private final byte[] bytes;
@@ -91,7 +101,7 @@ public class TCPReceiver {
                 dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", new Object[]{remoteAddress, e.getMessage(), e});
+                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
@@ -99,7 +109,7 @@ public class TCPReceiver {
             } catch (Exception e) {
                 // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", new Object[]{remoteAddress, e.getMessage(), e});
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
