@@ -10,6 +10,11 @@
     <name>pinpoint-rpc</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <slf4j.version>1.7.5</slf4j.version>
+    </properties>
+
+
 
     <repositories>
         <repository>
@@ -56,7 +61,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -65,13 +70,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
