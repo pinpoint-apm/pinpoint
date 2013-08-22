@@ -59,12 +59,8 @@ public class AsyncQueueingExecutor implements Runnable {
 
     protected void doExecute() {
         drainStartEntry:
-        while (true) {
+        while (isRun()) {
             try {
-                if (isShutdown()) {
-                    break;
-                }
-
                 Collection<Object> dtoList = getDrainQueue();
                 int drainSize = takeN(dtoList, this.maxDrainSize);
                 if (drainSize > 0) {
@@ -72,11 +68,7 @@ public class AsyncQueueingExecutor implements Runnable {
                     continue;
                 }
 
-                while (true) {
-                    if (isShutdown()) {
-                        break;
-                    }
-
+                while (isRun()) {
                     Object dto = takeOne();
                     if (dto != null) {
                         doExecute(dto);
@@ -161,8 +153,8 @@ public class AsyncQueueingExecutor implements Runnable {
         return queue.size() == 0;
     }
 
-    public boolean isShutdown() {
-        return !isRun.get();
+    public boolean isRun() {
+        return isRun.get();
     }
 
     public void stop() {
