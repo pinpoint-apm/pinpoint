@@ -66,7 +66,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 			logger.debug("[UpdatingApplicationMapStatisticsCallee] " + callerApplicationName + " (" + ServiceType.findServiceType(callerServiceType) + ")[" + calleeHost + "] -> " + calleeApplicationName + " (" + ServiceType.findServiceType(calleeServiceType) + ")");
 		}
 
-		// make row key. rowkey는 나.
+        if (calleeHost == null) {
+            // httpclient와 같은 경우는 endpoint가 없을수 있다.
+            calleeHost = "";
+        }
+
+        // make row key. rowkey는 나.
 		long acceptedTime = acceptedTimeService.getAcceptedTime();
 		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
         RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
