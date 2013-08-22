@@ -477,6 +477,29 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    public List<Result> increment(String tableName, final List<Increment> incrementList) {
+        return execute(tableName, new TableCallback<List<Result>>() {
+            @Override
+            public List<Result> doInTable(HTableInterface htable) throws Throwable {
+                final List<Result> resultList = new ArrayList<Result>(incrementList.size());
+
+                Exception lastException = null;
+                for (Increment increment : incrementList) {
+                    try {
+                        Result result = htable.increment(increment);
+                        resultList.add(result);
+                    } catch (IOException e) {
+                        lastException = e;
+                    }
+                }
+                if(lastException != null) {
+                    throw lastException;
+                }
+                return resultList;
+            }
+        });
+    }
+
     public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
         return execute(tableName, new TableCallback<Long>() {
             @Override

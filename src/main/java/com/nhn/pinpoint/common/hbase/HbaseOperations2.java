@@ -78,6 +78,15 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     Result increment(String tableName, final Increment increment);
 
+    /**
+     * increment list는 부분적으로 exception이 throw될수 있다. 이 경우 lastException이 사용에게 던져진다.
+     * 특정 increment에서 오류를 감지 해서 재시도 한다하는 로직의 경우 lastException던지는 문제 인해 어느게 실패 했는지 알수 없는 한계가 있다.
+     * @param tableName
+     * @param incrementList
+     * @return
+     */
+    List<Result> increment(String tableName, final List<Increment> incrementList);
+
     long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
 
     long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
