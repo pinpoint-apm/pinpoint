@@ -34,7 +34,7 @@ public abstract class AbstractQueueingDataSender implements Runnable {
     public AbstractQueueingDataSender(int queueSize, String senderName) {
         this.senderName = senderName;
         this.queue = new LinkedBlockingQueue<Object>(queueSize);
-        this.threadFactory = new PinpointThreadFactory(senderName);
+        this.threadFactory = new PinpointThreadFactory(senderName, true);
         this.ioThread = this.createIoThread();
     }
 
