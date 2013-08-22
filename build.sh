@@ -85,14 +85,14 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/dependency/slf4j-log4j12-1.6.6.jar $DEPLOY_DIR/lib
+cp ../pinpoint-profiler/target/dependency/slf4j-log4j12-1.7.5.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/dependency/slf4j-api-1.6.6.jar $DEPLOY_DIR/lib
+cp ../pinpoint-profiler/target/dependency/slf4j-api-1.7.5.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
