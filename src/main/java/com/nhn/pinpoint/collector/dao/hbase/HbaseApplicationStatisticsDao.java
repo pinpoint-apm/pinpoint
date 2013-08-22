@@ -103,7 +103,7 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (merge.size() != 0) {
             logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+            hbaseTemplate.increment(APPLICATION_STATISTICS, merge);
         }
-        hbaseTemplate.increment(APPLICATION_STATISTICS, merge);
 	}
 }

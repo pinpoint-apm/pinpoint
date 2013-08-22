@@ -107,8 +107,8 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (merge.size() != 0) {
             logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+            hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, merge);
         }
-        hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, merge);
 
     }
 }
