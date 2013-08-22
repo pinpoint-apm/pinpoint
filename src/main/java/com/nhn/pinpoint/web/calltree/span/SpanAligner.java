@@ -93,7 +93,7 @@ public class SpanAligner {
         try {
             for (SpanBo next : spans) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("{} {} next {}", new Object[]{getSpace(), depth, next});
+                    logger.debug("{} {} next {}", getSpace(), depth, next);
                 }
 
                 result.add(new SpanAlign(depth, next));
