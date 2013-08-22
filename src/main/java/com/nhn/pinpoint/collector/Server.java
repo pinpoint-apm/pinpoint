@@ -14,9 +14,10 @@ import org.springframework.core.io.ClassPathResource;
 
 public class Server {
 
-	private static final Logger logger = LoggerFactory.getLogger("Server");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public static void main(String[] args) {
+
+    public static void main(String[] args) {
 		new Server().start();
 	}
 
@@ -31,9 +32,8 @@ public class Server {
             context = createContext();
             CollectorConfiguration configuration = context.getBean("collectorConfiguration", CollectorConfiguration.class);
             DispatchHandler dispatchHandler = ApplicationContextUtils.getDispatchHandler(context);
-
             tcpServerStart(configuration, dispatchHandler);
-            udpServerStart(configuration, dispatchHandler);
+            udpServerStart(context);
             statServerStart(configuration);
         } catch (Exception ex) {
             logger.error("pinpoint collector start fail. Caused:{}", ex.getMessage(), ex);
@@ -49,22 +49,16 @@ public class Server {
 		statServer.start();
 	}
 	
-    private void udpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+    private void udpServerStart(GenericApplicationContext context) {
         logger.info("Starting UDPReceiver.");
         // 여기서 Exception이 날수 있음.
-        this.udpDataReceiver = crateUdpReceiver(configuration, dispatchHandler);
+        this.udpDataReceiver = context.getBean("udpReceiver", UDPReceiver.class);
         // 여기서 Exception이 날수 있음.
         this.udpDataReceiver.start();
 
         logger.info("Server started successfully.");
     }
 
-    private UDPReceiver crateUdpReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
-
-        // 옵션 설정.
-        UDPReceiver udpDataReceiver = new UDPReceiver(dispatchHandler, configuration);
-        return udpDataReceiver;
-    }
 
     private void tcpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
         logger.info("Starting TCPReceiver.");
@@ -89,12 +83,12 @@ public class Server {
             tcpReceiver.stop();
             logger.info("Shutdown TCPReceiver complete.");
         }
-
-		if (udpDataReceiver != null) {
-			logger.info("Shutdown UDPReceiver.");
-			udpDataReceiver.shutdown();
-			logger.info("Shutdown UDPReceiver complete.");
-		}
+//      context close하면 닫김.
+//		if (udpDataReceiver != null) {
+//			logger.info("Shutdown UDPReceiver.");
+//			udpDataReceiver.shutdown();
+//			logger.info("Shutdown UDPReceiver complete.");
+//		}
 		
 		if (statServer != null) {
 			logger.info("Sutdown StatServer.");

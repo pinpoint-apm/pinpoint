@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 public class DispatchHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Autowired()

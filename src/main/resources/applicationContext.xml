@@ -36,12 +36,12 @@
     <util:properties id="pinpoint-collector.properties" location="classpath:pinpoint-collector.properties" />
 
     <bean id="collectorConfiguration" class="com.nhn.pinpoint.collector.config.CollectorConfiguration">
-        <property name="properties" ref="pinpoint-collector.properties"></property>
+        <property name="properties" ref="pinpoint-collector.properties"/>
     </bean>
 
-    <import resource="classpath:applicationContext-hbase.xml"></import>
+    <import resource="classpath:applicationContext-hbase.xml"/>
 
-    <bean id="dispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"></bean>
+    <bean id="dispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"/>
 
 
     <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
@@ -52,8 +52,16 @@
     			<beans:ref bean="hbaseApplicationMapStatisticsCallerDao"/>
     		</beans:list>
     	</beans:property>
-        <property name="flushPeriod" value="${statistics.flushPeriod}"></property>
+        <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
 
+    <bean id="udpReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+    </bean>
+
+    <bean id="stateServer" class="com.nhn.pinpoint.collector.StatServer">
+        <constructor-arg>
+            <value type="int">${collectorStatListenPort}</value>
+        </constructor-arg>
+    </bean>
 
 </beans>

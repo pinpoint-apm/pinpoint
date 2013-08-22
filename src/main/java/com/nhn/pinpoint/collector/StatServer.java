@@ -2,16 +2,13 @@ package com.nhn.pinpoint.collector;
 
 import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.JvmAttributeGaugeSet;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
@@ -28,15 +25,15 @@ import com.codahale.metrics.servlets.MetricsServlet;
  */
 public class StatServer {
 
-	private static final Logger logger = LoggerFactory.getLogger("StatServer");
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger reporterLogger = LoggerFactory.getLogger("com.nhn.pinpoint.collector.StateReport");
 	
-	public static final String REGISTRY = "registry";
-	public static final MetricRegistry registry = SharedMetricRegistries.getOrCreate(REGISTRY);
+	private final MetricRegistry registry = new MetricRegistry();
+
+    private ScheduledReporter reporter;
 	
-	ConsoleReporter consoleReporter;
-	
-	Server server;
-	ServletContextHandler contextHandler;
+	private Server server;
+	private ServletContextHandler contextHandler;
 	
 	public StatServer(int port) {
 		initRegistry();
@@ -60,9 +57,14 @@ public class StatServer {
 		} catch (Exception e) {
 			logger.error("StatServer error : {}", e.toString());
 		}
+        shutdownReporter();
 	}
-	
-	void initRegistry() {
+
+    public MetricRegistry getRegistry() {
+        return registry;
+    }
+
+    void initRegistry() {
 		// add JVM statistics
 		registry.register("jvm.memory", new MemoryUsageGaugeSet());
 		registry.register("jvm.vm", new JvmAttributeGaugeSet());
@@ -83,10 +85,24 @@ public class StatServer {
 	}
 	
 	void initReporters() {
-		consoleReporter = ConsoleReporter.forRegistry(registry)
-			.convertRatesTo(TimeUnit.SECONDS)
-			.convertDurationsTo(TimeUnit.MILLISECONDS).build();
-		consoleReporter.start(60, TimeUnit.SECONDS); // print every 1 min.
+        Slf4jReporter.Builder builder = Slf4jReporter.forRegistry(registry);
+        builder.convertRatesTo(TimeUnit.SECONDS);
+        builder.convertDurationsTo(TimeUnit.MILLISECONDS);
+
+        builder.outputTo(reporterLogger);
+        reporter = builder.build();
+
+		reporter.start(60, TimeUnit.SECONDS); // print every 1 min.
+
 	}
+
+    private void shutdownReporter() {
+        if (reporter == null) {
+            return;
+        }
+        reporter.stop();
+    }
+
+
 	
 }

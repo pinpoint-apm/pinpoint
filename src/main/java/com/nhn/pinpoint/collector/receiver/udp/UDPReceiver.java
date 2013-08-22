@@ -17,7 +17,11 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.net.*;
@@ -25,42 +29,66 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class UDPReceiver implements DataReceiver {
+public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-    private final Timer timer = StatServer.registry.timer(UDPReceiver.class.getSimpleName() + "-timer");
-    private final Counter rejectedCounter = StatServer.registry.counter(UDPReceiver.class.getSimpleName() + "-rejected");
+
+    @Autowired
+    private StatServer statServer;
+
+    private Timer timer;
+    private Counter rejectedCounter;
 
     // ioThread 사이즈를 늘리거는 생각보다 효용이 별로임.
     private int ioThreadSize = CpuUtils.cpuCount();
-    private final ThreadPoolExecutor io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
+    private ThreadPoolExecutor io;
 
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
-    private final ThreadPoolExecutor worker;
+    private ThreadPoolExecutor worker;
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
-    private final FixedPool<DatagramPacket> datagramPacketPool;
+    private FixedPool<DatagramPacket> datagramPacketPool;
 
 
     private volatile DatagramSocket socket = null;
 
+    @Autowired
     private DispatchHandler dispatchHandler;
+    @Autowired
+    private CollectorConfiguration configuration;
 
     private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
 
-    public UDPReceiver(DispatchHandler dispatchHandler, CollectorConfiguration configuration) {
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpSocketReceiveBufferSize());
-        this.dispatchHandler = dispatchHandler;
+    public UDPReceiver() {
+    }
 
+    public UDPReceiver(DispatchHandler dispatchHandler, CollectorConfiguration configuration) {
+        this.dispatchHandler = dispatchHandler;
+        this.configuration = configuration;
+        try {
+            afterPropertiesSet();
+        } catch (Exception e) {
+            throw new RuntimeException("udpReceiver create fail. Caused:" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(dispatchHandler, "dispatchHandler must not be null");
+        Assert.notNull(configuration, "configuration must not be null");
+        Assert.notNull(statServer, "statServer must not be null");
+
+        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpSocketReceiveBufferSize());
         this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPacketPoolSize(configuration));
         this.worker = ExecutorFactory.newFixedThreadPool(configuration.getUdpWorkerThread(), configuration.getUdpWorkerQueueSize(), "Pinpoint-UDP-Worker", true);
+
+        this.timer = statServer.getRegistry().timer(UDPReceiver.class.getSimpleName() + "-timer");
+        this.rejectedCounter = statServer.getRegistry().counter(UDPReceiver.class.getSimpleName() + "-rejected");
+        this.io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
     }
 
 
@@ -184,6 +212,12 @@ public class UDPReceiver implements DataReceiver {
             Thread.currentThread().interrupt();
         }
     }
+
+    @Override
+    public void destroy() throws Exception {
+        shutdown();
+    }
+
 
     private class DispatchPacket implements Runnable {
         private final DatagramPacket packet;

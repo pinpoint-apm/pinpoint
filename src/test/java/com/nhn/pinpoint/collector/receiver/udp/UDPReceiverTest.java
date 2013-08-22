@@ -18,15 +18,12 @@ public class UDPReceiverTest {
 	public void startStop() {
 		try {
 			GenericApplicationContext context = ApplicationContextUtils.createContext();
-            DispatchHandler multiplexedPacketHandler = ApplicationContextUtils.getDispatchHandler(context);
 
-            // local에서 기본포트로 테스트 하면 포트 출돌로 에러남.
-            CollectorConfiguration config = new CollectorConfiguration();
-            config.setCollectorUdpListenPort(config.getCollectorUdpListenPort()+10);
-            config.setUdpWorkerThread(1);
-            config.setUdpWorkerQueueSize(1);
-			DataReceiver receiver = new UDPReceiver(multiplexedPacketHandler, config);
+			DataReceiver receiver = context.getBean("udpReceiver", UDPReceiver.class);
 			receiver.start();
+            // start시점을 좀더 정확히 알수 있어야 될거 같음.
+            // start한 다음에 바로 셧다운하니. receive thread에서 localaddress를 제대로 못찾는 문제가 있음.
+            Thread.sleep(1000);
 
 			receiver.shutdown();
 			context.close();
