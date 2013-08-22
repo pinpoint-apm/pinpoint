@@ -108,10 +108,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         if (merge.size() != 0) {
             logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
         }
-        for (Increment increment: merge) {
-            // increment는 비동기 연산이 아니라 그냥 루프 돌려야 됨.
-            hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, increment);
-        }
+        hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, merge);
 
     }
 }

@@ -1,20 +1,13 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_STATISTICS_CF_COUNTER;
-
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
-import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
-import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.FlushHandler;
-import com.nhn.pinpoint.collector.dao.hbase.StatisticsCache.Value;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -24,6 +17,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * appllication 통계
@@ -109,9 +104,6 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
         if (merge.size() != 0) {
             logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
         }
-        for (Increment increment: merge) {
-            // increment는 비동기 연산이 아니라 그냥 루프 돌려야 됨.
-            hbaseTemplate.increment(APPLICATION_STATISTICS, increment);
-        }
+        hbaseTemplate.increment(APPLICATION_STATISTICS, merge);
 	}
 }

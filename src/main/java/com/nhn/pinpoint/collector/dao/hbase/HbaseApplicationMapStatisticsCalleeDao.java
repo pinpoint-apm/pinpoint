@@ -2,7 +2,6 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
 
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
@@ -101,10 +100,8 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
         if (merge.size() != 0) {
             logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
         }
-        for (Increment increment: merge) {
-            // increment는 비동기 연산이 아니라 그냥 루프 돌려야 됨.
-            hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLEE, increment);
-        }
+
+        hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLEE, merge);
 
 	}
 }
