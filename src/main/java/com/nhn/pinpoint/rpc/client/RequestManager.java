@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RequestManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("RequestManager-Timer");
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("RequestManager-Timer", true);
 
     private final AtomicInteger requestId = new AtomicInteger(1);
 

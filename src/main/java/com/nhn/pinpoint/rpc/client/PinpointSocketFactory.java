@@ -51,7 +51,7 @@ public class PinpointSocketFactory {
     }
 
     private Timer createTimer() {
-        ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName() + "Timer");
+        ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName() + "Timer", true);
         HashedWheelTimer timer = new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS);
         timer.start();
         return timer;
