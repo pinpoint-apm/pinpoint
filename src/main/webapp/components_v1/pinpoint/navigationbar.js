@@ -31,7 +31,8 @@ var _PinpointNavigationBar = $.Class({
 		input.setSeconds(0);
 		
 		// 5분 단위로 조회
-		input.setMinutes(Math.floor(input.getMinutes() / 5 + 0.9) * 5);
+		// 일단 사용안함.
+		// input.setMinutes(Math.floor(input.getMinutes() / 5 + 0.9) * 5);
 		
 		return input.getTime();
 	},
