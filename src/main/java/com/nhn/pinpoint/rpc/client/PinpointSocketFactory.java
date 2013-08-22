@@ -199,7 +199,7 @@ public class PinpointSocketFactory {
                     } else {
                         future.getChannel().close();
                         if (!pinpointSocket.isClosed()) {
-                            logger.warn("reconnect fail. {} Caused:{}", new Object[]{socketAddress, future.getCause().getMessage(), future.getCause()});
+                            logger.warn("reconnect fail. {} Caused:{}", socketAddress, future.getCause().getMessage(), future.getCause());
                             reconnect(pinpointSocket, socketAddress);
                         }
                     }

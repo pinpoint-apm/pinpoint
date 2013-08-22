@@ -223,7 +223,7 @@ public class SocketHandler extends SimpleChannelHandler {
             if (currentState == State.RUN) {
                 state.setState(State.RECONNECT);
             }
-            logger.info("UnexpectedChannelClosed. reconnect channel:{}, {}, state:{}", new Object[] {e.getChannel(), socketAddress, state.getString()});
+            logger.info("UnexpectedChannelClosed. reconnect channel:{}, {}, state:{}", e.getChannel(), socketAddress, state.getString());
 
             this.pinpointSocketFactory.reconnect(this.pinpointSocket, this.socketAddress);
             return;
