@@ -116,6 +116,7 @@ public class TimeBaseStorage implements Storage {
                 synchronized (this) {
                     this.storage = null;
                 }
+                logger.debug("discard spanEvent");
                 dataSender.send(span);
 
             } else {
