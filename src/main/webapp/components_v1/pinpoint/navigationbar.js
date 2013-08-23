@@ -34,7 +34,8 @@ var _PinpointNavigationBar = $.Class({
 		// 일단 사용안함.
 		// input.setMinutes(Math.floor(input.getMinutes() / 5 + 0.9) * 5);
 		
-		return input.getTime();
+		// 0초~59초 사이에 저장된 값이 조회되도록 검색 종료 시간에 1분을 더한다.
+		return input.getTime() + 60000;
 	},
 	setQueryDateToNow : function() {
 	   	var date = new Date();
