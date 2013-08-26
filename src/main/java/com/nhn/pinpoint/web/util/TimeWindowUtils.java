@@ -8,8 +8,9 @@ package com.nhn.pinpoint.web.util;
 public class TimeWindowUtils {
 
 	private static final int ONE_MINUTE = 60000;
-	private static final int SIX_HOURS = 8640000;
-	private static final int ONE_DAY = 34560000;
+	private static final int ONE_HOUR = ONE_MINUTE * 60;
+	private static final int SIX_HOURS = ONE_HOUR * 6;
+	private static final int ONE_DAY = SIX_HOURS * 4;
 
 	/**
 	 * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
@@ -33,11 +34,13 @@ public class TimeWindowUtils {
 		long diff = to - from;
 		int size;
 
-		if (diff < SIX_HOURS) {
+		if (diff <= ONE_HOUR) {
+			size = ONE_MINUTE;
+		} else if (diff <= SIX_HOURS) {
 			size = ONE_MINUTE * 5;
-		} else if (diff < ONE_DAY) {
+		} else if (diff <= ONE_DAY) {
 			size = ONE_MINUTE * 10;
-		} else if (diff < ONE_DAY * 2) {
+		} else if (diff <= ONE_DAY * 2) {
 			size = ONE_MINUTE * 15;
 		} else {
 			size = ONE_MINUTE * 20;
