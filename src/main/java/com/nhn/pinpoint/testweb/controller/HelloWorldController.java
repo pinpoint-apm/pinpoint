@@ -1,13 +1,7 @@
 package com.nhn.pinpoint.testweb.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +40,7 @@ public class HelloWorldController implements DisposableBean {
 
 	public HelloWorldController() throws IOException {
 		arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
-		memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11211"));
+		memcached = new MemcachedClient(AddrUtil.getAddresses("10.25.149.80:11244,10.25.149.80:11211,10.25.149.79:11211"));
 		levelManager = new LevelManager();
 	}
 
@@ -84,26 +78,75 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/arcus")
 	public String arcus(Model model) {
-		Future<Boolean> future = null;
+		int rand = new Random().nextInt(100);
+		String key = "pinpoint:testkey-" + rand;
+
+		// set
+		Future<Boolean> setFuture = null;
 		try {
-			future = arcus.set("pinpoint:testkey", 10, "Hello, pinpoint.");
-			future.get(1000L, TimeUnit.MILLISECONDS);
+			setFuture = arcus.set(key, 10, "Hello, pinpoint." + rand);
+			setFuture.get(1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			if (future != null)
-				future.cancel(true);
+			if (setFuture != null)
+				setFuture.cancel(true);
 		}
+
+		// get
+		Future<Object> getFuture = null;
+		try {
+			getFuture = arcus.asyncGet(key);
+			getFuture.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (getFuture != null)
+				getFuture.cancel(true);
+		}
+
+		// del
+		Future<Boolean> delFuture = null;
+		try {
+			delFuture = arcus.delete(key);
+			delFuture.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (delFuture != null)
+				delFuture.cancel(true);
+		}
+
 		return "arcus";
 	}
 
 	@RequestMapping(value = "/memcached")
 	public String memcached(Model model) {
-		Future<Boolean> future = null;
+		int rand = new Random().nextInt(100);
+		String key = "pinpoint:testkey-" + rand;
+
+		// set
+		Future<Boolean> setFuture = null;
 		try {
-			future = memcached.set("pinpoint:testkey", 10, "Hello, pinpoint.");
-			future.get(1000L, TimeUnit.MILLISECONDS);
+			setFuture = memcached.set(key, 10, "Hello, pinpoint." + rand);
+			setFuture.get(1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			if (future != null)
-				future.cancel(true);
+			if (setFuture != null)
+				setFuture.cancel(true);
+		}
+
+		// get
+		Future<Object> getFuture = null;
+		try {
+			getFuture = memcached.asyncGet(key);
+			getFuture.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (getFuture != null)
+				getFuture.cancel(true);
+		}
+
+		// del
+		Future<Boolean> delFuture = null;
+		try {
+			delFuture = memcached.delete(key);
+			delFuture.get(1000L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (delFuture != null)
+				delFuture.cancel(true);
 		}
 		return "memcached";
 	}
@@ -150,21 +193,6 @@ public class HelloWorldController implements DisposableBean {
 		return "mysql";
 	}
 
-	@RequestMapping(value = "/mysqlsimple")
-	public String mysqlsimple(Model model) {
-		int id = (new Random()).nextInt();
-
-		Member member = new Member();
-		member.setId(id);
-		member.setName("chisu");
-		member.setJoined(new Date());
-
-		// add
-		service.add(member);
-
-		return "mysql";
-	}
-
 	@RequestMapping(value = "/remotecombination")
 	public String remotecombination(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
@@ -182,41 +210,6 @@ public class HelloWorldController implements DisposableBean {
 			client.executeToBloc("http://url3/", new HashMap<String, Object>());
 		} catch (Exception e) {
 		}
-		return "remotecombination";
-	}
-
-	@RequestMapping(value = "/remotecombination2")
-	public String remotecombination2(Model model) throws MalformedURLException {
-		URL url = new URL("http://localhost:8080/combination2.pinpoint");
-		HttpURLConnection request = null;
-		try {
-			request = (HttpURLConnection) url.openConnection();
-			request.setRequestMethod("GET");
-			request.setRequestProperty("Content-type", "text/xml; charset=UTF-8");
-			// request.connect();
-
-			InputStream is = request.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-			System.out.println(reader.readLine());
-
-			reader.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (request != null) {
-				request.disconnect();
-			}
-		}
-
-		return "remotecombination";
-	}
-
-	@RequestMapping(value = "/remotemysql")
-	public String remotemysql(Model model) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:8080/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -250,35 +243,6 @@ public class HelloWorldController implements DisposableBean {
 		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
 
 		npc(model);
-
-		return "combination";
-	}
-
-	@RequestMapping(value = "/combination2")
-	public String combination2(Model model) {
-		try {
-			mysql(model);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			arcus(model);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			memcached(model);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		randomSlowMethod();
-
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 
 		return "combination";
 	}
@@ -352,7 +316,7 @@ public class HelloWorldController implements DisposableBean {
 		}
 		return "npc";
 	}
-	
+
 	@RequestMapping(value = "/perftest")
 	public String perfTest(Model model) {
 		levelManager.traverse();
