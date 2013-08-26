@@ -11,8 +11,8 @@ var showApplicationStatisticsSummary = function(data) {
 		var chart = nv.models.discreteBarChart().x(function(d) {
 			return d.label;
 		}).y(function(d) {
-			return d.value;
-		}).staggerLabels(false).tooltips(false).showValues(true);
+					return d.value;
+				}).staggerLabels(false).tooltips(false).showValues(true);
 
 		chart.xAxis.tickFormat(function(d) {
 			if($.isNumeric(d)) {
@@ -20,17 +20,17 @@ var showApplicationStatisticsSummary = function(data) {
 			}
 			return d;
 		});
-		
+
 		chart.yAxis.tickFormat(function(d) {
 			return d;
 		});
-		
+
 		chart.valueFormat(function(d) {
 			return d;
 		});
-		
+
 		chart.color(myColors);
-		
+
 		d3.select('#linkInfoDetails .linkInfoBarChart svg')
 				.datum(data)
 				.transition()

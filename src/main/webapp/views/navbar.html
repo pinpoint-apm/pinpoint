@@ -1,0 +1,73 @@
+<div class="navbar bs-docs-nav">
+    <div class="nav-container">
+        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"></a>
+
+        <div class="nav-collapse collapse">
+            <form class="navbar-form pull-left">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <select class="application" ng-disabled="disableApplication">
+                            <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
+                        </select>
+                    </li>
+                    <li class="divider-vertical"></li>
+                    <li>
+                        <div class="btn-group">
+                            <label class="btn btn-primary btn-mini" ng-class="{active: period == 5}">
+                                <input type="radio" ng-click="periodClick(5)">Last 5m
+                            </label>
+                            <label class="btn btn-primary btn-mini" ng-class="{active: period == 20}">
+                                <input type="radio" ng-click="periodClick(20)">20m
+                            </label>
+                            <label class="btn btn-success btn-mini" ng-class="{active: period == 60}">
+                                <input type="radio" ng-click="periodClick(60)">1h
+                            </label>
+                            <label class="btn btn-success btn-mini" ng-class="{active: period == 180}">
+                                <input type="radio" ng-click="periodClick(180)">3h
+                            </label>
+                            <label class="btn btn-success btn-mini" ng-class="{active: period == 360}">
+                                <input type="radio" ng-click="periodClick(360)">6h
+                            </label>
+                            <label class="btn btn-success btn-mini" ng-class="{active: period == 740}">
+                                <input type="radio" ng-click="periodClick(740)">12h
+                            </label>
+                            <label class="btn btn-info btn-mini" ng-class="{active: period == 1440}">
+                                <input type="radio" ng-click="periodClick(1440)">1d
+                            </label>
+                            <label class="btn btn-info btn-mini" ng-class="{active: period == 2880}">
+                                <input type="radio" ng-click="periodClick(2880)">2d
+                            </label>
+                            <label class="btn btn-info btn-mini" ng-class="{active: period == 4320}">
+                                <input type="radio" ng-click="periodClick(4320)">3d
+                            </label>
+                        </div>
+                    </li>
+                    <li class="divider-vertical"></li>
+                    <li style="{{useAnchorDate && 'width:194px' || 'width:168px'}}">
+                        <div class="datetimepicker input-prepend date" ng-class="classAnchorDate">
+                          <span class="add-on pull-left">
+                            <label class="checkbox">
+                                <input type="checkbox" ng-model="useAnchorDate" ng-init="useAnchorDate = false">
+                            </label>
+                          </span>
+
+                            <div id="datetimepicker">
+                                <input data-format="yyyy.MM.dd hh:mm" type="text" ng-disabled="!useAnchorDate"></input>
+                                <span class="add-on" ng-show="useAnchorDate">
+                                  <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                                  </i>
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li style="margin-top:0;" ng-show="useAnchorDate" >
+                        <button class="btn" type="button" ng-click="broadcast()">Apply</button>
+                    </li>
+                    <li style="margin-top:0;" ng-show="!useAnchorDate" >
+                        <button class="btn" type="button" ng-click="now()">Now</button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>

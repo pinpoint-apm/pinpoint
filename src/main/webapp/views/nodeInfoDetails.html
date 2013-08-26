@@ -1,0 +1,52 @@
+<div class="nodeInfoDetails">
+	<div class='info' ng-switch="nodeCategory">
+
+		<div ng-switch-when="UNKNOWN_GROUP">
+			<ul>
+				<li ng-repeat="node in unknownGroup">
+					<img src="/images/icons/UNKNOWN_CLOUD.png" width="20" height="10" /> {{node.applicationName}}<br/>
+				</li>
+			</ul>
+		</div>
+
+		<div ng-switch-when="USER">
+			<img src="/images/icons/USER.png" width="20" height="10" /> USER
+		</div>
+
+		<div ng-switch-default>
+			<div ng-show="showHosts">
+				Hosts
+				<ul>
+					<li ng-repeat="host in hosts">
+						<span class="label label-success">OK</span>
+						{{host}}
+						<a href="http://nsight.nhncorp.com/dashboard_server/{{host.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
+						<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-if="category == 'ARCUS'">(Hubble)</a>
+					</li>
+				</ul>
+			</div>
+
+			<div ng-show="showAgents">
+				Server instances
+				<ul>
+					<li ng-repeat="agent in agents">
+						<span class="label label-success">OK</span>
+						{{agent.agentId}}
+						<!--
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
+						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
+						-->
+					</li>
+				</ul>
+			</div>
+
+		</div>
+
+	</div>
+
+    <div class='infoBarChart' ng-show="showNodeInfoBarChart">
+        Response histogram summary
+        <svg style='height:150px;' />
+    </div>
+
+</div>

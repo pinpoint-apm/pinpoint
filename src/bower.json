@@ -1,0 +1,29 @@
+{
+  "name": "pinpoint",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "~1.0.7",
+    "json3": "~3.2.4",
+    "jquery": "~1.9.1",
+    "es5-shim": "~2.0.8",
+    "angular-resource": "~1.0.7",
+    "angular-cookies": "~1.0.7",
+    "select2": "~3.4.1",
+    "underscore": "~1.5.1",
+    "angular-bootstrap": "~0.5.0",
+    "angular-bootstrap-datetimepicker": "~0.1.2",
+    "moment": "*",
+    "bootstrap-datetimepicker": "~0.0.11",
+    "modernizr": "~2.6.2",
+    "jquery-ui": "~1.10.3",
+    "datejs": "*",
+    "nvd3": "~1.0.0-beta",
+    "d3": "~3.3.1"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.0.7",
+    "angular-scenario": "~1.0.7"
+  },
+  "appPath": "main/webapp",
+  "testPath": "test/webapp"
+}

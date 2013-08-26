@@ -1,0 +1,58 @@
+<div class="linkInfoDetails">
+	<div class='info' ng-switch="linkCategory">
+
+		<div ng-switch-when="UnknownLinkInfoBox">
+			<div ng-repeat="target in targetinfo">
+				<img ng-src="/images/icons/{{sourceinfo[0].serviceType}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
+				<i class="icon-arrow-right"></i>
+				<img ng-src="/images/icons/{{target.serviceType}}.png" width="20" height="10" /> {{target.applicationName}}
+				<a href="#" onclick="SERVERMAP_METHOD_CACHE['{{target.applicationName}}']();" title="show details" style="text-decoration:none;">
+					<i class="icon-search"></i>
+				</a>
+				<ul>
+					<li>request count : {{rawdata[target.applicationName].count}} /
+						<span ng-style="rawdata[target.applicationName].error && 'color:#FF0000'">{{rawdata[target.applicationName].error}}</span>
+					</li>
+				</ul>
+
+			</div>
+		</div>
+
+		<div ng-switch-when="LinkInfoBox">
+			<img ng-src="/images/icons/{{sourceinfo.serviceType}}.png" width="20" height="10" /> {{sourceinfo.applicationName}}
+			<i class="icon-arrow-right"></i>
+			<img ng-src="/images/icons/{{targetinfo.serviceType}}.png" width="20" height="10" /> {{targetinfo.applicationName}}
+			<!--
+			<br/>
+			Total requests : ???<br/>
+			Failed : {{= error}}<br/>
+			Response statistics
+			<ul>
+				{{var lastKey=''}}
+				{{each(key, value) histogram}}
+				<li>&lt;= {{= key}}ms : {{= value}}</li>
+				{{eval lastKey=key}}
+				{{/each}}
+				<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
+			</ul>
+			-->
+			<br/>
+			<a href="#" onclick="filterPassingTransaction('{{sourceinfo.applicationName}}', '{{query.serviceType}}', {{query.from}}, {{query.to}}, '{{sourceinfo.serviceType}}', '{{sourceinfo.applicationName}}', '{{targetinfo.serviceType}}', '{{targetinfo.applicationName}}', null);">Passing transaction map</a><br/>
+
+			<a ng-if="sourceinfo.serviceType == 'CLIENT'" href="#" ng-click="showRequests('{{targetinfo.applicationName}}', {{query.from}}, {{query.to}}, {{query.period}}, {{query.usePeriod}}, '{{sourceinfo.serviceType}}|{{targetinfo.applicationName}}|{{targetinfo.serviceType}}|{{targetinfo.applicationName}}');">Passing transaction list</a>
+			<a ng-if="sourceinfo.serviceType != 'CLIENT'" href="#" ng-click="showRequests('{{sourceinfo.applicationName}}', {{query.from}}, {{query.to}}, {{query.period}}, {{query.usePeriod}}, '{{sourceinfo.serviceType}}|{{sourceinfo.applicationName}}|{{targetinfo.serviceType}}|{{targetinfo.applicationName}}');">Passing transaction list</a>
+
+		</div>
+
+	</div>
+
+	<div class='infoChart' ng-show="showLinkInfoChart">
+		Response histogram
+		<svg style='height:200px' />
+	</div>
+
+	<div class='infoBarChart' ng-show="showLinkInfoBarChart">
+		Response histogram summary
+		<svg style='height:150px' />
+	</div>
+</div>

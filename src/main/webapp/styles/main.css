@@ -1,0 +1,136 @@
+@font-face{font-family:ng;src:url(../fonts/nanumgothic.eot);src:local('※'),url(../fonts/nanumgothic.woff) format('woff')}
+@font-face{font-family:nm;src:url(../fonts/nanummyeongjo.eot);src:local('※'),url(../fonts/nanummyeongjo.woff) format('woff')}
+@font-face{font-family:tjp;src:url(../fonts/trajanpro.eot);src:local('※'),url(../fonts/trajanpro.woff) format('woff')}
+@font-face{font-family:avn55;src:url(../fonts/avenir55.eot);src:local('※'),url(../fonts/avenir55.woff) format('woff')}
+@font-face{font-family:avn85;src:url(../fonts/avenir85.eot);src:local('※'),url(../fonts/avenir85.woff) format('woff')}
+
+html, body {
+  height: 100%;
+}
+body,input,textarea,select,button,table{font-family:'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,avn55,sans-serif}
+canvas {outline:none}
+
+#wrapper {
+    padding: 40px 0 0 0; 
+    position:absolute; 
+    top:0; 
+    bottom:0; 
+    left:0; 
+    right:0;
+}
+
+.navbar {  
+  position: absolute;
+  margin: -40px 0 0 0;
+  height: 40px;
+  background-color: #252a3a;
+  width: 100%;
+  border-radius: 0;
+}
+.navbar .brand {
+  margin-left: 20px;     
+}
+.navbar .nav>li {
+  margin-top: 5px;  
+}
+.navbar .divider-vertical {
+  min-height: 1px;
+  margin: 0 9px;
+  border: 0;
+}
+.navbar-form {
+  margin-bottom: 0; 
+}
+.navbar-form .datetimepicker {
+  margin: 0;
+}
+.navbar-form .datetimepicker input[type="text"]{
+  width: 120px;
+}
+.navbar-form .datetimepicker .checkbox input[type="checkbox"]{
+  float: none;
+}
+.navbar-form .datetimepicker .icon-calendar {
+  margin-top: 3px;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
+
+.navbar .btn-group > .btn > input[type="radio"] {
+  display: none;
+}
+
+.main-container {
+  width: 100%;  
+  height: 100%;
+  position: relative;
+}
+
+.main {
+  margin-right: 430px;
+  height: 100%;
+}
+.main.fullsize {
+  margin-right: 12px;
+}
+
+/* sidebar */
+.sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-left: 12px;
+  width: 410px;
+  height: 100%;
+}
+.sidebar.smallsize {
+  width: 0;
+}
+
+.divider {
+  position: absolute;
+  top: 45%;
+  left: 0;
+}
+
+.onoff-ico {
+  display: inline-block;
+  width: 12px;
+  height: 54px;
+  background-repeat: no-repeat;
+  background-image: url('../images/onoff.png');
+  vertical-align: middle;
+}
+
+
+/* divider */
+.divider-open {
+  background-position: 0 0;  
+}
+.onoff-ico.divider-open:hover,
+.onoff-ico.divider-open:focus {
+  background-position: 0 -56px;
+}
+
+.divider-closed {
+  background-position: -12px 0;  
+}
+.onoff-ico.divider-closed:hover,
+.onoff-ico.divider-closed:focus {
+  background-position: -12px -56px;
+}
+
+/* info-details */
+.info-details {
+	border-top: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	position: absolute;
+	top: 250px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: auto;
+	padding: 5px;
+}
