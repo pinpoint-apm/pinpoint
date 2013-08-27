@@ -1,7 +1,10 @@
 'use strict';
 
-pinpointApp.constant('servermapConfig', {
+pinpointApp.constant('config', {
     applicationUrl: '/applications.pinpoint',
+    filtermapUrl: '/filtermap.pinpoint',
+    lastTransactionListUrl: '/lastTransactionList.pinpoint',
+    transactionListUrl: '/transactionList.pinpoint',
     options: {
         "sContainerId": 'servermap',
         "sImageDir": '/images/icons/',
@@ -55,18 +58,20 @@ pinpointApp.constant('servermapConfig', {
     }
 });
 
-pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$templateCache', '$compile', '$timeout', function (servermapConfig, $rootScope, $templateCache, $compile, $timeout) {
+pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '$compile', '$timeout', function (config, $rootScope, $templateCache, $compile, $timeout) {
     return {
         restrict: 'EA',
         replace: true,
         templateUrl: 'views/servermap.html',
-        link: function postLink(scope, element, attrs) {
+        link: function postLink(scope, element, attrs, ctrl) {
             var serverMapCachedQuery, serverMapCachedData;
             var oServerMap = null;
             var FILTER_DELIMETER = "^";
             var FILTER_ENTRY_DELIMETER = "|";
             var SERVERMAP_METHOD_CACHE = {};
             var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
+
+            console.log('controller', ctrl);
 
             /**
              * loading
@@ -172,8 +177,67 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
 //				});
 //			};
 
+            var reset = function () {
+                scope.linkContextMenuStyle = '';
+                scope.$digest();
+            };
+            var setLinkContextMenuPostition = function (top, left) {
+                scope.linkContextMenuStyle = {
+                    display: 'block'
+                };
+                var linkContextMenu = element.find('.linkContextMenu');
+                linkContextMenu.css({
+                    'top': top,
+                    'left' : left
+                });
+                scope.$digest();
+            };
+
+            scope.passingTransactionMap = function () {
+                var applicationName = scope.navbar.applicationName,
+                    serviceType = scope.navbar.serviceType,
+                    begin = scope.navbar.queryStartTime,
+                    end = scope.navbar.queryEndTime,
+                    srcServiceType = scope.srcServiceType,
+                    srcApplicationName = scope.srcApplicationName,
+                    destServiceType = scope.destServiceType,
+                    destApplicationName = scope.destApplicationName,
+                    prevFilter = scope.filter;
+
+                if (srcServiceType === "CLIENT") {
+                    applicationName = srcApplicationName = destApplicationName;
+                }
+//                TOMCAT|books.api.dev|ORACLE|XDEV01
+//?application=books.api.dev&serviceType=1010&from=1377193800484&to=1377238200484&filter=CLIENT|books.api.dev|TOMCAT|books.api.dev
+                var params = {
+                    "application" : applicationName,
+                    "serviceType" : serviceType,
+                    "from" : begin,
+                    "to" : end,
+                    "filter" : ((prevFilter) ? prevFilter + FILTER_DELIMETER : "")
+                        + srcServiceType + FILTER_ENTRY_DELIMETER
+                        + srcApplicationName + FILTER_ENTRY_DELIMETER
+                        + destServiceType + FILTER_ENTRY_DELIMETER
+                        + destApplicationName
+                }
+                window.open(config.filtermapUrl + "?" + decodeURIComponent($.param(params)), "");
+            };
+            scope.passingTransactionList = function () {
+                var applicationName = scope.navbar.applicationName,
+                    from = scope.navbar.queryStartTime,
+                    to = scope.navbar.queryEndTime,
+                    period = scope.navbar.queryPeriod,
+                    usePeriod = scope.usePeriod,
+                    filter = scope.filter;
+                if (usePeriod) {
+                    window.open(config.lastTransactionListUrl + "?application=" + applicationName + "&period=" + period + ((filter) ? "&filter=" + filter : ""));
+                } else {
+                    window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ((filter) ? "&filter=" + filter : ""));
+                }
+            };
+
             var serverMapCallback = function (query, data, ignoreCache) {
-                var containerId = servermapConfig.options.sContainerId;
+                var containerId = config.options.sContainerId;
 
                 serverMapCachedQuery = angular.copy(query);
                 serverMapCachedData = angular.copy(data);
@@ -196,26 +260,31 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
                 replaceClientToUser(data);
                 setLoading(90);
 
-                var options = servermapConfig.options;
+                var options = config.options;
                 options.fOnNodeContextClick = function (e, d) {
-                    // nodeContextClickHandler(e, query, d, "#" + containerId);
-                    console.log("servermap.nodeContextClicked", e, query, d, "#" + containerId);
-                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, d, "#" + containerId);
+                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, d);
+                    reset();
                 };
                 options.fOnLinkContextClick = function (e, d) {
-                    // linkContextClickHandler(e, query, d, "#" + containerId);
-                    console.log("servermap.linkContextClicked", e, query, d, "#" + containerId);
-                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, d, "#" + containerId);
+                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, d);
+                    reset();
+                    setLinkContextMenuPostition(e.layerY, e.layerX);
+                    scope.srcServiceType = d.sourceinfo.serviceType;
+                    scope.srcApplicationName = d.sourceinfo.applicationName;
+                    scope.destServiceType = d.targetinfo.serviceType;
+                    scope.destApplicationName = d.targetinfo.applicationName;
                 };
                 options.fOnLinkClick = function (e, d) {
-//						linkClickHandler(e, query, d, data, "#" + containerId);
-                    console.log("servermap.linkClicked", e, query, d, "#" + containerId);
-                    $rootScope.$broadcast("servermap.linkClicked", e, query, d, "#" + containerId);
+                    $rootScope.$broadcast("servermap.linkClicked", e, query, d);
+                    reset();
                 };
                 options.fOnNodeClick = function (e, d) {
-//						nodeClickHandler(e, query, d, data, "#" + containerId);
-                    console.log("servermap.nodeClicked", e, query, d, "#" + containerId);
-                    $rootScope.$broadcast("servermap.nodeClicked", e, query, d, "#" + containerId);
+                    $rootScope.$broadcast("servermap.nodeClicked", e, query, d);
+                    reset();
+                };
+                options.fOnBackgroundClick = function (e, d) {
+                    $rootScope.$broadcast("servermap.backgroundClicked", e, query, d);
+                    reset();
                 };
 
                 setLoading(100);
@@ -238,7 +307,6 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
                 } catch (e) {
                     console.log(e);
                 }
-                ;
             };
 
             // TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
@@ -267,7 +335,7 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
                     }
 
                     links.forEach(function (link) {
-                        if (link.to == node.key) {
+                        if (link.to === node.key) {
                             inboundCountMap[node.key].sourceCount++;
                             inboundCountMap[node.key].totalCallCount += link.text;
                         }
@@ -281,7 +349,7 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
                 var removeLinkIdSet = {};
 
                 nodes.forEach(function (node, nodeIndex) {
-                    if (node.category == "UNKNOWN_CLOUD") {
+                    if (node.category === "UNKNOWN_CLOUD") {
                         return;
                     }
 
@@ -450,6 +518,7 @@ pinpointApp.directive('servermap', [ 'servermapConfig', '$rootScope', '$template
 
             scope.$on('navbar.applicationChanged', function (event, data) {
                 console.log('got navbar.applicationChanged from servermap : ', data);
+                scope.navbar = data;
                 showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, '', false);
             });
 

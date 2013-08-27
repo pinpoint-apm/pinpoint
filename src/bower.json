@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "~1.0.7",
-    "json3": "~3.2.4",
     "jquery": "~1.9.1",
     "es5-shim": "~2.0.8",
     "angular-resource": "~1.0.7",
@@ -18,7 +17,8 @@
     "jquery-ui": "~1.10.3",
     "datejs": "*",
     "nvd3": "~1.0.0-beta",
-    "d3": "~3.3.1"
+    "d3": "~3.3.1",
+    "json3": "~3.2.5"
   },
   "devDependencies": {
     "angular-mocks": "~1.0.7",

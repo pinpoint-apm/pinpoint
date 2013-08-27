@@ -3,4 +3,10 @@
 	</div>
 	<div ng-include=" 'warning' "></div>
 	<div ng-include=" 'loading' "></div>
+
+    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:3">
+        <li><a tabindex="-1" ng-click="passingTransactionMap()">Passing transaction map</a></li>
+        <li class="divider"></li>
+        <li><a tabindex="-1" ng-click="passingTransactionList()">Passing transaction list</a></li>
+    </ul>
 </div>

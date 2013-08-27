@@ -84,6 +84,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                             serviceType: splitedApp[1],
                             period: scope.period,
                             queryPeriod: getQueryPeriod(),
+                            queryStartTime: getQueryEndTime() - getQueryPeriod(),
                             queryEndTime: getQueryEndTime()
                         },
                         url = '/main/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();

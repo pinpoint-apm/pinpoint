@@ -162,7 +162,9 @@ pinpointApp
                     reset();
                     showDetailInformation(query, data);
                 });
-
+                scope.$on('servermap.linkContextClicked', function(event, e, query, data, containerId){
+//                    alert('linkContextClicked');
+                });
 
             }
         };
