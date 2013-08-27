@@ -36,6 +36,11 @@ public class SocketHandler extends SimpleChannelHandler {
 
 
     public SocketHandler() {
+        logger.debug("create SocketHandler");
+    }
+
+    public void setPinpointSocket(PinpointSocket pinpointSocket) {
+        this.pinpointSocket = pinpointSocket;
     }
 
     public void setPinpointSocketFactory(PinpointSocketFactory pinpointSocketFactory) {
@@ -57,6 +62,7 @@ public class SocketHandler extends SimpleChannelHandler {
     }
 
     public void open() {
+        logger.info("change state=open");
         if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
@@ -280,9 +286,7 @@ public class SocketHandler extends SimpleChannelHandler {
     }
 
 
-    public void setPinpointSocket(PinpointSocket pinpointSocket) {
-        this.pinpointSocket = pinpointSocket;
-    }
+
 
 
 }

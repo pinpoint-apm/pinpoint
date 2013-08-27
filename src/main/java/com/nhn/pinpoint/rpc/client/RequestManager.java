@@ -9,6 +9,7 @@ import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RequestManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("RequestManager-Timer", true);
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-RequestManager-Timer", true);
 
     private final AtomicInteger requestId = new AtomicInteger(1);
 
@@ -41,7 +42,7 @@ public class RequestManager {
     }
 
     public RequestManager(long timeoutTickDuration) {
-        timer = new HashedWheelTimer(THREAD_FACTORY, timeoutTickDuration, TimeUnit.MILLISECONDS);
+        timer = new HashedWheelTimer(THREAD_FACTORY, ThreadNameDeterminer.CURRENT, timeoutTickDuration, TimeUnit.MILLISECONDS, 512);
         // 구지 start를 안함. 어차피 newTimeout호출하면 start체크하니. reqeust response있을때 자동으로 시작될거라 그게 더 나은듯.
     }
 
