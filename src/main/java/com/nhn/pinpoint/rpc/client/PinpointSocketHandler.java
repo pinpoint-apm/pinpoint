@@ -125,7 +125,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             public void operationComplete(ChannelFuture channelfuture) throws Exception {
                 boolean success = channelfuture.isSuccess();
                 if(success) {
-                    future.setResult(Boolean.TRUE);
+                    future.setResult(null);
+                } else {
+                    future.setFailure(channelfuture.getCause());
                 }
             }
         });
@@ -243,7 +245,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
-        logger.warn("exceptionCaught() UnexpectedError happened. Caused:{}", cause.getMessage(), cause);
+        logger.warn("exceptionCaught() UnexpectedError happened. state:{} Caused:{}", state.getString(), cause.getMessage(), cause);
         // error가 발생하였을 경우의 동작을 더 정확히 해야 될듯함.
 //          아래처럼 하면 상대방이 그냥 죽었을때 reconnet가 안됨.
 //        state.setClosed();
@@ -261,6 +263,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("channelClosed() state:{} {}", state.getString(currentState), ctx.getChannel());
             return;
         }
+        // 여기서 부터 비정상 closed라고 볼수 있다.
         releaseResource();
         if (currentState == State.RUN || currentState == State.RECONNECT) {
             if (currentState == State.RUN) {
