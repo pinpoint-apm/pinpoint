@@ -5,6 +5,7 @@ import com.nhn.pinpoint.profiler.context.Thriftable;
 import com.nhn.pinpoint.profiler.io.SafeHeaderTBaseSerializer;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
@@ -21,10 +22,11 @@ public class TcpDataSender implements DataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     private final PinpointSocketFactory pinpointSocketFactory;
     private PinpointSocket socket;
     private final int connectRetryCount = 3;
-    private final WriteFailFutureListener writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.");
+    private final WriteFailFutureListener writeFailFutureListener;
 
 
     private final SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
@@ -33,6 +35,7 @@ public class TcpDataSender implements DataSender {
 
     public TcpDataSender(String host, int port) {
         pinpointSocketFactory = new PinpointSocketFactory();
+        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
         connect(host, port);
 
         this.executor = getExecutor();
@@ -101,8 +104,8 @@ public class TcpDataSender implements DataSender {
 
         // 일단 send로 함. 추가로 request and response로 교체나 추가 api로 교체하고 재전송 로직을 어느정도 확보할것
         try {
-            ChannelFuture ioWriteCheck = (ChannelFuture) this.socket.sendAsync(copy);
-            ioWriteCheck.addListener(writeFailFutureListener);
+            Future ioWriteCheck = this.socket.sendAsync(copy);
+            ioWriteCheck.setListener(writeFailFutureListener);
         } catch (Exception e) {
             // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
