@@ -72,8 +72,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
         // profiler, collector,
-        ExecutorService boss = Executors.newFixedThreadPool(bossCount);
-        ExecutorService worker = Executors.newFixedThreadPool(workerCount);
+        ExecutorService boss = Executors.newCachedThreadPool();
+        ExecutorService worker = Executors.newCachedThreadPool();
         NioServerSocketChannelFactory nioClientSocketChannelFactory = new NioServerSocketChannelFactory(boss, worker);
         return new ServerBootstrap(nioClientSocketChannelFactory);
     }
