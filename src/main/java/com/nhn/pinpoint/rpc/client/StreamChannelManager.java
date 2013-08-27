@@ -52,7 +52,7 @@ public class StreamChannelManager {
     }
 
     public void close() {
-
+        logger.debug("close()");
         final ConcurrentMap<Integer, StreamChannel> channelMap = this.channelMap;
 
         for (Map.Entry<Integer, StreamChannel> entry : channelMap.entrySet()) {

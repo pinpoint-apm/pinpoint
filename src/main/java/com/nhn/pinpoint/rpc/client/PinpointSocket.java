@@ -29,26 +29,27 @@ public class PinpointSocket {
     }
 
     public PinpointSocket() {
+        this.socketHandler = new ReconnectStateSocketHandler();
     }
 
 
-    void replaceSocketHandler(SocketHandler socketHandler) {
+    void reconnectSocketHandler(SocketHandler socketHandler) {
         if (closed) {
-            logger.warn("already closed");
+            logger.warn("reconnectSocketHandler(). socketHandler force close.");
             socketHandler.close();
             return;
         }
-        logger.info("replaceSocketHandler:{}", socketHandler);
+        logger.warn("reconnectSocketHandler:{}", socketHandler);
         this.socketHandler = socketHandler;
     }
 
-    public boolean sendSync(byte[] bytes) {
+    public void sendSync(byte[] bytes) {
         ensureOpen();
-        return socketHandler.sendSync(bytes);
+        socketHandler.sendSync(bytes);
     }
 
 
-    public ChannelFuture sendAsync(byte[] bytes) {
+    public Future sendAsync(byte[] bytes) {
         ensureOpen();
         return socketHandler.sendAsync(bytes);
     }
@@ -87,11 +88,11 @@ public class PinpointSocket {
     }
 
     void sendPing() {
-        SocketHandler handler = this.socketHandler;
-        if (handler == null) {
+        SocketHandler socketHandler = this.socketHandler;
+        if (socketHandler == null) {
             return;
         }
-        handler.sendPing();
+        socketHandler.sendPing();
     }
 
     public void close() {
@@ -102,9 +103,10 @@ public class PinpointSocket {
             closed = true;
         }
         SocketHandler socketHandler = this.socketHandler;
-        if (socketHandler != null) {
-            socketHandler.close();
+        if (socketHandler == null) {
+            return;
         }
+        socketHandler.close();
     }
 
     public boolean isClosed() {

@@ -54,7 +54,9 @@ public class PinpointSocketFactory {
         ClientBootstrap bootstrap = createBootStrap(bossCount, workerCount, timer);
         setOptions(bootstrap);
         addPipeline(bootstrap);
+
         this.bootstrap = bootstrap;
+        this.timer = timer;
     }
 
     private Timer createTimer() {
@@ -65,7 +67,7 @@ public class PinpointSocketFactory {
     }
 
     private void addPipeline(ClientBootstrap bootstrap) {
-        SocketClientPipelineFactory socketClientPipelineFactory = new SocketClientPipelineFactory();
+        SocketClientPipelineFactory socketClientPipelineFactory = new SocketClientPipelineFactory(this);
         bootstrap.setPipelineFactory(socketClientPipelineFactory);
     }
 
@@ -96,7 +98,6 @@ public class PinpointSocketFactory {
     }
 
     public void setReconnectDelay(long reconnectDelay) {
-
         this.reconnectDelay = reconnectDelay;
     }
 
@@ -134,11 +135,9 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
-        SocketAddress address = new InetSocketAddress(host, port);
-
         PinpointSocket pinpointSocket = new PinpointSocket();
+        SocketAddress address = new InetSocketAddress(host, port);
         reconnect(pinpointSocket, address);
-
         return pinpointSocket;
     }
 
@@ -147,42 +146,29 @@ public class PinpointSocketFactory {
         if (address == null) {
             throw new NullPointerException("address");
         }
-        return connectSocketHandler0(address);
-    }
 
-    public SocketHandler connectSocketHandler0(SocketAddress address) {
         ChannelFuture connectFuture = bootstrap.connect(address);
+        SocketHandler socketHandler = getSocketHandler(connectFuture.getChannel());
+        socketHandler.setConnectSocketAddress(address);
 
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
             throw new PinpointSocketException("connect fail.", connectFuture.getCause());
         }
-        Channel channel = connectFuture.getChannel();
-        SocketHandler socketHandler = getSocketHandler(channel);
-        socketHandler.setPinpointSocketFactory(this);
-        socketHandler.setSocketAddress(address);
         socketHandler.open();
         return socketHandler;
     }
 
 
     private SocketHandler getSocketHandler(Channel channel) {
-        return (SocketHandler) channel.getAttachment();
-    }
-
-    ChannelFuture connectAsync(SocketAddress address) {
-        return bootstrap.connect(address);
+        return (SocketHandler) channel.getPipeline().getLast();
     }
 
     void reconnect(final PinpointSocket pinpointSocket, final SocketAddress socketAddress) {
         ConnectEvent connectEvent = new ConnectEvent(pinpointSocket, socketAddress);
-        reconnect(connectEvent);
-        return;
-    }
-
-    private void reconnect(ConnectEvent connectEvent) {
         timer.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
     }
+
 
     private class ConnectEvent implements TimerTask {
 
@@ -204,14 +190,22 @@ public class PinpointSocketFactory {
 
         @Override
         public void run(Timeout timeout) {
+            if (timeout.isCancelled()) {
+                return;
+            }
+            // 이벤트는 fire됬지만 close됬을 경우 reconnect를 시도 하지 않음.
+            if (pinpointSocket.isClosed()) {
+                logger.debug("pinpointSocket is already closed.");
+                return;
+            }
 
-            logger.warn("try reconnect {}", socketAddress);
-            final ChannelFuture channelFuture = connectAsync(socketAddress);
+            logger.warn("try reconnect. connectAddress:{}", socketAddress);
+            final ChannelFuture channelFuture = bootstrap.connect(socketAddress);
             Channel channel = channelFuture.getChannel();
             final SocketHandler socketHandler = getSocketHandler(channel);
-            socketHandler.setPinpointSocketFactory(PinpointSocketFactory.this);
-            socketHandler.setSocketAddress(socketAddress);
+            socketHandler.setConnectSocketAddress(socketAddress);
             socketHandler.setPinpointSocket(pinpointSocket);
+
             channelFuture.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
@@ -219,14 +213,16 @@ public class PinpointSocketFactory {
                         Channel channel = future.getChannel();
                         logger.warn("reconnect success {}, {}", socketAddress, channel);
                         socketHandler.open();
-                        pinpointSocket.replaceSocketHandler(socketHandler);
+                        pinpointSocket.reconnectSocketHandler(socketHandler);
                     } else {
                         if (!pinpointSocket.isClosed()) {
-                            Throwable cause = future.getCause();
-                            logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage(), cause);
+                            if (logger.isWarnEnabled()) {
+                                Throwable cause = future.getCause();
+                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage(), cause);
+                            }
                             reconnect(pinpointSocket, socketAddress);
                         } else {
-                            logger.info("pinpointSocket is closed");
+                            logger.info("pinpointSocket is closed. stop reconnect.");
                         }
                     }
                 }

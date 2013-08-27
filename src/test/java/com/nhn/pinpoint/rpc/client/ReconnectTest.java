@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.rpc.client;
 
 import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.TestByteUtils;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
@@ -96,13 +97,66 @@ public class ReconnectTest {
             }
             pinpointSocketFactory.release();
         }
-
     }
 
+    @Test
+    public void scheduledConnectAndClosed() throws IOException, InterruptedException {
+        final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(100);
+        PinpointSocket socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
+
+        logger.debug("close");
+        socket.close();
+        Thread.sleep(500);
+    }
+
+    @Test
+    public void scheduledConnectDelayAndClosed() throws IOException, InterruptedException {
+        final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(200);
+        PinpointSocket socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
+
+        Thread.sleep(2000);
+        logger.debug("close");
+        socket.close();
+        Thread.sleep(1000);
+    }
+
+    @Test
+    public void scheduledConnectStateTest() {
+        final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(200);
+        PinpointSocket socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
 
 
+        socket.send(new byte[10]);
 
 
+        try {
+            Future future = socket.sendAsync(new byte[10]);
+            future.await();
+            future.getResult();
+            Assert.fail();
+        } catch (PinpointSocketException e) {
+        }
+
+        try {
+            socket.sendSync(new byte[10]);
+            Assert.fail();
+        } catch (PinpointSocketException e) {
+        }
+
+        try {
+            Future<ResponseMessage> request = socket.request(new byte[10]);
+            request.await();
+            request.getResult();
+            Assert.fail();
+        } catch (PinpointSocketException e) {
+        }
+
+        socket.close();
+
+    }
 
 
 

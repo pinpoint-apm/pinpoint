@@ -21,7 +21,8 @@ public class RequestManagerTest {
 
     @Test
     public void testRegisterRequest() throws Exception {
-        RequestManager requestManager = new RequestManager(10);
+        HashedWheelTimer timer = getTimer();
+        RequestManager requestManager = new RequestManager(timer);
         try {
             RequestPacket packet = new RequestPacket(new byte[0]);
             Future future = requestManager.register(packet, 50);
@@ -33,12 +34,14 @@ public class RequestManagerTest {
             logger.debug(future.getCause().getMessage());
         } finally {
             requestManager.close();
+            timer.stop();
         }
     }
 
     @Test
     public void testRemoveMessageFuture() throws Exception {
-        RequestManager requestManager = new RequestManager(10);
+        HashedWheelTimer timer = getTimer();
+        RequestManager requestManager = new RequestManager(timer);
         try {
             RequestPacket packet = new RequestPacket(1, new byte[0]);
             DefaultFuture future = requestManager.register(packet, 2000);
@@ -51,11 +54,16 @@ public class RequestManagerTest {
 
         } finally {
             requestManager.close();
+            timer.stop();
         }
 
     }
 
-//    @Test
+    private HashedWheelTimer getTimer() {
+        return new HashedWheelTimer(10, TimeUnit.MICROSECONDS);
+    }
+
+    //    @Test
     public void testTimerStartTiming() throws InterruptedException {
         HashedWheelTimer timer = new HashedWheelTimer(1000, TimeUnit.MILLISECONDS);
         timer.start();

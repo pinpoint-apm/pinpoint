@@ -43,6 +43,9 @@ public class PacketDecoder extends FrameDecoder {
             case PacketType.CONTROL_CLOSE:
                 return readControlClose(packetType, buffer);
             case PacketType.CONTROL_PING:
+                // ping에 대한 응답으로 pong은 자동으로 응답한다.
+                logger.debug("receive ping. send pong. {}", channel);
+                channel.write(PongPacket.PONG_PACKET);
                 return readPing(packetType, buffer);
             case PacketType.CONTROL_PONG:
                 return readPong(packetType, buffer);
