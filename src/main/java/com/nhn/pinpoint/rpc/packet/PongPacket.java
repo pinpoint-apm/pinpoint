@@ -32,7 +32,7 @@ public class PongPacket extends BasicPacket {
     }
 
     public static PongPacket readBuffer(short packetType, ChannelBuffer buffer) {
-        assert packetType == PacketType.CONTROL_PING;
+        assert packetType == PacketType.CONTROL_PONG;
 
 
         return PONG_PACKET;
