@@ -76,10 +76,11 @@ public class ReconnectTest {
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setReconnectDelay(2000);
         PinpointSocket socket = null;
+        PinpointServerSocket serverSocket = null;
         try {
             socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
 
-            PinpointServerSocket serverSocket = new PinpointServerSocket();
+            serverSocket = new PinpointServerSocket();
             serverSocket.setMessageListener(new TestSeverMessageListener());
             serverSocket.bind("localhost", 10234);
 
@@ -96,6 +97,9 @@ public class ReconnectTest {
                 socket.close();
             }
             pinpointSocketFactory.release();
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
         }
     }
 
@@ -158,6 +162,70 @@ public class ReconnectTest {
 
     }
 
+    @Test
+    public void serverFirstClose() throws IOException, InterruptedException {
+        // 서버가 먼저 닫힌 상황에서 비정상적인 상황에서 client socket이 잘 닫히는지 테스트
+
+        PinpointServerSocket ss = new PinpointServerSocket();
+        ss.bind("127.0.0.1", 10234);
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(200);
+        pinpointSocketFactory.setTimeoutMillis(500);
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+
+            byte[] randomByte = TestByteUtils.createRandomByte(10);
+            Future<ResponseMessage> response = socket.request(randomByte);
+            response.await();
+            try {
+                response.getResult();
+            } catch (Exception e) {
+                logger.debug("timeout.", e);
+            }
+            //  강제로 서버를 close함.
+            ss.close();
+            Thread.sleep(1000*2);
+
+            socket.close();
+        } finally {
+            pinpointSocketFactory.release();
+        }
+
+    }
+
+    @Test
+    public void serverCloseAndWrite() throws IOException, InterruptedException {
+        // 서버가 먼저 닫힌 상황에서 비정상적인 상황에서 client socket이 잘 닫히는지 테스트
+
+        PinpointServerSocket ss = new PinpointServerSocket();
+        ss.bind("127.0.0.1", 10234);
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setReconnectDelay(200);
+        pinpointSocketFactory.setTimeoutMillis(500);
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+
+            byte[] randomByte = TestByteUtils.createRandomByte(10);
+            // 서버를 그냥 닫고 request
+            ss.close();
+            Future<ResponseMessage> response = socket.request(randomByte);
+            response.await();
+            try {
+                response.getResult();
+                Assert.fail("expected exception");
+            } catch (Exception e) {
+                logger.debug("write fail. Caused:{}", e.getMessage(), e);
+            }
+
+
+            Thread.sleep(1000*3);
+
+            socket.close();
+        } finally {
+            pinpointSocketFactory.release();
+        }
+
+    }
 
 
 }

@@ -1,8 +1,11 @@
 package com.nhn.pinpoint.rpc.codec;
 
+import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 public class PacketDecoder extends FrameDecoder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.");
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
@@ -39,22 +43,30 @@ public class PacketDecoder extends FrameDecoder {
                 return readStreamCreateFail(packetType, buffer);
             case PacketType.APPLICATION_STREAM_RESPONSE:
                 return readStreamResponse(packetType, buffer);
-
             case PacketType.CONTROL_CLOSE:
                 return readControlClose(packetType, buffer);
             case PacketType.CONTROL_PING:
-                // ping에 대한 응답으로 pong은 자동으로 응답한다.
-                logger.debug("receive ping. send pong. {}", channel);
-                channel.write(PongPacket.PONG_PACKET);
-                return readPing(packetType, buffer);
+                readPing(packetType, buffer);
+                sendPong(channel);
+                // 그냥 ping은 버리자.
+                return null;
             case PacketType.CONTROL_PONG:
-                return readPong(packetType, buffer);
+                logger.debug("receive pong. {}", channel);
+                readPong(packetType, buffer);
+                // pong 도 그냥 버리자.
+                return null;
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
         return null;
     }
 
+    private void sendPong(Channel channel) {
+        // ping에 대한 응답으로 pong은 자동으로 응답한다.
+        logger.debug("receive ping. send pong. {}", channel);
+        ChannelFuture write = channel.write(PongPacket.PONG_PACKET);
+        write.addListener(pongWriteFutureListener);
+    }
 
 
     private Object readControlClose(short packetType, ChannelBuffer buffer) {

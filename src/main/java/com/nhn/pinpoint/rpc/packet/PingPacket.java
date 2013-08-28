@@ -36,4 +36,10 @@ public class PingPacket extends BasicPacket {
 
         return PING_PACKET;
     }
+
+    @Override
+    public String toString() {
+        return "PingPacket";
+    }
+
 }

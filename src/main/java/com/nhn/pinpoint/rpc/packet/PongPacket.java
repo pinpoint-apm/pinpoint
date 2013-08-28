@@ -37,4 +37,10 @@ public class PongPacket extends BasicPacket {
 
         return PONG_PACKET;
     }
+
+    @Override
+    public String toString() {
+        return "PongPacket";
+    }
+
 }

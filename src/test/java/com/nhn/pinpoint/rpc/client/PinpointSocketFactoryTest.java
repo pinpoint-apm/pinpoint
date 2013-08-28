@@ -52,20 +52,62 @@ public class PinpointSocketFactoryTest {
     }
 
     @Test
-    public void ping() throws IOException, InterruptedException {
+    public void pingInternal() throws IOException, InterruptedException {
         PinpointServerSocket ss = new PinpointServerSocket();
         ss.bind("127.0.0.1", 10234);
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setPingDelay(100);
+
         try {
             PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             socket.close();
         } finally {
             pinpointSocketFactory.release();
             ss.close();
         }
 
+    }
+
+    @Test
+    public void ping() throws IOException, InterruptedException {
+        PinpointServerSocket ss = new PinpointServerSocket();
+        ss.bind("127.0.0.1", 10234);
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setPingDelay(100);
+
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+            socket.sendPing();
+            socket.close();
+        } finally {
+            pinpointSocketFactory.release();
+            ss.close();
+        }
+
+    }
+
+    @Test
+    public void pingAndRequestResponse() throws IOException, InterruptedException {
+        PinpointServerSocket ss = new PinpointServerSocket();
+        ss.setMessageListener(new RequestResponseServerMessageListener());
+        ss.bind("127.0.0.1", 10234);
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setPingDelay(100);
+
+        try {
+            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+            byte[] randomByte = TestByteUtils.createRandomByte(10);
+            Future<ResponseMessage> response = socket.request(randomByte);
+            Thread.sleep(1000);
+            response.await();
+            ResponseMessage result = response.getResult();
+            Assert.assertArrayEquals(randomByte, result.getMessage());
+            socket.close();
+        } finally {
+            pinpointSocketFactory.release();
+            ss.close();
+        }
     }
 
     @Test

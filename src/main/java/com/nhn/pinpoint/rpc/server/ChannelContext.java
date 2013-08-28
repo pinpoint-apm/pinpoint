@@ -17,7 +17,7 @@ public class ChannelContext {
 
     public ChannelContext(Channel channel) {
         if (channel == null) {
-            throw new NullPointerException("channel");
+            throw new NullPointerException("channel must not be null");
         }
         this.channel = channel;
         this.socketChannel = new SocketChannel(channel);

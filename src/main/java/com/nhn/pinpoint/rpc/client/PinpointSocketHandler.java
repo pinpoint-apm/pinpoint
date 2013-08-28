@@ -1,15 +1,10 @@
 package com.nhn.pinpoint.rpc.client;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.DefaultFuture;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.*;
 import com.nhn.pinpoint.rpc.packet.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +22,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private volatile Channel channel;
 
-    private long timeoutMillis = 3000;
+    private long timeoutMillis = 3 * 1000;
+    private long pingDelay = 60 * 1000;
 
-    private final Timer timer;
+    private final Timer channelTimer;
 
     private final PinpointSocketFactory pinpointSocketFactory;
     private SocketAddress connectSocketAddress;
@@ -39,22 +35,25 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final StreamChannelManager streamChannelManager;
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.");
+    private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send write fail.");
 
 
-    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long timeoutMillis) {
         if (pinpointSocketFactory == null) {
             throw new NullPointerException("pinpointSocketFactory must not be null");
         }
         HashedWheelTimer timer = new HashedWheelTimer(new PinpointThreadFactory("Pinpoint-SocketHandler-Timer", true), ThreadNameDeterminer.CURRENT, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
-        this.timer = timer;
+        this.channelTimer = timer;
         this.pinpointSocketFactory = pinpointSocketFactory;
         this.requestManager = new RequestManager(timer);
         this.streamChannelManager = new StreamChannelManager();
+        this.pingDelay = pingDelay;
+        this.timeoutMillis = timeoutMillis;
     }
 
-    public Timer getTimer() {
-        return timer;
+    public Timer getChannelTimer() {
+        return channelTimer;
     }
 
     public void setPinpointSocket(PinpointSocket pinpointSocket) {
@@ -77,14 +76,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         Channel channel = e.getChannel();
         if (logger.isDebugEnabled()) {
-            logger.debug("channelOpen() {}", channel);
+            logger.debug("channelOpen() state:{} {}", state.getString(), channel);
         }
         this.channel = channel;
 
     }
 
     public void open() {
-        logger.info("change state=run");
+        logger.info("open() change state=run");
         if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
@@ -94,11 +93,28 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("channelConnected() {}", channel);
+            logger.debug("channelConnected() state:{} {}", state.getString(), channel);
         }
+        registerPing();
     }
 
-    public void sendPing() {
+    private void registerPing() {
+        this.channelTimer.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (timeout.isCancelled()) {
+                    return;
+                }
+                if (isClosed()) {
+                    return;
+                }
+                sendPingInternal();
+                registerPing();
+            }
+        }, pingDelay, TimeUnit.MILLISECONDS);
+    }
+
+    public void sendPingInternal() {
         if (!this.state.isRun()) {
             return;
         }
@@ -107,30 +123,38 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.addListener(pingWriteFailFutureListener);
     }
 
+    public void sendPing() {
+        if (!this.state.isRun()) {
+            return;
+        }
+        logger.debug("sendPing {}", channel);
+        ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
+        write.awaitUninterruptibly();
+        if (!write.isSuccess()) {
+            Throwable cause = write.getCause();
+            throw new PinpointSocketException("send ping fail. Caused:" + cause.getMessage(), cause);
+        }
+        logger.debug("sendPing success {}", channel);
+    }
+
+
+
     public void send(byte[] bytes) {
         if (bytes == null) {
             throw new NullPointerException("bytes");
         }
-        send0(bytes);
+        ChannelFuture future = send0(bytes);
+        future.addListener(sendWriteFailFutureListener);
     }
 
     public Future sendAsync(byte[] bytes) {
         if (bytes == null) {
             throw new NullPointerException("bytes");
         }
-        final DefaultFuture future = new DefaultFuture(timeoutMillis);
+
         ChannelFuture channelFuture = send0(bytes);
-        channelFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelfuture) throws Exception {
-                boolean success = channelfuture.isSuccess();
-                if(success) {
-                    future.setResult(null);
-                } else {
-                    future.setFailure(channelfuture.getCause());
-                }
-            }
-        });
+        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(timeoutMillis);
+        channelFuture.addListener(future);
         return future ;
     }
 
@@ -144,7 +168,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private void await(ChannelFuture channelFuture) {
         try {
-            channelFuture.await(3000, TimeUnit.MILLISECONDS);
+            channelFuture.await(timeoutMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -162,7 +186,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 // 3초에도 io가 안끝나면 일단 timeout인가?
                 throw new PinpointSocketException("io timeout");
             } else {
-                channelFuture.isSuccess();
+                // 성공했으니. 위와 로직이 동일할듯.
+                boolean success = channelFuture.isSuccess();
+                if (success) {
+                    return;
+                } else {
+                    final Throwable cause = channelFuture.getCause();
+                    throw new PinpointSocketException(cause);
+                }
             }
         }
     }
@@ -189,19 +220,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         RequestPacket request = new RequestPacket(bytes);
 
         final Channel channel = this.channel;
-        final DefaultFuture<ResponseMessage> messageFuture = this.requestManager.register(request, this.timeoutMillis);
+        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request, this.timeoutMillis);
 
         ChannelFuture write = channel.write(request);
-        write.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (!future.isSuccess()) {
-                    Throwable cause = future.getCause();
-                    // io write fail
-                    messageFuture.setFailure(cause);
-                }
-            }
-        });
+        write.addListener(messageFuture);
 
         return messageFuture;
     }
@@ -269,7 +291,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             if (currentState == State.RUN) {
                 state.setState(State.RECONNECT);
             }
-            logger.info("UnexpectedChannelClosed. try reconnect channel:{}, {}, state:{}", e.getChannel(), connectSocketAddress, state.getString());
+            logger.info("channelClosed() UnexpectedChannelClosed. state:{} try reconnect channel:{}, connectSocketAddress:{}", state.getString(), e.getChannel(), connectSocketAddress);
 
             this.pinpointSocketFactory.reconnect(this.pinpointSocket, this.connectSocketAddress);
             return;
@@ -290,7 +312,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         } else if(currentState == State.RECONNECT) {
             throw new PinpointSocketException("reconnecting...");
         }
-        logger.info("invalid socket state:" + currentState);
+        logger.info("invalid socket state:{}", state.getString(currentState));
         throw new PinpointSocketException("invalid socket state:" + currentState);
     }
 
@@ -312,7 +334,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         logger.debug("close() start");
         if (!this.state.changeClosed(currentState)) {
-            logger.debug("close() invalid state");
+            logger.info("close() invalid state");
             return;
         }
         logger.debug("close() state change complete");
@@ -330,14 +352,29 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         logger.debug("releaseResource()");
         this.requestManager.close();
         this.streamChannelManager.close();
-        this.timer.stop();
+        this.channelTimer.stop();
     }
 
     private void sendClosedPacket(Channel channel) {
+        if (!channel.isConnected()) {
+            logger.debug("channel already closed. skip sendClosedPacket() {}", channel);
+            return;
+        }
         ClosePacket closePacket = new ClosePacket();
         ChannelFuture write = channel.write(closePacket);
-        // write패킷이 io에 써질때까지는 대기를 해야 함.
-        write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
+        write.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {
+                    logger.warn("ClosePacket write fail. channel:{}", future.getCause(), future.getCause());
+                } else {
+                    logger.debug("ClosePacket write success. channel:{}", future.getChannel());
+                }
+            }
+        });
+        // write패킷이 io에 써질때까지는 대기를 해야 하나? 하지 않아도 될거 같음. 어차피 close도 quque에 넣고 요청하는거라.
+        // 만약 이상이 있다면 내가 뭔가 잘못한거임.
+//        write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
     }
 
 

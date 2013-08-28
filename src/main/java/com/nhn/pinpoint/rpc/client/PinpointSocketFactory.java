@@ -4,9 +4,7 @@ package com.nhn.pinpoint.rpc.client;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioClientBossPool;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
@@ -35,10 +33,11 @@ public class PinpointSocketFactory {
     private volatile boolean released;
     private ClientBootstrap bootstrap;
 
-    private long reconnectDelay = 3000;
+    private long reconnectDelay = 3 * 1000;
     private Timer timer;
-    // ping은 5분 주기
-    private long pingDelay = 1000*60*5;
+    // ping은 1분 주기
+    private long pingDelay = 60 * 1000;
+    private long timeoutMillis = 3 * 1000;
 
 
     public PinpointSocketFactory() {
@@ -86,6 +85,9 @@ public class PinpointSocketFactory {
     }
 
     public void setConnectTimeout(int connectTimeout) {
+        if (connectTimeout < 0) {
+            throw new IllegalArgumentException("connectTimeout cannot be a negative number");
+        }
         bootstrap.setOption(CONNECT_TIMEOUT_MILLIS, connectTimeout);
     }
 
@@ -98,6 +100,9 @@ public class PinpointSocketFactory {
     }
 
     public void setReconnectDelay(long reconnectDelay) {
+        if (reconnectDelay < 0) {
+            throw new IllegalArgumentException("reconnectDelay cannot be a negative number");
+        }
         this.reconnectDelay = reconnectDelay;
     }
 
@@ -106,7 +111,21 @@ public class PinpointSocketFactory {
     }
 
     public void setPingDelay(long pingDelay) {
+        if (pingDelay < 0) {
+            throw new IllegalArgumentException("pingDelay cannot be a negative number");
+        }
         this.pingDelay = pingDelay;
+    }
+
+    public long getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
+    public void setTimeoutMillis(long timeoutMillis) {
+        if (timeoutMillis < 0) {
+            throw new IllegalArgumentException("timeoutMillis cannot be a negative number");
+        }
+        this.timeoutMillis = timeoutMillis;
     }
 
     private ClientBootstrap createBootStrap(int bossCount, int workerCount, Timer timer) {
@@ -131,7 +150,13 @@ public class PinpointSocketFactory {
         SocketHandler socketHandler = connectSocketHandler(address);
 
         PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        traceSocket(pinpointSocket);
         return pinpointSocket;
+    }
+
+    private void traceSocket(PinpointSocket pinpointSocket) {
+        // socket을 닫지 않고 clsoe했을 경우의 추적 로직이 필요함
+        // 예외 케이스 이므로 나중에 만들어도 될듯.
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
@@ -228,22 +253,6 @@ public class PinpointSocketFactory {
                 }
             });
         }
-    }
-
-    void registerPing(final PinpointSocket socket) {
-        if (socket.isClosed()) {
-            return;
-        }
-        TimerTask pingTask = new TimerTask() {
-            @Override
-            public void run(Timeout timeout) throws Exception {
-                if (socket.isClosed()) {
-                    return;
-                }
-                socket.sendPing();
-            }
-        };
-        timer.newTimeout(pingTask, pingDelay, TimeUnit.MILLISECONDS);
     }
 
 

@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class SimpleLoggingSeverMessageListener implements ServerMessageListener {
+public class SimpleLoggingServerMessageListener implements ServerMessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final SimpleLoggingSeverMessageListener LISTENER = new SimpleLoggingSeverMessageListener();
+    public static final SimpleLoggingServerMessageListener LISTENER = new SimpleLoggingServerMessageListener();
 
     @Override
     public void handleSend(SendPacket sendPacket, SocketChannel channel) {

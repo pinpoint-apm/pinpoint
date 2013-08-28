@@ -29,7 +29,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private Channel serverChannel;
 
-    private ServerMessageListener messageListener = SimpleLoggingSeverMessageListener.LISTENER;
+    private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
@@ -45,14 +45,14 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
         if (channelPipelineFactory == null) {
-            throw new NullPointerException("channelPipelineFactory");
+            throw new NullPointerException("channelPipelineFactory must not be null");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 
     public void setMessageListener(ServerMessageListener messageListener) {
         if (messageListener == null) {
-            throw new NullPointerException("messageListener");
+            throw new NullPointerException("messageListener must not be null");
         }
         this.messageListener = messageListener;
     }
@@ -66,6 +66,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         // buffer
         bootstrap.setOption("child.sendBufferSize", 1024 * 64);
         bootstrap.setOption("child.receiveBufferSize", 1024 * 64);
+
+//        bootstrap.setOption("child.soLinger", 0);
+
 
     }
 
@@ -118,11 +121,11 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void closeChannel(Channel channel) {
-        logger.debug("received closePacket {}", channel);
+        logger.debug("received ClosePacket {}", channel);
         ChannelContext channelContext = getChannelContext(channel);
         channelContext.closePacketReceived();
-
-        channel.close();
+//      상대방이 닫는거에 반응해서 socket을 닫도록 하자.
+//        channel.close();
     }
 
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
@@ -176,12 +179,17 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         final ChannelContext channelContext = getChannelContext(channel);
-        if (!channelContext.isClosePacketReceived()) {
-            logger.warn("Unexpected Client channelClosed {}", channel);
-        } else {
+        if (channelContext.isClosePacketReceived()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("server channelClosed {}", channel);
+                logger.debug("client channelClosed. ClosePacket already received. {}", channel);
             }
+        } else if(released) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("client channelClosed. server shutdown. {}", channel);
+            }
+        } else {
+            logger.warn("Unexpected Client channelClosed {}", channel);
+
         }
         channelContext.closeAllStreamChannel();
     }

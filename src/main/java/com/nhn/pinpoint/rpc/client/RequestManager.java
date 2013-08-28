@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.DefaultFuture;
-import com.nhn.pinpoint.rpc.FailureEventHandler;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.*;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import org.jboss.netty.channel.Channel;
@@ -100,12 +97,12 @@ public class RequestManager {
 
 
 
-    public DefaultFuture<ResponseMessage> register(RequestPacket requestPacket, long timeoutMillis) {
+    public ChannelWriteFailListenableFuture<ResponseMessage> register(RequestPacket requestPacket, long timeoutMillis) {
         // shutdown check
         final int requestId = getNextRequestId();
         requestPacket.setRequestId(requestId);
 
-        final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>(timeoutMillis);
+        final ChannelWriteFailListenableFuture<ResponseMessage> future = new ChannelWriteFailListenableFuture<ResponseMessage>(timeoutMillis);
 
         final DefaultFuture old = this.requestMap.put(requestId, future);
         if (old != null) {

@@ -34,6 +34,9 @@ public class PinpointSocket {
 
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
+        if (socketHandler == null) {
+            throw new NullPointerException("socketHandler must not be null");
+        }
         if (closed) {
             logger.warn("reconnectSocketHandler(). socketHandler force close.");
             socketHandler.close();
@@ -87,7 +90,11 @@ public class PinpointSocket {
         }
     }
 
-    void sendPing() {
+    /**
+     * ping packet을 tcp 채널에 write한다.
+     * write 실패시 PinpointSocketException이 throw 된다.
+     */
+    public void sendPing() {
         SocketHandler socketHandler = this.socketHandler;
         if (socketHandler == null) {
             return;
