@@ -15,7 +15,7 @@
 
 		<div ng-switch-default>
 			<div ng-show="showHosts">
-				Hosts
+				<h5>Hosts</h5>
 				<ul>
 					<li ng-repeat="host in hosts">
 						<span class="label label-success">OK</span>
@@ -27,7 +27,7 @@
 			</div>
 
 			<div ng-show="showAgents">
-				Server instances
+				<h5>Server instances</h5>
 				<ul>
 					<li ng-repeat="agent in agents">
 						<span class="label label-success">OK</span>
@@ -45,7 +45,7 @@
 	</div>
 
     <div class='infoBarChart' ng-show="showNodeInfoBarChart">
-        Response histogram summary
+        <h5>Response histogram summary</h5>
         <svg style='height:150px;' />
     </div>
 

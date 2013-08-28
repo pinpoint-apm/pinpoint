@@ -134,7 +134,7 @@ pinpointApp
 
                         return chart;
                     });
-                }
+                };
 
                 var showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType, destApplicationName) {
                     var params = {
@@ -153,7 +153,7 @@ pinpointApp
                         renderStatisticsTimeseriesHistogram(result.timeseriesHistogram);
                         renderStatisticsSummary(result.histogramSummary);
                     });
-                }
+                };
 
                 scope.$on('servermap.nodeClicked', function (event, e, query, data, containerId) {
                     reset();
@@ -162,7 +162,7 @@ pinpointApp
                     reset();
                     showDetailInformation(query, data);
                 });
-                scope.$on('servermap.linkContextClicked', function(event, e, query, data, containerId){
+                scope.$on('servermap.linkContextClicked', function (event, e, query, data, containerId){
 //                    alert('linkContextClicked');
                 });
 

@@ -223,16 +223,22 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 window.open(config.filtermapUrl + "?" + decodeURIComponent($.param(params)), "");
             };
             scope.passingTransactionList = function () {
-                var applicationName = scope.navbar.applicationName,
+                var applicationName = scope.srcApplicationName,
                     from = scope.navbar.queryStartTime,
                     to = scope.navbar.queryEndTime,
                     period = scope.navbar.queryPeriod,
                     usePeriod = scope.usePeriod,
-                    filter = scope.filter;
+                    filter = scope.srcServiceType + '|' + scope.srcApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
+
+                if (scope.srcServiceType === 'CLIENT') {
+                    applicationName =   scope.destServiceType;
+                    filter = scope.srcServiceType + '|' + scope.destApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
+                }
+
                 if (usePeriod) {
-                    window.open(config.lastTransactionListUrl + "?application=" + applicationName + "&period=" + period + ((filter) ? "&filter=" + filter : ""));
+                    window.open(config.lastTransactionListUrl + "?application=" + applicationName + "&period=" + period + ( filter ? "&filter=" + filter : "") );
                 } else {
-                    window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ((filter) ? "&filter=" + filter : ""));
+                    window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ( filter ? "&filter=" + filter : "") );
                 }
             };
 
@@ -282,8 +288,8 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     $rootScope.$broadcast("servermap.nodeClicked", e, query, d);
                     reset();
                 };
-                options.fOnBackgroundClick = function (e, d) {
-                    $rootScope.$broadcast("servermap.backgroundClicked", e, query, d);
+                options.fOnBackgroundClick = function (e) {
+                    $rootScope.$broadcast("servermap.backgroundClicked", e, query);
                     reset();
                 };
 
