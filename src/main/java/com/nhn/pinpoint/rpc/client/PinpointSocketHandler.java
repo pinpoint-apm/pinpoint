@@ -340,11 +340,13 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         logger.debug("close() state change complete");
         // hand shake close
         final Channel channel = this.channel;
+        // close packet을 먼저 날리고 resource를 정리해야 되나?
+        // resource 정리시 request response 메시지에 대한 에러 처리나, stream 채널의 정리가 필요하니 반대로 해야 되나??  이게 맞는거 같긴한데. timer가 헤깔리네.
+        // 헤깔리니. 일단 만들고 추후 수정.
         sendClosedPacket(channel);
-
         releaseResource();
 
-        channel.close();
+        channel.close().awaitUninterruptibly();
         logger.debug("close() complete");
     }
 
@@ -360,6 +362,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("channel already closed. skip sendClosedPacket() {}", channel);
             return;
         }
+       logger.debug("write ClosePacket");
         ClosePacket closePacket = new ClosePacket();
         ChannelFuture write = channel.write(closePacket);
         write.addListener(new ChannelFutureListener() {
@@ -372,9 +375,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 }
             }
         });
-        // write패킷이 io에 써질때까지는 대기를 해야 하나? 하지 않아도 될거 같음. 어차피 close도 quque에 넣고 요청하는거라.
-        // 만약 이상이 있다면 내가 뭔가 잘못한거임.
-//        write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
+        write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
     }
 
 

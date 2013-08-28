@@ -214,7 +214,6 @@ public class ReconnectTest {
                 response.getResult();
                 Assert.fail("expected exception");
             } catch (Exception e) {
-                logger.debug("write fail. Caused:{}", e.getMessage(), e);
             }
 
 

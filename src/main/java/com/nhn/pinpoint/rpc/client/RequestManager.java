@@ -130,11 +130,16 @@ public class RequestManager {
 //                future.setFailure(closed);
 //            }
 //        }
-
+        int requestFailCount = 0;
         for (Map.Entry<Integer, DefaultFuture<ResponseMessage>> entry : requestMap.entrySet()) {
-            entry.getValue().setFailure(closed);
+            if(entry.getValue().setFailure(closed)) {
+                requestFailCount++;
+            }
         }
         this.requestMap.clear();
+        if (requestFailCount > 0) {
+            logger.info("requestManager failCount:{}", requestFailCount);
+        }
 
     }
 

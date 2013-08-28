@@ -181,7 +181,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         final ChannelContext channelContext = getChannelContext(channel);
         if (channelContext.isClosePacketReceived()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("client channelClosed. ClosePacket already received. {}", channel);
+                logger.debug("client channelClosed. normal closed. {}", channel);
             }
         } else if(released) {
             if (logger.isDebugEnabled()) {

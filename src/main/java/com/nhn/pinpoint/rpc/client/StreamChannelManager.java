@@ -55,11 +55,16 @@ public class StreamChannelManager {
         logger.debug("close()");
         final ConcurrentMap<Integer, StreamChannel> channelMap = this.channelMap;
 
+        int forceCloseChannel = 0;
         for (Map.Entry<Integer, StreamChannel> entry : channelMap.entrySet()) {
-           entry.getValue().closeInternal();
-
+           if(entry.getValue().closeInternal()) {
+               forceCloseChannel++;
+           }
         }
         channelMap.clear();
+        if(forceCloseChannel > 0) {
+            logger.info("streamChannelManager forceCloseChannel {}", forceCloseChannel);
+        }
     }
 
 
