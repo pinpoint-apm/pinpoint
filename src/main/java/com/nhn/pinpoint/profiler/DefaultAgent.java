@@ -247,8 +247,8 @@ public class DefaultAgent implements Agent {
     }
 
     private DataSender createTcpDataSender() {
-//        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
-        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
+        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
+//        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
     }
 
     private DataSender createDataSender() {
