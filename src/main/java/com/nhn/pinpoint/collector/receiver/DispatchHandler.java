@@ -28,6 +28,10 @@ public class DispatchHandler {
     private SimpleHandler agentInfoHandler;
 
     @Autowired()
+    @Qualifier("agentStatHandler")
+    private SimpleHandler agentStatHandler;
+    
+    @Autowired()
     @Qualifier("spanEventHandler")
     private SimpleHandler spanEventHandler;
 
@@ -90,6 +94,9 @@ public class DispatchHandler {
         }
         if (tBase instanceof AgentInfo) {
             return agentInfoHandler;
+        }
+        if (tBase instanceof AgentStat) {
+            return agentStatHandler;
         }
         if (tBase instanceof SpanEvent) {
             return spanEventHandler;

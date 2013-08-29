@@ -2,17 +2,24 @@ package com.nhn.pinpoint.collector;
 
 import java.util.concurrent.TimeUnit;
 
-import com.codahale.metrics.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.codahale.metrics.JvmAttributeGaugeSet;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.ScheduledReporter;
+import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.codahale.metrics.servlets.MetricsServlet;
+import com.nhn.pinpoint.collector.monitor.AgentStatStore;
+import com.nhn.pinpoint.collector.monitor.servlet.AgentStatServlet;
 
 /**
  * 통계 정보를 제공하는 HTTP 서버.
@@ -23,26 +30,38 @@ import com.codahale.metrics.servlets.MetricsServlet;
  * @author harebox
  * 
  */
-public class StatServer {
+public class StatServer implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Logger reporterLogger = LoggerFactory.getLogger("com.nhn.pinpoint.collector.StateReport");
 	
-	private final MetricRegistry registry = new MetricRegistry();
-
+    @Autowired
+    private MetricsServlet metricsServlet;
+    
+    @Autowired
+    private AgentStatServlet agentStatServlet;
+    
+    @Autowired
+    private MetricRegistry metricRegistry;
+    
+    @Autowired
+    private AgentStatStore agentStatStore;
+    
     private ScheduledReporter reporter;
 	
 	private Server server;
 	private ServletContextHandler contextHandler;
+	private int port = 9996;
 	
-	public StatServer(int port) {
+	public void afterPropertiesSet() throws Exception {
 		initRegistry();
-		initServlets(port);
 		initReporters();
 	}
 	
 	public void start() {
 		try {
+			initServlets(port);
+			
 			server.start();
 			logger.info("StatServer started");
 			server.join();
@@ -61,31 +80,39 @@ public class StatServer {
 	}
 
     public MetricRegistry getRegistry() {
-        return registry;
+        return metricRegistry;
+    }
+    
+    public AgentStatStore getStore() {
+    	return agentStatStore;
     }
 
     void initRegistry() {
 		// add JVM statistics
-		registry.register("jvm.memory", new MemoryUsageGaugeSet());
-		registry.register("jvm.vm", new JvmAttributeGaugeSet());
-		registry.register("jvm.garbage-collectors", new GarbageCollectorMetricSet());
-		registry.register("jvm.thread-states", new ThreadStatesGaugeSet());
+    	metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet());
+    	metricRegistry.register("jvm.vm", new JvmAttributeGaugeSet());
+    	metricRegistry.register("jvm.garbage-collectors", new GarbageCollectorMetricSet());
+    	metricRegistry.register("jvm.thread-states", new ThreadStatesGaugeSet());
 	}
 	
 	void initServlets(int port) {
-		MetricsServlet metricsServlet = new MetricsServlet(registry);
-		ServletHolder servletHolder = new ServletHolder(metricsServlet);
-
 		contextHandler = new ServletContextHandler();
 		contextHandler.setContextPath("/");
-		contextHandler.addServlet(servletHolder, "/stats");
+		
+		// metrics servlet
+		ServletHolder metricsServletHolder = new ServletHolder(metricsServlet);
+		contextHandler.addServlet(metricsServletHolder, "/stats");
+		
+		// store servlet
+		ServletHolder storeServletHolder = new ServletHolder(agentStatServlet);
+		contextHandler.addServlet(storeServletHolder, "/agents");
 		
 		server = new Server(port);
 		server.setHandler(contextHandler);
 	}
 	
 	void initReporters() {
-        Slf4jReporter.Builder builder = Slf4jReporter.forRegistry(registry);
+        Slf4jReporter.Builder builder = Slf4jReporter.forRegistry(metricRegistry);
         builder.convertRatesTo(TimeUnit.SECONDS);
         builder.convertDurationsTo(TimeUnit.MILLISECONDS);
 
@@ -93,16 +120,21 @@ public class StatServer {
         reporter = builder.build();
 
 		reporter.start(60, TimeUnit.SECONDS); // print every 1 min.
-
 	}
 
-    private void shutdownReporter() {
+    public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	private void shutdownReporter() {
         if (reporter == null) {
             return;
         }
         reporter.stop();
     }
-
-
 	
 }

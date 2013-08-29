@@ -45,7 +45,8 @@ public class Server {
 	}
 
 	private void statServerStart(CollectorConfiguration configuration) {
-		statServer = new StatServer(configuration.getCollectorStatListenPort());
+		statServer = context.getBean("statServer", StatServer.class);
+		statServer.setPort(configuration.getCollectorStatListenPort());
 		statServer.start();
 	}
 	

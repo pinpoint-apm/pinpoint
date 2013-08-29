@@ -54,14 +54,24 @@
     	</beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
+    
+    <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
+    </bean>
+    
+    <bean id="agentStatStore" class="com.nhn.pinpoint.collector.monitor.DefaultAgentStatStore">
+    </bean>
+    
+    <bean id="metricsServlet" class="com.codahale.metrics.servlets.MetricsServlet">
+        <constructor-arg ref="metricRegistry" />
+    </bean>
+    
+    <bean id="agentStatServlet" class="com.nhn.pinpoint.collector.monitor.servlet.AgentStatServlet">
+    </bean>
+
+    <bean id="statServer" class="com.nhn.pinpoint.collector.StatServer">
+    </bean>
 
     <bean id="udpReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
     </bean>
-
-    <bean id="stateServer" class="com.nhn.pinpoint.collector.StatServer">
-        <constructor-arg>
-            <value type="int">${collectorStatListenPort}</value>
-        </constructor-arg>
-    </bean>
-
+    
 </beans>
