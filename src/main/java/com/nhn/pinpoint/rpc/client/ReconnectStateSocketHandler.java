@@ -23,6 +23,11 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     }
 
     @Override
+    public void initReconnect() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public void setPinpointSocket(PinpointSocket pinpointSocket) {
     }
 
