@@ -16,6 +16,7 @@ import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerBinder;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
@@ -42,7 +43,7 @@ public class DefaultAgent implements Agent {
     private final ProfilerConfig profilerConfig;
 
     private final ServerInfo serverInfo;
-    private final SystemMonitor systemMonitor;
+    private final AgentStatMonitor agentStatMonitor;
 
     private DefaultTraceContext traceContext;
 
@@ -98,16 +99,17 @@ public class DefaultAgent implements Agent {
 
         initializeTraceContext();
 
-        this.systemMonitor = new SystemMonitor(this.traceContext, this.profilerConfig);
-        this.systemMonitor.setDataSender(dataSender);
-
         // 매핑 테이블 초기화를 위해 엑세스
         ApiMappingTable.findApiId("test", null, null);
 
         this.agentInfo = createAgentInfo();
         this.heartBitChecker = new HeartBitChecker(priorityDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
 
-
+        // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
+        this.agentStatMonitor = new AgentStatMonitor(this.traceContext, this.profilerConfig);
+        this.agentStatMonitor.setDataSender(this.dataSender);
+        this.agentStatMonitor.setAgentInfo(this.agentInfo);
+        
         SingletonHolder.INSTANCE = this;
     }
 
@@ -329,6 +331,7 @@ public class DefaultAgent implements Agent {
     public void started() {
         changeStatus(AgentStatus.RUNNING);
         this.heartBitChecker.start();
+        this.agentStatMonitor.start();
     }
 
     @Override
@@ -337,9 +340,7 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.STOPPING);
         this.heartBitChecker.close();
-
-
-        systemMonitor.stop();
+        this.agentStatMonitor.shutdown();
 
         agentInfo.setIsAlive(false);
 

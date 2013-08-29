@@ -12,6 +12,15 @@ struct AgentInfo {
 	9: i16  identifier
 }
 
+struct AgentStat {
+	1: string	hostname
+	2: string	ip
+	3: string	ports
+	4: string	agentId
+	5: string	statistics
+	6: i64	timestamp
+}
+
 struct JVMInfoThriftDTO {
 	1: string	agentId,
 	2: i64 		dataTime,
