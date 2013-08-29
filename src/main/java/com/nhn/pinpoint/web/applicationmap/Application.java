@@ -2,10 +2,13 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * application map에서 application을 나타낸다.
@@ -18,8 +21,9 @@ public class Application implements Comparable<Application> {
 	protected final String applicationName;
 	protected final ServiceType serviceType;
 	protected final Map<String, Host> hostList;
+	protected final Set<AgentInfoBo> agentSet;
 
-	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> hostList) {
+	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> hostList, Set<AgentInfoBo> agentSet) {
 		this.id = id;
 		if (serviceType == ServiceType.CLIENT) {
 			this.applicationName = "CLIENT";
@@ -28,6 +32,7 @@ public class Application implements Comparable<Application> {
 		}
 
 		this.hostList = (hostList == null) ? new HashMap<String, Host>() : hostList;
+		this.agentSet = agentSet;
 		this.serviceType = serviceType;
 	}
 
@@ -69,6 +74,10 @@ public class Application implements Comparable<Application> {
 	public ServiceType getServiceType() {
 		return serviceType;
 	}
+	
+	public Set<AgentInfoBo> getAgentSet() {
+		return agentSet;
+	}
 
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
@@ -79,13 +88,15 @@ public class Application implements Comparable<Application> {
 		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
 		sb.append("\"serviceTypeCode\" : \"").append(serviceType.getCode()).append("\",");
 		sb.append("\"agents\" : [ ");
-		// Iterator<AgentInfoBo> iterator = agents.iterator();
-		// while (iterator.hasNext()) {
-		// sb.append(iterator.next().getJson());
-		// if (iterator.hasNext()) {
-		// sb.append(",");
-		// }
-		// }
+		if (agentSet != null) {
+			Iterator<AgentInfoBo> iterator = agentSet.iterator();
+			while (iterator.hasNext()) {
+				sb.append(iterator.next().getJson());
+				if (iterator.hasNext()) {
+					sb.append(",");
+				}
+			}
+		}
 		sb.append(" ]");
 		sb.append(" }");
 

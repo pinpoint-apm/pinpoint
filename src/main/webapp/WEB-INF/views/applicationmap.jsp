@@ -25,6 +25,10 @@
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
 				"agents" : [
+				<c:forEach items="${node.agentSet}" var="agent" varStatus="status3">
+					${agent.json}
+					<c:if test="${!status3.last}">,</c:if>
+				</c:forEach>
 				],
 				"histogram" : {}
 			} <c:if test="${!status.last}">,</c:if>

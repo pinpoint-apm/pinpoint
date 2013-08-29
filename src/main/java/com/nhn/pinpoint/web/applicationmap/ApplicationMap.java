@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 
 /**
@@ -53,16 +54,30 @@ public class ApplicationMap {
 		if (built)
 			return this;
 
+		// extract agent
+		Map<String, Set<AgentInfoBo>> agentMap = new HashMap<String, Set<AgentInfoBo>>();
+		for (TransactionFlowStatistics stat : data) {
+			if (stat.getToAgentSet() != null) {
+				String key = makeApplicationId(stat.getTo(), stat.getToServiceType());
+				if (agentMap.containsKey(key)) {
+					agentMap.get(key).addAll(stat.getToAgentSet());
+				} else {
+					agentMap.put(key, stat.getToAgentSet());
+				}
+			}
+		}
+		
 		// extract application
 		for (TransactionFlowStatistics stat : data) {
 			if (!stat.getFromServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null));
+				// TODO toHostList를 null로 입력하지 않으면 맛이감. ㅡㅡ;
+				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null, agentMap.get(makeApplicationId(stat.getFrom(), stat.getFromServiceType()))));
 			}
 			if (!stat.getToServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
 			}
 			if (!applicationNames.contains(stat.getTo())) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), agentMap.get(makeApplicationId(stat.getFrom(), stat.getFromServiceType()))));
 			}
 		}
 

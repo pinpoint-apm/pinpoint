@@ -3,8 +3,10 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -22,6 +24,8 @@ public class TransactionFlowStatistics {
 
 	// key = hostname
 	private Map<String, Host> toHostList;
+	
+	private Set<AgentInfoBo> toAgentSet;
 
 	/**
 	 * 
@@ -105,6 +109,18 @@ public class TransactionFlowStatistics {
 
 	public Map<String, Host> getToHostList() {
 		return toHostList;
+	}
+
+	public Set<AgentInfoBo> getToAgentSet() {
+		return toAgentSet;
+	}
+
+	public void addToAgentSet(Set<AgentInfoBo> agentSet) {
+		if (this.toAgentSet != null) {
+			this.toAgentSet.addAll(agentSet);
+		} else {
+			this.toAgentSet = agentSet;
+		}
 	}
 
 	public TransactionFlowStatistics mergeWith(TransactionFlowStatistics applicationStatistics) {

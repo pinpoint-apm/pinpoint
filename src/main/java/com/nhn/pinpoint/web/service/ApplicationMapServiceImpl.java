@@ -230,14 +230,9 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		if (agentSet.isEmpty()) {
 			return;
 		}
-		
-		/*
-		stat.addToAgents(agentSet);
-		stat.clearHosts();
-		for (AgentInfoBo agentInfo : agentSet) {
-			stat.addToHost(agentInfo.getHostname());
-		}
-		*/
+
+		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+		stat.addToAgentSet(agentSet);
 		
 		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
 	}
