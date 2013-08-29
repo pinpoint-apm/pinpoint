@@ -1,0 +1,32 @@
+<div class="container">
+	<div class="row">
+		<div class="span12">
+			<h3>PinPoint SPY</h3>
+		</div>
+	</div>
+	<div class="row">
+		<div class="{{each.span}}" ng-repeat="each in metrics">
+			<h5>{{each.title}}</h5>
+			<svg id="line_{{each.id}}" style="height:200px;" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">
+			<h5>Data Table <small>(updated : {{timestamp}})</small></h5>
+			<table class="table table-striped table-condensed">
+			  <thead>
+			    <tr>
+			      <th>Key</th>
+			      <th>Value</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr ng-repeat="(k, v) in agent_stats">
+			      <td><small>{{k}}</small></td>
+			      <td><small>{{v.value}}</small></td>
+			    </tr>
+			  </tbody>
+			</table>
+		</div>
+	</div>
+</div>
