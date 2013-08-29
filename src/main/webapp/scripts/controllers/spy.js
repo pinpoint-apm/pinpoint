@@ -5,7 +5,7 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$routeParams', '$http', '$timeout
 	var get_agent_stats = function(agent_id, callback) {
         // FIXME collector Stat URL을 제공할 수 있는 API 필요.
 		// zookeeper에 공통 정보를 기록해두면 될 것 같음.
-        var url = 'http://127.0.0.1:9996/agents?callback=JSON_CALLBACK&agentId=' + agent_id;
+        var url = 'http://10.25.149.249:9996/agents?callback=JSON_CALLBACK&agentId=' + agent_id;
         var config = { cache: true };
         $http.jsonp(url, config).success(function(data, status) {
           callback(data);
@@ -62,17 +62,14 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$routeParams', '$http', '$timeout
 						}
 						if (each.line[i].bar) {
 							// bar chart
-							var count = data[each.line[i].id + ".count"].value;
-							var prev_count = each.line[i].prev_count;
 							var time = data[each.line[i].id + ".time"].value;
 							var prev_time = each.line[i].prev_time;
-							if (prev_count && count - prev_count > 0) {
+							if (prev_time && time - prev_time > 0) {
 								each.line[i].values.push({x:timestamp, y:time - prev_time});
 							} else {
 								each.line[i].values.push({x:timestamp, y:0});
-								each.line[i].prev_count = count;
-								each.line[i].prev_time = time;
 							}
+							each.line[i].prev_time = time;
 						} else {
 							// line chart
 							each.line[i].values.push({x:timestamp, y:data[each.line[i].id].value});
@@ -86,7 +83,7 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$routeParams', '$http', '$timeout
 							var dx = each.line[0].values[d] && each.line[0].values[d].x || 0;
 							return d3.time.format('%X')(new Date(dx));
 						});
-            			chart.y1Axis.tickFormat(function(d) { return d; });
+            			chart.y1Axis.axisLabel('CMS elapsed (ms)').tickFormat(function(d) { return d; });
 						chart.y2Axis.tickFormat(function(d) {
 							var sizes = [' B', 'KB', 'MB', 'GB', 'TB'];
 						    var posttxt = 0;
@@ -98,10 +95,10 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$routeParams', '$http', '$timeout
 						    }
 						    return parseInt(d).toFixed(precision) + " " + sizes[posttxt];
             			});
-						chart.bars.forceY([0,10000]);
+						chart.bars.forceY([0]);
             			chart.lines.forceY([0]);
-						chart.margin({top: 30, right: 100, bottom: 50, left: 60})
-						d3.select('#line_'+each.id).datum(each.line).transition().duration(500).call(chart);
+						chart.margin({top: 30, right: 100, bottom: 50, left: 100})
+						d3.select('#line_'+each.id).datum(each.line).transition().duration(100).call(chart);
 						d3.select("#circle").attr("stroke-width", "1px");
 						nv.utils.windowResize(chart.update);
 						return chart;
