@@ -462,6 +462,11 @@
             <artifactId>metrics-json</artifactId>
             <version>${metrics.version}</version>
         </dependency>
+		<dependency>
+			<groupId>com.codahale.metrics</groupId>
+			<artifactId>metrics-healthchecks</artifactId>
+            <version>${metrics.version}</version>
+		</dependency>
 
         <!--jackson jsonMapper. hbase에서 일단 필요함. -->
         <dependency>
