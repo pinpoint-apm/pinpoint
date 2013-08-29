@@ -106,6 +106,13 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
+cp ../pinpoint-profiler/target/dependency/metrics-*-3.0.1.jar $DEPLOY_DIR/lib
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
+
 cp ../pinpoint-profiler/runscript/help.txt $DEPLOY_DIR
 rc=$?
 if [[ $rc != 0 ]] ; then
@@ -120,7 +127,7 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/classes/log4j.xml $DEPLOY_DIR
+cp ../pinpoint-profiler/target/classes/log4j.xml $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
