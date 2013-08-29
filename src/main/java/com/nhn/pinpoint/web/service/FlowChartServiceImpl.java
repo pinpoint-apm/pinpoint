@@ -395,28 +395,30 @@ public class FlowChartServiceImpl implements FlowChartService {
 				String statId = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
 				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
 
-				// histogram
-				ResponseHistogram histogram = stat.getHistogram();
+//				// histogram
+//				ResponseHistogram histogram = stat.getHistogram();
 				int slot = destServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
-				histogram.addSample((short) slot, 1);
-				
-				// host 정보 추가.
-				stat.addToHost(span.getEndPoint());
-				
-				// agent 정보추가.
-				String agentId = span.getAgentId();
-				AgentInfoBo agentInfo = null;
-				if (agentInfoCache.containsKey(agentId)) {
-					agentInfo = agentInfoCache.get(agentId);
-				} else {
-					List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, span.getAgentStartTime());
-					if (!agentInfoList.isEmpty()) {
-						agentInfo = agentInfoList.get(0);
-					}
-					agentInfoCache.put(agentId, agentInfo);
-				}
-				stat.addToAgent(agentInfo);
+//				histogram.addSample((short) slot, 1);
+//				
+//				// host 정보 추가.
+//				stat.addToHost(span.getEndPoint());
+//				
+//				// agent 정보추가.
+//				String agentId = span.getAgentId();
+//				AgentInfoBo agentInfo = null;
+//				if (agentInfoCache.containsKey(agentId)) {
+//					agentInfo = agentInfoCache.get(agentId);
+//				} else {
+//					List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, span.getAgentStartTime());
+//					if (!agentInfoList.isEmpty()) {
+//						agentInfo = agentInfoList.get(0);
+//					}
+//					agentInfoCache.put(agentId, agentInfo);
+//				}
+//				stat.addToAgent(agentInfo);
 
+				stat.addSample(dest, destServiceType.getCode(), (short) slot, 1);
+				
 				statisticsData.add(stat);
 				statisticsMap.put(statId, stat);
 				
@@ -457,12 +459,14 @@ public class FlowChartServiceImpl implements FlowChartService {
 					String statId2 = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
 					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
 					
-					ResponseHistogram histogram2 = stat2.getHistogram();
+//					ResponseHistogram histogram2 = stat2.getHistogram();
 					int slot2 = destServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
-					histogram2.addSample((short) slot2, 1);
+//					histogram2.addSample((short) slot2, 1);
+//					
+//					// host 정보 추가.
+//					stat2.addToHost(spanEvent.getEndPoint());
 					
-					// host 정보 추가.
-					stat2.addToHost(spanEvent.getEndPoint());
+					stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot, 1);
 					
 					// agent 정보추가.
 					// destination의 agent정보 알 수 없음.

@@ -36,7 +36,7 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 		Map<String, TransactionFlowStatistics> stat = new HashMap<String, TransactionFlowStatistics>();
 
 		// key of map is destApplicationName
-		Map<String, Set<String>> calleeAppHostMap = new HashMap<String, Set<String>>();
+//		Map<String, Set<String>> calleeAppHostMap = new HashMap<String, Set<String>>();
 
 		for (KeyValue kv : keyList) {
 			byte[] qualifier = kv.getQualifier();
@@ -49,6 +49,8 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 
 			long requestCount = Bytes.toLong(kv.getValue());
 			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
+			
+			// TODO 이건 callerHost가 되어야 할 듯.
 			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
 			boolean isError = histogramSlot == (short) -1;
 			
@@ -57,38 +59,51 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			logger.debug("    Fetched. " + callerApplicationName + "[" + ServiceType.findServiceType(callerServiceType) + "] -> " + calleeApplicationName + "[" + ServiceType.findServiceType(calleeServiceType) + "] (" + requestCount + ")");
 			
 			// hostname은 일단 따로 보관.
-			if (calleeHost != null) {
-				if (calleeAppHostMap.containsKey(id)) {
-					calleeAppHostMap.get(id).add(calleeHost);
-				} else {
-					Set<String> set = new HashSet<String>();
-					set.add(calleeHost);
-					calleeAppHostMap.put(id, set);
-				}
-			}
+//			if (calleeHost != null) {
+//				if (calleeAppHostMap.containsKey(id)) {
+//					calleeAppHostMap.get(id).add(calleeHost);
+//				} else {
+//					Set<String> set = new HashSet<String>();
+//					set.add(calleeHost);
+//					calleeAppHostMap.put(id, set);
+//				}
+//			}
 
+//			System.out.println("--------------------------------------------");
+//			System.out.println("CallerMapper");
+//			System.out.println("callerApplicationName:" + callerApplicationName);
+//			System.out.println("callerServiceType=" + ServiceType.findServiceType(callerServiceType));
+//			System.out.println("calleeApplicationName=" + calleeApplicationName);
+//			System.out.println("calleeServiceType=" + ServiceType.findServiceType(calleeServiceType));
+//			System.out.println("calleeHost:" + calleeHost);
+//			System.out.println("--------------------------------------------");
+			
 			if (stat.containsKey(id)) {
 				TransactionFlowStatistics statistics = stat.get(id);
-				if (isError) {
-					statistics.getHistogram().addSample((short) -1, requestCount);
-				} else {
-					statistics.getHistogram().addSample(histogramSlot, requestCount);
-				}
+				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
+
+//				if (isError) {
+//					statistics.getHistogram().addSample((short) -1, requestCount);
+//				} else {
+//					statistics.getHistogram().addSample(histogramSlot, requestCount);
+//				}
 			} else {
 				TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
-				if (isError) {
-					statistics.getHistogram().addSample((short) -1, requestCount);
-				} else {
-					statistics.getHistogram().addSample(histogramSlot, requestCount);
-				}
+				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
+				
+//				if (isError) {
+//					statistics.getHistogram().addSample((short) -1, requestCount);
+//				} else {
+//					statistics.getHistogram().addSample(histogramSlot, requestCount);
+//				}
 				stat.put(id, statistics);
 			}
 		}
 
 		// statistics에 dest host정보 삽입.
-		for (Entry<String, TransactionFlowStatistics> entry : stat.entrySet()) {
-			entry.getValue().addToHosts(calleeAppHostMap.get(entry.getKey()));
-		}
+//		for (Entry<String, TransactionFlowStatistics> entry : stat.entrySet()) {
+//			entry.getValue().addToHosts(calleeAppHostMap.get(entry.getKey()));
+//		}
 
 		return stat;
 	}

@@ -28,6 +28,7 @@ public class ResponseHistogram {
 		values = new long[size];
 	}
 
+	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addSample(short slot, long value) {
 		totalCount += value;
 		

@@ -56,13 +56,13 @@ public class ApplicationMap {
 		// extract application
 		for (TransactionFlowStatistics stat : data) {
 			if (!stat.getFromServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null, null));
+				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null));
 			}
 			if (!stat.getToServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts(), stat.getToAgents()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList()));
 			}
 			if (!applicationNames.contains(stat.getTo())) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHosts(), stat.getToAgents()));
+				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList()));
 			}
 		}
 
@@ -86,10 +86,10 @@ public class ApplicationMap {
 			// 변경.
 			if (to.getServiceType().isRpcClient()) {
 				if (!applicationNames.contains(to.getApplicationName())) {
-					addRelation(new ApplicationRelation(from, to, stat.getHistogram()));
+					addRelation(new ApplicationRelation(from, to, stat.getToHostList()));
 				}
 			} else {
-				addRelation(new ApplicationRelation(from, to, stat.getHistogram()));
+				addRelation(new ApplicationRelation(from, to, stat.getToHostList()));
 			}
 		}
 

@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -19,18 +19,39 @@ public class TransactionFlowStatistics {
 	private ServiceType fromServiceType;
 	private String to;
 	private ServiceType toServiceType;
-	private final ResponseHistogram histogram;
-	private final Set<String> toHosts;
-	private final Set<AgentInfoBo> toAgents;
+
+	// key = hostname
+	private Map<String, Host> toHostList;
+
+	/**
+	 * 
+	 * @param hostname
+	 *            host이름 또는 endpoint
+	 * @param serviceType
+	 * @param slot
+	 * @param value
+	 */
+	public void addSample(String hostname, short serviceTypeCode, short slot, long value) {
+		// TODO 임시코드
+		if (hostname == null || hostname.length() == 0) {
+			hostname = "UNKNOWNHOST";
+		}
+
+		if (toHostList.containsKey(hostname)) {
+			toHostList.get(hostname).getHistogram().addSample(slot, value);
+		} else {
+			Host host = new Host(hostname, ServiceType.findServiceType(serviceTypeCode), null);
+			host.getHistogram().addSample(slot, value);
+			toHostList.put(hostname, host);
+		}
+	}
 
 	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
 		this.from = from;
 		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
 		this.to = to;
 		this.toServiceType = ServiceType.findServiceType(toServiceType);
-		this.histogram = new ResponseHistogram(ServiceType.findServiceType(toServiceType));
-		this.toHosts = new HashSet<String>();
-		this.toAgents = new HashSet<AgentInfoBo>();
+		this.toHostList = new HashMap<String, Host>();
 		this.id = TransactionFlowStatisticsUtils.makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
 	}
 
@@ -62,10 +83,6 @@ public class TransactionFlowStatistics {
 		return toServiceType;
 	}
 
-	public ResponseHistogram getHistogram() {
-		return histogram;
-	}
-
 	public void setFrom(String from) {
 		this.from = from;
 		makeId();
@@ -86,54 +103,28 @@ public class TransactionFlowStatistics {
 		makeId();
 	}
 
-	public void clearHosts() {
-		this.toHosts.clear();
+	public Map<String, Host> getToHostList() {
+		return toHostList;
 	}
 
 	public TransactionFlowStatistics mergeWith(TransactionFlowStatistics applicationStatistics) {
 		if (this.equals(applicationStatistics)) {
-			histogram.mergeWith(applicationStatistics.getHistogram());
+			for (Entry<String, Host> entry : applicationStatistics.getToHostList().entrySet()) {
+				if (this.toHostList.containsKey(entry.getKey())) {
+					this.toHostList.get(entry.getKey()).mergeWith(entry.getValue());
+				} else {
+					this.toHostList.put(entry.getKey(), entry.getValue());
+				}
+			}
 			return this;
 		} else {
 			throw new IllegalArgumentException("Can't merge with different link.");
 		}
 	}
 
-	public void addToHosts(Set<String> hosts) {
-		if (hosts != null) {
-			this.toHosts.addAll(hosts);
-		}
-	}
-
-	public void addToHost(String host) {
-		if (host != null) {
-			this.toHosts.add(host);
-		}
-	}
-
-	public Set<String> getToHosts() {
-		return toHosts;
-	}
-
-	public void addToAgent(AgentInfoBo agentInfo) {
-		if (agentInfo != null) {
-			this.toAgents.add(agentInfo);
-		}
-	}
-	
-	public void addToAgents(Set<AgentInfoBo> agentInfo) {
-		if (agentInfo != null) {
-			this.toAgents.addAll(agentInfo);
-		}
-	}
-
-	public Set<AgentInfoBo> getToAgents() {
-		return toAgents;
-	}
-
 	@Override
 	public String toString() {
-		return "ApplicationStatistics [id=" + id + ", from=" + from + ", fromServiceType=" + fromServiceType + ", to=" + to + ", toServiceType=" + toServiceType + ", histogram=" + histogram + ", toHosts=" + toHosts + "]";
+		return "TransactionFlowStatistics [id=" + id + ", from=" + from + ", fromServiceType=" + fromServiceType + ", to=" + to + ", toServiceType=" + toServiceType + ", toHostList=" + toHostList + "]";
 	}
 
 	@Override

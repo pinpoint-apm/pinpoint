@@ -231,11 +231,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			return;
 		}
 		
+		/*
 		stat.addToAgents(agentSet);
 		stat.clearHosts();
 		for (AgentInfoBo agentInfo : agentSet) {
 			stat.addToHost(agentInfo.getHostname());
 		}
+		*/
 		
 		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
 	}

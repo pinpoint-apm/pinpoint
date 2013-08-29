@@ -292,8 +292,8 @@ $(document).ready(function () {
 			{{each(key, value) hosts}}
 			<li>
 				<span class="label label-success">OK</span>
-				{{= value}}
-				<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
+				{{= value.name}}
+				<a href="http://nsight.nhncorp.com/dashboard_server/{{= value.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
 				{{if category == 'ARCUS' }}
 				<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site">(Hubble)</a>
 				{{/if}}

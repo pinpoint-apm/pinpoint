@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * application map에서 application을 나타낸다.
@@ -15,26 +15,19 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 public class Application implements Comparable<Application> {
 	protected int sequence;
 	protected final String id;
-
-	protected final Set<String> hosts = new HashSet<String>();
-	// TODO 여기에서 agentinfobo를 사용하는게 옳은건가??
-	protected final Set<AgentInfoBo> agents = new HashSet<AgentInfoBo>();
 	protected final String applicationName;
 	protected final ServiceType serviceType;
+	protected final Map<String, Host> hostList;
 
-	public Application(String id, String applicationName, ServiceType serviceType, Set<String> hosts, Set<AgentInfoBo> agents) {
+	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> hostList) {
 		this.id = id;
 		if (serviceType == ServiceType.CLIENT) {
 			this.applicationName = "CLIENT";
 		} else {
 			this.applicationName = applicationName;
 		}
-		if (hosts != null) {
-			this.hosts.addAll(hosts);
-		}
-		if (agents != null) {
-			this.agents.addAll(agents);
-		}
+
+		this.hostList = (hostList == null) ? new HashMap<String, Host>() : hostList;
 		this.serviceType = serviceType;
 	}
 
@@ -50,27 +43,27 @@ public class Application implements Comparable<Application> {
 		return sequence;
 	}
 
-	public Set<String> getHosts() {
-		return hosts;
-	}
-	
-	public Set<AgentInfoBo> getAgents() {
-		return agents;
-	}
-
-	public void setHosts(Set<String> hosts) {
-		if (hosts != null) {
-			this.hosts.addAll(hosts);
-		}
-	}
-
 	public String getApplicationName() {
 		return applicationName;
 	}
 
+	public Map<String, Host> getHostList() {
+		if (hostList == null) {
+			// CLIENT span의 경우 host가 없다.
+			return Collections.emptyMap();
+		}
+		return hostList;
+	}
+
 	public void mergeWith(Application application) {
-		this.hosts.addAll(application.getHosts());
-		this.agents.addAll(application.getAgents());
+		for (Entry<String, Host> entry : application.getHostList().entrySet()) {
+			Host host = hostList.get(entry.getKey());
+			if (host != null) {
+				host.mergeWith(entry.getValue());
+			} else {
+				hostList.put(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	public ServiceType getServiceType() {
@@ -86,19 +79,19 @@ public class Application implements Comparable<Application> {
 		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
 		sb.append("\"serviceTypeCode\" : \"").append(serviceType.getCode()).append("\",");
 		sb.append("\"agents\" : [ ");
-		Iterator<AgentInfoBo> iterator = agents.iterator();
-		while (iterator.hasNext()) {
-			sb.append(iterator.next().getJson());
-			if (iterator.hasNext()) {
-				sb.append(",");
-			}
-		}
+		// Iterator<AgentInfoBo> iterator = agents.iterator();
+		// while (iterator.hasNext()) {
+		// sb.append(iterator.next().getJson());
+		// if (iterator.hasNext()) {
+		// sb.append(",");
+		// }
+		// }
 		sb.append(" ]");
 		sb.append(" }");
 
 		return sb.toString();
 	}
-	
+
 	@Override
 	public int compareTo(Application server) {
 		return id.compareTo(server.id);
@@ -106,6 +99,6 @@ public class Application implements Comparable<Application> {
 
 	@Override
 	public String toString() {
-		return "Application [applicationName=" + applicationName + ", serviceType=" + serviceType + ", hosts=" + hosts + "]";
+		return "Application [sequence=" + sequence + ", id=" + id + ", applicationName=" + applicationName + ", serviceType=" + serviceType + ", hostList=" + hostList + "]";
 	}
 }

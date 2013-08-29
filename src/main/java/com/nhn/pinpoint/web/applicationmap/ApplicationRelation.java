@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * application map에서 application간의 관계를 담은 클래스
  * 
@@ -10,9 +13,9 @@ public class ApplicationRelation {
 
 	protected final Application from;
 	protected final Application to;
-	private final ResponseHistogram histogram;
+	private Map<String, Host> hostList;
 
-	public ApplicationRelation(Application from, Application to, ResponseHistogram histogram) {
+	public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
 		if (from == null) {
 			throw new NullPointerException("from must not be null");
 		}
@@ -22,7 +25,7 @@ public class ApplicationRelation {
 		this.id = from.getId() + to.getId();
 		this.from = from;
 		this.to = to;
-		this.histogram = histogram;
+		this.hostList = hostList;
 	}
 
 	public String getId() {
@@ -37,13 +40,38 @@ public class ApplicationRelation {
 		return to;
 	}
 
+	public Map<String, Host> getHostList() {
+		return hostList;
+	}
+
+	public void setHostList(Map<String, Host> hostList) {
+		this.hostList = hostList;
+	}
+
 	public ResponseHistogram getHistogram() {
-		return histogram;
+		ResponseHistogram result = null;
+
+		for (Entry<String, Host> entry : hostList.entrySet()) {
+			if (result == null) {
+				// TODO 뭔가 괴상한 방식이긴 하지만..
+				result = new ResponseHistogram(entry.getValue().getHistogram().getServiceType());
+			}
+			result.mergeWith(entry.getValue().getHistogram());
+		}
+		return result;
 	}
 
 	public ApplicationRelation mergeWith(ApplicationRelation relation) {
+		// TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
-			this.histogram.mergeWith(relation.getHistogram());
+			// TODO Mergable value map을 만들어야 하나...
+			for (Entry<String, Host> entry : relation.getHostList().entrySet()) {
+				if (this.hostList.containsKey(entry.getKey())) {
+					this.hostList.get(entry.getKey()).mergeWith(entry.getValue());
+				} else {
+					this.hostList.put(entry.getKey(), entry.getValue());
+				}
+			}
 		} else {
 			throw new IllegalArgumentException("Can't merge.");
 		}
@@ -51,7 +79,33 @@ public class ApplicationRelation {
 	}
 
 	@Override
-	public String toString() {
-		return "ApplicationRelation [from=" + from + ", to=" + to + ", histogram=" + histogram + "]";
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ApplicationRelation other = (ApplicationRelation) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ApplicationRelation [id=" + id + ", from=" + from + ", to=" + to + ", hostList=" + hostList + "]";
+	}
+
 }

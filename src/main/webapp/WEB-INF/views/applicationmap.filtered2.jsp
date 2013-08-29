@@ -9,26 +9,23 @@
 				"id" : ${status.count},
 				"key" : ${status.count},
 				"text" : "${node.applicationName}",
-				"hosts" : [
-				<c:forEach items="${node.hosts}" var="host" varStatus="status2">
-					"${host}"
-					<c:if test="${!status2.last}">,</c:if>
-				</c:forEach>
-				],
 				"category" : "${node.serviceType.desc}",
-				"serviceTypeCode" : "${node.serviceType.code}",
-				"terminal" : "${node.serviceType.terminal}",
-				"agents" : [
-				<c:forEach items="${node.agents}" var="agent" varStatus="status3">
-					${agent.json}
-					<c:if test="${!status3.last}">,</c:if>
-				</c:forEach>
-				],
 				<c:choose>
 					<c:when test="${node.serviceType.desc == 'CLIENT'}">"fig" : "Ellipse"</c:when>
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
-				</c:choose>
+				</c:choose>,
+
+				"hosts" : [
+				<c:forEach items="${node.hostList}" var="host" varStatus="status2">
+					${host.value.json}
+					<c:if test="${!status2.last}">,</c:if>
+				</c:forEach>
+				],
+				"serviceTypeCode" : "${node.serviceType.code}",
+				"terminal" : "${node.serviceType.terminal}",
+				"agents" : [
+				]
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],
