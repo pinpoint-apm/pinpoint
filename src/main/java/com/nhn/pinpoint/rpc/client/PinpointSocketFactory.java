@@ -147,7 +147,18 @@ public class PinpointSocketFactory {
 
     public PinpointSocket connect(String host, int port) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
-        SocketHandler socketHandler = connectSocketHandler(address);
+        ChannelFuture connectFuture = bootstrap.connect(address);
+        SocketHandler socketHandler = getSocketHandler(connectFuture, address);
+
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        traceSocket(pinpointSocket);
+        return pinpointSocket;
+    }
+
+    public PinpointSocket reconnect(String host, int port) throws PinpointSocketException {
+        SocketAddress address = new InetSocketAddress(host, port);
+        ChannelFuture connectFuture = bootstrap.connect(address);
+        SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
         PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
         traceSocket(pinpointSocket);
@@ -167,21 +178,52 @@ public class PinpointSocketFactory {
     }
 
 
-    SocketHandler connectSocketHandler(SocketAddress address) {
+    SocketHandler getSocketHandler(ChannelFuture connectFuture, SocketAddress address) {
         if (address == null) {
             throw new NullPointerException("address");
         }
 
-        ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture.getChannel());
         socketHandler.setConnectSocketAddress(address);
 
         connectFuture.awaitUninterruptibly();
         if (!connectFuture.isSuccess()) {
-            throw new PinpointSocketException("connect fail.", connectFuture.getCause());
+            throw new PinpointSocketException("connect fail. " + address, connectFuture.getCause());
         }
         socketHandler.open();
         return socketHandler;
+    }
+
+    public ChannelFuture reconnect(final SocketAddress remoteAddress) {
+        if (remoteAddress == null) {
+            throw new NullPointerException("remoteAddress");
+        }
+
+        ChannelPipeline pipeline;
+        final ClientBootstrap bootstrap = this.bootstrap;
+        try {
+            pipeline = bootstrap.getPipelineFactory().getPipeline();
+        } catch (Exception e) {
+            throw new ChannelPipelineException("Failed to initialize a pipeline.", e);
+        }
+        SocketHandler socketHandler = (PinpointSocketHandler) pipeline.getLast();
+        socketHandler.initReconnect();
+
+
+        // Set the options.
+        Channel ch = bootstrap.getFactory().newChannel(pipeline);
+        boolean success = false;
+        try {
+            ch.getConfig().setOptions(bootstrap.getOptions());
+            success = true;
+        } finally {
+            if (!success) {
+                ch.close();
+            }
+        }
+
+        // Connect.
+        return ch.connect(remoteAddress);
     }
 
 
@@ -225,7 +267,7 @@ public class PinpointSocketFactory {
             }
 
             logger.warn("try reconnect. connectAddress:{}", socketAddress);
-            final ChannelFuture channelFuture = bootstrap.connect(socketAddress);
+            final ChannelFuture channelFuture = reconnect(socketAddress);
             Channel channel = channelFuture.getChannel();
             final SocketHandler socketHandler = getSocketHandler(channel);
             socketHandler.setConnectSocketAddress(socketAddress);
@@ -240,11 +282,12 @@ public class PinpointSocketFactory {
                         socketHandler.open();
                         pinpointSocket.reconnectSocketHandler(socketHandler);
                     } else {
-                        if (!pinpointSocket.isClosed()) {
-                            if (logger.isWarnEnabled()) {
-                                Throwable cause = future.getCause();
-                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage(), cause);
-                            }
+                         if (!pinpointSocket.isClosed()) {
+//                              구지 여기서 안찍어도 exceptionCought에서 메시지가 발생하므로 생략
+//                            if (logger.isWarnEnabled()) {
+//                                Throwable cause = future.getCause();
+//                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());
+//                            }
                             reconnect(pinpointSocket, socketAddress);
                         } else {
                             logger.info("pinpointSocket is closed. stop reconnect.");

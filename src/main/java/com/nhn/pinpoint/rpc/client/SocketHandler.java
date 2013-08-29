@@ -14,6 +14,8 @@ public interface SocketHandler {
 
     void open();
 
+    void initReconnect();
+
     void setPinpointSocket(PinpointSocket pinpointSocket);
 
     void sendSync(byte[] bytes);
@@ -29,4 +31,6 @@ public interface SocketHandler {
     StreamChannel createStreamChannel();
 
     void sendPing();
+
+
 }

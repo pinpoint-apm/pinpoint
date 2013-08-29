@@ -83,11 +83,17 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     public void open() {
-        logger.info("open() change state=run");
+        logger.info("open() change state=RUN");
         if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
 
+    }
+
+    @Override
+    public void initReconnect() {
+        logger.info("initReconnect() change state=INIT_RECONNECT");
+        state.setState(State.INIT_RECONNECT);
     }
 
     @Override
@@ -267,7 +273,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
-        logger.warn("exceptionCaught() UnexpectedError happened. state:{} Caused:{}", state.getString(), cause.getMessage(), cause);
+        if (state.getState() == State.INIT_RECONNECT) {
+            logger.info("exceptionCaught() reconnect fail. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
+        } else {
+            logger.warn("exceptionCaught() UnexpectedError happened. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
+        }
         // error가 발생하였을 경우의 동작을 더 정확히 해야 될듯함.
 //          아래처럼 하면 상대방이 그냥 죽었을때 reconnet가 안됨.
 //        state.setClosed();
@@ -282,22 +292,24 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         final int currentState = state.getState();
         if (currentState == State.CLOSED) {
-            logger.debug("channelClosed() state:{} {}", state.getString(currentState), ctx.getChannel());
+            logger.debug("channelClosed() normal. state:{} {}", state.getString(currentState), e.getChannel());
             return;
-        }
-        // 여기서 부터 비정상 closed라고 볼수 있다.
-        releaseResource();
-        if (currentState == State.RUN || currentState == State.RECONNECT) {
+        } else if(currentState == State.INIT_RECONNECT){
+            logger.debug("channelClosed() reconnect fail. state:{} {}", state.getString(currentState), e.getChannel());
+        } else if (currentState == State.RUN || currentState == State.RECONNECT) {
+            // 여기서 부터 비정상 closed라고 볼수 있다.
             if (currentState == State.RUN) {
+                logger.debug("change state=reconnect");
                 state.setState(State.RECONNECT);
             }
             logger.info("channelClosed() UnexpectedChannelClosed. state:{} try reconnect channel:{}, connectSocketAddress:{}", state.getString(), e.getChannel(), connectSocketAddress);
 
             this.pinpointSocketFactory.reconnect(this.pinpointSocket, this.connectSocketAddress);
             return;
+        } else {
+            logger.info("channelClosed() UnexpectedChannelClosed. state:{} {}", state.getString(currentState), e.getChannel());
         }
-
-        logger.info("channelClosed() UnexpectedChannelClosed. channel:{}", e.getChannel());
+        releaseResource();
     }
 
 
@@ -345,8 +357,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         // 헤깔리니. 일단 만들고 추후 수정.
         sendClosedPacket(channel);
         releaseResource();
+        logger.debug("channel.close()");
 
-        channel.close().awaitUninterruptibly();
+        ChannelFuture channelFuture = channel.close();
+        channelFuture.addListener(new WriteFailFutureListener(logger, "close() event fail."));
+        channelFuture.awaitUninterruptibly();
         logger.debug("close() complete");
     }
 

@@ -32,7 +32,7 @@ public class ReconnectTest {
 
 
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setReconnectDelay(500);
+        pinpointSocketFactory.setReconnectDelay(200);
 
         PinpointServerSocket newServerSocket = null;
         try {
@@ -74,7 +74,7 @@ public class ReconnectTest {
     @Test
     public void scheduledConnect() throws IOException, InterruptedException {
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setReconnectDelay(2000);
+        pinpointSocketFactory.setReconnectDelay(200);
         PinpointSocket socket = null;
         PinpointServerSocket serverSocket = null;
         try {
@@ -84,7 +84,7 @@ public class ReconnectTest {
             serverSocket.setMessageListener(new TestSeverMessageListener());
             serverSocket.bind("localhost", 10234);
 
-            Thread.sleep(3000);
+            Thread.sleep(2000);
             logger.info("request server---------------------------");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             Future<ResponseMessage> response = socket.request(randomByte);
@@ -111,7 +111,7 @@ public class ReconnectTest {
 
         logger.debug("close");
         socket.close();
-        Thread.sleep(500);
+        pinpointSocketFactory.release();
     }
 
     @Test
@@ -121,9 +121,9 @@ public class ReconnectTest {
         PinpointSocket socket = pinpointSocketFactory.scheduledConnect("localhost", 10234);
 
         Thread.sleep(2000);
-        logger.debug("close");
+        logger.debug("close pinpoint socket");
         socket.close();
-        Thread.sleep(1000);
+        pinpointSocketFactory.release();
     }
 
     @Test
@@ -159,7 +159,7 @@ public class ReconnectTest {
         }
 
         socket.close();
-
+        pinpointSocketFactory.release();
     }
 
     @Test

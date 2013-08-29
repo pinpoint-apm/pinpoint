@@ -8,12 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class State {
 
     // 0 핸드쉐이크 안함.. 1은 동작중, 2는 closed
+    public static final int INIT_RECONNECT = -1;
     public static final int INIT = 0;
     public static final int RUN = 1;
     public static final int CLOSED = 2;
     public static final int RECONNECT = 3;
 //    이 상태가 있어야 되나?
-//    private static final int STATE_ERROR_CLOSED = 3;
+
 
     private final AtomicInteger state = new AtomicInteger(INIT);
 
@@ -30,7 +31,13 @@ public class State {
     }
 
     public boolean changeRun() {
-        return this.state.compareAndSet(INIT, RUN);
+        final int current = state.get();
+        if (current == INIT) {
+            return this.state.compareAndSet(INIT, RUN);
+        } else if(current == INIT_RECONNECT) {
+            return this.state.compareAndSet(INIT_RECONNECT, RUN);
+        }
+        throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN));
     }
 
     public boolean changeClosed(int before) {
@@ -59,6 +66,8 @@ public class State {
                 return "CLOSED";
             case RECONNECT:
                 return "RECONNECT";
+            case INIT_RECONNECT:
+                return "INIT_RECONNECT";
         }
         return "UNKNOWN";
     }

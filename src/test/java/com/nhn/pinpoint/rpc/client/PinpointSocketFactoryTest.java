@@ -3,12 +3,14 @@ package com.nhn.pinpoint.rpc.client;
 import com.nhn.pinpoint.rpc.*;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.TestSeverMessageListener;
+import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -23,14 +25,29 @@ public class PinpointSocketFactoryTest {
     public void connectFail() {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         try {
-            InetSocketAddress address = new InetSocketAddress("127.0.0.1", 10234);
-            pinpointSocketFactory.connectSocketHandler(address);
+            pinpointSocketFactory.connect("127.0.0.1", 10234);
             Assert.fail();
         } catch (PinpointSocketException e) {
-
+            Assert.assertTrue(ConnectException.class.isInstance(e.getCause()));
         } finally {
             pinpointSocketFactory.release();
         }
+    }
+
+    @Test
+    public void reconnectFail() throws InterruptedException {
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        try {
+            // api 호출시 error 메시지 간략화 확인용.
+            InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 10234);
+            ChannelFuture reconnect = pinpointSocketFactory.reconnect(remoteAddress);
+            reconnect.await();
+            Assert.assertFalse(reconnect.isSuccess());
+            Assert.assertTrue(ConnectException.class.isInstance(reconnect.getCause()));
+        } finally {
+            pinpointSocketFactory.release();
+        }
+        Thread.sleep(1000);
     }
 
 
