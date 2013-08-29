@@ -66,7 +66,7 @@ public class TCPReceiver {
                 logger.warn("unsupported streamPacket received {}", streamPacket);
             }
         });
-        this.pinpointServerSocket.bind("127.0.0.1", port);
+        this.pinpointServerSocket.bind("0.0.0.0", port);
 
 
 	}
