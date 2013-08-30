@@ -451,21 +451,25 @@
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-json</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
 		<dependency>
 			<groupId>com.codahale.metrics</groupId>
 			<artifactId>metrics-healthchecks</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
 		</dependency>
 
         <!--jackson jsonMapper. hbase에서 일단 필요함. -->
