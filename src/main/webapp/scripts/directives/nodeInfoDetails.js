@@ -34,29 +34,30 @@ pinpointApp
                     scope.$digest();
                 };
 
-                var getApplicationStatisticsData = function (query, callback) {
-                    jQuery.ajax({
-                        type : 'GET',
-                        url : config.applicationStatisticsUrl,
-                        cache : false,
-                        dataType: 'json',
-                        data : {
-                            from : query.from,
-                            to : query.to,
-                            applicationName : query.applicationName,
-                            serviceType : query.serviceType
-                        },
-                        success : function (result) {
-                            callback(query, result);
-                        },
-                        error : function (xhr, status, error) {
-                            console.log("ERROR", status, error);
-                        }
-                    });
-                };
+//                var getApplicationStatisticsData = function (query, callback) {
+//                    jQuery.ajax({
+//                        type : 'GET',
+//                        url : config.applicationStatisticsUrl,
+//                        cache : false,
+//                        dataType: 'json',
+//                        data : {
+//                            from : query.from,
+//                            to : query.to,
+//                            applicationName : query.applicationName,
+//                            serviceType : query.serviceType
+//                        },
+//                        success : function (result) {
+//                            callback(query, result);
+//                        },
+//                        error : function (xhr, status, error) {
+//                            console.log("ERROR", status, error);
+//                        }
+//                    });
+//                };
 
                 var renderApplicationStatistics = function (data) {
-                    scope.showInfoBarChart = true;
+                    scope.showNodeInfoBarChart = true;
+                    scope.$digest();
                     nv.addGraph(function () {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
@@ -93,18 +94,42 @@ pinpointApp
                     });
                 };
 
-                var showApplicationStatisticsSummary = function (begin, end, applicationName, serviceType) {
-                    var params = {
-                        "from" : begin,
-                        "to" : end,
-                        "applicationName" : applicationName,
-                        "serviceType" : serviceType
+//                var showApplicationStatisticsSummary = function (begin, end, applicationName, serviceType) {
+//                    var params = {
+//                        "from" : begin,
+//                        "to" : end,
+//                        "applicationName" : applicationName,
+//                        "serviceType" : serviceType
+//                    };
+//                    getApplicationStatisticsData(params, function (query, result) {
+//                        renderApplicationStatistics(result.histogramSummary);
+//                    });
+//                };
+
+                var extractHistogramFromData = function (data) {
+                    var histogram = [];
+                    if (data && data.hosts && angular.isArray(data.hosts) && data.hosts.length > 0) {
+                        var hosts = data.hosts;
+                        angular.forEach(hosts, function (val, key) {
+                            var i = 0;
+                            angular.forEach(val.histogram, function (innerVal, innerKey) {
+                                if (histogram[i]) {
+                                    histogram[i].value += Number(innerVal, 10);
+                                } else {
+                                    histogram[i] = {
+                                        'label' : innerKey,
+                                        'value' : Number(innerVal, 10)
+                                    };
+                                }
+                                i += 1;
+                            });
+                        });
+                    }
+                    var histogramData = {
+                        'key' : "Response Time Histogram",
+                        'values': histogram
                     };
-                    getApplicationStatisticsData(params, function (query, result) {
-                        scope.showNodeInfoBarChart = true;
-                        scope.$digest();
-                        renderApplicationStatistics(result.histogramSummary);
-                    });
+                    return histogramData;
                 };
 
                 scope.$on('servermap.nodeClicked', function (event, e, query, data, containerId) {
@@ -112,6 +137,8 @@ pinpointApp
                     showDetailInformation(query, data);
                     if (!data.rawdata && data.category !== "USER" && data.category !== "UNKNOWN_GROUP") {
                         showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
+                        var histogramData = extractHistogramFromData(data);
+                        renderApplicationStatistics(histogramData);
                     }
                 });
                 scope.$on('servermap.linkClicked', function (event, e, query, data, containerId) {

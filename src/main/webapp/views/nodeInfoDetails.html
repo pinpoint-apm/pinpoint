@@ -32,7 +32,7 @@
 					<li ng-repeat="agent in agents">
 						<span class="label label-success">OK</span>
 						{{agent.agentId}}
-                        <a class="btn btn-mini" href="/spy/{{agent.agentId}}" target="_blank">SPY</a>
+                        <a class="btn btn-mini" ng-href="/spy/{{agent.agentId}}" target="_blank">SPY</a>
 					</li>
 				</ul>
 			</div>
@@ -42,7 +42,7 @@
 	</div>
 
     <div class='infoBarChart' ng-show="showNodeInfoBarChart">
-        <h5>Response histogram summary</h5>
+        <h5>Response Histogram Summary</h5>
         <svg style='height:150px;' />
     </div>
 
