@@ -58,6 +58,7 @@ pinpointApp
                 var renderApplicationStatistics = function (data) {
                     scope.showNodeInfoBarChart = true;
                     scope.$digest();
+                    nv.dev = false;
                     nv.addGraph(function () {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
@@ -102,6 +103,7 @@ pinpointApp
 //                        "serviceType" : serviceType
 //                    };
 //                    getApplicationStatisticsData(params, function (query, result) {
+//                        console.log('result', result);
 //                        renderApplicationStatistics(result.histogramSummary);
 //                    });
 //                };
@@ -125,10 +127,10 @@ pinpointApp
                             });
                         });
                     }
-                    var histogramData = {
+                    var histogramData = [{
                         'key' : "Response Time Histogram",
                         'values': histogram
-                    };
+                    }];
                     return histogramData;
                 };
 
@@ -136,7 +138,7 @@ pinpointApp
                     reset();
                     showDetailInformation(query, data);
                     if (!data.rawdata && data.category !== "USER" && data.category !== "UNKNOWN_GROUP") {
-                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
+//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
                         var histogramData = extractHistogramFromData(data);
                         renderApplicationStatistics(histogramData);
                     }
