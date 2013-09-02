@@ -45,7 +45,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     pickSeconds: false
                 });
                 $timeout(function () {
-                    setDateTime($routeParams.queryEndTime);
+                    if ($routeParams.queryEndTime) {
+                        setDateTime($routeParams.queryEndTime);
+                    }
                 });
 
                 /**
@@ -56,7 +58,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     var picker = elDatetimepicker.data('datetimepicker');
                     var date = new Date();
                     if (time) {
-                        date.setTime(date);
+                        date.setTime(time);
                     }
                     picker.setDate(date);
                 };
@@ -64,7 +66,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 /**
                  * now
                  */
-                scope.now = function() {
+                scope.now = function () {
                     setDateTime();
                     broadcast();
                 };

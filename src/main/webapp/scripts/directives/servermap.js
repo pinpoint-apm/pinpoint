@@ -36,10 +36,10 @@ pinpointApp.constant('config', {
             "good": {
                 // "background" : { 0: "rgb(240, 1, 240)", 0.3: "rgb(240, 1,
                 // 240)", 1: "rgba(240, 1, 240, 1)"},
-                "background": { 0: "#2CA02C"},
-                "border": "green",
+                "background": { 0: "#dff0d8"},
+                "border": "#d6e9c6",
                 "font": "10pt calibri, helvetica, arial, sans-serif",
-                "color": "#919191",
+                "color": "#468847",
                 "align": "center",
                 "margin": 1
             },
@@ -47,10 +47,10 @@ pinpointApp.constant('config', {
                 // "background" : { 0: "rgb(214, 27, 28)", 0.3: "rgb(214, 27,
                 // 28)", 1: "rgba(214, 27, 28, 1)"},
                 // "background" : { 0: "#D62728" },
-                "background": { 0: "rgba(200, 27, 28, 1)" },
-                "border": "#FFFFFF",
+                "background": { 0: "#f2dede" },
+                "border": "#eed3d7",
                 "font": "10pt calibri, helvetica, arial, sans-serif",
-                "color": "#FFFFFF",
+                "color": "#b94a48",
                 "align": "center",
                 "margin": 1
             }
@@ -63,15 +63,13 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
         restrict: 'EA',
         replace: true,
         templateUrl: 'views/servermap.html',
-        link: function postLink(scope, element, attrs, ctrl) {
+        link: function postLink(scope, element, attrs) {
             var serverMapCachedQuery, serverMapCachedData;
             var oServerMap = null;
             var FILTER_DELIMETER = "^";
             var FILTER_ENTRY_DELIMETER = "|";
             var SERVERMAP_METHOD_CACHE = {};
             var myColors = ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"];
-
-            console.log('controller', ctrl);
 
             /**
              * loading
@@ -98,7 +96,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 }, 300);
             };
 
-            var showServerMap = function (applicationName, serviceType, to, period, filterText, hideIndirectAccess) {
+            var showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, hideIndirectAccess) {
                 startLoading();
                 if (oServerMap) {
                     oServerMap.clear();
@@ -124,7 +122,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
 // });
                 } else {
                     getServerMapData2(query, function (query, result) {
-                        serverMapCallback(query, result);
+                        serverMapCallback(query, result, mergeUnknowns);
                     });
                 }
             };
@@ -178,10 +176,25 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
 //			};
 
             var reset = function () {
+                scope.nodeContextMenuStyle = '';
                 scope.linkContextMenuStyle = '';
+                scope.backgroundContextMenuStyle = '';
+                if (!scope.$$phase) {
+                    scope.$digest();
+                }
+            };
+            var setNodeContextMenuPosition = function (top, left) {
+                scope.nodeContextMenuStyle = {
+                    display: 'block'
+                };
+                var nodeContextMenu = element.find('.nodeContextMenu');
+                nodeContextMenu.css({
+                    'top': top,
+                    'left' : left
+                });
                 scope.$digest();
             };
-            var setLinkContextMenuPostition = function (top, left) {
+            var setLinkContextMenuPosition = function (top, left) {
                 scope.linkContextMenuStyle = {
                     display: 'block'
                 };
@@ -191,6 +204,22 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     'left' : left
                 });
                 scope.$digest();
+            };
+            var setBackgroundContextMenuPosition = function (top, left) {
+                scope.backgroundContextMenuStyle = {
+                    display: 'block'
+                };
+                var backgroundContextMenu = element.find('.backgroundContextMenu');
+                backgroundContextMenu.css({
+                    'top': top,
+                    'left' : left
+                });
+                scope.$digest();
+            };
+
+            scope.passingTransactionResponseToScatterChart = function () {
+                $rootScope.$broadcast('servermap.passingTransactionResponseToScatterChart', scope.node);
+                reset();
             };
 
             scope.passingTransactionMap = function () {
@@ -207,8 +236,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 if (srcServiceType === "CLIENT") {
                     applicationName = srcApplicationName = destApplicationName;
                 }
-//                TOMCAT|books.api.dev|ORACLE|XDEV01
-//?application=books.api.dev&serviceType=1010&from=1377193800484&to=1377238200484&filter=CLIENT|books.api.dev|TOMCAT|books.api.dev
+
                 var params = {
                     "application" : applicationName,
                     "serviceType" : serviceType,
@@ -220,7 +248,8 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                         + destServiceType + FILTER_ENTRY_DELIMETER
                         + destApplicationName
                 }
-                window.open(config.filtermapUrl + "?" + decodeURIComponent($.param(params)), "");
+                window.open(config.filtermapUrl + "?" + decodeURIComponent(jQuery.param(params)), "");
+                reset();
             };
             scope.passingTransactionList = function () {
                 var applicationName = scope.srcApplicationName,
@@ -240,63 +269,63 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 } else {
                     window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ( filter ? "&filter=" + filter : "") );
                 }
+                reset();
             };
 
-            var serverMapCallback = function (query, data, ignoreCache) {
-                var containerId = config.options.sContainerId;
-
+            var serverMapCallback = function (query, data, mergeUnknowns) {
                 serverMapCachedQuery = angular.copy(query);
                 serverMapCachedData = angular.copy(data);
                 setLoading(80);
                 if (data.applicationMapData.nodeDataArray.length === 0) {
                     stopLoading();
                     showWarning('There is no data.');
-// warning("NO DATA", "");
                     return;
-                } else {
-// clearAllWarnings();
-//					$("#" + containerId).show();
                 }
 
-// if ($('#mergeUnknown').data('selected')) {
-// // if ($('#mergeUnknown').is(':checked')) {
-// mergeUnknown(query, data);
-// }
-                mergeUnknown(query, data);
+                if (mergeUnknowns) {
+                    mergeUnknown(query, data);
+                }
+
                 replaceClientToUser(data);
                 setLoading(90);
 
                 var options = config.options;
-                options.fOnNodeContextClick = function (e, d) {
-                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, d);
+                options.fOnNodeContextClicked = function (e, node) {
+                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, node);
                     reset();
+                    scope.node = node;
+                    if (node.category !== "UNKNOWN_GROUP" && node.category !== "USER") {
+                        setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
+                    }
                 };
-                options.fOnLinkContextClick = function (e, d) {
-                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, d);
+                options.fOnLinkContextClicked = function (e, link) {
+                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, link);
                     reset();
-                    setLinkContextMenuPostition(e.layerY, e.layerX);
-                    scope.srcServiceType = d.sourceinfo.serviceType;
-                    scope.srcApplicationName = d.sourceinfo.applicationName;
-                    scope.destServiceType = d.targetinfo.serviceType;
-                    scope.destApplicationName = d.targetinfo.applicationName;
+                    scope.link = link;
+                    scope.nodeCategory = link.category;
+                    scope.srcServiceType = link.sourceinfo.serviceType;
+                    scope.srcApplicationName = link.sourceinfo.applicationName;
+                    scope.destServiceType = link.targetinfo.serviceType;
+                    scope.destApplicationName = link.targetinfo.applicationName;
+                    setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
                 };
-                options.fOnLinkClick = function (e, d) {
+                options.fOnLinkClicked = function (e, d) {
                     $rootScope.$broadcast("servermap.linkClicked", e, query, d);
                     reset();
                 };
-                options.fOnNodeClick = function (e, d) {
+                options.fOnNodeClicked = function (e, d) {
                     $rootScope.$broadcast("servermap.nodeClicked", e, query, d);
                     reset();
                 };
-                options.fOnBackgroundClick = function (e) {
+                options.fOnBackgroundClicked = function (e) {
                     $rootScope.$broadcast("servermap.backgroundClicked", e, query);
                     reset();
                 };
-
-                setLoading(100);
-                oServerMap = new ServerMap(options);
-                oServerMap.load(data.applicationMapData);
-                stopLoading();
+                options.fOnBackgroundContextClicked = function (e) {
+                    $rootScope.$broadcast("servermap.backgroundContextClicked", e, query);
+                    reset();
+                    setBackgroundContextMenuPosition(e.diagram.lastInput.event.layerY, e.diagram.lastInput.event.layerX);
+                };
 
                 try {
                     var selectedNode = (function () {
@@ -307,19 +336,26 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                             }
                         }
                     })();
-                    oServerMap.highlightNodeByKey(selectedNode.key);
-//					nodeClickHandler(null, query, selectedNode);
+                    //oServerMap.highlightNodeByKey(selectedNode.key);
+                    options.nBoldKey = selectedNode.key;
                     $rootScope.$broadcast("servermap.nodeClicked", null, query, selectedNode);
                 } catch (e) {
                     console.log(e);
                 }
+
+                setLoading(100);
+                if (oServerMap === null) {
+                    oServerMap = new ServerMap(options);
+                }
+                oServerMap.load(data.applicationMapData);
+                stopLoading();
             };
 
             // TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
             var replaceClientToUser = function (data) {
                 var nodes = data.applicationMapData.nodeDataArray;
                 nodes.forEach(function (node) {
-                    if (node.category == "CLIENT") {
+                    if (node.category === "CLIENT") {
                         node.category = "USER";
                         node.text = "USER";
                     }
@@ -522,13 +558,32 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 });
             };
 
+            scope.toggleMergeUnknowns = function () {
+                scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
+                showServerMap(scope.navbar.applicationName, scope.navbar.serviceType, scope.navbar.queryEndTime, scope.navbar.queryPeriod, '', scope.mergeUnknowns, scope.hideIndirectAccess);
+                reset();
+            };
+            scope.toggleHideIndirectAccess = function () {
+                scope.hideIndirectAccess = (scope.hideIndirectAccess) ? false : true;
+                showServerMap(scope.navbar.applicationName, scope.navbar.serviceType, scope.navbar.queryEndTime, scope.navbar.queryPeriod, '', scope.mergeUnknowns, scope.hideIndirectAccess);
+                reset();
+            };
+            scope.toggleLinkLableTextType = function (type) {
+                scope.totalRequestCount = (type !== 'tps') ? true : false;
+                scope.tps = (type === 'tps') ? true : false;
+                showServerMap(scope.navbar.applicationName, scope.navbar.serviceType, scope.navbar.queryEndTime, scope.navbar.queryPeriod, '', scope.mergeUnknowns, scope.hideIndirectAccess);
+                reset();
+            };
+
             scope.$on('navbar.applicationChanged', function (event, data) {
                 console.log('got navbar.applicationChanged from servermap : ', data);
                 scope.navbar = data;
-                showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, '', false);
+                showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, '',  scope.mergeUnknowns, scope.hideIndirectAccess);
             });
 
+            scope.mergeUnknowns = true;
+            scope.totalRequestCount = true;
 
         }
-    }
+    };
 }]);

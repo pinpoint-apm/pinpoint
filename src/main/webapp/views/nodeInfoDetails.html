@@ -19,9 +19,9 @@
 				<ul>
 					<li ng-repeat="host in hosts">
 						<span class="label label-success">OK</span>
-						{{host}}
-						<a href="http://nsight.nhncorp.com/dashboard_server/{{host.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">(NSight)</a>
-						<a href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-if="category == 'ARCUS'">(Hubble)</a>
+						{{host.name}}
+						<a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{host.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
+						<a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
 					</li>
 				</ul>
 			</div>
@@ -32,10 +32,7 @@
 					<li ng-repeat="agent in agents">
 						<span class="label label-success">OK</span>
 						{{agent.agentId}}
-						<!--
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Kuvasz)</a>
-						<a href="#" onclick="alert('Sorry. Not implemented.');">(Tools)</a>
-						-->
+                        <a class="btn btn-mini" href="/spy/{{agent.agentId}}" target="_blank">SPY</a>
 					</li>
 				</ul>
 			</div>
