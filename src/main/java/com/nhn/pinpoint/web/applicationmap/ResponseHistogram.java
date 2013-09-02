@@ -115,14 +115,16 @@ public class ResponseHistogram {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
 		List<HistogramSlot> histogramSlotList = histogram.getHistogramSlotList();
+		HistogramSlot histogramSlot = null;
 		for (int i = 0; i < histogramSlotList.size(); i++) {
-			HistogramSlot histogramSlot = histogramSlotList.get(i);
-			sb.append('"').append(histogramSlot.getSlotTime()).append('"').append(" : ").append(values[i]);
+			histogramSlot = histogramSlotList.get(i);
+			sb.append('"').append(histogramSlot.getSlotTime()).append('"').append(":").append(values[i]);
 			if (i < histogramSlotList.size() - 1) {
 				sb.append(", ");
 			}
 		}
-
+		sb.append(",\"").append(histogramSlot.getSlotTime()).append("+\"").append(":").append(slowCount);
+		sb.append(",\"error\":").append(errorCount);
 		sb.append(" }");
 
 		return sb.toString();

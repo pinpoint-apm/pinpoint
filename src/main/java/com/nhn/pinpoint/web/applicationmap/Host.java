@@ -48,9 +48,9 @@ public class Host {
 		} else {
 			sb.append("\"agentInfo\":").append("null").append(",");
 		}
-		sb.append("\"callCount\":").append(histogram.getTotalCount()).append(",");
-		sb.append("\"error\":").append(histogram.getErrorCount()).append(",");
-		sb.append("\"slow\":").append(histogram.getSlowCount()).append(",");
+		// sb.append("\"callCount\":").append(histogram.getTotalCount()).append(",");
+		// sb.append("\"error\":").append(histogram.getErrorCount()).append(",");
+		// sb.append("\"slow\":").append(histogram.getSlowCount()).append(",");
 		sb.append("\"histogram\":").append(histogram);
 		sb.append("}");
 		return sb.toString();
