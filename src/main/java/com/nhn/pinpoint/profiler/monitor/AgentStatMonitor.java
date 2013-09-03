@@ -8,8 +8,10 @@ import java.util.concurrent.TimeUnit;
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
 import com.nhn.pinpoint.common.dto.thrift.AgentStat;
-import com.nhn.pinpoint.common.monitor.MonitorName;
-import com.nhn.pinpoint.common.monitor.codahale.MetricMonitorRegistry;
+import com.nhn.pinpoint.common.dto.thrift.StatWithCmsCollector;
+import com.nhn.pinpoint.profiler.monitor.MonitorName;
+import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorMapper;
+import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.logging.Logger;
@@ -79,6 +81,7 @@ public class AgentStatMonitor {
 		private TraceContext traceContext;
 		private ProfilerConfig profilerConfig;
 		private MetricMonitorRegistry monitorRegistry;
+		private MetricMonitorMapper monitorMapper;
 
 		public CollectJob(DataSender dataSender, TraceContext traceContext, ProfilerConfig profilerConfig) {
 			this.dataSender = dataSender;
@@ -88,28 +91,31 @@ public class AgentStatMonitor {
 			// FIXME 디폴트 레지스트리를 생성하여 사용한다. 다른데서 쓸 일이 있으면 외부에서 삽입하도록 하자.
 			this.monitorRegistry = new MetricMonitorRegistry();
 			
-			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보만 수집.
+			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
 			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName("jvm", "memory"));
 			this.monitorRegistry.registerJvmGcMonitor(new MonitorName("jvm", "gc"));
 			
-			// AgentStat 객체를 준비한다.
-			if (agentInfo != null) {
-				this.agentStat = new AgentStat();
-				this.agentStat.setHostname(agentInfo.getHostname());
-				this.agentStat.setIp(agentInfo.getIp());
-				this.agentStat.setPorts(agentInfo.getPorts());
-				this.agentStat.setAgentId(agentInfo.getAgentId());
-			}
+			this.monitorMapper = new MetricMonitorMapper();
 		}
 		
 		public void run() {
-			if (agentStat == null) {
-				logger.debug("AgentInfo is not found");
+			// AgentStat 객체를 준비한다.
+			if (agentInfo != null && this.agentStat == null) {
+				if (this.monitorRegistry.getRegistry().getNames().contains("jvm.gc.ConcurrentMarkSweep.count")) {
+					logger.info("found : CMS collector");
+					StatWithCmsCollector cms = new StatWithCmsCollector();
+					cms.setAgentId(agentInfo.getAgentId());
+					this.agentStat = new AgentStat();
+					this.agentStat.setCms(cms);
+				}
+			}
+			if (this.agentStat == null) {
+				logger.info("AgentStat is not available");
 				return;
 			}
 			try {
-				this.agentStat.setTimestamp(System.currentTimeMillis());
-				this.agentStat.setStatistics(this.monitorRegistry.getMonitorsAsJson());
+				// 통계 Registry에 있는 데이터를 메시지 객체에 매핑한다.
+				this.monitorMapper.map(this.monitorRegistry, this.agentStat);
 
 				// send queue에 삽입한다.
 				dataSender.send(agentStat);

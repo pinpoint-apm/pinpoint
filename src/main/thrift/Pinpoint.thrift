@@ -12,13 +12,42 @@ struct AgentInfo {
 	9: i16  identifier
 }
 
-struct AgentStat {
-	1: string	hostname
-	2: string	ip
-	3: string	ports
-	4: string	agentId
-	5: string	statistics
-	6: i64	timestamp
+struct StatWithCmsCollector {
+	1: string	agentId
+	2: i64		timestamp
+	3: i64		jvmMemoryTotalInit
+	4: i64		jvmMemoryTotalUsed
+	5: i64		jvmMemoryTotalCommitted
+	6: i64		jvmMemoryTotalMax
+	7: i64		jvmMemoryHeapInit
+	8: i64		jvmMemoryHeapUsed
+	9: i64		jvmMemoryHeapCommitted
+	10: i64		jvmMemoryHeapMax
+	11: i64		jvmMemoryNonHeapInit
+	12: i64		jvmMemoryNonHeapUsed
+	13: i64		jvmMemoryNonHeapCommitted
+	14: i64		jvmMemoryNonHeapMax
+	15: i64		jvmGcParNewCount
+	16: i64		jvmGcParNewTime
+	17: i64		jvmGcCmsCount
+	18: i64		jvmGcTime
+	200: optional string metadata
+}
+
+struct StatWithG1Collector {
+	1: string	agentId
+	2: i64		timestamp
+}
+
+struct StatWithParallelCollector {
+	1: string	agentId
+	2: i64		timestamp
+}
+
+union AgentStat {
+	1: StatWithCmsCollector			cms
+	2: StatWithG1Collector			g1
+	3: StatWithParallelCollector	parallel
 }
 
 struct JVMInfoThriftDTO {
