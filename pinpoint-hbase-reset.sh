@@ -1,5 +1,6 @@
 exec ../pinpoint-testbed/hbase-0.94.0/bin/hbase shell <<EOF
 disable 'AgentInfo'
+disable 'AgentStat'
 disable 'AgentIdApplicationIndex'
 disable 'ApplicationIndex'
 disable 'SqlMetaData'
