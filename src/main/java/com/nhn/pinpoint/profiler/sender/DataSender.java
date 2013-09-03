@@ -14,4 +14,5 @@ public interface DataSender {
 
     void stop();
 
+    boolean request(TBase<?, ?> data);
 }

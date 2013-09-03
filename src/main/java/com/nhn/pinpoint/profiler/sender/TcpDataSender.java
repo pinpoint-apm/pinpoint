@@ -1,17 +1,20 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
+import com.nhn.pinpoint.common.dto.thrift.Result;
 import com.nhn.pinpoint.profiler.context.Thriftable;
+import com.nhn.pinpoint.profiler.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.profiler.io.SafeHeaderTBaseSerializer;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.jboss.netty.channel.ChannelFuture;
 
 import java.util.Collection;
 
@@ -92,23 +95,68 @@ public class TcpDataSender implements DataSender {
 
     private void sendPacket(Object dto) {
         TBase<?, ?> tBase;
+        boolean request = false;
         if (dto instanceof TBase) {
             tBase = (TBase<?, ?>) dto;
         } else if (dto instanceof Thriftable) {
             tBase = ((Thriftable) dto).toThrift();
+        } else if(dto instanceof RequestMarker) {
+            tBase = ((RequestMarker) dto).getTBase();
+            request = true;
         } else {
-            logger.warn("sendPacket fail. invalid type:{}", dto.getClass());
+            logger.warn("sendPacket fail. invalid dto type:{}", dto.getClass());
             return;
         }
         byte[] copy = serialize(tBase);
+        if (copy == null) {
+            return;
+        }
+
 
         // 일단 send로 함. 추가로 request and response로 교체나 추가 api로 교체하고 재전송 로직을 어느정도 확보할것
         try {
-            Future ioWriteCheck = this.socket.sendAsync(copy);
-            ioWriteCheck.setListener(writeFailFutureListener);
+            if (request) {
+                Future<ResponseMessage> response = this.socket.request(copy);
+                response.setListener(new FutureListener<ResponseMessage>() {
+                    @Override
+                    public void onComplete(Future<ResponseMessage> future) {
+                        if (future.isSuccess()) {
+                            TBase<?, ?> response = deserialize(future);
+                            if (response instanceof Result) {
+                                Result result = (Result) response;
+                                if (result.isSuccess()) {
+                                    logger.debug("result ok");
+                                } else {
+                                    logger.warn("request fail. Caused:{}", result.getMessage());
+                                }
+                            } else {
+                                logger.warn("Invalid ResponseMessage. {}", response);
+                            }
+                        } else {
+                            logger.warn("request send fail");
+                        }
+                    }
+                });
+            } else  {
+                Future ioWriteCheck = this.socket.sendAsync(copy);
+                ioWriteCheck.setListener(writeFailFutureListener);
+            }
         } catch (Exception e) {
             // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
+        }
+    }
+
+    private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
+        byte[] message = future.getResult().getMessage();
+        HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+        try {
+            return deserializer.deserialize(message);
+        } catch (TException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
+            }
+            return null;
         }
     }
 
@@ -123,6 +171,11 @@ public class TcpDataSender implements DataSender {
         }
     }
 
+    @Override
+    public boolean request(TBase<?, ?> data) {
+        RequestMarker requestMarker = new RequestMarker(data);
+        return executor.execute(requestMarker);
+    }
 
     @Override
     public boolean send(TBase<?, ?> data) {
@@ -139,6 +192,18 @@ public class TcpDataSender implements DataSender {
         executor.stop();
         socket.close();
         pinpointSocketFactory.release();
+    }
+
+    private static class RequestMarker {
+        private TBase tBase;
+
+        private RequestMarker(TBase tBase) {
+            this.tBase = tBase;
+        }
+
+        private TBase getTBase() {
+            return tBase;
+        }
     }
 
 

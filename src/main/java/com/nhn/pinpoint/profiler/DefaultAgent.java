@@ -344,10 +344,7 @@ public class DefaultAgent implements Agent {
 
         agentInfo.setIsAlive(false);
 
-        // TODO 개선필요. 특정 collector가 죽더라도 나머지 collector가 받을수 있도록 일부러 중복해서 3번 보낸다.
-        this.priorityDataSender.send(agentInfo);
-        this.priorityDataSender.send(agentInfo);
-        this.priorityDataSender.send(agentInfo);
+        this.priorityDataSender.request(agentInfo);
 
         // 종료 처리 필요.
         this.dataSender.stop();

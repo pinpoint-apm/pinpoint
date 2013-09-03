@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.io;
 
 import com.nhn.pinpoint.common.dto.Header;
+import com.nhn.pinpoint.common.io.*;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -14,6 +15,8 @@ public class HeaderTBaseDeserializer {
     private final TProtocol protocol_;
     private final TMemoryInputTransport trans_;
 
+    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private final TBaseLocator locator = DEFAULT_TBASE_LOCATOR;
     /**
      * Create a new TDeserializer that uses the TBinaryProtocol by default.
      */
@@ -36,10 +39,9 @@ public class HeaderTBaseDeserializer {
     /**
      * Deserialize the Thrift object from a byte array.
      *
-     * @param locator The object to read into
      * @param bytes   The array to read from
      */
-    public TBase<?, ?> deserialize(TBaseLocator locator, byte[] bytes) throws TException {
+    public TBase<?, ?> deserialize(byte[] bytes) throws TException {
         try {
             trans_.reset(bytes);
             Header header = readHeader();

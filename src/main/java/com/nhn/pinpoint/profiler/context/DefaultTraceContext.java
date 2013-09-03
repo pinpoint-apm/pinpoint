@@ -190,7 +190,7 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());
 
-            this.priorityDataSender.send(apiMetadata);
+            this.priorityDataSender.request(apiMetadata);
             methodDescriptor.setApiId(result.getId());
         }
         return result.getId();
@@ -227,7 +227,7 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setSql(normalizedSql);
 
             // 좀더 신뢰성이 있는 tcp connection이 필요함.
-            this.priorityDataSender.send(sqlMetaData);
+            this.priorityDataSender.request(sqlMetaData);
         }
         // hashId그냥 return String에서 까보면 됨.
         return parsingResult;

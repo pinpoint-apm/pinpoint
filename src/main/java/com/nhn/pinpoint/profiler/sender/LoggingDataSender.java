@@ -16,7 +16,7 @@ public class LoggingDataSender implements DataSender {
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        logger.info("send tBase:{]", data);
+        logger.info("send tBase:{}", data);
         return true;
     }
 
@@ -29,5 +29,11 @@ public class LoggingDataSender implements DataSender {
     @Override
     public void stop() {
         logger.info("LoggingDataSender stop");
+    }
+
+    @Override
+    public boolean request(TBase<?, ?> data) {
+        logger.info("request tBase:{}", data);
+        return true;
     }
 }

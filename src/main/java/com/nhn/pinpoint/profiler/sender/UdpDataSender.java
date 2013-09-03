@@ -85,9 +85,16 @@ public class UdpDataSender implements DataSender {
 	}
 
     @Override
+    public boolean request(TBase<?, ?> data) {
+        return send(data);
+    }
+
+    @Override
     public void stop() {
         executor.stop();
     }
+
+
 
 
     protected void sendPacketN(Collection<Object> dtoList) {

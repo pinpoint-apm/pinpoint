@@ -72,6 +72,11 @@ public class TraceTest {
         @Override
         public void stop() {
         }
+
+        @Override
+        public boolean request(TBase<?, ?> data) {
+            return send(data);
+        }
     }
 
 
