@@ -445,28 +445,32 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <!-- serving performance metrics -->
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-json</artifactId>
             <version>${metrics.version}</version>
+            <optional>true</optional>
         </dependency>
-		<dependency>
-			<groupId>com.codahale.metrics</groupId>
-			<artifactId>metrics-healthchecks</artifactId>
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-healthchecks</artifactId>
             <version>${metrics.version}</version>
-		</dependency>
+            <optional>true</optional>
+        </dependency>
 
         <!--jackson jsonMapper. hbase에서 일단 필요함. -->
         <dependency>
@@ -531,10 +535,10 @@
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-jdk14</artifactId>-->
-            <!--<version>1.6.6</version>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>org.slf4j</groupId>-->
+        <!--<artifactId>slf4j-jdk14</artifactId>-->
+        <!--<version>1.6.6</version>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
 
 
@@ -560,144 +564,144 @@
     </dependencies>
 
     <build>
-    <resources>
-        <resource>
-            <directory>${basedir}/src/main/java</directory>
-            <excludes>
-                <exclude>**/*.java</exclude>
-            </excludes>
-        </resource>
-        <resource>
-            <filtering>true</filtering>
-            <directory>${basedir}/src/main/resources</directory>
-        </resource>
-    </resources>
-
-    <testResources>
-        <testResource>
-            <directory>${basedir}/src/test/java</directory>
-            <excludes>
-                <exclude>**/*.java</exclude>
-            </excludes>
-        </testResource>
-        <testResource>
-            <filtering>true</filtering>
-            <directory>${basedir}/src/test/resources</directory>
-        </testResource>
-    </testResources>
-
-    <plugins>
-        <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <version>2.6</version>
-            <configuration>
-                <encoding>UTF-8</encoding>
-            </configuration>
-        </plugin>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.5.1</version>
-            <inherited>true</inherited>
-            <configuration>
-                <source>1.6</source>
-                <target>1.6</target>
-                <debug>true</debug>
-                <optimize>true</optimize>
-                <encoding>UTF-8</encoding>
-                <showDeprecation>true</showDeprecation>
-            </configuration>
-        </plugin>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>2.4</version>
-        </plugin>
-
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.12.4</version>
-            <configuration>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
                 <excludes>
-                    <exclude>**/Abstract*</exclude>
-                    <exclude>**/*$*</exclude>
-                    <exclude>**/TestInterceptor*.java</exclude>
-                    <exclude>**/Mock*.java</exclude>
+                    <exclude>**/*.java</exclude>
                 </excludes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
 
-                <!--<systemProperties>-->
-                <!--<property>-->
-                <!--<name>java.util.logging.config.file</name>-->
-                <!--<value>${project.build.testOutputDirectory}/logging.test.properties</value>-->
-                <!--</property>-->
-                <!--</systemProperties>-->
-            </configuration>
-        </plugin>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                    <optimize>true</optimize>
+                    <encoding>UTF-8</encoding>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
 
 
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>properties-maven-plugin</artifactId>
-            <executions>
-                <execution>
-                    <phase>initialize</phase>
-                    <goals>
-                        <goal>read-project-properties</goal>
-                    </goals>
-                    <configuration>
-                        <files>
-                            <file>thrift.properties</file>
-                        </files>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-	
-		<plugin>
-			<artifactId>maven-antrun-plugin</artifactId>
-			<executions>
-				<execution>
-					<id>generate-sources</id>
-					<phase>generate-sources</phase>
-					<configuration>
-						<tasks>
-							<mkdir dir="${basedir}/generated-sources/thrift" />
-							<delete>
-								<fileset dir="${basedir}/generated-sources/thrift"
-									includes="**/*" />
-							</delete>
-							<mkdir dir="${basedir}/generated-sources/thrift" />
-							<exec executable="${thrift.executable}" failonerror="true">
-								<arg value="--gen" />
-								<arg value="java:beans" />
-								<arg value="-o" />
-								<arg value="${basedir}/generated-sources/thrift" />
-								<arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
-							</exec>
-							<exec executable="${thrift.executable}" failonerror="true">
-								<arg value="--gen" />
-								<arg value="java:beans" />
-								<arg value="-o" />
-								<arg value="${basedir}/generated-sources/thrift" />
-								<arg value="${basedir}/src/main/thrift/Trace.thrift" />
-							</exec>
-							<copy todir="src/main/java" overwrite="true">
-								<fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
-							</copy>
-							<delete dir="${basedir}/generated-sources" />
-						</tasks>
-					</configuration>
-					<goals>
-						<goal>run</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-    </plugins>
-</build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/TestInterceptor*.java</exclude>
+                        <exclude>**/Mock*.java</exclude>
+                    </excludes>
+
+                    <!--<systemProperties>-->
+                    <!--<property>-->
+                    <!--<name>java.util.logging.config.file</name>-->
+                    <!--<value>${project.build.testOutputDirectory}/logging.test.properties</value>-->
+                    <!--</property>-->
+                    <!--</systemProperties>-->
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>thrift.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${basedir}/generated-sources/thrift" />
+                                <delete>
+                                    <fileset dir="${basedir}/generated-sources/thrift"
+                                             includes="**/*" />
+                                </delete>
+                                <mkdir dir="${basedir}/generated-sources/thrift" />
+                                <exec executable="${thrift.executable}" failonerror="true">
+                                    <arg value="--gen" />
+                                    <arg value="java:beans" />
+                                    <arg value="-o" />
+                                    <arg value="${basedir}/generated-sources/thrift" />
+                                    <arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
+                                </exec>
+                                <exec executable="${thrift.executable}" failonerror="true">
+                                    <arg value="--gen" />
+                                    <arg value="java:beans" />
+                                    <arg value="-o" />
+                                    <arg value="${basedir}/generated-sources/thrift" />
+                                    <arg value="${basedir}/src/main/thrift/Trace.thrift" />
+                                </exec>
+                                <copy todir="src/main/java" overwrite="true">
+                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
+                                </copy>
+                                <delete dir="${basedir}/generated-sources" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
