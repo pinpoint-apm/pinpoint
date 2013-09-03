@@ -26,6 +26,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 scope.application = '';
                 scope.disableApplication = true;
                 scope.period = '';
+                scope.queryEndTime = '';
                 var applicationElement = element.find('.application');
                 applicationElement.width(200);
                 $http.defaults.useXDomain = true;
@@ -73,12 +74,21 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     broadcast();
                 };
 
+                var getFirstPath = function () {
+                    var splitedPath = $location.path().split('/');
+                    return splitedPath[1] || 'main';
+                };
+
                 /**
                  * _boardcast as applicationChanged with args
                  */
                 var broadcast = scope.broadcast = function () {
-                    if (!scope.application || !scope.period || !getQueryEndTime()) {
-                        $location.path('/main');
+                    var firstPath = getFirstPath();
+
+                    scope.queryPeriod = getQueryPeriod();
+                    scope.queryEndTime = getQueryEndTime();
+                    if (!scope.application || !scope.period || !scope.queryEndTime) {
+                        $location.path('/' + firstPath);
                         return;
                     }
                     var splitedApp = scope.application.split('@'),
@@ -87,12 +97,17 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                             applicationName: splitedApp[0],
                             serviceType: splitedApp[1],
                             period: scope.period,
-                            queryPeriod: getQueryPeriod(),
-                            queryStartTime: getQueryEndTime() - getQueryPeriod(),
-                            queryEndTime: getQueryEndTime()
+                            queryPeriod: scope.queryPeriod,
+                            queryStartTime: scope.queryEndTime - scope.queryPeriod,
+                            queryEndTime: scope.queryEndTime
                         },
-                        url = '/main/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
+                        url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
 
+                    if ($routeParams.agentId) {
+                        url += '/' + $routeParams.agentId;
+                    }
+
+                    console.log('url', url);
                     $location.path(url);
 
                     $timeout(function () {
@@ -109,8 +124,8 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 };
 
                 var getQueryEndTime = function () {
-                    var date = elDatetimepicker.data('datetimepicker');
-                    var time = new Date(date.getDate());
+                    var date = elDatetimepicker.data('datetimepicker'),
+                        time = new Date(date.getDate());
                     return time.getTime();
                 };
 

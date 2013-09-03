@@ -16,6 +16,7 @@ pinpointApp
                 var reset = function () {
                     scope.nodeName = null;
                     scope.nodeCategory = null;
+                    scope.nodeIcon = 'USER';
                     scope.unknownGroup = null;
                     scope.hosts = null;
                     scope.showHosts = false;
@@ -28,6 +29,9 @@ pinpointApp
                 var showDetailInformation = function (query, data) {
                     scope.nodeName = data.text;
                     scope.nodeCategory = data.category;
+                    if (data.category !== 'UNKNOWN_GROUP') {
+                        scope.nodeIcon = data.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
+                    }
                     scope.unknownGroup = data.textArr;
                     scope.hosts = data.hosts;
                     scope.showHosts = (scope.hosts.length > 0) ? true : false;

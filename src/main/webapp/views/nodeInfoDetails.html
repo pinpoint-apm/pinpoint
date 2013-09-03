@@ -1,4 +1,4 @@
-<div class="nodeInfoDetails">
+<div class="nodeInfoDetails" ng-init="nodeIcon='USER'">
 	<div class='info' ng-switch="nodeCategory">
 
 		<div ng-switch-when="UNKNOWN_GROUP">
@@ -18,7 +18,7 @@
 		<div ng-switch-default>
 			<div ng-show="showHosts">
                 <div class="alert alert-info text-center">
-                    <img ng-src="/images/icons/{{nodeCategory}}.png" width="20" height="10" /> {{nodeName}}
+                    <img ng-src="/images/icons/{{nodeIcon}}.png" width="20" height="10"/> {{nodeName}}
                 </div>
 				<h5>Hosts</h5>
 				<ul>
@@ -37,7 +37,7 @@
 					<li ng-repeat="agent in agents">
 						<span class="label label-success">OK</span>
 						{{agent.agentId}}
-                        <a class="btn btn-mini" ng-href="/spy/{{agent.agentId}}" target="_blank">SPY</a>
+                        <a class="btn btn-mini" ng-href="#/spy/{{application}}/{{period}}/{{queryEndTime}}/{{agent.agentId}}" target="_blank">SPY</a>
 					</li>
 				</ul>
 			</div>
