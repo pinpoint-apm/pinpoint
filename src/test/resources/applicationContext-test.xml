@@ -43,6 +43,7 @@
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 
+    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"></bean>
 
     <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
 
