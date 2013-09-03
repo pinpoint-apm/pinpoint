@@ -9,7 +9,7 @@
 
     <property name="pinpoint.profiler.jar" value="pinpoint-profiler-${pinpoint.version}.jar"/>
 
-    <property name="maven.dir" value="C:\Develop\apache-maven-2.2.1"/>
+    <property name="maven.dir" value="${env.M2_HOME}"/>
     <property name="agent.lib.dir" value="${basedir}/../deploy/pinpoint-agent/lib"/>
     <property name="target.dir" value="${basedir}/target/"/>
 
