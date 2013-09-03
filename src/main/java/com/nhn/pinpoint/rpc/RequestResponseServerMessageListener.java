@@ -27,7 +27,7 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
     @Override
     public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
         logger.info("handlerRequest {}", requestPacket, channel);
-        channel.sendResponseMessage(requestPacket.getRequestId(), requestPacket.getPayload());
+        channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
     }
 
 

@@ -33,6 +33,11 @@ public class SendPacket extends BasicPacket {
     public static Packet readBuffer(short packetType, ChannelBuffer buffer) {
         assert packetType == PacketType.APPLICATION_SEND;
 
+        if (buffer.readableBytes() < 4) {
+            buffer.resetReaderIndex();
+            return null;
+        }
+
         ChannelBuffer payload = PayloadPacket.readPayload(buffer);
         if (payload == null) {
             return null;

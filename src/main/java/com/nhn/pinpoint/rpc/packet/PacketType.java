@@ -6,6 +6,7 @@ package com.nhn.pinpoint.rpc.packet;
 public class PacketType {
     public static final short APPLICATION_SEND = 1;
     public static final short APPLICATION_TRACE_SEND = 2;
+    public static final short APPLICATION_TRACE_SEND_ACK = 3;
 
     public static final short APPLICATION_REQUEST = 5;
     public static final short APPLICATION_RESPONSE = 6;

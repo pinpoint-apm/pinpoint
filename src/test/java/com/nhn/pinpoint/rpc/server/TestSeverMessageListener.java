@@ -27,7 +27,7 @@ public class TestSeverMessageListener implements ServerMessageListener {
     public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
         logger.debug("requestPacket:{} channel:{}", requestPacket, channel);
 
-        channel.sendResponseMessage(requestPacket.getRequestId(), requestPacket.getPayload());
+        channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
     }
 
 

@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.rpc.server;
 
+import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -35,8 +36,11 @@ public class SocketChannel {
         };
     }
 
-    public void sendResponseMessage(int requestId, byte[] responseMessage) {
-        ResponsePacket responsePacket = new ResponsePacket(requestId, responseMessage);
+    public void sendResponseMessage(RequestPacket requestPacket, byte[] responseMessage) {
+        if (requestPacket == null) {
+            throw new NullPointerException("requestPacket must not be null");
+        }
+        ResponsePacket responsePacket = new ResponsePacket(requestPacket.getRequestId(), responseMessage);
         ChannelFuture write = this.channel.write(responsePacket);
         write.addListener(responseWriteFail);
     }

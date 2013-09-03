@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.rpc.server;
 
 import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -30,6 +31,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private Channel serverChannel;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
+    private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.");
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
@@ -95,6 +97,18 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                     messageListener.handleSend((SendPacket) message, socketChannel);
                     return;
                 }
+//                case PacketType.APPLICATION_TRACE_SEND: {
+//                    SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+//                    TraceSendPacket traceSendPacket = (TraceSendPacket) message;
+//                    try {
+//                        messageListener.handleSend(traceSendPacket, socketChannel);
+//                    } finally {
+//                        TraceSendAckPacket traceSendAckPacket = new TraceSendAckPacket(traceSendPacket.getTraceId());
+//                        ChannelFuture write = channel.write(traceSendAckPacket);
+//                        write.addListener(traceSendAckWriteFailFutureListener);
+//                    }
+//                    return;
+//                }
                 case PacketType.APPLICATION_REQUEST: {
                     SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
                     messageListener.handleRequest((RequestPacket) message, socketChannel);

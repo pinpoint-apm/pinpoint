@@ -34,7 +34,7 @@ public class PinpointSocketFactory {
     private ClientBootstrap bootstrap;
 
     private long reconnectDelay = 3 * 1000;
-    private Timer timer;
+    private final Timer timer;
     // ping은 1분 주기
     private long pingDelay = 60 * 1000;
     private long timeoutMillis = 3 * 1000;
@@ -224,6 +224,10 @@ public class PinpointSocketFactory {
 
         // Connect.
         return ch.connect(remoteAddress);
+    }
+
+    public Timeout newTimeout(TimerTask task, long delay, TimeUnit unit) {
+        return this.timer.newTimeout(task, delay, unit);
     }
 
 
