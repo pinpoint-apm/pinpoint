@@ -29,7 +29,7 @@ public class DispatchHandler {
 
     @Autowired()
     @Qualifier("agentStatHandler")
-    private SimpleHandler agentStatHandler;
+    private Handler agentStatHandler;
     
     @Autowired()
     @Qualifier("spanEventHandler")
@@ -85,6 +85,9 @@ public class DispatchHandler {
         if (tBase instanceof JVMInfoThriftDTO) {
             return jvmDataHandler;
         }
+        if (tBase instanceof AgentStat) {
+            return agentStatHandler;
+        }
         return null;
     }
 
@@ -94,9 +97,6 @@ public class DispatchHandler {
         }
         if (tBase instanceof AgentInfo) {
             return agentInfoHandler;
-        }
-        if (tBase instanceof AgentStat) {
-            return agentStatHandler;
         }
         if (tBase instanceof SpanEvent) {
             return spanEventHandler;

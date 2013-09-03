@@ -55,22 +55,13 @@ public class AgentStatServlet extends HttpServlet {
 		
 		if (params.containsKey("agentId")) {
 			String agentId = params.get("agentId")[0];
-			String json = statServer.getStore().getStatByAgentId(agentId);
+			String json = statServer.getStore().getInJson(agentId);
 			if (json != null) {
 				jsonpCallback(req, res, json);
 			} else {
 				jsonpCallback(req, res, "{\"error\": \"not found : " + agentId + "\"}");
 			}
-		} else if (params.containsKey("ipport")) {
-			String ipport = params.get("ipport")[0];
-			String json = statServer.getStore().getStatByIpPort(ipport);
-			if (json != null) {
-				jsonpCallback(req, res, json);
-			} else {
-				jsonpCallback(req, res, "{\"error\": \"not found : " + ipport + "\"}");
-			}
 		} else {
-			//jsonpCallback(req, res, "{\"usage\": \"required : agentId or ipport(e.g. 127.0.0.1.12345)\"}");
 			jsonpCallback(req, res, statServer.getStore().toJson());
 		}
 	}
