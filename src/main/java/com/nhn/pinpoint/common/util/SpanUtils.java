@@ -23,7 +23,7 @@ public class SpanUtils {
 		byte[] bApplicationName = BytesUtils.getBytes(applicationName);
 		return RowKeyUtils.concatFixedByteAndLong(bApplicationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
-
+	
 //	public static byte[] getTraceIndexRowKey(String agentId, long timestamp) {
 //		if (agentId == null) {
 //			throw new IllegalArgumentException("agentId must not null");

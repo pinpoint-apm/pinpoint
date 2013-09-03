@@ -30,37 +30,17 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AgentStat implements org.apache.thrift.TBase<AgentStat, AgentStat._Fields>, java.io.Serializable, Cloneable {
+public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fields> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AgentStat");
-
-  private static final org.apache.thrift.protocol.TField HOSTNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("hostname", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField PORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("ports", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField STATISTICS_FIELD_DESC = new org.apache.thrift.protocol.TField("statistics", org.apache.thrift.protocol.TType.STRING, (short)5);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)6);
-
-  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
-  static {
-    schemes.put(StandardScheme.class, new AgentStatStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new AgentStatTupleSchemeFactory());
-  }
-
-  private String hostname; // required
-  private String ip; // required
-  private String ports; // required
-  private String agentId; // required
-  private String statistics; // required
-  private long timestamp; // required
+  private static final org.apache.thrift.protocol.TField CMS_FIELD_DESC = new org.apache.thrift.protocol.TField("cms", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+  private static final org.apache.thrift.protocol.TField G1_FIELD_DESC = new org.apache.thrift.protocol.TField("g1", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+  private static final org.apache.thrift.protocol.TField PARALLEL_FIELD_DESC = new org.apache.thrift.protocol.TField("parallel", org.apache.thrift.protocol.TType.STRUCT, (short)3);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    HOSTNAME((short)1, "hostname"),
-    IP((short)2, "ip"),
-    PORTS((short)3, "ports"),
-    AGENT_ID((short)4, "agentId"),
-    STATISTICS((short)5, "statistics"),
-    TIMESTAMP((short)6, "timestamp");
+    CMS((short)1, "cms"),
+    G1((short)2, "g1"),
+    PARALLEL((short)3, "parallel");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -75,18 +55,12 @@ public class AgentStat implements org.apache.thrift.TBase<AgentStat, AgentStat._
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // HOSTNAME
-          return HOSTNAME;
-        case 2: // IP
-          return IP;
-        case 3: // PORTS
-          return PORTS;
-        case 4: // AGENT_ID
-          return AGENT_ID;
-        case 5: // STATISTICS
-          return STATISTICS;
-        case 6: // TIMESTAMP
-          return TIMESTAMP;
+        case 1: // CMS
+          return CMS;
+        case 2: // G1
+          return G1;
+        case 3: // PARALLEL
+          return PARALLEL;
         default:
           return null;
       }
@@ -126,537 +100,301 @@ public class AgentStat implements org.apache.thrift.TBase<AgentStat, AgentStat._
     }
   }
 
-  // isset id assignments
-  private static final int __TIMESTAMP_ISSET_ID = 0;
-  private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.HOSTNAME, new org.apache.thrift.meta_data.FieldMetaData("hostname", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IP, new org.apache.thrift.meta_data.FieldMetaData("ip", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.PORTS, new org.apache.thrift.meta_data.FieldMetaData("ports", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.STATISTICS, new org.apache.thrift.meta_data.FieldMetaData("statistics", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.CMS, new org.apache.thrift.meta_data.FieldMetaData("cms", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithCmsCollector.class)));
+    tmpMap.put(_Fields.G1, new org.apache.thrift.meta_data.FieldMetaData("g1", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithG1Collector.class)));
+    tmpMap.put(_Fields.PARALLEL, new org.apache.thrift.meta_data.FieldMetaData("parallel", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithParallelCollector.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AgentStat.class, metaDataMap);
   }
 
   public AgentStat() {
+    super();
   }
 
-  public AgentStat(
-    String hostname,
-    String ip,
-    String ports,
-    String agentId,
-    String statistics,
-    long timestamp)
-  {
-    this();
-    this.hostname = hostname;
-    this.ip = ip;
-    this.ports = ports;
-    this.agentId = agentId;
-    this.statistics = statistics;
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
+  public AgentStat(_Fields setField, Object value) {
+    super(setField, value);
   }
 
-  /**
-   * Performs a deep copy on <i>other</i>.
-   */
   public AgentStat(AgentStat other) {
-    __isset_bitfield = other.__isset_bitfield;
-    if (other.isSetHostname()) {
-      this.hostname = other.hostname;
-    }
-    if (other.isSetIp()) {
-      this.ip = other.ip;
-    }
-    if (other.isSetPorts()) {
-      this.ports = other.ports;
-    }
-    if (other.isSetAgentId()) {
-      this.agentId = other.agentId;
-    }
-    if (other.isSetStatistics()) {
-      this.statistics = other.statistics;
-    }
-    this.timestamp = other.timestamp;
+    super(other);
   }
-
   public AgentStat deepCopy() {
     return new AgentStat(this);
   }
 
+  public static AgentStat cms(StatWithCmsCollector value) {
+    AgentStat x = new AgentStat();
+    x.setCms(value);
+    return x;
+  }
+
+  public static AgentStat g1(StatWithG1Collector value) {
+    AgentStat x = new AgentStat();
+    x.setG1(value);
+    return x;
+  }
+
+  public static AgentStat parallel(StatWithParallelCollector value) {
+    AgentStat x = new AgentStat();
+    x.setParallel(value);
+    return x;
+  }
+
+
   @Override
-  public void clear() {
-    this.hostname = null;
-    this.ip = null;
-    this.ports = null;
-    this.agentId = null;
-    this.statistics = null;
-    setTimestampIsSet(false);
-    this.timestamp = 0;
-  }
-
-  public String getHostname() {
-    return this.hostname;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
-  public void unsetHostname() {
-    this.hostname = null;
-  }
-
-  /** Returns true if field hostname is set (has been assigned a value) and false otherwise */
-  public boolean isSetHostname() {
-    return this.hostname != null;
-  }
-
-  public void setHostnameIsSet(boolean value) {
-    if (!value) {
-      this.hostname = null;
+  protected void checkType(_Fields setField, Object value) throws ClassCastException {
+    switch (setField) {
+      case CMS:
+        if (value instanceof StatWithCmsCollector) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type StatWithCmsCollector for field 'cms', but got " + value.getClass().getSimpleName());
+      case G1:
+        if (value instanceof StatWithG1Collector) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type StatWithG1Collector for field 'g1', but got " + value.getClass().getSimpleName());
+      case PARALLEL:
+        if (value instanceof StatWithParallelCollector) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type StatWithParallelCollector for field 'parallel', but got " + value.getClass().getSimpleName());
+      default:
+        throw new IllegalArgumentException("Unknown field id " + setField);
     }
-  }
-
-  public String getIp() {
-    return this.ip;
-  }
-
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
-
-  public void unsetIp() {
-    this.ip = null;
-  }
-
-  /** Returns true if field ip is set (has been assigned a value) and false otherwise */
-  public boolean isSetIp() {
-    return this.ip != null;
-  }
-
-  public void setIpIsSet(boolean value) {
-    if (!value) {
-      this.ip = null;
-    }
-  }
-
-  public String getPorts() {
-    return this.ports;
-  }
-
-  public void setPorts(String ports) {
-    this.ports = ports;
-  }
-
-  public void unsetPorts() {
-    this.ports = null;
-  }
-
-  /** Returns true if field ports is set (has been assigned a value) and false otherwise */
-  public boolean isSetPorts() {
-    return this.ports != null;
-  }
-
-  public void setPortsIsSet(boolean value) {
-    if (!value) {
-      this.ports = null;
-    }
-  }
-
-  public String getAgentId() {
-    return this.agentId;
-  }
-
-  public void setAgentId(String agentId) {
-    this.agentId = agentId;
-  }
-
-  public void unsetAgentId() {
-    this.agentId = null;
-  }
-
-  /** Returns true if field agentId is set (has been assigned a value) and false otherwise */
-  public boolean isSetAgentId() {
-    return this.agentId != null;
-  }
-
-  public void setAgentIdIsSet(boolean value) {
-    if (!value) {
-      this.agentId = null;
-    }
-  }
-
-  public String getStatistics() {
-    return this.statistics;
-  }
-
-  public void setStatistics(String statistics) {
-    this.statistics = statistics;
-  }
-
-  public void unsetStatistics() {
-    this.statistics = null;
-  }
-
-  /** Returns true if field statistics is set (has been assigned a value) and false otherwise */
-  public boolean isSetStatistics() {
-    return this.statistics != null;
-  }
-
-  public void setStatisticsIsSet(boolean value) {
-    if (!value) {
-      this.statistics = null;
-    }
-  }
-
-  public long getTimestamp() {
-    return this.timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
-  }
-
-  public void unsetTimestamp() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
-  }
-
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return EncodingUtils.testBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
-  }
-
-  public void setTimestampIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TIMESTAMP_ISSET_ID, value);
-  }
-
-  public void setFieldValue(_Fields field, Object value) {
-    switch (field) {
-    case HOSTNAME:
-      if (value == null) {
-        unsetHostname();
-      } else {
-        setHostname((String)value);
-      }
-      break;
-
-    case IP:
-      if (value == null) {
-        unsetIp();
-      } else {
-        setIp((String)value);
-      }
-      break;
-
-    case PORTS:
-      if (value == null) {
-        unsetPorts();
-      } else {
-        setPorts((String)value);
-      }
-      break;
-
-    case AGENT_ID:
-      if (value == null) {
-        unsetAgentId();
-      } else {
-        setAgentId((String)value);
-      }
-      break;
-
-    case STATISTICS:
-      if (value == null) {
-        unsetStatistics();
-      } else {
-        setStatistics((String)value);
-      }
-      break;
-
-    case TIMESTAMP:
-      if (value == null) {
-        unsetTimestamp();
-      } else {
-        setTimestamp((Long)value);
-      }
-      break;
-
-    }
-  }
-
-  public Object getFieldValue(_Fields field) {
-    switch (field) {
-    case HOSTNAME:
-      return getHostname();
-
-    case IP:
-      return getIp();
-
-    case PORTS:
-      return getPorts();
-
-    case AGENT_ID:
-      return getAgentId();
-
-    case STATISTICS:
-      return getStatistics();
-
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
-
-    }
-    throw new IllegalStateException();
-  }
-
-  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-  public boolean isSet(_Fields field) {
-    if (field == null) {
-      throw new IllegalArgumentException();
-    }
-
-    switch (field) {
-    case HOSTNAME:
-      return isSetHostname();
-    case IP:
-      return isSetIp();
-    case PORTS:
-      return isSetPorts();
-    case AGENT_ID:
-      return isSetAgentId();
-    case STATISTICS:
-      return isSetStatistics();
-    case TIMESTAMP:
-      return isSetTimestamp();
-    }
-    throw new IllegalStateException();
   }
 
   @Override
-  public boolean equals(Object that) {
-    if (that == null)
-      return false;
-    if (that instanceof AgentStat)
-      return this.equals((AgentStat)that);
-    return false;
-  }
-
-  public boolean equals(AgentStat that) {
-    if (that == null)
-      return false;
-
-    boolean this_present_hostname = true && this.isSetHostname();
-    boolean that_present_hostname = true && that.isSetHostname();
-    if (this_present_hostname || that_present_hostname) {
-      if (!(this_present_hostname && that_present_hostname))
-        return false;
-      if (!this.hostname.equals(that.hostname))
-        return false;
+  protected Object standardSchemeReadValue(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TField field) throws org.apache.thrift.TException {
+    _Fields setField = _Fields.findByThriftId(field.id);
+    if (setField != null) {
+      switch (setField) {
+        case CMS:
+          if (field.type == CMS_FIELD_DESC.type) {
+            StatWithCmsCollector cms;
+            cms = new StatWithCmsCollector();
+            cms.read(iprot);
+            return cms;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case G1:
+          if (field.type == G1_FIELD_DESC.type) {
+            StatWithG1Collector g1;
+            g1 = new StatWithG1Collector();
+            g1.read(iprot);
+            return g1;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case PARALLEL:
+          if (field.type == PARALLEL_FIELD_DESC.type) {
+            StatWithParallelCollector parallel;
+            parallel = new StatWithParallelCollector();
+            parallel.read(iprot);
+            return parallel;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        default:
+          throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
+      }
+    } else {
+      return null;
     }
-
-    boolean this_present_ip = true && this.isSetIp();
-    boolean that_present_ip = true && that.isSetIp();
-    if (this_present_ip || that_present_ip) {
-      if (!(this_present_ip && that_present_ip))
-        return false;
-      if (!this.ip.equals(that.ip))
-        return false;
-    }
-
-    boolean this_present_ports = true && this.isSetPorts();
-    boolean that_present_ports = true && that.isSetPorts();
-    if (this_present_ports || that_present_ports) {
-      if (!(this_present_ports && that_present_ports))
-        return false;
-      if (!this.ports.equals(that.ports))
-        return false;
-    }
-
-    boolean this_present_agentId = true && this.isSetAgentId();
-    boolean that_present_agentId = true && that.isSetAgentId();
-    if (this_present_agentId || that_present_agentId) {
-      if (!(this_present_agentId && that_present_agentId))
-        return false;
-      if (!this.agentId.equals(that.agentId))
-        return false;
-    }
-
-    boolean this_present_statistics = true && this.isSetStatistics();
-    boolean that_present_statistics = true && that.isSetStatistics();
-    if (this_present_statistics || that_present_statistics) {
-      if (!(this_present_statistics && that_present_statistics))
-        return false;
-      if (!this.statistics.equals(that.statistics))
-        return false;
-    }
-
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
-        return false;
-      if (this.timestamp != that.timestamp)
-        return false;
-    }
-
-    return true;
   }
 
   @Override
-  public int hashCode() {
-    return 0;
+  protected void standardSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    switch (setField_) {
+      case CMS:
+        StatWithCmsCollector cms = (StatWithCmsCollector)value_;
+        cms.write(oprot);
+        return;
+      case G1:
+        StatWithG1Collector g1 = (StatWithG1Collector)value_;
+        g1.write(oprot);
+        return;
+      case PARALLEL:
+        StatWithParallelCollector parallel = (StatWithParallelCollector)value_;
+        parallel.write(oprot);
+        return;
+      default:
+        throw new IllegalStateException("Cannot write union with unknown field " + setField_);
+    }
   }
 
-  public int compareTo(AgentStat other) {
-    if (!getClass().equals(other.getClass())) {
-      return getClass().getName().compareTo(other.getClass().getName());
+  @Override
+  protected Object tupleSchemeReadValue(org.apache.thrift.protocol.TProtocol iprot, short fieldID) throws org.apache.thrift.TException {
+    _Fields setField = _Fields.findByThriftId(fieldID);
+    if (setField != null) {
+      switch (setField) {
+        case CMS:
+          StatWithCmsCollector cms;
+          cms = new StatWithCmsCollector();
+          cms.read(iprot);
+          return cms;
+        case G1:
+          StatWithG1Collector g1;
+          g1 = new StatWithG1Collector();
+          g1.read(iprot);
+          return g1;
+        case PARALLEL:
+          StatWithParallelCollector parallel;
+          parallel = new StatWithParallelCollector();
+          parallel.read(iprot);
+          return parallel;
+        default:
+          throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
+      }
+    } else {
+      throw new TProtocolException("Couldn't find a field with field id " + fieldID);
     }
+  }
 
-    int lastComparison = 0;
-    AgentStat typedOther = (AgentStat)other;
+  @Override
+  protected void tupleSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    switch (setField_) {
+      case CMS:
+        StatWithCmsCollector cms = (StatWithCmsCollector)value_;
+        cms.write(oprot);
+        return;
+      case G1:
+        StatWithG1Collector g1 = (StatWithG1Collector)value_;
+        g1.write(oprot);
+        return;
+      case PARALLEL:
+        StatWithParallelCollector parallel = (StatWithParallelCollector)value_;
+        parallel.write(oprot);
+        return;
+      default:
+        throw new IllegalStateException("Cannot write union with unknown field " + setField_);
+    }
+  }
 
-    lastComparison = Boolean.valueOf(isSetHostname()).compareTo(typedOther.isSetHostname());
-    if (lastComparison != 0) {
-      return lastComparison;
+  @Override
+  protected org.apache.thrift.protocol.TField getFieldDesc(_Fields setField) {
+    switch (setField) {
+      case CMS:
+        return CMS_FIELD_DESC;
+      case G1:
+        return G1_FIELD_DESC;
+      case PARALLEL:
+        return PARALLEL_FIELD_DESC;
+      default:
+        throw new IllegalArgumentException("Unknown field id " + setField);
     }
-    if (isSetHostname()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hostname, typedOther.hostname);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetIp()).compareTo(typedOther.isSetIp());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ip, typedOther.ip);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetPorts()).compareTo(typedOther.isSetPorts());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetPorts()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ports, typedOther.ports);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetAgentId()).compareTo(typedOther.isSetAgentId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetAgentId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentId, typedOther.agentId);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetStatistics()).compareTo(typedOther.isSetStatistics());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetStatistics()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.statistics, typedOther.statistics);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(typedOther.isSetTimestamp());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, typedOther.timestamp);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    return 0;
+  }
+
+  @Override
+  protected org.apache.thrift.protocol.TStruct getStructDesc() {
+    return STRUCT_DESC;
+  }
+
+  @Override
+  protected _Fields enumForId(short id) {
+    return _Fields.findByThriftIdOrThrow(id);
   }
 
   public _Fields fieldForId(int fieldId) {
     return _Fields.findByThriftId(fieldId);
   }
 
-  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
-    schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+
+  public StatWithCmsCollector getCms() {
+    if (getSetField() == _Fields.CMS) {
+      return (StatWithCmsCollector)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'cms' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
   }
 
-  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
-    schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+  public void setCms(StatWithCmsCollector value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.CMS;
+    value_ = value;
+  }
+
+  public StatWithG1Collector getG1() {
+    if (getSetField() == _Fields.G1) {
+      return (StatWithG1Collector)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'g1' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setG1(StatWithG1Collector value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.G1;
+    value_ = value;
+  }
+
+  public StatWithParallelCollector getParallel() {
+    if (getSetField() == _Fields.PARALLEL) {
+      return (StatWithParallelCollector)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'parallel' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setParallel(StatWithParallelCollector value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.PARALLEL;
+    value_ = value;
+  }
+
+  public boolean isSetCms() {
+    return setField_ == _Fields.CMS;
+  }
+
+
+  public boolean isSetG1() {
+    return setField_ == _Fields.G1;
+  }
+
+
+  public boolean isSetParallel() {
+    return setField_ == _Fields.PARALLEL;
+  }
+
+
+  public boolean equals(Object other) {
+    if (other instanceof AgentStat) {
+      return equals((AgentStat)other);
+    } else {
+      return false;
+    }
+  }
+
+  public boolean equals(AgentStat other) {
+    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
   @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("AgentStat(");
-    boolean first = true;
-
-    sb.append("hostname:");
-    if (this.hostname == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.hostname);
+  public int compareTo(AgentStat other) {
+    int lastComparison = org.apache.thrift.TBaseHelper.compareTo(getSetField(), other.getSetField());
+    if (lastComparison == 0) {
+      return org.apache.thrift.TBaseHelper.compareTo(getFieldValue(), other.getFieldValue());
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("ip:");
-    if (this.ip == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.ip);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("ports:");
-    if (this.ports == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.ports);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("agentId:");
-    if (this.agentId == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.agentId);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("statistics:");
-    if (this.statistics == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.statistics);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
-    first = false;
-    sb.append(")");
-    return sb.toString();
+    return lastComparison;
   }
 
-  public void validate() throws org.apache.thrift.TException {
-    // check for required fields
-    // check for sub-struct validity
+
+  /**
+   * If you'd like this to perform more respectably, use the hashcode generator option.
+   */
+  @Override
+  public int hashCode() {
+    return 0;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -667,210 +405,14 @@ public class AgentStat implements org.apache.thrift.TBase<AgentStat, AgentStat._
     }
   }
 
+
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
-      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
     }
   }
 
-  private static class AgentStatStandardSchemeFactory implements SchemeFactory {
-    public AgentStatStandardScheme getScheme() {
-      return new AgentStatStandardScheme();
-    }
-  }
-
-  private static class AgentStatStandardScheme extends StandardScheme<AgentStat> {
-
-    public void read(org.apache.thrift.protocol.TProtocol iprot, AgentStat struct) throws org.apache.thrift.TException {
-      org.apache.thrift.protocol.TField schemeField;
-      iprot.readStructBegin();
-      while (true)
-      {
-        schemeField = iprot.readFieldBegin();
-        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
-          break;
-        }
-        switch (schemeField.id) {
-          case 1: // HOSTNAME
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.hostname = iprot.readString();
-              struct.setHostnameIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // IP
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.ip = iprot.readString();
-              struct.setIpIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // PORTS
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.ports = iprot.readString();
-              struct.setPortsIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // AGENT_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.agentId = iprot.readString();
-              struct.setAgentIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // STATISTICS
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.statistics = iprot.readString();
-              struct.setStatisticsIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 6: // TIMESTAMP
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          default:
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-        }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-      struct.validate();
-    }
-
-    public void write(org.apache.thrift.protocol.TProtocol oprot, AgentStat struct) throws org.apache.thrift.TException {
-      struct.validate();
-
-      oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.hostname != null) {
-        oprot.writeFieldBegin(HOSTNAME_FIELD_DESC);
-        oprot.writeString(struct.hostname);
-        oprot.writeFieldEnd();
-      }
-      if (struct.ip != null) {
-        oprot.writeFieldBegin(IP_FIELD_DESC);
-        oprot.writeString(struct.ip);
-        oprot.writeFieldEnd();
-      }
-      if (struct.ports != null) {
-        oprot.writeFieldBegin(PORTS_FIELD_DESC);
-        oprot.writeString(struct.ports);
-        oprot.writeFieldEnd();
-      }
-      if (struct.agentId != null) {
-        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
-        oprot.writeString(struct.agentId);
-        oprot.writeFieldEnd();
-      }
-      if (struct.statistics != null) {
-        oprot.writeFieldBegin(STATISTICS_FIELD_DESC);
-        oprot.writeString(struct.statistics);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
-      oprot.writeFieldEnd();
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-  }
-
-  private static class AgentStatTupleSchemeFactory implements SchemeFactory {
-    public AgentStatTupleScheme getScheme() {
-      return new AgentStatTupleScheme();
-    }
-  }
-
-  private static class AgentStatTupleScheme extends TupleScheme<AgentStat> {
-
-    @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, AgentStat struct) throws org.apache.thrift.TException {
-      TTupleProtocol oprot = (TTupleProtocol) prot;
-      BitSet optionals = new BitSet();
-      if (struct.isSetHostname()) {
-        optionals.set(0);
-      }
-      if (struct.isSetIp()) {
-        optionals.set(1);
-      }
-      if (struct.isSetPorts()) {
-        optionals.set(2);
-      }
-      if (struct.isSetAgentId()) {
-        optionals.set(3);
-      }
-      if (struct.isSetStatistics()) {
-        optionals.set(4);
-      }
-      if (struct.isSetTimestamp()) {
-        optionals.set(5);
-      }
-      oprot.writeBitSet(optionals, 6);
-      if (struct.isSetHostname()) {
-        oprot.writeString(struct.hostname);
-      }
-      if (struct.isSetIp()) {
-        oprot.writeString(struct.ip);
-      }
-      if (struct.isSetPorts()) {
-        oprot.writeString(struct.ports);
-      }
-      if (struct.isSetAgentId()) {
-        oprot.writeString(struct.agentId);
-      }
-      if (struct.isSetStatistics()) {
-        oprot.writeString(struct.statistics);
-      }
-      if (struct.isSetTimestamp()) {
-        oprot.writeI64(struct.timestamp);
-      }
-    }
-
-    @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, AgentStat struct) throws org.apache.thrift.TException {
-      TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(6);
-      if (incoming.get(0)) {
-        struct.hostname = iprot.readString();
-        struct.setHostnameIsSet(true);
-      }
-      if (incoming.get(1)) {
-        struct.ip = iprot.readString();
-        struct.setIpIsSet(true);
-      }
-      if (incoming.get(2)) {
-        struct.ports = iprot.readString();
-        struct.setPortsIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.agentId = iprot.readString();
-        struct.setAgentIdIsSet(true);
-      }
-      if (incoming.get(4)) {
-        struct.statistics = iprot.readString();
-        struct.setStatisticsIsSet(true);
-      }
-      if (incoming.get(5)) {
-        struct.timestamp = iprot.readI64();
-        struct.setTimestampIsSet(true);
-      }
-    }
-  }
 
 }
-

@@ -22,6 +22,11 @@ public class HBaseTables {
     public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
     public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
+    public static final String AGENT_STAT = "AgentStat";
+    public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics
+    public static final byte[] AGENT_STAT_CF_STATISTICS_V1 = Bytes.toBytes("V1"); // qualifier
+    public static final int AGENT_STAT_ROW_DISTRIBUTE_SIZE = 1; // agent statistics hash size
+    
     public static final String TRACES = "Traces";
     public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("S");  //Span
     public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
