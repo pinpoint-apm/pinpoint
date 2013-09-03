@@ -6,7 +6,7 @@ pinpointApp.constant('nodeInfoDetailsConfig', {
 });
 
 pinpointApp
-    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$rootScope', '$templateCache', function (config, $rootScope, $templateCache) {
+    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', function (config) {
         return {
             restrict: 'EA',
             replace: true,
@@ -14,6 +14,7 @@ pinpointApp
             link: function postLink(scope, element, attrs) {
 
                 var reset = function () {
+                    scope.nodeName = null;
                     scope.nodeCategory = null;
                     scope.unknownGroup = null;
                     scope.hosts = null;
@@ -25,6 +26,7 @@ pinpointApp
                 };
 
                 var showDetailInformation = function (query, data) {
+                    scope.nodeName = data.text;
                     scope.nodeCategory = data.category;
                     scope.unknownGroup = data.textArr;
                     scope.hosts = data.hosts;

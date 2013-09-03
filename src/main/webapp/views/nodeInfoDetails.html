@@ -10,11 +10,16 @@
 		</div>
 
 		<div ng-switch-when="USER">
-			<img src="/images/icons/USER.png" width="20" height="10" /> USER
+            <div class="alert alert-info text-center">
+			    <img src="/images/icons/USER.png" width="20" height="10" /> USER
+            </div>
 		</div>
 
 		<div ng-switch-default>
 			<div ng-show="showHosts">
+                <div class="alert alert-info text-center">
+                    <img ng-src="/images/icons/{{nodeCategory}}.png" width="20" height="10" /> {{nodeName}}
+                </div>
 				<h5>Hosts</h5>
 				<ul>
 					<li ng-repeat="host in hosts">

@@ -47,6 +47,8 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 $timeout(function () {
                     if ($routeParams.queryEndTime) {
                         setDateTime($routeParams.queryEndTime);
+                    } else {
+                        setDateTime();
                     }
                 });
 

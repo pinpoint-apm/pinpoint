@@ -5,26 +5,26 @@
 	<div ng-include=" 'loading' "></div>
 
     <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>
+        <li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>
         <li class="divider"></li>
-        <li><a tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><i class="icon-list"></i> Passing Transaction Response to Scatter Chart</a></li>
+        <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><i class="icon-list"></i> Passing Transaction Response to Scatter Chart</a></li>
     </ul>
 
     <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a tabindex="-1" ng-click="passingTransactionMap()"><i class="icon-map-marker"></i> Passing Transaction Map</a></li>
+        <li><a href tabindex="-1" ng-click="passingTransactionMap()"><i class="icon-map-marker"></i> Passing Transaction Map</a></li>
         <li class="divider"></li>
-        <li><a tabindex="-1" ng-click="passingTransactionList()"><i class="icon-list"></i> Passing Transaction List</a></li>
+        <li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-list"></i> Passing Transaction List</a></li>
     </ul>
 
     <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a ng-click="toggleMergeUnknowns()"><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge unknowns</a></li>
-        <li><a ng-click="toggleHideIndirectAccess()"><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide indirect access</a></li>
+        <li><a href ng-click="toggleMergeUnknowns()"><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge unknowns</a></li>
+        <li><a href ng-click="toggleHideIndirectAccess()"><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide indirect access</a></li>
         <li class="divider"></li>
         <li class="dropdown-submenu">
-            <a tabindex="-1">Link Label Text Type</a>
+            <a tabindex="-1" href>Link Label Text Type</a>
             <ul class="dropdown-menu">
-                <li><a class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</a></li>
-                <li><a class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</a></li>
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</a></li>
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</a></li>
             </ul>
         </li>
     </ul>
