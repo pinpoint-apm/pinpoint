@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.config;
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
@@ -9,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
 
 public class ProfilerConfig {
@@ -55,7 +55,7 @@ public class ProfilerConfig {
 
 	public void readConfigFile(String pinpiontConfigFileName) throws IOException {
 		try {
-			Properties properties = PropertyUtils.readProperties(pinpiontConfigFileName);
+			Properties properties = readProperties(pinpiontConfigFileName);
 			readPropertyValues(properties);
 		} catch (FileNotFoundException fe) {
 			if (logger.isLoggable(Level.WARNING)) {
@@ -70,7 +70,22 @@ public class ProfilerConfig {
 		}
 	}
 
-	public String getCollectorServerIp() {
+    private Properties readProperties(String configFileName) throws IOException {
+        Properties properties = new Properties();
+        FileReader fileReader = new FileReader(configFileName);
+        try {
+            properties.load(fileReader);
+        } finally {
+            try {
+                fileReader.close();
+            } catch (IOException e) {
+                // 무시
+            }
+        }
+        return properties;
+    }
+
+    public String getCollectorServerIp() {
 		return collectorServerIp;
 	}
 
