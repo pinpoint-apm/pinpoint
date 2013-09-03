@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.common.dto2.Header;
-import com.nhn.pinpoint.common.dto2.thrift.JVMInfoThriftDTO;
-import com.nhn.pinpoint.common.io.PacketUtils;
+import com.nhn.pinpoint.thrift.io.Header;
+import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.io.PacketUtils;
 import com.nhn.pinpoint.collector.dao.JvmInfoDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;

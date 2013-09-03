@@ -9,7 +9,7 @@ import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;

@@ -2,13 +2,13 @@ package com.nhn.pinpoint.collector.handler;
 
 import java.net.DatagramPacket;
 
-import com.nhn.pinpoint.common.dto2.thrift.Result;
+import com.nhn.pinpoint.thrift.dto.Result;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.common.dto2.thrift.SqlMetaData;
+import com.nhn.pinpoint.thrift.dto.SqlMetaData;
 import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
 import org.springframework.stereotype.Service;
 

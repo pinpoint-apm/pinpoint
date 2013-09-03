@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
-import com.nhn.pinpoint.common.dto2.Header;
-import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.common.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.Header;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;

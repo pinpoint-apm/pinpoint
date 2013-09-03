@@ -4,7 +4,7 @@ import com.nhn.pinpoint.collector.handler.Handler;
 import com.nhn.pinpoint.collector.handler.RequestResponseHandler;
 import com.nhn.pinpoint.collector.handler.SimpleHandler;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
-import com.nhn.pinpoint.common.dto2.thrift.*;
+import com.nhn.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

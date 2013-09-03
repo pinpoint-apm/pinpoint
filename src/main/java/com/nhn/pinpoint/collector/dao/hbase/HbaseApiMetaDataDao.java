@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
 import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
-import com.nhn.pinpoint.common.dto2.thrift.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.ApiMetaData;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.buffer.Buffer;

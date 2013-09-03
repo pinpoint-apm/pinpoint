@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.collector.monitor;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
-import com.nhn.pinpoint.common.dto2.thrift.StatWithCmsCollector;
-import com.nhn.pinpoint.common.dto2.thrift.StatWithG1Collector;
-import com.nhn.pinpoint.common.dto2.thrift.StatWithParallelCollector;
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.StatWithG1Collector;
+import com.nhn.pinpoint.thrift.dto.StatWithParallelCollector;
+import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
 
 /**
  * AgentStat 메시지에서 agentId, timestamp 등의 공통 정보를 꺼내올 수 있는 유틸리티.

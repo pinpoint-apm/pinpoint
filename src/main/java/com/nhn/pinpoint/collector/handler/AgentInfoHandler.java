@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
 import com.nhn.pinpoint.collector.dao.AgentInfoDao;
 import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import org.springframework.stereotype.Service;
 
 @Service("agentInfoHandler")

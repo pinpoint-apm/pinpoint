@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.thrift.dto.Span;
 
 @Deprecated
 public interface TraceIndexDao {

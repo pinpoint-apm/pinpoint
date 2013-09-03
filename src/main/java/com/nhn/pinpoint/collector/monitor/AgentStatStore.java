@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.monitor;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * @author harebox

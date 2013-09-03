@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
 import com.nhn.pinpoint.collector.monitor.AgentStatSupport;
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;

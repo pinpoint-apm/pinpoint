@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.common.dto2.thrift.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.ApiMetaData;
 import com.nhn.pinpoint.collector.dao.ApiMetaDataDao;
-import com.nhn.pinpoint.common.dto2.thrift.Result;
+import com.nhn.pinpoint.thrift.dto.Result;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

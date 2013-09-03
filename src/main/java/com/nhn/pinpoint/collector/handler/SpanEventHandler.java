@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.SpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 

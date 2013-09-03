@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
-import com.nhn.pinpoint.common.dto2.Header;
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
-import com.nhn.pinpoint.common.io.PacketUtils;
+import com.nhn.pinpoint.thrift.io.Header;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.io.PacketUtils;
 
 @Service("agentStatHandler")
 public class AgentStatHandler implements Handler {
