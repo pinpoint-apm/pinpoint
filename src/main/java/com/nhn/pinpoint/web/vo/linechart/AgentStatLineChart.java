@@ -3,9 +3,9 @@ package com.nhn.pinpoint.web.vo.linechart;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
-import com.nhn.pinpoint.common.dto2.thrift.StatWithCmsCollector;
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
 
 /**
  * FIXME 일반화 해야 할까?

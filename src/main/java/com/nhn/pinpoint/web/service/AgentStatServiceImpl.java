@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.web.dao.AgentStatDao;
 
 /**

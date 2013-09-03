@@ -12,7 +12,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * @author harebox

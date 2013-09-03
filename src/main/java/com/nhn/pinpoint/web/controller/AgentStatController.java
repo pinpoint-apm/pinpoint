@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+
 import com.nhn.pinpoint.web.service.AgentStatService;
 import com.nhn.pinpoint.web.vo.linechart.AgentStatLineChart;
 

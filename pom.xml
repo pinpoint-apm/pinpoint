@@ -49,6 +49,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-thrift</artifactId>
+            <version>0.0.4-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
             <version>3.6.6.Final</version>

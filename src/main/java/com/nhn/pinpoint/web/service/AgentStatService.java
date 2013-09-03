@@ -2,7 +2,8 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 public interface AgentStatService {
 
