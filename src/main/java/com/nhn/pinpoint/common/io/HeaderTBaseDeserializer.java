@@ -13,7 +13,8 @@ public class HeaderTBaseDeserializer {
     private final TProtocol protocol_;
     private final TMemoryInputTransport trans_;
 
-    private final TBaseLocator locator = new DefaultTBaseLocator();
+    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private final TBaseLocator locator = DEFAULT_TBASE_LOCATOR;
     /**
      * Create a new TDeserializer that uses the TBinaryProtocol by default.
      */

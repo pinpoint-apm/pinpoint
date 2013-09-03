@@ -34,12 +34,14 @@ public class HeaderTBaseSerializer {
      */
     private TProtocol protocol_;
 
+    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+
     /**
      * Create a new TSerializer that uses the TBinaryProtocol by default.
      */
     public HeaderTBaseSerializer() {
 
-        this(new TCompactProtocol.Factory(), new DefaultTBaseLocator());
+        this(new TCompactProtocol.Factory(), DEFAULT_TBASE_LOCATOR);
     }
 
     private TBaseLocator locator;

@@ -107,3 +107,9 @@ struct RequestThriftDTO {
 	17: optional i64 extraLong2,
 	18: optional i64 extraLong3
 }
+
+struct Result {
+  1: bool success
+  2: optional string message
+}
+

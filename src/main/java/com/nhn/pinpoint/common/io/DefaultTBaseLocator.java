@@ -39,6 +39,9 @@ public class DefaultTBaseLocator implements TBaseLocator {
     private static final short APIMETADATA = 310;
     private static final Header APIMETADATA_HEADER = createHeader(APIMETADATA);
 
+    private static final short RESULT = 320;
+    private static final Header RESULT_HEADER = createHeader(RESULT);
+
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
@@ -62,6 +65,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return new SqlMetaData();
             case APIMETADATA:
                 return new ApiMetaData();
+            case RESULT:
+                return new Result();
         }
         throw new TException("Unsupported type:" + type);
     }
@@ -97,6 +102,9 @@ public class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof ApiMetaData) {
             return APIMETADATA;
         }
+        if (tbase instanceof Result) {
+            return RESULT;
+        }
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 
@@ -126,6 +134,8 @@ public class DefaultTBaseLocator implements TBaseLocator {
                 return SQLMETADATA_HEADER;
             case APIMETADATA:
                 return APIMETADATA_HEADER;
+            case RESULT:
+                return RESULT_HEADER;
         }
         throw new TException("Unsupported type:" + tbase.getClass());
     }
