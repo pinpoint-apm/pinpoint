@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.context;
 
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.common.dto.thrift.ApiMetaData;
-import com.nhn.pinpoint.common.dto.thrift.SqlMetaData;
+import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.SqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.common.util.SqlParser;
 import com.nhn.pinpoint.exception.PinPointException;

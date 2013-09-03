@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 
 /**
  *
@@ -22,7 +22,7 @@ public class SpanChunk implements Thriftable {
 
     @Override
     public TBase toThrift() {
-        com.nhn.pinpoint.common.dto.thrift.SpanChunk tSpanChunk = new com.nhn.pinpoint.common.dto.thrift.SpanChunk();
+        com.nhn.pinpoint.thrift.dto.SpanChunk tSpanChunk = new com.nhn.pinpoint.thrift.dto.SpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
@@ -41,17 +41,17 @@ public class SpanChunk implements Thriftable {
         
         tSpanChunk.setEndPoint(parentSpan.getEndPoint());
         
-        List<com.nhn.pinpoint.common.dto.thrift.SpanEvent> tSpanEvent = createSpanEvent(spanEventList);
+        List<com.nhn.pinpoint.thrift.dto.SpanEvent> tSpanEvent = createSpanEvent(spanEventList);
 
         tSpanChunk.setSpanEventList(tSpanEvent);
 
         return tSpanChunk;
     }
 
-    private List<com.nhn.pinpoint.common.dto.thrift.SpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
-        List<com.nhn.pinpoint.common.dto.thrift.SpanEvent> result = new ArrayList<com.nhn.pinpoint.common.dto.thrift.SpanEvent>(spanEventList.size());
+    private List<com.nhn.pinpoint.thrift.dto.SpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
+        List<com.nhn.pinpoint.thrift.dto.SpanEvent> result = new ArrayList<com.nhn.pinpoint.thrift.dto.SpanEvent>(spanEventList.size());
         for (SpanEvent spanEvent : spanEventList) {
-            com.nhn.pinpoint.common.dto.thrift.SpanEvent tSpanEvent = new com.nhn.pinpoint.common.dto.thrift.SpanEvent();
+            com.nhn.pinpoint.thrift.dto.SpanEvent tSpanEvent = new com.nhn.pinpoint.thrift.dto.SpanEvent();
 
 //            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
 //            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());

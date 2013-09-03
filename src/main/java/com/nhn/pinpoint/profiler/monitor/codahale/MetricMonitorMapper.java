@@ -5,11 +5,11 @@ import java.util.Map;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import com.nhn.pinpoint.common.dto.thrift.AgentStat;
-import com.nhn.pinpoint.common.dto.thrift.AgentStat._Fields;
-import com.nhn.pinpoint.common.dto.thrift.StatWithCmsCollector;
-import com.nhn.pinpoint.common.dto.thrift.StatWithG1Collector;
-import com.nhn.pinpoint.common.dto.thrift.StatWithParallelCollector;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.StatWithG1Collector;
+import com.nhn.pinpoint.thrift.dto.StatWithParallelCollector;
 import com.nhn.pinpoint.profiler.monitor.MonitorMapper;
 import com.nhn.pinpoint.profiler.monitor.MonitorRegistry;
 

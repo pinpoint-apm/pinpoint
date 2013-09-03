@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.dto.thrift.AgentKey;
-import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.AgentKey;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 
 /**
  * Span represent RPC
@@ -162,12 +162,12 @@ public class SpanEvent implements Thriftable {
         return sb.toString();
     }
 
-    public com.nhn.pinpoint.common.dto.thrift.SpanEvent toThrift() {
+    public com.nhn.pinpoint.thrift.dto.SpanEvent toThrift() {
         return toThrift(false);
     }
 
-    public com.nhn.pinpoint.common.dto.thrift.SpanEvent toThrift(boolean child) {
-        com.nhn.pinpoint.common.dto.thrift.SpanEvent spanEvent = new com.nhn.pinpoint.common.dto.thrift.SpanEvent();
+    public com.nhn.pinpoint.thrift.dto.SpanEvent toThrift(boolean child) {
+        com.nhn.pinpoint.thrift.dto.SpanEvent spanEvent = new com.nhn.pinpoint.thrift.dto.SpanEvent();
 
         long parentSpanStartTime = parentSpan.getStartTime();
         spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));

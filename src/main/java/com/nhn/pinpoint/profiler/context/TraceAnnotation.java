@@ -1,7 +1,8 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 import com.nhn.pinpoint.profiler.util.AnnotationTranscoder;
 
 /**

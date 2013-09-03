@@ -13,8 +13,8 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
-import com.nhn.pinpoint.common.dto.thrift.AgentStat;
-import com.nhn.pinpoint.common.dto.thrift.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricHistogramMonitor;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 

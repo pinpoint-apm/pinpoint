@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
-import com.nhn.pinpoint.common.dto.thrift.Result;
+import com.nhn.pinpoint.thrift.dto.Result;
 import com.nhn.pinpoint.profiler.context.Thriftable;
-import com.nhn.pinpoint.profiler.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.profiler.io.SafeHeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.rpc.Future;

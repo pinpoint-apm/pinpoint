@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.common.dto.thrift.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.ApiMetaData;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;

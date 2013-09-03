@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.monitor;
 
-import com.nhn.pinpoint.common.dto.thrift.AgentStat;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.profiler.monitor.MonitorRegistry;
 
 /**

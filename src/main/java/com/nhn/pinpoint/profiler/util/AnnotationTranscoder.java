@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
 
-import com.nhn.pinpoint.common.dto.thrift.*;
+import com.nhn.pinpoint.thrift.dto.*;
 import com.nhn.pinpoint.common.util.TranscoderUtils;
 
 import java.io.UnsupportedEncodingException;

@@ -8,7 +8,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <thrift.executable>${thrift.executable.property}</thrift.executable>
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.0.1</metrics.version>
@@ -63,6 +62,25 @@
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hbase</groupId>
+                    <artifactId>hbase</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-thrift</artifactId>
+            <version>0.0.4-SNAPSHOT</version>
+            <exclusions>
                 <exclusion>
                     <groupId>org.apache.thrift</groupId>
                     <artifactId>libthrift</artifactId>
@@ -349,23 +367,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>thrift.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -376,46 +377,6 @@
 						<exclude>**/log4j.xml</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>generate-sources</id>
-						<phase>generate-sources</phase>
-						<configuration>
-							<tasks>
-								<mkdir dir="${basedir}/generated-sources/thrift" />
-								<delete>
-									<fileset dir="${basedir}/generated-sources/thrift"
-										includes="**/*" />
-								</delete>
-								<mkdir dir="${basedir}/generated-sources/thrift" />
-								<exec executable="${thrift.executable}" failonerror="true">
-									<arg value="--gen" />
-									<arg value="java:beans" />
-									<arg value="-o" />
-									<arg value="${basedir}/generated-sources/thrift" />
-									<arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
-								</exec>
-								<exec executable="${thrift.executable}" failonerror="true">
-									<arg value="--gen" />
-									<arg value="java:beans" />
-									<arg value="-o" />
-									<arg value="${basedir}/generated-sources/thrift" />
-									<arg value="${basedir}/src/main/thrift/Trace.thrift" />
-								</exec>
-								<copy todir="src/main/java" overwrite="true">
-									<fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
-								</copy>
-								<delete dir="${basedir}/generated-sources" />
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
         </plugins>
     </build>

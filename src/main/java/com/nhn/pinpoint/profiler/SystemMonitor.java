@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.common.dto.thrift.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.logging.Logger;

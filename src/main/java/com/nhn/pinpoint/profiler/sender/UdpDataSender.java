@@ -12,7 +12,7 @@ import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.nhn.pinpoint.profiler.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.profiler.context.Thriftable;
 
 /**

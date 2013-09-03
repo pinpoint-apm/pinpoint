@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.common.dto.thrift.AgentStat;
-import com.nhn.pinpoint.common.dto.thrift.StatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
 import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorMapper;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;

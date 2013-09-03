@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.common.dto.thrift.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;

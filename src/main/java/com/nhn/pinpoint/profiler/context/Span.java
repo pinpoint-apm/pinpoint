@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.dto.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,8 +164,8 @@ public class Span implements Thriftable {
         return sb.toString();
     }
 
-    public com.nhn.pinpoint.common.dto.thrift.Span toThrift() {
-        com.nhn.pinpoint.common.dto.thrift.Span span = new com.nhn.pinpoint.common.dto.thrift.Span();
+    public com.nhn.pinpoint.thrift.dto.Span toThrift() {
+        com.nhn.pinpoint.thrift.dto.Span span = new com.nhn.pinpoint.thrift.dto.Span();
 
         span.setAgentId(DefaultAgent.getInstance().getAgentId());
         span.setApplicationName(DefaultAgent.getInstance().getApplicationName());
@@ -209,9 +209,9 @@ public class Span implements Thriftable {
         List<SpanEvent> spanEventList = this.getSpanEventList();
         if (spanEventList != null && spanEventList.size() != 0) {
 
-            List<com.nhn.pinpoint.common.dto.thrift.SpanEvent> tSpanEventList = new ArrayList<com.nhn.pinpoint.common.dto.thrift.SpanEvent>(spanEventList.size());
+            List<com.nhn.pinpoint.thrift.dto.SpanEvent> tSpanEventList = new ArrayList<com.nhn.pinpoint.thrift.dto.SpanEvent>(spanEventList.size());
             for (SpanEvent spanEvent : spanEventList) {
-                com.nhn.pinpoint.common.dto.thrift.SpanEvent tSpanEvent = spanEvent.toThrift(true);
+                com.nhn.pinpoint.thrift.dto.SpanEvent tSpanEvent = spanEvent.toThrift(true);
                 tSpanEventList.add(tSpanEvent);
             }
             span.setSpanEventList(tSpanEventList);
