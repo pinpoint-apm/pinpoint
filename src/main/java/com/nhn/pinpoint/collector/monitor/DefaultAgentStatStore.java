@@ -6,22 +6,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.nhn.pinpoint.common.dto2.thrift.AgentStat;
 
 /**
- * 
+ * 테스트를 위해 메모리에 (AgentId -> AgentStat) 맵을 캐싱해둔다. 
  * @author harebox
  */
 public class DefaultAgentStatStore implements AgentStatStore {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	@Autowired
+	@Qualifier("jsonObjectMapper")
+	private ObjectMapper jsonObjectMapper;
+	
 	// in-memory storage
 	private Map<String, AgentStat> map = new ConcurrentHashMap<String, AgentStat>();
 	
-	private ObjectMapper jsonMapper = new ObjectMapper();
-
 	public void store(AgentStat agentStat) {
 		String agentId = AgentStatSupport.getAgentId(agentStat);
 		
@@ -43,7 +47,7 @@ public class DefaultAgentStatStore implements AgentStatStore {
 			AgentStat agentStat = map.get(agentId);
 			if (agentStat != null) {
 				Object typeObject = agentStat.getFieldValue(agentStat.getSetField());
-				result = jsonMapper.writeValueAsString(typeObject);
+				result = jsonObjectMapper.writeValueAsString(typeObject);
 			}
 		} catch (Exception e) {
 			logger.error("failed to serialze the object to JSON : {}", e.getMessage());
@@ -51,7 +55,7 @@ public class DefaultAgentStatStore implements AgentStatStore {
 		return result;
 	}
 	
-	public String toJson() {
+	public String getInJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		sb.append("\"agentId\"").append(" : ").append("\"").append(map.keySet().toString()).append("\"");

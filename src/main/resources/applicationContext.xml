@@ -74,4 +74,7 @@
     <bean id="udpReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
     </bean>
     
+    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+    </bean>
+    
 </beans>

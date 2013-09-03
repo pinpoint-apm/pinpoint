@@ -6,6 +6,12 @@ import com.nhn.pinpoint.common.dto2.thrift.StatWithG1Collector;
 import com.nhn.pinpoint.common.dto2.thrift.StatWithParallelCollector;
 import com.nhn.pinpoint.common.dto2.thrift.AgentStat._Fields;
 
+/**
+ * AgentStat 메시지에서 agentId, timestamp 등의 공통 정보를 꺼내올 수 있는 유틸리티.
+ * AgentStat에 포함될 struct들이 agentId, timestamp 필드를 가지고 있다고 가정한다.
+ * 
+ * @author harebox
+ */
 public class AgentStatSupport {
 
 	public static String getAgentId(AgentStat agentStat) {

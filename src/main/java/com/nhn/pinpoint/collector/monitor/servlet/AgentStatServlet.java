@@ -62,7 +62,7 @@ public class AgentStatServlet extends HttpServlet {
 				jsonpCallback(req, res, "{\"error\": \"not found : " + agentId + "\"}");
 			}
 		} else {
-			jsonpCallback(req, res, statServer.getStore().toJson());
+			jsonpCallback(req, res, statServer.getStore().getInJson());
 		}
 	}
 

@@ -11,8 +11,8 @@ public interface AgentStatStore {
 	
 	AgentStat get(String agentId);
 
+	String getInJson();
+	
 	String getInJson(String agentId);
-
-	String toJson();
 	
 }
