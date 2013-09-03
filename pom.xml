@@ -9,7 +9,6 @@
 
     <properties>
         <thrift.executable>${thrift.executable.property}</thrift.executable>
-        <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 
@@ -75,7 +74,6 @@
             <optional>true</optional>
         </dependency>
         <!-- thrift logging lib -->
-        <!-- ������� slf4j �� ��� �������� �����ؾ� ��. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -94,12 +92,6 @@
             <version>1.2.16</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.slf4j</groupId>-->
-        <!--<artifactId>slf4j-jdk14</artifactId>-->
-        <!--<version>1.6.6</version>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
 
 
         <!-- unit test -->
@@ -228,7 +220,7 @@
                         <id>generate-sources</id>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <mkdir dir="${basedir}/generated-sources/thrift" />
                                 <delete>
                                     <fileset dir="${basedir}/generated-sources/thrift"
@@ -253,7 +245,7 @@
                                     <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
                                 </copy>
                                 <delete dir="${basedir}/generated-sources" />
-                            </tasks>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
