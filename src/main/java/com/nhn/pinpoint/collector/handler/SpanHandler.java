@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
-import com.nhn.pinpoint.collector.dao.TraceIndexDao;
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.dto2.thrift.Span;

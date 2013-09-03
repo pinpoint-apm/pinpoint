@@ -62,6 +62,12 @@ public class Server {
 
 
     private void tcpServerStart(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+        if (configuration == null) {
+            throw new NullPointerException("configuration must not be null");
+        }
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler must not be null");
+        }
         logger.info("Starting TCPReceiver.");
         tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getCollectorTcpListenPort());
         tcpReceiver.start();

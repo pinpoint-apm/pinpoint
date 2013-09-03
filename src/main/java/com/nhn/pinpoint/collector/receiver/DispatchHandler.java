@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.collector.receiver;
 
 import com.nhn.pinpoint.collector.handler.Handler;
+import com.nhn.pinpoint.collector.handler.RequestResponseHandler;
 import com.nhn.pinpoint.collector.handler.SimpleHandler;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.dto2.thrift.*;
@@ -41,11 +42,11 @@ public class DispatchHandler {
 
     @Autowired()
     @Qualifier("sqlMetaDataHandler")
-    private SimpleHandler sqlMetaDataHandler;
+    private RequestResponseHandler sqlMetaDataHandler;
 
     @Autowired()
     @Qualifier("apiMetaDataHandler")
-    private SimpleHandler apiMetaDataHandler;
+    private RequestResponseHandler apiMetaDataHandler;
 
     @Autowired
     private AcceptedTimeService acceptedTimeService;
@@ -54,17 +55,17 @@ public class DispatchHandler {
     }
 
 
-    public void dispatch(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+    public TBase dispatch(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
         // accepted time 마크
         acceptedTimeService.accept();
-
+        // TODO 수정시 dispatch table은 자동으로 바뀌게 변경해도 될듯하다.
         SimpleHandler simpleHandler = getSimpleHandler(tBase);
         if (simpleHandler != null) {
             if (logger.isTraceEnabled()) {
                 logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
             }
             simpleHandler.handler(tBase);
-            return;
+            return null;
         }
 
         Handler handler = getHandler(tBase);
@@ -73,7 +74,15 @@ public class DispatchHandler {
                 logger.trace("handler name:{}", handler.getClass().getName());
             }
             handler.handler(tBase, packet, offset, length);
-            return;
+            return null;
+        }
+
+        RequestResponseHandler requestResponseHandler = getRequestResponseHandler(tBase);
+        if (requestResponseHandler != null) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("requestResponseHandler name:{}", requestResponseHandler.getClass().getName());
+            }
+            return requestResponseHandler.handler(tBase);
         }
 
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
@@ -91,6 +100,16 @@ public class DispatchHandler {
         return null;
     }
 
+    public RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+        if (tBase instanceof SqlMetaData) {
+            return sqlMetaDataHandler;
+        }
+        if (tBase instanceof ApiMetaData) {
+            return apiMetaDataHandler;
+        }
+        return null;
+    }
+
     public SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
         if (tBase instanceof Span) {
             return spanDataHandler;
@@ -104,12 +123,7 @@ public class DispatchHandler {
         if (tBase instanceof SpanChunk) {
             return spanChunkHandler;
         }
-        if (tBase instanceof SqlMetaData) {
-            return sqlMetaDataHandler;
-        }
-        if (tBase instanceof ApiMetaData) {
-            return apiMetaDataHandler;
-        }
+
         return null;
     }
 }

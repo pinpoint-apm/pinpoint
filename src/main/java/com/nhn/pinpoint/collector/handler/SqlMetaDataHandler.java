@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.handler;
 
 import java.net.DatagramPacket;
 
+import com.nhn.pinpoint.common.dto2.thrift.Result;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,17 +16,17 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class SqlMetaDataHandler implements SimpleHandler {
+public class SqlMetaDataHandler implements RequestResponseHandler {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private SqlMetaDataDao sqlMetaDataDao;
 
 	@Override
-	public void handler(TBase<?, ?> tbase) {
+	public TBase<?, ?> handler(TBase<?, ?> tbase) {
 		if (!(tbase instanceof SqlMetaData)) {
-			logger.warn("invalid tbase:{}", tbase);
-			return;
+			logger.error("invalid tbase:{}", tbase);
+			return null;
 		}
 		
 		SqlMetaData sqlMetaData = (SqlMetaData) tbase;
@@ -34,6 +35,15 @@ public class SqlMetaDataHandler implements SimpleHandler {
 			logger.info("Received SqlMetaData:{}", sqlMetaData);
 		}
 		
-		sqlMetaDataDao.insert(sqlMetaData);
+
+        try {
+            sqlMetaDataDao.insert(sqlMetaData);
+        } catch (Exception e) {
+            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
+            Result result = new Result(false);
+            result.setMessage(e.getMessage());
+            return result;
+        }
+        return new Result(true);
 	}
 }

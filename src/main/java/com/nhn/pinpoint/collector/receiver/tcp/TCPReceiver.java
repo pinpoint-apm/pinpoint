@@ -10,6 +10,7 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.dto2.Header;
 import com.nhn.pinpoint.common.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.common.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
@@ -58,7 +59,7 @@ public class TCPReceiver {
 
             @Override
             public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-                logger.warn("unsupported requestPacket received {}", requestPacket);
+                requestResponse(requestPacket, channel);
             }
 
             @Override
@@ -74,6 +75,15 @@ public class TCPReceiver {
     private void receive(SendPacket sendPacket, SocketChannel channel) {
         try {
             worker.execute(new Dispatch(sendPacket.getPayload(), channel.getRemoteAddress()));
+        } catch (RejectedExecutionException e) {
+            // 이건 stack trace찍어 봤자임. 원인이 명확함. 어떤 메시지 에러인지 좀더 알기 쉽게 찍을 필요성이 있음.
+            logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
+        }
+    }
+
+    private void requestResponse(RequestPacket requestPacket, SocketChannel channel) {
+        try {
+            worker.execute(new RequestResponseDispatch(requestPacket, channel));
         } catch (RejectedExecutionException e) {
             // 이건 stack trace찍어 봤자임. 원인이 명확함. 어떤 메시지 에러인지 좀더 알기 쉽게 찍을 필요성이 있음.
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
@@ -99,6 +109,51 @@ public class TCPReceiver {
             try {
                 TBase<?, ?> tBase = deserializer.deserialize(bytes);
                 dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+            } catch (TException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
+                }
+            } catch (Exception e) {
+                // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
+                }
+            }
+        }
+    }
+
+    private class RequestResponseDispatch implements Runnable {
+        private final RequestPacket requestPacket;
+        private final SocketChannel socketChannel;
+
+
+        private RequestResponseDispatch(RequestPacket requestPacket, SocketChannel socketChannel) {
+            if (requestPacket == null) {
+                throw new NullPointerException("requestPacket");
+            }
+            this.requestPacket = requestPacket;
+            this.socketChannel = socketChannel;
+        }
+
+        @Override
+        public void run() {
+            final HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+            byte[] bytes = requestPacket.getPayload();
+            SocketAddress remoteAddress = socketChannel.getRemoteAddress();
+            try {
+                TBase<?, ?> tBase = deserializer.deserialize(bytes);
+                TBase result = dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+                if (result != null) {
+                    HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
+                    byte[] resultBytes = serializer.serialize(result);
+                    socketChannel.sendResponseMessage(requestPacket, resultBytes);
+                }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
