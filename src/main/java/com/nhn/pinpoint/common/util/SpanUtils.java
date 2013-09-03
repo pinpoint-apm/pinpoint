@@ -2,9 +2,9 @@ package com.nhn.pinpoint.common.util;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
-import com.nhn.pinpoint.common.dto2.thrift.Span;
-import com.nhn.pinpoint.common.dto2.thrift.SpanChunk;
-import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.SpanChunk;
+import com.nhn.pinpoint.thrift.dto.SpanEvent;
 
 public class SpanUtils {
 

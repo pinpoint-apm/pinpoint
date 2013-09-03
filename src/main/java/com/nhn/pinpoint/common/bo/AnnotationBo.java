@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.bo;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.dto2.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 import com.nhn.pinpoint.common.util.AnnotationTranscoder;
 import com.nhn.pinpoint.common.buffer.Buffer;
 

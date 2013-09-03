@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.dto2.thrift.AgentKey;
-import com.nhn.pinpoint.common.dto2.thrift.Annotation;
-import com.nhn.pinpoint.common.dto2.thrift.SpanChunk;
+import com.nhn.pinpoint.thrift.dto.AgentKey;
+import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.SpanChunk;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.dto2.thrift.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.SpanEvent;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
@@ -61,7 +61,7 @@ public class SpanEventBo implements Span {
 	public SpanEventBo() {
 	}
 
-	public SpanEventBo(com.nhn.pinpoint.common.dto2.thrift.Span tSpan, SpanEvent tSpanEvent) {
+	public SpanEventBo(com.nhn.pinpoint.thrift.dto.Span tSpan, SpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
         this.applicationId = tSpan.getApplicationName();
         this.agentStartTime = tSpan.getAgentStartTime();

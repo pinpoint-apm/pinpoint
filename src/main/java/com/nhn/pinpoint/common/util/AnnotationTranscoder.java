@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
 
-import com.nhn.pinpoint.common.dto2.thrift.Annotation;
+import com.nhn.pinpoint.thrift.dto.Annotation;
 
 import java.io.*;
 

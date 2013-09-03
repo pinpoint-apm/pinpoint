@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
-import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 
 import junit.framework.Assert;

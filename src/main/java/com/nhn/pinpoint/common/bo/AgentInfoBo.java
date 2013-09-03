@@ -3,7 +3,7 @@ package com.nhn.pinpoint.common.bo;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.common.dto2.thrift.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.AgentInfo;
 
 /**
  *

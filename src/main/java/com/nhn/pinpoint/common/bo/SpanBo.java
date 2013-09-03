@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.dto2.thrift.Annotation;
-import com.nhn.pinpoint.common.dto2.thrift.Span;
+import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;

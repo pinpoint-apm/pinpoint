@@ -8,7 +8,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <thrift.executable>${thrift.executable.property}</thrift.executable>
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
@@ -43,6 +42,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-thrift</artifactId>
+            <version>0.0.4-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- commons 의 경우 agent에서 사용할 경우도 있어 lib가 딸려 들어가면 문제가 될수 있어 optional로 함.-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -367,7 +372,7 @@
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
-            <version>0.9.0</version>
+            <version>0.9.1</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -385,7 +390,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -615,65 +619,6 @@
                 </configuration>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>thrift.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${basedir}/generated-sources/thrift" />
-                                <delete>
-                                    <fileset dir="${basedir}/generated-sources/thrift"
-                                             includes="**/*" />
-                                </delete>
-                                <mkdir dir="${basedir}/generated-sources/thrift" />
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:beans" />
-                                    <arg value="-o" />
-                                    <arg value="${basedir}/generated-sources/thrift" />
-                                    <arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
-                                </exec>
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:beans" />
-                                    <arg value="-o" />
-                                    <arg value="${basedir}/generated-sources/thrift" />
-                                    <arg value="${basedir}/src/main/thrift/Trace.thrift" />
-                                </exec>
-                                <copy todir="src/main/java" overwrite="true">
-                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
-                                </copy>
-                                <delete dir="${basedir}/generated-sources" />
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
