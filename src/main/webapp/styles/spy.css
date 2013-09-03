@@ -1,0 +1,17 @@
+.sidebar-spy {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-right: 12px;
+    margin-right: 12px;
+    width: 176px;
+    height: 100%;
+    border-right: 1px solid #ddd;
+    overflow: auto;
+}
+
+.main-spy {
+    margin-left: 200px;
+    height: 100%;
+    overflow: auto;
+}
