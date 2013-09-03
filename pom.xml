@@ -492,7 +492,6 @@
             <optional>true</optional>
         </dependency>
         <!-- thrift logging lib -->
-        <!-- 운영에서는 slf4j 가 없는 버전으로 변경해야 함. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
