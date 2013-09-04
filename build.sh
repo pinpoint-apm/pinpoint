@@ -17,7 +17,7 @@ fi
 # profiler
 pushd .
 cd ../pinpoint-profiler
-mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip -Dthrift.executable.property=/Users/netspider/DEV-TOOLS/thrift-0.9.0/bin/thrift $PROFILE
+mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
@@ -44,6 +44,13 @@ if [[ $rc != 0 ]] ; then
 fi
 
 cp ../pinpoint-rpc/target/pinpoint-rpc-$VERSION.jar $DEPLOY_DIR/lib
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
+
+cp ../pinpoint-thrift/target/pinpoint-thrift-$VERSION.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
