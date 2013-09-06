@@ -79,7 +79,9 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static String getDestApplicationNameFromColumnName(byte[] bytes) {
-        return new String(bytes, 6, BytesUtils.bytesToShort(bytes, 4)).trim();
+        final short length = BytesUtils.bytesToShort(bytes, 4);
+        String string = BytesUtils.toString(bytes, 6, length);
+        return BytesUtils.safeTrim(string);
     }
 
     public static String getHost(byte[] bytes) {
@@ -88,8 +90,8 @@ public class ApplicationMapStatisticsUtils {
         if (offset == bytes.length) {
             return null;
         }
-
-        return new String(bytes, offset, bytes.length - offset).trim();
+        String string = BytesUtils.toString(bytes, offset, bytes.length - offset);
+        return BytesUtils.safeTrim(string);
     }
 
     /**
@@ -119,7 +121,7 @@ public class ApplicationMapStatisticsUtils {
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
         byte[] temp = new byte[applicationNameLength];
         System.arraycopy(bytes, 2, temp, 0, applicationNameLength);
-        return new String(temp); //.trim();
+        return BytesUtils.toString(temp); //.trim();
     }
 
     public static short getApplicationTypeFromRowKey(byte[] bytes) {

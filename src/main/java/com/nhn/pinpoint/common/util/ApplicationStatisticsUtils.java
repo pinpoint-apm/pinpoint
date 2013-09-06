@@ -81,7 +81,7 @@ public class ApplicationStatisticsUtils {
 
 	public static String getApplicationNameFromRowKey(byte[] bytes) {
 		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-		return new String(bytes, 2, applicationNameLength); //.trim();
+		return BytesUtils.toString(bytes, 2, applicationNameLength); //.trim();
 	}
 
 	public static short getApplicationTypeFromRowKey(byte[] bytes) {

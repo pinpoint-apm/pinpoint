@@ -13,6 +13,7 @@ public final class BytesUtils {
 
     private static final byte[] EMPTY_BYTES = new byte[0];
     private static final String UTF8 = "UTF-8";
+    private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());
 
     public static byte[] longLongToBytes(final long value1, final long value2) {
         final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH];
@@ -338,4 +339,33 @@ public final class BytesUtils {
 
 		return result;
 	}
+
+    public static String safeTrim(final String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.trim();
+    }
+
+    public static String toString(final byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        return toString(bytes, 0, bytes.length);
+    }
+
+    public static String toString(final byte [] bytes, final int offset, final int length) {
+        if (bytes == null) {
+            return null;
+        }
+        if (length == 0) {
+            return "";
+        }
+        try {
+            return new String(bytes, offset, length, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, "UTF-8 encoding fail.", e);
+            return null;
+        }
+    }
 }

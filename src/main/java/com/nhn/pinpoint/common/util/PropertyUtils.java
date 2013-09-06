@@ -1,23 +1,32 @@
 package com.nhn.pinpoint.common.util;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 public class PropertyUtils {
 
     public static Properties readProperties(String propertyPath) throws IOException {
         Properties properties = new Properties();
-        FileReader fileReader = new FileReader(propertyPath);
-		try {
-			properties.load(fileReader);
-		} finally {
-            try {
-                fileReader.close();
-            } catch (IOException e) {
-                // 무시
+        InputStream in = null;
+        Reader reader = null;
+        try {
+            in = new FileInputStream(propertyPath);
+            reader = new InputStreamReader(in, "UTF-8");
+            properties.load(reader);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignore) {
+                }
             }
-		}
-		return properties;
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return properties;
 	}
 }

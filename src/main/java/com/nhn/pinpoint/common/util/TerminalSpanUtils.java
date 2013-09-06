@@ -55,7 +55,8 @@ public class TerminalSpanUtils {
 	}
 
 	public static String getDestApplicationNameFromColumnName(byte[] bytes) {
-		return new String(bytes, 6, BytesUtils.bytesToShort(bytes, 4));
+        final short length = BytesUtils.bytesToShort(bytes, 4);
+        return BytesUtils.toString(bytes, 6, length);
 	}
 
 	public static String getHost(byte[] bytes) {
@@ -65,7 +66,7 @@ public class TerminalSpanUtils {
 			return null;
 		}
 
-		return new String(bytes, offset, bytes.length - offset);
+		return BytesUtils.toString(bytes, offset, bytes.length - offset);
 	}
 
 	/**
@@ -92,6 +93,7 @@ public class TerminalSpanUtils {
 	public static String getApplicationNameFromRowKey(byte[] bytes) {
 		byte[] temp = new byte[bytes.length - 8];
 		System.arraycopy(bytes, 0, temp, 0, bytes.length - 8);
-		return new String(temp).trim();
+        String string = BytesUtils.toString(temp);
+        return BytesUtils.safeTrim(string);
 	}
 }

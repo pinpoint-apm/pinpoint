@@ -50,7 +50,7 @@ public class ClientStatUtils {
 
 	public static String getApplicationNameFromRowKey(byte[] rowKey) {
 		// rowkey = applicationname(?) + servicetype(2) + timestamp(8)
-		return new String(rowKey, 0, rowKey.length - 8 - 2);
+		return Bytes.toString(rowKey, 0, rowKey.length - 8 - 2);
 	}
 
 	public static short getApplicationServiceTypeFromRowKey(byte[] rowKey) {
