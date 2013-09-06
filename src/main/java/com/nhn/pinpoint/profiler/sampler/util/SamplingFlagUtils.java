@@ -7,11 +7,11 @@ public final class SamplingFlagUtils {
 
     // 향후 다른 샘플링 스펙이 추가될수 있으므로
     // 일부러 1개 byte를 소비하여 sampling마크 한다.
-    public static String SAMPLING_RATE_PREFIX = "s";
+    public static final String SAMPLING_RATE_PREFIX = "s";
 
 
-    public static String SAMPLING_RATE_FALSE = SAMPLING_RATE_PREFIX +  "0";
-    public static String SAMPLING_RATE_TRUE = SAMPLING_RATE_PREFIX +  "1";
+    public static final String SAMPLING_RATE_FALSE = SAMPLING_RATE_PREFIX +  "0";
+    public static final String SAMPLING_RATE_TRUE = SAMPLING_RATE_PREFIX +  "1";
 
     private SamplingFlagUtils() {
     }

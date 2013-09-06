@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.config;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -71,15 +69,28 @@ public class ProfilerConfig {
 	}
 
     private Properties readProperties(String configFileName) throws IOException {
+        if (configFileName == null) {
+            throw new NullPointerException("configFileName must not be null");
+        }
         Properties properties = new Properties();
-        FileReader fileReader = new FileReader(configFileName);
+        InputStream in = null;
+        Reader reader = null;
         try {
-            properties.load(fileReader);
+            in = new FileInputStream(configFileName);
+            reader = new InputStreamReader(in, "UTF-8");
+            properties.load(reader);
         } finally {
-            try {
-                fileReader.close();
-            } catch (IOException e) {
-                // 무시
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignore) {
+                }
             }
         }
         return properties;

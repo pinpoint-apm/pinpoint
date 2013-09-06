@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,7 +135,9 @@ public class ClassPathResolver {
         }
         // agentDir 패스도 넣어야 xml을 찾을 때 해당 패스에서 찾음.
         URL agentDirUri = toURI(new File(agentLibPath));
-        jarURLList.add(agentDirUri);
+        if (agentDirUri != null) {
+            jarURLList.add(agentDirUri);
+        }
 
         return jarURLList;
     }
@@ -144,6 +147,7 @@ public class ClassPathResolver {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {
+            logger.log(Level.WARNING, file.getName() + ".toURL() fail. Caused:" + e.getMessage(), e);
             return null;
         }
     }

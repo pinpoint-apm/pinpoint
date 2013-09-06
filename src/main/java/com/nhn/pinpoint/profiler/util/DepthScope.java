@@ -40,7 +40,7 @@ public class DepthScope {
         Integer depth = scope.get();
         if (depth == null) {
             return NULL;
-        } else if (depth == ZERO) {
+        } else if (ZERO.equals(depth)) {
             scope.set(null);
             return ZERO;
         } else {
