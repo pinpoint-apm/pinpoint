@@ -10,7 +10,6 @@ import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.thrift.io.PacketUtils;
 
 @Service("agentStatHandler")
