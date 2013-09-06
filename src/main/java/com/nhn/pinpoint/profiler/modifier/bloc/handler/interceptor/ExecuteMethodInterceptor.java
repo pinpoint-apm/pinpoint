@@ -55,12 +55,12 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
             TraceID traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
-                if (isInfo) {
+                if (isDebug) {
                     logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
                 trace = traceContext.continueTraceObject(traceId);
             } else {
-                if (isInfo) {
+                if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
                 }
                 trace = traceContext.newTraceObject();
@@ -79,7 +79,7 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
-                logger.warn( "Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+                logger.warn( "Tomcat StandardHostValve trace start fail. Caused:{}", e.getMessage(), e);
             }
         }
     }
@@ -142,8 +142,8 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
             TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, flags);
-            if (logger.isInfoEnabled()) {
-                logger.info("TraceID exist. continue trace. " + id);
+            if (isDebug) {
+                logger.debug("TraceID exist. continue trace. {}", id);
             }
             return id;
         } else {

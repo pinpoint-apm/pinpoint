@@ -56,7 +56,7 @@ public class GlobalCallTrace {
     }
 
 
-    private final class TimeoutTask extends TimerTask {
+    private static class TimeoutTask extends TimerTask {
         private ConcurrentMap<Integer, AsyncTrace> trace;
         private int id;
 //        private final AsyncTrace asyncTrace;

@@ -128,35 +128,35 @@ public class UdpSocketTest {
 
     //    @Test
     public void testRemoteSend() throws IOException, InterruptedException {
-        DatagramSocket send = new DatagramSocket();
-        send.connect(new InetSocketAddress("10.66.18.78", PORT));
+        DatagramSocket so = new DatagramSocket();
+        so.connect(new InetSocketAddress("10.66.18.78", PORT));
 
-        send.send(newDatagramPacket(1500));
+        so.send(newDatagramPacket(1500));
 
-        send.send(newDatagramPacket(10000));
+        so.send(newDatagramPacket(10000));
 
-        send.send(newDatagramPacket(20000));
+        so.send(newDatagramPacket(20000));
 
-        send.send(newDatagramPacket(50000));
+        so.send(newDatagramPacket(50000));
 
-        send.send(newDatagramPacket(60000));
+        so.send(newDatagramPacket(60000));
 
 
-        send.send(newDatagramPacket(AcceptedSize));
+        so.send(newDatagramPacket(AcceptedSize));
 
         try {
-            send.send(newDatagramPacket(AcceptedSize + 1));
+            so.send(newDatagramPacket(AcceptedSize + 1));
             Assert.fail("실패");
         } catch (IOException e) {
         }
 
         try {
-            send.send(newDatagramPacket(70000));
+            so.send(newDatagramPacket(70000));
             Assert.fail("실패");
         } catch (IOException e) {
         }
 
-        Thread.sleep(1000 * 3);
+        so.close();
     }
 
     //    @Test
@@ -170,5 +170,6 @@ public class UdpSocketTest {
         so.send(new DatagramPacket(new byte[10], 10));
 
 //        receiver.receive(newDatagramPacket(1000));
+        so.close();
     }
 }

@@ -29,6 +29,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
 
     @Override
     public void clear() {
+        // array의 값은 지워줘야 함. 지우지 않으면 cpu는 덜쓰나 나머지 값이 메모리에 계속 있음.
         for (int i = 0; i < size; i++) {
             this.array[i] = null;
         }

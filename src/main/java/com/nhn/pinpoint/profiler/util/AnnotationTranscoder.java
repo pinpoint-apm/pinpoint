@@ -98,17 +98,17 @@ public class AnnotationTranscoder {
             case CODE_BOOLEAN_FALSE:
                 return Boolean.FALSE;
             case CODE_INT:
-                return new Integer(tu.decodeInt(data));
+                return tu.decodeInt(data);
             case CODE_LONG:
-                return new Long(tu.decodeLong(data));
+                return tu.decodeLong(data);
             case CODE_BYTE:
-                return new Byte(tu.decodeByte(data));
+                return tu.decodeByte(data);
             case CODE_SHORT:
-                return new Short(tu.decodeShort(data));
+                return tu.decodeShort(data);
             case CODE_FLOAT:
-                return new Float(Float.intBitsToFloat(tu.decodeInt(data)));
+                return Float.intBitsToFloat(tu.decodeInt(data));
             case CODE_DOUBLE:
-                return new Double(Double.longBitsToDouble(tu.decodeLong(data)));
+                return Double.longBitsToDouble(tu.decodeLong(data));
             case CODE_BYTEARRAY:
                 return data;
             case CODE_NULL:

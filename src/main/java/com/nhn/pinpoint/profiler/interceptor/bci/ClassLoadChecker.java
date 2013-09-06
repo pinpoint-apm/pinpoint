@@ -29,7 +29,7 @@ public class ClassLoadChecker {
         return true;
     }
 
-    class LoadClass {
+    static class LoadClass {
         private ClassLoader classLoader;
         private String className;
 

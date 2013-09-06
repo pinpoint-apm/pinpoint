@@ -10,8 +10,7 @@ public class ServerInfo {
 	private final Map<Integer, String> connectors = new ConcurrentHashMap<Integer, String>();
 	private volatile boolean isAlive;
 	private volatile long uptime;
-	private volatile String agentHashCode;
-	
+
 	public ServerInfo() {
 		try {
 			InetAddress thisIp = InetAddress.getLocalHost();
@@ -27,12 +26,25 @@ public class ServerInfo {
 		connectors.put(port, protocol);
 	}
 
-	@Override
-	public String toString() {
-		return String.format("agentHash=%s, ip=%s, connectors=%s, uptime=%s, isAlive=%s", agentHashCode, hostip, connectors, uptime, isAlive);
-	}
+//	@Override
+//	public String toString() {
+//
+//		return String.format("agentHash=%s, ip=%s, connectors=%s, uptime=%s, isAlive=%s", agentHashCode, hostip, connectors, uptime, isAlive);
+//	}
 
-	public String getHostip() {
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ServerInfo{");
+        sb.append("hostip='").append(hostip).append('\'');
+        sb.append(", connectors=").append(connectors);
+        sb.append(", isAlive=").append(isAlive);
+        sb.append(", uptime=").append(uptime);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public String getHostip() {
 		return hostip;
 	}
 
