@@ -45,7 +45,7 @@ public class FixedBuffer implements Buffer {
         if (bytes == null) {
             put(0);
         } else {
-            int length = (byte) bytes.length;
+            final int length = bytes.length;
             if (length > Byte.MAX_VALUE) {
                 throw new IllegalArgumentException("too large bytes:" + bytes.length);
             }
@@ -59,7 +59,7 @@ public class FixedBuffer implements Buffer {
         if (bytes == null) {
             put(0);
         } else {
-            int length = (byte) bytes.length;
+            final int length = bytes.length;
             if (length > Short.MAX_VALUE) {
                 throw new IllegalArgumentException("too large bytes:" + bytes.length);
             }

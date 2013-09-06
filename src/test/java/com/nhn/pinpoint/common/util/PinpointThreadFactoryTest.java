@@ -27,7 +27,17 @@ public class PinpointThreadFactoryTest {
         thread.start();
         thread.join();
         Assert.assertEquals(test.get(), 1);
-        logger.info(thread.getName());
+        String threadName = thread.getName();
+        logger.info(threadName);
+        Assert.assertTrue(threadName.startsWith("pinpoint("));
+        Assert.assertTrue(threadName.endsWith(")"));
+
+        Thread thread2 = pinpoint.newThread(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+        logger.info(thread2.getName());
 
     }
 }

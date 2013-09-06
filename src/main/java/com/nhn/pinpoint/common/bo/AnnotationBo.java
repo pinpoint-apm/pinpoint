@@ -127,7 +127,7 @@ public class AnnotationBo {
     @Override
     public String toString() {
         if (value == null) {
-            return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", valueType=" + valueType + ", byteValue=" + byteValue + '}';
+            return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", valueType=" + valueType + '}';
         }
         return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", value=" + value + '}';
     }

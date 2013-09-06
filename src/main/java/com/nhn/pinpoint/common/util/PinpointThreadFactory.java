@@ -11,8 +11,7 @@ public class PinpointThreadFactory implements ThreadFactory {
     private final static AtomicInteger FACTORY_NUMBER = new AtomicInteger(0);
     private final AtomicInteger threadNumber = new AtomicInteger(0);
 
-    private String factoryName;
-    private String threadName;
+    private String threadPrefix;
     private boolean daemon;
 
 
@@ -28,16 +27,17 @@ public class PinpointThreadFactory implements ThreadFactory {
         if (threadName == null) {
             throw new NullPointerException("threadName");
         }
-        this.threadName = threadName;
-        this.factoryName = Integer.toString(FACTORY_NUMBER.getAndIncrement());
+        this.threadPrefix = prefix(threadName, FACTORY_NUMBER.getAndIncrement());
         this.daemon = daemon;
     }
 
-    public void setThreadName(String threadName) {
-        if (threadName == null) {
-            throw new NullPointerException("threadName");
-        }
-        this.threadName = threadName;
+    private String prefix(String threadName, int factoryId) {
+        final StringBuilder buffer = new StringBuilder(32);
+        buffer.append(threadName);
+        buffer.append('(');
+        buffer.append(factoryId);
+        buffer.append('-');
+        return buffer.toString();
     }
 
     @Override
@@ -51,11 +51,8 @@ public class PinpointThreadFactory implements ThreadFactory {
     }
 
     private String createThreadName() {
-        StringBuilder buffer = new StringBuilder(32);
-        buffer.append(threadName);
-        buffer.append('(');
-        buffer.append(factoryName);
-        buffer.append('-');
+        StringBuilder buffer = new StringBuilder(threadPrefix.length() + 8);
+        buffer.append(threadPrefix);
         buffer.append(threadNumber.getAndIncrement());
         buffer.append(')');
         return buffer.toString();
