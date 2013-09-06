@@ -11,7 +11,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  * 
  */
 public class SpanAligner2 {
-    private static final int ROOT = -1;
+    private static final Integer ROOT = -1;
 	private final Map<Integer, SpanBo> spanMap;
 	private Integer rootSpanId = null;
 

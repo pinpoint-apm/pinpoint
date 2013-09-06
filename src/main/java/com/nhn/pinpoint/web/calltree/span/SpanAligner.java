@@ -19,7 +19,7 @@ import com.nhn.pinpoint.common.bo.SpanBo;
 @Deprecated
 public class SpanAligner {
 
-    public static final Long SPAN_ROOT = -1L;
+    public static final Integer SPAN_ROOT = -1;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -134,7 +134,7 @@ public class SpanAligner {
             logger.warn("root span not found. {}", spans);
             throw new IllegalStateException("root span not found");
         }
-        if (root.size() == -1) {
+        if (root.size() == 0) {
             logger.info("invalid root span. duplicated root span {}", root);
             throw new IllegalStateException("duplicated root span");
         }
