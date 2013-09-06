@@ -3,6 +3,7 @@ package com.nhn.pinpoint.rpc.client;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.*;
 import com.nhn.pinpoint.rpc.packet.*;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.util.*;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         if (pinpointSocketFactory == null) {
             throw new NullPointerException("pinpointSocketFactory must not be null");
         }
-        HashedWheelTimer timer = new HashedWheelTimer(new PinpointThreadFactory("Pinpoint-SocketHandler-Timer", true), ThreadNameDeterminer.CURRENT, 100, TimeUnit.MILLISECONDS, 512);
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-SocketHandler-Timer", 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         this.channelTimer = timer;
         this.pinpointSocketFactory = pinpointSocketFactory;
@@ -105,32 +106,34 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private void registerPing() {
-        this.channelTimer.newTimeout(new TimerTask() {
-            @Override
-            public void run(Timeout timeout) throws Exception {
-                if (timeout.isCancelled()) {
-                    return;
-                }
-                if (isClosed()) {
-                    return;
-                }
-                sendPingInternal();
-                registerPing();
-            }
-        }, pingDelay, TimeUnit.MILLISECONDS);
+        this.channelTimer.newTimeout(new PingTask(), pingDelay, TimeUnit.MILLISECONDS);
     }
 
-    public void sendPingInternal() {
-        if (!this.state.isRun()) {
+    private class PingTask implements TimerTask {
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            if (timeout.isCancelled()) {
+                return;
+            }
+            if (isClosed()) {
+                return;
+            }
+            sendPingInternal();
+            registerPing();
+        }
+    }
+
+    void sendPingInternal() {
+        if (!isRun()) {
             return;
         }
-        logger.debug("sendPing {}", channel);
+        logger.debug("sendPingInternal {}", channel);
         ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
         write.addListener(pingWriteFailFutureListener);
     }
 
     public void sendPing() {
-        if (!this.state.isRun()) {
+        if (!isRun()) {
             return;
         }
         logger.debug("sendPing {}", channel);
