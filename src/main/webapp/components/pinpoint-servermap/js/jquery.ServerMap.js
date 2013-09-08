@@ -5,7 +5,7 @@
      * ServerMap
      *
      * @class ServerMap
-     * @version 0.1.0
+     * @version 0.1.1
      * @since Sep, 2013
      * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
      * @license MIT License
@@ -316,7 +316,9 @@
                                 stroke: htOption.fontColor,
                                 margin: htOption.margin
                             },
-                            new go.Binding("text", "text")
+                            new go.Binding("text", "text",  function (val) {
+                                return Number(val, 10).toLocaleString();
+                            })
                         )
                     )
                 );
