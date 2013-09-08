@@ -34,6 +34,7 @@ canvas {outline:none}
   margin-top: 5px;  
 }
 .navbar .divider-vertical {
+  height: 35px;
   min-height: 1px;
   margin: 0 9px;
   border: 0;
@@ -87,12 +88,6 @@ canvas {outline:none}
 }
 .sidebar.smallsize {
   width: 0;
-}
-
-.divider {
-  position: absolute;
-  top: 45%;
-  left: 0;
 }
 
 .onoff-ico {
