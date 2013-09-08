@@ -1,12 +1,12 @@
-(function(window, go){
+(function (window, go, $, _) {
     "use strict";
 
     /**
      * ServerMap
      *
      * @class ServerMap
-     * @version 0.0.1
-     * @since July, 2013
+     * @version 0.1.0
+     * @since Sep, 2013
      * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
      * @license MIT License
      * @copyright 2013 NHN Corp.
@@ -20,113 +20,93 @@
          * @method $init
          * @param {Hash Table} options
          */
-        $init : function(htOption){
+        $init: function (htOption) {
             this.option({
-                "sContainerId" : '',
-                "sBigFont" : "12pt Helvetica, Arial, sans-serif",
-                "sSmallFont" : "11pt Helvetica, Arial, sans-serif",
-                "sImageDir" : './images/',
-                "nBoldKey" : null,
-                "htIcons" : {
-                    'APACHE' : 'APACHE.png',
-                    'ARCUS' : 'ARCUS.png',
-                    'CUBRID' : 'CUBRID.png',
-                    'ETC' : 'ETC.png',
-                    'MEMCACHED' : 'MEMCACHED.png',
-                    'MYSQL' : 'MYSQL.png',
-                    'QUEUE' : 'QUEUE.png',
-                    'TOMCAT' : 'TOMCAT.png',
-                    'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
-                    'USER' : 'USER.png'
+                "sContainerId": '',
+                "sBigFont": "12pt NanumGothic,ng,dotum,AppleGothic,avn55,sans-serif",
+                "sSmallFont": "11pt NanumGothic,ng,dotum,AppleGothic,avn55,sans-serif",
+                "sImageDir": './images/',
+                "nBoldKey": null,
+                "htIcons": {
+                    'APACHE': 'APACHE.png',
+                    'ARCUS': 'ARCUS.png',
+                    'CUBRID': 'CUBRID.png',
+                    'ETC': 'ETC.png',
+                    'MEMCACHED': 'MEMCACHED.png',
+                    'MYSQL': 'MYSQL.png',
+                    'QUEUE': 'QUEUE.png',
+                    'TOMCAT': 'TOMCAT.png',
+                    'UNKNOWN_CLOUD': 'UNKNOWN_CLOUD.png',
+                    'USER': 'USER.png'
                 },
-                "htNodeTheme" : {
-                    "default" : {
-                        "fill" : { 0: "#fafafa", 0.5: "#f3f3f3", 1: "#ededed"},
-                        "stroke" : "#d5d5d5",
-                        "color" : "#707070"
+                "htNodeTheme": {
+                    "default": {
+                        "backgroundColor": "#ffffff",
+                        "borderColor" : "#adadad",
+                        "fontColor": "#333333"
                     },
-                    "bold" : {
-                        "fill" : { 0: "#84CA5F", 1: "#69aa46"},
-                        "stroke" : "#579636",
-                        "color" : "white"
+                    "bold": {
+                        "borderColor": "#d43f3a"
                     }
                 },
-                "htLinkType" : {
-                    "sRouting" : "AvoidsNodes", // Normal, Orthogonal, AvoidNodes
-                    "sCurve" : "JumpGap" // Bezier, JumpOver, JumpGap
+                "htLinkType": {
+                    "sRouting": "AvoidsNodes", // Normal, Orthogonal, AvoidNodes
+                    "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
                 },
-                "htLinkTheme" : {
-                    "default" : {
-                        "background" : { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 1)"},
-                        "border" : "gray",
-                        "font" : "10pt helvetica, arial, sans-serif",
-                        "color" : "#919191",
-                        "align" : "center",
-                        "margin" : 1
+                "htLinkTheme": {
+                    "default": {
+                        "backgroundColor": "rgb(240, 240, 240)",
+                        "borderColor" : "#7d7d7d",
+                        "fontFamily": "10pt helvetica, arial, sans-serif",
+                        "fontColor": "#919191",
+                        "fontAlign": "center",
+                        "margin": 1
                     },
-                    "good" : {
-                        "background" : { 0: "rgb(240, 1, 240)", 0.3: "rgb(240, 1, 240)", 1: "rgba(240, 1, 240, 1)"},
-                        "border" : "green",
-                        "font" : "10pt helvetica, arial, sans-serif",
-                        "color" : "#919191",
-                        "align" : "center",
-                        "margin" : 1
+                    "good": {
+                        "backgroundColor": "rgb(240, 1, 240)",
+                        "borderColor" : "#7d7d7d",
+                        "fontFamily": "10pt helvetica, arial, sans-serif",
+                        "fontColor": "#919191",
+                        "fontAlign": "center",
+                        "margin": 1
                     },
-                    "bad" : {
-                        "background" : { 0: "rgb(1, 240, 240)", 0.3: "rgb(1, 240, 240)", 1: "rgba(1, 240, 240, 1)"},
-                        "border" : "red",
-                        "font" : "10pt helvetica, arial, sans-serif",
-                        "color" : "#919191",
-                        "align" : "center",
-                        "margin" : 1
+                    "bad": {
+                        "backgroundColor": "rgb(1, 240, 240)",
+                        "borderColor" : "#7d7d7d",
+                        "fontFamily": "10pt helvetica, arial, sans-serif",
+                        "fontColor": "#919191",
+                        "fontAlign": "center",
+                        "margin": 1
                     }
                 },
-                "htHighlightNode" : {
-                    "default" : {
-                        "stroke" : "#d5d5d5",
-                        "strokeWidth" : 1
+                "htHighlightNode": {
+                    "self" : {
+                        "backgroundColor": "#f0ad4e"
                     },
-                    "to" : {
-                        "stroke" : "#28a1f7",
-                        "strokeWidth" : 1
+                    "to": {
+                        "backgroundColor": "#28a1f7"
                     },
-                    "from" : {
-                        "stroke" : "#f77128",
-                        "strokeWidth" : 1
+                    "from": {
+                        "backgroundColor": "#f77128"
                     }
                 },
-                "htHighlightLink" : {
-                    "default" : {
-                        "stroke" : "#d5d5d5",
-                        "strokeWidth" : 1
+                "htHighlightLink": {
+                    "self" : {
+                        "borderColor": "#eea236"
                     },
-                    "to" : {
-                        "stroke" : "#28a1f7",
-                        "strokeWidth" : 1
+                    "to": {
+                        "borderColor": "#28a1f7"
                     },
-                    "from" : {
-                        "stroke" : "#f77128",
-                        "strokeWidth" : 1
+                    "from": {
+                        "borderColor": "#f77128"
                     }
                 },
-                "fOnNodeClicked" : function(eMouseEvent, htData) {
-//					console.log("fOnNodeClick", eMouseEvent, htData);
-                },
-                "fOnNodeContextClicked" : function(eMouseEvent, htData){
-//					console.log("fOnNodeContextClick", eMouseEvent, htData);
-                },
-                "fOnLinkClicked" : function(eMouseEvent, htData){
-//					console.log("fOnLinkClick", eMouseEvent, htData);
-                },
-                "fOnLinkContextClicked" : function(eMouseEvent, htData){
-//					console.log("fOnLinkContextClick", eMouseEvent, htData);
-                },
-                "fOnBackgroundClicked" : function(eMouseEvent, htData){
-//                  console.log("fOnBackgroundClick", eMouseEvent, htData);
-                },
-                "fOnBackgroundContextClicked" : function(eMouseEvent, htData){
-//                  console.log("fOnBackgroundClick", eMouseEvent, htData);
-                }
+                "fOnNodeClicked": function (eMouseEvent, htData) {},
+                "fOnNodeContextClicked": function (eMouseEvent, htData) {},
+                "fOnLinkClicked": function (eMouseEvent, htData) {},
+                "fOnLinkContextClicked": function (eMouseEvent, htData) {},
+                "fOnBackgroundClicked": function (eMouseEvent, htData) {},
+                "fOnBackgroundContextClicked": function (eMouseEvent, htData) {}
             });
 
             this.option(htOption);
@@ -142,7 +122,7 @@
          *
          * @method _initVariables
          */
-        _initVariables : function(){
+        _initVariables: function () {
             this.$ = go.GraphObject.make;
             this._oDiagram = this.$(
                 go.Diagram,
@@ -159,7 +139,7 @@
          *
          * @method _initNodeTemplates
          */
-        _initNodeTemplates : function () {
+        _initNodeTemplates: function () {
             var self = this,
                 sImageDir = this.option('sImageDir'),
                 htIcons = this.option('htIcons');
@@ -179,138 +159,81 @@
                 this.$(go.Placeholder)
             );
 
-            var fNodeBackground = function (key) {
-                var type = 'default';
-                if (self.option('nBoldKey') && self.option('nBoldKey') === key) {
-                    type = 'bold';
-                }
-                return self.$(
-                    go.Brush,
-                    go.Brush.Linear,
-                    self.option('htNodeTheme')[type].fill
-                );
+            var fNodeBackgroundColor = function (key) {
+//                return self.$(
+//                    go.Brush,
+//                    go.Brush.Linear,
+//                    self.option('htNodeTheme')['default'].backgroundColor
+//                );
+                return self.option('htNodeTheme')['default'].backgroundColor;
             };
-            var fNodeStroke = function (key) {
+            var fNodeBorderColor = function (key) {
                 var type = 'default';
                 if (self.option('nBoldKey') && self.option('nBoldKey') === key) {
                     type = 'bold';
                 }
-                return self.option('htNodeTheme')[type].stroke;
+                return self.option('htNodeTheme')[type].borderColor;
             };
             var fNodeFontColor = function (key) {
-                var type = 'default';
-                if (self.option('nBoldKey') && self.option('nBoldKey') === key) {
-                    type = 'bold';
-                }
-                return self.option('htNodeTheme')[type].color;
+                return self.option('htNodeTheme')['default'].fontColor;
             };
 
-            this._oDiagram.nodeTemplate = this.$(
-                go.Node,
-                go.Panel.Auto,
-                {
-                    selectionAdornmentTemplate: oSelectionAdornmentTemplate,
-                    click : this._onNodeClicked.bind(this),
-                    contextClick : this._onNodeContextClicked.bind(this)
-                },
-                // new go.Binding("location", "loc",
-                // go.Point.parse).makeTwoWay(go.Point.str ingify),
-                // define the node's outer shape, which will surround the
-                // TextBlock
-                this.$(
-                    go.Shape,
-                    new go.Binding("figure", "fig"),
-                    new go.Binding("fill", "key", fNodeBackground),
-                    new go.Binding("stroke", "key", fNodeStroke),
+            var getNodeTemplate = function (sImageName) {
+                return self.$(
+                    go.Node,
+                    go.Panel.Auto,
                     {
-                        name: "NODE",
-                        portId: "",
-                        cursor: "pointer"
-                    }
-                ),
-                this.$(
-                    go.Panel,
-                    go.Panel.Horizontal,
-                    {
-                        margin:4
+                        selectionAdorned: false,
+//                        selectionAdornmentTemplate: oSelectionAdornmentTemplate,
+                        click: self._onNodeClicked.bind(self),
+                        contextClick: self._onNodeContextClicked.bind(self)
                     },
-                    this.$(
-                        go.Picture,
+                    self.$(
+                        go.Shape,
+                        new go.Binding("figure", "fig"),
+                        new go.Binding("fill", "key", fNodeBackgroundColor),
+                        new go.Binding("stroke", "key", fNodeBorderColor),
                         {
-                            source : sImageDir + "UNKNOWN_CLOUD.png",
-                            width: 20,
-                            height: 20,
-                            margin: 1,
-                            imageStretch: go.GraphObject.Uniform
+                            name: "NODE",
+                            portId: "",
+                            cursor: "pointer",
+                            strokeWidth: 2
                         }
                     ),
-                    this.$(
-                        go.TextBlock,
+                    self.$(
+                        go.Panel,
+                        go.Panel.Horizontal,
                         {
-                            margin: 6,
-                            font: this.option('sBigFont'),
-                            editable: false,
-                            text: 'UNKNOWN_CLOUD'
+                            margin: 4
                         },
-                        new go.Binding("stroke", "key", fNodeFontColor),
-                        new go.Binding("text", "text").makeTwoWay()
-                    )
-                )
-            );
-
-            _.each(htIcons, function (sVal, sKey) {
-                this._oDiagram.nodeTemplateMap.add(
-                    sKey,
-                    this.$(
-                        go.Node,
-                        go.Panel.Auto,
-                        {
-                            selectionAdornmentTemplate: oSelectionAdornmentTemplate,
-                            click : this._onNodeClicked.bind(this),
-                            contextClick : this._onNodeContextClicked.bind(this)
-                        },
-                        this.$(
-                            go.Shape,
-                            new go.Binding("figure", "fig"),
-                            new go.Binding("fill", "key", fNodeBackground),
-                            new go.Binding("stroke", "key", fNodeStroke),
+                        self.$(
+                            go.Picture,
                             {
-                                name: "NODE",
-                                portId: "",
-                                stroke : this.option('htHighlightNode').default.stroke,
-                                cursor: "pointer"
+                                source: sImageDir + sImageName,
+                                width: 20,
+                                height: 20,
+                                margin: 1,
+                                imageStretch: go.GraphObject.Uniform
                             }
                         ),
-                        this.$(
-                            go.Panel,
-                            go.Panel.Horizontal,
+                        self.$(
+                            go.TextBlock,
                             {
-                                margin:4
+                                margin: 6,
+                                font: self.option('sBigFont'),
+                                editable: false
                             },
-                            this.$(
-                                go.Picture,
-                                {
-                                    source : sImageDir + sVal,
-                                    width: 20,
-                                    height: 20,
-                                    margin: 1,
-                                    imageStretch: go.GraphObject.Uniform
-                                }
-                            ),
-                            this.$(
-                                go.TextBlock,
-                                {
-                                    margin: 6,
-                                    font: this.option('sBigFont'),
-                                    editable: false,
-                                    text: sKey
-                                },
-                                new go.Binding("stroke", "key", fNodeFontColor),
-                                new go.Binding("text", "text").makeTwoWay()
-                            )
+                            new go.Binding("stroke", "key", fNodeFontColor),
+                            new go.Binding("text", "text").makeTwoWay()
                         )
                     )
                 );
+            };
+
+            this._oDiagram.nodeTemplate = getNodeTemplate("UNKNOWN_CLOUD.png");
+
+            _.each(htIcons, function (sVal, sKey) {
+                this._oDiagram.nodeTemplateMap.add(sKey, getNodeTemplate(sVal));
             }, this);
 
         },
@@ -320,148 +243,92 @@
          *
          * @method _initLinkTemplates
          */
-        _initLinkTemplates : function(){
-
-            var htLinkType = this.option('htLinkType');
-            var option = {
-                selectionAdorned: true,
-                // selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
-                click : this._onLinkClicked.bind(this),
-                contextClick : this._onLinkContextClicked.bind(this),
-                layerName: "Foreground",
-                reshapable: true,
-                fromSpot: go.Spot.RightSide,
-                toSpot: go.Spot.LeftSide,
-                routing : go.Link[htLinkType.sRouting],
-                // routing : go.Link.Normal,
-                // routing: go.Link.Orthogonal,
-                // routing: go.Link.AvoidsNodes,
-                corner: 10,
-                curve : go.Link[htLinkType.sCurve],
-                // curve: go.Link.JumpOver
-                // curve: go.Link.JumpGap
-                // curve: go.Link.Bezier
-            };
-
-            var htLinkTheme = this.option("htLinkTheme"),
+        _initLinkTemplates: function () {
+            var self = this,
+                htLinkType = this.option('htLinkType'),
+                option = {
+                    selectionAdorned: false,
+                    // selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
+                    click: this._onLinkClicked.bind(this),
+                    contextClick: this._onLinkContextClicked.bind(this),
+                    layerName: "Foreground",
+                    reshapable: true,
+                    fromSpot: go.Spot.RightSide,
+                    toSpot: go.Spot.LeftSide,
+                    routing: go.Link[htLinkType.sRouting],
+                    // routing : go.Link.Normal,
+                    // routing: go.Link.Orthogonal,
+                    // routing: go.Link.AvoidsNodes,
+                    corner: 10,
+                    curve: go.Link[htLinkType.sCurve],
+                    // curve: go.Link.JumpOver
+                    // curve: go.Link.JumpGap
+                    // curve: go.Link.Bezier
+                },
+                htLinkTheme = this.option("htLinkTheme"),
                 htDefault = htLinkTheme.default;
-            this._oDiagram.linkTemplate = this.$(
-                go.Link,  // the whole link panel
-                // { routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
-                option,
-                new go.Binding("curviness", "curviness"),
-                this.$(
-                    go.Shape,  // the link shape
-                    {
-                        name: "LINK",
-                        isPanelMain: true,
-                        stroke: this.option('htHighlightLink').default.stroke,
-                        strokeWidth: 1.5
-                    }
-                ),
-                this.$(
-                    go.Shape,  // the arrowhead
-                    {
-                        toArrow: "standard",
-                        fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
-                        stroke: null,
-                        scale: 1.5
-                    }
-                ),
-                this.$(
-                    go.Panel,
-                    go.Panel.Auto,
-                    this.$(
+
+            var getLinkTemplate = function (htOption) {
+                return self.$(
+                    go.Link,  // the whole link panel
+                    // { routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
+                    option,
+                    new go.Binding("curviness", "curviness"),
+                    self.$(
                         go.Shape,  // the link shape
-                        "RoundedRectangle",
                         {
-                            name: "LINK2",
-                            fill: this.$(
-                                go.Brush,
-                                go.Brush.Linear,
-                                htDefault.background),
-                            stroke: htDefault.border,
-                            portId: "",
-                            fromLinkable: true,
-                            toLinkable: true,
-                            cursor: "pointer"
+                            name: "LINK",
+                            isPanelMain: true,
+                            stroke: htOption.borderColor,
+                            strokeWidth: 1.5
                         }
                     ),
-                    this.$(
-                        go.TextBlock,  // the label
+                    self.$(
+                        go.Shape,  // the arrowhead
                         {
-                            textAlign: htDefault.align,
-                            font: htDefault.font,
-                            stroke: htDefault.color,
-                            margin: htDefault.margin
-                        },
-                        new go.Binding("text", "text")
-                    )
-                )
-            );
-
-            _.each(htLinkTheme, function(sVal, sKey){
-                if(sKey === "default") {
-                    return;
-                }
-                this._oDiagram.linkTemplateMap.add(
-                    sKey,
-                    this.$(
-                        go.Link,  // the whole link panel
-                        // { routing: go.Link.Normal, curve: go.Link.Bezier,
-                        // toShortLength: 2 },
-                        option,
-                        new go.Binding("curviness", "curviness"),
-                        this.$(
+                            toArrow: "standard",
+                            fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
+                            stroke: null,
+                            scale: 1.5
+                        }
+                    ),
+                    self.$(
+                        go.Panel,
+                        go.Panel.Auto,
+                        self.$(
                             go.Shape,  // the link shape
+                            "RoundedRectangle",
                             {
-                                name: "LINK",
-                                isPanelMain: true,
-                                stroke: this.option('htHighlightLink').default.stroke,
-                                strokeWidth: 1.5
+                                name: "LINK2",
+                                fill: htOption.backgroundColor,
+                                stroke: htOption.borderColor,
+                                portId: "",
+                                fromLinkable: true,
+                                toLinkable: true,
+                                cursor: "pointer"
                             }
                         ),
-                        this.$(
-                            go.Shape,  // the arrowhead
+                        self.$(
+                            go.TextBlock,  // the label
                             {
-                                toArrow: "standard",
-                                fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
-                                stroke: null,
-                                scale: 1.5
-                            }
-                        ),
-                        this.$(
-                            go.Panel,
-                            go.Panel.Auto,
-                            this.$(
-                                go.Shape,  // the link shape
-                                "RoundedRectangle",
-                                {
-                                    fill: this.$(
-                                        go.Brush,
-                                        go.Brush.Linear,
-                                        sVal.background
-                                    ),
-                                    stroke: sVal.border,
-                                    portId: "",
-                                    fromLinkable: true,
-                                    toLinkable: true,
-                                    cursor: "pointer"
-                                }
-                            ),
-                            this.$(
-                                go.TextBlock,  // the label
-                                {
-                                    textAlign: sVal.align,
-                                    font: sVal.font,
-                                    stroke: sVal.color,
-                                    margin: sVal.margin
-                                },
-                                new go.Binding("text", "text")
-                            )
+                                textAlign: htOption.fontAlign,
+                                font: htOption.fontFamily,
+                                stroke: htOption.fontColor,
+                                margin: htOption.margin
+                            },
+                            new go.Binding("text", "text")
                         )
                     )
                 );
+            };
+
+            this._oDiagram.linkTemplate = getLinkTemplate(htDefault);
+
+            _.each(htLinkTheme, function (sVal, sKey) {
+                if (sKey === "default") {
+                    return;
+                }
+                this._oDiagram.linkTemplateMap.add(sKey, getLinkTemplate(sVal));
             }, this);
         },
 
@@ -470,7 +337,7 @@
          *
          * @method _initDiagramEnvironment
          */
-        _initDiagramEnvironment : function(){
+        _initDiagramEnvironment: function () {
             // have mouse wheel events zoom in and out instead of scroll up and
             // down
             this._oDiagram.toolManager.mouseWheelBehavior = go.ToolManager.WheelZoom;
@@ -512,13 +379,13 @@
             });
             this._oDiagram.addDiagramListener("BackgroundSingleClicked", function (e) {
                 var fOnBackgroundClicked = self.option('fOnBackgroundClicked');
-                if(_.isFunction(fOnBackgroundClicked)){
+                if (_.isFunction(fOnBackgroundClicked)) {
                     fOnBackgroundClicked.call(self, e);
                 }
             });
             this._oDiagram.addDiagramListener("BackgroundContextClicked", function (e) {
                 var fOnBackgroundContextClicked = self.option('fOnBackgroundContextClicked');
-                if(_.isFunction(fOnBackgroundContextClicked)){
+                if (_.isFunction(fOnBackgroundContextClicked)) {
                     fOnBackgroundContextClicked.call(self, e);
                 }
             });
@@ -530,9 +397,13 @@
          * @method load
          * @param {Hash Table} str
          */
-        load : function(str){
+        load: function (str) {
             this._oDiagram.model = go.Model.fromJson(str);
             this._oDiagram.undoManager.isEnabled = true;
+
+            if (this.option('nBoldKey')) {
+                this.highlightNodeByKey(this.option('nBoldKey'));
+            }
         },
 
         /**
@@ -540,7 +411,7 @@
          *
          * @method clear
          */
-        clear : function(){
+        clear: function () {
             this._oDiagram.model = go.Model.fromJson({});
         },
 
@@ -549,14 +420,14 @@
          *
          * @method _resetHighlights
          */
-        _resetHighlights : function(){
+        _resetHighlights: function () {
             var allNodes = this._oDiagram.nodes;
             var allLinks = this._oDiagram.links;
             while (allNodes.next()) {
-                allNodes.value.highlight = "default";
+                allNodes.value.highlight = false;
             }
             while (allLinks.next()) {
-                allLinks.value.highlight = "default";
+                allLinks.value.highlight = false;
             }
         },
 
@@ -564,42 +435,34 @@
          * 하이라이팅 변경
          *
          * @method _updateHighlights
-         * @param {go.Node} sel
+         * @param {go.Node} selection
          */
-        _updateHightlights : function(sel){
+        _updateHightlights: function (selection) {
+            selection = selection || this._oDiagram.selection.first();
+            if (selection === null) { return; }
+
             this._resetHighlights();
-            sel = sel || this._oDiagram.selection.first();
-            if(sel !== null){
-                if(sel instanceof go.Node){
-                    this._linksTo(sel, 'to');
-                    this._linksFrom(sel, 'from');
-                }else if(sel instanceof go.Link){
-                    this._nodesTo(sel, 'to');
-                    this._nodesFrom(sel, 'from');
-                }
+            selection.highlight = 'self';
+            if (selection instanceof go.Node) {
+                this._linksTo(selection, 'to');
+                this._linksFrom(selection, 'from');
+            } else if (selection instanceof go.Link) {
+                this._nodesTo(selection, 'to');
+                this._nodesFrom(selection, 'from');
             }
 
             // iterators containing all nodes and links in the diagram
-            var allNodes2 = this._oDiagram.nodes;
-            var allLinks2 = this._oDiagram.links;
+            var allNodes = this._oDiagram.nodes,
+                allLinks = this._oDiagram.links;
 
             // nodes, including groups
-            while (allNodes2.next()) {
-                var shp = allNodes2.value.findObject("NODE");
-                // var grp = allNodes2.value.findObject("GROUPTEXT");
-                var hl = allNodes2.value.highlight;
-                // this._highlight(shp, grp, hl);
-                this._highlight('node', shp, hl);
+            while (allNodes.next()) {
+                this._hightlightNode(allNodes.value.findObject("NODE"), allNodes.value.highlight);
             }
             // links
-            while (allLinks2.next()) {
-                var shp1 = allLinks2.value.findObject("LINK");
-                var shp2 = allLinks2.value.findObject("LINK2");
-                // var arw = allLinks2.value.findObject("ARWSHAPE");
-                var h2 = allLinks2.value.highlight;
-                // this._highlight(shp, arw, hl);
-                this._highlight('link', shp1, h2);
-                this._highlight('link', shp2, h2);
+            while (allLinks.next()) {
+                this._highlightLink(allLinks.value.findObject("LINK"), allLinks.value.highlight);
+                this._highlightLink(allLinks.value.findObject("LINK2"), allLinks.value.highlight);
             }
         },
 
@@ -609,9 +472,9 @@
          * @method highlightNodeByKey
          * @param {String} sKey 노드키
          */
-        highlightNodeByKey : function(sKey){
+        highlightNodeByKey: function (sKey) {
             var node = this._oDiagram.findNodeForKey(sKey);
-            if(node){
+            if (node) {
                 var part = this._oDiagram.findPartForKey(sKey);
                 this._oDiagram.select(part);
                 this._updateHightlights(node);
@@ -625,13 +488,11 @@
          * @param {String,Number} from
          * @param {String,Number} to
          */
-        highlightLinkByFromTo : function(from, to){
+        highlightLinkByFromTo: function (from, to) {
             var htLink = this._getLinkObjectByFromTo(from, to);
-            if(htLink){
-                var link = this._oDiagram.findLinkForData(htLink);
-                var part = this._oDiagram.findPartForData(htLink);
-                this._oDiagram.select(part);
-                this._updateHightlights(link);
+            if (htLink) {
+                this._oDiagram.select(this._oDiagram.findPartForData(htLink));
+                this._updateHightlights(this._oDiagram.findLinkForData(htLink));
             }
         },
 
@@ -642,38 +503,32 @@
          * @param {String,Number} from
          * @param {String,Number} to
          */
-        _getLinkObjectByFromTo : function(from, to){
+        _getLinkObjectByFromTo: function (from, to) {
             var aLink = this._oDiagram.model.linkDataArray;
-            for(var i=0, len=aLink.length; i<len; i+=1){
+            for (var i = 0, len = aLink.length; i < len; i += 1) {
                 var htLink = aLink[i];
-//				console.log(htLink.from, from ,"&&", htLink.to, to);
-                if(htLink.from === from && htLink.to === to){
+                if (htLink.from === from && htLink.to === to) {
                     return htLink;
                 }
             }
             return false;
         },
 
-        /**
-         * 하이라이팅하기
-         *
-         * @method _highlight
-         * @param {String} type 'node' or 'link'
-         * @param {go.Shape} shape
-         * @param {String} theme
-         */
-        _highlight : function(type, shape, theme){
-            var htHighlight;
-            if(type === 'node'){
-                htHighlight = this.option('htHighlightNode');
-            }else if(type === 'link'){
-                htHighlight = this.option('htHighlightLink');
+        _hightlightNode : function (shape, theme) {
+            if (shape === null) { return; }
+            if (theme) {
+                shape.fill = this.option('htHighlightNode')[theme].backgroundColor;
+            } else {
+                shape.fill = this.option('htNodeTheme').default.backgroundColor;
             }
-            if(shape !== null){
-                if(htHighlight[theme]){
-                    shape.stroke = htHighlight[theme].stroke;
-                    shape.strokeWidth = parseInt(htHighlight[theme].strokeWidth, 10);
-                }
+        },
+
+        _highlightLink : function (shape, theme) {
+            if (shape === null) { return; }
+            if (theme) {
+                shape.stroke = this.option('htHighlightLink')[theme].borderColor;
+            } else {
+                shape.stroke = this.option('htLinkTheme').default.borderColor;
             }
         },
 
@@ -684,7 +539,7 @@
          * @param {go.Node} x
          * @param {Number} i
          */
-        _linksTo : function(x, i) {
+        _linksTo: function (x, i) {
             if (x instanceof go.Node) {
                 var links = x.findLinksInto();
                 while (links.next()) {
@@ -700,7 +555,7 @@
          * @param {go.Node} x
          * @param {Number} i
          */
-        _linksFrom : function(x, i) {
+        _linksFrom: function (x, i) {
             if (x instanceof go.Node) {
                 var links = x.findLinksOutOf();
                 while (links.next()) {
@@ -718,10 +573,11 @@
          * @param {Number} i
          * @return a List of the keys of the nodes
          */
-        _nodesTo : function(x, i) {
+        _nodesTo: function (x, i) {
             var nodesToList = new go.List("string");
             if (x instanceof go.Link) {
-                x.fromNode.highlight = i; nodesToList.add(x.data.from);
+                x.fromNode.highlight = i;
+                nodesToList.add(x.data.from);
             } else {
                 var nodes = x.findNodesInto();
                 while (nodes.next()) {
@@ -739,10 +595,11 @@
          * @param {go.Node} x
          * @param {Number} i
          */
-        _nodesFrom : function(x, i) {
+        _nodesFrom: function (x, i) {
             var nodesFromList = new go.List("string");
             if (x instanceof go.Link) {
-                x.toNode.highlight = i; nodesFromList.add(x.data.to);
+                x.toNode.highlight = i;
+                nodesFromList.add(x.data.to);
             } else {
                 var nodes = x.findNodesOutOf();
                 while (nodes.next()) {
@@ -760,11 +617,11 @@
          * @param {Event} e
          * @param {ojb} ojb
          */
-        _onNodeClicked : function(e, obj){
+        _onNodeClicked: function (e, obj) {
             var node = obj.part,
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
-            if(_.isFunction(fOnNodeClicked)){
+            if (_.isFunction(fOnNodeClicked)) {
                 fOnNodeClicked.call(this, e, htData);
             }
             // node.diagram.startTransaction("onNodeClick");
@@ -778,11 +635,11 @@
          * @param {Event} e
          * @param {ojb} ojb
          */
-        _onNodeContextClicked : function(e, obj){
+        _onNodeContextClicked: function (e, obj) {
             var node = obj.part,
                 htData = node.data,
                 fOnNodeContextClicked = this.option('fOnNodeContextClicked');
-            if(_.isFunction(fOnNodeContextClicked)){
+            if (_.isFunction(fOnNodeContextClicked)) {
                 fOnNodeContextClicked.call(this, e, htData);
             }
         },
@@ -794,11 +651,11 @@
          * @param {Event} e
          * @param {ojb} ojb
          */
-        _onLinkClicked : function(e, obj){
+        _onLinkClicked: function (e, obj) {
             var node = obj.part,
                 htData = node.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
-            if(_.isFunction(fOnLinkClicked)){
+            if (_.isFunction(fOnLinkClicked)) {
                 fOnLinkClicked.call(this, e, htData);
             }
         },
@@ -810,15 +667,15 @@
          * @param {Event} e
          * @param {ojb} ojb
          */
-        _onLinkContextClicked : function(e, obj){
+        _onLinkContextClicked: function (e, obj) {
             var node = obj.part,
                 htData = node.data,
                 fOnLinkContextClicked = this.option('fOnLinkContextClicked');
-            if(_.isFunction(fOnLinkContextClicked)){
+            if (_.isFunction(fOnLinkContextClicked)) {
                 fOnLinkContextClicked.call(this, e, htData);
             }
         }
 
     });
 
-})(window, go);
+})(window, go, jQuery, _);

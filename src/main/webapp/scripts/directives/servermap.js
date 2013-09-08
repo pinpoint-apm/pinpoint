@@ -8,8 +8,6 @@ pinpointApp.constant('config', {
     options: {
         "sContainerId": 'servermap',
         "sImageDir": '/images/icons/',
-        "sBigFont": "12pt calibri, Helvetica, Arial, sans-serif",
-        "sSmallFont": "11pt calibri, Helvetica, Arial, sans-serif",
         "htIcons": {
             'APACHE': 'APACHE.png',
             'ARCUS': 'ARCUS.png',
@@ -23,37 +21,6 @@ pinpointApp.constant('config', {
             'UNKNOWN_GROUP': 'UNKNOWN_CLOUD.png',
             'USER': 'USER.png',
             'ORACLE': 'ORACLE.png'
-        },
-        "htLinkTheme": {
-            "default": {
-                "background": { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 1)"},
-                "border": "gray",
-                "font": "10pt calibri, helvetica, arial, sans-serif",
-                "color": "#000000", // "#919191",
-                "align": "center",
-                "margin": 1
-            },
-            "good": {
-                // "background" : { 0: "rgb(240, 1, 240)", 0.3: "rgb(240, 1,
-                // 240)", 1: "rgba(240, 1, 240, 1)"},
-                "background": { 0: "#dff0d8"},
-                "border": "#d6e9c6",
-                "font": "10pt calibri, helvetica, arial, sans-serif",
-                "color": "#468847",
-                "align": "center",
-                "margin": 1
-            },
-            "bad": {
-                // "background" : { 0: "rgb(214, 27, 28)", 0.3: "rgb(214, 27,
-                // 28)", 1: "rgba(214, 27, 28, 1)"},
-                // "background" : { 0: "#D62728" },
-                "background": { 0: "#f2dede" },
-                "border": "#eed3d7",
-                "font": "10pt calibri, helvetica, arial, sans-serif",
-                "color": "#b94a48",
-                "align": "center",
-                "margin": 1
-            }
         }
     }
 });
@@ -576,7 +543,6 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
             };
 
             scope.$on('navbar.applicationChanged', function (event, data) {
-                console.log('got navbar.applicationChanged from servermap : ', data);
                 scope.navbar = data;
                 showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, '',  scope.mergeUnknowns, scope.hideIndirectAccess);
             });
