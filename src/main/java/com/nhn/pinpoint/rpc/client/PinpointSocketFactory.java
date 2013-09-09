@@ -3,6 +3,7 @@ package com.nhn.pinpoint.rpc.client;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioClientBossPool;
@@ -59,8 +60,7 @@ public class PinpointSocketFactory {
     }
 
     private Timer createTimer() {
-        ThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-SocketFactory-Timer", true);
-        HashedWheelTimer timer = new HashedWheelTimer(threadFactory, ThreadNameDeterminer.CURRENT, 100, TimeUnit.MILLISECONDS, 512);
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-SocketFactory-Timer", 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
