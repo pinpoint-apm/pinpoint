@@ -15,8 +15,12 @@ import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.TimerTask;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -25,14 +29,18 @@ public class TcpDataSender implements DataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     private final PinpointSocketFactory pinpointSocketFactory;
     private PinpointSocket socket;
     private final int connectRetryCount = 3;
+
+    private final AtomicBoolean fireState = new AtomicBoolean(false);
+
     private final WriteFailFutureListener writeFailFutureListener;
 
 
     private final SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
+
+    private RetryQueue retryQueue = new RetryQueue();
 
     private AsyncQueueingExecutor executor;
 
@@ -104,7 +112,7 @@ public class TcpDataSender implements DataSender {
             tBase = ((RequestMarker) dto).getTBase();
             request = true;
         } else {
-            logger.warn("sendPacket fail. invalid dto type:{}", dto.getClass());
+            logger.error("sendPacket fail. invalid dto type:{}", dto.getClass());
             return;
         }
         byte[] copy = serialize(tBase);
@@ -112,34 +120,12 @@ public class TcpDataSender implements DataSender {
             return;
         }
 
-
         // 일단 send로 함. 추가로 request and response로 교체나 추가 api로 교체하고 재전송 로직을 어느정도 확보할것
         try {
             if (request) {
-                Future<ResponseMessage> response = this.socket.request(copy);
-                response.setListener(new FutureListener<ResponseMessage>() {
-                    @Override
-                    public void onComplete(Future<ResponseMessage> future) {
-                        if (future.isSuccess()) {
-                            TBase<?, ?> response = deserialize(future);
-                            if (response instanceof Result) {
-                                Result result = (Result) response;
-                                if (result.isSuccess()) {
-                                    logger.debug("result ok");
-                                } else {
-                                    logger.warn("request fail. Caused:{}", result.getMessage());
-                                }
-                            } else {
-                                logger.warn("Invalid ResponseMessage. {}", response);
-                            }
-                        } else {
-                            logger.warn("request send fail");
-                        }
-                    }
-                });
+                doRequest(copy, 0);
             } else  {
-                Future ioWriteCheck = this.socket.sendAsync(copy);
-                ioWriteCheck.setListener(writeFailFutureListener);
+                doSend(copy);
             }
         } catch (Exception e) {
             // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
@@ -147,8 +133,79 @@ public class TcpDataSender implements DataSender {
         }
     }
 
+    private void doSend(byte[] copy) {
+        Future write = this.socket.sendAsync(copy);
+        write.setListener(writeFailFutureListener);
+    }
+
+    private void doRequest(final byte[] requestPacket, final int retryCount) {
+        // 리팩토링 필요.
+        final Future<ResponseMessage> response = this.socket.request(requestPacket);
+        response.setListener(new FutureListener<ResponseMessage>() {
+            @Override
+            public void onComplete(Future<ResponseMessage> future) {
+                if (future.isSuccess()) {
+                    TBase<?, ?> response = deserialize(future);
+                    if (response instanceof Result) {
+                        Result result = (Result) response;
+                        if (result.isSuccess()) {
+                            logger.debug("result success");
+                        } else {
+                            logger.warn("request fail. Caused:{}", result.getMessage());
+                            retryRequest(requestPacket, retryCount);
+                        }
+                    } else {
+                        logger.warn("Invalid ResponseMessage. {}", response);
+//                         response가 이상하게 오는 케이스는 재전송 케이스가 아니고 로그를 통한 정확한 원인 분석이 필요한 케이스이다.
+//                        null이 떨어질수도 있음.
+//                        retryRequest(requestPacket);
+                    }
+                } else {
+                    logger.warn("request fail. Caused:{}", future.getCause().getMessage(), future.getCause());
+                    retryRequest(requestPacket, retryCount);
+                }
+            }
+        });
+    }
+
+    private void retryRequest(byte[] requestPacket, int retryCount) {
+        RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
+        retryQueue.add(retryMessage);
+        if (fireTimeout()) {
+            pinpointSocketFactory.newTimeout(new TimerTask() {
+                @Override
+                public void run(Timeout timeout) throws Exception {
+                    while(true) {
+                        RetryMessage retryMessage = retryQueue.get();
+                        if (retryMessage == null) {
+                            // 동시성이 약간 안맞을 가능성 있는거 같기는 하나. 크게 문제 없을거 같아서 일단 패스.
+                            fireComplete();
+                            return;
+                        }
+                        int fail = retryMessage.fail();
+                        doRequest(retryMessage.getBytes(), fail);
+                    }
+                }
+            }, 1000 * 10, TimeUnit.MILLISECONDS);
+        }
+    }
+
+
+    private boolean fireTimeout() {
+        if (fireState.compareAndSet(false, true)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void fireComplete() {
+        fireState.compareAndSet(true, false);
+    }
+
     private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
         byte[] message = future.getResult().getMessage();
+        // caching해야 될려나?
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         try {
             return deserializer.deserialize(message);
@@ -205,6 +262,5 @@ public class TcpDataSender implements DataSender {
             return tBase;
         }
     }
-
 
 }
