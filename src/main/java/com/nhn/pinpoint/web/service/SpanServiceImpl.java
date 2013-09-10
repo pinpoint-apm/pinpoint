@@ -51,9 +51,9 @@ public class SpanServiceImpl implements SpanService {
 	private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
 	@Override
-	public List<SpanAlign> selectSpan(TransactionId traceId) {
+	public List<SpanAlign> selectSpan(TransactionId transactionId) {
 
-		List<SpanBo> spans = traceDao.selectSpanAndAnnotation(traceId);
+		List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
 		if (spans == null || spans.isEmpty()) {
 			return Collections.emptyList();
 		}

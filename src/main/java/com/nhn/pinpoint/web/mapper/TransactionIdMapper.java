@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class TraceIndexMapper implements RowMapper<List<TransactionId>> {
+public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 	@Override
 	public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
 		if (result == null) {

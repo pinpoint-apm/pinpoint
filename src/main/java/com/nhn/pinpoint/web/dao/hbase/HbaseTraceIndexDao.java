@@ -31,7 +31,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
-	@Qualifier("traceIndexMapper")
+	@Qualifier("transactionIdMapper")
 	private RowMapper<List<TransactionId>> traceIndexMapper;
 
     @Autowired

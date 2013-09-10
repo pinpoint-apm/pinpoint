@@ -9,5 +9,5 @@ import com.nhn.pinpoint.web.vo.TransactionId;
  *
  */
 public interface SpanService {
-	List<SpanAlign> selectSpan(TransactionId traceId);
+	List<SpanAlign> selectSpan(TransactionId transactionId);
 }

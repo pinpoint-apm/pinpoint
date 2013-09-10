@@ -17,5 +17,5 @@ public interface ApplicationTraceIndexDao {
 
 	List<Dot> scanTraceScatter2(String applicationName, long start, long end, int rowLimit);
 
-	List<TransactionId> scanTraceScatterTraceIdList(String applicationName, long start, long end, final int limit);
+	List<TransactionId> scanTraceScatterTransactionIdList(String applicationName, long start, long end, final int limit);
 }

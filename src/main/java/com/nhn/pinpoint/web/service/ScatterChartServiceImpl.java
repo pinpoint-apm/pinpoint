@@ -56,7 +56,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
 	@Override
 	public List<TransactionId> selectScatterTraceIdList(String applicationName, long from, long to, int limit) {
-		return applicationTraceIndexDao.scanTraceScatterTraceIdList(applicationName, from, to, limit);
+		return applicationTraceIndexDao.scanTraceScatterTransactionIdList(applicationName, from, to, limit);
 	}
 
 	/**

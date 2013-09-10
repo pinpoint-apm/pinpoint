@@ -35,13 +35,13 @@ public class HbaseTraceDao implements TraceDao {
 	private RowMapper<List<SpanBo>> spanAnnotationMapper;
 
 	@Override
-	public List<SpanBo> selectSpan(TransactionId traceId) {
-		byte[] traceIdBytes = traceId.getBytes();
+	public List<SpanBo> selectSpan(TransactionId transactionId) {
+		byte[] traceIdBytes = transactionId.getBytes();
 		return template2.get(HBaseTables.TRACES, traceIdBytes, HBaseTables.TRACES_CF_SPAN, spanMapper);
 	}
 
-	public List<SpanBo> selectSpanAndAnnotation(TransactionId traceId) {
-		byte[] traceIdBytes = traceId.getBytes();
+	public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
+		byte[] traceIdBytes = transactionId.getBytes();
 		Get get = new Get(traceIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
@@ -51,9 +51,9 @@ public class HbaseTraceDao implements TraceDao {
 
 
 	@Override
-	public List<List<SpanBo>> selectSpans(List<TransactionId> traceIdList) {
-		List<Get> gets = new ArrayList<Get>(traceIdList.size());
-		for (TransactionId traceId : traceIdList) {
+	public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
+		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+		for (TransactionId traceId : transactionIdList) {
 			byte[] traceIdBytes = traceId.getBytes();
 			Get get = new Get(traceIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
@@ -63,9 +63,9 @@ public class HbaseTraceDao implements TraceDao {
 	}
 
 	@Override
-	public List<List<SpanBo>> selectSpans(Set<TransactionId> traceIdSet) {
-		List<Get> gets = new ArrayList<Get>(traceIdSet.size());
-		for (TransactionId traceId : traceIdSet) {
+	public List<List<SpanBo>> selectSpans(Set<TransactionId> transactionIdList) {
+		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+		for (TransactionId traceId : transactionIdList) {
 			Get get = new Get(traceId.getBytes());
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			gets.add(get);
@@ -74,9 +74,9 @@ public class HbaseTraceDao implements TraceDao {
 	}
 	
 	@Override
-	public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> traceIdSet) {
-		List<Get> gets = new ArrayList<Get>(traceIdSet.size());
-		for (TransactionId traceId : traceIdSet) {
+	public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
+		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+		for (TransactionId traceId : transactionIdList) {
 			Get get = new Get(traceId.getBytes());
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
@@ -86,17 +86,17 @@ public class HbaseTraceDao implements TraceDao {
 	}
 
 	@Override
-	public List<SpanBo> selectSpans(TransactionId traceId) {
-		Get get = new Get(traceId.getBytes());
+	public List<SpanBo> selectSpans(TransactionId transactionId) {
+		Get get = new Get(transactionId.getBytes());
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
 		return template2.get(HBaseTables.TRACES, get, spanMapper);
 	}
 
 	@Override
-	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> traceIdList) {
-		List<Get> gets = new ArrayList<Get>(traceIdList.size());
-		for (TransactionId traceId : traceIdList) {
+	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList) {
+		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+		for (TransactionId traceId : transactionIdList) {
 			Get get = new Get(traceId.getBytes());
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);

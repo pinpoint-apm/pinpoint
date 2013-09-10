@@ -13,19 +13,19 @@ import com.nhn.pinpoint.common.bo.SpanBo;
  */
 public interface TraceDao {
 
-    List<SpanBo> selectSpan(TransactionId traceId);
+    List<SpanBo> selectSpan(TransactionId transactionId);
 
-    List<SpanBo> selectSpanAndAnnotation(TransactionId traceId);
+    List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId);
 
     // TODO list하고 set하고 비교해서 하나 없애야 될듯 하다.
-    List<List<SpanBo>> selectSpans(List<TransactionId> traceIdList);
+    List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList);
     
-    List<List<SpanBo>> selectAllSpans(Collection<TransactionId> traceIdSet);
+    List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList);
 
-    List<List<SpanBo>> selectSpans(Set<TransactionId> traceIdSet);
+    List<List<SpanBo>> selectSpans(Set<TransactionId> transactionIdList);
 
-    List<SpanBo> selectSpans(TransactionId traceId);
+    List<SpanBo> selectSpans(TransactionId transactionId);
     
     @Deprecated
-    List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> traceIdList);
+    List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList);
 }

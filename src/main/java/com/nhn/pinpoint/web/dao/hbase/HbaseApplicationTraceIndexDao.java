@@ -39,7 +39,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	private HbaseOperations2 hbaseOperations2;
 
 	@Autowired
-	@Qualifier("traceIndexMapper")
+	@Qualifier("transactionIdMapper")
 	private RowMapper<List<TransactionId>> traceIndexMapper;
 
 	@Autowired
@@ -114,8 +114,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public List<TransactionId> scanTraceScatterTraceIdList(String applicationName, long start, long end, final int limit) {
-        logger.debug("scanTraceScatterTraceIdList");
+	public List<TransactionId> scanTraceScatterTransactionIdList(String applicationName, long start, long end, final int limit) {
+        logger.debug("scanTraceScatterTransactionIdList");
 		Scan scan = createScan(applicationName, start, end);
 
 		List<TransactionId> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, new ResultsExtractor<List<TransactionId>>() {
