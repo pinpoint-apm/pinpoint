@@ -3,7 +3,7 @@ package com.nhn.pinpoint.common.util;
 /**
  *
  */
-public class TraceIdUtils {
+public class TransactionIdUtils {
 
     public static final String formatString(String agentId, long agentStartTime, long transactionId) {
         if (agentId == null) {
@@ -14,15 +14,6 @@ public class TraceIdUtils {
                 digits(agentStartTime, 4) + "-" +
                 digits(transactionId >> 48, 4) + "-" +
                 digits(transactionId, 12));
-    }
-
-    @Deprecated
-    public static final String formatString(long mostSigBits, long leastSigBits) {
-        return (digits(mostSigBits >> 32, 8) + "-" +
-                digits(mostSigBits >> 16, 4) + "-" +
-                digits(mostSigBits, 4) + "-" +
-                digits(leastSigBits >> 48, 4) + "-" +
-                digits(leastSigBits, 12));
     }
 
     private static String digits(long val, int digits) {

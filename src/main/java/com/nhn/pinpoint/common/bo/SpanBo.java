@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.Annotation;
 import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.common.util.TraceIdUtils;
 
 /**
  *
@@ -121,7 +121,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 	public String getTraceId() {
-        return TraceIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
+        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
 	}
     
     public String getAgentId() {
