@@ -6,6 +6,7 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.BUSINESS_TRANSACTION_STA
 
 import com.nhn.pinpoint.collector.dao.BusinessTransactionStatisticsDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +37,7 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
         long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
         byte[] rowTimeSlotBytes = Bytes.toBytes(rowTimeSlot);
 
-        byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(span.getApplicationName(), 24), rowTimeSlotBytes);
+        byte[] rowKey = BytesUtils.merge(BytesUtils.toFixedLengthBytes(span.getApplicationName(), HBaseTables.APPLICATION_NAME_MAX_LEN), rowTimeSlotBytes);
 		byte[] cf;
         if (span.getErr() == 0) {
             // 에러 없음.

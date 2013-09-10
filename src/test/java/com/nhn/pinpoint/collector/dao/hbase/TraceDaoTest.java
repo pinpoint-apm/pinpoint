@@ -99,7 +99,6 @@ public class TraceDaoTest {
     }
 
     private Span createSpan() {
-        UUID uuid = UUID.randomUUID();
         List<Annotation> ano = Collections.emptyList();
         long l = System.currentTimeMillis();
 
@@ -108,9 +107,9 @@ public class TraceDaoTest {
         span.setApplicationName("testApplication");
         span.setAgentStartTime(123);
 
-
-        span.setMostTraceId(uuid.getMostSignificantBits());
-        span.setLeastTraceId(uuid.getLeastSignificantBits());
+        span.setTraceAgentId("traceAgent");
+        span.setTraceAgentStartTime(System.currentTimeMillis());
+        span.setTraceTransactionId(0);
         span.setStartTime(l);
         span.setElapsed(5);
         span.setRpc("RPC");
