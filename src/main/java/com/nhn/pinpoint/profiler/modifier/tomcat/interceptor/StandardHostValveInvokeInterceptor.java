@@ -154,14 +154,14 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
      */
     private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
 
-        String traceId = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (traceId != null) {
+        String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
+        if (transactionId != null) {
 
             int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
             int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(traceId, parentSpanID, spanID, flags);
+            TraceID id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. {}", id);
             }

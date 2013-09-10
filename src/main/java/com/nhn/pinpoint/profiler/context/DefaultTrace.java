@@ -35,7 +35,7 @@ public final class DefaultTrace implements Trace {
     private StackFrame currentStackFrame;
 
     public DefaultTrace(String agentId, long agentStartTime, long transactionId) {
-        DefaultTraceID traceId = new DefaultTraceID(agentId, agentStartTime, transactionId);
+        TraceID traceId = new DefaultTraceID(agentId, agentStartTime, transactionId);
 
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();

@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.context;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.thrift.TBase;
 
@@ -37,7 +36,7 @@ public class SpanChunk implements Thriftable {
         TraceID traceID = parentSpan.getTraceID();
         tSpanChunk.setTraceAgentId(traceID.getAgentId());
         tSpanChunk.setAgentStartTime(traceID.getAgentStartTime());
-        tSpanChunk.setTraceTransactionId(traceID.getTransactionId());
+        tSpanChunk.setTraceTransactionId(traceID.getTransactionSequence());
         tSpanChunk.setSpanId(traceID.getSpanId());
         
         tSpanChunk.setEndPoint(parentSpan.getEndPoint());

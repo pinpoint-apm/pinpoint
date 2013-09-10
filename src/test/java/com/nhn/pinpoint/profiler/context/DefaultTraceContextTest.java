@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class DefaultTraceContextTest {
         long agentTransactionCount = 10;
         DefaultTraceID traceID = new DefaultTraceID(agent, agentStartTime, agentTransactionCount);
 
-        String id = traceID.getId();
+        String id = traceID.getTransactionId();
         logger.info("id={}", id);
 
         int agentIdIndex = id.indexOf(DefaultTraceID.AGENT_DELIMITER);
@@ -27,11 +27,11 @@ public class DefaultTraceContextTest {
         Assert.assertEquals(agentId, agent);
 
         String ids = id.substring(agentIdIndex + 1, id.length());
-        String[] strings = TraceIdUtils.parseTraceId(ids);
-        long startTime = TraceIdUtils.parseMostId(strings);
+        String[] strings = TransactionIdUtils.parseTraceId(ids);
+        long startTime = TransactionIdUtils.parseMostId(strings);
         Assert.assertEquals(startTime, agentStartTime);
 
-        long trasnactionCount = TraceIdUtils.parseLeastId(strings);
+        long trasnactionCount = TransactionIdUtils.parseLeastId(strings);
         Assert.assertEquals(agentTransactionCount, trasnactionCount);
 
     }

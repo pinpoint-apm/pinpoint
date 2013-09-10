@@ -176,7 +176,7 @@ public class Span implements Thriftable {
 
         span.setTraceAgentId(traceID.getAgentId());
         span.setTraceAgentStartTime(traceID.getAgentStartTime());
-        span.setTraceTransactionId(traceID.getTransactionId());
+        span.setTraceTransactionId(traceID.getTransactionSequence());
 
         span.setRpc(rpc);
         span.setServiceType(serviceType.getCode());

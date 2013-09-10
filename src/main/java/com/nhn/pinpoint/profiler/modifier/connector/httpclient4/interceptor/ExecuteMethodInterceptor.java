@@ -69,7 +69,7 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         final HttpHost host = (HttpHost) args[0];
 
         // UUID format을 그대로.
-        request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId());
+        request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
         request.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
         request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 

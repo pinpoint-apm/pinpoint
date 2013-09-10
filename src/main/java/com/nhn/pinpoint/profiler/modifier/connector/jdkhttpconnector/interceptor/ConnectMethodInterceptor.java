@@ -54,8 +54,8 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
-		// UUID format을 그대로.
-		request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getId());
+
+		request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
 		request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
 		request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 
