@@ -209,9 +209,9 @@ var writeContents = function(d) {
 
 		html.push("<td>");
 		html.push("<a href='");
-		html.push("/transactionInfo.pinpoint?traceId=" + data[i].traceId + "&focusTimestamp=" + data[i].collectorAcceptTime);
+		html.push("/transactionInfo.pinpoint?traceId=" + data[i].transactionSequence + "&focusTimestamp=" + data[i].collectorAcceptTime);
 		html.push("' target='transactionView'>");
-		html.push(data[i].traceId);
+		html.push(data[i].transactionSequence);
 		html.push("</a>");
 		html.push("</td>");
 		

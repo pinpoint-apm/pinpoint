@@ -46,7 +46,8 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
 			for (SpanBo span : trace) {
 				if (applicationName.equals(span.getApplicationId())) {
-					list.add(new Dot(span.getTraceId(), span.getCollectorAcceptTime(), span.getElapsed(), span.getException()));
+                    TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getException()));
 				}
 			}
 		}

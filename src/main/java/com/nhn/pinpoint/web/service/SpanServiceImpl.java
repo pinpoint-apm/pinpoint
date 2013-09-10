@@ -59,7 +59,7 @@ public class SpanServiceImpl implements SpanService {
 		}
 
 		List<SpanAlign> order = order(spans);
-		transitionApiId(order);
+//		transitionApiId(order);
 		transitionDynamicApiId(order);
 		transitionSqlId(order);
 		// TODO root span not found시 row data라도 보여줘야 됨.
@@ -290,31 +290,31 @@ public class SpanServiceImpl implements SpanService {
 		}
 	}
 
-	private void transitionApiId(List<SpanAlign> spans) {
-		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
-			@Override
-			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-				AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.API_ID.getCode());
-				if (apiIdAnnotation == null) {
-					return;
-				}
-
-				MethodMapping methodMapping = ApiMappingTable.findMethodMapping((Integer) apiIdAnnotation.getValue());
-				if (methodMapping == null) {
-					return;
-				}
-				String className = methodMapping.getClassMapping().getClassName();
-				String methodName = methodMapping.getMethodName();
-				String[] parameterType = methodMapping.getParameterType();
-				String[] parameterName = methodMapping.getParameterName();
-				String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
-				AnnotationBo api = new AnnotationBo();
-				api.setKey(AnnotationKey.API.getCode());
-				api.setValue(className + "." + methodName + args);
-				annotationBoList.add(api);
-			}
-		});
-	}
+//	private void transitionApiId(List<SpanAlign> spans) {
+//		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+//			@Override
+//			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+//				AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.API_ID.getCode());
+//				if (apiIdAnnotation == null) {
+//					return;
+//				}
+//
+//				MethodMapping methodMapping = ApiMappingTable.findMethodMapping((Integer) apiIdAnnotation.getValue());
+//				if (methodMapping == null) {
+//					return;
+//				}
+//				String className = methodMapping.getClassMapping().getClassName();
+//				String methodName = methodMapping.getMethodName();
+//				String[] parameterType = methodMapping.getParameterType();
+//				String[] parameterName = methodMapping.getParameterName();
+//				String args = ApiUtils.mergeParameterVariableNameDescription(parameterType, parameterName);
+//				AnnotationBo api = new AnnotationBo();
+//				api.setKey(AnnotationKey.API.getCode());
+//				api.setValue(className + "." + methodName + args);
+//				annotationBoList.add(api);
+//			}
+//		});
+//	}
 
 	public static interface AnnotationReplacementCallback {
 		void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);

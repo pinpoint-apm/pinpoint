@@ -10,7 +10,7 @@ public class TransactionId {
 
     protected final String agentId;
     protected final long agentStartTime;
-    protected final long transactionId;
+    protected final long transactionSequence;
 
     public TransactionId(byte[] transactionId) {
         if (transactionId == null) {
@@ -22,7 +22,7 @@ public class TransactionId {
 
         this.agentId = BytesUtils.toStringAndRightTrim(transactionId, 0, AGENT_NAME_MAX_LEN);
         this.agentStartTime = BytesUtils.bytesToLong(transactionId, AGENT_NAME_MAX_LEN);
-        this.transactionId = BytesUtils.bytesToLong(transactionId, BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
+        this.transactionSequence = BytesUtils.bytesToLong(transactionId, BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
     }
 
     public TransactionId(byte[] transactionId, int offset) {
@@ -35,36 +35,47 @@ public class TransactionId {
 
         this.agentId = BytesUtils.toStringAndRightTrim(transactionId, offset, AGENT_NAME_MAX_LEN);
         this.agentStartTime = BytesUtils.bytesToLong(transactionId, offset + AGENT_NAME_MAX_LEN);
-        this.transactionId = BytesUtils.bytesToLong(transactionId, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
+        this.transactionSequence = BytesUtils.bytesToLong(transactionId, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
     }
 
-    public TransactionId(String agentId, long agentStartTime, long transactionId) {
+    public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
-        this.transactionId = transactionId;
+        this.transactionSequence = transactionSequence;
     }
 
-    public TransactionId(String traceId) {
-        if (traceId == null) {
+    public TransactionId(String transactionId) {
+        if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        final int agentIdIndex = traceId.indexOf(AGENT_DELIMITER);
+        final int agentIdIndex = transactionId.indexOf(AGENT_DELIMITER);
         if (agentIdIndex == -1) {
-            throw new IllegalArgumentException("transactionId delimiter not found:" + traceId);
+            throw new IllegalArgumentException("transactionId delimiter not found:" + transactionId);
         }
-        this.agentId = traceId.substring(0, agentIdIndex);
-        String ids = traceId.substring(agentIdIndex + 1, traceId.length());
-        String[] strings = TransactionIdUtils.parseTraceId(ids);
-        this.agentStartTime = TransactionIdUtils.parseMostId(strings);
-        this.transactionId = TransactionIdUtils.parseLeastId(strings);
+        String[] parseId = TransactionIdUtils.parseTransactionId(transactionId);
+        this.agentId = parseId[0];
+        this.agentStartTime = Long.parseLong(parseId[1]);
+        this.transactionSequence = Long.parseLong(parseId[2]);
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public long getAgentStartTime() {
+        return agentStartTime;
+    }
+
+    public long getTransactionSequence() {
+        return transactionSequence;
     }
 
     public byte[] getBytes() {
-        return BytesUtils.stringLongLongToBytes(agentId, HBaseTables.AGENT_NAME_MAX_LEN, agentStartTime, transactionId);
+        return BytesUtils.stringLongLongToBytes(agentId, HBaseTables.AGENT_NAME_MAX_LEN, agentStartTime, transactionSequence);
     }
 
     @Override
@@ -75,7 +86,7 @@ public class TransactionId {
         TransactionId traceId = (TransactionId) o;
 
         if (agentStartTime != traceId.agentStartTime) return false;
-        if (transactionId != traceId.transactionId) return false;
+        if (transactionSequence != traceId.transactionSequence) return false;
         if (!agentId.equals(traceId.agentId)) return false;
 
         return true;
@@ -85,18 +96,18 @@ public class TransactionId {
     public int hashCode() {
         int result = agentId.hashCode();
         result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-        result = 31 * result + (int) (transactionId ^ (transactionId >>> 32));
+        result = 31 * result + (int) (transactionSequence ^ (transactionSequence >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
-        String traceId = TransactionIdUtils.formatString(agentId, agentStartTime, transactionId);
+        String traceId = TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
         return "TransactionId [" + traceId + "]";
     }
 
     public String getFormatString() {
-        return TransactionIdUtils.formatString(agentId, agentStartTime, transactionId);
+        return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
     }
 
 }

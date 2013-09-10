@@ -37,6 +37,6 @@ public class TraceIdWithTime extends TransactionId {
 
 	@Override
 	public String toString() {
-		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", transactionId=" + transactionId + "]";
+		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", transactionId=" + transactionSequence + "]";
 	}
 }

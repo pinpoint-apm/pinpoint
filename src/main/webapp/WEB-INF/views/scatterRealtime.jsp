@@ -5,7 +5,7 @@
 	"scatter" : [
 	<c:forEach items="${scatter}" var="dot" varStatus="status">
 		{
-			"traceId" : "${dot.traceId}",
+			"traceId" : "${dot.transactionId}",
 			"timestamp" : ${dot.timestamp},
 			"executionTime" : ${dot.executionTime},
 			"resultCode" : ${dot.exceptionCode}

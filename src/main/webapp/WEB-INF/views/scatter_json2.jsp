@@ -4,5 +4,5 @@
 {
 	"queryStart" : ${queryStart},
 	"queryEnd" : ${queryEnd},
-	"scatter" : [ <c:forEach items="${scatter}" var="dot" varStatus="status">${dot.timestamp},${dot.executionTime},"${dot.traceId}", <c:choose><c:when test="${dot.exceptionCode == 1}">0</c:when><c:otherwise>1</c:otherwise></c:choose><c:if test="${!status.last}">,</c:if></c:forEach> ]
+	"scatter" : [ <c:forEach items="${scatter}" var="dot" varStatus="status">${dot.timestamp},${dot.executionTime},"${dot.transactionId}", <c:choose><c:when test="${dot.exceptionCode == 1}">0</c:when><c:otherwise>1</c:otherwise></c:choose><c:if test="${!status.last}">,</c:if></c:forEach> ]
 }

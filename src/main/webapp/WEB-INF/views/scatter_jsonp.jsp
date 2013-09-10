@@ -7,7 +7,7 @@
 		{
 			"x" : ${dot.timestamp},
 			"y" : ${dot.executionTime},
-			"traceId" : "${dot.traceId}",
+			"traceId" : "${dot.transactionId}",
 			"type" : <c:choose><c:when test="${dot.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
 		}
 	    <c:if test="${!status.last}">,</c:if>

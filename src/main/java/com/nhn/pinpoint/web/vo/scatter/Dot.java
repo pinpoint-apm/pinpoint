@@ -1,31 +1,33 @@
 package com.nhn.pinpoint.web.vo.scatter;
 
+import com.nhn.pinpoint.web.vo.TransactionId;
+
 public class Dot {
-    private String traceId;
+    private TransactionId transactionId;
     private final long timestamp;
     private final int executionTime;
     private final int exceptionCode;
 
     /**
      * 
-     * @param traceId
+     * @param transactionId
      * @param acceptedTime
      * @param executionTime
      * @param exceptionCode 0 : 정상, 1 : error
      */
-	public Dot(String traceId, long acceptedTime, int executionTime, int exceptionCode) {
-        this.traceId = traceId;
+	public Dot(TransactionId transactionId, long acceptedTime, int executionTime, int exceptionCode) {
+        this.transactionId = transactionId;
         this.timestamp = acceptedTime;
         this.executionTime = executionTime;
         this.exceptionCode = exceptionCode;
     }
 
-	public String getTraceId() {
-		return traceId;
+	public String getTransactionId() {
+		return transactionId.getFormatString();
 	}
 
-	public void setTraceId(String traceId) {
-		this.traceId = traceId;
+	public void setTransactionId(TransactionId transactionId) {
+		this.transactionId = transactionId;
 	}
 
 	public int getExceptionCode() {
@@ -43,7 +45,7 @@ public class Dot {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Dot{");
-        sb.append("traceId='").append(traceId).append('\'');
+        sb.append("transactionId='").append(transactionId).append('\'');
         sb.append(", timestamp=").append(timestamp);
         sb.append(", executionTime=").append(executionTime);
         sb.append(", exceptionCode=").append(exceptionCode);
