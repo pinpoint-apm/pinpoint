@@ -78,7 +78,7 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/dependency/libthrift-0.9.0.jar $DEPLOY_DIR/lib
+cp ../pinpoint-thrift/target/dependency/libthrift-0.9.1.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
