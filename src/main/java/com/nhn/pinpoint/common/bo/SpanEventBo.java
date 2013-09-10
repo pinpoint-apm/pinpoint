@@ -39,7 +39,7 @@ public class SpanEventBo implements Span {
 
     private String traceAgentId;
 	private long traceAgentStartTime;
-	private long traceTransactionId;
+	private long traceTransactionSequence;
 
 	private int spanId;
 	private short sequence;
@@ -69,7 +69,7 @@ public class SpanEventBo implements Span {
 
         this.traceAgentId = tSpan.getTraceAgentId();
 		this.traceAgentStartTime = tSpan.getTraceAgentStartTime();
-		this.traceTransactionId = tSpan.getTraceTransactionId();
+		this.traceTransactionSequence = tSpan.getTraceTransactionSequence();
 
 		this.spanId = tSpan.getSpanId();
 		this.sequence = tSpanEvent.getSequence();
@@ -104,7 +104,7 @@ public class SpanEventBo implements Span {
 
         this.traceAgentId = spanChunk.getTraceAgentId();
 		this.traceAgentStartTime = spanChunk.getTraceAgentStartTime();
-		this.traceTransactionId = spanChunk.getTraceTransactionId();
+		this.traceTransactionSequence = spanChunk.getTraceTransactionSequence();
 
 		this.spanId = spanChunk.getSpanId();
 		this.sequence = spanEvent.getSequence();
@@ -141,7 +141,7 @@ public class SpanEventBo implements Span {
 
         this.traceAgentId = spanEvent.getTraceAgentId();
 		this.traceAgentStartTime = spanEvent.getTraceAgentStartTime();
-		this.traceTransactionId = spanEvent.getTraceTransactionId();
+		this.traceTransactionSequence = spanEvent.getTraceTransactionSequence();
 
 		this.spanId = spanEvent.getSpanId();
 		this.sequence = spanEvent.getSequence();
@@ -209,12 +209,12 @@ public class SpanEventBo implements Span {
 		this.traceAgentStartTime = traceAgentStartTime;
 	}
 
-	public long getTraceTransactionId() {
-		return traceTransactionId;
+	public long getTraceTransactionSequence() {
+		return traceTransactionSequence;
 	}
 
-	public void setTraceTransactionId(long traceTransactionId) {
-		this.traceTransactionId = traceTransactionId;
+	public void setTraceTransactionSequence(long traceTransactionSequence) {
+		this.traceTransactionSequence = traceTransactionSequence;
 	}
 
 	public void setSpanId(int spanId) {
@@ -426,7 +426,8 @@ public class SpanEventBo implements Span {
 		sb.append(this.getClass().getName()).append("={");
 		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
 		sb.append("\n\tserviceType=").append(serviceType);
-		sb.append("\n\ttraceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionId=").append(traceTransactionId);
+        sb.append("\n\ttraceAgentId=").append(traceAgentId);
+		sb.append("\n\ttraceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionSequence=").append(traceTransactionSequence);
 		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
 		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
 		sb.append("\n\trpc=").append(rpc).append(", endPoint=").append(endPoint);

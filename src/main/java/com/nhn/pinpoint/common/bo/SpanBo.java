@@ -41,7 +41,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
     private String traceAgentId;
     private long traceAgentStartTime;
-    private long traceTransactionId;
+    private long traceTransactionSequence;
     private int spanId;
     private int parentSpanId;
 
@@ -70,7 +70,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
         this.traceAgentId = span.getTraceAgentId();
         this.traceAgentStartTime = span.getTraceAgentStartTime();
-        this.traceTransactionId = span.getTraceTransactionId();
+        this.traceTransactionSequence = span.getTraceTransactionSequence();
 
         this.spanId = span.getSpanId();
         this.parentSpanId = span.getParentSpanId();
@@ -91,13 +91,13 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         setAnnotationList(span.getAnnotations());
     }
 
-    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long startTime, int elapsed, int spanId) {
+    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionSequence, long startTime, int elapsed, int spanId) {
         if (traceAgentId == null) {
             throw new NullPointerException("traceAgentId must not be null");
         }
         this.traceAgentId = traceAgentId;
         this.traceAgentStartTime = traceAgentStartTime;
-        this.traceTransactionId = traceTransactionId;
+        this.traceTransactionSequence = traceTransactionSequence;
 
         this.startTime = startTime;
         this.elapsed = elapsed;
@@ -121,7 +121,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 	public String getTraceId() {
-        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
+        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence);
 	}
     
     public String getAgentId() {
@@ -183,12 +183,12 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 
-    public long getTraceTransactionId() {
-        return traceTransactionId;
+    public long getTraceTransactionSequence() {
+        return traceTransactionSequence;
     }
 
-    public void setTraceTransactionId(long traceTransactionId) {
-        this.traceTransactionId = traceTransactionId;
+    public void setTraceTransactionSequence(long traceTransactionSequence) {
+        this.traceTransactionSequence = traceTransactionSequence;
     }
 
 
@@ -402,8 +402,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
+                ", traceAgentId=" + agentId +
                 ", traceAgentStartTime=" + traceAgentStartTime +
-                ", traceTransactionId=" + traceTransactionId +
+                ", traceTransactionSequence=" + traceTransactionSequence +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
                 ", startTime=" + startTime +

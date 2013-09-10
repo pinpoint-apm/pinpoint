@@ -47,7 +47,7 @@ public class SpanBoTest {
 
         spanBo.setAgentStartTime(1);
         spanBo.setTraceAgentStartTime(2);
-        spanBo.setTraceTransactionId(3);
+        spanBo.setTraceTransactionSequence(3);
         spanBo.setElapsed(4);
         spanBo.setStartTime(5);
 
@@ -70,7 +70,7 @@ public class SpanBoTest {
 
 //        이건 serialize에서 안가져옴.
 //        Assert.assertEquals(newSpanBo.getTraceAgentStartTime(), spanBo.getTraceAgentStartTime());
-//        Assert.assertEquals(newSpanBo.getTraceTransactionId(), spanBo.getTraceTransactionId());
+//        Assert.assertEquals(newSpanBo.getTraceTransactionSequence(), spanBo.getTraceTransactionSequence());
         Assert.assertEquals(newSpanBo.getParentSpanId(), spanBo.getParentSpanId());
 
         Assert.assertEquals(newSpanBo.getVersion(), spanBo.getVersion());

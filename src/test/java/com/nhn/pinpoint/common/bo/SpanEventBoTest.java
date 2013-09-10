@@ -52,9 +52,9 @@ public class SpanEventBoTest {
         newSpanEventBo.setSpanId(1);
         Assert.assertEquals(spanEventBo.getSpanId(), newSpanEventBo.getSpanId());
 
-        spanEventBo.setTraceTransactionId(1);
-        newSpanEventBo.setTraceTransactionId(1);
-        Assert.assertEquals(spanEventBo.getTraceTransactionId(), newSpanEventBo.getTraceTransactionId());
+        spanEventBo.setTraceTransactionSequence(1);
+        newSpanEventBo.setTraceTransactionSequence(1);
+        Assert.assertEquals(spanEventBo.getTraceTransactionSequence(), newSpanEventBo.getTraceTransactionSequence());
 
         spanEventBo.setTraceAgentStartTime(3);
         newSpanEventBo.setTraceAgentStartTime(3);
