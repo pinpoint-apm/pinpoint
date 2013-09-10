@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.profiler.context;
 
-import java.util.UUID;
-
 /**
  *
  */
@@ -11,13 +9,13 @@ public interface TraceID {
 
     int getSpanId();
 
-    String getId();
+    String getTransactionId();
 
     String getAgentId();
 
     long getAgentStartTime();
 
-    long getTransactionId();
+    long getTransactionSequence();
 
     int getParentSpanId();
 
