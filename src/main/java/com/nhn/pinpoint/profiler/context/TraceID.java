@@ -11,7 +11,13 @@ public interface TraceID {
 
     int getSpanId();
 
-    UUID getId();
+    String getId();
+
+    String getAgentId();
+
+    long getAgentStartTime();
+
+    long getTransactionId();
 
     int getParentSpanId();
 

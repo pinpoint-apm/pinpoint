@@ -10,6 +10,8 @@ import java.util.UUID;
  */
 public interface TraceContext {
 
+    TraceID createTraceID();
+
     Trace currentTraceObject();
 
     Trace currentRawTraceObject();
@@ -36,7 +38,7 @@ public interface TraceContext {
 
     DatabaseInfo parseJdbcUrl(String sql);
 
-    TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, short flags);
+    TraceID createTraceId(String traceId, int parentSpanID, int spanID, short flags);
 
     void disableSampling();
 }
