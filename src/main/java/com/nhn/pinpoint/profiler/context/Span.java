@@ -142,7 +142,7 @@ public class Span implements Thriftable {
 		StringBuilder sb = new StringBuilder(128);
 
         sb.append("{");
-        sb.append("\n\t TraceID = ").append(traceID);
+        sb.append("\n\t TraceId = ").append(traceID);
         sb.append(",\n\t StartTime = ").append(startTime);
         sb.append(", EndTime = ").append(endTime);
         sb.append(",\n\t Name = ").append(rpc);
@@ -176,7 +176,7 @@ public class Span implements Thriftable {
 
         span.setTraceAgentId(traceID.getAgentId());
         span.setTraceAgentStartTime(traceID.getAgentStartTime());
-        span.setTraceTransactionId(traceID.getTransactionSequence());
+        span.setTraceTransactionSequence(traceID.getTransactionSequence());
 
         span.setRpc(rpc);
         span.setServiceType(serviceType.getCode());
