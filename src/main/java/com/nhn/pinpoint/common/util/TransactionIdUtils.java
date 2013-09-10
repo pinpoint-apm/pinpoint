@@ -5,48 +5,29 @@ package com.nhn.pinpoint.common.util;
  */
 public class TransactionIdUtils {
 
-    public static final String formatString(String agentId, long agentStartTime, long transactionId) {
+    public static final String TRANSACTION_ID_DELIMITER = "=";
+
+    public static final String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        return agentId + "=" + (digits(agentStartTime >> 32, 8) + "-" +
-                digits(agentStartTime >> 16, 4) + "-" +
-                digits(agentStartTime, 4) + "-" +
-                digits(transactionId >> 48, 4) + "-" +
-                digits(transactionId, 12));
+        StringBuilder sb = new StringBuilder(64);
+        sb.append(agentId);
+        sb.append(TRANSACTION_ID_DELIMITER);
+        sb.append(agentStartTime);
+        sb.append(TRANSACTION_ID_DELIMITER);
+        sb.append(transactionSequence);
+        return sb.toString();
     }
 
-    private static String digits(long val, int digits) {
-        long hi = 1L << (digits * 4);
-        return Long.toHexString(hi | (val & (hi - 1))).substring(1);
-    }
-
-    public static String[] parseTraceId(String traceId) {
-        String[] components = traceId.split("-");
-        if (components.length != 5) {
-            throw new IllegalArgumentException("Invalid TraceId string: "+ traceId);
+    public static String[] parseTransactionId(final String transactionId) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
         }
-        for (int i=0; i<5; i++) {
-            components[i] = "0x"+components[i];
+        String[] component = transactionId.split(TRANSACTION_ID_DELIMITER);
+        if (component.length != 3) {
+            throw new IllegalArgumentException("Invalid TraceId string: "+ transactionId);
         }
-        return components;
-    }
-
-    public static long parseMostId(String[] parsedTraceId) {
-        long mostSigBits = Long.decode(parsedTraceId[0]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(parsedTraceId[1]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(parsedTraceId[2]).longValue();
-        return mostSigBits;
-
-    }
-
-    public static long parseLeastId(String[] parsedTraceId) {
-
-        long leastSigBits = Long.decode(parsedTraceId[3]).longValue();
-        leastSigBits <<= 48;
-        leastSigBits |= Long.decode(parsedTraceId[4]).longValue();
-        return leastSigBits;
+        return component;
     }
 }

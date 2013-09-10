@@ -120,7 +120,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.version = (byte) (version & 0xFF);
     }
 
-	public String getTraceId() {
+	public String getTransactionId() {
         return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence);
 	}
     

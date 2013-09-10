@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  *
  */
+@Deprecated
 public class ClassMapping {
     private int classId;
     private String className;

@@ -5,6 +5,7 @@ import java.util.Arrays;
 /**
  *
  */
+@Deprecated
 public class MethodMapping {
     private String methodName;
     private String[] parameterType;

@@ -41,15 +41,15 @@ public class SpanUtils {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, span.getTraceAgentStartTime(), span.getTraceTransactionId());
+        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
 
 	}
 
 	public static byte[] getTraceId(SpanEvent spanEvent) {
-		return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionId());
+		return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionSequence());
 	}
 
 	public static byte[] getTraceId(SpanChunk spanChunk) {
-		return BytesUtils.stringLongLongToBytes(spanChunk.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanChunk.getTraceAgentStartTime(), spanChunk.getTraceTransactionId());
+		return BytesUtils.stringLongLongToBytes(spanChunk.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanChunk.getTraceAgentStartTime(), spanChunk.getTraceTransactionSequence());
 	}
 }
