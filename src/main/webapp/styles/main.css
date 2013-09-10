@@ -70,7 +70,7 @@ canvas {outline:none}
 }
 
 .main {
-  margin-right: 430px;
+  margin-right: 422px;
   height: 100%;
 }
 .main.fullsize {
@@ -128,4 +128,20 @@ canvas {outline:none}
 	right: 0;
 	overflow: auto;
 	padding: 10px 15px;
+}
+
+
+/* servermap */
+.severmap-status {
+    position: absolute;
+    top: 8px;
+    left: 11px;
+    z-index: 9;
+    font-size: 12px;
+}
+.severmap-status .alert {
+    margin-bottom: 0;
+}
+.servermap-status ul {
+    margin: 0;
 }

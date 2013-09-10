@@ -1,6 +1,16 @@
 <div class="servermap" style="width:100%;height:100%;position: relative;">
-	<div id="servermap" style="width:100%;height:100%;position: relative;">
-	</div>
+	<div id="servermap" style="width:100%;height:100%;position: relative;"></div>
+    <div class="severmap-status">
+        <div class="alert alert-success">
+            <ul class="unstyled">
+                <li><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge Unknowns</li>
+                <li><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide Indirect Access</li>
+                <li class="divider"></li>
+                <li><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</li>
+                <li><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</li>
+            </ul>
+        </div>
+    </div>
 	<div ng-include=" 'warning' "></div>
 	<div ng-include=" 'loading' "></div>
 
@@ -17,14 +27,36 @@
     </ul>
 
     <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a href ng-click="toggleMergeUnknowns()"><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge unknowns</a></li>
-        <li><a href ng-click="toggleHideIndirectAccess()"><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide indirect access</a></li>
-        <li class="divider"></li>
         <li class="dropdown-submenu">
-            <a tabindex="-1" href>Link Label Text Type</a>
+            <a tabindex="-1" href>Node Setting</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleMergeUnknowns()"><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge unknowns</a></li>
+                <li><a href ng-click="toggleHideIndirectAccess()"><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide indirect access</a></li>
+            </ul>
+        </li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Setting</a>
             <ul class="dropdown-menu">
                 <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</a></li>
                 <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</a></li>
+            </ul>
+        </li>
+        <li class="divider"></li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Routing</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleLinkRouting('Normal')"><i class="icon-ok" ng-class="{'icon-white': linkRouting != 'Normal'}"></i> Normal</a></li>
+                <li><a href ng-click="toggleLinkRouting('Orthogonal')"><i class="icon-ok" ng-class="{'icon-white': linkRouting != 'Orthogonal'}"></i> Orthogonal</a></li>
+                <li><a href ng-click="toggleLinkRouting('AvoidsNodes')"><i class="icon-ok" ng-class="{'icon-white': linkRouting != 'AvoidsNodes'}"></i> AvoidsNodes</a></li>
+            </ul>
+        </li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Curve</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleLinkCurve('None')"><i class="icon-ok" ng-class="{'icon-white': linkCurve != 'None'}"></i> None</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpOver')"><i class="icon-ok" ng-class="{'icon-white': linkCurve != 'JumpOver'}"></i> JumpOver</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpGap')"><i class="icon-ok" ng-class="{'icon-white': linkCurve != 'JumpGap'}"></i> JumpGap</a></li>
+                <li><a href ng-click="toggleLinkCurve('Bezier')"><i class="icon-ok" ng-class="{'icon-white': linkCurve != 'Bezier'}"></i> Bezier</a></li>
             </ul>
         </li>
     </ul>

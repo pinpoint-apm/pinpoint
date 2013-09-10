@@ -255,12 +255,12 @@
                     reshapable: true,
                     fromSpot: go.Spot.RightSide,
                     toSpot: go.Spot.LeftSide,
-                    routing: go.Link[htLinkType.sRouting],
+//                    routing: go.Link[htLinkType.sRouting],
                     // routing : go.Link.Normal,
                     // routing: go.Link.Orthogonal,
                     // routing: go.Link.AvoidsNodes,
                     corner: 10,
-                    curve: go.Link[htLinkType.sCurve],
+//                    curve: go.Link[htLinkType.sCurve],
                     // curve: go.Link.JumpOver
                     // curve: go.Link.JumpGap
                     // curve: go.Link.Bezier
@@ -273,7 +273,9 @@
                     go.Link,  // the whole link panel
                     // { routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
                     option,
-                    new go.Binding("curviness", "curviness"),
+                    new go.Binding("routing", "routing", function (val) { return go.Link[val]; }).makeTwoWay(),
+                    new go.Binding("curve", "curve", function (val) { return go.Link[val]; }).makeTwoWay(),
+                    new go.Binding("curviness", "curviness").makeTwoWay(),
                     self.$(
                         go.Shape,  // the link shape
                         {
