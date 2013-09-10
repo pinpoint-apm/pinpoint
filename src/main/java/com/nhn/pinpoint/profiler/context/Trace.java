@@ -35,7 +35,7 @@ public interface Trace {
 
     void traceBlockEnd(int stackId);
 
-    TraceID getTraceId();
+    TraceId getTraceId();
 
     boolean canSampled();
 

@@ -3,9 +3,9 @@ package com.nhn.pinpoint.profiler.context;
 /**
  *
  */
-public interface TraceID {
+public interface TraceId {
 
-    TraceID getNextTraceId();
+    TraceId getNextTraceId();
 
     int getSpanId();
 

@@ -3,20 +3,16 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 
-import java.util.UUID;
-
 /**
  *
  */
 public interface TraceContext {
 
-    TraceID createTraceID();
-
     Trace currentTraceObject();
 
     Trace currentRawTraceObject();
 
-    Trace continueTraceObject(TraceID traceID);
+    Trace continueTraceObject(TraceId traceID);
 
     Trace newTraceObject();
 
@@ -38,7 +34,7 @@ public interface TraceContext {
 
     DatabaseInfo parseJdbcUrl(String sql);
 
-    TraceID createTraceId(String traceId, int parentSpanID, int spanID, short flags);
+    TraceId createTraceId(String traceId, int parentSpanID, int spanID, short flags);
 
     void disableSampling();
 }
