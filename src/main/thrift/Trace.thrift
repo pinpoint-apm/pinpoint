@@ -29,7 +29,7 @@ struct SpanEvent {
 
   4: optional string traceAgentId
   5: optional i64 traceAgentStartTime;
-  6: optional i64 traceTransactionId;
+  6: optional i64 traceTransactionSequence;
 
   7: optional i32 spanId
   8: i16 sequence
@@ -61,7 +61,7 @@ struct Span {
 
   4: string traceAgentId
   5: i64 traceAgentStartTime;
-  6: i64 traceTransactionId;
+  6: i64 traceTransactionSequence;
 
   7: i32 spanId
   8: optional i32 parentSpanId = -1
@@ -97,7 +97,7 @@ struct SpanChunk {
 
   5: string traceAgentId
   6: i64 traceAgentStartTime;
-  7: i64 traceTransactionId;
+  7: i64 traceTransactionSequence;
 
   8: i32 spanId
 

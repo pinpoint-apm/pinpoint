@@ -41,7 +41,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)4);
   private static final org.apache.thrift.protocol.TField TRACE_AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("traceAgentId", org.apache.thrift.protocol.TType.STRING, (short)5);
   private static final org.apache.thrift.protocol.TField TRACE_AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("traceAgentStartTime", org.apache.thrift.protocol.TType.I64, (short)6);
-  private static final org.apache.thrift.protocol.TField TRACE_TRANSACTION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("traceTransactionId", org.apache.thrift.protocol.TType.I64, (short)7);
+  private static final org.apache.thrift.protocol.TField TRACE_TRANSACTION_SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("traceTransactionSequence", org.apache.thrift.protocol.TType.I64, (short)7);
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)8);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)9);
   private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)10);
@@ -58,7 +58,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private short serviceType; // required
   private String traceAgentId; // required
   private long traceAgentStartTime; // required
-  private long traceTransactionId; // required
+  private long traceTransactionSequence; // required
   private int spanId; // required
   private String endPoint; // optional
   private List<SpanEvent> spanEventList; // required
@@ -71,7 +71,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     SERVICE_TYPE((short)4, "serviceType"),
     TRACE_AGENT_ID((short)5, "traceAgentId"),
     TRACE_AGENT_START_TIME((short)6, "traceAgentStartTime"),
-    TRACE_TRANSACTION_ID((short)7, "traceTransactionId"),
+    TRACE_TRANSACTION_SEQUENCE((short)7, "traceTransactionSequence"),
     SPAN_ID((short)8, "spanId"),
     END_POINT((short)9, "endPoint"),
     SPAN_EVENT_LIST((short)10, "spanEventList");
@@ -101,8 +101,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
           return TRACE_AGENT_ID;
         case 6: // TRACE_AGENT_START_TIME
           return TRACE_AGENT_START_TIME;
-        case 7: // TRACE_TRANSACTION_ID
-          return TRACE_TRANSACTION_ID;
+        case 7: // TRACE_TRANSACTION_SEQUENCE
+          return TRACE_TRANSACTION_SEQUENCE;
         case 8: // SPAN_ID
           return SPAN_ID;
         case 9: // END_POINT
@@ -152,7 +152,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
   private static final int __SERVICETYPE_ISSET_ID = 1;
   private static final int __TRACEAGENTSTARTTIME_ISSET_ID = 2;
-  private static final int __TRACETRANSACTIONID_ISSET_ID = 3;
+  private static final int __TRACETRANSACTIONSEQUENCE_ISSET_ID = 3;
   private static final int __SPANID_ISSET_ID = 4;
   private byte __isset_bitfield = 0;
   private _Fields optionals[] = {_Fields.END_POINT};
@@ -171,7 +171,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.TRACE_AGENT_START_TIME, new org.apache.thrift.meta_data.FieldMetaData("traceAgentStartTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TRACE_TRANSACTION_ID, new org.apache.thrift.meta_data.FieldMetaData("traceTransactionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.TRACE_TRANSACTION_SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("traceTransactionSequence", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
@@ -194,7 +194,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     short serviceType,
     String traceAgentId,
     long traceAgentStartTime,
-    long traceTransactionId,
+    long traceTransactionSequence,
     int spanId,
     List<SpanEvent> spanEventList)
   {
@@ -208,8 +208,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.traceAgentId = traceAgentId;
     this.traceAgentStartTime = traceAgentStartTime;
     setTraceAgentStartTimeIsSet(true);
-    this.traceTransactionId = traceTransactionId;
-    setTraceTransactionIdIsSet(true);
+    this.traceTransactionSequence = traceTransactionSequence;
+    setTraceTransactionSequenceIsSet(true);
     this.spanId = spanId;
     setSpanIdIsSet(true);
     this.spanEventList = spanEventList;
@@ -232,7 +232,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       this.traceAgentId = other.traceAgentId;
     }
     this.traceAgentStartTime = other.traceAgentStartTime;
-    this.traceTransactionId = other.traceTransactionId;
+    this.traceTransactionSequence = other.traceTransactionSequence;
     this.spanId = other.spanId;
     if (other.isSetEndPoint()) {
       this.endPoint = other.endPoint;
@@ -261,8 +261,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     this.traceAgentId = null;
     setTraceAgentStartTimeIsSet(false);
     this.traceAgentStartTime = 0;
-    setTraceTransactionIdIsSet(false);
-    this.traceTransactionId = 0;
+    setTraceTransactionSequenceIsSet(false);
+    this.traceTransactionSequence = 0;
     setSpanIdIsSet(false);
     this.spanId = 0;
     this.endPoint = null;
@@ -404,26 +404,26 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TRACEAGENTSTARTTIME_ISSET_ID, value);
   }
 
-  public long getTraceTransactionId() {
-    return this.traceTransactionId;
+  public long getTraceTransactionSequence() {
+    return this.traceTransactionSequence;
   }
 
-  public void setTraceTransactionId(long traceTransactionId) {
-    this.traceTransactionId = traceTransactionId;
-    setTraceTransactionIdIsSet(true);
+  public void setTraceTransactionSequence(long traceTransactionSequence) {
+    this.traceTransactionSequence = traceTransactionSequence;
+    setTraceTransactionSequenceIsSet(true);
   }
 
-  public void unsetTraceTransactionId() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TRACETRANSACTIONID_ISSET_ID);
+  public void unsetTraceTransactionSequence() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID);
   }
 
-  /** Returns true if field traceTransactionId is set (has been assigned a value) and false otherwise */
-  public boolean isSetTraceTransactionId() {
-    return EncodingUtils.testBit(__isset_bitfield, __TRACETRANSACTIONID_ISSET_ID);
+  /** Returns true if field traceTransactionSequence is set (has been assigned a value) and false otherwise */
+  public boolean isSetTraceTransactionSequence() {
+    return EncodingUtils.testBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID);
   }
 
-  public void setTraceTransactionIdIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TRACETRANSACTIONID_ISSET_ID, value);
+  public void setTraceTransactionSequenceIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID, value);
   }
 
   public int getSpanId() {
@@ -559,11 +559,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       }
       break;
 
-    case TRACE_TRANSACTION_ID:
+    case TRACE_TRANSACTION_SEQUENCE:
       if (value == null) {
-        unsetTraceTransactionId();
+        unsetTraceTransactionSequence();
       } else {
-        setTraceTransactionId((Long)value);
+        setTraceTransactionSequence((Long)value);
       }
       break;
 
@@ -614,8 +614,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     case TRACE_AGENT_START_TIME:
       return Long.valueOf(getTraceAgentStartTime());
 
-    case TRACE_TRANSACTION_ID:
-      return Long.valueOf(getTraceTransactionId());
+    case TRACE_TRANSACTION_SEQUENCE:
+      return Long.valueOf(getTraceTransactionSequence());
 
     case SPAN_ID:
       return Integer.valueOf(getSpanId());
@@ -649,8 +649,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       return isSetTraceAgentId();
     case TRACE_AGENT_START_TIME:
       return isSetTraceAgentStartTime();
-    case TRACE_TRANSACTION_ID:
-      return isSetTraceTransactionId();
+    case TRACE_TRANSACTION_SEQUENCE:
+      return isSetTraceTransactionSequence();
     case SPAN_ID:
       return isSetSpanId();
     case END_POINT:
@@ -728,12 +728,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         return false;
     }
 
-    boolean this_present_traceTransactionId = true;
-    boolean that_present_traceTransactionId = true;
-    if (this_present_traceTransactionId || that_present_traceTransactionId) {
-      if (!(this_present_traceTransactionId && that_present_traceTransactionId))
+    boolean this_present_traceTransactionSequence = true;
+    boolean that_present_traceTransactionSequence = true;
+    if (this_present_traceTransactionSequence || that_present_traceTransactionSequence) {
+      if (!(this_present_traceTransactionSequence && that_present_traceTransactionSequence))
         return false;
-      if (this.traceTransactionId != that.traceTransactionId)
+      if (this.traceTransactionSequence != that.traceTransactionSequence)
         return false;
     }
 
@@ -840,12 +840,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTraceTransactionId()).compareTo(other.isSetTraceTransactionId());
+    lastComparison = Boolean.valueOf(isSetTraceTransactionSequence()).compareTo(other.isSetTraceTransactionSequence());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTraceTransactionId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceTransactionId, other.traceTransactionId);
+    if (isSetTraceTransactionSequence()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceTransactionSequence, other.traceTransactionSequence);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -936,8 +936,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     sb.append(this.traceAgentStartTime);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("traceTransactionId:");
-    sb.append(this.traceTransactionId);
+    sb.append("traceTransactionSequence:");
+    sb.append(this.traceTransactionSequence);
     first = false;
     if (!first) sb.append(", ");
     sb.append("spanId:");
@@ -1054,10 +1054,10 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // TRACE_TRANSACTION_ID
+          case 7: // TRACE_TRANSACTION_SEQUENCE
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.traceTransactionId = iprot.readI64();
-              struct.setTraceTransactionIdIsSet(true);
+              struct.traceTransactionSequence = iprot.readI64();
+              struct.setTraceTransactionSequenceIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1134,8 +1134,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       oprot.writeFieldBegin(TRACE_AGENT_START_TIME_FIELD_DESC);
       oprot.writeI64(struct.traceAgentStartTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(TRACE_TRANSACTION_ID_FIELD_DESC);
-      oprot.writeI64(struct.traceTransactionId);
+      oprot.writeFieldBegin(TRACE_TRANSACTION_SEQUENCE_FIELD_DESC);
+      oprot.writeI64(struct.traceTransactionSequence);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
       oprot.writeI32(struct.spanId);
@@ -1195,7 +1195,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetTraceAgentStartTime()) {
         optionals.set(5);
       }
-      if (struct.isSetTraceTransactionId()) {
+      if (struct.isSetTraceTransactionSequence()) {
         optionals.set(6);
       }
       if (struct.isSetSpanId()) {
@@ -1226,8 +1226,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetTraceAgentStartTime()) {
         oprot.writeI64(struct.traceAgentStartTime);
       }
-      if (struct.isSetTraceTransactionId()) {
-        oprot.writeI64(struct.traceTransactionId);
+      if (struct.isSetTraceTransactionSequence()) {
+        oprot.writeI64(struct.traceTransactionSequence);
       }
       if (struct.isSetSpanId()) {
         oprot.writeI32(struct.spanId);
@@ -1275,8 +1275,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         struct.setTraceAgentStartTimeIsSet(true);
       }
       if (incoming.get(6)) {
-        struct.traceTransactionId = iprot.readI64();
-        struct.setTraceTransactionIdIsSet(true);
+        struct.traceTransactionSequence = iprot.readI64();
+        struct.setTraceTransactionSequenceIsSet(true);
       }
       if (incoming.get(7)) {
         struct.spanId = iprot.readI32();
