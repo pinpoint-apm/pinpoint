@@ -72,7 +72,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 		for (List<SpanBo> spans : selectedSpans) {
 			for (SpanBo span : spans) {
 				// check UUID and time
-				if (query.isExists(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId(), span.getCollectorAcceptTime(), span.getElapsed())) {
+				if (query.isExists(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence(), span.getCollectorAcceptTime(), span.getElapsed())) {
 					result.add(span);
 				}
 			}
