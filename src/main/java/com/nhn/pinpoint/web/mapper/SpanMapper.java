@@ -40,9 +40,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         if (rowKey == null) {
             return Collections.emptyList();
         }
-
-        long most = BytesUtils.bytesToFirstLong(rowKey);
-        long least = BytesUtils.bytesToSecondLong(rowKey);
+        String traceAgentId = BytesUtils.toStringAndRightTrim(rowKey, 0, HBaseTables.AGENT_NAME_MAX_LEN);
+        long traceAgentStartTime = BytesUtils.bytesToLong(rowKey, HBaseTables.AGENT_NAME_MAX_LEN);
+        long traceTrasnactionId = BytesUtils.bytesToLong(rowKey, HBaseTables.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
 
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
@@ -54,8 +54,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             if (Bytes.equals(family, HBaseTables.TRACES_CF_SPAN)) {
 
                 SpanBo spanBo = new SpanBo();
-                spanBo.setMostTraceId(most);
-                spanBo.setLeastTraceId(least);
+                spanBo.setTraceAgentId(traceAgentId);
+                spanBo.setTraceAgentStartTime(traceAgentStartTime);
+                spanBo.setTraceTransactionId(traceTrasnactionId);
                 spanBo.setCollectorAcceptTime(kv.getTimestamp());
 
                 spanBo.setSpanID(Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset()));
@@ -67,8 +68,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanMap.put(spanBo.getSpanId(), spanBo);
             } else if (Bytes.equals(family, HBaseTables.TRACES_CF_TERMINALSPAN)) {
                 SpanEventBo spanEventBo = new SpanEventBo();
-                spanEventBo.setMostTraceId(most);
-                spanEventBo.setLeastTraceId(least);
+                spanEventBo.setTraceAgentId(traceAgentId);
+                spanEventBo.setTraceAgentStartTime(traceAgentStartTime);
+                spanEventBo.setTraceTransactionId(traceTrasnactionId);
 
                 int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
                 // 앞의 spanid가 int이므로 4.

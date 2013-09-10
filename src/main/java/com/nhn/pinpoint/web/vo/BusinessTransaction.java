@@ -22,7 +22,7 @@ public class BusinessTransaction {
 		long elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
 
-        String traceIdString = TraceIdUtils.formatString(span.getMostTraceId(), span.getLeastTraceId());
+        String traceIdString = TraceIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
         this.traces.add(trace);
 		calls++;
@@ -42,7 +42,7 @@ public class BusinessTransaction {
 			minTime = elapsed;
         }
 
-        String traceIdString = TraceIdUtils.formatString(span.getMostTraceId(), span.getLeastTraceId());
+        String traceIdString = TraceIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
 		this.traces.add(trace);
 

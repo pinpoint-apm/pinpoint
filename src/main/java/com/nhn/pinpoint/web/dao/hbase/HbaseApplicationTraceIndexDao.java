@@ -150,8 +150,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
 
         final int qualifierOffset = kv.getQualifierOffset();
-        long mostTid = BytesUtils.bytesToLong(buffer, qualifierOffset);
-        long leastTid = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH);
-        return new TraceIdWithTime(mostTid, leastTid, acceptedTime);
+        String agentId = BytesUtils.toStringAndRightTrim(buffer, qualifierOffset, HBaseTables.AGENT_NAME_MAX_LEN);
+        long agentStartTime = BytesUtils.bytesToLong(buffer, qualifierOffset + HBaseTables.AGENT_NAME_MAX_LEN);
+        long transactionId = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH + HBaseTables.AGENT_NAME_MAX_LEN);
+        return new TraceIdWithTime(agentId, agentStartTime, transactionId, acceptedTime);
     }
 }

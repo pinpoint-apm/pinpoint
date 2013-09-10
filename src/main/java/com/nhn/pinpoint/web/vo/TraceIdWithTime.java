@@ -4,8 +4,8 @@ public class TraceIdWithTime extends TraceId {
 
 	private final long acceptedTime;
 
-	public TraceIdWithTime(long most, long least, long acceptedTime) {
-		super(most, least);
+	public TraceIdWithTime(String agentId, long agentStartTime, long transactionId, long acceptedTime) {
+		super(agentId, agentStartTime, transactionId);
 		this.acceptedTime = acceptedTime;
 	}
 
@@ -37,6 +37,6 @@ public class TraceIdWithTime extends TraceId {
 
 	@Override
 	public String toString() {
-		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", most=" + most + ", least=" + least + "]";
+		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", agentStartTime=" + agentStartTime + ", transactionId=" + transactionId + "]";
 	}
 }

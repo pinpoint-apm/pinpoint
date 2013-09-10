@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
@@ -29,9 +30,11 @@ public class TraceIndexMapper implements RowMapper<List<TraceId>> {
 		for (KeyValue kv : raw) {
             byte[] buffer = kv.getBuffer();
             int qualifierOffset = kv.getQualifierOffset();
-            long least = BytesUtils.bytesToLong(buffer, qualifierOffset + 8);
-            long most = BytesUtils.bytesToLong(buffer, qualifierOffset);
-            TraceId traceId = new TraceId(most, least);
+
+            String agentId = BytesUtils.toStringAndRightTrim(buffer, qualifierOffset, HBaseTables.AGENT_NAME_MAX_LEN);
+            long agentStartTime = BytesUtils.bytesToLong(buffer, qualifierOffset + HBaseTables.AGENT_NAME_MAX_LEN);
+            long transactionId = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH + HBaseTables.AGENT_NAME_MAX_LEN);
+            TraceId traceId = new TraceId(agentId, agentStartTime, transactionId);
 
             traceIdList.add(traceId);
 		}

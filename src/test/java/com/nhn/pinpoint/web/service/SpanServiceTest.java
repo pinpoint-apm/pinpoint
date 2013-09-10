@@ -54,7 +54,7 @@ public class SpanServiceTest {
 	@Before
 	public void before() throws TException {
 		Span span = createRootSpan();
-		logger.debug("uuid:{}", new UUID(span.getMostTraceId(), span.getLeastTraceId()));
+		logger.debug("id:{}", new TraceId(span.getTraceAgentId(), span.getAgentStartTime(), span.getTraceTransactionId()));
 		insert(span);
 		deleteSpans.add(span);
 
@@ -103,7 +103,7 @@ public class SpanServiceTest {
 	}
 
 	private void doRead(Span span) {
-		TraceId traceId = new TraceId(span.getMostTraceId(), span.getLeastTraceId());
+		TraceId traceId = new TraceId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
 
 		List<SpanAlign> sort = spanService.selectSpan(traceId);
 		for (SpanAlign spanAlign : sort) {
@@ -129,8 +129,9 @@ public class SpanServiceTest {
 
 		span.setAgentId("UnitTest");
 		span.setApplicationName("ApplicationId");
-		span.setMostTraceId(uuid.getMostSignificantBits());
-		span.setLeastTraceId(uuid.getLeastSignificantBits());
+        span.setTraceAgentId("traceAgentId");
+		span.setTraceAgentStartTime(System.currentTimeMillis());
+		span.setTraceTransactionId(0);
 		span.setStartTime(time);
 		span.setElapsed(5);
 		span.setRpc("RPC");
@@ -157,9 +158,9 @@ public class SpanServiceTest {
 		sub.setAgentId("UnitTest");
 		sub.setApplicationName("ApplicationId");
         sub.setAgentStartTime(123);
-
-		sub.setMostTraceId(span.getMostTraceId());
-		sub.setLeastTraceId(span.getLeastTraceId());
+        sub.setTraceAgentId(span.getTraceAgentId());
+		sub.setTraceAgentStartTime(span.getTraceAgentStartTime());
+		sub.setTraceTransactionId(span.getTraceTransactionId());
 		sub.setStartTime(time);
 		sub.setElapsed(5);
 		sub.setRpc("RPC");

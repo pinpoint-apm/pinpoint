@@ -21,8 +21,9 @@ public class TransactionMetadataQuery {
 		queryConditions = new HashMap<TransactionMetadataQuery.QueryCondition, Object>();
 	}
 
-	public void addQueryCondition(String traceId, long time, int responseTime) {
-		QueryCondition condition = new QueryCondition(new TraceId(traceId), time, responseTime);
+	public void addQueryCondition(String unparsedTraceId, long time, int responseTime) {
+        TraceId traceId = new TraceId(unparsedTraceId);
+        QueryCondition condition = new QueryCondition(traceId, time, responseTime);
 
 		if (queryConditions.containsKey(condition)) {
 			return;
@@ -31,8 +32,10 @@ public class TransactionMetadataQuery {
 		queryConditions.put(condition, null);
 	}
 
-	public boolean isExists(long mostTraceId, long leastTraceId, long time, int responseTime) {
-		return queryConditions.containsKey(new QueryCondition(new TraceId(mostTraceId, leastTraceId), time, responseTime));
+	public boolean isExists(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long time, int responseTime) {
+        TraceId traceId = new TraceId(traceAgentId, traceAgentStartTime, traceTransactionId);
+        QueryCondition queryCondition = new QueryCondition(traceId, time, responseTime);
+        return queryConditions.containsKey(queryCondition);
 	}
 
 	public List<TraceId> getTraceIds() {
