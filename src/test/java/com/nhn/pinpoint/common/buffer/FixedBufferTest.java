@@ -12,6 +12,48 @@ public class FixedBufferTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
+    public void testPut1PrefixedBytes() {
+        testPut1PrefixedBytes(255, 256);
+        testPut1PrefixedBytes(0, 256);
+        try {
+            testPut1PrefixedBytes(256, 257);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+
+    }
+
+    private void testPut1PrefixedBytes(int dataSize, int bufferSize) {
+        FixedBuffer fixedBuffer = new FixedBuffer(bufferSize);
+        fixedBuffer.put1PrefixedBytes(new byte[dataSize]);
+
+        FixedBuffer read = new FixedBuffer(fixedBuffer.getBuffer());
+        byte[] bytes = read.read1PrefixedBytes();
+        Assert.assertEquals(bytes.length, dataSize);
+    }
+
+    @Test
+    public void testPut2PrefixedBytes() {
+        testPut2PrefixedBytes(65535, 65537);
+        testPut2PrefixedBytes(0, 65537);
+        try {
+            testPut2PrefixedBytes(65536, 65538);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+
+    }
+
+    private void testPut2PrefixedBytes(int dataSize, int bufferSize) {
+        FixedBuffer fixedBuffer = new FixedBuffer(bufferSize);
+        fixedBuffer.put2PrefixedBytes(new byte[dataSize]);
+
+        FixedBuffer read = new FixedBuffer(fixedBuffer.getBuffer());
+        byte[] bytes = read.read2PrefixedBytes();
+        Assert.assertEquals(bytes.length, dataSize);
+    }
+
+    @Test
     public void testPutPrefixedBytes() throws Exception {
         String test = "test";
         int expected = 3333;

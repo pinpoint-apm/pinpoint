@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.common.util;
 
 
+import org.apache.hadoop.hbase.util.Bytes;
+
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +23,35 @@ public final class BytesUtils {
         writeSecondLong0(value2, buffer);
         return buffer;
     }
+
+    public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
+        if (string == null) {
+            throw new NullPointerException("string must not be null");
+        }
+        if(maxStringSize < 0) {
+            throw new IllegalArgumentException("maxStringSize");
+        }
+        final byte[] stringBytes = getBytes(string);
+        if (stringBytes.length > maxStringSize) {
+            throw new IllegalArgumentException("string is max " + stringBytes.length);
+        }
+        final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH + maxStringSize];
+        writeBytes(buffer, 0, stringBytes);
+        writeFirstLong0(value1, buffer, maxStringSize);
+        writeSecondLong0(value2, buffer, maxStringSize);
+        return buffer;
+    }
+
+    public static void writeBytes(byte[] buffer, int offset, byte[] stringBytes) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer must not be null");
+        }
+        if (stringBytes == null) {
+            throw new NullPointerException("stringBytes must not be null");
+        }
+        System.arraycopy(stringBytes, 0, buffer, offset, stringBytes.length);
+    }
+
 
     public static long[] bytesToLongLong(final byte[] buf) {
         if (buf == null) {
@@ -205,6 +236,17 @@ public final class BytesUtils {
         buf[7] = (byte) (value);
     }
 
+    private static void writeFirstLong0(final long value, final byte[] buf, int offset) {
+        buf[0 + offset] = (byte) (value >> 56);
+        buf[1 + offset] = (byte) (value >> 48);
+        buf[2 + offset] = (byte) (value >> 40);
+        buf[3 + offset] = (byte) (value >> 32);
+        buf[4 + offset] = (byte) (value >> 24);
+        buf[5 + offset] = (byte) (value >> 16);
+        buf[6 + offset] = (byte) (value >> 8);
+        buf[7 + offset] = (byte) (value);
+    }
+
     public static void writeSecondLong(final long value, final byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -229,6 +271,17 @@ public final class BytesUtils {
         buf[13] = (byte) (value >> 16);
         buf[14] = (byte) (value >> 8);
         buf[15] = (byte) (value);
+    }
+
+    private static void writeSecondLong0(final long value, final byte[] buf, int offset) {
+        buf[8 + offset] = (byte) (value >> 56);
+        buf[9 + offset] = (byte) (value >> 48);
+        buf[10 + offset] = (byte) (value >> 40);
+        buf[11 + offset] = (byte) (value >> 32);
+        buf[12 + offset] = (byte) (value >> 24);
+        buf[13 + offset] = (byte) (value >> 16);
+        buf[14 + offset] = (byte) (value >> 8);
+        buf[15 + offset] = (byte) (value);
     }
 
     public static byte[] add(final String prefix, final long postfix) {
@@ -366,6 +419,27 @@ public final class BytesUtils {
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, "UTF-8 encoding fail.", e);
             return null;
+        }
+    }
+
+    public static String toStringAndRightTrim(byte[] bytes, int offset, int length) {
+        String string = toString(bytes, offset, length);
+        return trimRight(string);
+    }
+
+    public static String trimRight(String string) {
+        if (string == null) {
+            return null;
+        }
+        final int length = string.length();
+        int index = length;
+        while (string.charAt(index - 1) <= ' ') {
+            index--;
+        }
+        if (index == length) {
+            return string;
+        } else {
+            return string.substring(0, index);
         }
     }
 }

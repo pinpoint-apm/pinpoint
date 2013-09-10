@@ -12,6 +12,9 @@ public class FixedBuffer implements Buffer {
     protected byte[] buffer;
     protected int offset;
 
+    private static final int BYTE_UNSIGNED_MAX = 256;
+    private static final int SHORT_UNSIGNED_MAX = 65536;
+
     public FixedBuffer() {
         this(32);
     }
@@ -43,10 +46,10 @@ public class FixedBuffer implements Buffer {
     @Override
     public void put1PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put(0);
+            put((byte)0);
         } else {
             final int length = bytes.length;
-            if (length > Byte.MAX_VALUE) {
+            if (length >= BYTE_UNSIGNED_MAX) {
                 throw new IllegalArgumentException("too large bytes:" + bytes.length);
             }
             put((byte) length);
@@ -57,10 +60,10 @@ public class FixedBuffer implements Buffer {
     @Override
     public void put2PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put(0);
+            put((short)0);
         } else {
             final int length = bytes.length;
-            if (length > Short.MAX_VALUE) {
+            if (length >= SHORT_UNSIGNED_MAX) {
                 throw new IllegalArgumentException("too large bytes:" + bytes.length);
             }
             put((short) length);
@@ -81,7 +84,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public void putNullTerminatedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put(0);
+            put((byte) 0);
         } else {
             put(bytes);
             put((byte) 0);
@@ -252,6 +255,10 @@ public class FixedBuffer implements Buffer {
         return i;
     }
 
+    public int readUnsignedShort() {
+        return readShort() & 0xFFFF;
+    }
+
     @Override
     public long readLong() {
         final long l = BytesUtils.bytesToLong(buffer, offset);
@@ -290,7 +297,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public byte[] read1PrefixedBytes() {
-        final int b = readByte();
+        final int b = readUnsignedByte();
         if (b == 0) {
             return EMPTY;
         }
@@ -299,7 +306,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public byte[] read2PrefixedBytes() {
-        final int b = readShort();
+        final int b = readUnsignedShort();
         if (b == 0) {
             return EMPTY;
         }
@@ -324,7 +331,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public String read1PrefixedString() {
-        final int size = readByte();
+        final int size = readUnsignedByte();
         if (size == 0) {
             return "";
         }

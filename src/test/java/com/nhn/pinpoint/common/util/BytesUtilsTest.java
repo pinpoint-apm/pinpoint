@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 public class BytesUtilsTest {
     @Test
     public void testLongLongToBytes() throws Exception {
@@ -18,6 +19,41 @@ public class BytesUtilsTest {
         UUID uuid = UUID.randomUUID();
         test(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
     }
+
+    @Test
+    public void testStringLongLongToBytes() throws Exception {
+        BytesUtils.stringLongLongToBytes("123", 3, 1, 2);
+        try {
+            BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    public void testStringLongLongToBytes2() throws Exception {
+        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
+        String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
+        Assert.assertEquals("123", s);
+        long l = BytesUtils.bytesToLong(bytes, 10);
+        Assert.assertEquals(l, 1);
+        long l2 = BytesUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
+        Assert.assertEquals(l2, 2);
+    }
+
+    @Test
+    public void testRightTrim() throws Exception {
+        String trim = BytesUtils.trimRight("test  ");
+        Assert.assertEquals("test", trim);
+
+        String trim1 = BytesUtils.trimRight("test");
+        Assert.assertEquals("test", trim1);
+
+        String trim2 = BytesUtils.trimRight("  test");
+        Assert.assertEquals("  test", trim2);
+
+    }
+
 
     @Test
     public void testInt() {

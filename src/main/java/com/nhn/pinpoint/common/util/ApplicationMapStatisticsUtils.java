@@ -80,8 +80,7 @@ public class ApplicationMapStatisticsUtils {
 
     public static String getDestApplicationNameFromColumnName(byte[] bytes) {
         final short length = BytesUtils.bytesToShort(bytes, 4);
-        String string = BytesUtils.toString(bytes, 6, length);
-        return BytesUtils.safeTrim(string);
+        return BytesUtils.toStringAndRightTrim(bytes, 6, length);
     }
 
     public static String getHost(byte[] bytes) {
@@ -90,8 +89,7 @@ public class ApplicationMapStatisticsUtils {
         if (offset == bytes.length) {
             return null;
         }
-        String string = BytesUtils.toString(bytes, offset, bytes.length - offset);
-        return BytesUtils.safeTrim(string);
+        return BytesUtils.toStringAndRightTrim(bytes, offset, bytes.length - offset);
     }
 
     /**

@@ -37,8 +37,9 @@ public class SpanEventBo implements Span {
     private String applicationId;
     private long agentStartTime;
 
-	private long mostTraceId;
-	private long leastTraceId;
+    private String traceAgentId;
+	private long traceAgentStartTime;
+	private long traceTransactionId;
 
 	private int spanId;
 	private short sequence;
@@ -66,8 +67,9 @@ public class SpanEventBo implements Span {
         this.applicationId = tSpan.getApplicationName();
         this.agentStartTime = tSpan.getAgentStartTime();
 
-		this.mostTraceId = tSpan.getMostTraceId();
-		this.leastTraceId = tSpan.getLeastTraceId();
+        this.traceAgentId = tSpan.getTraceAgentId();
+		this.traceAgentStartTime = tSpan.getTraceAgentStartTime();
+		this.traceTransactionId = tSpan.getTraceTransactionId();
 
 		this.spanId = tSpan.getSpanId();
 		this.sequence = tSpanEvent.getSequence();
@@ -100,8 +102,9 @@ public class SpanEventBo implements Span {
         this.applicationId = spanChunk.getApplicationName();
         this.agentStartTime = spanChunk.getAgentStartTime();
 
-		this.mostTraceId = spanChunk.getMostTraceId();
-		this.leastTraceId = spanChunk.getLeastTraceId();
+        this.traceAgentId = spanChunk.getTraceAgentId();
+		this.traceAgentStartTime = spanChunk.getTraceAgentStartTime();
+		this.traceTransactionId = spanChunk.getTraceTransactionId();
 
 		this.spanId = spanChunk.getSpanId();
 		this.sequence = spanEvent.getSequence();
@@ -136,8 +139,9 @@ public class SpanEventBo implements Span {
             this.agentStartTime = agentKey.getAgentStartTime();
         }
 
-		this.mostTraceId = spanEvent.getMostTraceId();
-		this.leastTraceId = spanEvent.getLeastTraceId();
+        this.traceAgentId = spanEvent.getTraceAgentId();
+		this.traceAgentStartTime = spanEvent.getTraceAgentStartTime();
+		this.traceTransactionId = spanEvent.getTraceTransactionId();
 
 		this.spanId = spanEvent.getSpanId();
 		this.sequence = spanEvent.getSequence();
@@ -189,20 +193,28 @@ public class SpanEventBo implements Span {
         this.agentStartTime = agentStartTime;
     }
 
-    public long getMostTraceId() {
-		return mostTraceId;
+    public String getTraceAgentId() {
+        return traceAgentId;
+    }
+
+    public void setTraceAgentId(String traceAgentId) {
+        this.traceAgentId = traceAgentId;
+    }
+
+    public long getTraceAgentStartTime() {
+		return traceAgentStartTime;
 	}
 
-	public void setMostTraceId(long mostTraceId) {
-		this.mostTraceId = mostTraceId;
+	public void setTraceAgentStartTime(long traceAgentStartTime) {
+		this.traceAgentStartTime = traceAgentStartTime;
 	}
 
-	public long getLeastTraceId() {
-		return leastTraceId;
+	public long getTraceTransactionId() {
+		return traceTransactionId;
 	}
 
-	public void setLeastTraceId(long leastTraceId) {
-		this.leastTraceId = leastTraceId;
+	public void setTraceTransactionId(long traceTransactionId) {
+		this.traceTransactionId = traceTransactionId;
 	}
 
 	public void setSpanId(int spanId) {
@@ -414,7 +426,7 @@ public class SpanEventBo implements Span {
 		sb.append(this.getClass().getName()).append("={");
 		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
 		sb.append("\n\tserviceType=").append(serviceType);
-		sb.append("\n\tmostTraceId=").append(mostTraceId).append(", leastTraceId=").append(leastTraceId);
+		sb.append("\n\ttraceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionId=").append(traceTransactionId);
 		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
 		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
 		sb.append("\n\trpc=").append(rpc).append(", endPoint=").append(endPoint);

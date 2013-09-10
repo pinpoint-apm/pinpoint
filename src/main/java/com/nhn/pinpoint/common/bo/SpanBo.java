@@ -39,8 +39,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     private String applicationId;
     private long agentStartTime;
 
-    private long mostTraceId;
-    private long leastTraceId;
+    private String traceAgentId;
+    private long traceAgentStartTime;
+    private long traceTransactionId;
     private int spanId;
     private int parentSpanId;
 
@@ -67,8 +68,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.applicationId = span.getApplicationName();
         this.agentStartTime = span.getAgentStartTime();
 
-        this.mostTraceId = span.getMostTraceId();
-        this.leastTraceId = span.getLeastTraceId();
+        this.traceAgentId = span.getTraceAgentId();
+        this.traceAgentStartTime = span.getTraceAgentStartTime();
+        this.traceTransactionId = span.getTraceTransactionId();
 
         this.spanId = span.getSpanId();
         this.parentSpanId = span.getParentSpanId();
@@ -89,9 +91,13 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         setAnnotationList(span.getAnnotations());
     }
 
-    public SpanBo(long mostTraceId, long leastTraceId, long startTime, int elapsed, int spanId) {
-        this.mostTraceId = mostTraceId;
-        this.leastTraceId = leastTraceId;
+    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long startTime, int elapsed, int spanId) {
+        if (traceAgentId == null) {
+            throw new NullPointerException("traceAgentId must not be null");
+        }
+        this.traceAgentId = traceAgentId;
+        this.traceAgentStartTime = traceAgentStartTime;
+        this.traceTransactionId = traceTransactionId;
 
         this.startTime = startTime;
         this.elapsed = elapsed;
@@ -115,7 +121,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 	public String getTraceId() {
-        return TraceIdUtils.formatString(mostTraceId, leastTraceId);
+        return TraceIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
 	}
     
     public String getAgentId() {
@@ -160,22 +166,29 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 
-
-    public long getMostTraceId() {
-        return mostTraceId;
+    public String getTraceAgentId() {
+        return traceAgentId;
     }
 
-    public void setMostTraceId(long mostTraceId) {
-        this.mostTraceId = mostTraceId;
+    public void setTraceAgentId(String traceAgentId) {
+        this.traceAgentId = traceAgentId;
+    }
+
+    public long getTraceAgentStartTime() {
+        return traceAgentStartTime;
+    }
+
+    public void setTraceAgentStartTime(long traceAgentStartTime) {
+        this.traceAgentStartTime = traceAgentStartTime;
     }
 
 
-    public long getLeastTraceId() {
-        return leastTraceId;
+    public long getTraceTransactionId() {
+        return traceTransactionId;
     }
 
-    public void setLeastTraceId(long leastTraceId) {
-        this.leastTraceId = leastTraceId;
+    public void setTraceTransactionId(long traceTransactionId) {
+        this.traceTransactionId = traceTransactionId;
     }
 
 
@@ -389,8 +402,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
-                ", mostTraceId=" + mostTraceId +
-                ", leastTraceId=" + leastTraceId +
+                ", traceAgentStartTime=" + traceAgentStartTime +
+                ", traceTransactionId=" + traceTransactionId +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
                 ", startTime=" + startTime +

@@ -5,6 +5,18 @@ package com.nhn.pinpoint.common.util;
  */
 public class TraceIdUtils {
 
+    public static final String formatString(String agentId, long agentStartTime, long transactionId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        return agentId + "=" + (digits(agentStartTime >> 32, 8) + "-" +
+                digits(agentStartTime >> 16, 4) + "-" +
+                digits(agentStartTime, 4) + "-" +
+                digits(transactionId >> 48, 4) + "-" +
+                digits(transactionId, 12));
+    }
+
+    @Deprecated
     public static final String formatString(long mostSigBits, long leastSigBits) {
         return (digits(mostSigBits >> 32, 8) + "-" +
                 digits(mostSigBits >> 16, 4) + "-" +
