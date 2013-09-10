@@ -134,14 +134,13 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
      * @return
      */
     private TraceID populateTraceIdFromRequest(external.org.apache.coyote.Request request) {
-        String strUUID = request.getHeader(Header.HTTP_TRACE_ID.toString());
-        if (strUUID != null) {
-            UUID uuid = UUID.fromString(strUUID);
+        String traceId = request.getHeader(Header.HTTP_TRACE_ID.toString());
+        if (traceId != null) {
             int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
             int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(uuid, parentSpanID, spanID, flags);
+            TraceID id = this.traceContext.createTraceId(traceId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
             }

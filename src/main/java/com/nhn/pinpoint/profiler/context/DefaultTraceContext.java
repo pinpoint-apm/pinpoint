@@ -19,7 +19,6 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.util.Assert;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultTraceContext implements TraceContext {
@@ -40,6 +39,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private String applicationId;
 
+    private long agentStartTime;
+
     private DataSender priorityDataSender;
 
     private StorageFactory storageFactory;
@@ -54,6 +55,11 @@ public class DefaultTraceContext implements TraceContext {
     private Sampler sampler;
 
     public DefaultTraceContext() {
+    }
+
+    @Override
+    public TraceID createTraceID() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -115,9 +121,9 @@ public class DefaultTraceContext implements TraceContext {
     public Trace newTraceObject() {
         checkBeforeTraceObject();
         // datasender연결 부분 수정 필요.
-        boolean sampling = this.sampler.isSampling();
+        final boolean sampling = this.sampler.isSampling();
         if (sampling) {
-            DefaultTrace trace = new DefaultTrace();
+            DefaultTrace trace = new DefaultTrace(this.agentId, agentStartTime, transactionId.getAndIncrement());
             Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceContext(this);
@@ -197,8 +203,12 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceID createTraceId(UUID uuid, int parentSpanID, int spanID, short flags) {
-        return new DefaultTraceID(uuid, parentSpanID, spanID, flags);
+    public TraceID createTraceId(String traceId, int parentSpanID, int spanID, short flags) {
+        if (traceId == null) {
+            throw new NullPointerException("traceId must not be null");
+        }
+        // TODO parse error 때 예외 처리 필요.
+        return DefaultTraceID.parse(traceId, parentSpanID, spanID, flags);
     }
 
 
@@ -240,5 +250,13 @@ public class DefaultTraceContext implements TraceContext {
 
     public void setPriorityDataSender(DataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
+    }
+
+    public void setAgentStartTime(long agentStartTime) {
+        this.agentStartTime = agentStartTime;
+    }
+
+    public long getAgentStartTime() {
+        return agentStartTime;
     }
 }

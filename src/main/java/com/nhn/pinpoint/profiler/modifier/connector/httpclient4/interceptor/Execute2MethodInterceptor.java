@@ -66,7 +66,7 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
 		TraceID nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
-		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId().toString());
+		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getId());
 		request.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
 		request.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
 

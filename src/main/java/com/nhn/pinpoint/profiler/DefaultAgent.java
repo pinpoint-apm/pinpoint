@@ -224,6 +224,7 @@ public class DefaultAgent implements Agent {
 
         this.traceContext.setAgentId(this.agentId);
         this.traceContext.setApplicationId(this.applicationName);
+        this.traceContext.setAgentStartTime(this.startTime);
         this.traceContext.setPriorityDataSender(this.priorityDataSender);
 
         Sampler sampler = createSampler();
