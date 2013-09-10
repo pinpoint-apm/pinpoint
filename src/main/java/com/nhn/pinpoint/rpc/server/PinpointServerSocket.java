@@ -103,7 +103,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 //                    try {
 //                        messageListener.handleSend(traceSendPacket, socketChannel);
 //                    } finally {
-//                        TraceSendAckPacket traceSendAckPacket = new TraceSendAckPacket(traceSendPacket.getTraceId());
+//                        TraceSendAckPacket traceSendAckPacket = new TraceSendAckPacket(traceSendPacket.getTransactionId());
 //                        ChannelFuture write = channel.write(traceSendAckPacket);
 //                        write.addListener(traceSendAckWriteFailFutureListener);
 //                    }
