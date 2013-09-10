@@ -4,7 +4,7 @@ import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.mapping.ApiMappingTable;
+//import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -100,7 +100,7 @@ public class DefaultAgent implements Agent {
         initializeTraceContext();
 
         // 매핑 테이블 초기화를 위해 엑세스
-        ApiMappingTable.findApiId("test", null, null);
+//        ApiMappingTable.findApiId("test", null, null);
 
         this.agentInfo = createAgentInfo();
         this.heartBitChecker = new HeartBitChecker(priorityDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);

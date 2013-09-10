@@ -22,17 +22,11 @@ public class DefaultTraceContextTest {
         String id = traceID.getTransactionId();
         logger.info("id={}", id);
 
-        int agentIdIndex = id.indexOf(DefaultTraceId.AGENT_DELIMITER);
-        String agentId = id.substring(0, agentIdIndex);
-        Assert.assertEquals(agentId, agent);
+        String[] strings = TransactionIdUtils.parseTransactionId(id);
 
-        String ids = id.substring(agentIdIndex + 1, id.length());
-        String[] strings = TransactionIdUtils.parseTraceId(ids);
-        long startTime = TransactionIdUtils.parseMostId(strings);
-        Assert.assertEquals(startTime, agentStartTime);
-
-        long trasnactionCount = TransactionIdUtils.parseLeastId(strings);
-        Assert.assertEquals(agentTransactionCount, trasnactionCount);
+        Assert.assertEquals(strings[0], agent);
+        Assert.assertEquals(Long.parseLong(strings[1]), agentStartTime);
+        Assert.assertEquals(Long.parseLong(strings[2]), agentTransactionCount);
 
     }
 }

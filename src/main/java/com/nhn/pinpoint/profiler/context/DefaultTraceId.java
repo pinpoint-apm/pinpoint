@@ -21,16 +21,10 @@ public class DefaultTraceId implements TraceId {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        final int agentIdIndex = transactionId.indexOf(DefaultTraceId.AGENT_DELIMITER);
-        if (agentIdIndex == -1) {
-            throw new IllegalArgumentException("transactionId delimiter not found:" + transactionId);
-        }
-        final String agentId = transactionId.substring(0, agentIdIndex);
-        String ids = transactionId.substring(agentIdIndex + 1, transactionId.length());
-        String[] strings = TransactionIdUtils.parseTraceId(ids);
-        final long startTime = TransactionIdUtils.parseMostId(strings);
-        final long eachTransactionId = TransactionIdUtils.parseLeastId(strings);
-        return new DefaultTraceId(agentId, startTime, eachTransactionId, parentSpanID, spanID, flags);
+        final String[] parsedId = TransactionIdUtils.parseTransactionId(transactionId);
+        final long startTime = Long.parseLong(parsedId[1]);
+        final long eachTransactionId = Long.parseLong(parsedId[2]);
+        return new DefaultTraceId(parsedId[0], startTime, eachTransactionId, parentSpanID, spanID, flags);
 
     }
 
