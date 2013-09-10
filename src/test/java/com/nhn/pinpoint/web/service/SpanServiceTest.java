@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -21,7 +22,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.thrift.dto.Annotation;
@@ -54,7 +54,7 @@ public class SpanServiceTest {
 	@Before
 	public void before() throws TException {
 		Span span = createRootSpan();
-		logger.debug("id:{}", new TraceId(span.getTraceAgentId(), span.getAgentStartTime(), span.getTraceTransactionId()));
+		logger.debug("id:{}", new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId()));
 		insert(span);
 		deleteSpans.add(span);
 
@@ -103,7 +103,7 @@ public class SpanServiceTest {
 	}
 
 	private void doRead(Span span) {
-		TraceId traceId = new TraceId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
+		TransactionId traceId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
 
 		List<SpanAlign> sort = spanService.selectSpan(traceId);
 		for (SpanAlign spanAlign : sort) {

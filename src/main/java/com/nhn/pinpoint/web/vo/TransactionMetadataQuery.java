@@ -22,7 +22,7 @@ public class TransactionMetadataQuery {
 	}
 
 	public void addQueryCondition(String unparsedTraceId, long time, int responseTime) {
-        TraceId traceId = new TraceId(unparsedTraceId);
+        TransactionId traceId = new TransactionId(unparsedTraceId);
         QueryCondition condition = new QueryCondition(traceId, time, responseTime);
 
 		if (queryConditions.containsKey(condition)) {
@@ -33,17 +33,17 @@ public class TransactionMetadataQuery {
 	}
 
 	public boolean isExists(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long time, int responseTime) {
-        TraceId traceId = new TraceId(traceAgentId, traceAgentStartTime, traceTransactionId);
+        TransactionId traceId = new TransactionId(traceAgentId, traceAgentStartTime, traceTransactionId);
         QueryCondition queryCondition = new QueryCondition(traceId, time, responseTime);
         return queryConditions.containsKey(queryCondition);
 	}
 
-	public List<TraceId> getTraceIds() {
-		Set<TraceId> temp = new HashSet<TraceId>(queryConditions.size());
+	public List<TransactionId> getTraceIds() {
+		Set<TransactionId> temp = new HashSet<TransactionId>(queryConditions.size());
 		for (Entry<QueryCondition, Object> entry : queryConditions.entrySet()) {
 			temp.add(entry.getKey().getTraceId());
 		}
-		return new ArrayList<TraceId>(temp);
+		return new ArrayList<TransactionId>(temp);
 	}
 
 	public int size() {
@@ -56,17 +56,17 @@ public class TransactionMetadataQuery {
 	}
 
 	public static class QueryCondition {
-		private final TraceId traceId;
+		private final TransactionId traceId;
 		private final long time;
 		private final int responseTime;
 
-		public QueryCondition(TraceId traceId, long time, int responseTime) {
+		public QueryCondition(TransactionId traceId, long time, int responseTime) {
 			this.traceId = traceId;
 			this.time = time;
 			this.responseTime = responseTime;
 		}
 
-		public TraceId getTraceId() {
+		public TransactionId getTraceId() {
 			return traceId;
 		}
 

@@ -78,12 +78,12 @@ public class ServerCallTree {
 	}
 	
 //	private void addClient(String spanId, Server server) {
-//		if (!servers.containsKey(server.getId())) {
-//			servers.put(server.getId(), server);
+//		if (!servers.containsKey(server.getTransactionSequence())) {
+//			servers.put(server.getTransactionSequence(), server);
 //		} else {
-//			servers.get(server.getId()).mergeWith(server);
+//			servers.get(server.getTransactionSequence()).mergeWith(server);
 //		}
-//		spanIdToClientId.put(spanId, server.getId());
+//		spanIdToClientId.put(spanId, server.getTransactionSequence());
 //	}
 
     public void addSpanEventList(List<SpanEventBo> spanEventBoList) {

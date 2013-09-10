@@ -5,13 +5,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.nhn.pinpoint.common.bo.SpanBo;
@@ -34,7 +34,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	}
 
 	@Override
-	public List<Dot> selectScatterData(List<TraceId> traceIds, String applicationName, Filter filter) {
+	public List<Dot> selectScatterData(List<TransactionId> traceIds, String applicationName, Filter filter) {
 		List<List<SpanBo>> traceList = traceDao.selectAllSpans(traceIds);
 
 		List<Dot> list = new ArrayList<Dot>();
@@ -55,7 +55,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	}
 
 	@Override
-	public List<TraceId> selectScatterTraceIdList(String applicationName, long from, long to, int limit) {
+	public List<TransactionId> selectScatterTraceIdList(String applicationName, long from, long to, int limit) {
 		return applicationTraceIndexDao.scanTraceScatterTraceIdList(applicationName, from, to, limit);
 	}
 

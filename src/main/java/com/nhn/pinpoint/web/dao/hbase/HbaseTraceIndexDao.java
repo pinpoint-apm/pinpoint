@@ -13,7 +13,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.TraceIndexDao;
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.SpanUtils;
@@ -32,7 +32,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
 	@Autowired
 	@Qualifier("traceIndexMapper")
-	private RowMapper<List<TraceId>> traceIndexMapper;
+	private RowMapper<List<TransactionId>> traceIndexMapper;
 
     @Autowired
     @Qualifier("traceIdRowKeyDistributor")
@@ -46,13 +46,13 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	}
 
 	@Override
-	public List<List<TraceId>> scanTraceIndex(String agent, long start, long end) {
+	public List<List<TransactionId>> scanTraceIndex(String agent, long start, long end) {
 		Scan scan = createScan(agent, start, end);
 		return hbaseOperations2.find(HBaseTables.TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexMapper);
 	}
 
 //	@Override
-//	public List<List<List<TraceId>>> multiScanTraceIndex(String[] agents, long start, long end) {
+//	public List<List<List<TransactionId>>> multiScanTraceIndex(String[] agents, long start, long end) {
 //		final List<Scan> multiScan = new ArrayList<Scan>(agents.length);
 //		for (String agent : agents) {
 //			Scan scan = createScan(agent, start, end);

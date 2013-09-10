@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.web.vo;
 
-public class TraceIdWithTime extends TraceId {
+public class TraceIdWithTime extends TransactionId {
 
 	private final long acceptedTime;
 
-	public TraceIdWithTime(String agentId, long agentStartTime, long transactionId, long acceptedTime) {
-		super(agentId, agentStartTime, transactionId);
+	public TraceIdWithTime(byte[] buffer, int offset, long acceptedTime) {
+		super(buffer, offset);
 		this.acceptedTime = acceptedTime;
 	}
 
@@ -37,6 +37,6 @@ public class TraceIdWithTime extends TraceId {
 
 	@Override
 	public String toString() {
-		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", agentStartTime=" + agentStartTime + ", transactionId=" + transactionId + "]";
+		return "TraceIdWithTime [acceptedTime=" + acceptedTime + ", transactionId=" + transactionId + "]";
 	}
 }

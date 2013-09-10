@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.util.TraceIdUtils;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
 public class BusinessTransaction {
 	private final List<Trace> traces = new ArrayList<Trace>();
@@ -22,7 +22,7 @@ public class BusinessTransaction {
 		long elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
 
-        String traceIdString = TraceIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
+        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
         this.traces.add(trace);
 		calls++;
@@ -42,7 +42,7 @@ public class BusinessTransaction {
 			minTime = elapsed;
         }
 
-        String traceIdString = TraceIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
+        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionId());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
 		this.traces.add(trace);
 

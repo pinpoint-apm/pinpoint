@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.service;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
 import com.nhn.pinpoint.web.dao.SqlMetaDataDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
-import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
@@ -51,7 +51,7 @@ public class SpanServiceImpl implements SpanService {
 	private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
 	@Override
-	public List<SpanAlign> selectSpan(TraceId traceId) {
+	public List<SpanAlign> selectSpan(TransactionId traceId) {
 
 		List<SpanBo> spans = traceDao.selectSpanAndAnnotation(traceId);
 		if (spans == null || spans.isEmpty()) {

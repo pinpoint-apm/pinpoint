@@ -6,8 +6,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.common.util.TraceIdUtils;
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -48,7 +47,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
             long traceAgentStartTime = BytesUtils.bytesToLong(buffer, qualifierOffset + HBaseTables.AGENT_NAME_MAX_LEN);
             long traceTransactionId = BytesUtils.bytesToLong(buffer, qualifierOffset + BytesUtils.LONG_BYTE_LENGTH + HBaseTables.AGENT_NAME_MAX_LEN);
             // TODO
-			String traceId = TraceIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
+			String traceId = TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionId);
 
              Dot dot = new Dot(traceId, acceptedTime, elapsed, exceptionCode);
             list.add(dot);

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +22,6 @@ import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.common.ServiceType;
 
 /**
@@ -97,7 +97,7 @@ public class ApplicationMapController {
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
 											@RequestParam(value = "filter", required = false) String filterText) {
-		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 		Filter filter = FilterBuilder.build(filterText);
 		ServerCallTree map = flow.selectServerCallTree(traceIdSet, filter);
 		
@@ -117,7 +117,7 @@ public class ApplicationMapController {
 											@RequestParam("to") long to,
 											@RequestParam(value = "filter", required = false) String filterText) {
 		
-		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 		Filter filter = FilterBuilder.build(filterText);
 		
 		ApplicationMap map = flow.selectApplicationMap(traceIdSet, from, to, filter);
@@ -176,7 +176,7 @@ public class ApplicationMapController {
 									@RequestParam("destServiceType") short destServiceType,
 									@RequestParam(value = "filter", required = false) String filterText) {
 		
-		Set<TraceId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 		Filter filter = FilterBuilder.build(filterText);
 		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet, srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		

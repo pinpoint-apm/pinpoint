@@ -156,9 +156,9 @@
 </button>
 
 <h3>Application : ${applicationName}</h3>
-<!-- 
-<h5>TraceId : ${traceId.formatString}</h5>
--->
+
+<h5>TransactionId : ${traceId.formatString}</h5>
+
 <h5>AgentId : ${recordSet.agentId} &nbsp;&nbsp; ApplicationId : ${recordSet.applicationId}</h5>
 
 <ul class="nav nav-tabs" id="traceTabs">

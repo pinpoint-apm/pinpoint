@@ -9,27 +9,27 @@ import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author netspider
  */
 public interface FlowChartService {
 
-	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to);
+	public Set<TransactionId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to);
 
 	public List<Application> selectAllApplicationNames();
 
-	public ServerCallTree selectServerCallTree(TraceId traceId);
+	public ServerCallTree selectServerCallTree(TransactionId traceId);
 
-	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to, Filter filter);
+	public BusinessTransactions selectBusinessTransactions(Set<TransactionId> traceIds, String applicationName, long from, long to, Filter filter);
 	
 	@Deprecated
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter);
+	public ServerCallTree selectServerCallTree(Set<TransactionId> traceIdSet, Filter filter);
 	
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType);
 
-	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
+	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
 
-	public ApplicationMap selectApplicationMap(Set<TraceId> traceIdSet, long from, long to, Filter filter);
+	public ApplicationMap selectApplicationMap(Set<TransactionId> traceIdSet, long from, long to, Filter filter);
 }

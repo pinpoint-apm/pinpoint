@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.ResponseHistogram;
 import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatisticsUtils;
 import com.nhn.pinpoint.web.calltree.server.AgentIdNodeSelector;
@@ -35,12 +35,7 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.ClientStatistics;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.TimeseriesResponses;
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author netspider
@@ -78,7 +73,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * of transaction detail view
 	 */
 	@Override
-	public ServerCallTree selectServerCallTree(TraceId traceId) {
+	public ServerCallTree selectServerCallTree(TransactionId traceId) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -104,7 +99,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 */
 	@Deprecated
 	@Override
-	public ServerCallTree selectServerCallTree(Set<TraceId> traceIdSet, Filter filter) {
+	public ServerCallTree selectServerCallTree(Set<TransactionId> traceIdSet, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		
@@ -198,7 +193,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public Set<TraceId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
+	public Set<TransactionId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
 		if (applicationName == null) {
 			throw new NullPointerException("applicationName");
 		}
@@ -207,10 +202,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", new Object[] { applicationName, from, to });
 		}
 
-		List<List<TraceId>> traceIdList = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
-		Set<TraceId> result = new HashSet<TraceId>();
-		for (List<TraceId> list : traceIdList) {
-			for (TraceId traceId : list) {
+		List<List<TransactionId>> traceIdList = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
+		Set<TransactionId> result = new HashSet<TransactionId>();
+		for (List<TransactionId> list : traceIdList) {
+			for (TransactionId traceId : list) {
 				result.add(traceId);
 				logger.trace("traceid:{}", traceId);
 			}
@@ -219,7 +214,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public BusinessTransactions selectBusinessTransactions(Set<TraceId> traceIds, String applicationName, long from, long to, Filter filter) {
+	public BusinessTransactions selectBusinessTransactions(Set<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
 		List<List<SpanBo>> traceList;
 
 		if (filter == Filter.NONE) {
@@ -246,7 +241,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 	
 	@Override
-	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TraceId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -348,7 +343,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(Set<TraceId> traceIdSet, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(Set<TransactionId> traceIdSet, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 

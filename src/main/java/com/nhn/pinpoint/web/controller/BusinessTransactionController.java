@@ -26,7 +26,7 @@ import com.nhn.pinpoint.web.service.RecordSetService;
 import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
@@ -60,7 +60,7 @@ public class BusinessTransactionController {
 	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 
-		Set<TraceId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		Set<TransactionId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
 
 		Filter filter = FilterBuilder.build(filterText);
 		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to, filter);
@@ -97,7 +97,7 @@ public class BusinessTransactionController {
 	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
 		logger.debug("traceId:{}", traceIdParam);
 
-		final TraceId traceId = new TraceId(traceIdParam);
+		final TransactionId traceId = new TransactionId(traceIdParam);
 
 		ModelAndView mv = new ModelAndView("transactionInfo");
 

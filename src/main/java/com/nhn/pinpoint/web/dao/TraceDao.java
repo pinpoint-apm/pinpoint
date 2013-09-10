@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.nhn.pinpoint.web.vo.TraceId;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.common.bo.SpanBo;
 
 /**
@@ -13,19 +13,19 @@ import com.nhn.pinpoint.common.bo.SpanBo;
  */
 public interface TraceDao {
 
-    List<SpanBo> selectSpan(TraceId traceId);
+    List<SpanBo> selectSpan(TransactionId traceId);
 
-    List<SpanBo> selectSpanAndAnnotation(TraceId traceId);
+    List<SpanBo> selectSpanAndAnnotation(TransactionId traceId);
 
     // TODO list하고 set하고 비교해서 하나 없애야 될듯 하다.
-    List<List<SpanBo>> selectSpans(List<TraceId> traceIdList);
+    List<List<SpanBo>> selectSpans(List<TransactionId> traceIdList);
     
-    List<List<SpanBo>> selectAllSpans(Collection<TraceId> traceIdSet);
+    List<List<SpanBo>> selectAllSpans(Collection<TransactionId> traceIdSet);
 
-    List<List<SpanBo>> selectSpans(Set<TraceId> traceIdSet);
+    List<List<SpanBo>> selectSpans(Set<TransactionId> traceIdSet);
 
-    List<SpanBo> selectSpans(TraceId traceId);
+    List<SpanBo> selectSpans(TransactionId traceId);
     
     @Deprecated
-    List<List<SpanBo>> selectSpansAndAnnotation(Set<TraceId> traceIdList);
+    List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> traceIdList);
 }

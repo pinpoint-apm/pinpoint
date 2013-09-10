@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.TraceId;
 import com.nhn.pinpoint.web.vo.TraceIdWithTime;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -86,7 +86,7 @@ public class ScatterChartController {
 				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
 			}
 		} else {
-			List<TraceId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
+			List<TransactionId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
 
 			if (traceIds.isEmpty()) {
 				model.addAttribute("queryStart", -1);

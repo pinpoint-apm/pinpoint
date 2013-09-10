@@ -40,7 +40,7 @@ public class PathTest {
 	}
 	// private Span root() {
 	// TraceID traceID = TraceID.newTraceId();
-	// UUID uuid = traceID.getId();
+	// UUID uuid = traceID.getTransactionSequence();
 	// Span root = new Span("test", System.currentTimeMillis(),
 	// uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(),
 	// Integer.toString(index++), "serviceName", traceID.getSpanId(), null,
