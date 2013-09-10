@@ -187,7 +187,7 @@ public class SpanEvent implements Thriftable {
             spanEvent.setParentServiceType(parentSpan.getServiceType().getCode()); // added
             spanEvent.setParentEndPoint(parentSpan.getEndPoint()); // added
 
-            final TraceID parentSpanTraceID = parentSpan.getTraceID();
+            final TraceId parentSpanTraceID = parentSpan.getTraceID();
             spanEvent.setTraceAgentId(parentSpanTraceID.getAgentId());
             spanEvent.setTraceAgentStartTime(parentSpanTraceID.getAgentStartTime());
             spanEvent.setTraceTransactionId(parentSpanTraceID.getTransactionSequence());

@@ -35,7 +35,7 @@ public final class DefaultTrace implements Trace {
     private StackFrame currentStackFrame;
 
     public DefaultTrace(String agentId, long agentStartTime, long transactionId) {
-        TraceID traceId = new DefaultTraceID(agentId, agentStartTime, transactionId);
+        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
 
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();
@@ -44,7 +44,7 @@ public final class DefaultTrace implements Trace {
         this.currentStackFrame = stackFrame;
     }
 
-    public DefaultTrace(TraceID continueTraceID) {
+    public DefaultTrace(TraceId continueTraceID) {
         // this.root = continueRoot;                                                                                         
         this.callStack = new CallStack(continueTraceID);
         latestStackIndex = this.callStack.push();
@@ -186,7 +186,7 @@ public final class DefaultTrace implements Trace {
      * @return
      */
     @Override
-    public TraceID getTraceId() {
+    public TraceId getTraceId() {
         return callStack.getSpan().getTraceID();
     }
 

@@ -68,7 +68,7 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public TraceID getTraceId() {
+    public TraceId getTraceId() {
         throw new UnsupportedOperationException();
     }
 

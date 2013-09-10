@@ -22,7 +22,7 @@ public class CallStack {
 
     private int index = -1;
 
-    public CallStack(TraceID traceId) {
+    public CallStack(TraceId traceId) {
         this.span = new Span(traceId);
     }
 

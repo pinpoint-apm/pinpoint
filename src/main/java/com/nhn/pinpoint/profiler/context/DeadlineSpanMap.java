@@ -10,12 +10,12 @@ public class DeadlineSpanMap {
 
 	private static final long FLUSH_TIMEOUT = 120000L; // 2 minutes
 
-	private final ConcurrentMap<DefaultTraceID.TraceKey, Span> map = new ConcurrentHashMap<DefaultTraceID.TraceKey, Span>(256);
+	private final ConcurrentMap<DefaultTraceId.TraceKey, Span> map = new ConcurrentHashMap<DefaultTraceId.TraceKey, Span>(256);
 
 	private final Timer timer = new Timer(true);
 
-	public Span update(DefaultTraceID traceId) {
-		DefaultTraceID.TraceKey traceIdKey = traceId.getTraceKey();
+	public Span update(DefaultTraceId traceId) {
+		DefaultTraceId.TraceKey traceIdKey = traceId.getTraceKey();
 		Span span = map.get(traceIdKey);
 
 		if (span == null) {
@@ -31,7 +31,7 @@ public class DeadlineSpanMap {
 		return span;
 	}
 
-	public Span remove(DefaultTraceID traceId) {
+	public Span remove(DefaultTraceId traceId) {
 		return map.remove(traceId.getTraceKey());
 	}
 

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Span implements Thriftable {
 
-    private final TraceID traceID;
+    private final TraceId traceID;
     private long startTime;
     private long endTime;
 
@@ -34,11 +34,11 @@ public class Span implements Thriftable {
     private short parentApplicationType = -1;
     private String acceptorHost = null;
     
-    public Span(TraceID traceId) {
+    public Span(TraceId traceId) {
         this.traceID = traceId;
     }
 
-    public TraceID getTraceID() {
+    public TraceId getTraceID() {
         return traceID;
     }
 
@@ -182,7 +182,7 @@ public class Span implements Thriftable {
         span.setServiceType(serviceType.getCode());
         span.setSpanId(traceID.getSpanId());
         final int parentSpanId = traceID.getParentSpanId();
-        if (parentSpanId != SpanID.NULL) {
+        if (parentSpanId != SpanId.NULL) {
             span.setParentSpanId(parentSpanId);
         }
         span.setEndPoint(endPoint);

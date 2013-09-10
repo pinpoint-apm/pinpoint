@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
@@ -16,7 +15,7 @@ public class TraceTest {
 
     @Test
     public void trace() {
-        DefaultTraceID traceID = new DefaultTraceID("agent", 0, 1);
+        DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTrace trace = new DefaultTrace(traceID);
         trace.setStorage(new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
@@ -39,7 +38,7 @@ public class TraceTest {
 
     @Test
     public void popEventTest() {
-        DefaultTraceID traceID = new DefaultTraceID("agent", 0, 1);
+        DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTrace trace = new DefaultTrace(traceID);
         TestDataSender dataSender = new TestDataSender();
         BypassStorage bypassStorage = new BypassStorage();

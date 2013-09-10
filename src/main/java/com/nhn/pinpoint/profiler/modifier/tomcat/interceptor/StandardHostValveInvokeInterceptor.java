@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import java.util.Enumeration;
-import java.util.UUID;
 
 import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -57,7 +56,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             }
 
 
-            TraceID traceId = populateTraceIdFromRequest(request);
+            TraceId traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
                 // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
@@ -152,16 +151,16 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
      * @param request
      * @return
      */
-    private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
+    private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
 
         String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
 
-            int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
-            int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
+            int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
+            TraceId id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
             if (logger.isInfoEnabled()) {
                 logger.info("TraceID exist. continue trace. {}", id);
             }

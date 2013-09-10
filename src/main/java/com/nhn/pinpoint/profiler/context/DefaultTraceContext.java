@@ -57,10 +57,6 @@ public class DefaultTraceContext implements TraceContext {
     public DefaultTraceContext() {
     }
 
-    @Override
-    public TraceID createTraceID() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     /**
      * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
@@ -91,7 +87,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.
-    public Trace continueTraceObject(TraceID traceID) {
+    public Trace continueTraceObject(TraceId traceID) {
         checkBeforeTraceObject();
 
         // datasender연결 부분 수정 필요.
@@ -203,12 +199,12 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceID createTraceId(String traceId, int parentSpanID, int spanID, short flags) {
+    public TraceId createTraceId(String traceId, int parentSpanID, int spanID, short flags) {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
         // TODO parse error 때 예외 처리 필요.
-        return DefaultTraceID.parse(traceId, parentSpanID, spanID, flags);
+        return DefaultTraceId.parse(traceId, parentSpanID, spanID, flags);
     }
 
 

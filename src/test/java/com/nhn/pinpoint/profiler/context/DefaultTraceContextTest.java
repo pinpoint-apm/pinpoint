@@ -17,12 +17,12 @@ public class DefaultTraceContextTest {
         String agent= "test";
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
-        DefaultTraceID traceID = new DefaultTraceID(agent, agentStartTime, agentTransactionCount);
+        DefaultTraceId traceID = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
 
         String id = traceID.getTransactionId();
         logger.info("id={}", id);
 
-        int agentIdIndex = id.indexOf(DefaultTraceID.AGENT_DELIMITER);
+        int agentIdIndex = id.indexOf(DefaultTraceId.AGENT_DELIMITER);
         String agentId = id.substring(0, agentIdIndex);
         Assert.assertEquals(agentId, agent);
 

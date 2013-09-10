@@ -5,7 +5,7 @@ import java.net.URI;
 import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.context.TraceID;
+import com.nhn.pinpoint.profiler.context.TraceId;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
@@ -63,7 +63,7 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
-		TraceID nextId = trace.getTraceId().getNextTraceId();
+		TraceId nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
 		request.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());

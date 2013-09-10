@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
-public class DefaultTraceID implements TraceID {
+public class DefaultTraceId implements TraceId {
     public static final String AGENT_DELIMITER = "=";
 
     private String agentId;
@@ -13,15 +13,15 @@ public class DefaultTraceID implements TraceID {
 	private int spanId;
 	private short flags;
 
-    public DefaultTraceID(String agentId, long agentStartTime, long transactionId) {
-        this(agentId, agentStartTime, transactionId, SpanID.NULL, SpanID.newSpanID(), (short) 0);
+    public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
+        this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public static DefaultTraceID parse(final String transactionId, int parentSpanID, int spanID, short flags) {
+    public static DefaultTraceId parse(final String transactionId, int parentSpanID, int spanID, short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        final int agentIdIndex = transactionId.indexOf(DefaultTraceID.AGENT_DELIMITER);
+        final int agentIdIndex = transactionId.indexOf(DefaultTraceId.AGENT_DELIMITER);
         if (agentIdIndex == -1) {
             throw new IllegalArgumentException("transactionId delimiter not found:" + transactionId);
         }
@@ -30,15 +30,15 @@ public class DefaultTraceID implements TraceID {
         String[] strings = TransactionIdUtils.parseTraceId(ids);
         final long startTime = TransactionIdUtils.parseMostId(strings);
         final long eachTransactionId = TransactionIdUtils.parseLeastId(strings);
-        return new DefaultTraceID(agentId, startTime, eachTransactionId, parentSpanID, spanID, flags);
+        return new DefaultTraceId(agentId, startTime, eachTransactionId, parentSpanID, spanID, flags);
 
     }
 
-	public TraceID getNextTraceId() {
-		return new DefaultTraceID(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanID.nextSpanID(spanId, parentSpanId), flags);
+	public TraceId getNextTraceId() {
+		return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
 	}
 
-	public DefaultTraceID(String agentId, long agentStartTime, long transactionId, int parentSpanId, int spanId, short flags) {
+	public DefaultTraceId(String agentId, long agentStartTime, long transactionId, int parentSpanId, int spanId, short flags) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -139,7 +139,7 @@ public class DefaultTraceID implements TraceID {
 	}
 	
 	public boolean isRoot() {
-		return this.parentSpanId == SpanID.NULL;
+		return this.parentSpanId == SpanId.NULL;
 	}
 
 

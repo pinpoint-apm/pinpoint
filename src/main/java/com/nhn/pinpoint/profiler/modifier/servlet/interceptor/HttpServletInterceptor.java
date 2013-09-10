@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.servlet.interceptor;
 
 import java.util.Enumeration;
-import java.util.UUID;
 
 import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -71,7 +70,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             String requestURL = request.getRequestURI();
             String remoteAddr = request.getRemoteAddr();
 
-            TraceID traceId = populateTraceIdFromRequest(request);
+            TraceId traceId = populateTraceIdFromRequest(request);
             Trace trace;
             if (traceId != null) {
                 if (isDebug) {
@@ -143,14 +142,14 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
      * @param request
      * @return
      */
-    private TraceID populateTraceIdFromRequest(HttpServletRequest request) {
+    private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
         String traceId = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (traceId != null) {
-            int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanID.NULL);
-            int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanID.NULL);
+            int parentSpanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString()), SpanId.NULL);
+            int spanID = NumberUtils.parseInteger(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceID id = this.traceContext.createTraceId(traceId, parentSpanID, spanID, flags);
+            TraceId id = this.traceContext.createTraceId(traceId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
             }

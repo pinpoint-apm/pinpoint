@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-public class SpanIDTest {
+public class SpanIdTest {
     @Test
     public void newUUID() {
         UUID uuid = UUID.randomUUID();

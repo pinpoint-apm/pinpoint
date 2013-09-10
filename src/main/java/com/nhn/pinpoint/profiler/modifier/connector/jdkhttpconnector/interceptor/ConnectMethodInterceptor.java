@@ -5,7 +5,7 @@ import java.net.HttpURLConnection;
 import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.context.TraceID;
+import com.nhn.pinpoint.profiler.context.TraceId;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
@@ -51,7 +51,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 
-		TraceID nextId = trace.getTraceId().getNextTraceId();
+		TraceId nextId = trace.getTraceId().getNextTraceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
 
