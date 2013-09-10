@@ -295,8 +295,12 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/remotesimple")
 	public String remotesimple(Model model) {
+		String[] ports = new String[] { "9080", "10080", "11080" };
+		Random random = new Random();
+		String port = ports[random.nextInt(2)];
+
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://macpro:9080/mysql.pinpoint", new HashMap<String, Object>());
+		client.executeToBloc("http://localhost:" + port + "/mysql.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
