@@ -27,16 +27,17 @@ struct SpanEvent {
   18: optional string parentEndPoint
 
 
-  4: optional i64 mostTraceId
-  5: optional i64 leastTraceId
+  4: optional string traceAgentId
+  5: optional i64 traceAgentStartTime;
+  6: optional i64 traceTransactionId;
 
-  6: optional i32 spanId
-  7: i16 sequence
+  7: optional i32 spanId
+  8: i16 sequence
 
-  8: i32 startElapsed
-  9: i32 endElapsed
+  9: i32 startElapsed
+  10: i32 endElapsed
 
-  10: optional string rpc
+  11: optional string rpc
   12: i16 serviceType
   13: optional string endPoint
 
@@ -58,16 +59,18 @@ struct Span {
   2: string applicationName
   3: i64 agentStartTime
 
-  4: i64 mostTraceId
-  5: i64 leastTraceId
+  4: string traceAgentId
+  5: i64 traceAgentStartTime;
+  6: i64 traceTransactionId;
 
-  6: i32 spanId
-  7: optional i32 parentSpanId = -1
+  7: i32 spanId
+  8: optional i32 parentSpanId = -1
 
-  8: i64 startTime
-  9: i32 elapsed
+  // span 이벤트의 시작시간.
+  9: i64 startTime
+  10: i32 elapsed
 
-  10: optional string rpc
+  11: optional string rpc
 
   12: i16 serviceType
   13: optional string endPoint
@@ -92,14 +95,15 @@ struct SpanChunk {
 
   4: i16 serviceType
 
-  5: i64 mostTraceId
-  6: i64 leastTraceId
+  5: string traceAgentId
+  6: i64 traceAgentStartTime;
+  7: i64 traceTransactionId;
 
-  7: i32 spanId
+  8: i32 spanId
 
-  8: optional string endPoint
+  9: optional string endPoint
 
-  9: list<SpanEvent> spanEventList
+  10: list<SpanEvent> spanEventList
 }
 
 struct SqlMetaData {
