@@ -73,11 +73,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 //		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, multiScan, traceIndexMapper);
 //	}
 
-	private Scan createScan(String agent, long start, long end) {
+	private Scan createScan(String applicationName, long start, long end) {
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
 
-		byte[] bAgent = Bytes.toBytes(agent);
+		byte[] bAgent = Bytes.toBytes(applicationName);
 		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, start);
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
 

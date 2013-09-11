@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.nhn.pinpoint.web.vo.TransactionId;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +27,9 @@ public class HbaseTraceDao implements TraceDao {
 	@Autowired
 	private HbaseOperations2 template2;
 
+    @Autowired
+    private AbstractRowKeyDistributor rowKeyDistributor;
+
 	@Autowired
 	@Qualifier("spanMapper")
 	private RowMapper<List<SpanBo>> spanMapper;
@@ -36,12 +40,12 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<SpanBo> selectSpan(TransactionId transactionId) {
-		byte[] traceIdBytes = transactionId.getBytes();
+		byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
 		return template2.get(HBaseTables.TRACES, traceIdBytes, HBaseTables.TRACES_CF_SPAN, spanMapper);
 	}
 
 	public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
-		byte[] traceIdBytes = transactionId.getBytes();
+		byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
 		Get get = new Get(traceIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
@@ -54,7 +58,7 @@ public class HbaseTraceDao implements TraceDao {
 	public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
 		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId traceId : transactionIdList) {
-			byte[] traceIdBytes = traceId.getBytes();
+			byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
 			Get get = new Get(traceIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			gets.add(get);
@@ -65,8 +69,9 @@ public class HbaseTraceDao implements TraceDao {
 	@Override
 	public List<List<SpanBo>> selectSpans(Set<TransactionId> transactionIdList) {
 		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId traceId : transactionIdList) {
-			Get get = new Get(traceId.getBytes());
+		for (TransactionId transactionId : transactionIdList) {
+            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+			Get get = new Get(transactionIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			gets.add(get);
 		}
@@ -76,8 +81,9 @@ public class HbaseTraceDao implements TraceDao {
 	@Override
 	public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
 		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId traceId : transactionIdList) {
-			Get get = new Get(traceId.getBytes());
+		for (TransactionId transactionId : transactionIdList) {
+            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+            Get get = new Get(transactionIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
 			gets.add(get);
@@ -87,7 +93,8 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<SpanBo> selectSpans(TransactionId transactionId) {
-		Get get = new Get(transactionId.getBytes());
+        byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        Get get = new Get(transactionIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
 		return template2.get(HBaseTables.TRACES, get, spanMapper);
@@ -96,8 +103,9 @@ public class HbaseTraceDao implements TraceDao {
 	@Override
 	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList) {
 		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId traceId : transactionIdList) {
-			Get get = new Get(traceId.getBytes());
+		for (TransactionId transactionId : transactionIdList) {
+            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+			Get get = new Get(transactionIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
 			gets.add(get);

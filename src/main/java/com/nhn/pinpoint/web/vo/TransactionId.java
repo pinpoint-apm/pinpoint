@@ -6,6 +6,7 @@ import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
 public class TransactionId {
     public static final int AGENT_NAME_MAX_LEN = HBaseTables.AGENT_NAME_MAX_LEN;
+    public static final int DISTRIBUTE_HASH_SIZE = 1;
 
     protected final String agentId;
     protected final long agentStartTime;

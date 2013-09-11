@@ -85,7 +85,7 @@ public class SpanServiceTest {
 	public void after() {
 		List list = new LinkedList();
 		for (Span span : deleteSpans) {
-			Delete delete = new Delete(SpanUtils.getTraceId(span));
+			Delete delete = new Delete(SpanUtils.getTransactionId(span));
 			list.add(delete);
 		}
 		template2.delete(HBaseTables.TRACES, list);

@@ -199,7 +199,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", new Object[] { applicationName, from, to });
+			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", applicationName, from, to);
 		}
 
 		List<List<TransactionId>> traceIdList = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
@@ -352,7 +352,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
-		Map<String, AgentInfoBo> agentInfoCache = new HashMap<String, AgentInfoBo>();
 
 		TimeseriesResponses tr = new TimeseriesResponses(from, to);
 		

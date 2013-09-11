@@ -4,12 +4,13 @@ import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -40,9 +41,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         if (rowKey == null) {
             return Collections.emptyList();
         }
-        String traceAgentId = BytesUtils.toStringAndRightTrim(rowKey, 0, HBaseTables.AGENT_NAME_MAX_LEN);
-        long traceAgentStartTime = BytesUtils.bytesToLong(rowKey, HBaseTables.AGENT_NAME_MAX_LEN);
-        long traceTrasnactionId = BytesUtils.bytesToLong(rowKey, HBaseTables.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
+        final TransactionId transactionId = new TransactionId(rowKey, TransactionId.DISTRIBUTE_HASH_SIZE);
 
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
@@ -54,9 +53,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             if (Bytes.equals(family, HBaseTables.TRACES_CF_SPAN)) {
 
                 SpanBo spanBo = new SpanBo();
-                spanBo.setTraceAgentId(traceAgentId);
-                spanBo.setTraceAgentStartTime(traceAgentStartTime);
-                spanBo.setTraceTransactionSequence(traceTrasnactionId);
+                spanBo.setTraceAgentId(transactionId.getAgentId());
+                spanBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
+                spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
                 spanBo.setCollectorAcceptTime(kv.getTimestamp());
 
                 spanBo.setSpanID(Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset()));
@@ -68,9 +67,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanMap.put(spanBo.getSpanId(), spanBo);
             } else if (Bytes.equals(family, HBaseTables.TRACES_CF_TERMINALSPAN)) {
                 SpanEventBo spanEventBo = new SpanEventBo();
-                spanEventBo.setTraceAgentId(traceAgentId);
-                spanEventBo.setTraceAgentStartTime(traceAgentStartTime);
-                spanEventBo.setTraceTransactionSequence(traceTrasnactionId);
+                spanEventBo.setTraceAgentId(transactionId.getAgentId());
+                spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
+                spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
                 int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
                 // 앞의 spanid가 int이므로 4.
