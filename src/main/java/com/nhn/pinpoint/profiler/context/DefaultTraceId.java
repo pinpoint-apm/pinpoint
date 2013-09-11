@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.common.util.TransactionId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
 public class DefaultTraceId implements TraceId {
-    public static final String AGENT_DELIMITER = "=";
 
     private String agentId;
 	private long agentStartTime;
@@ -21,10 +21,8 @@ public class DefaultTraceId implements TraceId {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        final String[] parsedId = TransactionIdUtils.parseTransactionId(transactionId);
-        final long startTime = Long.parseLong(parsedId[1]);
-        final long eachTransactionId = Long.parseLong(parsedId[2]);
-        return new DefaultTraceId(parsedId[0], startTime, eachTransactionId, parentSpanID, spanID, flags);
+        final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
+        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanID, spanID, flags);
 
     }
 

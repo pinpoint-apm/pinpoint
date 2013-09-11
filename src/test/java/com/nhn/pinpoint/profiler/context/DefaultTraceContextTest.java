@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.common.util.TransactionId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -22,11 +23,11 @@ public class DefaultTraceContextTest {
         String id = traceID.getTransactionId();
         logger.info("id={}", id);
 
-        String[] strings = TransactionIdUtils.parseTransactionId(id);
+        TransactionId transactionid = TransactionIdUtils.parseTransactionId(id);
 
-        Assert.assertEquals(strings[0], agent);
-        Assert.assertEquals(Long.parseLong(strings[1]), agentStartTime);
-        Assert.assertEquals(Long.parseLong(strings[2]), agentTransactionCount);
+        Assert.assertEquals(transactionid.getAgentId(), agent);
+        Assert.assertEquals(transactionid.getAgentStartTime(), agentStartTime);
+        Assert.assertEquals(transactionid.getTransactionSequence(), agentTransactionCount);
 
     }
 }
