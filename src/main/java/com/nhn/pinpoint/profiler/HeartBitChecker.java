@@ -1,11 +1,13 @@
 package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
+import java.util.concurrent.ThreadFactory;
 
 
 /**
@@ -14,6 +16,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 public class HeartBitChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory(ProductInfo.CAMEL_NAME + "-Agent-Heartbeat-Thread");
     private long heartBitInterVal;
     private DataSender dataSender;
     private AgentInfo agentInfo;
@@ -32,12 +35,9 @@ public class HeartBitChecker {
         if (logger.isInfoEnabled()) {
             logger.info("Send startup information to Pinpoint server via {}. agentInfo={}", dataSender.getClass().getSimpleName(), agentInfo);
         }
+        // agent내의 공용타이머를 생성하고 자체 thread를 대체 할것.
         dataSender.send(agentInfo);
-        dataSender.send(agentInfo);
-        dataSender.send(agentInfo);
-
-        this.ioThread = new Thread(heartBitCommand, ProductInfo.CAMEL_NAME + "-Agent-Heartbeat-Thread");
-        this.ioThread.setDaemon(true);
+        this.ioThread = THREAD_FACTORY.newThread(heartBitCommand);
         ioThread.start();
     }
 

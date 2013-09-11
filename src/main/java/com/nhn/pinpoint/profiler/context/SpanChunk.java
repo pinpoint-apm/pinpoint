@@ -35,7 +35,7 @@ public class SpanChunk implements Thriftable {
 
         TraceId traceID = parentSpan.getTraceID();
         tSpanChunk.setTraceAgentId(traceID.getAgentId());
-        tSpanChunk.setAgentStartTime(traceID.getAgentStartTime());
+        tSpanChunk.setTraceAgentStartTime(traceID.getAgentStartTime());
         tSpanChunk.setTraceTransactionSequence(traceID.getTransactionSequence());
         tSpanChunk.setSpanId(traceID.getSpanId());
         

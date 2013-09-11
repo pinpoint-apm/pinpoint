@@ -119,7 +119,7 @@ public class DefaultTraceContext implements TraceContext {
         // datasender연결 부분 수정 필요.
         final boolean sampling = this.sampler.isSampling();
         if (sampling) {
-            DefaultTrace trace = new DefaultTrace(this.agentId, agentStartTime, transactionId.getAndIncrement());
+            DefaultTrace trace = new DefaultTrace(this.agentId, this.agentStartTime, this.transactionId.getAndIncrement());
             Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceContext(this);
