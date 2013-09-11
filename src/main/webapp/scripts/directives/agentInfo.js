@@ -12,7 +12,10 @@ pinpointApp
             templateUrl: 'views/agentInfo.html',
             link: function postLink(scope, element, attrs) {
 
+                scope.agentInfoTemplate = 'views/agentInfoReady.html';
+
                 scope.$on('agentList.agentChanged', function (event, agent) {
+                    scope.agentInfoTemplate = 'views/agentInfoMain.html';
                     scope.agent = agent;
                     console.log('got agentList.agentChanged', agent);
                 });
