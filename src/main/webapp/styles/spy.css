@@ -6,6 +6,7 @@
     margin: 0 12px 0 0;
     width: 188px;
     height: 100%;
+    border: 0;
     border-right: 1px solid #ddd;
     overflow: auto;
     -webkit-border-radius: 0;
