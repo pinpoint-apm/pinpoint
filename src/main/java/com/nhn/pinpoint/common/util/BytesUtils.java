@@ -28,7 +28,7 @@ public final class BytesUtils {
         if (string == null) {
             throw new NullPointerException("string must not be null");
         }
-        if(maxStringSize < 0) {
+        if (maxStringSize < 0) {
             throw new IllegalArgumentException("maxStringSize");
         }
         final byte[] stringBytes = getBytes(string);
