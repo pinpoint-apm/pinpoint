@@ -5,21 +5,45 @@ package com.nhn.pinpoint.profiler.util;
  */
 public class Scope {
 
-    private final NamedThreadLocal<Boolean> scope;
+    private final NamedThreadLocal<Marker> scope;
 
     public Scope(final String scopeName) {
-        this.scope = new NamedThreadLocal<Boolean>(scopeName);
+        this.scope = new NamedThreadLocal<Marker>(scopeName) {
+            @Override
+            protected Marker initialValue() {
+                return new Marker();
+            }
+        };
     }
 
     public void push() {
-        scope.set(Boolean.TRUE);
+        Marker marker = scope.get();
+        marker.mark();
     }
 
     public boolean isInternal() {
-        return scope.get() != null;
+        Marker marker = scope.get();
+        return marker.isMark();
     }
 
     public void pop() {
-        scope.set(null);
+        Marker marker = scope.get();
+        marker.unMark();
+    }
+
+    public static class Marker {
+        private boolean mark;
+
+        public boolean isMark() {
+            return mark;
+        }
+
+        public void mark() {
+            this.mark = true;
+        }
+
+        public void unMark() {
+            this.mark = false;
+        }
     }
 }
