@@ -15,6 +15,7 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -38,12 +39,15 @@ public class HbaseTraceDao implements TracesDao {
     @Autowired
     private AcceptedTimeService acceptedTimeService;
 
+    @Autowired
+    private AbstractRowKeyDistributor rowKeyDistributor;
+
     @Override
     public void insert(final Span span) {
 
         SpanBo spanBo = new SpanBo(span);
-
-        Put put = new Put(SpanUtils.getTraceId(span));
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
+        Put put = new Put(rowKey);
 
         byte[] spanValue = spanBo.writeValue();
         // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
@@ -62,6 +66,10 @@ public class HbaseTraceDao implements TracesDao {
 
         hbaseTemplate.put(TRACES, put);
 
+    }
+
+    private byte[] getDistributeRowKey(byte[] transactionId) {
+        return rowKeyDistributor.getDistributedKey(transactionId);
     }
 
     private void addNestedSpanEvent(Put put, Span span) {
@@ -84,18 +92,20 @@ public class HbaseTraceDao implements TracesDao {
     public void insertEvent(final SpanEvent spanEvent) {
         SpanEventBo spanEventBo = new SpanEventBo(spanEvent);
         byte[] value = spanEventBo.writeValue();
-        // TODO 서버 시간으로 변경해야 될듯 함. time이 생략...
-        Put put = new Put(SpanUtils.getTraceId(spanEvent));
+
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanEvent));
+        Put spanEventPut = new Put(rowKey);
 
         byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
-        put.add(TRACES_CF_TERMINALSPAN, rowId, value);
+        spanEventPut.add(TRACES_CF_TERMINALSPAN, rowId, value);
 
-        hbaseTemplate.put(TRACES, put);
+        hbaseTemplate.put(TRACES, spanEventPut);
     }
 
     @Override
     public void insertSpanChunk(SpanChunk spanChunk) {
-        Put put = new Put(SpanUtils.getTraceId(spanChunk));
+        byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
+        Put put = new Put(rowKey);
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
         List<SpanEvent> spanEventBoList = spanChunk.getSpanEventList();

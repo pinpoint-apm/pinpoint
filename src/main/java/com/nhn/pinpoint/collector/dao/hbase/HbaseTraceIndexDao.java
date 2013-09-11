@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.thrift.dto.Span;
 
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -46,7 +45,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         byte[] agentIdTraceIndexRowKey = createRowKey(span, acceptedTime);
 
         Put put = new Put(agentIdTraceIndexRowKey);
-        put.add(TRACE_INDEX_CF_TRACE, SpanUtils.getTraceId(span), acceptedTime, null);
+        put.add(TRACE_INDEX_CF_TRACE, SpanUtils.getTransactionId(span), acceptedTime, null);
 
 		hbaseTemplate.put(tableName, put);
 	}

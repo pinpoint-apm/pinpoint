@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.util.TimeUtils;
@@ -92,7 +91,7 @@ public class TraceDaoTest {
         long acceptedTime = acceptedTimeService.getAcceptedTime();
         // 키를 꺼구로 돌려야 한다.
         byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(span.getAgentId()), HBaseTables.AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(acceptedTime));
-        byte[] resultRowKey = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), SpanUtils.getTraceId(span), valueRowMapper);
+        byte[] resultRowKey = hbaseOperations.get(traceIndex.getTableName(), rowKey, Bytes.toBytes("Trace"), SpanUtils.getTransactionId(span), valueRowMapper);
 
         // 결과값 비교가 애매함
         Assert.assertArrayEquals(rowKey, resultRowKey);
