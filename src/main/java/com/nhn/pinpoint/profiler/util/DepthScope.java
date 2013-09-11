@@ -5,47 +5,50 @@ package com.nhn.pinpoint.profiler.util;
  */
 public class DepthScope {
 
-    private final NamedThreadLocal<Integer> scope;
+    public static final int ZERO = 0;
 
-    // ZERO일 경우의 객체 생성을 줄이기 위해 상수화
-    public static final Integer ZERO = 0;
-    public static final Integer NULL = -1;
+    private final NamedThreadLocal<Depth> scope;
+
 
     public DepthScope(final String scopeName) {
-        this.scope = new NamedThreadLocal<Integer>(scopeName) {
+        this.scope = new NamedThreadLocal<Depth>(scopeName) {
             @Override
-            protected Integer initialValue() {
-                return null;
+            protected Depth initialValue() {
+                return new Depth();
             }
         };
     }
 
     public int push() {
-        Integer depth = scope.get();
-        if (depth == null) {
-            scope.set(ZERO);
-            return 0;
-        } else {
-            depth++;
-            scope.set(depth);
-            return depth;
-        }
+        Depth depth = scope.get();
+        return depth.push();
     }
 
     public int depth() {
-        return scope.get();
+        Depth depth = scope.get();
+        return depth.depth();
     }
 
     public int pop() {
-        Integer depth = scope.get();
-        if (depth == null) {
-            return NULL;
-        } else if (ZERO.equals(depth)) {
-            scope.set(null);
-            return ZERO;
-        } else {
-            scope.set(depth - 1);
+        Depth depth = scope.get();
+        return depth.pop();
+    }
+
+    private static class Depth {
+        private int depth = 0;
+
+        public int push() {
+            return depth++;
+        }
+
+        public int pop() {
+            return --depth;
+        }
+
+        public int depth() {
             return depth;
         }
+
     }
+
 }

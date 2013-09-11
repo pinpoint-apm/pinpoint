@@ -14,7 +14,7 @@ public class DepthScopeTest {
         Assert.assertEquals(scope.push(), 1);
         Assert.assertEquals(scope.push(), 2);
 
-        Assert.assertEquals(scope.depth(), 2);
+        Assert.assertEquals(scope.depth(), 3);
 
         Assert.assertEquals(scope.pop(), 2);
         Assert.assertEquals(scope.pop(), 1);
@@ -25,12 +25,12 @@ public class DepthScopeTest {
     public void pushPopError() {
         DepthScope scope = new DepthScope("test");
         Assert.assertEquals(scope.pop(), -1);
-        Assert.assertEquals(scope.pop(), -1);
+        Assert.assertEquals(scope.pop(), -2);
 
-        Assert.assertEquals(scope.push(), 0);
-        Assert.assertEquals(scope.pop(), 0);
+        Assert.assertEquals(scope.push(), -2);
+        Assert.assertEquals(scope.push(), -1);
 
-        Assert.assertEquals(scope.pop(), -1);
+        Assert.assertEquals(scope.depth(), 0);
 
 
     }

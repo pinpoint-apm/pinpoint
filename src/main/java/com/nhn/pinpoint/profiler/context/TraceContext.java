@@ -34,7 +34,7 @@ public interface TraceContext {
 
     DatabaseInfo parseJdbcUrl(String sql);
 
-    TraceId createTraceId(String traceId, int parentSpanID, int spanID, short flags);
+    TraceId createTraceId(String transactionId, int parentSpanID, int spanID, short flags);
 
     void disableSampling();
 }
