@@ -107,7 +107,6 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         url += '/' + $routeParams.agentId;
                     }
 
-                    console.log('url', url);
                     $location.path(url);
 
                     $timeout(function () {

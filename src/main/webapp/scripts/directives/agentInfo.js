@@ -12,6 +12,13 @@ pinpointApp
             templateUrl: 'views/agentInfo.html',
             link: function postLink(scope, element, attrs) {
 
+                scope.$on('agentList.agentChanged', function (event, agent) {
+                    scope.agent = agent;
+                    console.log('got agentList.agentChanged', agent);
+                });
+
+                return;
+
                 var get_agent_stats = function (agent_id, callback) {
                     // FIXME collector Stat URL을 제공할 수 있는 API 필요.
                     // zookeeper에 공통 정보를 기록해두면 될 것 같음.
