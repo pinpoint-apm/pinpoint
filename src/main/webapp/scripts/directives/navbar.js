@@ -35,6 +35,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     if ($routeParams.period) {
                         scope.period = $routeParams.period;
                     }
+                    if ($routeParams.filter) {
+                        scope.filter = $routeParams.filter;
+                    }
                 });
 
                 /**
@@ -103,8 +106,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         },
                         url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
 
-                    if ($routeParams.agentId) {
-                        url += '/' + $routeParams.agentId;
+                    if (scope.filter) {
+                        data.filter = scope.filter;
+                        url += '/' + scope.filter;
                     }
 
                     $location.path(url);

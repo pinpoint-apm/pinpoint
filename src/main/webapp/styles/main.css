@@ -141,7 +141,12 @@ canvas {outline:none}
 }
 .severmap-status .alert {
     margin-bottom: 0;
+    padding-right: 17px;
 }
-.servermap-status ul {
+.severmap-status ul {
+    margin-bottom: 0;
+}
+.severmap-status h5,
+.severmap-status h6 {
     margin: 0;
 }

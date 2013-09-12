@@ -20,7 +20,6 @@ pinpointApp.directive('scatter',
 
                 var showScatter = function (applicationName, from, to, period, filter, w, h) {
                     if (oScatterChart) {
-                        console.log('clear');
 //							oScatterChart.clear();
                     }
 
