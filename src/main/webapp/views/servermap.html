@@ -1,19 +1,20 @@
 <div class="servermap" style="width:100%;height:100%;position: relative;">
 	<div id="servermap" style="width:100%;height:100%;position: relative;"></div>
-    <div class="severmap-status">
+    <div class="servermap-status">
         <div class="alert alert-success">
             <div class="alert alert-info">
                 <h6 ng-show="navbar.queryStartTime && navbar.queryEndTime">{{navbar.queryStartTime | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{navbar.queryEndTime | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
                 <ul class="unstyled" ng-show="filter" ng-bind-html-unsafe="filter | filterToString">
                 </ul>
             </div>
-            <ul class="unstyled">
-                <li><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge Unknowns</li>
-                <li><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide Indirect Access</li>
-                <li class="divider"></li>
-                <li><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</li>
-                <li><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</li>
-            </ul>
+            <div class="controls controls-row">
+                <span class="span2"><i class="icon-ok" ng-class="{'icon-white': !mergeUnknowns}"></i> Merge Unknowns</span>
+                <span class="span2"><i class="icon-ok" ng-class="{'icon-white': !hideIndirectAccess}"></i> Hide Indirect Access</span>
+            </div>
+            <div class="controls controls-row">
+                <span class="span2"><i class="icon-ok" ng-class="{'icon-white': !totalRequestCount}"></i> Total Request Count</span>
+                <span class="span2"><i class="icon-ok" ng-class="{'icon-white': !tps}"></i> TPS</span>
+            </div>
         </div>
     </div>
 	<div ng-include=" 'warning' "></div>

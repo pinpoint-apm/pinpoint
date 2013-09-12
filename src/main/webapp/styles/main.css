@@ -132,21 +132,24 @@ canvas {outline:none}
 
 
 /* servermap */
-.severmap-status {
+.servermap-status {
     position: absolute;
     top: 8px;
     left: 11px;
     z-index: 9;
     font-size: 12px;
 }
-.severmap-status .alert {
+.servermap-status .alert {
     margin-bottom: 0;
     padding-right: 17px;
 }
-.severmap-status ul {
+.servermap-status ul {
     margin-bottom: 0;
 }
-.severmap-status h5,
-.severmap-status h6 {
+.servermap-status h5,
+.servermap-status h6 {
     margin: 0;
+}
+.servermap-status .controls .span2:first-child {
+    margin-left: 0 !important;
 }
