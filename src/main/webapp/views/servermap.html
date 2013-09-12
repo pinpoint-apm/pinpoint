@@ -3,7 +3,7 @@
     <div class="severmap-status">
         <div class="alert alert-success">
             <div class="alert alert-info">
-                <h5 ng-show="navbar.queryStartTime && navbar.queryEndTime">{{navbar.queryStartTime | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{navbar.queryEndTime | date:'yyyy-MM-dd HH:mm:ss'}}</h5>
+                <h6 ng-show="navbar.queryStartTime && navbar.queryEndTime">{{navbar.queryStartTime | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{navbar.queryEndTime | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
                 <ul class="unstyled" ng-show="filter" ng-bind-html-unsafe="filter | filterToString">
                 </ul>
             </div>
