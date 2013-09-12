@@ -18,7 +18,7 @@ public class DefaultTraceContextTest {
         String agent= "test";
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
-        DefaultTraceId traceID = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
+        TraceId traceID = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
 
         String id = traceID.getTransactionId();
         logger.info("id={}", id);

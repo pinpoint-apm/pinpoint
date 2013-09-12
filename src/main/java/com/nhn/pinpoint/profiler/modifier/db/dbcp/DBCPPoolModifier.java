@@ -1,12 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.db.dbcp;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
-import javassist.CtMethod;
 
 import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.logging.Logger;

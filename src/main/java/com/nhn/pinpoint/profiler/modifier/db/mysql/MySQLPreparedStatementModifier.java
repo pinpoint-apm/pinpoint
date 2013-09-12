@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.config.ProfilerConstant;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;

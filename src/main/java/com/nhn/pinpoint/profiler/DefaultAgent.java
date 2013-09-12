@@ -47,8 +47,9 @@ public class DefaultAgent implements Agent {
 
     private DefaultTraceContext traceContext;
 
-    private DataSender priorityDataSender;
-    private DataSender dataSender;
+    private DataSender tcpDataSender;
+    private DataSender statDataSender;
+    private DataSender spanDataSender;
 
     private final String machineName;
     private final String agentId;
@@ -91,8 +92,8 @@ public class DefaultAgent implements Agent {
         this.agentId = getId("pinpoint.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
         this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
 
-        this.priorityDataSender = createTcpDataSender();
-        this.dataSender = createDataSender();
+        this.tcpDataSender = createTcpDataSender();
+        this.spanDataSender = createDataSender();
         this.startTime = System.currentTimeMillis();
 
         this.identifier = getShortIdentifier();
@@ -103,11 +104,11 @@ public class DefaultAgent implements Agent {
 //        ApiMappingTable.findApiId("test", null, null);
 
         this.agentInfo = createAgentInfo();
-        this.heartBitChecker = new HeartBitChecker(priorityDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
+        this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.traceContext, this.profilerConfig);
-        this.agentStatMonitor.setDataSender(this.dataSender);
+        this.agentStatMonitor.setDataSender(this.spanDataSender);
         this.agentStatMonitor.setAgentInfo(this.agentInfo);
         
         SingletonHolder.INSTANCE = this;
@@ -225,7 +226,7 @@ public class DefaultAgent implements Agent {
         this.traceContext.setAgentId(this.agentId);
         this.traceContext.setApplicationId(this.applicationName);
         this.traceContext.setAgentStartTime(this.startTime);
-        this.traceContext.setPriorityDataSender(this.priorityDataSender);
+        this.traceContext.setPriorityDataSender(this.tcpDataSender);
 
         Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler.getClass());
@@ -233,10 +234,10 @@ public class DefaultAgent implements Agent {
         this.traceContext.setSampler(sampler);
 
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
-            TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.dataSender, this.profilerConfig);
+            TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig);
             this.traceContext.setStorageFactory(timeBaseStorageFactory);
         } else {
-            this.traceContext.setStorageFactory(new BypassStorageFactory(dataSender));
+            this.traceContext.setStorageFactory(new BypassStorageFactory(spanDataSender));
         }
     }
 
@@ -345,11 +346,11 @@ public class DefaultAgent implements Agent {
 
         agentInfo.setIsAlive(false);
 
-        this.priorityDataSender.request(agentInfo);
+        this.tcpDataSender.request(agentInfo);
 
         // 종료 처리 필요.
-        this.dataSender.stop();
-        this.priorityDataSender.stop();
+        this.spanDataSender.stop();
+        this.tcpDataSender.stop();
 
         changeStatus(AgentStatus.STOPPED);
 

@@ -14,12 +14,12 @@ public class GlobalCallTrace {
 
     private static final long FLUSH_TIMEOUT = 120000L; // 2 minutes
 
-    private static AtomicInteger timerId = new AtomicInteger(0);
+    private static final AtomicInteger timerId = new AtomicInteger(0);
 
     private ConcurrentMap<Integer, AsyncTrace> trace = new ConcurrentHashMap<Integer, AsyncTrace>(32);
     private AtomicInteger idGenerator = new AtomicInteger(0);
-
-    private Timer timer = new Timer("GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
+    // stop을 해줘야 할듯.
+    private Timer timer = new Timer("Pinpoint-GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
 
     public int registerTraceObject(AsyncTrace asyncTrace) {
         // TODO 연관관계가 전달부분이 영 별로임.

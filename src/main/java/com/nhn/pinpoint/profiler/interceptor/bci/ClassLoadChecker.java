@@ -30,8 +30,8 @@ public class ClassLoadChecker {
     }
 
     static class LoadClass {
-        private ClassLoader classLoader;
-        private String className;
+        private final ClassLoader classLoader;
+        private final String className;
 
         LoadClass(ClassLoader classLoader, String className) {
             this.classLoader = classLoader;

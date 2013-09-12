@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +17,7 @@ public class ServerInfo {
 			InetAddress thisIp = InetAddress.getLocalHost();
 			hostip = thisIp.getHostAddress();
 			uptime = System.currentTimeMillis();
-		} catch (Exception e) {
+		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			hostip = "127.0.0.1";
 		}

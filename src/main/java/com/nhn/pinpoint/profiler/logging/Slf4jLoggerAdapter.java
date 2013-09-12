@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.logging;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
 import org.slf4j.Marker;
 
 /**
