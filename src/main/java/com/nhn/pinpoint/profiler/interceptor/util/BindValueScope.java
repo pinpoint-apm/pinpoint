@@ -6,17 +6,17 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
  *
  */
 public class BindValueScope {
-    private static DepthScope scope = new DepthScope("DepthScope");
+    private static final DepthScope SCOPE = new DepthScope("DepthScope");
 
     public static int push() {
-        return scope.push();
+        return SCOPE.push();
     }
 
     public static int depth() {
-        return scope.depth();
+        return SCOPE.depth();
     }
 
     public static int pop() {
-        return scope.pop();
+        return SCOPE.pop();
     }
 }

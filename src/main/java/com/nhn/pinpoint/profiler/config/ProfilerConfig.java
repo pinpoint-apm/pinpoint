@@ -17,7 +17,8 @@ public class ProfilerConfig {
 	private boolean profileEnable = false;
 
 	public String collectorServerIp = "127.0.0.1";
-	public int collectorUdpServerPort = 9995;
+    public int collectorUdpSpanServerPort = 9996;
+    public int collectorUdpServerPort = 9995;
     public int collectorTcpServerPort = 9994;
 
 	private boolean jdbcProfile = true;
@@ -100,7 +101,11 @@ public class ProfilerConfig {
 		return collectorServerIp;
 	}
 
-	public int getCollectorUdpServerPort() {
+    public int getCollectorUdpSpanServerPort() {
+        return collectorUdpSpanServerPort;
+    }
+
+    public int getCollectorUdpServerPort() {
 		return collectorUdpServerPort;
 	}
 
@@ -176,6 +181,7 @@ public class ProfilerConfig {
 		this.profileEnable = readBoolean(prop, "profile.enable", true);
 
 		this.collectorServerIp = readString(prop, "server.collector.ip", "127.0.0.1");
+        this.collectorUdpSpanServerPort = readInt(prop, "server.collector.udpspan.port", 9996);
 		this.collectorUdpServerPort = readInt(prop, "server.collector.udp.port", 9995);
         this.collectorTcpServerPort = readInt(prop, "server.collector.tcp.port", 9994);
 
@@ -314,6 +320,7 @@ public class ProfilerConfig {
                 "\n collectorServerIp='" + collectorServerIp + '\'' +
                 "\n collectorTcpServerPort=" + collectorTcpServerPort +
                 "\n collectorUdpServerPort=" + collectorUdpServerPort +
+                "\n collectorUdpSpanServerPort=" + collectorUdpSpanServerPort +
                 "\n jdbcProfile=" + jdbcProfile +
                 "\n jdbcProfileMySql=" + jdbcProfileMySql +
                 "\n jdbcProfileMsSql=" + jdbcProfileMsSql +

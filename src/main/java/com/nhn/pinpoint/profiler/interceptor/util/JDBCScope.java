@@ -6,19 +6,19 @@ import com.nhn.pinpoint.profiler.util.Scope;
  *
  */
 public class JDBCScope {
-    private static Scope scope = new Scope("JDBCScope");
+    private static final Scope SCOPE = new Scope("JDBCScope");
 
 
     public static void push() {
-        scope.push();
+        SCOPE.push();
     }
 
     public static boolean isInternal() {
-        return scope.isInternal();
+        return SCOPE.isInternal();
     }
 
     public static void pop() {
-        scope.pop();
+        SCOPE.pop();
     }
 
 }

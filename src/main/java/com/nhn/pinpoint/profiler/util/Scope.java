@@ -31,7 +31,7 @@ public class Scope {
         marker.unMark();
     }
 
-    public static class Marker {
+    private static class Marker {
         private boolean mark;
 
         public boolean isMark() {
