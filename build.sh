@@ -14,6 +14,14 @@ else
 	echo "*********************"
 fi
 
+# bootstrap
+mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
+
 # profiler
 pushd .
 cd ../pinpoint-profiler
@@ -24,14 +32,6 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 popd
-
-# bootstrap
-mvn clean install eclipse:eclipse package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
-rc=$?
-if [[ $rc != 0 ]] ; then
-        echo "BUILD FAILED $rc"
-        exit $rc
-fi
 
 rm -fr $DEPLOY_DIR
 mkdir -p $DEPLOY_DIR/lib
