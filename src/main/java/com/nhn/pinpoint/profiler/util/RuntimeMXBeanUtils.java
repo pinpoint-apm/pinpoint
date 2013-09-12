@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.util;
 
-import sun.management.ManagementFactory;
-
+import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +25,7 @@ public class RuntimeMXBeanUtils {
         final String name = RUNTIME_MBEAN.getName();
         final int pidIndex = name.indexOf('@');
         if (pidIndex == -1) {
-            // -1이 에러라는 의미로 통용.
+            getLogger().log(Level.WARNING, "invalid pid name:" + name);
             return -1;
         }
         String strPid = name.substring(0, pidIndex);
