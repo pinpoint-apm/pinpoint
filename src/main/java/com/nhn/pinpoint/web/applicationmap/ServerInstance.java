@@ -1,0 +1,86 @@
+package com.nhn.pinpoint.web.applicationmap;
+
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+
+/**
+ * 
+ * @author netspider
+ * 
+ */
+public class ServerInstance implements Comparable<ServerInstance> {
+
+	private final String id;
+	private final AgentInfoBo agentInfo;
+	private final ResponseHistogram histogram;
+
+	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
+		this.id = agentInfo.getAgentId();
+		this.agentInfo = agentInfo;
+		this.histogram = histogram;
+	}
+
+	public String getId() {
+		return this.id;
+	}
+
+	public AgentInfoBo getAgentInfo() {
+		return agentInfo;
+	}
+
+	public ResponseHistogram getHistogram() {
+		return histogram;
+	}
+
+	public String getJson() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		sb.append("\"agentId\":\"").append(id).append("\",");
+		sb.append("\"agentInfo\":").append(agentInfo.getJson()).append(",");
+		sb.append("\"histogram\":").append(histogram);
+		sb.append("}");
+		return sb.toString();
+	}
+
+	public ServerInstance mergeWith(ServerInstance serverInstance) {
+		if (this.id.equals(serverInstance.getId())) {
+			throw new IllegalArgumentException("Server instance id is not equal.");
+		}
+		this.histogram.mergeWith(serverInstance.getHistogram());
+		return this;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ServerInstance other = (ServerInstance) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ServerInstance [id=" + id + ", agentInfo=" + agentInfo + ", histogram=" + histogram + "]";
+	}
+
+	@Override
+	public int compareTo(ServerInstance serverInstance) {
+		return this.id.compareTo(serverInstance.id);
+	}
+}

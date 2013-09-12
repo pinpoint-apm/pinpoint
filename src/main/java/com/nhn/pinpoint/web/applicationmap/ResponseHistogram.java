@@ -110,6 +110,7 @@ public class ResponseHistogram {
 		return true;
 	}
 
+	// FIXME 나중에 getJson()으로 바꾸기.
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

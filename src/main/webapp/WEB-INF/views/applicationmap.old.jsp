@@ -15,7 +15,7 @@
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>,
-				"histogram" : [
+				"hosts" : [
 				<c:forEach items="${node.hostList}" var="host" varStatus="status2">
 					${host.value.json}
 					<c:if test="${!status2.last}">,</c:if>
@@ -23,13 +23,27 @@
 				],
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
+				"agents" : [
+				<c:forEach items="${node.agentList}" var="agentMap" varStatus="status3">
+					{
+						"hostname" : "${agentMap.key}",
+						"agentList" : [
+							<c:forEach items="${agentMap.value}" var="agent" varStatus="status4">
+								${agent.json}
+								<c:if test="${!status4.last}">,</c:if>
+							</c:forEach>
+						]
+					}
+					<c:if test="${!status3.last}">,</c:if>
+				</c:forEach>
+				],
 				"serverlist" : [
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						{
 							"name":"${serverInstance.key}",
 							"agentList":[
 								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
-									${instance.value.json}
+									${instance.json}
 									<c:if test="${!status6.last}">,</c:if>
 								</c:forEach>
 							]

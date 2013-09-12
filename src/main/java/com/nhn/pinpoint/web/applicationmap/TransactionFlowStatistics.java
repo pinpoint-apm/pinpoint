@@ -44,7 +44,7 @@ public class TransactionFlowStatistics {
 		if (toHostList.containsKey(hostname)) {
 			toHostList.get(hostname).getHistogram().addSample(slot, value);
 		} else {
-			Host host = new Host(hostname, ServiceType.findServiceType(serviceTypeCode), null);
+			Host host = new Host(hostname, ServiceType.findServiceType(serviceTypeCode));
 			host.getHistogram().addSample(slot, value);
 			toHostList.put(hostname, host);
 		}
