@@ -58,8 +58,11 @@ public class SpanHandler implements SimpleHandler {
 
 			if (span.getParentSpanId() == -1) {
 				// TODO error가 있으면 getErr값이 0보다 큰가??
-				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
-				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+//				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+//				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+				// FIXME 테스트용. host값에 agentId를 입력.
+				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
 			}
 
 			// parentApplicationContext가 있으면 statistics정보를 저장한다.
@@ -69,7 +72,8 @@ public class SpanHandler implements SimpleHandler {
 				logger.debug("Received parent application name. {}", span.getParentApplicationName());
 				// TODO 원래는 부모의 serviceType을 알아야 한다.
 				// 여기에서는 그냥 부모는 모두 TOMCAT이라 가정하고 테스트.
-				statisticsHandler.updateCaller(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+				statisticsHandler.updateCaller(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+				// statisticsHandler.updateCaller(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 			}
 
 			// host application map 저장.
