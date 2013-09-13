@@ -157,7 +157,7 @@ public class Application implements Comparable<Application> {
 				SortedMap<String, ServerInstance> srcValueMap = entry.getValue();
 				for (Entry<String, ServerInstance> valueEntry : srcValueMap.entrySet()) {
 					if (exists.containsKey(valueEntry.getKey())) {
-						exists.get(entry.getKey()).mergeWith(valueEntry.getValue());
+						exists.get(valueEntry.getKey()).mergeWith(valueEntry.getValue());
 					} else {
 						exists.put(valueEntry.getKey(), valueEntry.getValue());
 					}

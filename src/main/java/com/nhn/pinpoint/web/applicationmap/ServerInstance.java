@@ -11,7 +11,7 @@ public class ServerInstance implements Comparable<ServerInstance> {
 
 	private final String id;
 	private final AgentInfoBo agentInfo;
-	private final ResponseHistogram histogram;
+	private ResponseHistogram histogram;
 
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
 		this.id = agentInfo.getAgentId();
@@ -42,10 +42,15 @@ public class ServerInstance implements Comparable<ServerInstance> {
 	}
 
 	public ServerInstance mergeWith(ServerInstance serverInstance) {
-		if (this.id.equals(serverInstance.getId())) {
+		if (!this.id.equals(serverInstance.getId())) {
 			throw new IllegalArgumentException("Server instance id is not equal.");
 		}
-		this.histogram.mergeWith(serverInstance.getHistogram());
+		
+		if (this.histogram == null) {
+			this.histogram = serverInstance.getHistogram();
+		} else {
+			this.histogram.mergeWith(serverInstance.getHistogram());
+		}
 		return this;
 	}
 
