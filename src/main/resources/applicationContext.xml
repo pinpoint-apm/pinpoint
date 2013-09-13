@@ -76,8 +76,8 @@
     <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
         <constructor-arg value="Pinpoint-UDP-Span"/>
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpSpanDispatchHandler"/>
-        <constructor-arg value="#{collectorConfiguration.collectorUdpSpanListenIp}"/>
-        <constructor-arg value="#{collectorConfiguration.collectorUdpSpanListenPort}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSpanListenIp}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSpanListenPort}"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanWorkerThread}"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
@@ -86,11 +86,11 @@
     <bean id="udpStatReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
         <constructor-arg value="Pinpoint-UDP-Stat"/>
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpDispatchHandler"/>
-        <constructor-arg value="#{collectorConfiguration.collectorUdpListenIp}"/>
-        <constructor-arg value="#{collectorConfiguration.collectorUdpListenPort}"/>
-        <constructor-arg value="#{collectorConfiguration.udpSocketReceiveBufferSize}"/>
-        <constructor-arg value="#{collectorConfiguration.udpWorkerThread}"/>
-        <constructor-arg value="#{collectorConfiguration.udpWorkerQueueSize}"/>
+        <constructor-arg value="#{collectorConfiguration.udpStatListenIp}"/>
+        <constructor-arg value="#{collectorConfiguration.udpStatListenPort}"/>
+        <constructor-arg value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
+        <constructor-arg value="#{collectorConfiguration.udpStatWorkerThread}"/>
+        <constructor-arg value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">

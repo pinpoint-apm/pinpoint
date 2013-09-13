@@ -4,7 +4,6 @@ import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver;
 import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
-import com.nhn.pinpoint.collector.receiver.udp.UDPReceiver;
 import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +20,6 @@ public class Server {
 		new Server().start();
 	}
 
-	private DataReceiver udpDataReceiver;
-    private DataReceiver udpSpanDataReceiver;
     private TCPReceiver tcpReceiver;
 	private GenericApplicationContext context;
 	private StatServer statServer;
@@ -47,7 +44,7 @@ public class Server {
 
 	private void statServerStart(CollectorConfiguration configuration) {
 		statServer = context.getBean("statServer", StatServer.class);
-		statServer.setPort(configuration.getCollectorUdpSpanListenPort());
+		statServer.setPort(configuration.getUdpSpanListenPort());
 		statServer.start();
 	}
 	
@@ -76,7 +73,7 @@ public class Server {
             throw new NullPointerException("dispatchHandler must not be null");
         }
         logger.info("Starting TCPReceiver.");
-        tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getCollectorTcpListenIp(), configuration.getCollectorTcpListenPort());
+        tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getTcpListenIp(), configuration.getTcpListenPort());
         tcpReceiver.start();
     }
 
@@ -103,7 +100,7 @@ public class Server {
 //			udpDataReceiver.shutdown();
 //			logger.info("Shutdown UDPReceiver complete.");
 //		}
-		
+
 		if (statServer != null) {
 			logger.info("Sutdown StatServer.");
 			statServer.shutdown();

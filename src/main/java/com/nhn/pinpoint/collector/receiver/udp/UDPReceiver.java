@@ -38,7 +38,7 @@ public class UDPReceiver implements DataReceiver {
     private int port;
     private int receiverBufferSize;
 
-    private String receiverName = "udpReceiver";
+    private String receiverName = this.getClass().getSimpleName();
 
     @Autowired
     private StatServer statServer;
@@ -196,6 +196,7 @@ public class UDPReceiver implements DataReceiver {
     @PostConstruct
     @Override
     public void start() {
+        logger.info("{} start.", receiverName);
         afterPropertiesSet();
         if (socket == null) {
             throw new RuntimeException("socket create fail");
@@ -216,7 +217,7 @@ public class UDPReceiver implements DataReceiver {
     @PreDestroy
     @Override
     public void shutdown() {
-        logger.info("Shutting down UDP Packet reader.");
+        logger.info("{} shutdown.", this.receiverName);
         state.set(false);
         // 그냥 닫으면 되는건지?
         socket.close();
