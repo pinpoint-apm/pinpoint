@@ -35,6 +35,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     if ($routeParams.period) {
                         scope.period = $routeParams.period;
                     }
+                    if ($routeParams.agentId) {
+                        scope.agentId = $routeParams.agentId;
+                    }
                     if ($routeParams.filter) {
                         scope.filter = $routeParams.filter;
                     }
@@ -90,10 +93,12 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
 
                     scope.queryPeriod = getQueryPeriod();
                     scope.queryEndTime = getQueryEndTime();
+
                     if (!scope.application || !scope.period || !scope.queryEndTime) {
                         $location.path('/' + firstPath);
                         return;
                     }
+
                     var splitedApp = scope.application.split('@'),
                         data = {
                             application: scope.application,
@@ -106,12 +111,17 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         },
                         url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
 
-                    if (scope.filter) {
+                    if (scope.agentId) {
+                        data.agentId = scope.agentId;
+                        url += '/' + scope.agentId;
+                    } else if (scope.filter) {
                         data.filter = scope.filter;
                         url += '/' + scope.filter;
                     }
 
-                    $location.path(url);
+                    if($location.path() !== url) {
+                        $location.path(url);
+                    }
 
                     $timeout(function () {
                         $rootScope.$broadcast('navbar.applicationChanged', data);
