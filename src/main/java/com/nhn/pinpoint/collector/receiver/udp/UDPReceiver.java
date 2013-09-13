@@ -9,6 +9,7 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
 import com.nhn.pinpoint.collector.util.FixedPool;
 import com.nhn.pinpoint.collector.util.PacketUtils;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
@@ -17,21 +18,27 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBean {
+public class UDPReceiver implements DataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
+    private String bindAddress;
+    private int port;
+    private int receiverBufferSize;
+
+    private String receiverName = "udpReceiver";
 
     @Autowired
     private StatServer statServer;
@@ -45,6 +52,8 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
 
     // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
     private ThreadPoolExecutor worker;
+    private int workerThreadSize = 128;
+    private int workerThreadQueueSize = 1024;
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
@@ -53,10 +62,8 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
 
     private volatile DatagramSocket socket = null;
 
-    @Autowired
     private DispatchHandler dispatchHandler;
-    @Autowired
-    private CollectorConfiguration configuration;
+
 
     private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
@@ -66,29 +73,38 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
     public UDPReceiver() {
     }
 
-    public UDPReceiver(DispatchHandler dispatchHandler, CollectorConfiguration configuration) {
-        this.dispatchHandler = dispatchHandler;
-        this.configuration = configuration;
-        try {
-            afterPropertiesSet();
-        } catch (Exception e) {
-            throw new RuntimeException("udpReceiver create fail. Caused:" + e.getMessage(), e);
+    public UDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler must not be null");
         }
+        if (bindAddress == null) {
+            throw new NullPointerException("bindAddress must not be null");
+        }
+        this.receiverName = receiverName;
+        this.dispatchHandler = dispatchHandler;
+        this.bindAddress = bindAddress;
+        this.port = port;
+        this.receiverBufferSize = receiverBufferSize;
+
+        this.workerThreadSize = workerThreadSize;
+        this.workerThreadQueueSize = workerThreadQueueSize;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+
+
+    public void afterPropertiesSet() {
         Assert.notNull(dispatchHandler, "dispatchHandler must not be null");
-        Assert.notNull(configuration, "configuration must not be null");
         Assert.notNull(statServer, "statServer must not be null");
 
-        this.socket = createSocket(configuration.getCollectorUdpListenPort(), configuration.getUdpSocketReceiveBufferSize());
-        this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), getPacketPoolSize(configuration));
-        this.worker = ExecutorFactory.newFixedThreadPool(configuration.getUdpWorkerThread(), configuration.getUdpWorkerQueueSize(), "Pinpoint-UDP-Worker", true);
+        this.socket = createSocket(bindAddress, port, receiverBufferSize);
 
-        this.timer = statServer.getRegistry().timer(UDPReceiver.class.getSimpleName() + "-timer");
-        this.rejectedCounter = statServer.getRegistry().counter(UDPReceiver.class.getSimpleName() + "-rejected");
-        this.io = ExecutorFactory.newFixedThreadPool(ioThreadSize, Integer.MAX_VALUE, "Pinpoint-UDP-Io", true);
+        final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
+        this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
+        this.worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName + "-Worker", true);
+
+        this.timer = statServer.getRegistry().timer(receiverName + "-timer");
+        this.rejectedCounter = statServer.getRegistry().counter(receiverName + "-rejected");
+        this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));
     }
 
 
@@ -160,23 +176,27 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
         return packet;
     }
 
-    private DatagramSocket createSocket(int port, int receiveBufferSize) {
+    private DatagramSocket createSocket(String bindAddress, int port, int receiveBufferSize) {
         try {
-            DatagramSocket so = new DatagramSocket(port);
+            DatagramSocket so = new DatagramSocket(null);
             so.setReceiveBufferSize(receiveBufferSize);
             so.setSoTimeout(1000 * 5);
+            // 바인드 타이밍이 약간 빠름.
+            so.bind(new InetSocketAddress(bindAddress, port));
             return so;
         } catch (SocketException ex) {
             throw new RuntimeException("Socket create Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
         }
     }
 
-    private int getPacketPoolSize(CollectorConfiguration configuration) {
-        return configuration.getUdpWorkerThread() + configuration.getUdpWorkerQueueSize() + ioThreadSize;
+    private int getPacketPoolSize(int workerThreadSize, int workerThreadQueueSize) {
+        return workerThreadSize + workerThreadQueueSize + ioThreadSize;
     }
 
+    @PostConstruct
     @Override
     public void start() {
+        afterPropertiesSet();
         if (socket == null) {
             throw new RuntimeException("socket create fail");
         }
@@ -193,6 +213,7 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
 
     }
 
+    @PreDestroy
     @Override
     public void shutdown() {
         logger.info("Shutting down UDP Packet reader.");
@@ -213,10 +234,6 @@ public class UDPReceiver implements DataReceiver, InitializingBean, DisposableBe
         }
     }
 
-    @Override
-    public void destroy() throws Exception {
-        shutdown();
-    }
 
 
     private class DispatchPacket implements Runnable {

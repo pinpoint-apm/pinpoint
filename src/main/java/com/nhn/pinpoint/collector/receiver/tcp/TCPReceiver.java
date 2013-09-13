@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
@@ -29,9 +30,10 @@ public class TCPReceiver {
 
 	private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
+    private final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
 	private final PinpointServerSocket pinpointServerSocket;
     private final DispatchHandler dispatchHandler;
+    private final String bindAddress;
     private int port;
 
     private int threadSize = 256;
@@ -39,12 +41,16 @@ public class TCPReceiver {
 
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
-    public TCPReceiver(DispatchHandler dispatchHandler, int port) {
+    public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
+        if (bindAddress == null) {
+            throw new NullPointerException("bindAddress must not be null");
+        }
         this.pinpointServerSocket = new PinpointServerSocket();
         this.dispatchHandler = dispatchHandler;
+        this.bindAddress = bindAddress;
         this.port = port;
 	}
 
@@ -67,7 +73,7 @@ public class TCPReceiver {
                 logger.warn("unsupported streamPacket received {}", streamPacket);
             }
         });
-        this.pinpointServerSocket.bind("0.0.0.0", port);
+        this.pinpointServerSocket.bind(bindAddress, port);
 
 
 	}

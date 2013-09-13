@@ -22,6 +22,7 @@ public class Server {
 	}
 
 	private DataReceiver udpDataReceiver;
+    private DataReceiver udpSpanDataReceiver;
     private TCPReceiver tcpReceiver;
 	private GenericApplicationContext context;
 	private StatServer statServer;
@@ -31,9 +32,9 @@ public class Server {
         try {
             context = createContext();
             CollectorConfiguration configuration = context.getBean("collectorConfiguration", CollectorConfiguration.class);
-            DispatchHandler dispatchHandler = ApplicationContextUtils.getDispatchHandler(context);
+            DispatchHandler dispatchHandler = ApplicationContextUtils.getTcpDispatchHandler(context);
             tcpServerStart(configuration, dispatchHandler);
-            udpServerStart(context);
+//            udpServerStart(context);
             statServerStart(configuration);
         } catch (Exception ex) {
             logger.error("pinpoint collector start fail. Caused:{}", ex.getMessage(), ex);
@@ -46,18 +47,24 @@ public class Server {
 
 	private void statServerStart(CollectorConfiguration configuration) {
 		statServer = context.getBean("statServer", StatServer.class);
-		statServer.setPort(configuration.getCollectorStatListenPort());
+		statServer.setPort(configuration.getCollectorUdpSpanListenPort());
 		statServer.start();
 	}
 	
     private void udpServerStart(GenericApplicationContext context) {
-        logger.info("Starting UDPReceiver.");
-        // 여기서 Exception이 날수 있음.
-        this.udpDataReceiver = context.getBean("udpReceiver", UDPReceiver.class);
-        // 여기서 Exception이 날수 있음.
-        this.udpDataReceiver.start();
-
-        logger.info("Server started successfully.");
+//        logger.info("Starting UDPReceiver.");
+//        // 여기서 Exception이 날수 있음.
+//        this.udpDataReceiver = context.getBean("udpStatReceiver", UDPReceiver.class);
+//        // 여기서 Exception이 날수 있음.
+//        this.udpDataReceiver.start();
+//        logger.info("UDPReceiver start successfully.");
+//
+//        logger.info("Starting UDPSpanReceiver.");
+//        this.udpSpanDataReceiver = context.getBean("udpSpanReceiver", UDPReceiver.class);
+//        // 여기서 Exception이 날수 있음.
+//        this.udpSpanDataReceiver.start();
+//
+//        logger.info("UDPSpanReceiver start successfully.");
     }
 
 
@@ -69,7 +76,7 @@ public class Server {
             throw new NullPointerException("dispatchHandler must not be null");
         }
         logger.info("Starting TCPReceiver.");
-        tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getCollectorTcpListenPort());
+        tcpReceiver = new TCPReceiver(dispatchHandler, configuration.getCollectorTcpListenIp(), configuration.getCollectorTcpListenPort());
         tcpReceiver.start();
     }
 

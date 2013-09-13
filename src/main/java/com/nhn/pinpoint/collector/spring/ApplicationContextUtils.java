@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.spring;
 
+import com.nhn.pinpoint.collector.receiver.UdpDispatchHandler;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -16,8 +17,8 @@ public class ApplicationContextUtils {
         return createContext0("applicationContext.xml");
     }
 
-    public static DispatchHandler getDispatchHandler(AbstractApplicationContext context) {
-        return context.getBean("dispatchHandler", DispatchHandler.class);
+    public static DispatchHandler getTcpDispatchHandler(AbstractApplicationContext context) {
+        return context.getBean("tcpDispatchHandler", DispatchHandler.class);
     }
 
     private static GenericApplicationContext createContext0(String contextClassPath) {

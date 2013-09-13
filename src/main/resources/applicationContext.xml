@@ -41,7 +41,9 @@
 
     <import resource="classpath:applicationContext-hbase.xml"/>
 
-    <bean id="dispatchHandler" class="com.nhn.pinpoint.collector.receiver.DispatchHandler"/>
+    <bean id="tcpDispatchHandler" class="com.nhn.pinpoint.collector.receiver.TcpDispatchHandler"/>
+    <bean id="udpDispatchHandler" class="com.nhn.pinpoint.collector.receiver.UdpDispatchHandler"/>
+    <bean id="udpSpanDispatchHandler" class="com.nhn.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
 
 
     <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
@@ -71,7 +73,24 @@
     <bean id="statServer" class="com.nhn.pinpoint.collector.StatServer">
     </bean>
 
-    <bean id="udpReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+    <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+        <constructor-arg value="Pinpoint-UDP-Span"/>
+        <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpSpanDispatchHandler"/>
+        <constructor-arg value="#{collectorConfiguration.collectorUdpSpanListenIp}"/>
+        <constructor-arg value="#{collectorConfiguration.collectorUdpSpanListenPort}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSpanWorkerThread}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
+    </bean>
+
+    <bean id="udpStatReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+        <constructor-arg value="Pinpoint-UDP-Stat"/>
+        <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpDispatchHandler"/>
+        <constructor-arg value="#{collectorConfiguration.collectorUdpListenIp}"/>
+        <constructor-arg value="#{collectorConfiguration.collectorUdpListenPort}"/>
+        <constructor-arg value="#{collectorConfiguration.udpSocketReceiveBufferSize}"/>
+        <constructor-arg value="#{collectorConfiguration.udpWorkerThread}"/>
+        <constructor-arg value="#{collectorConfiguration.udpWorkerQueueSize}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
