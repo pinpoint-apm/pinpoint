@@ -33,20 +33,24 @@ public class UdpDataSender implements DataSender {
 
     private AsyncQueueingExecutor executor;
 
-	public UdpDataSender(String host, int port) {
+	public UdpDataSender(String host, int port, String threadName) {
         if (host == null ) {
             throw new NullPointerException("host must not be null");
         }
+        if (threadName == null) {
+            throw new NullPointerException("threadName must not be null");
+        }
 
-		// Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
+
+        // Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port);
 
-        this.executor = getExecutor();
+        this.executor = getExecutor(threadName);
 	}
 
-    private AsyncQueueingExecutor getExecutor() {
-        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, "Pinpoint-UdpDataExecutor");
+    private AsyncQueueingExecutor getExecutor(String senderName) {
+        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, senderName);
         executor.setListener(new AsyncQueueingExecutorListener() {
             @Override
             public void execute(Collection<Object> dtoList) {

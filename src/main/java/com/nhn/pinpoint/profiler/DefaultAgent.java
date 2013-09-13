@@ -2,9 +2,9 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
-//import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -29,14 +29,11 @@ import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 
 public class DefaultAgent implements Agent {
 
     private Logger logger;
-    private static final Random IDENTIFIER_KEY = new Random();
-
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
 
@@ -47,15 +44,15 @@ public class DefaultAgent implements Agent {
 
     private DefaultTraceContext traceContext;
 
-    private DataSender tcpDataSender;
-    private DataSender statDataSender;
-    private DataSender spanDataSender;
+    private final DataSender tcpDataSender;
+    private final DataSender statDataSender;
+    private final DataSender spanDataSender;
 
     private final String machineName;
     private final String agentId;
     private final String applicationName;
     private final long startTime;
-    private final short identifier;
+    private final int identifier;
 
     // agent info는 heartbeat에서 매번 사용한다.
     private AgentInfo agentInfo;
@@ -66,9 +63,13 @@ public class DefaultAgent implements Agent {
 
 
     public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
+
 
         initializeLogger();
 
@@ -91,12 +92,12 @@ public class DefaultAgent implements Agent {
         this.machineName = NetworkUtils.getHostName();
         this.agentId = getId("pinpoint.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
         this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
+        this.startTime = getVmStartTime();
+        this.identifier = getPid();
 
         this.tcpDataSender = createTcpDataSender();
-        this.spanDataSender = createDataSender();
-        this.startTime = System.currentTimeMillis();
-
-        this.identifier = getShortIdentifier();
+        this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
+        this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor");
 
         initializeTraceContext();
 
@@ -108,9 +109,9 @@ public class DefaultAgent implements Agent {
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.traceContext, this.profilerConfig);
-        this.agentStatMonitor.setDataSender(this.spanDataSender);
+        this.agentStatMonitor.setDataSender(this.statDataSender);
         this.agentStatMonitor.setAgentInfo(this.agentInfo);
-        
+
         SingletonHolder.INSTANCE = this;
     }
 
@@ -185,7 +186,8 @@ public class DefaultAgent implements Agent {
         agentInfo.setPorts(ports);
 
         agentInfo.setAgentId(getAgentId());
-        agentInfo.setIdentifier(this.identifier);
+        // TODO identifier를 pid로 변경할것.
+        agentInfo.setIdentifier((short) this.identifier);
         agentInfo.setApplicationName(getApplicationName());
 		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
@@ -216,9 +218,6 @@ public class DefaultAgent implements Agent {
         return binder;
     }
 
-    private short getShortIdentifier() {
-        return (short) (IDENTIFIER_KEY.nextInt(65536) - 32768);
-    }
 
     private void initializeTraceContext() {
         this.traceContext = new DefaultTraceContext();
@@ -252,11 +251,10 @@ public class DefaultAgent implements Agent {
 
     private DataSender createTcpDataSender() {
         return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
-//        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
     }
 
-    private DataSender createDataSender() {
-        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorUdpServerPort());
+    private DataSender createUdpDataSender(int port, String threadName) {
+        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName);
     }
 
     private String getId(String key, String defaultValue, int maxlen) {
@@ -276,6 +274,18 @@ public class DefaultAgent implements Agent {
         } catch (UnsupportedEncodingException e) {
             logger.warn("invalid agentId. Cause:" + e.getMessage(), e);
         }
+    }
+
+    public long getVmStartTime() {
+        long vmStartTime = RuntimeMXBeanUtils.getVmStartTime();
+        if (vmStartTime == 0) {
+            vmStartTime = System.currentTimeMillis();
+        }
+        return vmStartTime;
+    }
+
+    public int getPid() {
+        return RuntimeMXBeanUtils.getPid();
     }
 
     private static class SingletonHolder {
@@ -299,7 +309,7 @@ public class DefaultAgent implements Agent {
         return agentId;
     }
 
-    public short getIdentifier() {
+    public int getIdentifier() {
         return identifier;
     }
 
@@ -350,6 +360,7 @@ public class DefaultAgent implements Agent {
 
         // 종료 처리 필요.
         this.spanDataSender.stop();
+        this.statDataSender.stop();
         this.tcpDataSender.stop();
 
         changeStatus(AgentStatus.STOPPED);

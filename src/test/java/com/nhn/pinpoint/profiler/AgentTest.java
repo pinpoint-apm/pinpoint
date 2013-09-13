@@ -27,7 +27,7 @@ public class AgentTest {
 //        config.readConfigFile();
         DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), config);
 
-        short identifier = agent.getIdentifier();
+        int identifier = agent.getIdentifier();
         logger.info("{}", identifier);
     }
 }

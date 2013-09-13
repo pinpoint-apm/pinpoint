@@ -24,5 +24,15 @@ public class CodeBuilderTest {
         Assert.assertEquals("{12}", builder.toString());
     }
 
+    @Test
+    public void testFormatAppend() throws Exception {
+        CodeBuilder builder = new CodeBuilder();
+        builder.begin();
+        builder.format("1");
+        builder.append("2");
+        builder.end();
+        Assert.assertEquals("{12}", builder.toString());
+    }
+
 
 }
