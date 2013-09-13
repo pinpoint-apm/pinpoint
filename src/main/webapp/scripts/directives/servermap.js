@@ -384,8 +384,8 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                                     "category": "UNKNOWN_GROUP",
                                     "terminal": "true",
                                     "agents": [],
-                                    "fig": "FramedRectangle"
-                                }
+                                    "fig": "Rectangle"
+                                };
                             }
                             if (!newLink) {
                                 newLink = {

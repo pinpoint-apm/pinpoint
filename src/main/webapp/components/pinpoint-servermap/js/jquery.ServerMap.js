@@ -55,10 +55,10 @@
                 },
                 "htLinkTheme": {
                     "default": {
-                        "backgroundColor": "rgb(240, 240, 240)",
+                        "backgroundColor": "#f9f9f9",
                         "borderColor" : "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
-                        "fontColor": "#919191",
+                        "fontColor": "#5a5a5a",
                         "fontAlign": "center",
                         "margin": 1
                     },
@@ -71,33 +71,36 @@
                         "margin": 1
                     },
                     "bad": {
-                        "backgroundColor": "rgb(1, 240, 240)",
+                        "backgroundColor": "#ffc9c9",
                         "borderColor" : "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
-                        "fontColor": "#919191",
+                        "fontColor": "#d72f30",
                         "fontAlign": "center",
                         "margin": 1
                     }
                 },
                 "htHighlightNode": {
                     "self" : {
-                        "backgroundColor": "#f0ad4e"
-                    },
-                    "to": {
-                        "backgroundColor": "#28a1f7"
+                        "backgroundColor": "#28a1f7",
+                        "fontColor": "#ffffff"
                     },
                     "from": {
-                        "backgroundColor": "#f77128"
+                        "backgroundColor": "#247cbb",
+                        "fontColor": "#ffffff"
+                    },
+                    "to": {
+                        "backgroundColor": "#f78e41",
+                        "fontColor": "#ffffff"
                     }
                 },
                 "htHighlightLink": {
                     "self" : {
-                        "borderColor": "#eea236"
-                    },
-                    "to": {
                         "borderColor": "#28a1f7"
                     },
                     "from": {
+                        "borderColor": "#1270b4"
+                    },
+                    "to": {
                         "borderColor": "#f77128"
                     }
                 },
@@ -219,6 +222,7 @@
                         self.$(
                             go.TextBlock,
                             {
+                                name: "NODE_TEXT",
                                 margin: 6,
                                 font: self.option('sBigFont'),
                                 editable: false
@@ -448,11 +452,11 @@
             this._resetHighlights();
             selection.highlight = 'self';
             if (selection instanceof go.Node) {
-                this._linksTo(selection, 'to');
-                this._linksFrom(selection, 'from');
+                this._linksTo(selection, 'from');
+                this._linksFrom(selection, 'to');
             } else if (selection instanceof go.Link) {
-                this._nodesTo(selection, 'to');
-                this._nodesFrom(selection, 'from');
+                this._nodesTo(selection, 'from');
+                this._nodesFrom(selection, 'to');
             }
 
             // iterators containing all nodes and links in the diagram
@@ -461,7 +465,7 @@
 
             // nodes, including groups
             while (allNodes.next()) {
-                this._hightlightNode(allNodes.value.findObject("NODE"), allNodes.value.highlight);
+                this._hightlightNode(allNodes.value.findObject("NODE"), allNodes.value.findObject("NODE_TEXT"), allNodes.value.highlight);
             }
             // links
             while (allLinks.next()) {
@@ -518,12 +522,14 @@
             return false;
         },
 
-        _hightlightNode : function (shape, theme) {
-            if (shape === null) { return; }
+        _hightlightNode : function (node, nodeText, theme) {
+            if (node === null || nodeText === null) { return; }
             if (theme) {
-                shape.fill = this.option('htHighlightNode')[theme].backgroundColor;
+                node.fill = this.option('htHighlightNode')[theme].backgroundColor;
+                nodeText.stroke = this.option('htHighlightNode')[theme].fontColor;
             } else {
-                shape.fill = this.option('htNodeTheme').default.backgroundColor;
+                node.fill = this.option('htNodeTheme').default.backgroundColor;
+                nodeText.stroke = this.option('htNodeTheme').default.fontColor;
             }
         },
 
