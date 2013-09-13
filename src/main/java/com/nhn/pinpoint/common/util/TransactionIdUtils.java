@@ -4,8 +4,7 @@ package com.nhn.pinpoint.common.util;
  *
  */
 public class TransactionIdUtils {
-
-    public static final String TRANSACTION_ID_DELIMITER = "=";
+    public static final String TRANSACTION_ID_DELIMITER = "%";
 
     public static final String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {

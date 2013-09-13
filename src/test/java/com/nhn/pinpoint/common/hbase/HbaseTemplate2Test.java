@@ -8,16 +8,20 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean;
 import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
 import java.io.IOException;
 import java.util.Properties;
 
+
 /**
  *
  */
 public class HbaseTemplate2Test {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean;
 
@@ -55,8 +59,6 @@ public class HbaseTemplate2Test {
             Assert.fail("exceptions");
         } catch (HbaseSystemException e) {
             if (!(e.getCause().getCause() instanceof TableNotFoundException)) {
-
-                System.out.println(e.getCause());
                 Assert.fail("unexpected exception :" + e.getCause());
             }
         } finally {
