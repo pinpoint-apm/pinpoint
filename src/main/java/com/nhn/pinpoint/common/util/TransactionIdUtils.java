@@ -4,7 +4,8 @@ package com.nhn.pinpoint.common.util;
  *
  */
 public class TransactionIdUtils {
-    public static final String TRANSACTION_ID_DELIMITER = "%";
+    // html 에서 표시되는 값이라. html 상에서 해석이 다르게 되는 문자열은 사용하면 안됨.
+    public static final String TRANSACTION_ID_DELIMITER = "^";
 
     public static final String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
