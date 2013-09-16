@@ -7,6 +7,9 @@ pinpointApp.constant('scatterConfig', {
     }
 });
 
+// FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
+var selectdTracesBox = {};
+
 pinpointApp.directive('scatter',
     [ 'scatterConfig', '$rootScope', '$timeout', function (scatterConfig, $rootScope, $timeout) {
         return {
@@ -16,7 +19,6 @@ pinpointApp.directive('scatter',
             link: function (scope, element, attrs) {
 
                 var oScatterChart = null;
-                var selectdTracesBox = {};
 
                 var showScatter = function (applicationName, from, to, period, filter, w, h) {
                     if (oScatterChart) {
