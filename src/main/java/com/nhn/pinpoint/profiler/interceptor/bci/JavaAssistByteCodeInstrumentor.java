@@ -19,21 +19,28 @@ import org.slf4j.LoggerFactory;
 public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isInfo = logger.isInfoEnabled();
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    private ClassPool classPool;
+    private final NamedClassPool rootClassPool;
+    // classPool의 수평적 확장이 필요할수 있음. was에 여러개의 webapp가 있을 경우 충돌방지.
+    private final NamedClassPool childClassPool;
 
     private Agent agent;
 
-    private ClassLoadChecker classLoadChecker = new ClassLoadChecker();
+    private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
 
     public JavaAssistByteCodeInstrumentor() {
-        this.classPool = createClassPool(null);
+        this.rootClassPool = createClassPool(null, "rootClassPool");
+        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
     }
 
     public JavaAssistByteCodeInstrumentor(String[] pathNames, Agent agent) {
-        this.classPool = createClassPool(pathNames);
+        this.rootClassPool = createClassPool(pathNames, "rootClassPool");
+        this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
         this.agent = agent;
-        checkLibrary(this.getClass().getClassLoader(), this.getClass().getName());
+        // agent의 class는 rootClassPool에 넣는다.
+        checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
     }
 
     public Agent getAgent() {
@@ -41,20 +48,27 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public ClassPool getClassPool() {
-        return this.classPool;
+        return this.childClassPool;
     }
 
-    private ClassPool createClassPool(String[] pathNames) {
-        ClassPool classPool = new ClassPool(null);
+    private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {
+        NamedClassPool classPool = new NamedClassPool(null, classPoolName);
         classPool.appendSystemPath();
         if (pathNames != null) {
             for (String path : pathNames) {
                 appendClassPath(classPool, path);
             }
         }
-
         return classPool;
     }
+
+    private NamedClassPool createChildClassPool(ClassPool rootClassPool, String classPoolName) {
+        NamedClassPool childClassPool = new NamedClassPool(rootClassPool, classPoolName);
+        childClassPool.appendSystemPath();
+        childClassPool.childFirstLookup = true;
+        return childClassPool;
+    }
+
 
     private void appendClassPath(ClassPool classPool, String pathName) {
         try {
@@ -67,18 +81,25 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public void checkLibrary(ClassLoader classLoader, String javassistClassName) {
+        checkLibrary(classLoader, this.childClassPool, javassistClassName);
+    }
+
+    public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
         // TODO Util로 뽑을까?
-        boolean findClass = findClass(javassistClassName);
+        boolean findClass = findClass(javassistClassName, classPool);
         if (findClass) {
+            if (isDebug) {
+                logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
+            }
             return;
         }
-        loadClassLoaderLibraries(classLoader);
+        loadClassLoaderLibraries(classLoader, classPool);
     }
 
     @Override
     public InstrumentClass getClass(String javassistClassName) throws InstrumentException {
         try {
-            CtClass cc = classPool.get(javassistClassName);
+            CtClass cc = childClassPool.get(javassistClassName);
             return new JavaAssistClass(this, cc);
         } catch (NotFoundException e) {
             throw new InstrumentException(javassistClassName + " class not fund. Cause:" + e.getMessage(), e);
@@ -87,7 +108,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
-        if (logger.isInfoEnabled()) {
+        if (isInfo) {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
@@ -96,7 +117,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             if (this.classLoadChecker.exist(classLoader, defineClass)) {
                 return classLoader.loadClass(defineClass);
             } else {
-                CtClass clazz = classPool.get(defineClass);
+                CtClass clazz = childClassPool.get(defineClass);
                 defineNestedClass(clazz, classLoader, protectedDomain);
                 return clazz.toClass(classLoader, protectedDomain);
             }
@@ -117,14 +138,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         for (CtClass nested : nestedClasses) {
             // 재귀하면서 최하위부터 로드
             defineNestedClass(nested, classLoader, protectedDomain);
-            if (logger.isInfoEnabled()) {
+            if (isInfo) {
                 logger.info("defineNestedClass class:{} cl:{}", nested.getName(), classLoader);
             }
             nested.toClass(classLoader, protectedDomain);
         }
     }
 
-    public boolean findClass(String javassistClassName) {
+    public boolean findClass(String javassistClassName, ClassPool classPool) {
         // TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
         // 필요
         URL url = classPool.find(javassistClassName);
@@ -178,7 +199,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return paramClass;
     }
 
-    private void loadClassLoaderLibraries(ClassLoader classLoader) {
+    private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
             // classLoader가 가지고 있는 전체 리소스를 가능한 패스로 다 걸어야 됨
@@ -190,11 +211,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                     classPool.appendClassPath(filePath);
                     // 만약 한개만 로딩해도 된다면. return true 할것
                     if (logger.isInfoEnabled()) {
-                        logger.info("Loaded {}", filePath);
+                        logger.info("Loaded classPool:{} {} ", classPool.getName(), filePath);
                     }
                 } catch (NotFoundException e) {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("lib load fail. path:{} cl:{} Cause:{}", new Object[] {filePath, classLoader, e.getMessage(), e});
+                        logger.warn("lib load fail. path:{} cl:{} clPool:{}, Cause:{}", filePath, classLoader, classPool.getName(), e.getMessage(), e);
                     }
                 }
             }
