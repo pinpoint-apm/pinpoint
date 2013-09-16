@@ -26,9 +26,9 @@ public class AgentStatMonitor {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final long DEFAULT_INTERVAL = 5;
+	private static final long DEFAULT_INTERVAL = 1000 * 5;
 	
-	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(5, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
+	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
 	private DataSender dataSender;
 	private AgentInfo agentInfo;
@@ -57,7 +57,7 @@ public class AgentStatMonitor {
 		long interval = DEFAULT_INTERVAL;
 		long wait = 0;
 		
-		executor.scheduleAtFixedRate(job, wait, interval, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(job, wait, interval, TimeUnit.MILLISECONDS);
 		logger.info("AgentStat monitor started");
 	}
 
