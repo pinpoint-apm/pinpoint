@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -19,7 +20,7 @@ public class AsyncQueueingExecutor implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkedBlockingQueue<Object> queue;
-    private final PinpointThreadFactory threadFactory;
+    private final ThreadFactory threadFactory;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
     private final Thread executeThread;
     private final String executorName;

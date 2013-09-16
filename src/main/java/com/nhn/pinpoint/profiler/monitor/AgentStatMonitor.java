@@ -2,10 +2,9 @@ package com.nhn.pinpoint.profiler.monitor;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
@@ -29,14 +28,7 @@ public class AgentStatMonitor {
 
 	private static final long DEFAULT_INTERVAL = 5;
 	
-	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(5, new ThreadFactory() {
-		@Override
-		public Thread newThread(Runnable runnable) {
-			Thread t = new Thread(runnable);
-			t.setName(ProductInfo.CAMEL_NAME + "-stat-monitor");
-			return t;
-		}
-	});
+	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(5, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
 	private DataSender dataSender;
 	private AgentInfo agentInfo;

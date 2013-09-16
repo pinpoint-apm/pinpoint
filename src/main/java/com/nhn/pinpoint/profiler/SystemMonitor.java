@@ -8,9 +8,8 @@ import java.lang.management.MemoryUsage;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 
-import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
@@ -30,15 +29,7 @@ public class SystemMonitor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SystemMonitor.class.getName());
 
-	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-		@Override
-		public Thread newThread(Runnable runnable) {
-			Thread t = new Thread(runnable);
-			t.setName(ProductInfo.CAMEL_NAME + "-SystemMonitor");
-			t.setDaemon(true);
-			return t;
-		}
-	});
+	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-SystemMonitor", true));
 
 	private DataSender dataSender;
 	private TraceContext traceContext;

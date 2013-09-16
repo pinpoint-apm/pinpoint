@@ -358,7 +358,7 @@ public class DefaultAgent implements Agent {
 
         agentInfo.setIsAlive(false);
 
-        this.tcpDataSender.request(agentInfo);
+        this.tcpDataSender.send(agentInfo);
 
         // 종료 처리 필요.
         this.spanDataSender.stop();

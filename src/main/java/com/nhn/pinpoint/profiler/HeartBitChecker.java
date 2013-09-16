@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadFactory;
 public class HeartBitChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory(ProductInfo.CAMEL_NAME + "-Agent-Heartbeat-Thread");
+    private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-Agent-Heartbeat-Thread", true);
     private long heartBitInterVal;
     private DataSender dataSender;
     private AgentInfo agentInfo;
