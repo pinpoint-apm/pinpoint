@@ -7,8 +7,8 @@ import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,7 +20,7 @@ import com.nhn.pinpoint.profiler.util.NumberUtils;
 
 public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isInfoEnabled();
 
     private MethodDescriptor descriptor;
@@ -63,22 +63,22 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
                 trace = traceContext.continueTraceObject(traceId);
                 if (!trace.canSampled()) {
                     if (isDebug) {
-                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                         return;
                     }
                 } else {
                     if (isDebug) {
-                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                     }
                 }
             } else {
                 trace = traceContext.newTraceObject();
                 if (!trace.canSampled()){
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[] {requestURL, remoteAddr });
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
                     return;
                 } else {
                     if (isDebug) {
-                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[] { requestURL, remoteAddr });
+                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
                     }
                 }
             }

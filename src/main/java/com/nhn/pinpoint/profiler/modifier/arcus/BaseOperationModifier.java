@@ -5,10 +5,9 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationConstructInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,7 +15,7 @@ import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.BaseOperationConstru
  */
 public class BaseOperationModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(BaseOperationModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public BaseOperationModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -51,7 +50,7 @@ public class BaseOperationModifier extends AbstractModifier {
             return aClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn( e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
             }
             return null;
         }

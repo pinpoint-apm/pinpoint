@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClassLoadChecker {
-    private final Logger logger = LoggerFactory.getLogger(ClassLoadChecker.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Object EXIST = new Object();

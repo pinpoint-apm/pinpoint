@@ -8,9 +8,9 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Type;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -18,7 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class FutureModifier extends AbstractModifier implements MultipleModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(FutureModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public FutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -56,7 +56,7 @@ public class FutureModifier extends AbstractModifier implements MultipleModifier
             return aClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn( e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
             }
             return null;
         }

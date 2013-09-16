@@ -8,20 +8,18 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Type;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
  */
 public class MemcachedClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(MemcachedClientModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(MemcachedClientModifier.class.getName());
 
-	public MemcachedClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
-			Agent agent) {
+	public MemcachedClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
 	}
 

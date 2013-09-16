@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.StackTraceUtil;
 
 import com.nhn.pinpoint.profiler.LifeCycleEventListener;
@@ -12,7 +12,7 @@ import com.nhn.pinpoint.profiler.LifeCycleEventListener;
  */
 public class CatalinaStopInterceptor implements SimpleAroundInterceptor {
 
-    private final Logger logger = LoggerFactory.getLogger(CatalinaStopInterceptor.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private LifeCycleEventListener lifeCycleEventListener;

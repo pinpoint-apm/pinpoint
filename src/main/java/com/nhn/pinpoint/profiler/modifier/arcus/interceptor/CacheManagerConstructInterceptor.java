@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
@@ -13,7 +13,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
  */
 public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor {
 
-	private final Logger logger = LoggerFactory.getLogger(CacheManagerConstructInterceptor.class.getName());
+	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject<Object> setServiceCode = new MetaObject<Object>("__setServiceCode", String.class);
@@ -26,7 +26,7 @@ public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor
 	@Override
 	public void after(Object target, Object[] args, Object result) {
 		if (isDebug) {
-			logger.afterInterceptor(target, args, result);
+            logger.afterInterceptor(target, args, result);
 		}
 
 		setServiceCode.invoke(target, (String) args[1]);

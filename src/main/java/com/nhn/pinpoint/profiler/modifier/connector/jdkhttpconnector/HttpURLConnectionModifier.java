@@ -1,16 +1,15 @@
 package com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO classloader문제 있음.
@@ -19,7 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(HttpClient4Modifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

@@ -23,14 +23,13 @@ import net.spy.memcached.protocol.ascii.AsciiMemcachedNodeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FutureGetInterceptorTest extends BaseInterceptorTest {
 
-	static final Logger logger = LoggerFactory
-			.getLogger(FutureGetInterceptorTest.class);
+	static final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
 
 	FutureGetInterceptor interceptor = new FutureGetInterceptor();
 

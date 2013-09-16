@@ -2,10 +2,10 @@ package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.nhn.pinpoint.profiler.context.AsyncTrace;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
 import com.nhn.pinpoint.profiler.context.DefaultAsyncTrace;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.TimeObject;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
@@ -16,7 +16,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
  */
 public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 
-	private final Logger logger = LoggerFactory.getLogger(BaseOperationCancelInterceptor.class.getName());
+	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");

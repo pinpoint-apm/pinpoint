@@ -9,12 +9,12 @@ import com.nhn.pinpoint.profiler.util.BindVariableFilter;
 import com.nhn.pinpoint.profiler.util.IncludeBindVariableFilter;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 

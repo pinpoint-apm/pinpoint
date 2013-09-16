@@ -2,8 +2,6 @@ package com.nhn.pinpoint.profiler.modifier.method;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -13,6 +11,8 @@ import javassist.CtMethod;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -21,7 +21,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
  */
 public class MethodModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(MethodModifier.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public MethodModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

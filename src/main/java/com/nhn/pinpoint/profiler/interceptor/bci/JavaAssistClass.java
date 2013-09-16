@@ -4,15 +4,15 @@ import java.io.IOException;
 
 import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.common.mapping.ApiUtils;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JavaAssistClass implements InstrumentClass {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private JavaAssistByteCodeInstrumentor instrumentor;
     private CtClass ctClass;

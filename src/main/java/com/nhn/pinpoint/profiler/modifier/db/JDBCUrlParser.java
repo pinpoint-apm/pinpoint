@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.Description;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  *
  */
 public class JDBCUrlParser {
-    private static Logger logger = LoggerFactory.getLogger(JDBCUrlParser.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public DefaultDatabaseInfo parse(String url) {
@@ -134,13 +134,13 @@ public class JDBCUrlParser {
 //                parser.getDriverType();
             return createOracleDatabaseInfo(keyValue, url);
         } catch (OracleConnectionStringException ex) {
-            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[] { url, ex.getMessage(), ex });
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
 
             // 에러찍고 그냥 unknownDataBase 생성
             return createUnknownDataBase(url);
         } catch (Throwable ex) {
             // 나중에 좀더 정교하게 exception을 던지게 되면 OracleConnectionStringException 만 잡는것으로 바꿔야 될듯하다.
-            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[] { url, ex.getMessage(), ex });
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
             // 에러찍고 그냥 unknownDataBase 생성
             return createUnknownDataBase(url);
         }

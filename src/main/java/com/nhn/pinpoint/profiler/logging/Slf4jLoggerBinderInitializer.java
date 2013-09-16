@@ -5,13 +5,13 @@ package com.nhn.pinpoint.profiler.logging;
  */
 public class Slf4jLoggerBinderInitializer {
 
-    private static final LoggerBinder loggerBinder = new Slf4jLoggerBinder();
+    private static final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
 
     public static void beforeClass() {
-        LoggerFactory.initialize(loggerBinder);
+        PLoggerFactory.initialize(loggerBinder);
     }
 
     public static void afterClass() {
-        LoggerFactory.unregister(loggerBinder);
+        PLoggerFactory.unregister(loggerBinder);
     }
 }

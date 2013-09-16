@@ -1,17 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.LifeCycleEventListener;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor;
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaStartInterceptor;
-import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaStopInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tomcat startup정보를 Pinpoint서버로 전송하는 코드를 호출하기위한 modifier
@@ -20,7 +17,7 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaStopInterce
  */
 public class CatalinaModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(CatalinaModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public CatalinaModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

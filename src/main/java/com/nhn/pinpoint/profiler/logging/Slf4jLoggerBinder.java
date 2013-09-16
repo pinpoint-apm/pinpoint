@@ -8,22 +8,22 @@ import java.util.concurrent.ConcurrentMap;
 /**
  *
  */
-public class Slf4jLoggerBinder implements LoggerBinder {
+public class Slf4jLoggerBinder implements PLoggerBinder {
 
-    private ConcurrentMap<String, Logger> loggerCache = new ConcurrentHashMap<String, Logger>();
+    private ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>();
 
     @Override
-    public Logger getLogger(String name) {
+    public PLogger getLogger(String name) {
 
-        Logger hitLogger = loggerCache.get(name);
-        if (hitLogger != null) {
-            return hitLogger;
+        PLogger hitPLogger = loggerCache.get(name);
+        if (hitPLogger != null) {
+            return hitPLogger;
         }
 
         org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(name);
 
-        Slf4jLoggerAdapter slf4jLoggerAdapter = new Slf4jLoggerAdapter(slf4jLogger);
-        Logger before = loggerCache.putIfAbsent(name, slf4jLoggerAdapter);
+        Slf4jPLoggerAdapter slf4jLoggerAdapter = new Slf4jPLoggerAdapter(slf4jLogger);
+        PLogger before = loggerCache.putIfAbsent(name, slf4jLoggerAdapter);
         if (before != null) {
             return before;
         }

@@ -5,17 +5,17 @@ import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
-import com.nhn.pinpoint.profiler.logging.Logger;
 
 public class StatementCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(StatementCreateInterceptor.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     // connection 용.

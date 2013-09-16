@@ -14,14 +14,13 @@ import org.junit.Test;
 
 import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApiInterceptorTest extends BaseInterceptorTest {
 
-	static final Logger logger = LoggerFactory
-			.getLogger(ApiInterceptorTest.class);
+	static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class);
 
 	ApiInterceptor interceptor = new ApiInterceptor();
 	MemcachedClient client = mock(MockMemcachedClient.class);

@@ -5,12 +5,12 @@ import org.slf4j.Marker;
 /**
  *
  */
-public class Slf4jLoggerAdapter implements Logger {
+public class Slf4jPLoggerAdapter implements PLogger {
     private final org.slf4j.Logger logger;
 
     public static final int BUFFER_SIZE = 512;
 
-    public Slf4jLoggerAdapter(org.slf4j.Logger logger) {
+    public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
         this.logger = logger;
     }
 

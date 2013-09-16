@@ -16,8 +16,9 @@ import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.List;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

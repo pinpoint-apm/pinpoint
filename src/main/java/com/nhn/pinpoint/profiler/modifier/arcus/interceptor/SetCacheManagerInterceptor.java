@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import net.spy.memcached.CacheManager;
 import net.spy.memcached.MemcachedClient;
 
@@ -17,7 +17,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
  */
 public class SetCacheManagerInterceptor implements SimpleAroundInterceptor {
 
-	private final Logger logger = LoggerFactory.getLogger(SetCacheManagerInterceptor.class.getName());
+	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");

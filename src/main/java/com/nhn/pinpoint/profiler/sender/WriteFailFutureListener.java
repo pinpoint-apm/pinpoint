@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
+import org.slf4j.Logger;
 
 public class WriteFailFutureListener implements FutureListener {
 
@@ -25,7 +26,7 @@ public class WriteFailFutureListener implements FutureListener {
     @Override
     public void onComplete(Future future) {
         if (!future.isSuccess()) {
-            logger.warn("{} {}/{}", new Object[]{message, host, port});
+            logger.warn("{} {}/{}", message, host, port);
         }
     }
 }

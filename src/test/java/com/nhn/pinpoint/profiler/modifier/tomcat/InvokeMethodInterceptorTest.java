@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.profiler.context.MockTraceContextFactory;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,7 +22,7 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveIn
 public class InvokeMethodInterceptorTest {
     @BeforeClass
     public static void before() {
-        LoggerFactory.initialize(new Slf4jLoggerBinder());
+        PLoggerFactory.initialize(new Slf4jLoggerBinder());
     }
 
     @Test

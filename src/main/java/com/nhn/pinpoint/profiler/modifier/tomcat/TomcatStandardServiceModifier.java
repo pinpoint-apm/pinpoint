@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.LifeCycleEventListener;
@@ -13,6 +11,8 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStar
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStopInterceptor;
 
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * When org.apache.catalina.core.StandardService class is loaded in ClassLoader,
@@ -22,7 +22,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class TomcatStandardServiceModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(TomcatStandardServiceModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public TomcatStandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

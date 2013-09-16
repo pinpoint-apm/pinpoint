@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
@@ -12,6 +10,8 @@ import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryIn
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MySQLStatementModifier extends AbstractModifier {
 
@@ -27,7 +27,7 @@ public class MySQLStatementModifier extends AbstractModifier {
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
+            logger.info("Modifing. {}", javassistClassName);
         }
 
         byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);

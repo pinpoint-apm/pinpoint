@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.profiler.sender;
 
 import com.nhn.pinpoint.profiler.context.Thriftable;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -11,8 +11,9 @@ import org.apache.thrift.TBase;
  */
 public class LoggingDataSender implements DataSender {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingDataSender.class.getName());
     public static final DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public boolean send(TBase<?, ?> data) {

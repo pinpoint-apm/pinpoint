@@ -2,6 +2,8 @@ package com.nhn.pinpoint.profiler.modifier;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -14,7 +16,6 @@ import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 
@@ -33,7 +34,7 @@ public class BaseInterceptorTest {
 	
 	@BeforeClass
 	public static void before() {
-		LoggerFactory.initialize(new Slf4jLoggerBinder());
+		PLoggerFactory.initialize(new Slf4jLoggerBinder());
 	}
 
 	@Before

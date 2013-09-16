@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -13,9 +16,6 @@ import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerBinder;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
@@ -23,6 +23,8 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +35,10 @@ import java.util.Set;
 
 public class DefaultAgent implements Agent {
 
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private PLoggerBinder binder;
+
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
 
@@ -204,18 +209,15 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private LoggerBinder initializeLogger() {
-        Slf4jLoggerBinder binder = new Slf4jLoggerBinder();
-        logger = binder.getLogger(DefaultAgent.class.getName());
-        Logger logger = binder.getLogger(Slf4jLoggerBinder.class.getName());
-        logger.info("slf4jLoggerBinder initialized");
+    private void initializeLogger() {
+        this.binder = new Slf4jLoggerBinder();
+        PLogger pLogger = binder.getLogger(Slf4jLoggerBinder.class.getName());
+        pLogger.info("slf4jLoggerBinder initialized");
 
         // static LoggerFactory에 binder를 붙임.
-        LoggerFactory.initialize(binder);
+        PLoggerFactory.initialize(binder);
 
         // shutdown hook이나 stop에 LoggerBinder의 연결을 풀어야 되는가?
-
-        return binder;
     }
 
 

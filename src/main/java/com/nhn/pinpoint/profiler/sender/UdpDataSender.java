@@ -7,20 +7,20 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Collection;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.profiler.context.Thriftable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
  */
 public class UdpDataSender implements DataSender {
 
-	private final Logger logger = LoggerFactory.getLogger(UdpDataSender.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isTrace = logger.isTraceEnabled();
 
     // 주의 single thread용임
@@ -152,7 +152,7 @@ public class UdpDataSender implements DataSender {
 			return serializer.serialize(dto);
 		} catch (TException e) {
 			if (logger.isWarnEnabled()) {
-                logger.warn("Serialize fail:{} Caused:{}", new Object[] { dto, e.getMessage(), e});
+                logger.warn("Serialize fail:{} Caused:{}", dto, e.getMessage(), e);
 			}
 			return null;
 		}

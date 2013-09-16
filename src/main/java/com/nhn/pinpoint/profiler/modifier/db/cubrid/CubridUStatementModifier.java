@@ -6,13 +6,13 @@ import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CubridUStatementModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(CubridUStatementModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public CubridUStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

@@ -14,11 +14,11 @@ import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.util.Assert;
 import com.sun.management.OperatingSystemMXBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * System monitor
@@ -90,7 +90,7 @@ public class SystemMonitor {
 
 				dataSender.send(jvmInfo);
 			} catch (Exception e) {
-				logger.warn("JvmInfo collect error Cause:" + e.getMessage(), e);
+                logger.warn("JvmInfo collect error Cause:" + e.getMessage(), e);
 			}
 		}
 
@@ -116,7 +116,7 @@ public class SystemMonitor {
 			} else {
 				// g1 ?
 				if (logger.isDebugEnabled()) {
-					logger.debug("unknown gc type. gc collector size:" + list.size());
+                    logger.debug("unknown gc type. gc collector size:" + list.size());
 				}
 			}
 		}

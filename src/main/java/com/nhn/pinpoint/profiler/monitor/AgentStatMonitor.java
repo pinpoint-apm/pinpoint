@@ -9,14 +9,13 @@ import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
-import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorMapper;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AgentStat monitor
@@ -26,7 +25,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
  */
 public class AgentStatMonitor {
 
-	private static final Logger logger = LoggerFactory.getLogger(AgentStatMonitor.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private static final long DEFAULT_INTERVAL = 5;
 	

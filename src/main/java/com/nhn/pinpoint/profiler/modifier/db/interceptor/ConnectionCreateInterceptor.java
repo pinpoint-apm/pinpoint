@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.util.Arrays;
 
 import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.StringUtils;
@@ -14,7 +14,7 @@ import com.nhn.pinpoint.profiler.util.StringUtils;
 @Deprecated
 public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
 
-    private final Logger logger = LoggerFactory.getLogger(ConnectionCreateInterceptor.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
 
     @Override

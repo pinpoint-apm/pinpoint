@@ -2,15 +2,15 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
 public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
 
-    private final Logger logger = LoggerFactory.getLogger(ConnectionCloseInterceptor.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Object[] EMPTY = new Object[]{null};

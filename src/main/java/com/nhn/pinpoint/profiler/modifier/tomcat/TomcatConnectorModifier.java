@@ -6,9 +6,9 @@ import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tomcat connector 정보를 수집하기 위한 modifier
@@ -17,7 +17,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class TomcatConnectorModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(TomcatConnectorModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public TomcatConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

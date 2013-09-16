@@ -158,7 +158,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		}
 
 		if (profilerConfig.isJdbcProfileMsSql()) {
-			addMsSqlDriver();
+//            아직 개발이 안됨
+//			addMsSqlDriver();
 		}
 
 		if (profilerConfig.isJdbcProfileOracle()) {
@@ -169,6 +170,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		}
 
 		if (profilerConfig.isJdbcProfileDbcp()) {
+//            아직 개발이 안됨
 //			addDbcpDriver();
 		}
 	}

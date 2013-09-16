@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
 
 import com.nhn.pinpoint.profiler.context.AsyncTrace;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.TimeObject;
 
@@ -16,7 +16,7 @@ import com.nhn.pinpoint.profiler.util.TimeObject;
  */
 public class BaseOperationConstructInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
-	private final Logger logger = LoggerFactory.getLogger(BaseOperationConstructInterceptor.class.getName());
+	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 	private MetaObject<Object> setAsyncTrace = new MetaObject<Object>("__setAsyncTrace", Object.class);

@@ -14,13 +14,13 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.ServiceTypeSupport;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractModifier implements Modifier {
 
-    private final Logger logger = LoggerFactory.getLogger(AbstractModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
@@ -84,7 +84,7 @@ public abstract class AbstractModifier implements Modifier {
     		}
     	} catch (Exception e) {
     		if (logger.isWarnEnabled()) {
-    			logger.warn(e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
     		}
     	}
     	

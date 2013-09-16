@@ -1,12 +1,11 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -70,7 +69,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
 
         if (isDebug) {
-            logger.debug("[transform] cl:{} className:{} Modifier:{}", new Object[]{ classLoader, className, findModifier.getClass().getName()});
+            logger.debug("[transform] cl:{} className:{} Modifier:{}", new Object[]{classLoader, className, findModifier.getClass().getName()});
         }
         String javassistClassName = className.replace('/', '.');
 
@@ -78,7 +77,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
 
         } catch (Throwable e) {
-            logger.error("Modifier:{} modify fail. Cause:{}", new Object[] { findModifier.getTargetClass(), e.getMessage(), e});
+            logger.error("Modifier:{} modify fail. Cause:{}", new Object[]{findModifier.getTargetClass(), e.getMessage(), e});
             return null;
         }
     }

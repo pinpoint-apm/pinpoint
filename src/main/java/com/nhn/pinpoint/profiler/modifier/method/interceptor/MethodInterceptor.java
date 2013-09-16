@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.method.interceptor;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.Trace;
@@ -15,7 +15,7 @@ import com.nhn.pinpoint.profiler.interceptor.*;
  */
 public class MethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, ServiceTypeSupport, TraceContextSupport {
     // method intereptor는 객체의 라이프 사이클을 알수 없이 자주 호출될수 있으므로 그냥 static으로 선언한다.
-	private static final Logger logger = LoggerFactory.getLogger(MethodInterceptor.class.getName());
+	private static final PLogger logger = PLoggerFactory.getLogger(MethodInterceptor.class);
     private static final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;

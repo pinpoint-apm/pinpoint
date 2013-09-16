@@ -8,17 +8,16 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Type;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
  */
 public class ArcusClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(ArcusClientModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
 			Agent agent) {
@@ -32,7 +31,7 @@ public class ArcusClientModifier extends AbstractModifier {
 	public byte[] modify(ClassLoader classLoader, String javassistClassName,
 			ProtectionDomain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. " + javassistClassName);
+            logger.info("Modifing. " + javassistClassName);
 		}
 
 		try {
@@ -61,7 +60,7 @@ public class ArcusClientModifier extends AbstractModifier {
 			return aClass.toBytecode();
 		} catch (Exception e) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
 			}
 			return null;
 		}

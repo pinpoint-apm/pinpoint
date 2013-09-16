@@ -2,17 +2,18 @@ package com.nhn.pinpoint.profiler.modifier.db.mssql;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
 
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MSSQLPreparedStatementModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(MSSQLPreparedStatementModifier.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MSSQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

@@ -7,8 +7,8 @@ import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,7 +19,7 @@ import com.nhn.pinpoint.profiler.util.NumberUtils;
 
 public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private final Logger logger = LoggerFactory.getLogger(HttpServletInterceptor.class);
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
@@ -74,13 +74,13 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             Trace trace;
             if (traceId != null) {
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                    logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                 }
                 trace = traceContext.continueTraceObject(traceId);
             } else {
                 trace = traceContext.newTraceObject();
                 if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[] {traceId, requestURL, remoteAddr });
+                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                 }
             }
 

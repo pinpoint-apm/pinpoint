@@ -8,8 +8,6 @@ import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.common.util.SqlParser;
 import com.nhn.pinpoint.exception.PinPointException;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.metadata.LRUCache;
 import com.nhn.pinpoint.profiler.metadata.Result;
 import com.nhn.pinpoint.profiler.metadata.StringCache;
@@ -18,12 +16,14 @@ import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.util.Assert;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultTraceContext implements TraceContext {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultTraceContext.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");

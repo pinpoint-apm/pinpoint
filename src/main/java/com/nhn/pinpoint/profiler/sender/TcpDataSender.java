@@ -5,8 +5,6 @@ import com.nhn.pinpoint.thrift.dto.Result;
 import com.nhn.pinpoint.profiler.context.Thriftable;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
@@ -17,6 +15,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +59,7 @@ public class TcpDataSender implements DataSender {
                 logger.info("tcp connect success:{}/{}", host, port);
                 return;
             } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", new Object[]{host, port, i});
+                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
             }
         }
         logger.warn("change background tcp connect mode  {}/{} ", host, port);
@@ -222,7 +222,7 @@ public class TcpDataSender implements DataSender {
             return serializer.serialize(dto);
         } catch (TException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Serialize fail:{} Caused:{}", new Object[]{dto, e.getMessage(), e});
+                logger.warn("Serialize fail:{} Caused:{}", dto, e.getMessage(), e);
             }
             return null;
         }

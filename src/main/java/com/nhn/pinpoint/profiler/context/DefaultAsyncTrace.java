@@ -5,15 +5,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class DefaultAsyncTrace implements AsyncTrace {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncTrace.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncTrace.class);
     private static final boolean isDebug = logger.isDebugEnabled();
     private static final boolean isTrace = logger.isTraceEnabled();
 

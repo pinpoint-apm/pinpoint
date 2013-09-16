@@ -6,6 +6,7 @@ import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 
@@ -30,7 +31,7 @@ public class MySQLConnectionImplModifierTest {
     @Before
     public void setUp() throws Exception {
 
-        com.nhn.pinpoint.profiler.logging.LoggerFactory.initialize(new Slf4jLoggerBinder());
+        PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
         DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);

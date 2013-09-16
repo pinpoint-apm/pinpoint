@@ -1,15 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier.connector.npc;
 
-import java.net.InetSocketAddress;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * NPC Hessian connector modifier
@@ -20,7 +19,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class KeepAliveNpcHessianConnectorModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(KeepAliveNpcHessianConnectorModifier.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public KeepAliveNpcHessianConnectorModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);

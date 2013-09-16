@@ -6,8 +6,8 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO 추가 개발해야 될듯.
 public class MySQLResultSetModifier extends AbstractModifier {
@@ -24,7 +24,7 @@ public class MySQLResultSetModifier extends AbstractModifier {
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
+            logger.info("Modifing. {}", javassistClassName);
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         return changeMethod(javassistClassName, classFileBuffer);

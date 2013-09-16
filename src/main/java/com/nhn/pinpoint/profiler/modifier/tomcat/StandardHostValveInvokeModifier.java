@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
@@ -10,6 +8,8 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Modify org.apache.catalina.core.StandardHostValve class
@@ -18,7 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class StandardHostValveInvokeModifier extends AbstractModifier {
 
-    private final Logger logger = LoggerFactory.getLogger(StandardHostValveInvokeModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public StandardHostValveInvokeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);

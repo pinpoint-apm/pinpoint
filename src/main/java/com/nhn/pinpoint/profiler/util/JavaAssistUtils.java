@@ -1,15 +1,16 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import javassist.*;
 import javassist.bytecode.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
-    private static String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+    private static final Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class);
 
     /**
      * test(int, java.lang.String) 일경우
@@ -210,7 +211,6 @@ public class JavaAssistUtils {
     }
 
     private static void dump(LocalVariableAttribute lva) {
-        Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class.getName());
         if (logger.isDebugEnabled()) {
             StringBuilder buffer = new StringBuilder(1024);
             for (int i = 0; i < lva.tableLength(); i++) {
