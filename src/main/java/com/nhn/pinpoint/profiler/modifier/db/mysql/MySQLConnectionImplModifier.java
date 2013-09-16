@@ -30,7 +30,7 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + javassistClassName);
+            logger.info("Modifing. {}", javassistClassName);
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
