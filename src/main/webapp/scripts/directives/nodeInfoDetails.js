@@ -34,7 +34,6 @@ pinpointApp
                     }
                     scope.unknownGroup = data.textArr;
                     scope.serverList = data.serverList;
-                    console.log(data);
                     scope.showHosts = (scope.serverList.length > 0) ? true : false;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
@@ -117,9 +116,8 @@ pinpointApp
 
                 var extractHistogramFromData = function (data) {
                     var histogram = [];
-                    if (data && data.hosts && angular.isArray(data.hosts) && data.hosts.length > 0) {
-                        var hosts = data.hosts;
-                        angular.forEach(hosts, function (val, key) {
+                    if (data && data.histogram && angular.isArray(data.histogram) && data.histogram.length > 0) {
+                        angular.forEach(data.histogram, function (val, key) {
                             var i = 0;
                             angular.forEach(val.histogram, function (innerVal, innerKey) {
                                 if (histogram[i]) {
@@ -130,7 +128,7 @@ pinpointApp
                                         'value' : Number(innerVal, 10)
                                     };
                                 }
-                                i += 1;
+                                i++;
                             });
                         });
                     }
