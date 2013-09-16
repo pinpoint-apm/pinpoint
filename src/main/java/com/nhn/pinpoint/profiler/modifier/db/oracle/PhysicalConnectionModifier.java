@@ -10,10 +10,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.Type;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.ConnectionCloseInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementCreateInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementCreateInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.TransactionInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 
 import java.security.ProtectionDomain;
 
@@ -62,15 +59,15 @@ public class PhysicalConnectionModifier extends AbstractModifier {
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionInterceptor(TransactionInterceptor.SET_AUTO_COMMIT);
+                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
                 oracleConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
             }
             if (profilerConfig.isJdbcProfileOracleCommit()) {
-                Interceptor commit = new TransactionInterceptor(TransactionInterceptor.COMMIT);
+                Interceptor commit = new TransactionCommitInterceptor();
                 oracleConnection.addInterceptor("commit", null, commit);
             }
             if (profilerConfig.isJdbcProfileOracleRollback()) {
-                Interceptor rollback = new TransactionInterceptor(TransactionInterceptor.ROLLBACK);
+                Interceptor rollback = new TransactionRollbackInterceptor();
                 oracleConnection.addInterceptor("rollback", null, rollback);
             }
 

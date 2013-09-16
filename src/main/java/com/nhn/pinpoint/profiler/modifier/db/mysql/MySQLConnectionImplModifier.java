@@ -13,10 +13,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.logging.Logger;
 import com.nhn.pinpoint.profiler.logging.LoggerFactory;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.ConnectionCloseInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementCreateInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementCreateInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.TransactionInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 
 public class MySQLConnectionImplModifier extends AbstractModifier {
 
@@ -61,15 +58,15 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionInterceptor(TransactionInterceptor.SET_AUTO_COMMIT);
+                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
                 mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
             }
             if (profilerConfig.isJdbcProfileMySqlCommit()) {
-                Interceptor commit = new TransactionInterceptor(TransactionInterceptor.COMMIT);
+                Interceptor commit = new TransactionCommitInterceptor();
                 mysqlConnection.addInterceptor("commit", null, commit);
             }
             if (profilerConfig.isJdbcProfileMySqlRollback()) {
-                Interceptor rollback = new TransactionInterceptor(TransactionInterceptor.ROLLBACK);
+                Interceptor rollback = new TransactionRollbackInterceptor();
                 mysqlConnection.addInterceptor("rollback", null, rollback);
             }
             printClassConvertComplete(javassistClassName);
