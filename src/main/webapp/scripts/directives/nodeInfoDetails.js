@@ -33,10 +33,11 @@ pinpointApp
                         scope.nodeIcon = data.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
                     }
                     scope.unknownGroup = data.textArr;
-                    scope.hosts = data.hosts;
-                    scope.showHosts = (scope.hosts.length > 0) ? true : false;
-                    scope.agents = data.agents;
-                    scope.showAgents = (scope.agents.length > 0) ? true : false;
+                    scope.serverList = data.serverList;
+                    console.log(data);
+                    scope.showHosts = (scope.serverList.length > 0) ? true : false;
+                    // scope.agents = data.agents;
+                    // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     scope.$digest();
                 };
 

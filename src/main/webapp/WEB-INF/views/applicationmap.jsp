@@ -23,7 +23,7 @@
 				],
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
-				"serverlist" : [
+				"serverList" : [
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						{
 							"name":"${serverInstance.key}",

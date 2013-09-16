@@ -20,17 +20,24 @@
                 <div class="alert alert-info text-center">
                     <img ng-src="/images/icons/{{nodeIcon}}.png" width="20" height="10"/> {{nodeName}}
                 </div>
-				<h5>Hosts</h5>
+				<h5>Servers</h5>
 				<ul>
-					<li ng-repeat="host in hosts">
+					<li ng-repeat="server in serverList">
 						<span class="label label-success">OK</span>
-						{{host.name}}
-						<a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{host.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
+						{{server.name}}
+						<a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
 						<a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
+						<ul>
+							<li ng-repeat="instance in server.agentList">
+								<span class="label label-success">OK</span>
+								{{instance.agentId}}
+								<a class="btn btn-mini" ng-href="#/spy/{{application}}/{{period}}/{{queryEndTime}}/{{instance.agentId}}" target="_blank">SPY</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</div>
-
+			<!-- 
 			<div ng-show="showAgents">
 				<h5>Server Instances</h5>
 				<ul>
@@ -41,9 +48,8 @@
 					</li>
 				</ul>
 			</div>
-
+			-->
 		</div>
-
 	</div>
 
     <div class='infoBarChart' ng-show="showNodeInfoBarChart">
