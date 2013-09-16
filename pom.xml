@@ -192,7 +192,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>com.nhn.pinpoint.bootstrap.TomcatBootStrap</Premain-Class>
+                            <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
                         </manifestEntries>
                     </archive>
                     <descriptorRefs>

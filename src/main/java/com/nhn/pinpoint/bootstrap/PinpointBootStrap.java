@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.bootstrap;
 
 import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
@@ -12,9 +13,12 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class TomcatBootStrap {
+public class PinpointBootStrap {
 
-    private static final Logger logger = Logger.getLogger(TomcatBootStrap.class.getName());
+    private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
+
+    private static final int LIMIT_LENGTH = 24;
+    private static final String DELIMITER = TransactionIdUtils.TRANSACTION_ID_DELIMITER;
 
     public static final String BOOT_CLASS = "com.nhn.pinpoint.profiler.DefaultAgent";
 
