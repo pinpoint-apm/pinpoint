@@ -180,10 +180,10 @@ public class ProfilerConfig {
 
 		this.profileEnable = readBoolean(prop, "profile.enable", true);
 
-		this.collectorServerIp = readString(prop, "server.collector.ip", "127.0.0.1");
-        this.collectorUdpSpanServerPort = readInt(prop, "server.collector.udpspan.port", 9996);
-		this.collectorUdpServerPort = readInt(prop, "server.collector.udp.port", 9995);
-        this.collectorTcpServerPort = readInt(prop, "server.collector.tcp.port", 9994);
+		this.collectorServerIp = readString(prop, "profile.collector.ip", "127.0.0.1");
+        this.collectorUdpSpanServerPort = readInt(prop, "profile.collector.udpspan.port", 9996);
+		this.collectorUdpServerPort = readInt(prop, "profile.collector.udp.port", 9995);
+        this.collectorTcpServerPort = readInt(prop, "profile.collector.tcp.port", 9994);
 
 		// JDBC
 		this.jdbcProfile = readBoolean(prop, "profile.jdbc", true);
