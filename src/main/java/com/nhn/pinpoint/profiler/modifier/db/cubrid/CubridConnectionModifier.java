@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -40,9 +41,20 @@ public class CubridConnectionModifier extends AbstractModifier {
 			cubridConnection.addInterceptor("close", null, new ConnectionCloseInterceptor(), Type.before);
 			cubridConnection.addInterceptor("createStatement", null, new StatementCreateInterceptor(), Type.after);
 			cubridConnection.addInterceptor("prepareStatement", new String[] { "java.lang.String" }, new PreparedStatementCreateInterceptor());
-			cubridConnection.addInterceptor("setAutoCommit", new String[] { "boolean" }, new TransactionInterceptor());
-			cubridConnection.addInterceptor("commit", null, new TransactionInterceptor());
-			cubridConnection.addInterceptor("rollback", null, new TransactionInterceptor());
+
+            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
+                TransactionInterceptor setAutoCommit = new TransactionInterceptor(TransactionInterceptor.SET_AUTO_COMMIT);
+                cubridConnection.addInterceptor("setAutoCommit", new String[] { "boolean" }, setAutoCommit);
+            }
+            if (profilerConfig.isJdbcProfileCubridCommit()) {
+                TransactionInterceptor commit = new TransactionInterceptor(TransactionInterceptor.COMMIT);
+                cubridConnection.addInterceptor("commit", null, commit);
+            }
+            if (profilerConfig.isJdbcProfileCubridRollback()) {
+                TransactionInterceptor rollback = new TransactionInterceptor(TransactionInterceptor.ROLLBACK);
+                cubridConnection.addInterceptor("rollback", null, rollback);
+            }
 
 			printClassConvertComplete(javassistClassName);
 

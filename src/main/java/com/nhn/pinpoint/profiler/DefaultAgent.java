@@ -204,7 +204,7 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    public LoggerBinder initializeLogger() {
+    private LoggerBinder initializeLogger() {
         Slf4jLoggerBinder binder = new Slf4jLoggerBinder();
         logger = binder.getLogger(DefaultAgent.class.getName());
         Logger logger = binder.getLogger(Slf4jLoggerBinder.class.getName());

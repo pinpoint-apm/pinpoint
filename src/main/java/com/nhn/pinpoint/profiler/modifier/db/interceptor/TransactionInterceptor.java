@@ -16,12 +16,21 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 
 public class TransactionInterceptor implements StaticAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
+    public static final int SET_AUTO_COMMIT = 0;
+    public static final int COMMIT = 1;
+    public static final int ROLLBACK = 2;
+
     private final Logger logger = LoggerFactory.getLogger(TransactionInterceptor.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    private int apiType;
+
+    public TransactionInterceptor(int apiType) {
+        this.apiType = apiType;
+    }
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
@@ -38,12 +47,14 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
-            if ("setAutoCommit".equals(methodName)) {
+            if (apiType == SET_AUTO_COMMIT) {
                 beforeStartTransaction(trace, con);
-            } else if ("commit".equals(methodName)) {
+            } else if (apiType == COMMIT) {
                 beforeCommit(trace, con);
-            } else if ("rollback".equals(methodName)) {
+            } else if (apiType == ROLLBACK) {
                 beforeRollback(trace, con);
+            } else {
+                throw new IllegalArgumentException("apiType:" + apiType);
             }
         }
     }
@@ -62,12 +73,14 @@ public class TransactionInterceptor implements StaticAroundInterceptor, ByteCode
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
-            if ("setAutoCommit".equals(methodName)) {
+            if (apiType == SET_AUTO_COMMIT) {
                 afterStartTransaction(trace, con, args, result);
-            } else if ("commit".equals(methodName)) {
+            } else if (apiType == COMMIT) {
                 afterCommit(trace, con, result);
-            } else if ("rollback".equals(methodName)) {
+            } else if (apiType == ROLLBACK) {
                 afterRollback(trace, con, result);
+            } else {
+                throw new IllegalArgumentException("apiType:" + apiType);
             }
         }
     }

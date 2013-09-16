@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -58,14 +59,19 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
-
-            Interceptor setAutocommit = new TransactionInterceptor();
-            mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
-            Interceptor commit = new TransactionInterceptor();
-            mysqlConnection.addInterceptor("commit", null, commit);
-            Interceptor rollback = new TransactionInterceptor();
-            mysqlConnection.addInterceptor("rollback", null, rollback);
-
+            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
+                Interceptor setAutocommit = new TransactionInterceptor(TransactionInterceptor.SET_AUTO_COMMIT);
+                mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
+            }
+            if (profilerConfig.isJdbcProfileMySqlCommit()) {
+                Interceptor commit = new TransactionInterceptor(TransactionInterceptor.COMMIT);
+                mysqlConnection.addInterceptor("commit", null, commit);
+            }
+            if (profilerConfig.isJdbcProfileMySqlRollback()) {
+                Interceptor rollback = new TransactionInterceptor(TransactionInterceptor.ROLLBACK);
+                mysqlConnection.addInterceptor("rollback", null, rollback);
+            }
             printClassConvertComplete(javassistClassName);
 
             return mysqlConnection.toBytecode();

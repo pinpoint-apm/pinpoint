@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.oracle;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -59,13 +60,19 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
             oracleConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
-
-            Interceptor setAutocommit = new TransactionInterceptor();
-            oracleConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
-            Interceptor commit = new TransactionInterceptor();
-            oracleConnection.addInterceptor("commit", null, commit);
-            Interceptor rollback = new TransactionInterceptor();
-            oracleConnection.addInterceptor("rollback", null, rollback);
+            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
+                Interceptor setAutocommit = new TransactionInterceptor(TransactionInterceptor.SET_AUTO_COMMIT);
+                oracleConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
+            }
+            if (profilerConfig.isJdbcProfileOracleCommit()) {
+                Interceptor commit = new TransactionInterceptor(TransactionInterceptor.COMMIT);
+                oracleConnection.addInterceptor("commit", null, commit);
+            }
+            if (profilerConfig.isJdbcProfileOracleRollback()) {
+                Interceptor rollback = new TransactionInterceptor(TransactionInterceptor.ROLLBACK);
+                oracleConnection.addInterceptor("rollback", null, rollback);
+            }
 
             printClassConvertComplete(javassistClassName);
 
