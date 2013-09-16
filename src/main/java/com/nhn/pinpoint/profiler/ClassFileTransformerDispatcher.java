@@ -69,7 +69,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
 
         if (isDebug) {
-            logger.debug("[transform] cl:{} className:{} Modifier:{}", new Object[]{classLoader, className, findModifier.getClass().getName()});
+            logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, className, findModifier.getClass().getName());
         }
         String javassistClassName = className.replace('/', '.');
 
@@ -77,7 +77,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
 
         } catch (Throwable e) {
-            logger.error("Modifier:{} modify fail. Cause:{}", new Object[]{findModifier.getTargetClass(), e.getMessage(), e});
+            logger.error("Modifier:{} modify fail. Cause:{}", findModifier.getTargetClass(), e.getMessage(), e);
             return null;
         }
     }

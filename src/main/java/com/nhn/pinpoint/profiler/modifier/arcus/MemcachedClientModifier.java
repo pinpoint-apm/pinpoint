@@ -7,6 +7,7 @@ import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.interceptor.bci.Type;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
@@ -49,12 +50,11 @@ public class MemcachedClientModifier extends AbstractModifier {
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
 			String[] ignored = new String[] { "__", "shutdown" };
-			for (Entry<String, String[]> e : getCandidates(ignored).entrySet()) {
+			for (Method method : getCandidates(ignored)) {
 				Interceptor apiInterceptor = byteCodeInstrumentor
 						.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
-				aClass.addInterceptor(e.getKey(), e.getValue(), apiInterceptor,
-						Type.around);
+				aClass.addInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, Type.around);
 			}
 			return aClass.toBytecode();
 		} catch (Exception e) {

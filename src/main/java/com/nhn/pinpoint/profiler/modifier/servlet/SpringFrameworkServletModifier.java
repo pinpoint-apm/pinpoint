@@ -5,6 +5,7 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.ServiceTypeSupport;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -56,4 +57,10 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 			return null;
 		}
 	}
+
+    private void setServiceType(Interceptor interceptor, ServiceType serviceType) {
+        if (interceptor instanceof ServiceTypeSupport) {
+            ((ServiceTypeSupport)interceptor).setServiceType(serviceType);
+        }
+    }
 }
