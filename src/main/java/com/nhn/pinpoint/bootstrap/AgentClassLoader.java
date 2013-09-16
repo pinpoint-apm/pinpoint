@@ -67,6 +67,7 @@ public class AgentClassLoader {
         }
     }
 
+    @Deprecated
     public Object initializeLoggerBinder() {
         if (agentBootStrap != null) {
             return reflectionInvoke(this.agentBootStrap, "initializeLogger", null, null);
