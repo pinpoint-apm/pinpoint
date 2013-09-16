@@ -49,18 +49,18 @@ public class DummyAgent implements Agent {
         return null;
     }
 
-    @Override
-    public PLoggerBinder initializeLogger() {
-        return new PLoggerBinder() {
-            @Override
-            public PLogger getLogger(String name) {
-                return new DummyPLogger();
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-        };
-    }
+//    @Override
+//    public PLoggerBinder initializeLogger() {
+//        return new PLoggerBinder() {
+//            @Override
+//            public PLogger getLogger(String name) {
+//                return new DummyPLogger();
+//            }
+//
+//            @Override
+//            public void shutdown() {
+//
+//            }
+//        };
+//    }
 }
