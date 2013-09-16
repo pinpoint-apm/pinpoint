@@ -21,6 +21,7 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -156,7 +157,7 @@ public class TCPReceiver {
                 TBase<?, ?> tBase = deserializer.deserialize(bytes);
                 TBase result = dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
-                    HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
+                    SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
                     byte[] resultBytes = serializer.serialize(result);
                     socketChannel.sendResponseMessage(requestPacket, resultBytes);
                 }
