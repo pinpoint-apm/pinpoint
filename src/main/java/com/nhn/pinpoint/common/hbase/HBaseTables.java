@@ -1,11 +1,12 @@
 package com.nhn.pinpoint.common.hbase;
 
+import com.nhn.pinpoint.common.PinpointConstants;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseTables {
 	
-	public static final int APPLICATION_NAME_MAX_LEN = 24;
-    public static final int AGENT_NAME_MAX_LEN = 24;
+	public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
+    public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
 	
     public static final String SYSTEMINFO = "Systeminfo";
     public static final byte[] SYSTEMINFO_CF_JVM = Bytes.toBytes("JVM");
