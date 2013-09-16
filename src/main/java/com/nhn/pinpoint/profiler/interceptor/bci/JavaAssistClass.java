@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.common.mapping.ApiUtils;
@@ -630,10 +632,34 @@ public class JavaAssistClass implements InstrumentClass {
             throw new InstrumentException( "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
         }
     }
-    
-	public CtMethod[] getDeclaredMethods() {
-		return ctClass.getDeclaredMethods();
-	}
+
+    public List<Method> getDeclaredMethods() throws NotFoundInstrumentException {
+        return getDeclaredMethods(SkipMethodFilter.FILTER);
+    }
+
+
+	public List<Method> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException {
+        if (methodFilter == null) {
+            throw new NullPointerException("methodFilter must not be null");
+        }
+        try {
+            final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
+            final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
+            for (CtMethod ctMethod : declaredMethod) {
+                if (methodFilter.filter(ctMethod)) {
+                    continue;
+                }
+                String methodName = ctMethod.getName();
+                CtClass[] paramTypes = ctMethod.getParameterTypes();
+                String[] parameterType = JavaAssistUtils.getParameterType(paramTypes);
+                Method method = new Method(methodName, parameterType);
+                candidateList.add(method);
+            }
+            return candidateList;
+        } catch (NotFoundException e) {
+            throw new NotFoundInstrumentException("getDeclaredMethods(), Caused:" + e.getMessage(), e);
+        }
+    }
 	
 	public boolean isInterceptable() {
 		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();

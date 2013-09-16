@@ -1,14 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
-import java.util.Map.Entry;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
+import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,22 +31,21 @@ public class MemcachedClientModifier extends AbstractModifier {
 		}
 
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor
-					.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
 			aClass.addTraceVariable("__serviceCode", "__setServiceCode",
-					"__getServiceCode", "java.lang.String");
+                    "__getServiceCode", "java.lang.String");
 
 			Interceptor addOpInterceptor = byteCodeInstrumentor
 					.newInterceptor(classLoader, protectedDomain,
 							"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.AddOpInterceptor");
-			aClass.addInterceptor("addOp", new String[] { "java.lang.String",
-					"net.spy.memcached.ops.Operation" }, addOpInterceptor,
-					Type.before);
+			aClass.addInterceptor("addOp", new String[]{"java.lang.String",
+                    "net.spy.memcached.ops.Operation"}, addOpInterceptor,
+                    Type.before);
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
 			String[] ignored = new String[] { "__", "shutdown" };
-			for (Method method : getCandidates(ignored)) {
+			for (Method method : aClass.getDeclaredMethods(new ArcusMethodFilter(ignored))) {
 				Interceptor apiInterceptor = byteCodeInstrumentor
 						.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");

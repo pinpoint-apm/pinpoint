@@ -1,14 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
-import java.util.Map.Entry;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
+import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +45,11 @@ public class ArcusClientModifier extends AbstractModifier {
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
 			String[] ignored = new String[] { "__", "shutdown" };
-			for (Method method : getCandidates(ignored)) {
-				Interceptor apiInterceptor = byteCodeInstrumentor
-						.newInterceptor(classLoader, protectedDomain,
+			for (Method method : aClass.getDeclaredMethods(new ArcusMethodFilter(ignored))) {
+				Interceptor apiInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
-				aClass.addInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor,
-						Type.around);
+
+				aClass.addInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, Type.around);
 			}
 
 			return aClass.toBytecode();

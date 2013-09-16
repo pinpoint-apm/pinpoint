@@ -171,7 +171,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     public Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException {
         Class<?> aClass = this.defineClass(classLoader, interceptorFQCN, protectedDomain);
         try {
-//            Class<?>[] paramClass = getParamClass(params);
             Constructor<?> constructor = aClass.getConstructor(paramClazz);
             return (Interceptor) constructor.newInstance(params);
         } catch (InstantiationException e) {
@@ -186,19 +185,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     }
 
-    private Class<?>[] getParamClass(Object[] params) throws InstrumentException {
-        Class<?>[] paramClass = new Class<?>[params.length];
-        for (int i = 0; i < params.length; i++) {
-            Object o = params[i];
-            if (o == null) {
-                throw new InstrumentException("params[" + i + "] is null ");
-            }
-            paramClass[i] = o.getClass();
-
-        }
-        return paramClass;
-    }
-
     private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
@@ -210,8 +196,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 try {
                     classPool.appendClassPath(filePath);
                     // 만약 한개만 로딩해도 된다면. return true 할것
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Loaded classPool:{} {} ", classPool.getName(), filePath);
+                    if (isInfo) {
+                        logger.info("Loaded cl:{} classPool:{} {} ", classLoader, classPool.getName(), filePath);
                     }
                 } catch (NotFoundException e) {
                     if (logger.isWarnEnabled()) {

@@ -1,13 +1,14 @@
 package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -95,8 +95,8 @@ public class DefaultAgent implements Agent {
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
         this.machineName = NetworkUtils.getHostName();
-        this.agentId = getId("pinpoint.agentId", machineName, HBaseTables.AGENT_NAME_MAX_LEN);
-        this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", HBaseTables.APPLICATION_NAME_MAX_LEN);
+        this.agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
+        this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         this.startTime = getVmStartTime();
         this.identifier = getPid();
 
@@ -266,15 +266,10 @@ public class DefaultAgent implements Agent {
     }
 
     private void validateId(String id, String idName, int maxlen) {
-        try {
-            byte[] bytes = id.getBytes("UTF-8");
-            if (bytes.length > maxlen) {
-                logger.warn("{} is too long(1~24). value={}", idName, id);
-            }
-            // validate = false;
-            // TODO 이제 그냥 exception을 던지면 됨 agent 생성 타이밍이 최초 vm스타트와 동일하다.
-        } catch (UnsupportedEncodingException e) {
-            logger.warn("invalid agentId. Cause:" + e.getMessage(), e);
+        // 에러 체크 로직을 bootclass 앞단으로 이동시킴.
+        byte[] bytes = BytesUtils.getBytes(id);
+        if (bytes.length > maxlen) {
+            logger.warn("{} is too long(1~24). value={}", idName, id);
         }
     }
 

@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import javassist.CtMethod;
-
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+
+import java.util.List;
 
 public interface InstrumentClass {
 
@@ -44,8 +44,10 @@ public interface InstrumentClass {
 	boolean insertCodeAfterConstructor(String[] args, String code);
 
 	boolean insertCodeBeforeConstructor(String[] args, String code);
+
+    List<Method> getDeclaredMethods() throws NotFoundInstrumentException;
 	
-	public CtMethod[] getDeclaredMethods();
+	List<Method> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException;
 	
 	public boolean isInterceptable();
 	

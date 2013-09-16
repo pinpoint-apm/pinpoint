@@ -54,21 +54,25 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
     	}
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<args.length; i++) {
-			sb.append(i).append(":");
+			sb.append(i).append(':');
 			if (args[i] == null) {
 				sb.append("[null]");
 			} else if (i > 0) {
 				if (args[i] instanceof String) {
 					int len = ((String) args[i]).length();
 					if (len > 16) {
-						sb.append("[strlen:" + len + "]");
+						sb.append("[strlen:");
+                        sb.append(len);
+                        sb.append(']');
 					} else {
 						sb.append(args[i].toString());
 					}
 				} else if (args[i] instanceof byte[]) {
 					// TODO eflag는 실제 값을 보여줘야 할까?
 					int len = ((byte[]) args[i]).length;
-					sb.append("[bytes:" + len + "]");
+					sb.append("[bytes:");
+                    sb.append(len);
+                    sb.append("]");
 				} else {
 					sb.append(args[i].toString());
 				}

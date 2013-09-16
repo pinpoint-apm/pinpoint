@@ -2,8 +2,10 @@ package com.nhn.pinpoint.profiler.modifier.method;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
+import java.util.List;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -45,26 +47,13 @@ public class MethodModifier extends AbstractModifier {
 				return null;
 			}
 
-			CtMethod[] methods = clazz.getDeclaredMethods();
-
-			for (CtMethod m : methods) {
-				if (m.isEmpty()) {
-					continue;
-				}
-				
+			List<Method> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
+			for (Method method : methodList) {
 				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
-//				setTraceContext(interceptor);
-
-				CtClass[] paramClass = m.getParameterTypes();
-
-				String[] params = new String[paramClass.length];
-				for (int i = 0; i < paramClass.length; i++) {
-					params[i] = paramClass[i].getName();
-				}
-                if(logger.isInfoEnabled()) {
-                    logger.info("### c=" + javassistClassName + ", m=" + m.getName() + ", params=" + Arrays.toString(params));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("### c=" + javassistClassName + ", m=" + method.getMethodName() + ", params=" + Arrays.toString(method.getMethodParams()));
                 }
-				clazz.addInterceptor(m.getName(), params, interceptor);
+				clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
 			}
 
 			return clazz.toBytecode();
