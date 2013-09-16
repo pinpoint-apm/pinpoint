@@ -22,10 +22,24 @@ public class ProfilerConfig {
     public int collectorTcpServerPort = 9994;
 
 	private boolean jdbcProfile = true;
+
 	private boolean jdbcProfileMySql = true;
+    private boolean jdbcProfileMySqlSetAutoCommit = false;
+    private boolean jdbcProfileMySqlCommit = false;
+    private boolean jdbcProfileMySqlRollback = false;
+
 	private boolean jdbcProfileMsSql = true;
+
 	private boolean jdbcProfileOracle = true;
+    private boolean jdbcProfileOracleSetAutoCommit = false;
+    private boolean jdbcProfileOracleCommit = false;
+    private boolean jdbcProfileOracleRollback = false;
+
 	private boolean jdbcProfileCubrid = true;
+    private boolean jdbcProfileCubridSetAutoCommit = false;
+    private boolean jdbcProfileCubridCommit = false;
+    private boolean jdbcProfileCubridRollback = false;
+
 	private boolean jdbcProfileDbcp = true;
 
     // 전역 샘플링
@@ -121,22 +135,63 @@ public class ProfilerConfig {
 		return jdbcProfile;
 	}
 
+    // mysql start -----------------------------------------------------
 	public boolean isJdbcProfileMySql() {
 		return jdbcProfileMySql;
 	}
 
-	public boolean isJdbcProfileMsSql() {
+    public boolean isJdbcProfileMySqlSetAutoCommit() {
+        return jdbcProfileMySqlSetAutoCommit;
+    }
+
+    public boolean isJdbcProfileMySqlCommit() {
+        return jdbcProfileMySqlCommit;
+    }
+
+    public boolean isJdbcProfileMySqlRollback() {
+        return jdbcProfileMySqlRollback;
+    }
+    // mysql end-----------------------------------------------------
+
+    public boolean isJdbcProfileMsSql() {
 		return jdbcProfileMsSql;
 	}
 
+    // oracle start -----------------------------------------------------
 	public boolean isJdbcProfileOracle() {
 		return jdbcProfileOracle;
 	}
 
-	public boolean isJdbcProfileCubrid() {
+    public boolean isJdbcProfileOracleSetAutoCommit() {
+        return jdbcProfileOracleSetAutoCommit;
+    }
+
+    public boolean isJdbcProfileOracleCommit() {
+        return jdbcProfileOracleCommit;
+    }
+
+    public boolean isJdbcProfileOracleRollback() {
+        return jdbcProfileOracleRollback;
+    }
+    // oracle end -----------------------------------------------------
+
+    // cubrid start -----------------------------------------------------
+    public boolean isJdbcProfileCubrid() {
 		return jdbcProfileCubrid;
 	}
 
+    public boolean isJdbcProfileCubridSetAutoCommit() {
+        return jdbcProfileCubridSetAutoCommit;
+    }
+
+    public boolean isJdbcProfileCubridCommit() {
+        return jdbcProfileCubridCommit;
+    }
+
+    public boolean isJdbcProfileCubridRollback() {
+        return jdbcProfileCubridRollback;
+    }
+    // cubrid end -----------------------------------------------------
 
     public boolean isSamplingEnable() {
         return samplingEnable;
@@ -170,6 +225,30 @@ public class ProfilerConfig {
 	public long getHeartbeatInterval() {
 		return heartbeatInterval;
 	}
+
+    public boolean isJdbcProfileDbcp() {
+        return jdbcProfileDbcp;
+    }
+
+    /**
+     * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
+     *
+     * @param className
+     * @return
+     */
+    public boolean isProfilableClass(String className) {
+        if (profileInclude.contains(className)) {
+            return true;
+        } else {
+            String packageName = className.substring(0, className.lastIndexOf("/") + 1);
+            for (String pkg : profileIncludeSub) {
+                if (packageName.startsWith(pkg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 	
 	public ServiceType getServiceType() {
 		return serviceType;
@@ -187,10 +266,28 @@ public class ProfilerConfig {
 
 		// JDBC
 		this.jdbcProfile = readBoolean(prop, "profiler.jdbc", true);
+
 		this.jdbcProfileMySql = readBoolean(prop, "profiler.jdbc.mysql", true);
+        this.jdbcProfileMySqlSetAutoCommit = readBoolean(prop, "profiler.jdbc.mysql.setautocommit", false);
+        this.jdbcProfileMySqlCommit = readBoolean(prop, "profiler.jdbc.mysql.commit", false);
+        this.jdbcProfileMySqlRollback = readBoolean(prop, "profiler.jdbc.mysql.rollback", false);
+
+
 		this.jdbcProfileMsSql = readBoolean(prop, "profiler.jdbc.mssql", true);
+
+
 		this.jdbcProfileOracle = readBoolean(prop, "profiler.jdbc.oracle", true);
+        this.jdbcProfileOracleSetAutoCommit = readBoolean(prop, "profiler.jdbc.oracle.setautocommit", false);
+        this.jdbcProfileOracleCommit = readBoolean(prop, "profiler.jdbc.oracle.commit", false);
+        this.jdbcProfileOracleRollback = readBoolean(prop, "profiler.jdbc.oracle.rollback", false);
+
+
 		this.jdbcProfileCubrid = readBoolean(prop, "profiler.jdbc.cubrid", true);
+        this.jdbcProfileCubridSetAutoCommit = readBoolean(prop, "profiler.jdbc.cubrid.setautocommit", true);
+        this.jdbcProfileCubridCommit = readBoolean(prop, "profiler.jdbc.cubrid.commit", true);
+        this.jdbcProfileCubridRollback = readBoolean(prop, "profiler.jdbc.cubrid.rollback", true);
+
+
 		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
 
 
@@ -289,29 +386,6 @@ public class ProfilerConfig {
 		return result;
 	}
 
-	public boolean isJdbcProfileDbcp() {
-		return jdbcProfileDbcp;
-	}
-	
-	/**
-	 * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
-	 * 
-	 * @param className
-	 * @return
-	 */
-	public boolean isProfilableClass(String className) {
-		if (profileInclude.contains(className)) {
-			return true;
-		} else {
-			String packageName = className.substring(0, className.lastIndexOf("/") + 1);
-			for (String pkg : profileIncludeSub) {
-				if (packageName.startsWith(pkg)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
     @Override
     public String toString() {

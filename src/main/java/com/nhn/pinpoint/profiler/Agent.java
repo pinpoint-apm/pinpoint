@@ -23,5 +23,4 @@ public interface Agent {
 
     ProfilerConfig getProfilerConfig();
 
-    LoggerBinder initializeLogger();
 }
