@@ -178,45 +178,45 @@ public class ProfilerConfig {
 	private void readPropertyValues(Properties prop) {
 		// TODO : use Properties defaultvalue instead of using temp variable.
 
-		this.profileEnable = readBoolean(prop, "profile.enable", true);
+		this.profileEnable = readBoolean(prop, "profiler.enable", true);
 
-		this.collectorServerIp = readString(prop, "profile.collector.ip", "127.0.0.1");
-        this.collectorUdpSpanServerPort = readInt(prop, "profile.collector.udpspan.port", 9996);
-		this.collectorUdpServerPort = readInt(prop, "profile.collector.udp.port", 9995);
-        this.collectorTcpServerPort = readInt(prop, "profile.collector.tcp.port", 9994);
+		this.collectorServerIp = readString(prop, "profiler.collector.ip", "127.0.0.1");
+        this.collectorUdpSpanServerPort = readInt(prop, "profiler.collector.udpspan.port", 9996);
+		this.collectorUdpServerPort = readInt(prop, "profiler.collector.udp.port", 9995);
+        this.collectorTcpServerPort = readInt(prop, "profiler.collector.tcp.port", 9994);
 
 		// JDBC
-		this.jdbcProfile = readBoolean(prop, "profile.jdbc", true);
-		this.jdbcProfileMySql = readBoolean(prop, "profile.jdbc.mysql", true);
-		this.jdbcProfileMsSql = readBoolean(prop, "profile.jdbc.mssql", true);
-		this.jdbcProfileOracle = readBoolean(prop, "profile.jdbc.oracle", true);
-		this.jdbcProfileCubrid = readBoolean(prop, "profile.jdbc.cubrid", true);
-		this.jdbcProfileDbcp = readBoolean(prop, "profile.jdbc.dbcp", true);
+		this.jdbcProfile = readBoolean(prop, "profiler.jdbc", true);
+		this.jdbcProfileMySql = readBoolean(prop, "profiler.jdbc.mysql", true);
+		this.jdbcProfileMsSql = readBoolean(prop, "profiler.jdbc.mssql", true);
+		this.jdbcProfileOracle = readBoolean(prop, "profiler.jdbc.oracle", true);
+		this.jdbcProfileCubrid = readBoolean(prop, "profiler.jdbc.cubrid", true);
+		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
 
 
-        this.samplingEnable = readBoolean(prop, "sampling.enable", true);
-        this.samplingRate = readInt(prop, "sampling.rate", 1);
+        this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
+        this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
 
 		// 샘플링 + io 조절 bufferSize 결정
-		this.samplingElapsedTimeBaseEnable = readBoolean(prop, "sampling.elapsedtimebase.enable", true);
+		this.samplingElapsedTimeBaseEnable = readBoolean(prop, "profiler.sampling.elapsedtimebase.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
-		this.samplingElapsedTimeBaseBufferSize = readInt(prop, "sampling.elapsedtimebase.buffersize", 20);
-		this.samplingElapsedTimeBaseDiscard = readBoolean(prop, "sampling.elapsedtimebase.discard", true);
-		this.samplingElapsedTimeBaseDiscardTimeLimit = readLong(prop, "sampling.elapsedtimebase.discard.timelimit", 1000);
+		this.samplingElapsedTimeBaseBufferSize = readInt(prop, "profiler.sampling.elapsedtimebase.buffersize", 20);
+		this.samplingElapsedTimeBaseDiscard = readBoolean(prop, "profiler.sampling.elapsedtimebase.discard", true);
+		this.samplingElapsedTimeBaseDiscardTimeLimit = readLong(prop, "profiler.sampling.elapsedtimebase.discard.timelimit", 1000);
 
 		// JVM
-		this.profileJvmCollectInterval = readInt(prop, "profile.jvm.collect.interval", 1000);
+		this.profileJvmCollectInterval = readInt(prop, "profiler.jvm.collect.interval", 1000);
 
-		this.heartbeatInterval = readLong(prop, "agent.heartbeat.interval", DEFAULT_HEART_BEAT_INTERVAL);
+		this.heartbeatInterval = readLong(prop, "profiler.heartbeat.interval", DEFAULT_HEART_BEAT_INTERVAL);
 		
 		// service type
-		this.serviceType = readServiceType(prop, "agent.servicetype", ServiceType.TOMCAT);
+		this.serviceType = readServiceType(prop, "profiler.servicetype", ServiceType.TOMCAT);
 		
 		// profile package include
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
 		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
 		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
-		String profileableClass = readString(prop, "profile.include", "");
+		String profileableClass = readString(prop, "profiler.include", "");
         setProfilableClass(profileableClass);
 
         logger.info("configuration loaded successfully.");
