@@ -1,14 +1,14 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerFactory;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MetaObject<R> {
 
-    private final Logger logger = LoggerFactory.getLogger(MetaObject.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private String methodName;
     private Class[] args;

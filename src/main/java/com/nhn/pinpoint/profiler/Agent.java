@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.LoggerBinder;
 
 /**
  *

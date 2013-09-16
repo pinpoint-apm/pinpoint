@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.logging;
 /**
  *
  */
-public interface Logger {
+public interface PLogger {
 
 
     void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args);

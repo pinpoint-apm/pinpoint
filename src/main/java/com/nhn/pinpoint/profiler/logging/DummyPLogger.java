@@ -3,9 +3,9 @@ package com.nhn.pinpoint.profiler.logging;
 /**
  *
  */
-public class DummyLogger implements Logger {
+public class DummyPLogger implements PLogger {
 
-    public static final Logger INSTANCE = new DummyLogger();
+    public static final PLogger INSTANCE = new DummyPLogger();
 
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {

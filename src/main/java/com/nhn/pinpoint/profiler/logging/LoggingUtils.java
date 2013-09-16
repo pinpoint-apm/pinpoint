@@ -8,14 +8,14 @@ import java.util.Arrays;
 public class LoggingUtils {
 
 
-    public static void logBefore(Logger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public static void logBefore(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("before ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
     }
 
-    public static void logAfter(Logger logger, Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public static void logAfter(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
@@ -24,7 +24,7 @@ public class LoggingUtils {
         logger.debug(sb.toString());
     }
 
-    public static void logAfter(Logger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
+    public static void logAfter(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);

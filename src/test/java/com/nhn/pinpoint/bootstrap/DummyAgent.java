@@ -3,9 +3,9 @@ package com.nhn.pinpoint.bootstrap;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.DummyLogger;
-import com.nhn.pinpoint.profiler.logging.Logger;
-import com.nhn.pinpoint.profiler.logging.LoggerBinder;
+import com.nhn.pinpoint.profiler.logging.DummyPLogger;
+import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 
 import java.lang.instrument.Instrumentation;
 
@@ -50,11 +50,11 @@ public class DummyAgent implements Agent {
     }
 
     @Override
-    public LoggerBinder initializeLogger() {
-        return new LoggerBinder() {
+    public PLoggerBinder initializeLogger() {
+        return new PLoggerBinder() {
             @Override
-            public Logger getLogger(String name) {
-                return new DummyLogger();
+            public PLogger getLogger(String name) {
+                return new DummyPLogger();
             }
 
             @Override

@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.logging;
 /**
  *
  */
-public interface LoggerBinder {
-    Logger getLogger(String name);
+public interface PLoggerBinder {
+    PLogger getLogger(String name);
 
     void shutdown();
 }

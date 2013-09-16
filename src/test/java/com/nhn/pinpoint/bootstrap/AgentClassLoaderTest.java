@@ -1,22 +1,18 @@
 package com.nhn.pinpoint.bootstrap;
 
 
-import com.nhn.pinpoint.bootstrap.AgentClassLoader;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.logging.LoggerBinder;
+import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 
+import com.nhn.pinpoint.profiler.logging.PLogger;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -30,9 +26,9 @@ public class AgentClassLoaderTest {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.nhn.pinpoint.bootstrap.DummyAgent");
         agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig());
-
-        LoggerBinder loggerBinder = (LoggerBinder) agentClassLoader.initializeLoggerBinder();
-        com.nhn.pinpoint.profiler.logging.Logger test = loggerBinder.getLogger("test");
+        // TODO logger가져오는 기능이 달라져서 확인이 필요함.
+        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
+        PLogger test = loggerBinder.getLogger("test");
         test.info("slf4j logger test");
 
     }
