@@ -45,7 +45,9 @@ public final class DefaultTrace implements Trace {
     }
 
     public DefaultTrace(TraceId continueTraceID) {
-        // this.root = continueRoot;                                                                                         
+        if (continueTraceID == null) {
+            throw new NullPointerException("continueTraceID must not be null");
+        }
         this.callStack = new CallStack(continueTraceID);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
