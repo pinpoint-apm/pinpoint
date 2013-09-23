@@ -198,7 +198,8 @@ pinpointApp.directive('scatter',
 
                             if (traces.length === 1) {
 //									openTrace(traces[0].traceId, traces[0].x);
-                                return;
+                            	// FIXME 하나만 선택해도 일단 목록 팝업으로 뜨게 함.
+                                // return;
                             }
 
                             var token = Math.random() * 10000 + 1;
