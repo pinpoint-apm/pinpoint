@@ -170,8 +170,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		}
 
 		if (profilerConfig.isJdbcProfileDbcp()) {
-//            아직 개발이 안됨
-//			addDbcpDriver();
+			addDbcpDriver();
 		}
 	}
 
@@ -255,8 +254,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
 		addModifier(dbcpBasicDataSourceModifier);
 
-		Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor, agent);
-		addModifier(dbcpPoolModifier);
+//		Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor, agent);
+//		addModifier(dbcpPoolModifier);
 	}
 	
 	public void addNpcModifier() {

@@ -1,25 +1,42 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.profiler.context.Trace;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 
-import java.sql.Connection;
 import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
  */
-public class DataSourceGetConnectionInterceptor implements SimpleAroundInterceptor {
+public class DataSourceGetConnectionInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+
+    private MethodDescriptor descriptor;
+    private TraceContext traceContext;
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
+
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
     }
 
     @Override
@@ -28,14 +45,29 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             logger.afterInterceptor(target, args, result);
         }
 
-        if (!InterceptorUtils.isSuccess(result)) {
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
             return;
         }
-        // TODO before도 같이 후킹하여 Connection 생성시간도 측정해야 됨.
-        // datasource의 pool을 고려할것.
-        if (result instanceof Connection) {
+        try {
+            trace.recordServiceType(ServiceType.DBCP);
+            trace.recordApi(descriptor, null);
+            trace.recordException(result);
 
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
         }
     }
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+        this.traceContext.cacheApi(descriptor);
+    }
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 }

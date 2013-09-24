@@ -1,8 +1,12 @@
 package com.nhn.pinpoint.profiler.modifier.db.dbcp;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.DataSourceGetConnectionInterceptor;
 import javassist.CtClass;
 
 import java.security.ProtectionDomain;
@@ -27,25 +31,20 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
         this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
 
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
         try {
-            CtClass cc = null;
+            InstrumentClass basicDataSource = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor interceptor = new DataSourceGetConnectionInterceptor();
+            basicDataSource.addInterceptor("getConnection", null, interceptor);
 
-
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
-            }
-
-            return null;
-        } catch (Exception e) {
+            return basicDataSource.toBytecode();
+        } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
+                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
             }
+            return null;
         }
-        return null;
     }
+
 
 }
