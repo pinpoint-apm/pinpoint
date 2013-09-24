@@ -86,7 +86,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     private DatabaseInfo createDatabaseInfo(String url) {
         DatabaseInfo databaseInfo = traceContext.parseJdbcUrl(url);
         if (logger.isDebugEnabled()) {
-            logger.debug("parse DatabaseInfo:" + databaseInfo);
+            logger.debug("parse DatabaseInfo:{}", databaseInfo);
         }
         return databaseInfo;
     }

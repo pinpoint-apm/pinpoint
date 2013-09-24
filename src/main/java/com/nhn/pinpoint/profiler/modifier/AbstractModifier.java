@@ -32,7 +32,7 @@ public abstract class AbstractModifier implements Modifier {
 
     public void printClassConvertComplete(String javassistClassName) {
         if (logger.isInfoEnabled()) {
-            logger.info(javassistClassName + " class is converted.");
+            logger.info("{} class is converted.", javassistClassName);
         }
     }
 

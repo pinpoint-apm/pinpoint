@@ -23,7 +23,7 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         if (JDBCScope.isInternal()) {
-            logger.info("internal jdbc scope. skip trace");
+            logger.debug("internal jdbc scope. skip trace");
             return;
         }
         // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.

@@ -39,7 +39,7 @@ public class FutureModifier extends AbstractModifier implements MultipleModifier
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifying. " + javassistClassName);
+            logger.info("Modifying. {}", javassistClassName);
         }
 
         try {

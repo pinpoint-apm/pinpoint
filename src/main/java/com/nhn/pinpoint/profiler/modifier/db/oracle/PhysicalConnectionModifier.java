@@ -76,7 +76,7 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             return oracleConnection.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+                logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
             }
             return null;
         }
