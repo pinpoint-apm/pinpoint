@@ -137,33 +137,34 @@ public class Application implements Comparable<Application> {
 	}
 
 	public void mergeWith(Application application) {
-		// merge host list
-		for (Entry<String, Host> entry : application.getHostList().entrySet()) {
-			Host host = hostList.get(entry.getKey());
-			if (host != null) {
-				host.mergeWith(entry.getValue());
-			} else {
-				hostList.put(entry.getKey(), entry.getValue());
-			}
-		}
-
-		// merge server instance list
-		for (Entry<String, SortedMap<String, ServerInstance>> entry : application.getServerInstanceList().entrySet()) {
-			SortedMap<String, ServerInstance> exists = serverInstanceList.get(entry.getKey());
-
-			if (exists == null) {
-				serverInstanceList.put(entry.getKey(), entry.getValue());
-			} else {
-				SortedMap<String, ServerInstance> srcValueMap = entry.getValue();
-				for (Entry<String, ServerInstance> valueEntry : srcValueMap.entrySet()) {
-					if (exists.containsKey(valueEntry.getKey())) {
-						exists.get(valueEntry.getKey()).mergeWith(valueEntry.getValue());
-					} else {
-						exists.put(valueEntry.getKey(), valueEntry.getValue());
-					}
-				}
-			}
-		}
+		// FIXME 서버맵에서 callcount가 맞지않아 주석처리함. 수정중.
+//		// merge host list
+//		for (Entry<String, Host> entry : application.getHostList().entrySet()) {
+//			Host host = hostList.get(entry.getKey());
+//			if (host != null) {
+//				host.mergeWith(entry.getValue());
+//			} else {
+//				hostList.put(entry.getKey(), entry.getValue());
+//			}
+//		}
+//
+//		// merge server instance list
+//		for (Entry<String, SortedMap<String, ServerInstance>> entry : application.getServerInstanceList().entrySet()) {
+//			SortedMap<String, ServerInstance> exists = serverInstanceList.get(entry.getKey());
+//
+//			if (exists == null) {
+//				serverInstanceList.put(entry.getKey(), entry.getValue());
+//			} else {
+//				SortedMap<String, ServerInstance> srcValueMap = entry.getValue();
+//				for (Entry<String, ServerInstance> valueEntry : srcValueMap.entrySet()) {
+//					if (exists.containsKey(valueEntry.getKey())) {
+//						exists.get(valueEntry.getKey()).mergeWith(valueEntry.getValue());
+//					} else {
+//						exists.put(valueEntry.getKey(), valueEntry.getValue());
+//					}
+//				}
+//			}
+//		}
 	}
 
 	public ServiceType getServiceType() {
