@@ -43,7 +43,9 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
             };
             mysqlConnection.addInterceptor("connect", params, createConnection);
 
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return mysqlConnection.toBytecode();
         } catch (InstrumentException e) {

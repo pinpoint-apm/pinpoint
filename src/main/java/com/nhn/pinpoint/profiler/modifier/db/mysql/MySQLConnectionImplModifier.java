@@ -70,7 +70,9 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
                 Interceptor rollback = new TransactionRollbackInterceptor();
                 mysqlConnection.addInterceptor("rollback", null, rollback);
             }
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return mysqlConnection.toBytecode();
         } catch (InstrumentException e) {

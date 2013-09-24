@@ -44,7 +44,9 @@ public class OracleDriverModifier  extends AbstractModifier {
             };
             oracleDriver.addInterceptor("connect", params, createConnection);
 
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return oracleDriver.toBytecode();
         } catch (InstrumentException e) {

@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractModifier implements Modifier {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
 
@@ -28,12 +26,6 @@ public abstract class AbstractModifier implements Modifier {
     public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.agent = agent;
-    }
-
-    public void printClassConvertComplete(String javassistClassName) {
-        if (logger.isInfoEnabled()) {
-            logger.info("{} class is converted.", javassistClassName);
-        }
     }
 
 }

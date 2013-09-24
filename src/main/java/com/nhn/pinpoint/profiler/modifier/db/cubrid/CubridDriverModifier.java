@@ -33,9 +33,11 @@ public class CubridDriverModifier extends AbstractModifier {
 
 			mysqlConnection.addInterceptor("connect", new String[] { "java.lang.String", "java.util.Properties" }, new DriverConnectInterceptor());
 
-			printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
-			return mysqlConnection.toBytecode();
+            return mysqlConnection.toBytecode();
 		} catch (InstrumentException e) {
 			if (logger.isWarnEnabled()) {
 				logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);

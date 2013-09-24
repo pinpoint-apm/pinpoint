@@ -33,7 +33,9 @@ public class MSSQLStatementModifier extends AbstractModifier {
         try {
             CtClass cc = null;
 
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return null;
         } catch (Exception e) {

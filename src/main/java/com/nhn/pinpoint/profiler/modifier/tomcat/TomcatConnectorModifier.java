@@ -46,9 +46,11 @@ public class TomcatConnectorModifier extends AbstractModifier {
 				connector.addInterceptor("initInternal", null, interceptor);
 			}
 
-			printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
-			return connector.toBytecode();
+            return connector.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);

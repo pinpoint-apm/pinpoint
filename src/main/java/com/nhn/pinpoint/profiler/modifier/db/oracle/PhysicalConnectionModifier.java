@@ -71,7 +71,9 @@ public class PhysicalConnectionModifier extends AbstractModifier {
                 oracleConnection.addInterceptor("rollback", null, rollback);
             }
 
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return oracleConnection.toBytecode();
         } catch (InstrumentException e) {

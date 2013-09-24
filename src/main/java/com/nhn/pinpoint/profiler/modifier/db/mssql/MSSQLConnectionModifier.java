@@ -35,7 +35,9 @@ public class MSSQLConnectionModifier extends AbstractModifier {
             CtClass cc = null;
 
 
-            printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return cc.toBytecode();
         } catch (Exception e) {

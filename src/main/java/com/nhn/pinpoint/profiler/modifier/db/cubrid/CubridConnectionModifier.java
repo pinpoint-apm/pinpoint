@@ -54,9 +54,11 @@ public class CubridConnectionModifier extends AbstractModifier {
                 cubridConnection.addInterceptor("rollback", null, rollback);
             }
 
-			printClassConvertComplete(javassistClassName);
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
-			return cubridConnection.toBytecode();
+            return cubridConnection.toBytecode();
 		} catch (InstrumentException e) {
 			if (logger.isWarnEnabled()) {
 				logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);

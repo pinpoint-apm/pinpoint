@@ -51,8 +51,10 @@ public class CatalinaModifier extends AbstractModifier {
 //				aClass.addInterceptor("start", null, new CatalinaStartInterceptor(lifeCycleEventListener));
 //				aClass.addInterceptor("stop", null, new CatalinaStopInterceptor(lifeCycleEventListener));
 //			}
-            
-            printClassConvertComplete(javassistClassName);
+
+            if (this.logger.isInfoEnabled()) {
+                this.logger.info("{} class is converted.", javassistClassName);
+            }
 
             return aClass.toBytecode();
         } catch (Exception e) {
