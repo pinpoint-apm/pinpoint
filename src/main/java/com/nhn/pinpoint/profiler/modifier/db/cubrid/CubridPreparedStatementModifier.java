@@ -54,7 +54,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 			return preparedStatementClass.toBytecode();
 		} catch (InstrumentException e) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;
 		}
@@ -78,7 +78,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 			} catch (NotFoundInstrumentException e) {
 				// bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
 				if (logger.isTraceEnabled()) {
-					logger.trace("bindVariable api not found. Cause:" + e.getMessage(), e);
+					logger.trace("bindVariable api not found. Cause:{}", e.getMessage(), e);
 				}
 			}
 		}

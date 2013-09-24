@@ -51,14 +51,14 @@ public class MethodModifier extends AbstractModifier {
 			for (Method method : methodList) {
 				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c=" + javassistClassName + ", m=" + method.getMethodName() + ", params=" + Arrays.toString(method.getMethodParams()));
+                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
                 }
 				clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
 			}
 
 			return clazz.toBytecode();
 		} catch (Exception e) {
-			logger.warn("modify fail. Cause:" + e.getMessage(), e);
+			logger.warn("modify fail. Cause:{}", e.getMessage(), e);
 			return null;
 		}
 	}

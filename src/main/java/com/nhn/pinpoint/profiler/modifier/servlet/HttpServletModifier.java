@@ -47,7 +47,7 @@ public class HttpServletModifier extends AbstractModifier {
 
 			return servlet.toBytecode();
 		} catch (InstrumentException e) {
-			logger.info("modify fail. Cause:" + e.getMessage(), e);
+			logger.info("modify fail. Cause:{}", e.getMessage(), e);
 			return null;
 		}
 	}

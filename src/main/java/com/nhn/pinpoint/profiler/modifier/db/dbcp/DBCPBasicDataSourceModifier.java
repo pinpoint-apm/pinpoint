@@ -7,7 +7,6 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.DataSourceGetConnectionInterceptor;
-import javassist.CtClass;
 
 import java.security.ProtectionDomain;
 
@@ -34,13 +33,17 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
 
         try {
             InstrumentClass basicDataSource = byteCodeInstrumentor.getClass(javassistClassName);
-            Interceptor interceptor = new DataSourceGetConnectionInterceptor();
-            basicDataSource.addInterceptor("getConnection", null, interceptor);
+            Interceptor interceptor1 = new DataSourceGetConnectionInterceptor();
+            basicDataSource.addInterceptor("getConnection", null, interceptor1);
+
+            Interceptor interceptor2 = new DataSourceGetConnectionInterceptor();
+            basicDataSource.addInterceptor("getConnection", new String[] {"java.lang.String", "java.lang.String"}, interceptor2);
+
 
             return basicDataSource.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn(this.getClass().getSimpleName() + " modify fail. Cause:" + e.getMessage(), e);
+                logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
             }
             return null;
         }
