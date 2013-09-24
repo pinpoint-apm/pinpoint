@@ -43,6 +43,8 @@ public enum ServiceType {
     SPRING((short) 5050, "SPRING", false, false, false, Histogram.NORMAL),
     SPRING_MVC((short) 5051, "SPRING", false, false, false, Histogram.NORMAL),
 
+    DBCP((short) 6050, "DBCP", false, false, false, Histogram.NORMAL),
+
     // memory cache  8000
     MEMCACHED((short) 8050, "MEMCACHED", true, true, false, Histogram.FAST),
     MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, false, Histogram.FAST),
