@@ -24,7 +24,7 @@ public class MetricMonitorRegistryTest {
 
 	@Test
 	public void counter() {
-		CounterMonitor counter = registry.newCounterMonitor(new MonitorName("test", "counter"));
+		CounterMonitor counter = registry.newCounterMonitor(new MonitorName("test.counter"));
 
 		assertEquals(0, counter.getCount());
 		counter.incr();
@@ -40,7 +40,7 @@ public class MetricMonitorRegistryTest {
 	@Test
 	public void eventRate() {
 		EventRateMonitor eventRate = registry
-				.newEventRateMonitor(new MonitorName("test", "eventrate"));
+				.newEventRateMonitor(new MonitorName("test.eventrate"));
 
 		assertEquals(0, eventRate.getCount());
 		eventRate.event();
@@ -52,7 +52,7 @@ public class MetricMonitorRegistryTest {
 	@Test
 	public void histogram() {
 		HistogramMonitor histogram = registry
-				.newHistogramMonitor(new MonitorName("test", "histogram"));
+				.newHistogramMonitor(new MonitorName("test.histogram"));
 
 		histogram.update(1);
 		histogram.update(10);
@@ -68,10 +68,10 @@ public class MetricMonitorRegistryTest {
 
 	@Test
 	public void jvm() {
-		registry.registerJvmMemoryMonitor(new MonitorName("jvm", "memory"));
-		registry.registerJvmGcMonitor(new MonitorName("jvm", "gc"));
-		registry.registerJvmAttributeMonitor(new MonitorName("jvm", "vm"));
-		registry.registerJvmThreadStatesMonitor(new MonitorName("jvm", "thread"));
+		registry.registerJvmMemoryMonitor(new MonitorName("jvm.memory"));
+		registry.registerJvmGcMonitor(new MonitorName("jvm.gc"));
+		registry.registerJvmAttributeMonitor(new MonitorName("jvm.vm"));
+		registry.registerJvmThreadStatesMonitor(new MonitorName("jvm.thread"));
 
 		boolean hasMemory = false;
 		boolean hasGc = false;

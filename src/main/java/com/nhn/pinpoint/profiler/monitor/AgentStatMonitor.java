@@ -4,17 +4,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorMapper;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.context.TraceContext;
+import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * AgentStat monitor
@@ -72,7 +73,7 @@ public class AgentStatMonitor {
 		private TraceContext traceContext;
 		private ProfilerConfig profilerConfig;
 		private MetricMonitorRegistry monitorRegistry;
-		private MetricMonitorMapper monitorMapper;
+		private GarbageCollector garbageCollector;
 
 		public CollectJob(DataSender dataSender, TraceContext traceContext, ProfilerConfig profilerConfig) {
 			this.dataSender = dataSender;
@@ -83,35 +84,26 @@ public class AgentStatMonitor {
 			this.monitorRegistry = new MetricMonitorRegistry();
 			
 			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
-			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName("jvm", "memory"));
-			this.monitorRegistry.registerJvmGcMonitor(new MonitorName("jvm", "gc"));
+			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
+			this.monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
 			
-			this.monitorMapper = new MetricMonitorMapper();
+			if (agentInfo != null) {
+				this.agentStat = new AgentStat();
+			}
+			
+			this.garbageCollector = new GarbageCollector();
+			this.garbageCollector.setType(monitorRegistry);
+			logger.info("found : {}", this.garbageCollector);
 		}
 		
 		public void run() {
-			// AgentStat 객체를 준비한다.
-			if (agentInfo != null && this.agentStat == null) {
-				if (this.monitorRegistry.getRegistry().getNames().contains("jvm.gc.ConcurrentMarkSweep.count")) {
-					logger.info("found : CMS collector");
-					StatWithCmsCollector cms = new StatWithCmsCollector();
-					cms.setAgentId(agentInfo.getAgentId());
-					this.agentStat = new AgentStat();
-					this.agentStat.setCms(cms);
-				}
-			}
-			if (this.agentStat == null) {
-				logger.info("AgentStat is not available");
-				return;
-			}
 			try {
-				// 통계 Registry에 있는 데이터를 메시지 객체에 매핑한다.
-				this.monitorMapper.map(this.monitorRegistry, this.agentStat);
+				garbageCollector.map(monitorRegistry, agentStat, agentInfo.getAgentId());
 
-				// send queue에 삽입한다.
 				dataSender.send(agentStat);
 			} catch (Exception e) {
 				logger.warn("AgentStat collect failed : {}", e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}

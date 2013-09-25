@@ -8,5 +8,5 @@ public interface MonitorRegistry {
 	EventRateMonitor newEventRateMonitor(final MonitorName monitorName);
 
 	CounterMonitor newCounterMonitor(final MonitorName monitorName);
-
+	
 }
