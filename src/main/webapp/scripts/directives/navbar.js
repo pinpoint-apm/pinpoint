@@ -237,6 +237,8 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     if (scope.period !== val) {
                         scope.period = val;
                         broadcast();
+                    } else {
+                        scope.now();
                     }
                 };
 
