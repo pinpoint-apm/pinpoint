@@ -13,6 +13,9 @@ pinpointApp.config(function ($routeProvider, $locationProvider) {
     }).when('/main/:application/:period/:queryEndTime/:filter', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
+    }).when('/spy/:application/:period/:queryEndTime', {
+        templateUrl: 'views/spy.html',
+        controller: 'SpyCtrl'
     }).when('/spy/:application/:period/:queryEndTime/:agentId', {
         templateUrl: 'views/spy.html',
         controller: 'SpyCtrl'

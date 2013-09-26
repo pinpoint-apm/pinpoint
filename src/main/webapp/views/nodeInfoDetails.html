@@ -20,7 +20,7 @@
                 <div class="alert alert-info text-center">
                     <img ng-src="/images/icons/{{nodeIcon}}.png" width="20" height="10"/> {{nodeName}}
                 </div>
-				<h5>Servers</h5>
+				<h5>Servers <a class="btn btn-mini" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank"><i class="icon-search"></i></a></h5>
 				<ul>
 					<li ng-repeat="server in serverList">
 						<span class="label label-success">OK</span>
@@ -31,7 +31,6 @@
 							<li ng-repeat="instance in server.agentList">
 								<span class="label label-success">OK</span>
 								{{instance.agentId}}
-								<a class="btn btn-mini" ng-href="#/spy/{{application}}/{{period}}/{{queryEndTime}}/{{instance.agentId}}" target="_blank">SPY</a>
 							</li>
 						</ul>
 					</li>

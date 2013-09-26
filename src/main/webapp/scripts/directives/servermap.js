@@ -211,26 +211,26 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                 window.open(url, "");
                 reset();
             };
-            scope.passingTransactionList = function () {
-                var applicationName = scope.srcApplicationName,
-                    from = scope.navbar.queryStartTime,
-                    to = scope.navbar.queryEndTime,
-                    period = scope.navbar.queryPeriod,
-                    usePeriod = scope.usePeriod,
-                    filter = scope.srcServiceType + '|' + scope.srcApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
-
-                if (scope.srcServiceType === 'CLIENT') {
-                    applicationName =   scope.destServiceType;
-                    filter = scope.srcServiceType + '|' + scope.destApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
-                }
-
-                if (usePeriod) {
-                    window.open(config.lastTransactionListUrl + "?application=" + applicationName + "&period=" + period + ( filter ? "&filter=" + filter : "") );
-                } else {
-                    window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ( filter ? "&filter=" + filter : "") );
-                }
-                reset();
-            };
+//            scope.passingTransactionList = function () {
+//                var applicationName = scope.srcApplicationName,
+//                    from = scope.navbar.queryStartTime,
+//                    to = scope.navbar.queryEndTime,
+//                    period = scope.navbar.queryPeriod,
+//                    usePeriod = scope.usePeriod,
+//                    filter = scope.srcServiceType + '|' + scope.srcApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
+//
+//                if (scope.srcServiceType === 'CLIENT') {
+//                    applicationName =   scope.destServiceType;
+//                    filter = scope.srcServiceType + '|' + scope.destApplicationName + '|' + scope.destServiceType + '|' + scope.destApplicationName;
+//                }
+//
+//                if (usePeriod) {
+//                    window.open(config.lastTransactionListUrl + "?application=" + applicationName + "&period=" + period + ( filter ? "&filter=" + filter : "") );
+//                } else {
+//                    window.open(config.transactionListUrl + "?application=" + applicationName + "&from=" + from + "&to=" + to + ( filter ? "&filter=" + filter : "") );
+//                }
+//                reset();
+//            };
 
             var serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
                 serverMapCachedQuery = angular.copy(query);
@@ -270,12 +270,12 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     scope.destApplicationName = link.targetinfo.applicationName;
                     setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
                 };
-                options.fOnLinkClicked = function (e, d) {
-                    $rootScope.$broadcast("servermap.linkClicked", e, query, d);
+                options.fOnLinkClicked = function (e, link) {
+                    $rootScope.$broadcast("servermap.linkClicked", e, query, link);
                     reset();
                 };
-                options.fOnNodeClicked = function (e, d) {
-                    $rootScope.$broadcast("servermap.nodeClicked", e, query, d);
+                options.fOnNodeClicked = function (e, node) {
+                    $rootScope.$broadcast("servermap.nodeClicked", e, query, node);
                     reset();
                 };
                 options.fOnBackgroundClicked = function (e) {

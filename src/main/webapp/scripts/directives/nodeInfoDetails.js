@@ -26,14 +26,14 @@ pinpointApp
                     scope.$digest();
                 };
 
-                var showDetailInformation = function (query, data) {
-                    scope.nodeName = data.text;
-                    scope.nodeCategory = data.category;
-                    if (data.category !== 'UNKNOWN_GROUP') {
-                        scope.nodeIcon = data.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
+                var showDetailInformation = function (query, node) {
+                    scope.nodeName = node.text;
+                    scope.nodeCategory = node.category;
+                    if (node.category !== 'UNKNOWN_GROUP') {
+                        scope.nodeIcon = node.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
                     }
-                    scope.unknownGroup = data.textArr;
-                    scope.serverList = data.serverList;
+                    scope.unknownGroup = node.textArr;
+                    scope.serverList = node.serverList;
                     scope.showHosts = (scope.serverList.length > 0) ? true : false;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
@@ -139,16 +139,17 @@ pinpointApp
                     return histogramData;
                 };
 
-                scope.$on('servermap.nodeClicked', function (event, e, query, data, containerId) {
+                scope.$on('servermap.nodeClicked', function (event, e, query, node) {
                     reset();
-                    showDetailInformation(query, data);
-                    if (!data.rawdata && data.category !== "USER" && data.category !== "UNKNOWN_GROUP") {
+                    showDetailInformation(query, node);
+                    scope.node = node;
+                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
-                        var histogramData = extractHistogramFromData(data);
+                        var histogramData = extractHistogramFromData(node);
                         renderApplicationStatistics(histogramData);
                     }
                 });
-                scope.$on('servermap.linkClicked', function (event, e, query, data, containerId) {
+                scope.$on('servermap.linkClicked', function (event, e, query, link) {
                     reset();
                 });
 
