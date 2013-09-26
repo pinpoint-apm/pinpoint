@@ -140,7 +140,7 @@ canvas {outline:none}
     font-size: 12px;
 }
 .servermap-status .alert {
-    margin-bottom: 0;
+    margin-bottom: 5px;
     padding-right: 17px;
 }
 .servermap-status ul {
