@@ -157,7 +157,7 @@ datamap["${status.count}"] = [
 	{
 	"x" : ${trace.startTime},
 	"y" : ${trace.executionTime},
-	"traceId" : "${trace.transactionId}",
+	"traceId" : "${trace.traceId}",
 	"type" : <c:choose><c:when test="${trace.exceptionCode == 1}">"Failed"</c:when><c:otherwise>"Success"</c:otherwise></c:choose> 
 	}
 	<c:if test="${!status2.last}">,</c:if>
