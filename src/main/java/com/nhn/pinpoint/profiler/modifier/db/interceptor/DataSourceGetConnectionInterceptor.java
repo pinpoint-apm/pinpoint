@@ -20,7 +20,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+//    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -42,7 +42,8 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
     @Override
     public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            // args에 암호가 있을 가능성이 있어서 로그에서 제외
+            logger.afterInterceptor(target, null, result);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -51,11 +52,12 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
         }
         try {
             trace.recordServiceType(ServiceType.DBCP);
-            if (args.length == 2) {
+            if (args == null) {
+//                args == null인 경우 parameter가 없는 getConnection() 호출시
+                trace.recordApi(descriptor, null);
+            } else if(args.length == 2) {
 //                args[1]은 패스워드라서 뺀다.
                 trace.recordApi(descriptor, new Object[] {args[0]});
-            } else {
-                trace.recordApi(descriptor, null);
             }
             trace.recordException(result);
 
