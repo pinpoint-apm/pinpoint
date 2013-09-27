@@ -7,7 +7,6 @@ import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
-import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.InterceptorUtils;
@@ -34,7 +33,6 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
             // parameter에 암호가 포함되어 있음 로깅하면 안됨.
             logger.beforeInterceptor(target, null);
         }
-//        JDBCScope.push();
         BindValueScope.push();
 
         Trace trace = traceContext.currentTraceObject();
@@ -52,7 +50,6 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
             logger.afterInterceptor(target, null, result);
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
-//        JDBCScope.pop();
         BindValueScope.pop();
 
         boolean success = InterceptorUtils.isSuccess(result);

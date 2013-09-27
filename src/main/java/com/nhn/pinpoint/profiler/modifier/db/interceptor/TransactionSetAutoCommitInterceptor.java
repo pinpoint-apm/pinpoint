@@ -3,15 +3,12 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 import java.sql.Connection;
 
 import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.context.DatabaseInfo;
-import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 public class TransactionSetAutoCommitInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
