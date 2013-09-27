@@ -29,7 +29,7 @@ public class SpanAligner2 {
 				rootSpanId = ROOT;
 				spanMap.put(ROOT, span);
 				continue;
-			} else if ((rootSpanId == null || rootSpanId != ROOT) && span.getStartTime() < rootSpanStartTime) {
+			} else if ((rootSpanId == null || !rootSpanId.equals(ROOT)) && span.getStartTime() < rootSpanStartTime) {
 				rootSpanId = (span.getParentSpanId() == ROOT) ? ROOT : span.getSpanId();
 				rootSpanStartTime = span.getStartTime();
 			}
