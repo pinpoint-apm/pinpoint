@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 /**
  *
  */
-public class BindValueScope {
+public class JDBCScope {
     private static final DepthScope SCOPE = new DepthScope("DepthScope");
 
     public static int push() {
