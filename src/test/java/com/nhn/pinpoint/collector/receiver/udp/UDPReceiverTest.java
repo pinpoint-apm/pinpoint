@@ -24,7 +24,8 @@ public class UDPReceiverTest {
 			GenericApplicationContext context = ApplicationContextUtils.createContext();
 
 			DataReceiver receiver = context.getBean("udpSpanReceiver", UDPReceiver.class);
-			receiver.start();
+//			receiver.start();
+//            start 타이밍을 spring안으로 변경하였음.
             // start시점을 좀더 정확히 알수 있어야 될거 같음.
             // start한 다음에 바로 셧다운하니. receive thread에서 localaddress를 제대로 못찾는 문제가 있음.
             Thread.sleep(1000);
