@@ -36,21 +36,26 @@ public class CubridConnectionModifier extends AbstractModifier {
 
 			cubridConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
 
-			cubridConnection.addInterceptor("close", null, new ConnectionCloseInterceptor(), Type.before);
-			cubridConnection.addInterceptor("createStatement", null, new StatementCreateInterceptor(), Type.after);
-			cubridConnection.addInterceptor("prepareStatement", new String[] { "java.lang.String" }, new PreparedStatementCreateInterceptor());
+            Interceptor connectionCloseInterceptor = new JDBCScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor());
+            cubridConnection.addInterceptor("close", null, connectionCloseInterceptor);
+
+            Interceptor statementCreateInterceptor = new JDBCScopeDelegateSimpleInterceptor(new StatementCreateInterceptor());
+            cubridConnection.addInterceptor("createStatement", null, statementCreateInterceptor);
+
+            Interceptor preparedStatementCreateInterceptor = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementCreateInterceptor());
+            cubridConnection.addInterceptor("prepareStatement", new String[] { "java.lang.String" }, preparedStatementCreateInterceptor);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
-                Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
+                Interceptor setAutoCommit = new JDBCScopeDelegateSimpleInterceptor(new TransactionSetAutoCommitInterceptor());
                 cubridConnection.addInterceptor("setAutoCommit", new String[] { "boolean" }, setAutoCommit);
             }
             if (profilerConfig.isJdbcProfileCubridCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
+                Interceptor commit = new JDBCScopeDelegateSimpleInterceptor(new TransactionCommitInterceptor());
                 cubridConnection.addInterceptor("commit", null, commit);
             }
             if (profilerConfig.isJdbcProfileCubridRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
+                Interceptor rollback = new JDBCScopeDelegateSimpleInterceptor(new TransactionRollbackInterceptor());
                 cubridConnection.addInterceptor("rollback", null, rollback);
             }
 

@@ -11,6 +11,8 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
 import com.nhn.pinpoint.profiler.util.ExcludeBindVariableFilter;
@@ -41,9 +43,14 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		try {
 			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-			preparedStatementClass.addInterceptor("execute", null, new PreparedStatementExecuteQueryInterceptor());
-			preparedStatementClass.addInterceptor("executeQuery", null, new PreparedStatementExecuteQueryInterceptor());
-			preparedStatementClass.addInterceptor("executeUpdate", null, new PreparedStatementExecuteQueryInterceptor());
+            Interceptor executeInterceptor = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            preparedStatementClass.addInterceptor("execute", null, executeInterceptor);
+
+            Interceptor executeQueryInterceptor = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            preparedStatementClass.addInterceptor("executeQuery", null, executeQueryInterceptor);
+
+            Interceptor executeUpdateInterceptor = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            preparedStatementClass.addInterceptor("executeUpdate", null, executeUpdateInterceptor);
 
 			preparedStatementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
 			preparedStatementClass.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");
@@ -64,7 +71,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
 		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 
-		Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
+		Interceptor interceptor = new JDBCScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor());
 		int interceptorId = -1;
 		for (Method method : bindMethod) {
 			String methodName = method.getName();

@@ -1,8 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
@@ -21,10 +23,6 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
-        }
-        if (JDBCScope.isInternal()) {
-            logger.debug("internal jdbc scope. skip trace");
-            return;
         }
         // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.
         if (target instanceof Connection) {

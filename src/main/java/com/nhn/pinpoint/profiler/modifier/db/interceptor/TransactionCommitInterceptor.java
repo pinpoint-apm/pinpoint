@@ -4,9 +4,11 @@ import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.*;
+import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
 import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
@@ -28,10 +30,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        if (JDBCScope.isInternal()) {
-            logger.debug("internal jdbc scope. skip trace");
-            return;
-        }
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -47,9 +46,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
-        if (JDBCScope.isInternal()) {
-            return;
-        }
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;

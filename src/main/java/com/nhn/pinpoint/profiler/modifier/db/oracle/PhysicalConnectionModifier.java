@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.db.oracle;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -47,27 +48,26 @@ public class PhysicalConnectionModifier extends AbstractModifier {
 //            mysqlConnection.addInterceptor("getInstance", params, createConnection);
 
 
-            Interceptor closeConnection = new ConnectionCloseInterceptor();
-            oracleConnection.addInterceptor("close", null, closeConnection, Type.before);
+            Interceptor closeConnection = new JDBCScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor());
+            oracleConnection.addInterceptor("close", null, closeConnection);
 
-            Interceptor createStatement = new StatementCreateInterceptor();
-            oracleConnection.addInterceptor("createStatement", null, createStatement, Type.after);
+            Interceptor createStatement = new JDBCScopeDelegateSimpleInterceptor(new StatementCreateInterceptor());
+            oracleConnection.addInterceptor("createStatement", null, createStatement);
 
-
-            Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
+            Interceptor preparedStatement = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementCreateInterceptor());
             oracleConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+                Interceptor setAutocommit = new JDBCScopeDelegateSimpleInterceptor(new TransactionSetAutoCommitInterceptor());
                 oracleConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
             }
             if (profilerConfig.isJdbcProfileOracleCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
+                Interceptor commit = new JDBCScopeDelegateSimpleInterceptor(new TransactionCommitInterceptor());
                 oracleConnection.addInterceptor("commit", null, commit);
             }
             if (profilerConfig.isJdbcProfileOracleRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
+                Interceptor rollback = new JDBCScopeDelegateSimpleInterceptor(new TransactionRollbackInterceptor());
                 oracleConnection.addInterceptor("rollback", null, rollback);
             }
 

@@ -6,7 +6,6 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
 
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
@@ -47,27 +46,26 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 //            mysqlConnection.addInterceptor("getInstance", params, createConnection);
 
 
-            Interceptor closeConnection = new ConnectionCloseInterceptor();
-            mysqlConnection.addInterceptor("close", null, closeConnection, Type.before);
+            Interceptor closeConnection = new JDBCScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor());
+            mysqlConnection.addInterceptor("close", null, closeConnection);
 
-            Interceptor createStatement = new StatementCreateInterceptor();
-            mysqlConnection.addInterceptor("createStatement", null, createStatement, Type.after);
+            Interceptor createStatement = new JDBCScopeDelegateSimpleInterceptor(new StatementCreateInterceptor());
+            mysqlConnection.addInterceptor("createStatement", null, createStatement);
 
-
-            Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
+            Interceptor preparedStatement = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementCreateInterceptor());
             mysqlConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+                Interceptor setAutocommit = new JDBCScopeDelegateSimpleInterceptor(new TransactionSetAutoCommitInterceptor());
                 mysqlConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
             }
             if (profilerConfig.isJdbcProfileMySqlCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
+                Interceptor commit = new JDBCScopeDelegateSimpleInterceptor(new TransactionCommitInterceptor());
                 mysqlConnection.addInterceptor("commit", null, commit);
             }
             if (profilerConfig.isJdbcProfileMySqlRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
+                Interceptor rollback = new JDBCScopeDelegateSimpleInterceptor(new TransactionRollbackInterceptor());
                 mysqlConnection.addInterceptor("rollback", null, rollback);
             }
             if (this.logger.isInfoEnabled()) {

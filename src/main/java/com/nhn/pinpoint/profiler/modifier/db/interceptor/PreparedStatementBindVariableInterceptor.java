@@ -25,28 +25,11 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        int push = BindValueScope.push();
-        if (isDebug) {
-            logger.debug("bindValueScope push:{}", push);
-        }
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
 
-        if (JDBCScope.isInternal()) {
-            logger.debug("internal jdbc scope. skip trace");
-            return;
-        }
-        // mysql 드라이버 같은 경우는 내부 setObject가 다시 setXXX를 호출하는 구조라 scope 체크를 해야 됨.
-        int pop = BindValueScope.pop();
-        if (isDebug) {
-            logger.debug("bindValueScope pop:{}", pop);
-        }
-        if (pop != DepthScope.ZERO) {
-            logger.debug("internal bindValue scope. skip trace");
-            return;
-        }
         if (isDebug) {
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }

@@ -8,9 +8,11 @@ import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
@@ -30,6 +32,9 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
+        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 push만 한다.
+        BindValueScope.push();
+
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -45,6 +50,9 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             // args에 암호가 있을 가능성이 있어서 로그에서 제외
             logger.afterInterceptor(target, null, result);
         }
+        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 pop만 한다.
+        BindValueScope.pop();
+
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {

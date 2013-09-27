@@ -7,6 +7,8 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
@@ -39,11 +41,11 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
+            Interceptor execute = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
             preparedStatement.addInterceptor("execute", null, execute);
-            Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
+            Interceptor executeQuery = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
             preparedStatement.addInterceptor("executeQuery", null, executeQuery);
-            Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
+            Interceptor executeUpdate = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
             preparedStatement.addInterceptor("executeUpdate", null, executeUpdate);
 
             preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
@@ -65,7 +67,7 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
 
-        Interceptor interceptor = new PreparedStatementBindVariableInterceptor();
+        Interceptor interceptor = new JDBCScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor());
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();
