@@ -31,9 +31,9 @@ public class DefaultAgentStatStore implements AgentStatStore {
 		
 		if (agentId != null) {
 			map.put(agentId, agentStat);
-			logger.info("{} -> {}", agentId, agentStat);
+			logger.debug("{} -> {}", agentId, agentStat);
 		} else {
-			logger.info("invalid AgentStat : {}", agentStat);
+			logger.debug("invalid AgentStat : {}", agentStat);
 		}
 	}
 
