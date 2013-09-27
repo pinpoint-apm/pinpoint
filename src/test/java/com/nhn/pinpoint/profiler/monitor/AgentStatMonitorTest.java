@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.monitor;
 
-import static org.junit.Assert.*;
-
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -9,7 +8,9 @@ import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.thrift.dto.AgentInfo;
 
+@Ignore
 public class AgentStatMonitorTest {
+
 
 	@Test
 	public void test() throws InterruptedException {
