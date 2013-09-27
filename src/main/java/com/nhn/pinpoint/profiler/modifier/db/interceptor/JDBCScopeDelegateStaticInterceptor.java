@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
+import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.DepthScope;
@@ -26,7 +26,7 @@ public class JDBCScopeDelegateStaticInterceptor implements StaticAroundIntercept
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        final int push = BindValueScope.push();
+        final int push = JDBCScope.push();
         if (push != DepthScope.ZERO) {
             if (isDebug) {
                 logger.debug("push bindValue scope. skip trace. {}", delegate.getClass());
@@ -38,7 +38,7 @@ public class JDBCScopeDelegateStaticInterceptor implements StaticAroundIntercept
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        final int pop = BindValueScope.pop();
+        final int pop = JDBCScope.pop();
         if (pop != DepthScope.ZERO) {
             if (isDebug) {
                 logger.debug("pop bindValue scope. skip trace. {}", delegate.getClass());

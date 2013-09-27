@@ -1,19 +1,16 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.interceptor.util.BindValueScope;
+import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.util.DepthScope;
-import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
@@ -33,7 +30,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             logger.beforeInterceptor(target, args);
         }
         // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 push만 한다.
-        BindValueScope.push();
+        JDBCScope.push();
 
 
         final Trace trace = traceContext.currentTraceObject();
@@ -51,7 +48,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             logger.afterInterceptor(target, null, result);
         }
         // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 pop만 한다.
-        BindValueScope.pop();
+        JDBCScope.pop();
 
 
         final Trace trace = traceContext.currentTraceObject();
