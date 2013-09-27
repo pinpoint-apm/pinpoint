@@ -5,6 +5,7 @@ import com.nhn.pinpoint.profiler.util.Scope;
 /**
  *
  */
+@Deprecated
 public class JDBCScope {
     private static final Scope SCOPE = new Scope("JDBCScope");
 
