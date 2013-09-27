@@ -13,7 +13,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 public class JDBCScopeDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final boolean isTrace = logger.isTraceEnabled();
     private final StaticAroundInterceptor delegate;
 
 
@@ -28,8 +28,8 @@ public class JDBCScopeDelegateStaticInterceptor implements StaticAroundIntercept
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         final int push = JDBCScope.push();
         if (push != DepthScope.ZERO) {
-            if (isDebug) {
-                logger.debug("push bindValue scope. skip trace. {}", delegate.getClass());
+            if (isTrace) {
+                logger.trace("push bindValue scope.  skip trace. level:{} {}", push, delegate.getClass());
             }
             return;
         }
@@ -40,8 +40,8 @@ public class JDBCScopeDelegateStaticInterceptor implements StaticAroundIntercept
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         final int pop = JDBCScope.pop();
         if (pop != DepthScope.ZERO) {
-            if (isDebug) {
-                logger.debug("pop bindValue scope. skip trace. {}", delegate.getClass());
+            if (isTrace) {
+                logger.trace("pop bindValue scope. skip trace. level:{} {}", pop, delegate.getClass());
             }
             return;
         }
