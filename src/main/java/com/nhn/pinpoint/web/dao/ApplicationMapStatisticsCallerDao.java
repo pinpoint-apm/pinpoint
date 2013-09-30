@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.dao;
 import java.util.List;
 import java.util.Map;
 
-import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 
 /**
  * 

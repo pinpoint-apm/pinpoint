@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
 

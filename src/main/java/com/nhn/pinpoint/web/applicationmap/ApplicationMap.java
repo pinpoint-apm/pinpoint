@@ -1,18 +1,21 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
+import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.util.MergeableHashMap;
+import com.nhn.pinpoint.web.util.MergeableMap;
 import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 
 /**
@@ -25,30 +28,15 @@ public class ApplicationMap {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private boolean built = false;
+	private final RawStatisticsData rawData;
+	private final MergeableMap<String, Application> applications = new MergeableHashMap<String, Application>();
+	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
 
-	private final Set<TransactionFlowStatistics> data;
 	private final Set<String> applicationNames = new HashSet<String>();
-	private final Map<String, Application> applications = new HashMap<String, Application>();
-	private final Map<String, ApplicationRelation> relations = new HashMap<String, ApplicationRelation>();
-
 	private TimeseriesResponses timeseriesResponses;
-	
-	public ApplicationMap(Set<TransactionFlowStatistics> data) {
-		this.data = data;
-	}
 
-	public Collection<Application> getNodes() {
-		if (!built) {
-			throw new IllegalStateException("Map was not built yet.");
-		}
-		return this.applications.values();
-	}
-
-	public Collection<ApplicationRelation> getLinks() {
-		if (!built) {
-			throw new IllegalStateException("Map was not built yet.");
-		}
-		return this.relations.values();
+	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
+		this.rawData = new RawStatisticsData(rawData);
 	}
 
 	public ApplicationMap build() {
@@ -56,42 +44,44 @@ public class ApplicationMap {
 			return this;
 
 		// extract agent
-		Map<String, Set<AgentInfoBo>> agentMap = new HashMap<String, Set<AgentInfoBo>>();
-		for (TransactionFlowStatistics stat : data) {
-			if (stat.getToAgentSet() != null) {
-				String key = makeApplicationId(stat.getTo(), stat.getToServiceType());
-				if (agentMap.containsKey(key)) {
-					agentMap.get(key).addAll(stat.getToAgentSet());
-				} else {
-					agentMap.put(key, stat.getToAgentSet());
+		Map<String, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
+		
+		// extract application and histogram
+		MergeableMap<String, ResponseHistogram> hostHistogramMap = new MergeableHashMap<String, ResponseHistogram>();
+		for (TransactionFlowStatistics stat : rawData) {
+			// FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
+			if (!stat.getFromServiceType().isRpcClient()) {
+				String id = stat.getFromApplicationId();
+				Set<AgentInfoBo> agentSet = agentMap.get(id);
+				// FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
+				addApplication(new Application(id, stat.getFrom(), stat.getFromServiceType(), null, agentSet));
+			}
+			
+			// FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
+			if (!stat.getToServiceType().isRpcClient()) {
+				String id = stat.getToApplicationId();
+				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
+					Host host = entry.getValue();
+					ResponseHistogram histogram = host.getHistogram();
+					ResponseHistogram value= new ResponseHistogram(histogram.getId(), histogram.getServiceType());
+					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
 				}
+				addApplication(new Application(id, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
 			}
 		}
 		
-		// extract application
-		for (TransactionFlowStatistics stat : data) {
-			if (!stat.getFromServiceType().isRpcClient()) {
-				// TODO toHostList를 null로 입력하지 않으면 맛이감. ㅡㅡ;
-				addApplication(new Application(makeApplicationId(stat.getFrom(), stat.getFromServiceType()), stat.getFrom(), stat.getFromServiceType(), null, agentMap.get(makeApplicationId(stat.getFrom(), stat.getFromServiceType()))));
-			}
-			if (!stat.getToServiceType().isRpcClient()) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
-			}
-			if (!applicationNames.contains(stat.getTo())) {
-				addApplication(new Application(makeApplicationId(stat.getTo(), stat.getToServiceType()), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), agentMap.get(makeApplicationId(stat.getFrom(), stat.getFromServiceType()))));
-			}
-		}
-
-		// indexing application
-		int index = 0;
 		for (Entry<String, Application> entry : applications.entrySet()) {
-			entry.getValue().setSequence(index++);
+			Application application = entry.getValue();
+			application.mapHistogram(hostHistogramMap);
 		}
+		
+		// indexing application
+		indexingApplication();
 
 		// extract relation
-		for (TransactionFlowStatistics stat : data) {
-			Application from = findApplication(stat.getFrom(), stat.getFromServiceType());
-			Application to = findApplication(stat.getTo(), stat.getToServiceType());
+		for (TransactionFlowStatistics stat : rawData) {
+			Application from = findApplication(stat.getFromApplicationId());
+			Application to = findApplication(stat.getToApplicationId());
 
 			// rpc client가 빠진경우임.
 			if (to == null) {
@@ -113,36 +103,40 @@ public class ApplicationMap {
 		return this;
 	}
 
-	private String makeApplicationId(String applicationName, ServiceType serviceType) {
-		return applicationName + serviceType;
+	public Collection<Application> getNodes() {
+		if (!built) {
+			throw new IllegalStateException("Map was not built yet.");
+		}
+		return this.applications.values();
 	}
 
-	private Application findApplication(String applicationName, ServiceType serviceType) {
-		return applications.get(makeApplicationId(applicationName, serviceType));
+	public Collection<ApplicationRelation> getLinks() {
+		if (!built) {
+			throw new IllegalStateException("Map was not built yet.");
+		}
+		return this.relations.values();
+	}
+
+	private void indexingApplication() {
+		int index = 0;
+		for (Entry<String, Application> entry : applications.entrySet()) {
+			entry.getValue().setSequence(index++);
+		}
+	}
+
+	private Application findApplication(String applicationId) {
+		return applications.get(applicationId);
 	}
 
 	private void addApplication(Application application) {
 		if (!application.getServiceType().isRpcClient()) {
 			applicationNames.add(application.getApplicationName());
 		}
-
-		if (applications.containsKey(application.getId())) {
-			logger.debug("Merge application. {}", application);
-			applications.get(application.getId()).mergeWith(application);
-		} else {
-			logger.debug("Add application. {}", application);
-			applications.put(application.getId(), application);
-		}
+		applications.putOrMerge(application.getId(), application);
 	}
 
 	private void addRelation(ApplicationRelation relation) {
-		if (relations.containsKey(relation.getId())) {
-			logger.debug("Merge relation. {}", relation);
-			relations.get(relation.getId()).mergeWith(relation);
-		} else {
-			logger.debug("Add relation. {}", relation);
-			relations.put(relation.getId(), relation);
-		}
+		relations.putOrMerge(relation.getId(), relation);
 	}
 
 	public TimeseriesResponses getTimeseriesResponses() {

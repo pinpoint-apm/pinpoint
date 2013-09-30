@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
 import com.nhn.pinpoint.common.hbase.HBaseTables;

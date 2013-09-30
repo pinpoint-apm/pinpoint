@@ -16,8 +16,8 @@ import org.springframework.util.StopWatch;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
-import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
@@ -267,6 +267,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	}
 
 	@Override
+	@Deprecated
 	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceTypeCode, long from, long to) {
 		// TODO hmm.. client가 여러 종류 있을 수 있는데...
 		if (serviceTypeCode == ServiceType.UNKNOWN_CLOUD.getCode()) {

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
@@ -185,6 +185,7 @@ public class ApplicationMapController {
 		return "linkStatisticsDetail";
 	}
 	
+	@Deprecated
 	@RequestMapping(value = "/applicationStatistics", method = RequestMethod.GET)
 	public String getLinkStatistics(Model model,
 			HttpServletResponse response, 

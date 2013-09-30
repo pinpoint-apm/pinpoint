@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +17,7 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
  * @author netspider
  * 
  */
+@Deprecated
 public class ApplicationStatistics {
 
 	// treemap key 정렬때문에...

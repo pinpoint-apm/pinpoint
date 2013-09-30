@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.dao;
 
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 
 /**
  * 

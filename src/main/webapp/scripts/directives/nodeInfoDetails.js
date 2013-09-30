@@ -116,19 +116,25 @@ pinpointApp
 
                 var extractHistogramFromData = function (data) {
                     var histogram = [];
-                    if (data && data.histogram && angular.isArray(data.histogram) && data.histogram.length > 0) {
-                        angular.forEach(data.histogram, function (val, key) {
+                    if (data && data.serverList /*&& angular.isArray(data.serverList) && data.serverList.length > 0*/) {
+                        angular.forEach(data.serverList, function (serverInfo, serverName) {
                             var i = 0;
-                            angular.forEach(val.histogram, function (innerVal, innerKey) {
-                                if (histogram[i]) {
-                                    histogram[i].value += Number(innerVal, 10);
-                                } else {
-                                    histogram[i] = {
-                                        'label' : innerKey,
-                                        'value' : Number(innerVal, 10)
-                                    };
-                                }
-                                i++;
+                            angular.forEach(serverInfo.instanceList, function (innerVal, innerKey) {
+                            	if (innerVal.histogram == null) {
+                            		return;
+                            	}
+                            	angular.forEach(innerVal.histogram, function(v, k) {
+                            		if (histogram[i]) {
+                            			histogram[i].value += Number(v, 10);
+                            		} else {
+                            			histogram[i] = {
+                            					'label' : k,
+                            					'value' : Number(v, 10)
+                            			};
+                            		}
+                            		i++;
+                            	});
+                            	i = 0;
                             });
                         });
                     }

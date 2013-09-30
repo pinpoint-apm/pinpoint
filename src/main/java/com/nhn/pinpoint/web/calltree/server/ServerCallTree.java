@@ -184,16 +184,6 @@ public class ServerCallTree {
 
 			logger.debug("add non-terminal requests from=" + from + ", to=" + to);
 			
-//			System.out.println("---------------------");
-//			System.out.println(span.isRoot());
-//			System.out.println(span.getApplicationId());
-//			System.out.println(from);
-//			System.out.println(to);
-//			System.out.println(clientServerMap);
-//			System.out.println(spanIdToServerId);
-//			System.out.println(servers);
-//			System.out.println("---------------------");
-			
 			// span이 rootspan이면 client를 찾고 그렇지 않으면 서버를 찾는다.
 			Server fromServer = servers.get((span.isRoot()) ? clientServerMap.get(span.getApplicationId()) : spanIdToServerId.get(from));
 			Server toServer = servers.get(spanIdToServerId.get(to));

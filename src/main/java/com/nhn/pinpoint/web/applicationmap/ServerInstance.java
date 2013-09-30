@@ -1,13 +1,16 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.util.JsonSerializable;
+import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class ServerInstance implements Comparable<ServerInstance> {
+public class ServerInstance implements Comparable<ServerInstance>, Mergeable<ServerInstance>, JsonSerializable {
 
 	private final String id;
 	private final AgentInfoBo agentInfo;
@@ -16,6 +19,12 @@ public class ServerInstance implements Comparable<ServerInstance> {
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
 		this.id = agentInfo.getAgentId();
 		this.agentInfo = agentInfo;
+		this.histogram = histogram;
+	}
+	
+	public ServerInstance(String id, ResponseHistogram histogram) {
+		this.id = id;
+		this.agentInfo = null;
 		this.histogram = histogram;
 	}
 
@@ -27,29 +36,35 @@ public class ServerInstance implements Comparable<ServerInstance> {
 		return agentInfo;
 	}
 
+	public void setHistogram(ResponseHistogram histogram) {
+		this.histogram = histogram;
+	}
+
 	public ResponseHistogram getHistogram() {
 		return histogram;
 	}
 
+	@Override
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		sb.append("\"agentId\":\"").append(id).append("\",");
-		sb.append("\"agentInfo\":").append(agentInfo.getJson()).append(",");
-		sb.append("\"histogram\":").append(histogram);
+		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfo.getJson()).append(",");
+		sb.append("\"histogram\":").append((histogram == null) ? null : histogram.getJson());
 		sb.append("}");
 		return sb.toString();
 	}
 
+	@Override
 	public ServerInstance mergeWith(ServerInstance serverInstance) {
 		if (!this.id.equals(serverInstance.getId())) {
 			throw new IllegalArgumentException("Server instance id is not equal.");
 		}
-		
+
 		if (this.histogram == null) {
 			this.histogram = serverInstance.getHistogram();
 		} else {
-			this.histogram.mergeWith(serverInstance.getHistogram());
+			// this.histogram.mergeWith(serverInstance.getHistogram());
 		}
 		return this;
 	}

@@ -9,7 +9,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 
 /**
  * 
@@ -17,6 +17,7 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
  * 
  */
 @Component
+@Deprecated
 public class ApplicationStatisticsMapper implements RowMapper<ApplicationStatistics> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

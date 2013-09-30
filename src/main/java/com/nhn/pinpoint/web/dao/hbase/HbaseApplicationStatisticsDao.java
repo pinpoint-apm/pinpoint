@@ -16,7 +16,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationStatisticsDao;
 
 /**
@@ -38,6 +38,7 @@ public class HbaseApplicationStatisticsDao implements ApplicationStatisticsDao {
 	private RowMapper<ApplicationStatistics> applicationStatisticsMapper;
 
 	@Override
+	@Deprecated
 	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceType, long from, long to) {
 		Scan scan = createScan(applicationName, serviceType, from, to);
 		List<ApplicationStatistics> statisticsList = hbaseOperations2.find(HBaseTables.APPLICATION_STATISTICS, scan, applicationStatisticsMapper);

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.web.applicationmap.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 
 /**
  * 

@@ -3,12 +3,16 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.util.Mergeable;
+
 /**
  * application map에서 application간의 관계를 담은 클래스
  * 
  * @author netspider
  */
-public class ApplicationRelation {
+public class ApplicationRelation implements Mergeable<ApplicationRelation> {
 	protected final String id;
 
 	protected final Application from;
@@ -53,14 +57,16 @@ public class ApplicationRelation {
 
 		for (Entry<String, Host> entry : hostList.entrySet()) {
 			if (result == null) {
-				// TODO 뭔가 괴상한 방식이긴 하지만..
-				result = new ResponseHistogram(entry.getValue().getHistogram().getServiceType());
+				// FIXME 뭔가 괴상한 방식이긴 하지만..
+				ResponseHistogram histogram = entry.getValue().getHistogram();
+				result = new ResponseHistogram(histogram.getId(), histogram.getServiceType());
 			}
 			result.mergeWith(entry.getValue().getHistogram());
 		}
 		return result;
 	}
 
+	@Override
 	public ApplicationRelation mergeWith(ApplicationRelation relation) {
 		// TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {

@@ -15,28 +15,22 @@
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>,
-				"histogram" : [
-				<c:forEach items="${node.hostList}" var="host" varStatus="status2">
-					${host.value.json}
-					<c:if test="${!status2.last}">,</c:if>
-				</c:forEach>
-				],
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
-				"serverList" : [
+				"serverList" : {
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
-						{
-							"name":"${serverInstance.key}",
-							"agentList":[
+						"${serverInstance.key}" : {
+							"status" : null,
+							"instanceList" : {
 								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
-									${instance.value.json}
+								"${instance.key}" : ${instance.value.json}
 									<c:if test="${!status6.last}">,</c:if>
-								</c:forEach>
-							]
+								</c:forEach>								
+							}
 						}
 						<c:if test="${!status5.last}">,</c:if>
 					</c:forEach>
-				]
+				}
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],
@@ -51,7 +45,7 @@
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.slowCount},
-				"histogram" : ${link.histogram},
+				"histogram" : ${link.histogram.json},
 				"targetHosts" : [
 					<c:forEach items="${link.hostList}" var="host" varStatus="status2">
 						${host.value.json}

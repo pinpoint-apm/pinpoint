@@ -1,17 +1,23 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.util.JsonSerializable;
+import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class ResponseHistogram {
+public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSerializable {
+	
+	private final String id;
+	
 	private final ServiceType serviceType;
 	private final Histogram histogram;
 	private final long[] values;
@@ -20,7 +26,8 @@ public class ResponseHistogram {
 	private long errorCount;
 	private long slowCount;
 
-	public ResponseHistogram(ServiceType serviceType) {
+	public ResponseHistogram(String id, ServiceType serviceType) {
+		this.id = id;
 		this.serviceType = serviceType;
 		this.histogram = serviceType.getHistogram();
 		// TODO value에 저장하는 구조 추가 수정 필요.
@@ -66,9 +73,10 @@ public class ResponseHistogram {
 		return totalCount;
 	}
 
-	public void mergeWith(ResponseHistogram histogram) {
+	@Override
+	public ResponseHistogram mergeWith(ResponseHistogram histogram) {
 		if (!this.equals(histogram)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("A=" + this + ", B=" + histogram);
 		}
 
 		long[] otherValues = histogram.values;
@@ -79,6 +87,8 @@ public class ResponseHistogram {
 		this.totalCount += histogram.totalCount;
 		this.errorCount += histogram.errorCount;
 		this.slowCount += histogram.slowCount;
+		
+		return this;
 	}
 
 	@Override
@@ -109,10 +119,19 @@ public class ResponseHistogram {
 		// }
 		return true;
 	}
-
-	// FIXME 나중에 getJson()으로 바꾸기.
+	 
 	@Override
 	public String toString() {
+		return "ResponseHistogram [serviceType=" + serviceType + ", histogram=" + histogram + ", values=" + Arrays.toString(values) + ", totalCount=" + totalCount + ", errorCount=" + errorCount + ", slowCount=" + slowCount + "]";
+	}
+
+	@Override
+	public String getId() {
+		return id;
+	}
+
+	@Override
+	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
 		List<HistogramSlot> histogramSlotList = histogram.getHistogramSlotList();

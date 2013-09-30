@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.service;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.ApplicationStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 
 /**
  * @author netspider

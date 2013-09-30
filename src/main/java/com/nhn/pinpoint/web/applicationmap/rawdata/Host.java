@@ -1,13 +1,14 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class Host {
+public class Host implements Mergeable<Host> {
 	/**
 	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
 	 */
@@ -16,7 +17,7 @@ public class Host {
 
 	public Host(String host, ServiceType serviceType) {
 		this.host = host;
-		this.histogram = new ResponseHistogram(serviceType);
+		this.histogram = new ResponseHistogram(host, serviceType);
 	}
 
 	public String getHost() {
@@ -27,24 +28,22 @@ public class Host {
 		return histogram;
 	}
 
-	public void mergeWith(Host host) {
-		this.histogram.mergeWith(host.histogram);
+	@Override
+	public String getId() {
+		return host;
+	}
+
+	@Override
+	public Host mergeWith(Host host) {
+		this.histogram.mergeWith(host.getHistogram());
+		return this;
 	}
 
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		sb.append("\"name\":\"").append(host).append("\",");
-		sb.append("\"histogram\":").append(histogram); // .append(",");
-		// sb.append("\"agentList\":[");
-		// Iterator<AgentInfoBo> iterator = agentList.iterator();
-		// while (iterator.hasNext()) {
-		// AgentInfoBo agent = iterator.next();
-		// sb.append(agent.getJson());
-		// if (iterator.hasNext()) {
-		// sb.append(",");
-		// }
-		// }
+		sb.append("\"histogram\":").append(histogram.getJson());
 		sb.append("}");
 		return sb.toString();
 	}

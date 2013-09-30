@@ -1,5 +1,6 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +28,14 @@ public class TransactionFlowStatistics {
 	
 	private Set<AgentInfoBo> toAgentSet;
 
+	public String getFromApplicationId() {
+		return from + fromServiceType;
+	}
+	
+	public String getToApplicationId() {
+		return to + toServiceType;
+	}
+	
 	/**
 	 * 
 	 * @param hostname
@@ -109,10 +118,18 @@ public class TransactionFlowStatistics {
 
 	public Map<String, Host> getToHostList() {
 		return toHostList;
+//		if (toHostList == null) {
+//			return null;
+//		}
+//		return Collections.unmodifiableMap(toHostList);
 	}
 
 	public Set<AgentInfoBo> getToAgentSet() {
 		return toAgentSet;
+//		if (toAgentSet == null) {
+//			return null;
+//		}
+//		return Collections.unmodifiableSet(toAgentSet);
 	}
 
 	public void addToAgentSet(Set<AgentInfoBo> agentSet) {
