@@ -4,6 +4,8 @@ import java.util.*;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -11,6 +13,8 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  * 
  */
 public class SpanAligner2 {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final Integer ROOT = -1;
 	private final Map<Integer, SpanBo> spanMap;
 	private Integer rootSpanId = null;
@@ -52,7 +56,9 @@ public class SpanAligner2 {
 
 	private int populate(SpanBo parentSpan, int spanDepth, int sequence, int pSequence, List<SpanAlign> container) {
 		int depth = spanDepth + 1;
-
+        if (logger.isDebugEnabled()) {
+            logger.info("span depth:{}", depth);
+        }
 		int lastChildSequence = sequence;
 		
 		SpanAlign element = new SpanAlign(depth, parentSpan, ++lastChildSequence, pSequence);
@@ -67,8 +73,15 @@ public class SpanAligner2 {
         
 		for (SpanEventBo spanEventBo : spanEventBoList) {
 			if (spanEventBo.getDepth() != -1) {
-				depth = spanDepth + spanEventBo.getDepth() + 1;
-			}
+				depth = spanDepth + spanEventBo.getDepth();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("spanEvent spanEvent{} depth:{} getDepth():{}", spanEventBo.getServiceType(), depth, spanEventBo.getDepth());
+                }
+			} else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("spanEvent depth:{} ", depth);
+                }
+            }
 			
 			lastChildSequence++;
 			

@@ -147,9 +147,28 @@ public class Record {
     public boolean getHasChild() {
     	return hasChild;
     }
-    
+
     @Override
-	public String toString() {
-		return "Record [tab=" + tab + ", method=" + method + ", title=" + title + ", arguments=" + arguments + ", begin=" + begin + ", elapsed=" + elapsed + ", agent=" + agent + ", service=" + service + "]";
-	}
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Record{");
+        sb.append("tab=").append(tab);
+        sb.append(", id=").append(id);
+        sb.append(", pId=").append(pId);
+        sb.append(", method=").append(method);
+        sb.append(", title='").append(title).append('\'');
+        sb.append(", simpleClassName='").append(simpleClassName).append('\'');
+        sb.append(", fullApiDescription='").append(fullApiDescription).append('\'');
+        sb.append(", arguments='").append(arguments).append('\'');
+        sb.append(", begin=").append(begin);
+        sb.append(", elapsed=").append(elapsed);
+        sb.append(", agent='").append(agent).append('\'');
+        sb.append(", service='").append(service).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", destinationId='").append(destinationId).append('\'');
+        sb.append(", excludeFromTimeline=").append(excludeFromTimeline);
+        sb.append(", focused=").append(focused);
+        sb.append(", hasChild=").append(hasChild);
+        sb.append('}');
+        return sb.toString();
+    }
 }
