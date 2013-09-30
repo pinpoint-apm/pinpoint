@@ -8,7 +8,7 @@ import com.nhn.pinpoint.thrift.dto.AgentInfo;
 /**
  *
  */
-public class AgentInfoBo {
+public class AgentInfoBo implements Comparable<AgentInfoBo> {
 	private String ip;
     private String hostname;
     private String ports;
@@ -169,4 +169,9 @@ public class AgentInfoBo {
                 ", identifier=" + identifier +
                 '}';
     }
+
+	@Override
+	public int compareTo(AgentInfoBo agentInfoBo) {
+		return this.agentId.compareTo(agentInfoBo.agentId);
+	}
 }
