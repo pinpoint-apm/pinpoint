@@ -163,6 +163,8 @@ public class FixedBufferTest {
     @Test
     public void testPutSVar32() throws Exception {
 
+        checkSVarInt(3, -1);
+
         checkSVarInt(Integer.MAX_VALUE, 5);
 
         checkSVarInt(Integer.MIN_VALUE, 5);

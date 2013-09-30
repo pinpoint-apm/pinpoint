@@ -424,21 +424,21 @@ public class SpanEventBo implements Span {
 		StringBuilder sb = new StringBuilder(512);
 
 		sb.append(this.getClass().getName()).append("={");
-		sb.append("\n\tversion=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
-		sb.append("\n\tserviceType=").append(serviceType);
-        sb.append("\n\ttraceAgentId=").append(traceAgentId);
-		sb.append("\n\ttraceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionSequence=").append(traceTransactionSequence);
-		sb.append("\n\tspanId=").append(spanId).append(", sequence=").append(sequence);
-		sb.append("\n\tstartElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
-		sb.append("\n\trpc=").append(rpc).append(", endPoint=").append(endPoint);
-		sb.append("\n\tdepth=").append(depth);
-		sb.append("\n\tnextSpanId=").append(nextSpanId);
-		sb.append("\n\tannotations={");
+		sb.append(" version=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
+		sb.append(" serviceType=").append(serviceType);
+        sb.append(" traceAgentId=").append(traceAgentId);
+		sb.append(" traceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionSequence=").append(traceTransactionSequence);
+		sb.append(" spanId=").append(spanId).append(", sequence=").append(sequence);
+		sb.append(" startElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
+		sb.append(" rpc=").append(rpc).append(", endPoint=").append(endPoint);
+		sb.append(" depth=").append(depth);
+		sb.append(" nextSpanId=").append(nextSpanId);
+		sb.append(" annotations={");
 		for (AnnotationBo a : annotationBoList) {
-			sb.append("\n\t\tkey=").append(a.getKey());
+			sb.append(" key=").append(a.getKey());
 			sb.append(", value=").append(a.getValue());
 		}
-		sb.append("\n\t}");
+		sb.append("}");
 		sb.append("}");
 
 		return sb.toString();
