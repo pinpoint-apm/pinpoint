@@ -197,7 +197,7 @@ public class HelloWorldController implements DisposableBean {
 	public String remotecombination(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
-		String port = ports[random.nextInt(2)];
+		String port = ports[random.nextInt(3)];
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
@@ -214,6 +214,18 @@ public class HelloWorldController implements DisposableBean {
 			client.executeToBloc("http://url3/", new HashMap<String, Object>());
 		} catch (Exception e) {
 		}
+		return "remotecombination";
+	}
+	
+	@RequestMapping(value = "/remotearcus")
+	public String remotearcus(Model model) {
+		arcus(model);
+		
+		String[] ports = new String[] { "9080", "10080", "11080" };
+		Random random = new Random();
+		String port = ports[random.nextInt(3)];
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -297,10 +309,12 @@ public class HelloWorldController implements DisposableBean {
 	public String remotesimple(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
-		String port = ports[random.nextInt(2)];
+		String port = ports[random.nextInt(3)];
 
+		arcus(model);
+		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:" + port + "/mysql.pinpoint", new HashMap<String, Object>());
+		client.executeToBloc("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
