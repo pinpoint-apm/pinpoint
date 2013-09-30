@@ -25,7 +25,7 @@ import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridUStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
-import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPPoolModifier;
+import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLResultSetModifier;
@@ -254,8 +254,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
 		addModifier(dbcpBasicDataSourceModifier);
 
-//		Modifier dbcpPoolModifier = new DBCPPoolModifier(byteCodeInstrumentor, agent);
-//		addModifier(dbcpPoolModifier);
+		Modifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
+		addModifier(dbcpPoolModifier);
 	}
 	
 	public void addNpcModifier() {

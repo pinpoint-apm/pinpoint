@@ -1,19 +1,22 @@
 package com.nhn.pinpoint.profiler.modifier.db.dbcp;
 
 import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import javassist.CtClass;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.DataSourceCloseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.ProtectionDomain;
 
-public class DBCPPoolModifier extends AbstractModifier {
+public class DBCPPoolGuardConnectionWrapperModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public DBCPPoolModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public DBCPPoolGuardConnectionWrapperModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -29,21 +32,20 @@ public class DBCPPoolModifier extends AbstractModifier {
         return changeMethod(javassistClassName, classFileBuffer);
     }
 
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
+    private byte[] changeMethod(String javassistClassName, byte[] classFileBuffer) {
+
         try {
-            CtClass cc = null;
+            InstrumentClass wrapper = byteCodeInstrumentor.getClass(javassistClassName);
+            Interceptor close = new DataSourceCloseInterceptor();
+            wrapper.addInterceptor("close", null, close);
 
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
-            }
-
-            return cc.toBytecode();
-        } catch (Exception e) {
+            return wrapper.toBytecode();
+        } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
+                logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
             }
+            return null;
         }
-        return null;
     }
 
 }

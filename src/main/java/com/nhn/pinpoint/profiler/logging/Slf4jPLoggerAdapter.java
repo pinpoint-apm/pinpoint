@@ -71,7 +71,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static void logMethod(StringBuilder sb, Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        sb.append(target);
+        sb.append(getTarget(target));
         sb.append(' ');
         sb.append(className);
         sb.append(' ');
@@ -82,10 +82,19 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static void logMethod(StringBuilder sb, Object target, Object[] args) {
-        sb.append(target);
+        sb.append(getTarget(target));
         sb.append(' ');
         sb.append(" args:");
         appendArray(sb, args);
+    }
+
+    private static String getTarget(Object target) {
+        // toString의 경우 sideeffect가 발생할수 있으므로 className을 호출하는것으로 변경함.
+        if (target == null) {
+            return "target=null";
+        } else {
+            return target.getClass().getName();
+        }
     }
 
     private static void appendArray(StringBuilder sb, Object[] args) {
