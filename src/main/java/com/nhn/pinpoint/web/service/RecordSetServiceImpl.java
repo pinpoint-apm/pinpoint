@@ -4,6 +4,7 @@ package com.nhn.pinpoint.web.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nhn.pinpoint.web.util.Stack;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,8 @@ public class RecordSetServiceImpl implements RecordSetService {
         long endTime = getEndTime(spanAlignList);
         recordSet.setEndTime(endTime);
 
-        List<Record> recordList = new SpanPopulator().populateSpanRecord(spanAlignList);
+        final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
+        List<Record> recordList = spanAlignPopulate.populateSpanRecord(spanAlignList);
         logger.debug("RecordList:{}", recordList);
 
         // focus 대상 record를 체크한다.
@@ -108,12 +110,6 @@ public class RecordSetServiceImpl implements RecordSetService {
     }
 
 
-
-
-
-
-
-
     private SpanBo findFocusTimeSpanBo(List<SpanAlign> spanAlignList, long focusTimestamp) {
         SpanBo firstSpan = null;
         for (SpanAlign spanAlign : spanAlignList) {
@@ -131,21 +127,24 @@ public class RecordSetServiceImpl implements RecordSetService {
         return firstSpan;
     }
 
-    private static class SpanPopulator {
+    private static class SpanAlignPopulate {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
-        private ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+
+        private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
         private int idGen = 0;
+        private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
 
         private int getNextId() {
             return idGen++;
         }
 
         private List<Record> populateSpanRecord(List<SpanAlign> spanAlignList) {
+            if (spanAlignList == null) {
+                throw new NullPointerException("spanAlignList must not be null");
+            }
             List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
 
             // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
-            final CallStack stack = new CallStack();
-
             for (int i = 0; i < spanAlignList.size(); i++) {
                 SpanAlign spanAlign = spanAlignList.get(i);
 
@@ -153,30 +152,32 @@ public class RecordSetServiceImpl implements RecordSetService {
                     if (!spanAlign.isSpan()) {
                         throw new IllegalArgumentException("root is not span");
                     }
-                    stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                    stack.push(new SpanDepth(spanAlign, getNextId()));
                 } else {
-                    CallStack.Depth last = stack.getLast();
-                    final int parentDepth = last.getSpanAlign().getDepth();
+                    final SpanDepth lastSpanDepth = stack.getLast();
+                    final int parentDepth = lastSpanDepth.getSpanAlign().getDepth();
                     final int currentDepth = spanAlign.getDepth();
-                    logger.debug("parentDepth:{} currentDepth:{} sequence:{}", parentDepth, currentDepth, last.getId());
+                    logger.debug("parentDepth:{} currentDepth:{} sequence:{}", parentDepth, currentDepth, lastSpanDepth.getId());
 
                     if (parentDepth < spanAlign.getDepth()) {
                         // 부모의 깊이가 더 작을 경우 push해야 한다.
-                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                        stack.push(new SpanDepth(spanAlign, getNextId()));
                     } else if (parentDepth > currentDepth) {
                         // 부모의 깊이가 클 경우 pop해야 한다.
+                        // 단 depth차가 1depth이상 날수 있기 때문에. depth를 확인하면서 pop을 해야 한다.
                         while (true) {
                             logger.debug("pop");
                             stack.pop();
-                            CallStack.Depth popLast = stack.getLast();
+                            SpanDepth popLast = stack.getLast();
                             if (popLast.getSpanAlign().getDepth() < currentDepth) {
                                 break;
                             }
                         }
-                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                        stack.push(new SpanDepth(spanAlign, getNextId()));
                     } else {
+                        // 바로 앞 동일 depth의 object는 버려야 한다.
                         stack.pop();
-                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                        stack.push(new SpanDepth(spanAlign, getNextId()));
                     }
                 }
 
@@ -261,13 +262,13 @@ public class RecordSetServiceImpl implements RecordSetService {
             return recordList;
         }
 
-        private List<Record> createAnnotationRecord(int depth, int pId, List<AnnotationBo> annotationBoList) {
+        private List<Record> createAnnotationRecord(int depth, int parentId, List<AnnotationBo> annotationBoList) {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
+                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
                     recordList.add(record);
                 }
             }
@@ -275,12 +276,9 @@ public class RecordSetServiceImpl implements RecordSetService {
             return recordList;
         }
 
-        private Record createParameterRecord(int depth, int pId, String method, String argument) {
-            return new Record(depth, getNextId(), pId, false, method, argument, 0L, 0L, null, null, null, null, false);
+        private Record createParameterRecord(int depth, int parentId, String method, String argument) {
+            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, null, null, null, null, false);
         }
-
-
-
 
     }
 

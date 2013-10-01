@@ -11,7 +11,7 @@ import com.nhn.pinpoint.common.ServiceType;
 public class Record {
 	private final int tab;
 	private final int id;
-	private final int pId;
+	private final int parentId;
 	private final boolean method;
 
 	private final String title;
@@ -30,10 +30,10 @@ public class Record {
     private boolean focused;
     private boolean hasChild;
 
-	public Record(int tab, int id, int pId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
+	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
 		this.tab = tab;
 		this.id = id;
-		this.pId = pId;
+		this.parentId = parentId;
 		this.method = method;
 
 		this.title = title;
@@ -54,8 +54,8 @@ public class Record {
 		return id;
 	}
 
-	public int getpId() {
-		return pId;
+	public int getParentId() {
+		return parentId;
 	}
 
 	public int getTab() {
@@ -153,7 +153,7 @@ public class Record {
         final StringBuilder sb = new StringBuilder("Record{");
         sb.append("tab=").append(tab);
         sb.append(", id=").append(id);
-        sb.append(", pId=").append(pId);
+        sb.append(", parentId=").append(parentId);
         sb.append(", method=").append(method);
         sb.append(", title='").append(title).append('\'');
         sb.append(", simpleClassName='").append(simpleClassName).append('\'');

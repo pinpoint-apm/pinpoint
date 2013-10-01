@@ -204,8 +204,8 @@
 					</c:if>
 					
 					<c:choose>
-						<c:when test="${record.pId > 0}">
-							<c:set var="pid" value="${record.pId}" />
+						<c:when test="${record.parentId > 0}">
+							<c:set var="pid" value="${record.parentId}" />
 						</c:when>
 						<c:otherwise>
 							<c:set var="pid" value="" />

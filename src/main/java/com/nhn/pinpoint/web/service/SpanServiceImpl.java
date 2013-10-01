@@ -323,7 +323,7 @@ public class SpanServiceImpl implements SpanService {
 	private List<SpanAlign> order(List<SpanBo> spans) {
 		SpanAligner2 spanAligner = new SpanAligner2(spans);
         List<SpanAlign> sort = spanAligner.sort();
-        logger.debug("SpanAlignList:{}", sort);
+        logger.trace("SpanAlignList:{}", sort);
         return sort;
 
 	}
