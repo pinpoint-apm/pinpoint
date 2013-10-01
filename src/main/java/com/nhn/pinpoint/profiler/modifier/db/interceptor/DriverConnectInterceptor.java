@@ -66,7 +66,8 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         try {
-            trace.recordServiceType(databaseInfo.getType());
+            // database connect도 매우 무거운 액션이므로 카운트로 친다.
+            trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
