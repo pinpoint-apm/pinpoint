@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.common.bo;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
@@ -17,6 +18,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private boolean isAlive;
     private long startTime;
     private short identifier;
+    private ServiceType serviceType;
 
     public AgentInfoBo(AgentInfo agentInfo) {
     	this.ip = agentInfo.getIp();
@@ -27,6 +29,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.isAlive = agentInfo.isIsAlive();
         this.startTime = agentInfo.getTimestamp();
         this.identifier = agentInfo.getIdentifier();
+        this.serviceType = ServiceType.findServiceType(agentInfo.getServiceType());
     }
 
     public AgentInfoBo() {
@@ -92,11 +95,19 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         return identifier;
     }
 
-    public void setIdentifier(short identifier) {
-        this.identifier = identifier;
-    }
+	public void setIdentifier(short identifier) {
+		this.identifier = identifier;
+	}
 
-    public byte[] writeValue() {
+	public ServiceType getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(ServiceType serviceType) {
+		this.serviceType = serviceType;
+	}
+
+	public byte[] writeValue() {
         Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getHostname());
@@ -104,6 +115,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         buffer.putPrefixedString(this.getApplicationName());
         buffer.put(this.isAlive());
         buffer.put(this.getIdentifier());
+        buffer.put(this.serviceType.getCode());
         return buffer.getBuffer();
     }
 
@@ -115,6 +127,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.applicationName = buffer.readPrefixedString();
         this.isAlive = buffer.readBoolean();
         this.identifier = buffer.readShort();
+        this.serviceType = ServiceType.findServiceType(buffer.readShort());
         return buffer.getOffset();
     }
     
@@ -148,8 +161,11 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		
 		sb.append("{");
 		sb.append("\t\"ip\" : \"").append(ip).append("\",");
+		sb.append("\t\"hostname\" : \"").append(hostname).append("\",");
 		sb.append("\t\"ports\" : \"").append(ports).append("\",");
 		sb.append("\t\"agentId\" : \"").append(agentId).append("\",");
+		sb.append("\t\"applicationName\" : \"").append(applicationName).append("\",");
+		sb.append("\t\"serviceType\" : \"").append(serviceType).append("\",");
 		sb.append("\t\"uptime\" : \"").append(startTime).append("\"");
 		sb.append("}");
 		
