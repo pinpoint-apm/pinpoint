@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.service;
 
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -29,7 +28,7 @@ public class RecordSetServiceImpl implements RecordSetService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+
 
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
@@ -56,7 +55,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         long endTime = getEndTime(spanAlignList);
         recordSet.setEndTime(endTime);
 
-        List<Record> recordList = populateSpanRecord(spanAlignList);
+        List<Record> recordList = new SpanPopulator().populateSpanRecord(spanAlignList);
         logger.debug("RecordList:{}", recordList);
 
         // focus 대상 record를 체크한다.
@@ -109,47 +108,11 @@ public class RecordSetServiceImpl implements RecordSetService {
     }
 
 
-    private String getRpcArgument(SpanBo spanBo) {
-        String rpc = spanBo.getRpc();
-        if (rpc != null) {
-            return rpc;
-        }
-        return getDisplayArgument(spanBo);
-    }
 
-    private String getDisplayArgument(SpanBo spanBo) {
-        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
-        if (displayArgument == null) {
-            return "";
-        }
-        return ObjectUtils.toString(displayArgument.getValue());
-    }
-    private String getDisplayArgument(SpanEventBo spanEventBo) {
-        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
-        if (displayArgument == null) {
-            return "";
-        }
-        return ObjectUtils.toString(displayArgument.getValue());
-    }
 
-    private List<Record> createAnnotationRecord(int depth, Integer id, int pId, List<AnnotationBo> annotationBoList) {
-        List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
-        for (AnnotationBo ann : annotationBoList) {
-            AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
-            if (annotation.isViewInRecordSet()) {
-                Record record = new Record(depth, id++, pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
-                recordList.add(record);
-            }
-        }
-        
-        return recordList;
-    }
 
-    private Record createParameterRecord(int depth, int id, int pId, String method, String argument) {
-       Record record = new Record(depth, id, pId, false, method, argument, 0L, 0L, null, null, null, null, false);
-       return record;
-    }
+
 
     private SpanBo findFocusTimeSpanBo(List<SpanAlign> spanAlignList, long focusTimestamp) {
         SpanBo firstSpan = null;
@@ -168,118 +131,180 @@ public class RecordSetServiceImpl implements RecordSetService {
         return firstSpan;
     }
 
+    private static class SpanPopulator {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+        private int idGen = 0;
 
-    private List<Record> populateSpanRecord(List<SpanAlign> spanAlignList) {
-        List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
-
-        // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
-        Integer annotationSeq = spanAlignList.size() + 1;
-        final LinkedList<Integer> stack = new LinkedList<Integer>();
-        stack.add(-1);
-        
-        int prevDepth = 0;
-		for (int i = 0; i < spanAlignList.size(); i++) {
-			SpanAlign spanAlign = spanAlignList.get(i);
-			
-			int parentSeq;
-			int currentSeq = spanAlign.getSequence();
-			int currentDepth = spanAlign.getDepth();
-			
-            if (logger.isDebugEnabled()) {
-                logger.debug("before prevDepth:{}, currentSeq:{} currentDepth:{}", prevDepth, currentSeq, currentDepth);
-            }
-			if (i == 0) {
-				// view에서 -1은 ""으로 변환됨. 최상위 노드의 부모는 ""로 표기되어야 하기 때문.
-				parentSeq = -1;
-				prevDepth = currentDepth;
-				stack.add(currentSeq);
-			} else {
-				if (prevDepth < currentDepth) {
-					parentSeq = stack.getLast();
-					stack.add(currentSeq);
-				} else if (prevDepth > currentDepth) {
-                    Integer poll = stack.pollLast();
-                    logger.debug("pollLast:{}", poll);
-					parentSeq = stack.getLast();
-				} else {
-
-//					parentSeq = stack.getLast();
-                    // 같은 depth일 경우는 parent를 불러야 한다.
-                    final int parentIndex = stack.size() - 2;
-                    // 인덱스 체크 필요.
-                    parentSeq = stack.get(parentIndex);
-				}
-				prevDepth = currentDepth;
-			}
-            if (logger.isDebugEnabled()) {
-                logger.debug("after parentSeq:{} prevDepth:{}, currentSeq:{} currentDepth:{}", parentSeq, prevDepth, currentSeq, currentDepth);
-            }
-
-            if (spanAlign.isSpan()) {
-                SpanBo spanBo = spanAlign.getSpanBo();
-
-                String argument = getRpcArgument(spanBo);
-
-                long begin = spanBo.getStartTime();
-                long elapsed = spanBo.getElapsed();
-
-                String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
-                if (method !=  null) {
-                    ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), parentSeq, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
-                    record.setSimpleClassName(apiDescription.getSimpleClassName());
-                    record.setFullApiDescription(method);
-                    recordList.add(record);
-                } else {
-                    AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), parentSeq, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
-                    record.setSimpleClassName("");
-                    record.setFullApiDescription("");
-                    recordList.add(record);
-                }
-                
-				List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, annotationSeq++, parentSeq, spanBo.getAnnotationBoList());
-                recordList.addAll(annotationRecord);
-                if (spanBo.getRemoteAddr() != null) {
-                    Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, annotationSeq++, parentSeq, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
-                    recordList.add(remoteAddress);
-                }
-            } else {
-                SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
-
-                String argument = getDisplayArgument(spanEventBo);
-
-                final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
-                if (method != null) {
-                    ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                    String destinationId = spanEventBo.getDestinationId();
-
-                    long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                    long elapsed = spanEventBo.getEndElapsed();
-
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), parentSeq, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
-                    record.setSimpleClassName(apiDescription.getSimpleClassName());
-                    record.setFullApiDescription(method);
-
-                    recordList.add(record);
-                } else {
-                    AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanEventBo.getAnnotationBoList());
-                    String destinationId = spanEventBo.getDestinationId();
-
-                    long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                    long elapsed = spanEventBo.getEndElapsed();
-
-                    Record record = new Record(spanAlign.getDepth(), spanAlign.getSequence(), parentSeq, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
-                    record.setSimpleClassName("");
-                    record.setFullApiDescription(method);
-
-                    recordList.add(record);
-                }
-
-				List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, annotationSeq++, parentSeq, spanEventBo.getAnnotationBoList());
-				recordList.addAll(annotationRecord);
-            }
+        private int getNextId() {
+            return idGen++;
         }
-        return recordList;
+
+        private List<Record> populateSpanRecord(List<SpanAlign> spanAlignList) {
+            List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
+
+            // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
+            final CallStack stack = new CallStack();
+
+            for (int i = 0; i < spanAlignList.size(); i++) {
+                SpanAlign spanAlign = spanAlignList.get(i);
+
+                if (i == 0) {
+                    if (!spanAlign.isSpan()) {
+                        throw new IllegalArgumentException("root is not span");
+                    }
+                    stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                } else {
+                    CallStack.Depth last = stack.getLast();
+                    final int parentDepth = last.getSpanAlign().getDepth();
+                    final int currentDepth = spanAlign.getDepth();
+                    logger.debug("parentDepth:{} currentDepth:{} sequence:{}", parentDepth, currentDepth, last.getId());
+
+                    if (parentDepth < spanAlign.getDepth()) {
+                        // 부모의 깊이가 더 작을 경우 push해야 한다.
+                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                    } else if (parentDepth > currentDepth) {
+                        // 부모의 깊이가 클 경우 pop해야 한다.
+                        while (true) {
+                            logger.debug("pop");
+                            stack.pop();
+                            CallStack.Depth popLast = stack.getLast();
+                            if (popLast.getSpanAlign().getDepth() < currentDepth) {
+                                break;
+                            }
+                        }
+                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                    } else {
+                        stack.pop();
+                        stack.push(new CallStack.Depth(spanAlign, getNextId()));
+                    }
+                }
+
+                if (spanAlign.isSpan()) {
+                    SpanBo spanBo = spanAlign.getSpanBo();
+
+                    String argument = getRpcArgument(spanBo);
+
+                    final long begin = spanBo.getStartTime();
+                    final long elapsed = spanBo.getElapsed();
+                    final int spanBoSequence = stack.getLast().getId();
+                    int parentSequence;
+                    if (stack.getParent() == null) {
+                        // 자기 자신이 root인 경우
+                        parentSequence = -1;
+                    } else {
+                        parentSequence = stack.getParent().getId();
+                    }
+                    logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
+
+
+                    String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
+                    if (method !=  null) {
+                        ApiDescription apiDescription = apiDescriptionParser.parse(method);
+                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        record.setSimpleClassName(apiDescription.getSimpleClassName());
+                        record.setFullApiDescription(method);
+                        recordList.add(record);
+                    } else {
+                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
+                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        record.setSimpleClassName("");
+                        record.setFullApiDescription("");
+                        recordList.add(record);
+                    }
+
+                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoSequence, spanBo.getAnnotationBoList());
+                    recordList.addAll(annotationRecord);
+                    if (spanBo.getRemoteAddr() != null) {
+                        Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, spanBoSequence, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
+                        recordList.add(remoteAddress);
+                    }
+                } else {
+                    SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+
+                    String argument = getDisplayArgument(spanEventBo);
+                    final int spanBoEventSequence = stack.getLast().getId();
+                    final int parentSequence = stack.getParent().getId();
+                    logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
+
+                    final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
+                    if (method != null) {
+                        ApiDescription apiDescription = apiDescriptionParser.parse(method);
+                        String destinationId = spanEventBo.getDestinationId();
+
+                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
+                        long elapsed = spanEventBo.getEndElapsed();
+
+                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        record.setSimpleClassName(apiDescription.getSimpleClassName());
+                        record.setFullApiDescription(method);
+
+                        recordList.add(record);
+                    } else {
+                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanEventBo.getAnnotationBoList());
+                        String destinationId = spanEventBo.getDestinationId();
+
+                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
+                        long elapsed = spanEventBo.getEndElapsed();
+
+                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        record.setSimpleClassName("");
+                        record.setFullApiDescription(method);
+
+                        recordList.add(record);
+                    }
+
+                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoEventSequence, spanEventBo.getAnnotationBoList());
+                    recordList.addAll(annotationRecord);
+                }
+            }
+            return recordList;
+        }
+
+        private List<Record> createAnnotationRecord(int depth, int pId, List<AnnotationBo> annotationBoList) {
+            List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
+
+            for (AnnotationBo ann : annotationBoList) {
+                AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
+                if (annotation.isViewInRecordSet()) {
+                    Record record = new Record(depth, getNextId(), pId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
+                    recordList.add(record);
+                }
+            }
+
+            return recordList;
+        }
+
+        private Record createParameterRecord(int depth, int pId, String method, String argument) {
+            return new Record(depth, getNextId(), pId, false, method, argument, 0L, 0L, null, null, null, null, false);
+        }
+
+
+
+
+    }
+
+    private static String getDisplayArgument(SpanBo spanBo) {
+        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
+        if (displayArgument == null) {
+            return "";
+        }
+        return ObjectUtils.toString(displayArgument.getValue());
+    }
+
+    private static String getDisplayArgument(SpanEventBo spanEventBo) {
+        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
+        if (displayArgument == null) {
+            return "";
+        }
+        return ObjectUtils.toString(displayArgument.getValue());
+    }
+
+    private static String getRpcArgument(SpanBo spanBo) {
+        String rpc = spanBo.getRpc();
+        if (rpc != null) {
+            return rpc;
+        }
+        return getDisplayArgument(spanBo);
     }
 }
