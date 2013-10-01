@@ -45,6 +45,7 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		for (Entry<String, MergeableMap<String, ServerInstance>> mapEntry : this.serverInstanceList.entrySet()) {
 			for (Entry<String, ServerInstance> entry : mapEntry.getValue().entrySet()) {
 				ServerInstance instance = entry.getValue();
+				System.out.println("instance id=" + instance.getId());
 				ResponseHistogram histogram = histogramMap.get(instance.getId());
 				if (histogram != null) {
 					instance.setHistogram(histogram);
@@ -59,7 +60,7 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		}
 		
 		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
-			String key = entry.getKey();
+			String key = entry.getKey() + entry.getValue().getServiceType();
 			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(key);
 
 //			ResponseHistogram histogram = null;

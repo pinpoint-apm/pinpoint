@@ -70,6 +70,10 @@ public class ApplicationMap {
 			}
 		}
 		
+		System.out.println("");
+		System.out.println("hostHistogramMap=" + hostHistogramMap);
+		System.out.println("");
+		
 		for (Entry<String, Application> entry : applications.entrySet()) {
 			Application application = entry.getValue();
 			application.mapHistogram(hostHistogramMap);
