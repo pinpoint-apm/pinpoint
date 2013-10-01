@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
+import org.slf4j.LoggerFactory;
+
 import java.util.regex.Pattern;
 
 /**
@@ -48,6 +50,18 @@ public class ApiDescriptionParser {
         String[] parameterList = parseParameter(parameterDescriptor);
         String[] simpleParameterList = parseSimpleParameter(parameterList);
         api.setSimpleParameter(simpleParameterList);
+
+        int lineIndex = apiDescriptionString.lastIndexOf(':');
+        // 일단 땜방으로 lineNumber체크해서 lineNumber를 뿌려주도록 하자.
+        if (lineIndex != -1) {
+            try {
+                int line = Integer.parseInt(apiDescriptionString.substring(lineIndex + 1, apiDescriptionString.length()));
+                api.setLine(line);
+            } catch (NumberFormatException e) {
+                LoggerFactory.getLogger(this.getClass()).warn("line number parse error {}", e);
+            }
+        }
+
         return api;
     }
 

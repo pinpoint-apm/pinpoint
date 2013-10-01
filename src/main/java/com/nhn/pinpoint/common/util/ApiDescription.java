@@ -11,6 +11,8 @@ public class ApiDescription {
 
     private String[] simpleParameter;
 
+    private int line = -1;
+
     public void setClassName(String className) {
         this.className = className;
     }
@@ -49,9 +51,16 @@ public class ApiDescription {
         return simpleParameter;
     }
 
+    public void setLine(int line) {
+        this.line = line;
+    }
+
     public String getSimpleMethodDescription() {
         String simpleParameterDescription = concateLine(simpleParameter, ", ");
-        return methodName + simpleParameterDescription;
+        if (line == -1) {
+            return methodName + simpleParameterDescription;
+        }
+        return methodName + simpleParameterDescription + ":" + line;
     }
 
     public String concateLine(String[] stringList, String separator) {
