@@ -131,6 +131,8 @@ public class RecordSetServiceImpl implements RecordSetService {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+
+        // id가 0일 경우 root로 취급하는 문제가 있어 1부터 시작하도록 함.
         private int idGen = 1;
         private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
 
@@ -192,7 +194,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                     int parentSequence;
                     if (stack.getParent() == null) {
                         // 자기 자신이 root인 경우
-                        parentSequence = -1;
+                        parentSequence = 0;
                     } else {
                         parentSequence = stack.getParent().getId();
                     }
