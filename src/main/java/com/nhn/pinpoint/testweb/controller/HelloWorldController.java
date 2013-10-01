@@ -193,6 +193,17 @@ public class HelloWorldController implements DisposableBean {
 		return "mysql";
 	}
 
+	@RequestMapping(value = "/nested")
+	public String nested(Model model) {
+		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
+		client2.executeToBloc("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
+		
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		
+		return "remotecombination";
+	}
+	
 	@RequestMapping(value = "/remotecombination")
 	public String remotecombination(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
@@ -201,6 +212,9 @@ public class HelloWorldController implements DisposableBean {
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
+		
+		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
+		client2.executeToBloc("http://localhost:8080/arcus.pinpoint", new HashMap<String, Object>());
 
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
