@@ -10,4 +10,8 @@ public class NamedThreadLocal<T> extends ThreadLocal<T> {
     public NamedThreadLocal(String name) {
         this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
 }

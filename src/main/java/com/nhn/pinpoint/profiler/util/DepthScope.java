@@ -51,4 +51,7 @@ public class DepthScope {
 
     }
 
+    public String getName() {
+        return scope.getName();
+    }
 }
