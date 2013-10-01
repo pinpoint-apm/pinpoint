@@ -57,10 +57,7 @@ public class ApiDescription {
 
     public String getSimpleMethodDescription() {
         String simpleParameterDescription = concateLine(simpleParameter, ", ");
-        if (line == -1) {
-            return methodName + simpleParameterDescription;
-        }
-        return methodName + simpleParameterDescription + ":" + line;
+        return methodName + simpleParameterDescription;
     }
 
     public String concateLine(String[] stringList, String separator) {
