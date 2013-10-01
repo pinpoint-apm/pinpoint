@@ -41,6 +41,12 @@ public class ProfilerConfig {
     private boolean jdbcProfileCubridRollback = false;
 
 	private boolean jdbcProfileDbcp = true;
+    private boolean jdbcProfileDbcpConnectionClose = false;
+
+    // 아래는 만들어야 됨.
+    private boolean arucs = true;
+    private boolean memcached = true;
+    private boolean arcusParameterTrace = false;
 
     // 전역 샘플링
     private boolean samplingEnable = true;
@@ -230,6 +236,10 @@ public class ProfilerConfig {
         return jdbcProfileDbcp;
     }
 
+    public boolean isJdbcProfileDbcpConnectionClose() {
+        return jdbcProfileDbcpConnectionClose;
+    }
+
     /**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
@@ -283,12 +293,13 @@ public class ProfilerConfig {
 
 
 		this.jdbcProfileCubrid = readBoolean(prop, "profiler.jdbc.cubrid", true);
-        this.jdbcProfileCubridSetAutoCommit = readBoolean(prop, "profiler.jdbc.cubrid.setautocommit", true);
-        this.jdbcProfileCubridCommit = readBoolean(prop, "profiler.jdbc.cubrid.commit", true);
-        this.jdbcProfileCubridRollback = readBoolean(prop, "profiler.jdbc.cubrid.rollback", true);
+        this.jdbcProfileCubridSetAutoCommit = readBoolean(prop, "profiler.jdbc.cubrid.setautocommit", false);
+        this.jdbcProfileCubridCommit = readBoolean(prop, "profiler.jdbc.cubrid.commit", false);
+        this.jdbcProfileCubridRollback = readBoolean(prop, "profiler.jdbc.cubrid.rollback", false);
 
 
 		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
+        this.jdbcProfileDbcpConnectionClose = readBoolean(prop, "profiler.jdbc.dbcp.connectionclose", false);
 
 
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
