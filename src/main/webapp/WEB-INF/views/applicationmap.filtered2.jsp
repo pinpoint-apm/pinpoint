@@ -15,17 +15,22 @@
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>,
-
-				"hosts" : [
-				<c:forEach items="${node.hostList}" var="host" varStatus="status2">
-					${host.value.json}
-					<c:if test="${!status2.last}">,</c:if>
-				</c:forEach>
-				],
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
-				"agents" : [
-				]
+				"serverList" : {
+					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
+						"${serverInstance.key}" : {
+							"status" : null,
+							"instanceList" : {
+								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
+								"${instance.key}" : ${instance.value.json}
+									<c:if test="${!status6.last}">,</c:if>
+								</c:forEach>								
+							}
+						}
+						<c:if test="${!status5.last}">,</c:if>
+					</c:forEach>
+				}
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],
@@ -40,7 +45,13 @@
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.slowCount},
-				"histogram" : ${link.histogram},
+				"histogram" : ${link.histogram.json},
+				"targetHosts" : [
+					<c:forEach items="${link.hostList}" var="host" varStatus="status2">
+						${host.value.json}
+						<c:if test="${!status2.last}">,</c:if>
+					</c:forEach>	
+				],
 				<c:choose>
 					<c:when test="${(link.histogram.errorCount / link.histogram.totalCount * 100) > 10}">"category" : "bad"</c:when>
 					<c:otherwise>"category" : "default"</c:otherwise>
@@ -48,6 +59,5 @@
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>   	
 		]
-	},
-	"timeseriesResponses" : ${timeseriesResponses.json}
+	}
 }
