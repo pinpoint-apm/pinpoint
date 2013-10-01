@@ -200,7 +200,7 @@ public class HelloWorldController implements DisposableBean {
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		
+		mysql(model);
 		return "remotecombination";
 	}
 	
