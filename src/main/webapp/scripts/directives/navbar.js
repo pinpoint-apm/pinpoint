@@ -77,6 +77,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                  */
                 scope.now = function () {
                     setDateTime();
+                    if (!scope.period) {
+                        scope.period = 20;
+                    }
                     broadcast();
                 };
 
