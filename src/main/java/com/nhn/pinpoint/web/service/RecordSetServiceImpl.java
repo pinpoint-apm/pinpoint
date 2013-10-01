@@ -131,7 +131,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
-        private int idGen = 0;
+        private int idGen = 1;
         private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
 
         private int getNextId() {
