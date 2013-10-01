@@ -15,15 +15,13 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 /**
  * @author harebox
  */
-public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class FutureSetOperationInterceptor implements SimpleAroundInterceptor {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MetaObject<Object> setOperation = new MetaObject<Object>("__setOperation", Operation.class);
     
-    private MethodDescriptor methodDescriptor;
-    private TraceContext traceContext;
 
     @Override
 	public void before(Object target, Object[] args) {
@@ -33,17 +31,6 @@ public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, B
 
 		setOperation.invoke(target, (Operation) args[0]);
 	}
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.methodDescriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result) {

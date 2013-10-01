@@ -2,15 +2,14 @@ package com.nhn.pinpoint.profiler.modifier.db.oracle;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateStaticInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import org.slf4j.Logger;
@@ -41,11 +40,11 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor execute = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            Interceptor execute = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             preparedStatement.addInterceptor("execute", null, execute);
-            Interceptor executeQuery = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            Interceptor executeQuery = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             preparedStatement.addInterceptor("executeQuery", null, executeQuery);
-            Interceptor executeUpdate = new JDBCScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor());
+            Interceptor executeUpdate = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             preparedStatement.addInterceptor("executeUpdate", null, executeUpdate);
 
             preparedStatement.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
@@ -67,7 +66,7 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
 
-        Interceptor interceptor = new JDBCScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor());
+        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

@@ -36,5 +36,8 @@ public class AddOpInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result);
+        }
     }
 }

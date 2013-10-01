@@ -4,12 +4,13 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScope;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,22 +35,24 @@ public class CubridStatementModifier extends AbstractModifier {
 		try {
 			InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor executeQueryInterceptor = new JDBCScopeDelegateSimpleInterceptor(new StatementExecuteQueryInterceptor());
+            Interceptor executeQueryInterceptor = new ScopeDelegateSimpleInterceptor(new StatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             statementClass.addInterceptor("executeQuery", new String[] { "java.lang.String" }, executeQueryInterceptor);
 
 			// TODO 이거 고쳐야 됨.
-            // 주석을 풀고 뭔가 고칠경우 JDBCScopeDelegateSimpleInterceptor 로 감싸야한다.
+            // 주석을 풀고 뭔가 고칠경우 ScopeDelegateSimpleInterceptor 로 감싸야한다.
 			// Interceptor executeUpdate1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
 			// statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String" }, executeUpdate1);
 
-			Interceptor executeUpdateInterceptor = new JDBCScopeDelegateSimpleInterceptor((SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor"));
+            SimpleAroundInterceptor executeUpdate = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            Interceptor executeUpdateInterceptor = new ScopeDelegateSimpleInterceptor(executeUpdate, JDBCScope.SCOPE);
 			statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String", "int" }, executeUpdateInterceptor);
 
-            // 주석을 풀고 뭔가 고칠경우 JDBCScopeDelegateSimpleInterceptor 로 감싸야한다.
+            // 주석을 풀고 뭔가 고칠경우 ScopeDelegateSimpleInterceptor 로 감싸야한다.
 			// Interceptor executeUpdate3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
 			// statementClass.addInterceptor("execute", new String[] { "java.lang.String" }, executeUpdate3);
 
-			Interceptor executeInterceptor = new JDBCScopeDelegateSimpleInterceptor((SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor"));
+            SimpleAroundInterceptor execute = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor");
+            Interceptor executeInterceptor = new ScopeDelegateSimpleInterceptor(execute, JDBCScope.SCOPE);
 			statementClass.addInterceptor("execute", new String[] { "java.lang.String", "int" }, executeInterceptor);
 
 			statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");

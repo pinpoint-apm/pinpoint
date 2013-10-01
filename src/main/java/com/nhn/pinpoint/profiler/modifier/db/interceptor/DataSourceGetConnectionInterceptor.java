@@ -7,10 +7,10 @@ import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.interceptor.util.JDBCScope;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
@@ -23,6 +23,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    private final DepthScope scope = JDBCScope.SCOPE;
 
     @Override
     public void before(Object target, Object[] args) {
@@ -30,7 +31,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             logger.beforeInterceptor(target, args);
         }
         // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 push만 한다.
-        JDBCScope.push();
+        scope.push();
 
 
         final Trace trace = traceContext.currentTraceObject();
@@ -48,7 +49,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             logger.afterInterceptor(target, null, result);
         }
         // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 pop만 한다.
-        JDBCScope.pop();
+        scope.pop();
 
 
         final Trace trace = traceContext.currentTraceObject();

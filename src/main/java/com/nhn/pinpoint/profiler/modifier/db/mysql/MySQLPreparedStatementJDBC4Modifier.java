@@ -2,10 +2,10 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScopeDelegateStaticInterceptor;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScope;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.nhn.pinpoint.profiler.util.BindVariableFilter;
 import com.nhn.pinpoint.profiler.util.IncludeBindVariableFilter;
@@ -58,7 +58,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
         // TODO 해당 로직 공통화 필요?
         // bci 쪽에 multi api 스펙에 대한 자동으로 인터셉터를 n개 걸어주는 api가 더 좋지 않을까한다.
-        Interceptor interceptor = new JDBCScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor());
+        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

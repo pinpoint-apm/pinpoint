@@ -47,7 +47,9 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 
 		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
 		if (asyncTrace == null) {
-			logger.debug("asyncTrace not found");
+            if (isDebug) {
+			    logger.debug("asyncTrace not found");
+            }
 			return;
 		}
 
@@ -55,7 +57,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 
 		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
 		if (newState == OperationState.READING) {
-			if (logger.isDebugEnabled()) {
+			if (isDebug) {
 				logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
 			}
 			if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
@@ -99,7 +101,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 			asyncTrace.markAfterTime();
 //			asyncTrace.traceBlockEnd();
 		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
-			if (logger.isDebugEnabled()) {
+			if (isDebug) {
                 logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
 			}
 			boolean fire = asyncTrace.fire();

@@ -41,8 +41,8 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("TraceID not exist. start new trace.");
+            if (isDebug) {
+                logger.debug("TraceID not exist. start new trace.");
             }
 			trace = traceContext.newTraceObject();
 		}

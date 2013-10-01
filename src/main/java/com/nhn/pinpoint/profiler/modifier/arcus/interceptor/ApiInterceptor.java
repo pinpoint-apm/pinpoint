@@ -84,16 +84,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		return sb.toString();
     }
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.methodDescriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
 
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result) {
@@ -103,7 +94,9 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.debug("trace not found");
+            if (isDebug) {
+			    logger.debug("trace not found");
+            }
 			return;
 		}
 		try {
@@ -139,5 +132,16 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.methodDescriptor = descriptor;
+        this.traceContext.cacheApi(descriptor);
+    }
+
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 }
