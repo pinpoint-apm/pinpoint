@@ -254,8 +254,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
 		addModifier(dbcpBasicDataSourceModifier);
 
-		Modifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
-		addModifier(dbcpPoolModifier);
+        if (profilerConfig.isJdbcProfileDbcpConnectionClose()) {
+		    Modifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
+		    addModifier(dbcpPoolModifier);
+        }
 	}
 	
 	public void addNpcModifier() {
