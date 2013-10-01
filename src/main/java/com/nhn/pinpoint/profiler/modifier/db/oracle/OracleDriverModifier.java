@@ -39,13 +39,11 @@ public class OracleDriverModifier  extends AbstractModifier {
 
 
             Interceptor createConnection = new DriverConnectInterceptor();
-            String[] params = new String[]{
-                    "java.lang.String", "java.util.Properties"
-            };
+            String[] params = new String[]{ "java.lang.String", "java.util.Properties" };
             oracleDriver.addInterceptor("connect", params, createConnection);
 
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
+            if (logger.isInfoEnabled()) {
+                logger.info("{} class is converted.", javassistClassName);
             }
 
             return oracleDriver.toBytecode();

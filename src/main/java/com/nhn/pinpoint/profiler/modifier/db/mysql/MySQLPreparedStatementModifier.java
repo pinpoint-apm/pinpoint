@@ -66,18 +66,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             }
             return null;
         }
-
-//		Interceptor interceptor = newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.db.mysql.interceptor.ExecuteMethodInterceptor");
-//		if (interceptor == null) {
-//			return null;
-//		}
-//
-//		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-//
-//		InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
-//		aClass.addInterceptor("executeQuery", null, interceptor);
-
-//		return changeMethod(javassistClassName, classFileBuffer);
     }
 
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
