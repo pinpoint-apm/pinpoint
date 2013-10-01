@@ -249,7 +249,7 @@
                     </td>
                     <td class="bar">
                     	<c:if test="${record.method}">
-                        <div style="height:8px;width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;">&nbsp;</div>
+                        <div style="height:8px;width:<fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/>px; background-color:#69B2E9;padding:0px;">&nbsp;</div>
                     	</c:if>
                     </td>
                     <td class="simpleClassName">${record.simpleClassName}</td>
