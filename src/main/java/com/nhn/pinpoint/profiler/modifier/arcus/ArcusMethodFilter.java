@@ -18,11 +18,12 @@ public class ArcusMethodFilter implements MethodFilter {
     @Override
     public boolean filter(CtMethod ctMethod) {
         final int modifiers = ctMethod.getModifiers();
-        if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)) {
-            for (String ignoredPrefix : ignoredPrefixes) {
-                if (ctMethod.getName().startsWith(ignoredPrefix)) {
-                    return true;
-                }
+        if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
+            return true;
+        }
+        for (String ignoredPrefix : ignoredPrefixes) {
+            if (ctMethod.getName().startsWith(ignoredPrefix)) {
+                return true;
             }
         }
         return false;
