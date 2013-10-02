@@ -113,8 +113,7 @@ public class DefaultAgent implements Agent {
         this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
-        this.agentStatMonitor = new AgentStatMonitor(this.traceContext, this.profilerConfig);
-        this.agentStatMonitor.setDataSender(this.statDataSender);
+        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender);
         this.agentStatMonitor.setAgentInfo(this.agentInfo);
 
         SingletonHolder.INSTANCE = this;
@@ -178,9 +177,10 @@ public class DefaultAgent implements Agent {
     }
 
     private AgentInfo createAgentInfo() {
-        String ip = getServerInfo().getHostip();
+        final ServerInfo serverInfo = this.serverInfo;
+        String ip = serverInfo.getHostip();
         String ports = "";
-        for (Entry<Integer, String> entry : getServerInfo().getConnectors().entrySet()) {
+        for (Entry<Integer, String> entry : serverInfo.getConnectors().entrySet()) {
             ports += " " + entry.getKey();
         }
 
@@ -190,9 +190,9 @@ public class DefaultAgent implements Agent {
         agentInfo.setHostname(this.machineName);
         agentInfo.setPorts(ports);
 
+        agentInfo.setApplicationName(getApplicationName());
         agentInfo.setAgentId(getAgentId());
         agentInfo.setPid(this.pid);
-        agentInfo.setApplicationName(getApplicationName());
 		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
         agentInfo.setIsAlive(true);
@@ -284,7 +284,7 @@ public class DefaultAgent implements Agent {
     }
 
     public void addConnector(String protocol, int port){
-        this.getServerInfo().addConnector(protocol, port);
+        this.serverInfo.addConnector(protocol, port);
     }
 
 
@@ -337,13 +337,13 @@ public class DefaultAgent implements Agent {
     public void stop() {
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
-        changeStatus(AgentStatus.STOPPING);
-        this.heartBitChecker.close();
-        this.agentStatMonitor.shutdown();
-
         agentInfo.setIsAlive(false);
-
         this.tcpDataSender.send(agentInfo);
+        // TODO send agentInfo alive false후 send 메시지의 처리가 정확하지 않음
+
+        changeStatus(AgentStatus.STOPPING);
+        this.heartBitChecker.stop();
+        this.agentStatMonitor.stop();
 
         // 종료 처리 필요.
         this.spanDataSender.stop();

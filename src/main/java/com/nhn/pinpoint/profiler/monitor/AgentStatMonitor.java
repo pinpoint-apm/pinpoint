@@ -25,35 +25,29 @@ import com.nhn.pinpoint.thrift.dto.AgentStat;
  */
 public class AgentStatMonitor {
 
+    private static final long DEFAULT_INTERVAL = 1000 * 5;
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final long DEFAULT_INTERVAL = 1000 * 5;
-	
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
 	private DataSender dataSender;
 	private AgentInfo agentInfo;
-	private TraceContext traceContext;
-	private final ProfilerConfig profilerConfig;
 
-	public AgentStatMonitor(TraceContext traceContext, ProfilerConfig profilerConfig) {
-		if (traceContext == null) {
-			throw new NullPointerException("traceContext is null");
-		}
-		this.traceContext = traceContext;
-		this.profilerConfig = profilerConfig;
+	public AgentStatMonitor(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
+        this.dataSender = dataSender;
 	}
 
-	public void setDataSender(DataSender dataSender) {
-		this.dataSender = dataSender;
-	}
-	
+
 	public void setAgentInfo(AgentInfo agentInfo) {
 		this.agentInfo = agentInfo;
 	}
 
 	public void start() {
-		CollectJob job = new CollectJob(dataSender, traceContext, profilerConfig);
+		CollectJob job = new CollectJob(dataSender);
 		// FIXME 설정에서 수집 주기를 가져올 수 있어야 한다.
 		long interval = DEFAULT_INTERVAL;
 		long wait = 0;
@@ -62,35 +56,34 @@ public class AgentStatMonitor {
 		logger.info("AgentStat monitor started");
 	}
 
-	public void shutdown() {
+	public void stop() {
 		executor.shutdown();
-		logger.info("AgentStat monitor stopped");
+        try {
+            executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        logger.info("AgentStat monitor stopped");
 	}
 
-	class CollectJob implements Runnable {
+    class CollectJob implements Runnable {
 		private AgentStat agentStat;
 		private DataSender dataSender;
-		private TraceContext traceContext;
-		private ProfilerConfig profilerConfig;
 		private MetricMonitorRegistry monitorRegistry;
 		private GarbageCollector garbageCollector;
 
-		public CollectJob(DataSender dataSender, TraceContext traceContext, ProfilerConfig profilerConfig) {
+		public CollectJob(DataSender dataSender) {
 			this.dataSender = dataSender;
-			this.traceContext = traceContext;
-			this.profilerConfig = profilerConfig;
-			
+
 			// FIXME 디폴트 레지스트리를 생성하여 사용한다. 다른데서 쓸 일이 있으면 외부에서 삽입하도록 하자.
 			this.monitorRegistry = new MetricMonitorRegistry();
-			
+
 			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
 			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
 			this.monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
 			
-			if (agentInfo != null) {
-				this.agentStat = new AgentStat();
-			}
-			
+			this.agentStat = new AgentStat();
+
 			this.garbageCollector = new GarbageCollector();
 			this.garbageCollector.setType(monitorRegistry);
 			logger.info("found : {}", this.garbageCollector);

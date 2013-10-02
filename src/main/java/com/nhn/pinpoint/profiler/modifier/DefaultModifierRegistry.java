@@ -96,8 +96,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	public void addConnectorModifier() {
-		FilterModifier filterModifier = new FilterModifier(byteCodeInstrumentor, agent);
-		addModifier(filterModifier);
+//      TODO FilterModifier는 인터페이스라서 변경못할 것으로 보임 확인 필요.
+//		FilterModifier filterModifier = new FilterModifier(byteCodeInstrumentor, agent);
+//		addModifier(filterModifier);
 
 		HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
 		addModifier(httpClient4Modifier);

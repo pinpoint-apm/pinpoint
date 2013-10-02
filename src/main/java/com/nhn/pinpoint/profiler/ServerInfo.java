@@ -1,26 +1,28 @@
 package com.nhn.pinpoint.profiler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerInfo {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private volatile String hostip;
+    private volatile String hostip;
 	private final Map<Integer, String> connectors = new ConcurrentHashMap<Integer, String>();
 	private volatile boolean isAlive;
-	private volatile long uptime;
 
 	public ServerInfo() {
 		try {
 			InetAddress thisIp = InetAddress.getLocalHost();
 			hostip = thisIp.getHostAddress();
-			uptime = System.currentTimeMillis();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			hostip = "127.0.0.1";
-		}
+        } catch (UnknownHostException e) {
+            logger.warn("getLocalHost fail. Caused:{}", e.getMessage(), e);
+            hostip = "127.0.0.1";
+        }
 	}
 
 	public void addConnector(String protocol, int port) {
@@ -40,7 +42,6 @@ public class ServerInfo {
         sb.append("hostip='").append(hostip).append('\'');
         sb.append(", connectors=").append(connectors);
         sb.append(", isAlive=").append(isAlive);
-        sb.append(", uptime=").append(uptime);
         sb.append('}');
         return sb.toString();
     }
@@ -61,7 +62,4 @@ public class ServerInfo {
 		this.isAlive = isAlive;
 	}
 
-	public long getUptime() {
-		return uptime;
-	}
 }

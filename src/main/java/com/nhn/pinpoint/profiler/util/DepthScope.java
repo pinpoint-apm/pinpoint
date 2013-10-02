@@ -20,17 +20,17 @@ public class DepthScope {
     }
 
     public int push() {
-        Depth depth = scope.get();
+        final Depth depth = scope.get();
         return depth.push();
     }
 
     public int depth() {
-        Depth depth = scope.get();
+        final Depth depth = scope.get();
         return depth.depth();
     }
 
     public int pop() {
-        Depth depth = scope.get();
+        final Depth depth = scope.get();
         return depth.pop();
     }
 

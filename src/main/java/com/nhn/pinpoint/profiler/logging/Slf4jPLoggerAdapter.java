@@ -6,11 +6,14 @@ import org.slf4j.Marker;
  *
  */
 public class Slf4jPLoggerAdapter implements PLogger {
-    private final org.slf4j.Logger logger;
-
     public static final int BUFFER_SIZE = 512;
 
+    private final org.slf4j.Logger logger;
+
     public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
+        if (logger == null) {
+            throw new NullPointerException("logger must not be null");
+        }
         this.logger = logger;
     }
 

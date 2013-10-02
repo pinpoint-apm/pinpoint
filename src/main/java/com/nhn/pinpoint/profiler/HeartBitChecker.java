@@ -65,11 +65,11 @@ public class HeartBitChecker {
     };
 
 
-    public void close() {
+    public void stop() {
         logger.info("HeartBitChecker stop");
         ioThread.interrupt();
         try {
-            ioThread.join(1000*5);
+            ioThread.join(1000 * 5);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

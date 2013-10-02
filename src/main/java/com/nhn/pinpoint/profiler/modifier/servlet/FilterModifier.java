@@ -46,7 +46,7 @@ public class FilterModifier extends AbstractModifier {
 
 			return servlet.toBytecode();
 		} catch (InstrumentException e) {
-			logger.info("modify fail. Cause:" + e.getMessage(), e);
+			logger.warn("modify fail. Cause:{}", e.getMessage(), e);
 			return null;
 		}
 	}
