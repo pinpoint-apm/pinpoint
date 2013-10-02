@@ -55,8 +55,10 @@ public class AnnotationUtils {
 //        }
 //
         // TODO 먼가 고쳐야 함.
-        if (serviceType == ServiceType.MYSQL || serviceType == ServiceType.ORACLE || serviceType == ServiceType.MSSQL
-                || serviceType == ServiceType.CUBRID) {
+        if (serviceType == ServiceType.MYSQL || serviceType == ServiceType.MYSQL_EXECUTE_QUERY
+                || serviceType == ServiceType.ORACLE || serviceType == ServiceType.ORACLE_EXECUTE_QUERY
+                || serviceType == ServiceType.MSSQL || serviceType == ServiceType.MSSQL_EXECUTE_QUERY
+                || serviceType == ServiceType.CUBRID || serviceType == ServiceType.CUBRID_EXECUTE_QUERY) {
             // args 0의 경우 연결string이다
             // 구현 방법이 매우 구림 좀더 개선 필요.
             return findAnnotationBo(list, AnnotationKey.ARGS0);
