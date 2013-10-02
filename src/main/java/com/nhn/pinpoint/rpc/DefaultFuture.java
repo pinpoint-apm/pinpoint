@@ -12,7 +12,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
-    private long timeoutMillis;
+    private final long timeoutMillis;
     private int waiters = 0;
 
     private boolean ready = false;

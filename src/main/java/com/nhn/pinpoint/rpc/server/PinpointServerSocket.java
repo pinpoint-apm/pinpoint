@@ -1,12 +1,16 @@
 package com.nhn.pinpoint.rpc.server;
 
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.socket.nio.NioServerBossPool;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
+import org.jboss.netty.util.ThreadNameDeterminer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +81,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
         // profiler, collector,
-        ExecutorService boss = Executors.newCachedThreadPool();
-        ExecutorService worker = Executors.newCachedThreadPool();
-        NioServerSocketChannelFactory nioClientSocketChannelFactory = new NioServerSocketChannelFactory(boss, worker);
+        ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Boss"));
+        NioServerBossPool nioServerBossPool = new NioServerBossPool(boss, bossCount, ThreadNameDeterminer.CURRENT);
+
+        ExecutorService worker = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Worker"));
+        NioWorkerPool nioWorkerPool = new NioWorkerPool(worker, workerCount, ThreadNameDeterminer.CURRENT);
+
+        NioServerSocketChannelFactory nioClientSocketChannelFactory = new NioServerSocketChannelFactory(nioServerBossPool, nioWorkerPool);
         return new ServerBootstrap(nioClientSocketChannelFactory);
     }
 
