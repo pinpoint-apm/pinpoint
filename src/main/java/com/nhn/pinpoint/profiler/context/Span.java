@@ -167,9 +167,10 @@ public class Span implements Thriftable {
     public com.nhn.pinpoint.thrift.dto.Span toThrift() {
         com.nhn.pinpoint.thrift.dto.Span span = new com.nhn.pinpoint.thrift.dto.Span();
 
-        span.setAgentId(DefaultAgent.getInstance().getAgentId());
-        span.setApplicationName(DefaultAgent.getInstance().getApplicationName());
-        span.setAgentStartTime(DefaultAgent.getInstance().getStartTime());
+        final DefaultAgent instance = DefaultAgent.getInstance();
+        span.setAgentId(instance.getAgentId());
+        span.setApplicationName(instance.getApplicationName());
+        span.setAgentStartTime(instance.getStartTime());
 
         span.setStartTime(startTime);
         span.setElapsed((int) (endTime - startTime));

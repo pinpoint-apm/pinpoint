@@ -177,7 +177,7 @@ public class SpanEvent implements Thriftable {
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
             AgentKey agentKey = new AgentKey();
-            DefaultAgent agent = DefaultAgent.getInstance();
+            final DefaultAgent agent = DefaultAgent.getInstance();
             agentKey.setAgentId(agent.getAgentId());
             agentKey.setApplicationName(agent.getApplicationName());
             agentKey.setAgentStartTime(agent.getStartTime());

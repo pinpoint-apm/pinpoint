@@ -8,6 +8,9 @@ public class SpanEventStackFrame implements StackFrame {
     private int stackId;
 
     public SpanEventStackFrame(SpanEvent spanEvent) {
+        if (spanEvent == null) {
+            throw new NullPointerException("spanEvent must not be null");
+        }
         this.spanEvent = spanEvent;
     }
 

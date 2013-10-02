@@ -22,6 +22,9 @@ public class TimeBaseStorageFactory implements StorageFactory {
 //    }
 
     public TimeBaseStorageFactory(DataSender dataSender, ProfilerConfig config) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
         this.dataSender = dataSender;
         this.config = config;
     }

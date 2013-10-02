@@ -26,7 +26,7 @@ public class SpanChunk implements Thriftable {
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
 
-        DefaultAgent agent = DefaultAgent.getInstance();
+        final DefaultAgent agent = DefaultAgent.getInstance();
         tSpanChunk.setAgentId(agent.getAgentId());
         tSpanChunk.setApplicationName(agent.getApplicationName());
         tSpanChunk.setAgentStartTime(agent.getStartTime());

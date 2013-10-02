@@ -11,6 +11,9 @@ public class BypassStorageFactory implements StorageFactory {
     private DataSender dataSender;
 
     public BypassStorageFactory(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
         this.dataSender = dataSender;
         storage.setDataSender(dataSender);
     }

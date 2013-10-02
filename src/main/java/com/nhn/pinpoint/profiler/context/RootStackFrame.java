@@ -10,6 +10,9 @@ public class RootStackFrame implements StackFrame {
 
 
     public RootStackFrame(Span span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
         this.span = span;
     }
 
