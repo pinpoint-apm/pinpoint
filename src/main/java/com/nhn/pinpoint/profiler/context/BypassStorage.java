@@ -12,11 +12,17 @@ public class BypassStorage implements Storage {
     }
 
     public BypassStorage(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
         this.dataSender = dataSender;
     }
 
     @Override
     public void setDataSender(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
         this.dataSender = dataSender;
     }
 
@@ -27,6 +33,9 @@ public class BypassStorage implements Storage {
 
     @Override
     public void store(SpanEvent spanEvent) {
+        if (spanEvent == null) {
+            throw new NullPointerException("spanEvent must not be null");
+        }
         dataSender.send(spanEvent);
     }
 

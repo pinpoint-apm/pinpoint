@@ -16,7 +16,7 @@ public class CodeBuilder {
         this.formatter = new Formatter(codeBlock);
     }
 
-    public void begin(){
+    public void begin() {
         codeBlock.append('{');
     }
 

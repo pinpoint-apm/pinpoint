@@ -57,7 +57,7 @@ public class DataSourceCloseInterceptor implements SimpleAroundInterceptor, Byte
         }
         try {
             trace.recordServiceType(ServiceType.DBCP);
-            trace.recordApi(descriptor, null);
+            trace.recordApi(descriptor);
             trace.recordException(result);
 
             trace.markAfterTime();

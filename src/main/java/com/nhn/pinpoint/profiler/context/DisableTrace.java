@@ -94,12 +94,22 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
+    public void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void recordApi(int apiId) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void recordApi(int apiId, Object[] args) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void recordApi(int apiId, Object[] args, int start, int end) {
         throw new UnsupportedOperationException();
     }
 

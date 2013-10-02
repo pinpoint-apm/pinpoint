@@ -60,10 +60,10 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
             trace.recordServiceType(ServiceType.DBCP);
             if (args == null) {
 //                args == null인 경우 parameter가 없는 getConnection() 호출시
-                trace.recordApi(descriptor, null);
+                trace.recordApi(descriptor);
             } else if(args.length == 2) {
 //                args[1]은 패스워드라서 뺀다.
-                trace.recordApi(descriptor, new Object[] {args[0]});
+                trace.recordApi(descriptor, args, 0, 1);
             }
             trace.recordException(result);
 

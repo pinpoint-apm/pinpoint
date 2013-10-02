@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,10 +27,17 @@ public class RuntimeMXBeanUtils {
         final int pidIndex = name.indexOf('@');
         if (pidIndex == -1) {
             getLogger().log(Level.WARNING, "invalid pid name:" + name);
-            return -1;
+            return getNegativeRandomValue();
         }
         String strPid = name.substring(0, pidIndex);
-        return Integer.parseInt(strPid);
+        try {
+            return Integer.parseInt(strPid);
+        } catch (NumberFormatException e) {
+            return getNegativeRandomValue();
+        }
+    }
+    private static int getNegativeRandomValue() {
+        return - Math.abs(new Random().nextInt());
     }
 
     public static long getVmStartTime() {
@@ -39,6 +47,7 @@ public class RuntimeMXBeanUtils {
             } catch (UnsupportedOperationException e) {
                 final Logger logger = getLogger();
                 logger.log(Level.WARNING, "RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);
+                START_TIME = System.currentTimeMillis();
             }
         }
         return START_TIME;

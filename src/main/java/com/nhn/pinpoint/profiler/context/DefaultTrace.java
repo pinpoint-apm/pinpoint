@@ -202,16 +202,16 @@ public final class DefaultTrace implements Trace {
 
     void logSpan(SpanEvent spanEvent) {
         if (isTrace) {
-            Thread th = Thread.currentThread();
-            logger.trace("[WRITE SpanEvent]" + spanEvent + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            final Thread th = Thread.currentThread();
+            logger.trace("[WRITE SpanEvent]{} Thread ID={} Name={}", spanEvent, th.getId(), th.getName());
         }
         this.storage.store(spanEvent);
     }
 
     void logSpan(Span span) {
         if (isTrace) {
-            Thread th = Thread.currentThread();
-            logger.trace("[WRITE SPAN]" + span + ", Thread ID=" + th.getId() + " Name=" + th.getName());
+            final Thread th = Thread.currentThread();
+            logger.trace("[WRITE SpanEvent]{} Thread ID={} Name={}", span, th.getId(), th.getName());
         }
         this.storage.store(span);
     }
@@ -246,7 +246,13 @@ public final class DefaultTrace implements Trace {
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
         // API 저장 방법의 개선 필요.                                                                                        
         recordApi(methodDescriptor);
-        recocordArgs(args);
+        recordArgs(args);
+    }
+
+    @Override
+    public void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end) {
+        recordApi(methodDescriptor);
+        recordArgs(args, start, end);
     }
 
     @Override
@@ -257,13 +263,29 @@ public final class DefaultTrace implements Trace {
     @Override
     public void recordApi(int apiId, Object[] args) {
         recordAttribute(AnnotationKey.API_ID, apiId);
-        recocordArgs(args);
+        recordArgs(args);
     }
 
-    private void recocordArgs(Object[] args) {
+    @Override
+    public void recordApi(int apiId, Object[] args, int start, int end) {
+        recordAttribute(AnnotationKey.API_ID, apiId);
+        recordArgs(args);
+    }
+
+    private void recordArgs(Object[] args, int start, int end) {
         if (args != null) {
-            int min = Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE);
-            for (int i = 0; i < min; i++) {
+            int max = Math.min(Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE), end);
+            for (int i = start; i < max; i++) {
+                recordAttribute(AnnotationKey.getArgs(i), args[i]);
+            }
+            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
+        }
+    }
+
+    private void recordArgs(Object[] args) {
+        if (args != null) {
+            int max = Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE);
+            for (int i = 0; i < max; i++) {
                 recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
             // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?                                                                  

@@ -17,7 +17,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
+    private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
     private TraceContext traceContext;
 
     @Override
@@ -36,7 +36,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
             return;
         }
 
-        Map bindList = getBindValue.invoke(target);
+        Map<Integer, String> bindList = getBindValue.invoke(target);
         if (bindList == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("bindValue is null");

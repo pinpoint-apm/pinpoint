@@ -20,9 +20,9 @@ public class RuntimeMXBeanUtilsTest {
     }
 
     @Test
-    public void pid() throws InterruptedException {
+    public void pid() {
         int pid = RuntimeMXBeanUtils.getPid();
         logger.debug("pid:{}", pid);
-        Assert.assertNotSame(pid, -1);
+        Assert.assertTrue(pid > 0);
     }
 }

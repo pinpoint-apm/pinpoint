@@ -13,6 +13,12 @@ public class Method {
     }
 
     public Method(String methodName, String[] methodParams) {
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
+        if (methodParams == null) {
+            throw new NullPointerException("methodParams must not be null");
+        }
         this.methodName = methodName;
         this.methodParams = methodParams;
     }
