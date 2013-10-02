@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.logging;
 
+import java.util.logging.Logger;
+
 /**
  *
  */
@@ -11,7 +13,8 @@ public final class PLoggerFactory {
         if (PLoggerFactory.loggerBinder == null) {
             PLoggerFactory.loggerBinder = loggerBinder;
         } else {
-            System.out.println("loggerBinder is not null");
+            final Logger logger = Logger.getLogger(PLoggerFactory.class.getName());
+            logger.warning("loggerBinder is not null");
         }
     }
 
@@ -21,7 +24,6 @@ public final class PLoggerFactory {
         if (loggerBinder == PLoggerFactory.loggerBinder) {
             PLoggerFactory.loggerBinder = null;
         }
-
     }
 
     public static PLogger getLogger(String name) {

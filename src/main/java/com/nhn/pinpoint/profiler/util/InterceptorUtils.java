@@ -13,14 +13,14 @@ public class InterceptorUtils {
 		return !isThrowable(result);
 	}
 
-	public static String exceptionToString(Exception e) {
-		if (e != null) {
+	public static String exceptionToString(Exception ex) {
+		if (ex != null) {
 			StringBuilder sb = new StringBuilder(128);
-			sb.append(e.toString()).append("\n");
+			sb.append(ex.toString()).append("\n");
 
 			Writer writer = new StringWriter();
 			PrintWriter printWriter = new PrintWriter(writer);
-			e.printStackTrace(printWriter);
+            ex.printStackTrace(printWriter);
 			sb.append(writer.toString());
 
 			return sb.toString();
