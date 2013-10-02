@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
@@ -72,7 +71,7 @@ public class TransactionId {
     }
 
     public byte[] getBytes() {
-        return BytesUtils.stringLongLongToBytes(agentId, HBaseTables.AGENT_NAME_MAX_LEN, agentStartTime, transactionSequence);
+        return BytesUtils.stringLongLongToBytes(agentId, PinpointConstants.AGENT_NAME_MAX_LEN, agentStartTime, transactionSequence);
     }
 
     @Override

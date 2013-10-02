@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.mapper;
 
+import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.KeyValue;
@@ -43,10 +43,10 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         agentInfoBo.readValue(keyValue.getValue());
 
         byte[] rowKey = keyValue.getRow();
-        String agentId = Bytes.toString(rowKey, 0, HBaseTables.AGENT_NAME_MAX_LEN - 1).trim();
+        String agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN - 1).trim();
         agentInfoBo.setAgentId(agentId);
 
-        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HBaseTables.AGENT_NAME_MAX_LEN);
+        long reverseStartTime = BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
         long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
         agentInfoBo.setStartTime(startTime);
 
