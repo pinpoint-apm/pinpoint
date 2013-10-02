@@ -3,6 +3,8 @@ package com.nhn.pinpoint.profiler.modifier.arcus;
 import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import javassist.CtMethod;
 
+import java.lang.reflect.Modifier;
+
 /**
  *
  */
@@ -15,12 +17,12 @@ public class ArcusMethodFilter implements MethodFilter {
 
     @Override
     public boolean filter(CtMethod ctMethod) {
-        if (ctMethod.getModifiers() != javassist.Modifier.PUBLIC) {
-            return true;
-        }
-        for (String ignoredPrefix : ignoredPrefixes) {
-            if (ctMethod.getName().startsWith(ignoredPrefix)) {
-                return true;
+        final int modifiers = ctMethod.getModifiers();
+        if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)) {
+            for (String ignoredPrefix : ignoredPrefixes) {
+                if (ctMethod.getName().startsWith(ignoredPrefix)) {
+                    return true;
+                }
             }
         }
         return false;
