@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 import static com.nhn.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
 
 /**

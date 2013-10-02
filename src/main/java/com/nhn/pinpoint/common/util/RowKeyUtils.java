@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 import static com.nhn.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
 import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 

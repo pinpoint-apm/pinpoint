@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
+import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 
@@ -28,7 +29,7 @@ public class SpanUtilsTest {
     @Test
     public void testGetTraceIndexRowKey2() throws Exception {
         String agentId = "";
-        for (int i = 0; i < HBaseTables.AGENT_NAME_MAX_LEN; i++) {
+        for (int i = 0; i < PinpointConstants.AGENT_NAME_MAX_LEN; i++) {
             agentId += "1";
         }
 
@@ -39,7 +40,7 @@ public class SpanUtilsTest {
     @Test
     public void testGetTraceIndexRowKey3() throws Exception {
         String agentId = "";
-        for (int i = 0; i < HBaseTables.AGENT_NAME_MAX_LEN + 1; i++) {
+        for (int i = 0; i < PinpointConstants.AGENT_NAME_MAX_LEN + 1; i++) {
             agentId += "1";
         }
 
@@ -58,10 +59,10 @@ public class SpanUtilsTest {
 
         byte[] traceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), span.getStartTime());
 
-        String agentId = Bytes.toString(traceIndexRowKey, 0, HBaseTables.AGENT_NAME_MAX_LEN).trim();
+        String agentId = Bytes.toString(traceIndexRowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
         Assert.assertEquals(agentId0, agentId);
 
-        long time = TimeUtils.recoveryCurrentTimeMillis(Bytes.toLong(traceIndexRowKey, HBaseTables.AGENT_NAME_MAX_LEN));
+        long time = TimeUtils.recoveryCurrentTimeMillis(Bytes.toLong(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN));
         Assert.assertEquals(time, l1);
     }
 }

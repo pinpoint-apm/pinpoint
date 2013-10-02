@@ -1,8 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 
-import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.thrift.dto.SpanChunk;
 import com.nhn.pinpoint.thrift.dto.SpanEvent;
@@ -36,7 +35,7 @@ public class SpanUtils {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), AGENT_NAME_MAX_LEN, span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
 
 	}
 
@@ -44,13 +43,13 @@ public class SpanUtils {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionSequence());
 	}
 
 	public static byte[] getTransactionId(SpanChunk spanChunk) {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(spanChunk.getTraceAgentId(), HBaseTables.AGENT_NAME_MAX_LEN, spanChunk.getTraceAgentStartTime(), spanChunk.getTraceTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(spanChunk.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanChunk.getTraceAgentStartTime(), spanChunk.getTraceTransactionSequence());
 	}
 }

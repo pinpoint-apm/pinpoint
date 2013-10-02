@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
+import com.nhn.pinpoint.common.PinpointConstants;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.nhn.pinpoint.common.Histogram;
@@ -83,9 +84,9 @@ public class TerminalSpanUtils {
 		byte[] slot = Bytes.toBytes(time);
 		byte[] applicationnameBytes = Bytes.toBytes(applicationName);
 
-		byte[] buf = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN + 8];
+		byte[] buf = new byte[PinpointConstants.APPLICATION_NAME_MAX_LEN + 8];
 		System.arraycopy(applicationnameBytes, 0, buf, 0, applicationnameBytes.length);
-		System.arraycopy(slot, 0, buf, HBaseTables.APPLICATION_NAME_MAX_LEN, 8);
+		System.arraycopy(slot, 0, buf, PinpointConstants.APPLICATION_NAME_MAX_LEN, 8);
 
 		return buf;
 	}
