@@ -46,9 +46,13 @@ public interface Trace {
 
     void recordApi(MethodDescriptor methodDescriptor, Object[] args);
 
+    void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end);
+
     void recordApi(int apiId);
 
     void recordApi(int apiId, Object[] args);
+
+    void recordApi(int apiId, Object[] args, int start, int end);
 
     void recordAttribute(AnnotationKey key, String value);
 
