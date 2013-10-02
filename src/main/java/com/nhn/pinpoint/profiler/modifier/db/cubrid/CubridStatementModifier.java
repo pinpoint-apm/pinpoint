@@ -38,17 +38,17 @@ public class CubridStatementModifier extends AbstractModifier {
             Interceptor executeQueryInterceptor = new ScopeDelegateSimpleInterceptor(new StatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             statementClass.addInterceptor("executeQuery", new String[] { "java.lang.String" }, executeQueryInterceptor);
 
-            // 이거는 안해도 되나?
-			// "executeUpdate", new String[] { "java.lang.String" }
+            Interceptor executeUpdateInterceptor1 = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
+            statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String" }, executeUpdateInterceptor1);
 
-            Interceptor executeUpdateInterceptor = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
-			statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String", "int" }, executeUpdateInterceptor);
+            Interceptor executeUpdateInterceptor2 = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
+			statementClass.addInterceptor("executeUpdate", new String[] { "java.lang.String", "int" }, executeUpdateInterceptor2);
 
-            // 이거는 안해도 되나?
-			// "execute", new String[] { "java.lang.String" }
+            Interceptor executeInterceptor1 = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
+            statementClass.addInterceptor("execute", new String[] { "java.lang.String" }, executeInterceptor1);
 
-            Interceptor executeInterceptor = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
-			statementClass.addInterceptor("execute", new String[] { "java.lang.String", "int" }, executeInterceptor);
+            Interceptor executeInterceptor2 = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
+			statementClass.addInterceptor("execute", new String[] { "java.lang.String", "int" }, executeInterceptor2);
 
 			statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
 

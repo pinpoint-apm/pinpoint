@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class DefaultDatabaseInfo implements DatabaseInfo {
 
-	private ServiceType type = ServiceType.UNKNOWN;
-    private ServiceType executeQueryType = ServiceType.UNKNOWN;
+	private ServiceType type = ServiceType.UNKNOWN_DB;
+    private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
     private String databaseId;
 	// 입력된 url을 보정하지 않은 값
     private String realUrl;

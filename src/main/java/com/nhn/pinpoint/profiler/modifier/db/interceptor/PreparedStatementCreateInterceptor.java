@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
@@ -21,7 +22,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
     private MethodDescriptor descriptor;
 
     // connection 용.
-    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
     private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
 
     private final MetaObject setSql = new MetaObject("__setSql", Object.class);
@@ -40,13 +41,11 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-
+        DatabaseInfo databaseInfo = getUrl.invoke(target);
         trace.recordServiceType(databaseInfo.getType());
-
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
-        trace.recordDestinationAddress(databaseInfo.getHost());
+
 
     }
 
@@ -61,7 +60,9 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
             DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-            this.setUrl.invoke(result, databaseInfo);
+            if (databaseInfo != null) {
+                this.setUrl.invoke(result, databaseInfo);
+            }
             // 1. traceContext를 체크하면 안됨. traceContext에서 즉 같은 thread에서 prearedStatement에서 안만들수도 있음.
             // 2. sampling 동작이 동작할 경우 preparedStatement를 create하는 thread가 trace 대상이 아닐수 있음. 먼제 sql을 저장해야 한다.
             String sql = (String) args[0];

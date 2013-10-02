@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -19,7 +20,7 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
@@ -40,14 +41,10 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
             /**
              * If method was not called by request handler, we skip tagging.
              */
-            DatabaseInfo databaseInfo = (DatabaseInfo) this.getUrl.invoke(target);
-
+            DatabaseInfo databaseInfo = this.getUrl.invoke(target);
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
-
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
-            trace.recordDestinationAddress(databaseInfo.getHost());
-
 
         } catch (Exception e) {
             if (logger.isInfoEnabled()) {

@@ -24,7 +24,6 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final String[] excludes = new String[] { "setRowId", "setNClob", "setSQLXML" };
 
 	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -67,8 +66,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 	}
 
 	private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-		ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
-		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
+		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
 
 		Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
 		int interceptorId = -1;

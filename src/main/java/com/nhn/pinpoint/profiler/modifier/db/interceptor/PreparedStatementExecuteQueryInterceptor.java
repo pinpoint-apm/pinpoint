@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
@@ -24,8 +25,8 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
-    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getUrl");
-    private final MetaObject<Map> getBindValue = new MetaObject<Map>("__getBindValue");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
+    private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
     private MethodDescriptor descriptor;
@@ -45,22 +46,25 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         trace.traceBlockBegin();
         trace.markBeforeTime();
         try {
-            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
-
+            DatabaseInfo databaseInfo = getUrl.invoke(target);
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
-            trace.recordDestinationAddress(databaseInfo.getHost());
+
 
             ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
 
             trace.recordSqlParsingResult(parsingResult);
 
-            Map bindValue = getBindValue.invoke(target);
-            String bindString = toBindVariable(bindValue);
-            if (bindString != null && bindString.length() != 0) {
-                trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
+            Map<Integer, String> bindValue = getBindValue.invoke(target);
+            if (bindValue != null) {
+                String bindString = toBindVariable(bindValue);
+                if (bindString != null && bindString.length() != 0) {
+                    trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
+                }
+            } else {
+                logger.warn("bindValue not found.");
             }
 
             trace.recordApi(descriptor);
@@ -83,10 +87,9 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         setBindValue.invoke(target, Collections.synchronizedMap(new HashMap()));
     }
 
-    private String toBindVariable(Map bindValue) {
+    private String toBindVariable(Map<Integer, String> bindValue) {
         String[] temp = new String[bindValue.size()];
-        for (Object obj : bindValue.entrySet()) {
-            Map.Entry<Integer, String> entry = (Map.Entry<Integer, String>) obj;
+        for (Map.Entry<Integer, String> entry : bindValue.entrySet()) {
             Integer key = entry.getKey() - 1;
             if (temp.length < key) {
                 continue;
