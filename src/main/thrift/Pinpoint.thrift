@@ -9,7 +9,7 @@ struct AgentInfo {
 	6: i16	serviceType
 	7: bool	isAlive
 	8: i64	timestamp
-	9: i16  identifier
+	9: i32  pid
 }
 
 struct StatWithSerialCollector {
