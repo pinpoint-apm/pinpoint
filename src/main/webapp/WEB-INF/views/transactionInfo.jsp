@@ -188,14 +188,11 @@
 		        <c:set var="startTime" scope="page" value="${callstackStart}"/>
 		        <c:set var="endTime" scope="page" value="${callstackEnd}"/>
 		        <c:set var="seq" scope="page" value="0"/>
-				<c:set var="gap" scope="page" value="0"/>
-		        
+
 		        <c:forEach items="${callstack}" var="record" varStatus="status">
 		            <c:set var="depth" scope="page" value="${span.depth}"/>
 		            <c:if test="${record.method}">
-		            	<c:if test="${not status.first}">
-	               			<c:set var="gap" scope="page" value="${record.begin - begin}"/>
-	               		</c:if>
+
 		                <c:set var="begin" scope="page" value="${record.begin}"/>
 		                <c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
 	               	</c:if>
@@ -238,7 +235,7 @@
                     </td>
                     <td class="gap">
                     	<c:if test="${record.method}">
-                    	<fmt:formatNumber value="${gap}" type="number" />
+                    	<fmt:formatNumber value="${record.gap}" type="number" />
                     	</c:if>
                    	</td>
                     

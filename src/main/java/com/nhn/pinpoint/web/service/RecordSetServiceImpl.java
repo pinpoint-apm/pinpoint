@@ -148,13 +148,14 @@ public class RecordSetServiceImpl implements RecordSetService {
 
             // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
             for (int i = 0; i < spanAlignList.size(); i++) {
-                SpanAlign spanAlign = spanAlignList.get(i);
-
+                final SpanAlign spanAlign = spanAlignList.get(i);
                 if (i == 0) {
                     if (!spanAlign.isSpan()) {
                         throw new IllegalArgumentException("root is not span");
                     }
-                    stack.push(new SpanDepth(spanAlign, getNextId()));
+                    // spanAlign의 startTime을 넣을 경우 동일 시간으로 빼면 0이 나오므로 동일 값을 넣는다..
+                    final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), spanAlign.getSpanBo().getStartTime());
+                    stack.push(spanDepth);
                 } else {
                     final SpanDepth lastSpanDepth = stack.getLast();
                     final int parentDepth = lastSpanDepth.getSpanAlign().getDepth();
@@ -163,23 +164,31 @@ public class RecordSetServiceImpl implements RecordSetService {
 
                     if (parentDepth < spanAlign.getDepth()) {
                         // 부모의 깊이가 더 작을 경우 push해야 한다.
-                        stack.push(new SpanDepth(spanAlign, getNextId()));
-                    } else if (parentDepth > currentDepth) {
-                        // 부모의 깊이가 클 경우 pop해야 한다.
-                        // 단 depth차가 1depth이상 날수 있기 때문에. depth를 확인하면서 pop을 해야 한다.
-                        while (true) {
-                            logger.trace("pop");
-                            stack.pop();
-                            SpanDepth popLast = stack.getLast();
-                            if (popLast.getSpanAlign().getDepth() < currentDepth) {
-                                break;
-                            }
-                        }
-                        stack.push(new SpanDepth(spanAlign, getNextId()));
+                        final SpanDepth last = stack.getLast();
+                        final long beforeStartTime = getStartTime(last.getSpanAlign());
+                        final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), beforeStartTime);
+                        stack.push(spanDepth);
                     } else {
-                        // 바로 앞 동일 depth의 object는 버려야 한다.
-                        stack.pop();
-                        stack.push(new SpanDepth(spanAlign, getNextId()));
+                        if (parentDepth > currentDepth) {
+                            // 부모의 깊이가 클 경우 pop해야 한다.
+                            // 단 depth차가 1depth이상 날수 있기 때문에. depth를 확인하면서 pop을 해야 한다.
+                            SpanDepth lastPopSpanDepth;
+                            while (true) {
+                                logger.trace("pop");
+                                lastPopSpanDepth = stack.pop();
+                                SpanDepth popLast = stack.getLast();
+                                if (popLast.getSpanAlign().getDepth() < currentDepth) {
+                                    break;
+                                }
+                            }
+                            final long beforeLastEndTime = getLastTime(lastPopSpanDepth.getSpanAlign());
+                            stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
+                        } else {
+                            // 바로 앞 동일 depth의 object는 버려야 한다.
+                            final SpanDepth before = stack.pop();
+                            final long beforeLastEndTime = getLastTime(before.getSpanAlign());
+                            stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
+                        }
                     }
                 }
 
@@ -204,13 +213,13 @@ public class RecordSetServiceImpl implements RecordSetService {
                     String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
                     if (method !=  null) {
                         ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, getGap(stack), spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
                         AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, getGap(stack), spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -238,7 +247,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, getGap(stack), spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -250,7 +259,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, getGap(stack), spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
                         record.setSimpleClassName("");
                         record.setFullApiDescription(method);
 
@@ -264,13 +273,44 @@ public class RecordSetServiceImpl implements RecordSetService {
             return recordList;
         }
 
+        private long getGap(Stack<SpanDepth> stack) {
+            SpanDepth last = stack.getLast();
+            final long lastExecuteTime = last.getLastExecuteTime();
+            SpanAlign spanAlign = last.getSpanAlign();
+            if (spanAlign.isSpan()) {
+                return spanAlign.getSpanBo().getStartTime() - lastExecuteTime;
+            } else {
+                return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
+            }
+        }
+
+        private long getLastTime(SpanAlign spanAlign) {
+            final SpanBo spanBo = spanAlign.getSpanBo();
+            if (spanAlign.isSpan()) {
+                return spanBo.getStartTime() + spanBo.getElapsed();
+            } else {
+                SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+                return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+            }
+        }
+
+        private long getStartTime(SpanAlign spanAlign) {
+            final SpanBo spanBo = spanAlign.getSpanBo();
+            if (spanAlign.isSpan()) {
+                return spanBo.getStartTime();
+            } else {
+                return spanBo.getStartTime() + spanAlign.getSpanEventBo().getStartElapsed();
+            }
+        }
+
+
         private List<Record> createAnnotationRecord(int depth, int parentId, List<AnnotationBo> annotationBoList) {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, null, null, null, null, false);
+                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
                     recordList.add(record);
                 }
             }
@@ -279,7 +319,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
-            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, null, null, null, null, false);
+            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false);
         }
 
     }

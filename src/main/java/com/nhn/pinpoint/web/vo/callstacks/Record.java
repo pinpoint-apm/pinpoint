@@ -21,6 +21,7 @@ public class Record {
 	private final String arguments;
 	private final long begin;
 	private final long elapsed;
+    private final long gap;
 	private final String agent;
 	private final String service;
     private final ServiceType serviceType;
@@ -30,7 +31,7 @@ public class Record {
     private boolean focused;
     private boolean hasChild;
 
-	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
+	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
 		this.tab = tab;
 		this.id = id;
 		this.parentId = parentId;
@@ -40,6 +41,7 @@ public class Record {
 		this.arguments = arguments;
 		this.begin = begin;
 		this.elapsed = elapsed;
+        this.gap = gap;
 		this.agent = agent;
 
 		this.service = service;
@@ -92,7 +94,11 @@ public class Record {
 		return elapsed;
 	}
 
-	public String getAgent() {
+    public long getGap() {
+        return gap;
+    }
+
+    public String getAgent() {
 		return agent;
 	}
 
@@ -161,6 +167,7 @@ public class Record {
         sb.append(", arguments='").append(arguments).append('\'');
         sb.append(", begin=").append(begin);
         sb.append(", elapsed=").append(elapsed);
+        sb.append(", gap=").append(gap);
         sb.append(", agent='").append(agent).append('\'');
         sb.append(", service='").append(service).append('\'');
         sb.append(", serviceType=").append(serviceType);

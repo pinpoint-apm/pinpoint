@@ -6,15 +6,18 @@ import com.nhn.pinpoint.web.calltree.span.SpanAlign;
  *
  */
 public class SpanDepth {
-    private SpanAlign spanAlign;
-    private int id;
+    private final SpanAlign spanAlign;
+    private final int id;
+    // gap 을 구하기 위해 바로 전 lastExecuteTime을 구함
+    private final long lastExecuteTime;
 
-    public SpanDepth(SpanAlign spanAlign, int id) {
+    public SpanDepth(SpanAlign spanAlign, int id, long lastExecuteTime) {
         if (spanAlign == null) {
             throw new NullPointerException("spanAlign must not be null");
         }
         this.spanAlign = spanAlign;
         this.id = id;
+        this.lastExecuteTime = lastExecuteTime;
     }
 
     public SpanAlign getSpanAlign() {
@@ -25,4 +28,7 @@ public class SpanDepth {
         return id;
     }
 
+    public long getLastExecuteTime() {
+        return lastExecuteTime;
+    }
 }
