@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface Trace {
 
-    public static final int NOCHECK_STACKID = -1;
+    public static final int DEFAULT_STACKID = -1;
     public static final int ROOT_STACKID = 0;
 
     AsyncTrace createAsyncTrace();
