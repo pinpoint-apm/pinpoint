@@ -113,17 +113,56 @@ pinpointApp
 //                        renderApplicationStatistics(result.histogramSummary);
 //                    });
 //                };
+                
 
-                var extractHistogramFromData = function (data) {
-                    var histogram = [];
-                    if (data && data.serverList /*&& angular.isArray(data.serverList) && data.serverList.length > 0*/) {
-                        angular.forEach(data.serverList, function (serverInfo, serverName) {
-                            var i = 0;
-                            angular.forEach(serverInfo.instanceList, function (innerVal, innerKey) {
-                            	if (innerVal.histogram == null) {
-                            		return;
-                            	}
-                            	angular.forEach(innerVal.histogram, function(v, k) {
+                // histogram 데이터 서버에서 만들지 않고, link정보에서 수집한다.
+//                var extractHistogramFromData = function (data) {
+//                    var histogram = [];
+//                    if (data && data.serverList /*&& angular.isArray(data.serverList) && data.serverList.length > 0*/) {
+//                        angular.forEach(data.serverList, function (serverInfo, serverName) {
+//                            var i = 0;
+//                            angular.forEach(serverInfo.instanceList, function (innerVal, innerKey) {
+//                            	if (innerVal.histogram == null) {
+//                            		return;
+//                            	}
+//                            	angular.forEach(innerVal.histogram, function(v, k) {
+//                            		if (histogram[i]) {
+//                            			histogram[i].value += Number(v, 10);
+//                            		} else {
+//                            			histogram[i] = {
+//                            					'label' : k,
+//                            					'value' : Number(v, 10)
+//                            			};
+//                            		}
+//                            		i++;
+//                            	});
+//                            	i = 0;
+//                            });
+//                        });
+//                    }
+//                    var histogramData = [{
+//                        'key' : "Response Time Histogram",
+//                        'values': histogram
+//                    }];
+//                    return histogramData;
+//                };
+
+                scope.$on('servermap.nodeClicked', function (event, e, query, node, mapData) {
+                    reset();
+                    showDetailInformation(query, node);
+                    scope.node = node;
+                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
+//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
+                        
+                    	// application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
+                    	// var histogramData = extractHistogramFromData(node);
+                    	
+                        var key = node.key;
+                        var histogram = [];
+                        angular.forEach(mapData.applicationMapData.linkDataArray, function (value, index) {
+                        	var i = 0;
+                        	if (value.to == key) {
+                            	angular.forEach(value.histogram, function(v, k) {
                             		if (histogram[i]) {
                             			histogram[i].value += Number(v, 10);
                             		} else {
@@ -134,25 +173,13 @@ pinpointApp
                             		}
                             		i++;
                             	});
-                            	i = 0;
-                            });
+                        	}
                         });
-                    }
-                    var histogramData = [{
-                        'key' : "Response Time Histogram",
-                        'values': histogram
-                    }];
-                    return histogramData;
-                };
-
-                scope.$on('servermap.nodeClicked', function (event, e, query, node) {
-                    reset();
-                    showDetailInformation(query, node);
-                    scope.node = node;
-                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
-//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
-                        var histogramData = extractHistogramFromData(node);
-                        renderApplicationStatistics(histogramData);
+                        renderApplicationStatistics([{
+                            'key' : "Response Time Histogram",
+                            'values': histogram
+                        }]);
+                        //renderApplicationStatistics(histogramData);
                     }
                 });
                 scope.$on('servermap.linkClicked', function (event, e, query, link) {

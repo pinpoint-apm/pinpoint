@@ -47,7 +47,8 @@ public class ApplicationMap {
 		Map<String, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
 		
 		// extract application and histogram
-		MergeableMap<String, ResponseHistogram> hostHistogramMap = new MergeableHashMap<String, ResponseHistogram>();
+//		application histogram front end에서 계산함.
+//		MergeableMap<String, ResponseHistogram> hostHistogramMap = new MergeableHashMap<String, ResponseHistogram>();
 		for (TransactionFlowStatistics stat : rawData) {
 			// FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
 			if (!stat.getFromServiceType().isRpcClient()) {
@@ -61,12 +62,13 @@ public class ApplicationMap {
 			if (!stat.getToServiceType().isRpcClient()) {
 				String id = stat.getToApplicationId();
 				// application histogram map 생성.
-				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
-					Host host = entry.getValue();
-					ResponseHistogram histogram = host.getHistogram();
-					ResponseHistogram value= new ResponseHistogram(histogram.getId(), histogram.getServiceType());
-					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
-				}
+//				application histogram front end에서 계산함.
+//				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
+//					Host host = entry.getValue();
+//					ResponseHistogram histogram = host.getHistogram();
+//					ResponseHistogram value= new ResponseHistogram(histogram.getId(), histogram.getServiceType());
+//					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
+//				}
 				addApplication(new Application(id, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
 			}
 			
@@ -84,10 +86,10 @@ public class ApplicationMap {
 //			}
 		}
 		
-		for (Entry<String, Application> entry : applications.entrySet()) {
-			Application application = entry.getValue();
-			application.mapHistogram(hostHistogramMap);
-		}
+//		for (Entry<String, Application> entry : applications.entrySet()) {
+//			Application application = entry.getValue();
+//			application.mapHistogram(hostHistogramMap);
+//		}
 		
 		// indexing application
 		indexingApplication();

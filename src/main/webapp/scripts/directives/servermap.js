@@ -252,7 +252,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
 
                 var options = config.options;
                 options.fOnNodeContextClicked = function (e, node) {
-                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, node);
+                    $rootScope.$broadcast("servermap.nodeContextClicked", e, query, node, data);
                     reset();
                     scope.node = node;
                     if (node.category !== "UNKNOWN_GROUP" && node.category !== "USER") {
@@ -260,7 +260,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     }
                 };
                 options.fOnLinkContextClicked = function (e, link) {
-                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, link);
+                    $rootScope.$broadcast("servermap.linkContextClicked", e, query, link, data);
                     reset();
                     scope.link = link;
                     scope.nodeCategory = link.category;
@@ -271,11 +271,11 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
                 };
                 options.fOnLinkClicked = function (e, link) {
-                    $rootScope.$broadcast("servermap.linkClicked", e, query, link);
+                    $rootScope.$broadcast("servermap.linkClicked", e, query, link, data);
                     reset();
                 };
                 options.fOnNodeClicked = function (e, node) {
-                    $rootScope.$broadcast("servermap.nodeClicked", e, query, node);
+                    $rootScope.$broadcast("servermap.nodeClicked", e, query, node, data);
                     reset();
                 };
                 options.fOnBackgroundClicked = function (e) {
@@ -299,7 +299,7 @@ pinpointApp.directive('servermap', [ 'config', '$rootScope', '$templateCache', '
                     })();
                     //oServerMap.highlightNodeByKey(selectedNode.key);
                     options.nBoldKey = selectedNode.key;
-                    $rootScope.$broadcast("servermap.nodeClicked", null, query, selectedNode);
+                    $rootScope.$broadcast("servermap.nodeClicked", null, query, selectedNode, data);
                 } catch (e) {
                     console.log(e);
                 }

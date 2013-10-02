@@ -48,24 +48,25 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		return serverInstanceList;
 	}
 
-	public void mapHistogram(Map<String, ResponseHistogram> histogramMap) {
-		if (this.serverInstanceList.isEmpty()) {
-			logger.warn("serverInstanceList is empty. id={}", id);
-		}
-		for (Entry<String, MergeableMap<String, ServerInstance>> mapEntry : this.serverInstanceList.entrySet()) {
-			for (Entry<String, ServerInstance> entry : mapEntry.getValue().entrySet()) {
-				ServerInstance instance = entry.getValue();
-				logger.debug("instance id={}", instance.getId());
-				ResponseHistogram histogram = histogramMap.get(instance.getId());
-				if (histogram != null) {
-					instance.setHistogram(histogram);
-					logger.debug("set histogram {}", histogram);
-				} else {
-					logger.warn("histogram not found. id={} instance.id={}", id, instance.getId());
-				}
-			}
-		}
-	}
+//	application histogram front end에서 계산함.
+//	public void mapHistogram(Map<String, ResponseHistogram> histogramMap) {
+//		if (this.serverInstanceList.isEmpty()) {
+//			logger.warn("serverInstanceList is empty. id={}", id);
+//		}
+//		for (Entry<String, MergeableMap<String, ServerInstance>> mapEntry : this.serverInstanceList.entrySet()) {
+//			for (Entry<String, ServerInstance> entry : mapEntry.getValue().entrySet()) {
+//				ServerInstance instance = entry.getValue();
+//				logger.debug("instance id={}", instance.getId());
+//				ResponseHistogram histogram = histogramMap.get(instance.getId());
+//				if (histogram != null) {
+//					instance.setHistogram(histogram);
+//					logger.debug("set histogram {}", histogram);
+//				} else {
+//					logger.warn("histogram not found. id={} instance.id={}", id, instance.getId());
+//				}
+//			}
+//		}
+//	}
 
 	private void fillServerInstanceList(final Map<String, Host> hostHistogram) {
 		if (hostHistogram == null) {
@@ -84,7 +85,9 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 //				}
 //			}
 
-			ServerInstance serverInstance = new ServerInstance(key, entry.getValue().getHistogram());
+//			application histogram front end에서 계산함.
+//			ServerInstance serverInstance = new ServerInstance(key, entry.getValue().getHistogram());
+			ServerInstance serverInstance = new ServerInstance(key, null);
 
 			if (serverInstanceMap == null) {
 				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
