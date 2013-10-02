@@ -21,9 +21,6 @@ import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
-import com.nhn.pinpoint.common.mapping.ApiMappingTable;
-import com.nhn.pinpoint.common.mapping.ApiUtils;
-import com.nhn.pinpoint.common.mapping.MethodMapping;
 import com.nhn.pinpoint.common.util.OutputParameterParser;
 import com.nhn.pinpoint.common.util.SqlParser;
 
@@ -220,7 +217,7 @@ public class SpanServiceImpl implements SpanService {
 
 				int apiId = (Integer) apiIdAnnotation.getValue();
                 // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
-				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentInfoBo.getAgentId(), agentInfoBo.getIdentifier(), apiId, agentInfoBo.getStartTime());
+				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentInfoBo.getAgentId(), apiId, agentInfoBo.getStartTime(), agentInfoBo.getPid());
 				int size = apiMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
