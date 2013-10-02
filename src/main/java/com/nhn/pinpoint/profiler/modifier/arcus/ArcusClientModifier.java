@@ -42,9 +42,7 @@ public class ArcusClientModifier extends AbstractModifier {
             final String[] args = {"net.spy.memcached.CacheManager"};
             arcusClient.addInterceptor("setCacheManager", args, setCacheManagerInterceptor, Type.before);
 
-			// 모든 public 메소드에 ApiInterceptor를 적용한다.
-			String[] ignored = new String[] { "__", "shutdown" };
-            List<Method> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter(ignored));
+            List<Method> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
             for (Method method : declaredMethods) {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,

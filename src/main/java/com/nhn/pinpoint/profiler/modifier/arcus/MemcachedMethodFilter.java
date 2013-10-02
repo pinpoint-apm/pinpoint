@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  *
  */
-public class ArcusMethodFilter implements MethodFilter {
+public class MemcachedMethodFilter implements MethodFilter {
     private final static Object FIND = new Object();
     private final static Map<String, Object> WHITE_LIST_API;
 
@@ -20,33 +20,24 @@ public class ArcusMethodFilter implements MethodFilter {
 
     private static Map<String, Object> createRule() {
         String[] apiList = {
-                "asyncBopCreate",
-                "asyncBopDelete",
-                "asyncBopGet",
-                "asyncBopGetBulk",
-                "asyncBopGetItemCount",
-                "asyncBopInsert",
-                "asyncBopInsertBulk",
-                "asyncBopPipedInsertBulk",
-                "asyncBopSortMergeGet",
-                "asyncBopUpdate",
-                "asyncGetAttr",
-                "asyncLopCreate",
-                "asyncLopDelete",
-                "asyncLopGet",
-                "asyncLopInsert",
-                "asyncLopInsertBulk",
-                "asyncLopPipedInsertBulk",
-                "asyncSetAttr",
-                "asyncSetBulk",
-                "asyncSopCreate",
-                "asyncSopDelete",
-                "asyncSopExist",
-                "asyncSopGet",
-                "asyncSopInsert",
-                "asyncSopInsertBulk",
-                "asyncSopPipedExistBulk",
-                "asyncSopPipedInsertBulk"
+                "add",
+                "append",
+                "asyncCAS",
+                "asyncDecr",
+                "asyncGet",
+                "asyncGetBulk",
+                "asyncGets",
+                "asyncIncr",
+                "cas",
+                "decr",
+                "delete",
+                "get",
+                "getBulk",
+                "gets",
+                "incr",
+                "prepend",
+                "replace",
+                "set"
         };
         Map<String, Object> rule = new HashMap<String, Object>();
         for (String api : apiList) {
@@ -55,7 +46,7 @@ public class ArcusMethodFilter implements MethodFilter {
         return rule;
     }
 
-    public ArcusMethodFilter() {
+    public MemcachedMethodFilter() {
     }
 
     @Override

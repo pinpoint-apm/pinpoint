@@ -12,17 +12,19 @@ import java.util.Arrays;
 public class CallStack {
 
     private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
+    // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
+    private static final int TRACE_STACK_MAX_SIZE = 64;
 
     private Span span;
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
     private StackFrame[] stack = new StackFrame[8];
 
-    // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
-    private final int TRACE_STACK_MAX_SIZE = 32;
-
     private int index = -1;
 
     public CallStack(TraceId traceId) {
+        if (traceId == null) {
+            throw new NullPointerException("traceId must not be null");
+        }
         this.span = new Span(traceId);
     }
 
@@ -50,6 +52,9 @@ public class CallStack {
     }
 
     public synchronized void setStackFrame(StackFrame stackFrame) {
+        if (stackFrame == null) {
+            throw new NullPointerException("stackFrame must not be null");
+        }
         stack[index] = stackFrame;
     }
 

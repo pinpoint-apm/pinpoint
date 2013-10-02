@@ -46,8 +46,7 @@ public class MemcachedClientModifier extends AbstractModifier {
             aClass.addInterceptor("addOp", args, addOpInterceptor, Type.before);
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
-			String[] ignored = new String[] { "__", "shutdown" };
-            final List<Method> declaredMethods = aClass.getDeclaredMethods(new ArcusMethodFilter(ignored));
+            final List<Method> declaredMethods = aClass.getDeclaredMethods(new MemcachedMethodFilter());
 
             for (Method method : declaredMethods) {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");

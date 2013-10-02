@@ -101,7 +101,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceBlockBegin() {
-        traceBlockBegin(NOCHECK_STACKID);
+        traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
@@ -150,7 +150,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceBlockEnd() {
-        traceBlockEnd(NOCHECK_STACKID);
+        traceBlockEnd(DEFAULT_STACKID);
     }
 
 
