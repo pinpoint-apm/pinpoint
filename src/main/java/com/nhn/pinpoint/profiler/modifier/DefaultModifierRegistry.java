@@ -6,11 +6,7 @@ import java.util.Map;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.FutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.*;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
@@ -23,7 +19,6 @@ import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
-import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridUStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
 import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLConnectionModifier;
@@ -41,7 +36,6 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapp
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
-import com.nhn.pinpoint.profiler.modifier.servlet.FilterModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
@@ -71,23 +65,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addModifier(Modifier modifier) {
-		// FIXME 동일한 Modifier를 여러 클래스에 적용. 다시 디자인 하는 것이 좋을 듯.
-		if (modifier instanceof MultipleModifier
-			&& ((MultipleModifier) modifier).getTargetClasses() != null) {
-			for (String targetClass : ((MultipleModifier) modifier).getTargetClasses()) {
-				Modifier old = registry.put(targetClass, modifier);
-				if (old != null) {
-					throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + targetClass);
-				}
-			}
-		}
-
-		if (modifier.getTargetClass() != null) {
-			Modifier old = registry.put(modifier.getTargetClass(), modifier);
-			if (old != null) {
-				throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
-			}
-		}
+        Modifier old = registry.put(modifier.getTargetClass(), modifier);
+        if (old != null) {
+            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+        }
 	}
 	
 	public void addMethodModifier() {
@@ -103,27 +84,41 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
 		addModifier(httpClient4Modifier);
 
-		BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
-		addModifier(baseOperationModifier);
-		
-		MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
-		addModifier(memcachedClientModifier);
-
-		ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
-		addModifier(arcusClientModifier);
-		
-		FutureModifier futureModifier = new FutureModifier(byteCodeInstrumentor, agent);
-		addModifier(futureModifier);
-
-		CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
-		addModifier(cacheManagerModifier);
-
         // jdk HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(httpURLConnectionModifier);
 	}
 
-	public void addBLOCModifier() {
+    public void addArcusModifier() {
+        BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
+        addModifier(baseOperationModifier);
+
+        MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
+        addModifier(memcachedClientModifier);
+
+        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
+        addModifier(arcusClientModifier);
+
+        // future modifier start ---------------------------------------------------
+        CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
+        addModifier(collectionFutureModifier);
+
+        GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
+        addModifier(getFutureModifier);
+
+        ImmediateFutureModifier immediateFutureModifier = new ImmediateFutureModifier(byteCodeInstrumentor, agent);
+        addModifier(immediateFutureModifier);
+
+        OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
+        addModifier(operationFutureModifier);
+
+        // future modifier end ---------------------------------------------------
+
+        CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
+        addModifier(cacheManagerModifier);
+    }
+
+    public void addBLOCModifier() {
 		HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor, agent);
 		addModifier(httpHandlerModifier);
 	}

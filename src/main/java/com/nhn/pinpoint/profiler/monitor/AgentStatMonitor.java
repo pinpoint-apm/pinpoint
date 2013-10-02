@@ -92,11 +92,9 @@ public class AgentStatMonitor {
 		public void run() {
 			try {
 				garbageCollector.map(monitorRegistry, agentStat, agentInfo.getAgentId());
-
 				dataSender.send(agentStat);
-			} catch (Exception e) {
-				logger.warn("AgentStat collect failed : {}", e.getMessage());
-				e.printStackTrace();
+			} catch (Exception ex) {
+				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
 			}
 		}
 	}

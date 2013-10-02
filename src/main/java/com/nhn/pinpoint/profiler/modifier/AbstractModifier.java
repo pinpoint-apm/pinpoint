@@ -1,17 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier;
 
-import java.util.*;
-
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
-import javassist.CtClass;
-import javassist.CtMethod;
-
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractModifier implements Modifier {
@@ -24,6 +14,12 @@ public abstract class AbstractModifier implements Modifier {
     }
 
     public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        if (byteCodeInstrumentor == null) {
+            throw new NullPointerException("byteCodeInstrumentor must not be null");
+        }
+        if (agent == null) {
+            throw new NullPointerException("agent must not be null");
+        }
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.agent = agent;
     }

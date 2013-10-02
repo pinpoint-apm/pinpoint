@@ -39,7 +39,6 @@ public class DefaultAgent implements Agent {
 
     private final PLoggerBinder binder;
 
-
     private final ByteCodeInstrumentor byteCodeInstrumentor;
 
     private final ProfilerConfig profilerConfig;
@@ -126,7 +125,7 @@ public class DefaultAgent implements Agent {
             Properties properties = System.getProperties();
             Set<String> strings = properties.stringPropertyNames();
             for (String key : strings) {
-                logger.info("SystemProperties " + key + "=" + properties.get(key));
+                logger.info("SystemProperties {}={}", key, properties.get(key));
             }
         }
     }

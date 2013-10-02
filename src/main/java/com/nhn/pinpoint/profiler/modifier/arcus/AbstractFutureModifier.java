@@ -4,40 +4,24 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.modifier.MultipleModifier;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * 
  */
-public class FutureModifier extends AbstractModifier implements MultipleModifier {
+public abstract class AbstractFutureModifier extends AbstractModifier  {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger;
 
-    public FutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public AbstractFutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
-    }
-
-    public String getTargetClass() {
-        return null;
-    }
-    
-    public String[] getTargetClasses() {
-    	return new String[] {
-    		"net/spy/memcached/internal/OperationFuture",
-    		"net/spy/memcached/internal/GetFuture",
-    		"net/spy/memcached/internal/CollectionFuture",
-    		"net/spy/memcached/internal/ImmediateFuture"
-    	};
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -51,12 +35,12 @@ public class FutureModifier extends AbstractModifier implements MultipleModifier
             aClass.addTraceVariable("__operation", "__setOperation", "__getOperation", "net.spy.memcached.ops.Operation");
 
             Interceptor futureSetOperationInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FutureSetOperationInterceptor");
-            aClass.addInterceptor("setOperation", new String[]{"net.spy.memcached.ops.Operation"}, futureSetOperationInterceptor, Type.before);
+            aClass.addInterceptor("setOperation", new String[]{"net.spy.memcached.ops.Operation"}, futureSetOperationInterceptor);
             
             SimpleAroundInterceptor futureGetInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FutureGetInterceptor");
             ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(futureGetInterceptor, ArcusScope.SCOPE);
 
-            aClass.addInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, arcusScopeDelegateSimpleInterceptor, Type.around);
+            aClass.addInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, arcusScopeDelegateSimpleInterceptor);
             
             return aClass.toBytecode();
         } catch (Exception e) {
