@@ -144,7 +144,7 @@ public class RecordSetServiceImpl implements RecordSetService {
             if (spanAlignList == null) {
                 throw new NullPointerException("spanAlignList must not be null");
             }
-            List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
+            final List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
 
             // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
             for (int i = 0; i < spanAlignList.size(); i++) {
@@ -168,7 +168,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                         // 부모의 깊이가 클 경우 pop해야 한다.
                         // 단 depth차가 1depth이상 날수 있기 때문에. depth를 확인하면서 pop을 해야 한다.
                         while (true) {
-                            logger.debug("pop");
+                            logger.trace("pop");
                             stack.pop();
                             SpanDepth popLast = stack.getLast();
                             if (popLast.getSpanAlign().getDepth() < currentDepth) {
