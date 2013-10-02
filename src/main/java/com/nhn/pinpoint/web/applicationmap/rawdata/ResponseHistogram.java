@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.HistogramSlot;
@@ -16,8 +18,9 @@ import com.nhn.pinpoint.web.util.Mergeable;
  */
 public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSerializable {
 	
-	private final String id;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private final String id;
 	private final ServiceType serviceType;
 	private final Histogram histogram;
 	private final long[] values;
@@ -48,6 +51,7 @@ public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSeri
 
 		int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
 		if (histogramSlotIndex == -1) {
+			logger.warn("Can't find slot={} value={} id={} serviceType={}", slot, value, id, serviceType);
 			return;
 		}
 		values[histogramSlotIndex] += value;
@@ -122,7 +126,7 @@ public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSeri
 	 
 	@Override
 	public String toString() {
-		return "ResponseHistogram [serviceType=" + serviceType + ", histogram=" + histogram + ", values=" + Arrays.toString(values) + ", totalCount=" + totalCount + ", errorCount=" + errorCount + ", slowCount=" + slowCount + "]";
+		return "ResponseHistogram [id=" + id + ",serviceType=" + serviceType + ",json=" + getJson() + "]";
 	}
 
 	@Override

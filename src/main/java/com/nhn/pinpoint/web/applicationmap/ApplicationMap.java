@@ -60,6 +60,7 @@ public class ApplicationMap {
 			// FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
 			if (!stat.getToServiceType().isRpcClient()) {
 				String id = stat.getToApplicationId();
+				// application histogram map 생성.
 				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
 					Host host = entry.getValue();
 					ResponseHistogram histogram = host.getHistogram();
@@ -68,11 +69,20 @@ public class ApplicationMap {
 				}
 				addApplication(new Application(id, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
 			}
+			
+			// FIXME 이거 필요없을듯
+//			if (!applicationNames.contains(stat.getTo())) {
+//				Set<AgentInfoBo> agentSet = agentMap.get(stat.getFromApplicationId());
+//				// application histogram map 생성.
+//				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
+//					Host host = entry.getValue();
+//					ResponseHistogram histogram = host.getHistogram();
+//					ResponseHistogram value = new ResponseHistogram(histogram.getId(), histogram.getServiceType());
+//					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
+//				}
+//				addApplication(new Application(stat.getToApplicationId(), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), agentSet));
+//			}
 		}
-		
-		System.out.println("");
-		System.out.println("hostHistogramMap=" + hostHistogramMap);
-		System.out.println("");
 		
 		for (Entry<String, Application> entry : applications.entrySet()) {
 			Application application = entry.getValue();

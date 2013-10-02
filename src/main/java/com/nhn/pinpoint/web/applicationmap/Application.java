@@ -5,6 +5,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
@@ -20,6 +23,9 @@ import com.nhn.pinpoint.web.util.MergeableTreeMap;
  * @author netspider
  */
 public class Application implements Comparable<Application>, Mergeable<Application>, JsonSerializable {
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	protected int sequence;
 	protected final String id;
 	protected final String applicationName;
@@ -27,6 +33,7 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 	protected final Map<String, MergeableMap<String, ServerInstance>> serverInstanceList = new TreeMap<String, MergeableMap<String, ServerInstance>>();
 
 	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> serverList, Set<AgentInfoBo> agentSet) {
+		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
@@ -42,13 +49,19 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 	}
 
 	public void mapHistogram(Map<String, ResponseHistogram> histogramMap) {
+		if (this.serverInstanceList.isEmpty()) {
+			logger.warn("serverInstanceList is empty. id={}", id);
+		}
 		for (Entry<String, MergeableMap<String, ServerInstance>> mapEntry : this.serverInstanceList.entrySet()) {
 			for (Entry<String, ServerInstance> entry : mapEntry.getValue().entrySet()) {
 				ServerInstance instance = entry.getValue();
-				System.out.println("instance id=" + instance.getId());
+				logger.debug("instance id={}", instance.getId());
 				ResponseHistogram histogram = histogramMap.get(instance.getId());
 				if (histogram != null) {
 					instance.setHistogram(histogram);
+					logger.debug("set histogram {}", histogram);
+				} else {
+					logger.warn("histogram not found. id={} instance.id={}", id, instance.getId());
 				}
 			}
 		}
@@ -121,12 +134,10 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 
 	@Override
 	public Application mergeWith(Application application) {
-		// FIXME 서버맵에서 callcount가 맞지않아 주석처리함. 수정중.
-		// merge host list
-//		for (Entry<String, Host> entry : application.getHostList().entrySet()) {
-//			hostList.putOrMerge(entry.getKey(), entry.getValue());
-//		}
+		logger.debug("merge application a={}, b={}", this.id, application.id);
 
+		// FIXME 여기를 주석처리하면 filter map에서 데이터가 제대로 보이지 않고.
+		// 주석 해제하면 통계 map에서 데이터가 맞지 않음.
 		// merge server instance list
 //		for (Entry<String, MergeableMap<String, ServerInstance>> entry : application.getServerInstanceList().entrySet()) {
 //			MergeableMap<String, ServerInstance> exists = serverInstanceList.get(entry.getKey());
