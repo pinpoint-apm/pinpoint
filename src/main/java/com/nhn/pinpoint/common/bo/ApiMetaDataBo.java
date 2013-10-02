@@ -24,6 +24,10 @@ public class ApiMetaDataBo {
     }
 
     public ApiMetaDataBo(String agentId, int apiId, long startTime) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         this.agentId = agentId;
         this.apiId = apiId;
         this.startTime = startTime;

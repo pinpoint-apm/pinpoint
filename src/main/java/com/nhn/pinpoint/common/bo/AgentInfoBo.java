@@ -17,7 +17,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private String applicationName;
     private boolean isAlive;
     private long startTime;
-    private short identifier;
+    private int pid;
     private ServiceType serviceType;
 
     public AgentInfoBo(AgentInfo agentInfo) {
@@ -28,7 +28,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.applicationName = agentInfo.getApplicationName();
         this.isAlive = agentInfo.isIsAlive();
         this.startTime = agentInfo.getTimestamp();
-        this.identifier = agentInfo.getIdentifier();
+        this.pid = agentInfo.getPid();
         this.serviceType = ServiceType.findServiceType(agentInfo.getServiceType());
     }
 
@@ -91,12 +91,12 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.startTime = startTime;
     }
 
-    public short getIdentifier() {
-        return identifier;
+    public int getPid() {
+        return pid;
     }
 
-	public void setIdentifier(short identifier) {
-		this.identifier = identifier;
+	public void setPid(int pid) {
+		this.pid = pid;
 	}
 
 	public ServiceType getServiceType() {
@@ -114,7 +114,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
         buffer.put(this.isAlive());
-        buffer.put(this.getIdentifier());
+        buffer.put(this.getPid());
         buffer.put(this.serviceType.getCode());
         return buffer.getBuffer();
     }
@@ -126,7 +126,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.ports = buffer.readPrefixedString();
         this.applicationName = buffer.readPrefixedString();
         this.isAlive = buffer.readBoolean();
-        this.identifier = buffer.readShort();
+        this.pid = buffer.readInt();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
         return buffer.getOffset();
     }
@@ -182,7 +182,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
                 ", applicationName='" + applicationName + '\'' +
                 ", isAlive=" + isAlive +
                 ", startTime=" + startTime +
-                ", identifier=" + identifier +
+                ", pid=" + pid +
                 '}';
     }
 
