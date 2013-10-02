@@ -71,7 +71,7 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/dependency/javassist-3.16.1-GA.jar $DEPLOY_DIR/lib
+cp ../pinpoint-profiler/target/dependency/javassist-3.18.0-GA.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
