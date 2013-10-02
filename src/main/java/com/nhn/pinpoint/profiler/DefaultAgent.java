@@ -37,7 +37,7 @@ public class DefaultAgent implements Agent {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PLoggerBinder binder;
+    private final PLoggerBinder binder;
 
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
@@ -75,8 +75,8 @@ public class DefaultAgent implements Agent {
             throw new NullPointerException("profilerConfig must not be null");
         }
 
-
-        initializeLogger();
+        this.binder = new Slf4jLoggerBinder();
+        bindPLoggerFactory(this.binder);
 
         dumpSystemProperties();
         dumpConfig(profilerConfig);
@@ -208,14 +208,12 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private void initializeLogger() {
-        this.binder = new Slf4jLoggerBinder();
-        PLogger pLogger = binder.getLogger(Slf4jLoggerBinder.class.getName());
-        pLogger.info("slf4jLoggerBinder initialized");
-
+    private void bindPLoggerFactory(PLoggerBinder binder) {
+        final String binderClassName = binder.getClass().getName();
+        PLogger pLogger = binder.getLogger(binder.getClass().getName());
+        pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
         // static LoggerFactory에 binder를 붙임.
         PLoggerFactory.initialize(binder);
-
         // shutdown hook이나 stop에 LoggerBinder의 연결을 풀어야 되는가?
     }
 
