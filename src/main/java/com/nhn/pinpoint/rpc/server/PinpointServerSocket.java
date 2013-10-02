@@ -130,7 +130,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                     handleStreamPacket((StreamPacket) message, channel);
                     return;
 
-                case PacketType.CONTROL_CLOSE: {
+                case PacketType.CONTROL_CLIENT_CLOSE: {
                     closeChannel(channel);
                     return;
                 }
@@ -143,7 +143,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void closeChannel(Channel channel) {
-        logger.debug("received ClosePacket {}", channel);
+        logger.debug("received ClientClosePacket {}", channel);
         ChannelContext channelContext = getChannelContext(channel);
         channelContext.closePacketReceived();
 //      상대방이 닫는거에 반응해서 socket을 닫도록 하자.

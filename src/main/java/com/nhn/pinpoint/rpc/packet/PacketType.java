@@ -21,8 +21,8 @@ public class PacketType {
     public static final short APPLICATION_STREAM_RESPONSE = 20;
 
 
-    public static final short CONTROL_CLOSE = 100;
-    public static final short CONTROL_CLOSE_REQUEST = 101;
+    public static final short CONTROL_CLIENT_CLOSE = 100;
+    public static final short CONTROL_SERVER_CLOSE = 110;
 
     public static final short CONTROL_PING = 200;
     public static final short CONTROL_PONG = 201;

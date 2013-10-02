@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.*;
 import com.nhn.pinpoint.rpc.packet.*;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
@@ -380,16 +379,16 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("channel already closed. skip sendClosedPacket() {}", channel);
             return;
         }
-       logger.debug("write ClosePacket");
-        ClosePacket closePacket = new ClosePacket();
-        ChannelFuture write = channel.write(closePacket);
+       logger.debug("write ClientClosePacket");
+        ClientClosePacket clientClosePacket = new ClientClosePacket();
+        ChannelFuture write = channel.write(clientClosePacket);
         write.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
-                    logger.warn("ClosePacket write fail. channel:{}", future.getCause(), future.getCause());
+                    logger.warn("ClientClosePacket write fail. channel:{}", future.getCause(), future.getCause());
                 } else {
-                    logger.debug("ClosePacket write success. channel:{}", future.getChannel());
+                    logger.debug("ClientClosePacket write success. channel:{}", future.getChannel());
                 }
             }
         });

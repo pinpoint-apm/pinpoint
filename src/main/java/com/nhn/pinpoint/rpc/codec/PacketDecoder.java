@@ -5,7 +5,6 @@ import com.nhn.pinpoint.rpc.packet.*;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
@@ -43,8 +42,10 @@ public class PacketDecoder extends FrameDecoder {
                 return readStreamCreateFail(packetType, buffer);
             case PacketType.APPLICATION_STREAM_RESPONSE:
                 return readStreamResponse(packetType, buffer);
-            case PacketType.CONTROL_CLOSE:
-                return readControlClose(packetType, buffer);
+            case PacketType.CONTROL_CLIENT_CLOSE:
+                return readControlClientClose(packetType, buffer);
+            case PacketType.CONTROL_SERVER_CLOSE:
+                return readControlServerClose(packetType, buffer);
             case PacketType.CONTROL_PING:
                 readPing(packetType, buffer);
                 sendPong(channel);
@@ -69,8 +70,12 @@ public class PacketDecoder extends FrameDecoder {
     }
 
 
-    private Object readControlClose(short packetType, ChannelBuffer buffer) {
-        return ClosePacket.readBuffer(packetType, buffer);
+    private Object readControlClientClose(short packetType, ChannelBuffer buffer) {
+        return ClientClosePacket.readBuffer(packetType, buffer);
+    }
+
+    private Object readControlServerClose(short packetType, ChannelBuffer buffer) {
+        return ServerClosePacket.readBuffer(packetType, buffer);
     }
 
     private Object readPong(short packetType, ChannelBuffer buffer) {

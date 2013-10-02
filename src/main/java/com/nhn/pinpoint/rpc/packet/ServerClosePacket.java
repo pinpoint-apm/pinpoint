@@ -6,24 +6,24 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  *
  */
-public class ClosePacket extends BasicPacket {
+public class ServerClosePacket extends BasicPacket {
 
     @Override
     public short getPacketType() {
-        return PacketType.CONTROL_CLOSE;
+        return PacketType.CONTROL_SERVER_CLOSE;
     }
 
     @Override
     public ChannelBuffer toBuffer() {
 
         ChannelBuffer header = ChannelBuffers.buffer(2 + 4);
-        header.writeShort(PacketType.CONTROL_CLOSE);
+        header.writeShort(PacketType.CONTROL_SERVER_CLOSE);
 
         return PayloadPacket.appendPayload(header, payload);
     }
 
-    public static ClosePacket readBuffer(short packetType, ChannelBuffer buffer) {
-        assert packetType == PacketType.CONTROL_CLOSE;
+    public static ServerClosePacket readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PacketType.CONTROL_SERVER_CLOSE;
 
         if (buffer.readableBytes() < 4) {
             buffer.resetReaderIndex();
@@ -34,13 +34,13 @@ public class ClosePacket extends BasicPacket {
         if (payload == null) {
             return null;
         }
-        final ClosePacket requestPacket = new ClosePacket();
+        final ServerClosePacket requestPacket = new ServerClosePacket();
         return requestPacket;
 
     }
 
     @Override
     public String toString() {
-        return "ClosePacket";
+        return "ServerClosePacket";
     }
 }
