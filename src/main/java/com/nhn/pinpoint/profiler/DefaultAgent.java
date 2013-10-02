@@ -57,7 +57,7 @@ public class DefaultAgent implements Agent {
     private final String agentId;
     private final String applicationName;
     private final long startTime;
-    private final int identifier;
+    private final int pid;
 
     // agent info는 heartbeat에서 매번 사용한다.
     private AgentInfo agentInfo;
@@ -97,8 +97,8 @@ public class DefaultAgent implements Agent {
         this.machineName = NetworkUtils.getHostName();
         this.agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
         this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
-        this.startTime = getVmStartTime();
-        this.identifier = getPid();
+        this.startTime = RuntimeMXBeanUtils.getVmStartTime();
+        this.pid = RuntimeMXBeanUtils.getPid();
 
         this.tcpDataSender = createTcpDataSender();
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
@@ -191,8 +191,7 @@ public class DefaultAgent implements Agent {
         agentInfo.setPorts(ports);
 
         agentInfo.setAgentId(getAgentId());
-        // TODO identifier를 pid로 변경할것.
-        agentInfo.setIdentifier((short) this.identifier);
+        agentInfo.setPid(this.pid);
         agentInfo.setApplicationName(getApplicationName());
 		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
@@ -273,22 +272,13 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    public long getVmStartTime() {
-        long vmStartTime = RuntimeMXBeanUtils.getVmStartTime();
-        if (vmStartTime == 0) {
-            vmStartTime = System.currentTimeMillis();
-        }
-        return vmStartTime;
-    }
-
-    public int getPid() {
-        return RuntimeMXBeanUtils.getPid();
-    }
 
     private static class SingletonHolder {
         public static DefaultAgent INSTANCE;
     }
 
+
+    @Deprecated
     public static DefaultAgent getInstance() {
         return SingletonHolder.INSTANCE;
     }
@@ -306,16 +296,16 @@ public class DefaultAgent implements Agent {
         return agentId;
     }
 
-    public int getIdentifier() {
-        return identifier;
-    }
-
     public long getStartTime() {
         return startTime;
     }
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public int getPid() {
+        return pid;
     }
 
     public TraceContext getTraceContext() {
@@ -330,7 +320,7 @@ public class DefaultAgent implements Agent {
     // TODO 필요없을것 같음 started를 start로 바꿔도 될 듯...
     @Override
     public void start() {
-        logger.info("Starting " + ProductInfo.CAMEL_NAME + " Agent.");
+        logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
     }
 
     /**
@@ -345,7 +335,7 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void stop() {
-        logger.info("Stopping " + ProductInfo.CAMEL_NAME +" Agent.");
+        logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
         changeStatus(AgentStatus.STOPPING);
         this.heartBitChecker.close();

@@ -55,7 +55,7 @@ public class SpanChunk implements Thriftable {
 
 //            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
 //            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());
-//            tSpanEvent.setAgentIdentifier(Agent.getInstance().getIdentifier());
+//            tSpanEvent.setAgentIdentifier(Agent.getInstance().getPid());
 
             long parentSpanStartTime = spanEvent.getParentSpan().getStartTime();
             tSpanEvent.setStartElapsed((int) (spanEvent.getStartTime() - parentSpanStartTime));

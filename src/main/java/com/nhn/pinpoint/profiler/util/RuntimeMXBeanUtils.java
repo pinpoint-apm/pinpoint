@@ -42,15 +42,19 @@ public class RuntimeMXBeanUtils {
 
     public static long getVmStartTime() {
         if (START_TIME == 0) {
-            try {
-                START_TIME = RUNTIME_MBEAN.getStartTime();
-            } catch (UnsupportedOperationException e) {
-                final Logger logger = getLogger();
-                logger.log(Level.WARNING, "RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);
-                START_TIME = System.currentTimeMillis();
-            }
+            START_TIME = getVmStartTime0();
         }
         return START_TIME;
+    }
+
+    private static long getVmStartTime0() {
+        try {
+            return  RUNTIME_MBEAN.getStartTime();
+        } catch (UnsupportedOperationException e) {
+            final Logger logger = getLogger();
+            logger.log(Level.WARNING, "RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);
+            return System.currentTimeMillis();
+        }
     }
 
     private static Logger getLogger() {

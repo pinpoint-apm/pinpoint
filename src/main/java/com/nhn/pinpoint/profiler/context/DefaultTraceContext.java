@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
 
-import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.thrift.dto.ApiMetaData;
 import com.nhn.pinpoint.thrift.dto.SqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -14,7 +13,6 @@ import com.nhn.pinpoint.profiler.metadata.StringCache;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.profiler.util.Assert;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,6 +148,9 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public void setAgentId(String agentId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
         this.agentId = agentId;
     }
 
@@ -160,6 +161,9 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public void setApplicationId(String applicationId) {
+        if (applicationId == null) {
+            throw new NullPointerException("applicationId must not be null");
+        }
         this.applicationId = applicationId;
     }
 
@@ -169,11 +173,16 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     public void setStorageFactory(StorageFactory storageFactory) {
-        Assert.notNull(storageFactory, "storageFactory myst not be null");
+        if (storageFactory == null) {
+            throw new NullPointerException("storageFactory must not be null");
+        }
         this.storageFactory = storageFactory;
     }
 
     public void setSampler(Sampler sampler) {
+        if (sampler == null) {
+            throw new NullPointerException("sampler must not be null");
+        }
         this.sampler = sampler;
     }
 
@@ -184,9 +193,8 @@ public class DefaultTraceContext implements TraceContext {
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             ApiMetaData apiMetadata = new ApiMetaData();
-            DefaultAgent agent = DefaultAgent.getInstance();
-            apiMetadata.setAgentId(agent.getAgentId());
-            apiMetadata.setAgentStartTime(agent.getStartTime());
+            apiMetadata.setAgentId(agentId);
+            apiMetadata.setAgentStartTime(agentStartTime);
 
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
@@ -227,7 +235,7 @@ public class DefaultTraceContext implements TraceContext {
 
             SqlMetaData sqlMetaData = new SqlMetaData();
             sqlMetaData.setAgentId(agentId);
-            sqlMetaData.setAgentStartTime(DefaultAgent.getInstance().getStartTime());
+            sqlMetaData.setAgentStartTime(agentStartTime);
 
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);

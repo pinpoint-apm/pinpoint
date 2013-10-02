@@ -16,18 +16,7 @@ public class AgentTest {
 
     @Test
     public void testGetIdentifier() throws Exception {
-        checkIdentifier();
-        checkIdentifier();
-        checkIdentifier();
-        checkIdentifier();
+        // identifier가 pid기반으로 변경되어 테스트 삭제.
     }
 
-    private void checkIdentifier() throws IOException {
-        ProfilerConfig config = new ProfilerConfig();
-//        config.readConfigFile();
-        DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), config);
-
-        int identifier = agent.getIdentifier();
-        logger.info("{}", identifier);
-    }
 }
