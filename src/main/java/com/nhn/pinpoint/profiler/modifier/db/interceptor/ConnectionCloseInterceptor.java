@@ -14,7 +14,7 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
 
     private static final Object[] EMPTY = new Object[]{null};
 
-    private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
+    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     @Override
     public void before(Object target, Object[] args) {

@@ -54,7 +54,7 @@ public class MySQLStatementModifier extends AbstractModifier {
             Interceptor executeUpdateInterceptor4 = new ScopeDelegateSimpleInterceptor(new StatementExecuteUpdateInterceptor(), JDBCScope.SCOPE);
             statementClass.addInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor4);
 
-            statementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
+            statementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
             return statementClass.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {

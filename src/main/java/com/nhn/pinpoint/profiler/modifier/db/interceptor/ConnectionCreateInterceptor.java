@@ -15,12 +15,15 @@ import com.nhn.pinpoint.profiler.util.StringUtils;
 public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final MetaObject setUrl = new MetaObject("__setUrl", String.class);
+    private final boolean isDebug = logger.isDebugEnabled();
+
+    // setUrl에서 String type은 databaseInfo로 변경되었다.
+//    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
-        if (logger.isInfoEnabled()) {
-            logger.info("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+        if (isDebug) {
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
         // TODO 생성 시간 측정시 아래 코드를 다시 생각해야 됨.
         if (!InterceptorUtils.isSuccess(result)) {
@@ -31,13 +34,15 @@ public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
         if (result instanceof Connection) {
             Object url = args[4];
             if (url instanceof String) {
-                this.setUrl.invoke(result, url);
+//                this.setUrl.invoke(result, url);
             }
         }
     }
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-
+        if (isDebug) {
+            logger.beforeInterceptor(target, className, methodName, parameterDescription, args);
+        }
     }
 }

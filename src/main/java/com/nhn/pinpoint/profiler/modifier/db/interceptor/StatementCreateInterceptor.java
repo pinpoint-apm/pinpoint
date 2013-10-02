@@ -18,9 +18,9 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
     private final boolean isDebug = logger.isDebugEnabled();
 
     // connection 용.
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
 
-    private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
+    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
     private TraceContext traceContext;
 
     @Override

@@ -22,7 +22,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject setUrl = new MetaObject("__setUrl", Object.class);
+    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;

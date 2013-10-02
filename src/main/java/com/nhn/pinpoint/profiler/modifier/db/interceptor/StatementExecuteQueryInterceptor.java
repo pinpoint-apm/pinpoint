@@ -20,7 +20,7 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
 

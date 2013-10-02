@@ -25,7 +25,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getUrl");
+    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 

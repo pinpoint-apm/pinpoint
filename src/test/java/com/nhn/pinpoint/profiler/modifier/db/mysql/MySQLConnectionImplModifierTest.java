@@ -58,7 +58,7 @@ public class MySQLConnectionImplModifierTest {
         loader.initialize();
     }
 
-    private MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>("__getUrl");
+    private MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>("__getDatabaseInfo");
 
     @Test
     public void testModify() throws Exception {

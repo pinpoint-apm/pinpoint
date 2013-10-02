@@ -34,7 +34,7 @@ public class CubridConnectionModifier extends AbstractModifier {
 		try {
 			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
-			cubridConnection.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
+			cubridConnection.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
 
             Interceptor connectionCloseInterceptor = new ScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor(), JDBCScope.SCOPE);
             cubridConnection.addInterceptor("close", null, connectionCloseInterceptor);

@@ -50,7 +50,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
             Interceptor executeUpdateInterceptor = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
             preparedStatementClass.addInterceptor("executeUpdate", null, executeUpdateInterceptor);
 
-			preparedStatementClass.addTraceVariable("__url", "__setUrl", "__getUrl", "java.lang.Object");
+			preparedStatementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
 			preparedStatementClass.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");
 			preparedStatementClass.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");
 
