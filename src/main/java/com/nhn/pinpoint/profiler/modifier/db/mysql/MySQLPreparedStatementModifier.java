@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 public class MySQLPreparedStatementModifier extends AbstractModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final String[] excludes = new String[]{"setRowId", "setNClob", "setSQLXML"};
 
     public MySQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -69,7 +68,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
     }
 
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-        ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(excludes);
+        ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 
         Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);

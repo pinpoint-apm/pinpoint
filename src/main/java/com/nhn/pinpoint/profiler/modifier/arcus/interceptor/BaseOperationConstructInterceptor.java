@@ -14,6 +14,7 @@ import com.nhn.pinpoint.profiler.util.TimeObject;
 /**
  *
  */
+@Deprecated
 public class BaseOperationConstructInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
