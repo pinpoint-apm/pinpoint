@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
@@ -25,7 +24,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
+    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
     private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
@@ -46,7 +45,10 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         trace.traceBlockBegin();
         trace.markBeforeTime();
         try {
-            DatabaseInfo databaseInfo = getUrl.invoke(target);
+            DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
             trace.recordEndPoint(databaseInfo.getMultipleHost());

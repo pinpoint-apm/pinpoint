@@ -18,7 +18,7 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
     private final boolean isDebug = logger.isDebugEnabled();
 
     // connection 용.
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
+    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
 
     private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
     private TraceContext traceContext;
@@ -45,7 +45,10 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
             return;
         }
         if (target instanceof Connection) {
-            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+            DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
             setUrl.invoke(result, databaseInfo);
         }
     }

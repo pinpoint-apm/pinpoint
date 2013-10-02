@@ -245,7 +245,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		addModifier(new CubridStatementModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridPreparedStatementModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridResultSetModifier(byteCodeInstrumentor, agent));
-		addModifier(new CubridUStatementModifier(byteCodeInstrumentor, agent));
+//		addModifier(new CubridUStatementModifier(byteCodeInstrumentor, agent));
 	}
 
 	private void addDbcpDriver() {

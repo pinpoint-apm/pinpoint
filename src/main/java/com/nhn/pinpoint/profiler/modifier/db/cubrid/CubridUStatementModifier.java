@@ -10,6 +10,9 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 현재 사용하지 않고 있음. 일단 살려둠.
+ */
 public class CubridUStatementModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

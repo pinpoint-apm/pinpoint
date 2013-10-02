@@ -139,7 +139,7 @@ public class JavaAssistUtils {
 
     public static boolean isStaticBehavior(CtBehavior behavior) {
         int modifiers = behavior.getModifiers();
-        return java.lang.reflect.Modifier.isStatic(modifiers);
+        return Modifier.isStatic(modifiers);
     }
 
 

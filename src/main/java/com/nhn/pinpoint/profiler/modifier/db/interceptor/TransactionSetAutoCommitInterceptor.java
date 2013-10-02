@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
@@ -17,7 +16,7 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
+    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
@@ -64,7 +63,10 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
 
     private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
         try {
-            DatabaseInfo databaseInfo = this.getUrl.invoke(target);
+            DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
             trace.recordServiceType(databaseInfo.getType());
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());

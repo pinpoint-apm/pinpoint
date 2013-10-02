@@ -18,7 +18,7 @@ public class DataSourceCloseInterceptor implements SimpleAroundInterceptor, Byte
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-//    private final MetaObject<Object> getUrl = new MetaObject<Object>("__getDatabaseInfo");
+//    private final MetaObject<Object> getDatabaseInfo = new MetaObject<Object>("__getDatabaseInfo");
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;

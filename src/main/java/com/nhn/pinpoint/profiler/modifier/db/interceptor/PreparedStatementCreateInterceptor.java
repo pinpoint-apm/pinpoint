@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
@@ -22,7 +21,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
     private MethodDescriptor descriptor;
 
     // connection 용.
-    private final MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
+    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     private final MetaObject setSql = new MetaObject("__setSql", Object.class);
@@ -41,7 +40,10 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        DatabaseInfo databaseInfo = getUrl.invoke(target);
+        DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
         trace.recordServiceType(databaseInfo.getType());
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
@@ -59,7 +61,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         ParsingResult parsingResult = null;
         if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
-            DatabaseInfo databaseInfo = (DatabaseInfo) getUrl.invoke(target);
+            DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
             if (databaseInfo != null) {
                 this.setUrl.invoke(result, databaseInfo);
             }
