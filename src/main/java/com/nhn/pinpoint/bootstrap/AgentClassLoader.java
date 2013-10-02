@@ -30,7 +30,7 @@ public class AgentClassLoader {
 
         ClassLoader classLoader = AgentClassLoader.class.getClassLoader();
 
-        this.classLoader = new URLClassLoader(urls, classLoader);
+        this.classLoader = new PinpointURLClassLoader(urls, classLoader);
 
         this.executeTemplate = new ContextClassLoaderExecuteTemplate(classLoader);
     }
