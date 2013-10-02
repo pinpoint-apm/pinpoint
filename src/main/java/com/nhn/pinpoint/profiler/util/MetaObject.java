@@ -10,16 +10,19 @@ public class MetaObject<R> {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private String methodName;
-    private Class[] args;
+    private final String methodName;
+    private final Class<?>[] args;
+    private final R defaultReturnValue;
+
     // 이것을 class loading시 정적 타임에서 생성해 둘수 없는가?
     private Method methodRef;
 
-    private R defaultReturnValue = null;
+
 
     public MetaObject(String methodName, Class... args) {
         this.methodName = methodName;
         this.args = args;
+        this.defaultReturnValue = null;
     }
 
     public MetaObject(R defaultReturnValue, String methodName, Class... args) {
@@ -36,7 +39,7 @@ public class MetaObject<R> {
         Method method = this.methodRef;
         if (method == null) {
             // 멀티쓰레드에서 중복 엑세스해도 별 문제 없을것임.
-            Class aClass = target.getClass();
+            final Class<?> aClass = target.getClass();
             method = getMethod(aClass);
             this.methodRef = method;
         }
@@ -58,11 +61,13 @@ public class MetaObject<R> {
         }
     }
 
-    private Method getMethod(Class aClass) {
+    private Method getMethod(Class<?> aClass) {
         try {
-            Method method = aClass.getMethod(this.methodName, this.args);
-            // package등과 같이 access 제한이 걸려 있을 경우 강 푼다.
-            method.setAccessible(true);
+            final Method method = aClass.getMethod(this.methodName, this.args);
+            if (!method.isAccessible()) {
+                // package등과 같이 access 제한이 걸려 있을 경우 강 푼다.
+                method.setAccessible(true);
+            }
             return method;
         } catch (NoSuchMethodException e) {
             logger.warn("{} not found cls:{} Caused:{}", new Object[] { this.methodName, aClass, e.getMessage(), e });
