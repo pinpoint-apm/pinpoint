@@ -52,14 +52,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	private final ProfilerConfig profilerConfig;
 	private final Agent agent;
 
-	public DefaultModifierRegistry(Agent agent) {
+	public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
 		this.agent = agent;
         // classLoader계층 구조 때문에 직접 type을 넣기가 애매하여 그냥 casting
-        this.byteCodeInstrumentor = (ByteCodeInstrumentor) agent.getByteCodeInstrumentor();
+        this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.profilerConfig = agent.getProfilerConfig();
 	}
 
-	@Override
+    @Override
 	public Modifier findModifier(String className) {
 		return registry.get(className);
 	}

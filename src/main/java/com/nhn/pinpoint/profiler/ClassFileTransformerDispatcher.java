@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
@@ -23,19 +24,25 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ModifierRegistry modifierRegistry;
 
-    private Agent agent;
+    private final Agent agent;
+    private final ByteCodeInstrumentor byteCodeInstrumentor;
 
     private ProfilerConfig profilerConfig;
 
 
-    public ClassFileTransformerDispatcher(Agent agent) {
+    public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
+        if (byteCodeInstrumentor == null) {
+            throw new NullPointerException("byteCodeInstrumentor must not be null");
+        }
         this.agent = agent;
+        this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry();
     }
+
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
@@ -84,7 +91,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
 
     private ModifierRegistry createModifierRegistry() {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent);
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
 
         modifierRepository.addMethodModifier();
 

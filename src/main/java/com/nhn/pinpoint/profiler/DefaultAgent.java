@@ -60,7 +60,7 @@ public class DefaultAgent implements Agent {
     private final TAgentKey tAgentKey;
 
     // agent info는 heartbeat에서 매번 사용한다.
-    private TAgentInfo tAgentInfo;
+    private final TAgentInfo tAgentInfo;
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
@@ -89,7 +89,7 @@ public class DefaultAgent implements Agent {
         String[] paths = getTomcatlibPath();
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths, this);
 
-        ClassFileTransformerDispatcher classFileTransformerDispatcher = new ClassFileTransformerDispatcher(this);
+        ClassFileTransformerDispatcher classFileTransformerDispatcher = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
         instrumentation.addTransformer(classFileTransformerDispatcher);
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
@@ -153,10 +153,6 @@ public class DefaultAgent implements Agent {
 
     public ProfilerConfig getProfilerConfig() {
         return profilerConfig;
-    }
-
-    public ByteCodeInstrumentor getByteCodeInstrumentor() {
-        return byteCodeInstrumentor;
     }
 
     private String[] getTomcatlibPath() {

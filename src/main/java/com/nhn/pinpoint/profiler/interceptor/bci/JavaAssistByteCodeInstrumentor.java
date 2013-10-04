@@ -197,7 +197,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                     classPool.appendClassPath(filePath);
                     // 만약 한개만 로딩해도 된다면. return true 할것
                     if (isInfo) {
-                        logger.info("Loaded cl:{} classPool:{} {} ", classLoader, classPool.getName(), filePath);
+                        logger.info("Loaded cl:{} classPool:{} {} ", classLoader.getClass().getName(), classPool.getName(), filePath);
                     }
                 } catch (NotFoundException e) {
                     if (logger.isWarnEnabled()) {
