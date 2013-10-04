@@ -9,6 +9,7 @@ public class AgentIdNotFoundException extends RuntimeException {
     private long startTime;
 
     public AgentIdNotFoundException(String agentId, long startTime) {
+        super("agentId:" + agentId + " startTime:" + startTime + " not found");
         this.agentId = agentId;
         this.startTime = startTime;
     }
@@ -20,4 +21,5 @@ public class AgentIdNotFoundException extends RuntimeException {
     public long getStartTime() {
         return startTime;
     }
+
 }
