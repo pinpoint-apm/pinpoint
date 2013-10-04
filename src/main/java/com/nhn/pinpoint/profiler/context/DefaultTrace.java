@@ -345,7 +345,7 @@ public final class DefaultTrace implements Trace {
             span.setServiceType(serviceType.getCode());
         } else {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setServiceType(serviceType);
+            spanEvent.setServiceType(serviceType.getCode());
         }
 
     }
@@ -370,18 +370,19 @@ public final class DefaultTrace implements Trace {
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof SpanEventStackFrame) {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setDestionationId(destinationId);
+            spanEvent.setDestinationId(destinationId);
         }
     }
 
     @Override
+    @Deprecated
     public void recordDestinationAddress(List<String> address) {
         // TODO API 단일화 필요.                                                                                             
-        StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof SpanEventStackFrame) {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setDestinationAddress();
-        }
+//        StackFrame currentStackFrame = this.currentStackFrame;
+//        if (currentStackFrame instanceof SpanEventStackFrame) {
+//            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
+//            spanEvent.setDestinationAddress();
+//        }
     }
 
     @Override
@@ -415,13 +416,15 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void recordNextSpanId(int spanId) {
+    public void recordNextSpanId(int nextSpanId) {
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
-            logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", spanId);
+            logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", nextSpanId);
         } else {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setNextSpanId(spanId);
+            if (nextSpanId != -1) {
+                spanEvent.setNextSpanId(nextSpanId);
+            }
         }
     }
 

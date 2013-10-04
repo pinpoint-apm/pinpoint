@@ -1,11 +1,10 @@
 package com.nhn.pinpoint.profiler.context;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
@@ -15,211 +14,86 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
  *
  * @author netspider
  */
-public class SpanEvent implements Thriftable {
+public class SpanEvent extends TSpanEvent implements Thriftable {
 
-    private final Span parentSpan;
+    private final Span span;
 
-    private short sequence;
+    private List<TraceAnnotation> traceAnnotationList;
 
-    private long startTime;
-    private long endTime;
-    private String rpc;
-    private ServiceType serviceType;
-
-    private String endPoint;
-
-    private String destionationId;
-    private List<String> destinationAddress;
-
-    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(4);
-
-    private int nextSpanId = -1;
-    private int depth = -1;
-    
-    public SpanEvent(Span parentSpan) {
-        this.parentSpan = parentSpan;
+    public SpanEvent(Span span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
+        this.span = span;
     }
 
-    public Span getParentSpan() {
-        return parentSpan;
-    }
-
-    public short getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(short sequence) {
-        this.sequence = sequence;
+    public Span getSpan() {
+        return span;
     }
 
     public boolean addAnnotation(TraceAnnotation traceAnnotation) {
+        if (traceAnnotationList == null) {
+            this.traceAnnotationList = new ArrayList<TraceAnnotation>(4);
+        }
         return traceAnnotationList.add(traceAnnotation);
     }
 
-    public List<TraceAnnotation> getTraceAnnotationList() {
-        return traceAnnotationList;
-    }
 
-    public int getAnnotationSize() {
-        return traceAnnotationList.size();
-    }
-
-    public String getEndPoint() {
-        return this.endPoint;
-    }
-
-
-    public String getRpc() {
-        return rpc;
-    }
-
-    public void setRpc(String rpc) {
-        this.rpc = rpc;
-    }
-
-    public void setEndPoint(String endPoint) {
-        this.endPoint = endPoint;
-    }
-
-    public String getDestionationId() {
-        return destionationId;
-    }
-
-    public void setDestionationId(String destionationId) {
-        this.destionationId = destionationId;
-    }
-
-    public List<String> getDestinationAddress() {
-        return destinationAddress;
-    }
-
-    public void setDestinationAddress(List<String> destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void markStartTime() {
+//        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
+        final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
+        this.setStartElapsed(startElapsed);
     }
 
     public long getStartTime() {
-        return startTime;
+        return span.getStartTime() + getStartElapsed();
     }
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
+    public void markEndTime() {
+//        spanEvent.setEndElapsed((int) (endTime - startTime));
+        final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
+        this.setEndElapsed(endElapsed);
     }
 
     public long getEndTime() {
-        return endTime;
+        return span.getStartTime() + getStartElapsed() + getEndElapsed();
     }
 
-    public ServiceType getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(ServiceType serviceType) {
-        this.serviceType = serviceType;
-    }
-    
-
-	
-	public int getDepth() {
-		return depth;
-	}
-
-	public void setDepth(int depth) {
-		this.depth = depth;
-	}
-
-	public int getNextSpanId() {
-		return nextSpanId;
-	}
-
-	public void setNextSpanId(int nextSpanId) {
-		this.nextSpanId = nextSpanId;
-	}
-
-	public String toString() {
-        StringBuilder sb = new StringBuilder(256);
-
-        sb.append("{");
-        sb.append("\n\t Depth = ").append(depth);
-        sb.append("\n\t NextSpanid=").append(nextSpanId);
-        sb.append("\n\t ParentTraceID=").append(parentSpan.getTraceId());
-        sb.append("\n\t Sequence=").append(sequence);
-        sb.append(",\n\t StartTime=").append(startTime);
-        sb.append(", EndTime=").append(endTime);
-        sb.append(",\n\t Name=").append(rpc);
-        sb.append(", ServiceType=").append(serviceType);
-        sb.append(", EndPoint=").append(endPoint);
-        sb.append(", Seq=").append(sequence);
-        sb.append(",\n\t Annotations = {");
-        for (TraceAnnotation a : traceAnnotationList) {
-            sb.append("\n\t\t").append(a);
-        }
-        sb.append("\n\t}");
-
-        sb.append("}");
-
-        return sb.toString();
-    }
 
     public TSpanEvent toThrift() {
         return toThrift(false);
     }
 
     public TSpanEvent toThrift(boolean child) {
-        TSpanEvent spanEvent = new TSpanEvent();
-
-        long parentSpanStartTime = parentSpan.getStartTime();
-        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
-        spanEvent.setEndElapsed((int) (endTime - startTime));
-
-        spanEvent.setSequence(sequence);
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
-            TAgentKey agentKey = new TAgentKey();
-            final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
-            agentKey.setAgentId(agentInformation.getAgentId());
-            agentKey.setApplicationName(agentInformation.getApplicationName());
-            agentKey.setAgentStartTime(agentInformation.getStartTime());
+            final TAgentKey tAgentKey = DefaultAgent.getInstance().getTAgentKey();
+            this.setAgentKey(tAgentKey);
 
-            spanEvent.setAgentKey(agentKey);
+            // span 데이터 셋은 child일때만 한다.
+            this.setParentServiceType(span.getServiceType()); // added
+            this.setParentEndPoint(span.getEndPoint()); // added
 
-            spanEvent.setParentServiceType(parentSpan.getServiceType()); // added
-            spanEvent.setParentEndPoint(parentSpan.getEndPoint()); // added
-
-            spanEvent.setTraceAgentId(parentSpan.getTraceAgentId());
-            spanEvent.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
-            spanEvent.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
-            spanEvent.setSpanId(parentSpan.getSpanId());
+            this.setTraceAgentId(span.getTraceAgentId());
+            this.setTraceAgentStartTime(span.getTraceAgentStartTime());
+            this.setTraceTransactionSequence(span.getTraceTransactionSequence());
+            this.setSpanId(span.getSpanId());
         }
-
-        spanEvent.setRpc(rpc);
-		spanEvent.setServiceType(serviceType.getCode());
-
-        spanEvent.setEndPoint(endPoint);
-        spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
-        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
-        for (TraceAnnotation traceAnnotation : traceAnnotationList) {
-            annotationList.add(traceAnnotation.toThrift());
+        if (traceAnnotationList != null) {
+            List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
+            for (TraceAnnotation traceAnnotation : traceAnnotationList) {
+                annotationList.add(traceAnnotation.toThrift());
+            }
+            this.setAnnotations(annotationList);
+            this.traceAnnotationList = null;
         }
-        spanEvent.setAnnotations(annotationList);
 
-		if (depth != -1) {
-			spanEvent.setDepth(depth);
-		}
-
-		if (nextSpanId != -1) {
-			spanEvent.setNextSpanId(nextSpanId);
-		}
-        
-        return spanEvent;
+        return this;
     }
 
-    public void setDestinationAddress() {
-        //To change body of created methods use File | Settings | File Templates.
-    }
+
+
+
 }

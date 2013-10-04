@@ -24,6 +24,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
+import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +55,10 @@ public class DefaultAgent implements Agent {
 
     private final AgentInformation agentInformation;
 
+    private final TAgentKey tAgentKey;
+
     // agent info는 heartbeat에서 매번 사용한다.
-    private TAgentInfo agentInfo;
+    private TAgentInfo tAgentInfo;
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
@@ -101,14 +104,17 @@ public class DefaultAgent implements Agent {
         // 매핑 테이블 초기화를 위해 엑세스
 //        ApiMappingTable.findApiId("test", null, null);
 
-        this.agentInfo = createAgentInfo();
-        this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
+        this.tAgentInfo = createTAgentInfo();
+        this.tAgentKey = createTAgentKey();
+        this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
 
         SingletonHolder.INSTANCE = this;
     }
+
+
 
 
     private AgentInformation createAgentInformation() {
@@ -176,7 +182,7 @@ public class DefaultAgent implements Agent {
 		}
     }
 
-    private TAgentInfo createAgentInfo() {
+    private TAgentInfo createTAgentInfo() {
         final ServerInfo serverInfo = this.serverInfo;
         String ip = serverInfo.getHostip();
         String ports = "";
@@ -197,6 +203,14 @@ public class DefaultAgent implements Agent {
         agentInfo.setIsAlive(true);
 
         return agentInfo;
+    }
+
+    private TAgentKey createTAgentKey() {
+        return new TAgentKey(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
+    }
+
+    public TAgentKey getTAgentKey() {
+        return tAgentKey;
     }
 
     private void changeStatus(AgentStatus status) {
@@ -318,9 +332,9 @@ public class DefaultAgent implements Agent {
     public void stop() {
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
-        agentInfo.setIsAlive(false);
-        this.tcpDataSender.send(agentInfo);
-        // TODO send agentInfo alive false후 send 메시지의 처리가 정확하지 않음
+        tAgentInfo.setIsAlive(false);
+        this.tcpDataSender.send(tAgentInfo);
+        // TODO send tAgentInfo alive false후 send 메시지의 처리가 정확하지 않음
 
         changeStatus(AgentStatus.STOPPING);
         this.heartBitChecker.stop();

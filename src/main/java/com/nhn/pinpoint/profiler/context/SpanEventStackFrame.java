@@ -26,7 +26,7 @@ public class SpanEventStackFrame implements StackFrame {
 
     @Override
     public void markBeforeTime() {
-        spanEvent.setStartTime(System.currentTimeMillis());
+        spanEvent.markStartTime();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SpanEventStackFrame implements StackFrame {
 
     @Override
     public void markAfterTime() {
-        spanEvent.setEndTime(System.currentTimeMillis());
+        spanEvent.markEndTime();
     }
 
     @Override

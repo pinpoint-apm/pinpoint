@@ -8,7 +8,9 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Span represent RPC
@@ -18,15 +20,14 @@ import java.util.List;
 public class Span extends TSpan implements Thriftable {
     private final TraceId traceId;
 
-    private final List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(5);
+    private List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(4);
 
-    private List<SpanEvent> spanEventList;
-    
     public Span(TraceId traceId) {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
         this.traceId = traceId;
+        recordTraceId(traceId);
     }
 
     private void recordTraceId(TraceId traceId) {
@@ -42,6 +43,26 @@ public class Span extends TSpan implements Thriftable {
         this.setFlag(traceId.getFlags());
     }
 
+    public void markBeforeTime() {
+        this.setStartTime(System.currentTimeMillis());
+    }
+
+    public void markEndTime() {
+        if (!isSetStartTime()) {
+            throw new RuntimeException("startTime is not set");
+        }
+        final long startTime = this.getStartTime();
+        // long으로 바꿀것.
+        this.setElapsed((int)(System.currentTimeMillis() - startTime));
+    }
+
+    public long getEndTime() {
+        if (!isSetStartTime()) {
+            throw new RuntimeException("startTime is not set");
+        }
+        return this.getStartTime() + this.getElapsed();
+    }
+
 
     public boolean addAnnotation(TraceAnnotation traceAnnotation) {
         return traceAnnotationList.add(traceAnnotation);
@@ -51,14 +72,8 @@ public class Span extends TSpan implements Thriftable {
         return traceAnnotationList.size();
     }
 
-    public List<SpanEvent> getPSpanEventList() {
-        return spanEventList;
-    }
 
-    public void setPSpanEventList(List<SpanEvent> spanEventList) {
-        this.spanEventList = spanEventList;
-    }
-    
+
     public int getException() {
 		return getErr();
 	}
@@ -73,7 +88,6 @@ public class Span extends TSpan implements Thriftable {
 
     public TSpan toThrift() {
 
-        recordTraceId(traceId);
         final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
         this.setAgentId(agentInformation.getAgentId());
         this.setApplicationName(agentInformation.getApplicationName());
@@ -86,17 +100,19 @@ public class Span extends TSpan implements Thriftable {
             annotationList.add(traceAnnotation.toThrift());
         }
         this.setAnnotations(annotationList);
+        this.traceAnnotationList = null;
 
-        List<SpanEvent> spanEventList = this.getPSpanEventList();
-        if (spanEventList != null && spanEventList.size() != 0) {
-            List<TSpanEvent> tSpanEventList = new ArrayList<TSpanEvent>(spanEventList.size());
-            for (SpanEvent spanEvent : spanEventList) {
-                TSpanEvent tSpanEvent = spanEvent.toThrift(true);
-                tSpanEventList.add(tSpanEvent);
+        final List<TSpanEvent> spanEventList = this.getSpanEventList();
+        if (spanEventList != null) {
+            for (TSpanEvent spanEvent : spanEventList) {
+                if (spanEvent instanceof SpanEvent) {
+                    ((SpanEvent)spanEvent).toThrift(true);
+                }
             }
-            this.setSpanEventList(tSpanEventList);
         }
 
         return this;
     }
+
+
 }

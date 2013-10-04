@@ -37,7 +37,7 @@ public class BypassStorage implements Storage {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
-        dataSender.send(spanEvent);
+        dataSender.send((Thriftable) spanEvent);
     }
 
     @Override

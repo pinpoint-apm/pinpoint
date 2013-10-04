@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,25 +20,23 @@ import java.util.regex.Pattern;
  */
 public class JDBCUrlParser {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ConcurrentMap<String, DefaultDatabaseInfo> cache = new ConcurrentHashMap<String, DefaultDatabaseInfo>();
 
 
     public DefaultDatabaseInfo parse(String url) {
-        // jdbc 체크
-        String lowCaseURL = url.toLowerCase().trim();
-        if (!lowCaseURL.startsWith("jdbc:")) {
-            return createUnknownDataBase(url);
+        final DefaultDatabaseInfo hit = cache.get(url);
+        if (hit != null) {
+            logger.debug("database url cache hit:{} {}", url, hit);
+            return hit;
         }
 
-        if (driverTypeCheck(lowCaseURL, "mysql")) {
-            return parseMysql(url);
+        final DefaultDatabaseInfo databaseInfo = doParse(url);
+        final DefaultDatabaseInfo old = cache.putIfAbsent(url, databaseInfo);
+        if (old != null) {
+            return old;
         }
-        if (driverTypeCheck(lowCaseURL, "oracle")) {
-            return parseOracle(url);
-        }
-        if (driverTypeCheck(lowCaseURL, "cubrid")) {
-        	return parseCubrid(url);
-        }
-        return createUnknownDataBase(url);
+        return databaseInfo;
+
 //        else if (url.indexOf("jdbc:oracle") >= 0) {
 //            maker.lower().after("jdbc:oracle:").after(':');
 //            info.type = TYPE.ORACLE;
@@ -82,6 +82,25 @@ public class JDBCUrlParser {
 
 //        return info;
 //        return null;
+    }
+
+    private DefaultDatabaseInfo doParse(String url) {
+        // jdbc 체크
+        String lowCaseURL = url.toLowerCase().trim();
+        if (!lowCaseURL.startsWith("jdbc:")) {
+            return createUnknownDataBase(url);
+        }
+
+        if (driverTypeCheck(lowCaseURL, "mysql")) {
+            return parseMysql(url);
+        }
+        if (driverTypeCheck(lowCaseURL, "oracle")) {
+            return parseOracle(url);
+        }
+        if (driverTypeCheck(lowCaseURL, "cubrid")) {
+        	return parseCubrid(url);
+        }
+        return createUnknownDataBase(url);
     }
 
     private boolean driverTypeCheck(String lowCaseURL, String type) {

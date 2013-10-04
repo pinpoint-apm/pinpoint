@@ -14,84 +14,57 @@ import com.nhn.pinpoint.profiler.DefaultAgent;
 /**
  *
  */
-public class SpanChunk implements Thriftable {
-
-    private final List<SpanEvent> spanEventList;
+public class SpanChunk extends TSpanChunk implements Thriftable {
 
     public SpanChunk(List<SpanEvent> spanEventList) {
         if (spanEventList == null) {
             throw new NullPointerException("spanEventList must not be null");
         }
-        this.spanEventList = spanEventList;
+        setSpanEventList((List) spanEventList);
     }
 
     @Override
     public TBase toThrift() {
-        TSpanChunk tSpanChunk = new TSpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
-        SpanEvent first = spanEventList.get(0);
-        Span parentSpan = first.getParentSpan();
+        final List<TSpanEvent> spanEventList = getSpanEventList();
+        TSpanEvent first = spanEventList.get(0);
+        if (first == null) {
+            throw new IllegalStateException("fist spanEvent not found");
+        }
+        Span parentSpan = ((SpanEvent)first).getSpan();
 
         final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
-        tSpanChunk.setAgentId(agentInformation.getAgentId());
-        tSpanChunk.setApplicationName(agentInformation.getApplicationName());
-        tSpanChunk.setAgentStartTime(agentInformation.getStartTime());
+        this.setAgentId(agentInformation.getAgentId());
+        this.setApplicationName(agentInformation.getApplicationName());
+        this.setAgentStartTime(agentInformation.getStartTime());
 
-        tSpanChunk.setServiceType(parentSpan.getServiceType());
+        this.setServiceType(parentSpan.getServiceType());
 
-        tSpanChunk.setTraceAgentId(parentSpan.getTraceAgentId());
-        tSpanChunk.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
-        tSpanChunk.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
-        tSpanChunk.setSpanId(parentSpan.getSpanId());
+        this.setTraceAgentId(parentSpan.getTraceAgentId());
+        this.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
+        this.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
+        this.setSpanId(parentSpan.getSpanId());
+
+        this.setEndPoint(parentSpan.getEndPoint());
         
-        tSpanChunk.setEndPoint(parentSpan.getEndPoint());
-        
-        List<TSpanEvent> tSpanEvent = createSpanEvent(spanEventList);
+        List<TSpanEvent> tSpanEvent = createTSpanEvent(spanEventList);
 
-        tSpanChunk.setSpanEventList(tSpanEvent);
+        this.setSpanEventList(tSpanEvent);
 
-        return tSpanChunk;
+        return this;
     }
 
-    private List<TSpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
-        List<TSpanEvent> result = new ArrayList<TSpanEvent>(spanEventList.size());
-        for (SpanEvent spanEvent : spanEventList) {
-            TSpanEvent tSpanEvent = new TSpanEvent();
-
+    private List<TSpanEvent> createTSpanEvent(List<TSpanEvent> spanEventList) {
+        for (TSpanEvent tSpanEvent : spanEventList) {
 //            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
 //            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());
 //            tSpanEvent.setAgentIdentifier(Agent.getInstance().getPid());
-
-            long parentSpanStartTime = spanEvent.getParentSpan().getStartTime();
-            tSpanEvent.setStartElapsed((int) (spanEvent.getStartTime() - parentSpanStartTime));
-            tSpanEvent.setEndElapsed((int) (spanEvent.getEndTime() - spanEvent.getStartTime()));
-
-            tSpanEvent.setSequence(spanEvent.getSequence());
-
-            tSpanEvent.setRpc(spanEvent.getRpc());
-            tSpanEvent.setServiceType(spanEvent.getServiceType().getCode());
-            tSpanEvent.setDestinationId(spanEvent.getDestionationId());
-
-            tSpanEvent.setEndPoint(spanEvent.getEndPoint());
-
-            // 여기서 데이터 인코딩을 하자.
-            List<TAnnotation> annotationList = new ArrayList<TAnnotation>(spanEvent.getAnnotationSize());
-            for (TraceAnnotation traceAnnotation : spanEvent.getTraceAnnotationList()) {
-                annotationList.add(traceAnnotation.toThrift());
+            if (tSpanEvent instanceof SpanEvent) {
+                ((SpanEvent)tSpanEvent).toThrift(true);
             }
-            
-			if (spanEvent.getDepth() != -1) {
-				tSpanEvent.setDepth(spanEvent.getDepth());
-			}
-
-			if (spanEvent.getNextSpanId() != -1) {
-				tSpanEvent.setNextSpanId(spanEvent.getNextSpanId());
-			}
-            
-            tSpanEvent.setAnnotations(annotationList);
-            result.add(tSpanEvent);
         }
-        return result;
+        // type check 무시.
+        return spanEventList;
     }
 
 

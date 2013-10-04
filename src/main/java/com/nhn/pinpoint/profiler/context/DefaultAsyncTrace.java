@@ -75,7 +75,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void markBeforeTime() {
-        spanEvent.setStartTime(System.currentTimeMillis());
+        spanEvent.markStartTime();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void markAfterTime() {
-        spanEvent.setEndTime(System.currentTimeMillis());
+        spanEvent.markEndTime();
     }
 
 
@@ -135,7 +135,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void recordServiceType(final ServiceType serviceType) {
-        this.spanEvent.setServiceType(serviceType);
+        this.spanEvent.setServiceType(serviceType.getCode());
     }
 
     @Override
@@ -147,7 +147,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void recordDestinationId(String destinationId) {
-        this.spanEvent.setDestionationId(destinationId);
+        this.spanEvent.setDestinationId(destinationId);
     }
 
     // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
