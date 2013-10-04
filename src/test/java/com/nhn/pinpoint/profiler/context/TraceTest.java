@@ -41,8 +41,7 @@ public class TraceTest {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTrace trace = new DefaultTrace(traceID);
         TestDataSender dataSender = new TestDataSender();
-        BypassStorage bypassStorage = new BypassStorage();
-        bypassStorage.setDataSender(new LoggingDataSender());
+        BypassStorage bypassStorage = new BypassStorage(new LoggingDataSender());
         trace.setStorage(bypassStorage);
 //        trace.traceBlockBegin();
 

@@ -1,16 +1,13 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.sender.DataSender;
-import org.apache.thrift.TBase;
 
 /**
  *
  */
 public class BypassStorage implements Storage {
-    private DataSender dataSender;
 
-    public BypassStorage() {
-    }
+    private final DataSender dataSender;
 
     public BypassStorage(DataSender dataSender) {
         if (dataSender == null) {
@@ -19,18 +16,6 @@ public class BypassStorage implements Storage {
         this.dataSender = dataSender;
     }
 
-    @Override
-    public void setDataSender(DataSender dataSender) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
-        }
-        this.dataSender = dataSender;
-    }
-
-    @Override
-    public DataSender getDataSender() {
-        return dataSender;
-    }
 
     @Override
     public void store(SpanEvent spanEvent) {

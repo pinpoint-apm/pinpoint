@@ -32,8 +32,7 @@ public class TimeBaseStorageFactory implements StorageFactory {
 
     @Override
     public Storage createStorage() {
-        TimeBaseStorage timeBaseStorage = new TimeBaseStorage();
-        timeBaseStorage.setDataSender(this.dataSender);
+        TimeBaseStorage timeBaseStorage = new TimeBaseStorage(this.dataSender);
         timeBaseStorage.setBufferSize(config.getSamplingElapsedTimeBaseBufferSize());
         timeBaseStorage.setLimitTime(config.getSamplingElapsedTimeBaseDiscardTimeLimit());
         timeBaseStorage.setDiscard(config.isSamplingElapsedTimeBaseDiscard());

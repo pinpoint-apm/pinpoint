@@ -23,18 +23,17 @@ public class TimeBaseStorage implements Storage {
     private int bufferSize = 20;
 
     private List<SpanEvent> storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
-    private DataSender dataSender;
+    private final DataSender dataSender;
 
-    public TimeBaseStorage() {
+    public TimeBaseStorage(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
+        this.dataSender = dataSender;
     }
 
     public void setDiscard(boolean discard) {
         this.discard = discard;
-    }
-
-    @Override
-    public void setDataSender(DataSender dataSender) {
-        this.dataSender = dataSender;
     }
 
     public void setBufferSize(int bufferSize) {
@@ -43,11 +42,6 @@ public class TimeBaseStorage implements Storage {
 
     public void setLimitTime(long limitTime) {
         this.limitTime = limitTime;
-    }
-
-    @Override
-    public DataSender getDataSender() {
-        return this.dataSender;
     }
 
     @Override
@@ -135,7 +129,7 @@ public class TimeBaseStorage implements Storage {
             this.storage = null;
         }
         if (spanEventList != null && spanEventList.size() != 0) {
-            span.setSpanEventList((List)spanEventList);
+            span.setSpanEventList((List) spanEventList);
         }
         dataSender.send((Thriftable)span);
     }
