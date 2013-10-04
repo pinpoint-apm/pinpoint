@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._Fields>, java.io.Serializable, Cloneable, Comparable<AgentInfo> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AgentInfo");
+public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInfo._Fields>, java.io.Serializable, Cloneable, Comparable<TAgentInfo> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TAgentInfo");
 
   private static final org.apache.thrift.protocol.TField HOSTNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("hostname", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)2);
@@ -47,8 +47,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new AgentInfoStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new AgentInfoTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TAgentInfoStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TAgentInfoTupleSchemeFactory());
   }
 
   private String hostname; // required
@@ -171,13 +171,13 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     tmpMap.put(_Fields.PID, new org.apache.thrift.meta_data.FieldMetaData("pid", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AgentInfo.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAgentInfo.class, metaDataMap);
   }
 
-  public AgentInfo() {
+  public TAgentInfo() {
   }
 
-  public AgentInfo(
+  public TAgentInfo(
     String hostname,
     String ip,
     String ports,
@@ -207,7 +207,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public AgentInfo(AgentInfo other) {
+  public TAgentInfo(TAgentInfo other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetHostname()) {
       this.hostname = other.hostname;
@@ -230,8 +230,8 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     this.pid = other.pid;
   }
 
-  public AgentInfo deepCopy() {
-    return new AgentInfo(this);
+  public TAgentInfo deepCopy() {
+    return new TAgentInfo(this);
   }
 
   @Override
@@ -597,12 +597,12 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof AgentInfo)
-      return this.equals((AgentInfo)that);
+    if (that instanceof TAgentInfo)
+      return this.equals((TAgentInfo)that);
     return false;
   }
 
-  public boolean equals(AgentInfo that) {
+  public boolean equals(TAgentInfo that) {
     if (that == null)
       return false;
 
@@ -696,7 +696,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
   }
 
   @Override
-  public int compareTo(AgentInfo other) {
+  public int compareTo(TAgentInfo other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -810,7 +810,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("AgentInfo(");
+    StringBuilder sb = new StringBuilder("TAgentInfo(");
     boolean first = true;
 
     sb.append("hostname:");
@@ -895,15 +895,15 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     }
   }
 
-  private static class AgentInfoStandardSchemeFactory implements SchemeFactory {
-    public AgentInfoStandardScheme getScheme() {
-      return new AgentInfoStandardScheme();
+  private static class TAgentInfoStandardSchemeFactory implements SchemeFactory {
+    public TAgentInfoStandardScheme getScheme() {
+      return new TAgentInfoStandardScheme();
     }
   }
 
-  private static class AgentInfoStandardScheme extends StandardScheme<AgentInfo> {
+  private static class TAgentInfoStandardScheme extends StandardScheme<TAgentInfo> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, AgentInfo struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TAgentInfo struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -994,7 +994,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, AgentInfo struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TAgentInfo struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1041,16 +1041,16 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
 
   }
 
-  private static class AgentInfoTupleSchemeFactory implements SchemeFactory {
-    public AgentInfoTupleScheme getScheme() {
-      return new AgentInfoTupleScheme();
+  private static class TAgentInfoTupleSchemeFactory implements SchemeFactory {
+    public TAgentInfoTupleScheme getScheme() {
+      return new TAgentInfoTupleScheme();
     }
   }
 
-  private static class AgentInfoTupleScheme extends TupleScheme<AgentInfo> {
+  private static class TAgentInfoTupleScheme extends TupleScheme<TAgentInfo> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, AgentInfo struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TAgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetHostname()) {
@@ -1111,7 +1111,7 @@ public class AgentInfo implements org.apache.thrift.TBase<AgentInfo, AgentInfo._
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, AgentInfo struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TAgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(9);
       if (incoming.get(0)) {

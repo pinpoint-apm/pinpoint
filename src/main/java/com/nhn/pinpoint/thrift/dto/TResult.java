@@ -32,16 +32,16 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, java.io.Serializable, Cloneable, Comparable<Result> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Result");
+public class TResult implements org.apache.thrift.TBase<TResult, TResult._Fields>, java.io.Serializable, Cloneable, Comparable<TResult> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TResult");
 
   private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.BOOL, (short)1);
   private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new ResultStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new ResultTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TResultStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TResultTupleSchemeFactory());
   }
 
   private boolean success; // required
@@ -120,13 +120,13 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Result.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TResult.class, metaDataMap);
   }
 
-  public Result() {
+  public TResult() {
   }
 
-  public Result(
+  public TResult(
     boolean success)
   {
     this();
@@ -137,7 +137,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public Result(Result other) {
+  public TResult(TResult other) {
     __isset_bitfield = other.__isset_bitfield;
     this.success = other.success;
     if (other.isSetMessage()) {
@@ -145,8 +145,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     }
   }
 
-  public Result deepCopy() {
-    return new Result(this);
+  public TResult deepCopy() {
+    return new TResult(this);
   }
 
   @Override
@@ -253,12 +253,12 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof Result)
-      return this.equals((Result)that);
+    if (that instanceof TResult)
+      return this.equals((TResult)that);
     return false;
   }
 
-  public boolean equals(Result that) {
+  public boolean equals(TResult that) {
     if (that == null)
       return false;
 
@@ -289,7 +289,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   }
 
   @Override
-  public int compareTo(Result other) {
+  public int compareTo(TResult other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -333,7 +333,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("Result(");
+    StringBuilder sb = new StringBuilder("TResult(");
     boolean first = true;
 
     sb.append("success:");
@@ -376,15 +376,15 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     }
   }
 
-  private static class ResultStandardSchemeFactory implements SchemeFactory {
-    public ResultStandardScheme getScheme() {
-      return new ResultStandardScheme();
+  private static class TResultStandardSchemeFactory implements SchemeFactory {
+    public TResultStandardScheme getScheme() {
+      return new TResultStandardScheme();
     }
   }
 
-  private static class ResultStandardScheme extends StandardScheme<Result> {
+  private static class TResultStandardScheme extends StandardScheme<TResult> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, Result struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TResult struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -419,7 +419,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, Result struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TResult struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -439,16 +439,16 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
 
   }
 
-  private static class ResultTupleSchemeFactory implements SchemeFactory {
-    public ResultTupleScheme getScheme() {
-      return new ResultTupleScheme();
+  private static class TResultTupleSchemeFactory implements SchemeFactory {
+    public TResultTupleScheme getScheme() {
+      return new TResultTupleScheme();
     }
   }
 
-  private static class ResultTupleScheme extends TupleScheme<Result> {
+  private static class TResultTupleScheme extends TupleScheme<TResult> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, Result struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TResult struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetSuccess()) {
@@ -467,7 +467,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, Result struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TResult struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {

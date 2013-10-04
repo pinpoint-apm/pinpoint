@@ -32,28 +32,31 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fields>, java.io.Serializable, Cloneable, Comparable<AgentKey> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AgentKey");
+public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlMetaData._Fields>, java.io.Serializable, Cloneable, Comparable<TSqlMetaData> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSqlMetaData");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)3);
+  private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hashCode", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField SQL_FIELD_DESC = new org.apache.thrift.protocol.TField("sql", org.apache.thrift.protocol.TType.STRING, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new AgentKeyStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new AgentKeyTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TSqlMetaDataStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TSqlMetaDataTupleSchemeFactory());
   }
 
   private String agentId; // required
-  private String applicationName; // optional
   private long agentStartTime; // required
+  private int hashCode; // required
+  private String sql; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
-    APPLICATION_NAME((short)2, "applicationName"),
-    AGENT_START_TIME((short)3, "agentStartTime");
+    AGENT_START_TIME((short)2, "agentStartTime"),
+    HASH_CODE((short)4, "hashCode"),
+    SQL((short)5, "sql");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,10 +73,12 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
       switch(fieldId) {
         case 1: // AGENT_ID
           return AGENT_ID;
-        case 2: // APPLICATION_NAME
-          return APPLICATION_NAME;
-        case 3: // AGENT_START_TIME
+        case 2: // AGENT_START_TIME
           return AGENT_START_TIME;
+        case 4: // HASH_CODE
+          return HASH_CODE;
+        case 5: // SQL
+          return SQL;
         default:
           return null;
       }
@@ -115,58 +120,68 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
 
   // isset id assignments
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
+  private static final int __HASHCODE_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.APPLICATION_NAME};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("applicationName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_START_TIME, new org.apache.thrift.meta_data.FieldMetaData("agentStartTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.SQL, new org.apache.thrift.meta_data.FieldMetaData("sql", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AgentKey.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSqlMetaData.class, metaDataMap);
   }
 
-  public AgentKey() {
+  public TSqlMetaData() {
   }
 
-  public AgentKey(
+  public TSqlMetaData(
     String agentId,
-    long agentStartTime)
+    long agentStartTime,
+    int hashCode,
+    String sql)
   {
     this();
     this.agentId = agentId;
     this.agentStartTime = agentStartTime;
     setAgentStartTimeIsSet(true);
+    this.hashCode = hashCode;
+    setHashCodeIsSet(true);
+    this.sql = sql;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public AgentKey(AgentKey other) {
+  public TSqlMetaData(TSqlMetaData other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
     }
-    if (other.isSetApplicationName()) {
-      this.applicationName = other.applicationName;
-    }
     this.agentStartTime = other.agentStartTime;
+    this.hashCode = other.hashCode;
+    if (other.isSetSql()) {
+      this.sql = other.sql;
+    }
   }
 
-  public AgentKey deepCopy() {
-    return new AgentKey(this);
+  public TSqlMetaData deepCopy() {
+    return new TSqlMetaData(this);
   }
 
   @Override
   public void clear() {
     this.agentId = null;
-    this.applicationName = null;
     setAgentStartTimeIsSet(false);
     this.agentStartTime = 0;
+    setHashCodeIsSet(false);
+    this.hashCode = 0;
+    this.sql = null;
   }
 
   public String getAgentId() {
@@ -192,29 +207,6 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
     }
   }
 
-  public String getApplicationName() {
-    return this.applicationName;
-  }
-
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
-  }
-
-  public void unsetApplicationName() {
-    this.applicationName = null;
-  }
-
-  /** Returns true if field applicationName is set (has been assigned a value) and false otherwise */
-  public boolean isSetApplicationName() {
-    return this.applicationName != null;
-  }
-
-  public void setApplicationNameIsSet(boolean value) {
-    if (!value) {
-      this.applicationName = null;
-    }
-  }
-
   public long getAgentStartTime() {
     return this.agentStartTime;
   }
@@ -237,6 +229,51 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __AGENTSTARTTIME_ISSET_ID, value);
   }
 
+  public int getHashCode() {
+    return this.hashCode;
+  }
+
+  public void setHashCode(int hashCode) {
+    this.hashCode = hashCode;
+    setHashCodeIsSet(true);
+  }
+
+  public void unsetHashCode() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __HASHCODE_ISSET_ID);
+  }
+
+  /** Returns true if field hashCode is set (has been assigned a value) and false otherwise */
+  public boolean isSetHashCode() {
+    return EncodingUtils.testBit(__isset_bitfield, __HASHCODE_ISSET_ID);
+  }
+
+  public void setHashCodeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __HASHCODE_ISSET_ID, value);
+  }
+
+  public String getSql() {
+    return this.sql;
+  }
+
+  public void setSql(String sql) {
+    this.sql = sql;
+  }
+
+  public void unsetSql() {
+    this.sql = null;
+  }
+
+  /** Returns true if field sql is set (has been assigned a value) and false otherwise */
+  public boolean isSetSql() {
+    return this.sql != null;
+  }
+
+  public void setSqlIsSet(boolean value) {
+    if (!value) {
+      this.sql = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -244,14 +281,6 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
         unsetAgentId();
       } else {
         setAgentId((String)value);
-      }
-      break;
-
-    case APPLICATION_NAME:
-      if (value == null) {
-        unsetApplicationName();
-      } else {
-        setApplicationName((String)value);
       }
       break;
 
@@ -263,6 +292,22 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
       }
       break;
 
+    case HASH_CODE:
+      if (value == null) {
+        unsetHashCode();
+      } else {
+        setHashCode((Integer)value);
+      }
+      break;
+
+    case SQL:
+      if (value == null) {
+        unsetSql();
+      } else {
+        setSql((String)value);
+      }
+      break;
+
     }
   }
 
@@ -271,11 +316,14 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
     case AGENT_ID:
       return getAgentId();
 
-    case APPLICATION_NAME:
-      return getApplicationName();
-
     case AGENT_START_TIME:
       return Long.valueOf(getAgentStartTime());
+
+    case HASH_CODE:
+      return Integer.valueOf(getHashCode());
+
+    case SQL:
+      return getSql();
 
     }
     throw new IllegalStateException();
@@ -290,10 +338,12 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
     switch (field) {
     case AGENT_ID:
       return isSetAgentId();
-    case APPLICATION_NAME:
-      return isSetApplicationName();
     case AGENT_START_TIME:
       return isSetAgentStartTime();
+    case HASH_CODE:
+      return isSetHashCode();
+    case SQL:
+      return isSetSql();
     }
     throw new IllegalStateException();
   }
@@ -302,12 +352,12 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof AgentKey)
-      return this.equals((AgentKey)that);
+    if (that instanceof TSqlMetaData)
+      return this.equals((TSqlMetaData)that);
     return false;
   }
 
-  public boolean equals(AgentKey that) {
+  public boolean equals(TSqlMetaData that) {
     if (that == null)
       return false;
 
@@ -320,21 +370,30 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
         return false;
     }
 
-    boolean this_present_applicationName = true && this.isSetApplicationName();
-    boolean that_present_applicationName = true && that.isSetApplicationName();
-    if (this_present_applicationName || that_present_applicationName) {
-      if (!(this_present_applicationName && that_present_applicationName))
-        return false;
-      if (!this.applicationName.equals(that.applicationName))
-        return false;
-    }
-
     boolean this_present_agentStartTime = true;
     boolean that_present_agentStartTime = true;
     if (this_present_agentStartTime || that_present_agentStartTime) {
       if (!(this_present_agentStartTime && that_present_agentStartTime))
         return false;
       if (this.agentStartTime != that.agentStartTime)
+        return false;
+    }
+
+    boolean this_present_hashCode = true;
+    boolean that_present_hashCode = true;
+    if (this_present_hashCode || that_present_hashCode) {
+      if (!(this_present_hashCode && that_present_hashCode))
+        return false;
+      if (this.hashCode != that.hashCode)
+        return false;
+    }
+
+    boolean this_present_sql = true && this.isSetSql();
+    boolean that_present_sql = true && that.isSetSql();
+    if (this_present_sql || that_present_sql) {
+      if (!(this_present_sql && that_present_sql))
+        return false;
+      if (!this.sql.equals(that.sql))
         return false;
     }
 
@@ -347,7 +406,7 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
   }
 
   @Override
-  public int compareTo(AgentKey other) {
+  public int compareTo(TSqlMetaData other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -364,22 +423,32 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetApplicationName()).compareTo(other.isSetApplicationName());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetApplicationName()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.applicationName, other.applicationName);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetAgentStartTime()).compareTo(other.isSetAgentStartTime());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetAgentStartTime()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentStartTime, other.agentStartTime);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetHashCode()).compareTo(other.isSetHashCode());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetHashCode()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hashCode, other.hashCode);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSql()).compareTo(other.isSetSql());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSql()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sql, other.sql);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -401,7 +470,7 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("AgentKey(");
+    StringBuilder sb = new StringBuilder("TSqlMetaData(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -411,19 +480,21 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
       sb.append(this.agentId);
     }
     first = false;
-    if (isSetApplicationName()) {
-      if (!first) sb.append(", ");
-      sb.append("applicationName:");
-      if (this.applicationName == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.applicationName);
-      }
-      first = false;
-    }
     if (!first) sb.append(", ");
     sb.append("agentStartTime:");
     sb.append(this.agentStartTime);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("hashCode:");
+    sb.append(this.hashCode);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("sql:");
+    if (this.sql == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.sql);
+    }
     first = false;
     sb.append(")");
     return sb.toString();
@@ -452,15 +523,15 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
     }
   }
 
-  private static class AgentKeyStandardSchemeFactory implements SchemeFactory {
-    public AgentKeyStandardScheme getScheme() {
-      return new AgentKeyStandardScheme();
+  private static class TSqlMetaDataStandardSchemeFactory implements SchemeFactory {
+    public TSqlMetaDataStandardScheme getScheme() {
+      return new TSqlMetaDataStandardScheme();
     }
   }
 
-  private static class AgentKeyStandardScheme extends StandardScheme<AgentKey> {
+  private static class TSqlMetaDataStandardScheme extends StandardScheme<TSqlMetaData> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, AgentKey struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TSqlMetaData struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -478,18 +549,26 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // APPLICATION_NAME
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.applicationName = iprot.readString();
-              struct.setApplicationNameIsSet(true);
+          case 2: // AGENT_START_TIME
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.agentStartTime = iprot.readI64();
+              struct.setAgentStartTimeIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // AGENT_START_TIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.agentStartTime = iprot.readI64();
-              struct.setAgentStartTimeIsSet(true);
+          case 4: // HASH_CODE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.hashCode = iprot.readI32();
+              struct.setHashCodeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // SQL
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.sql = iprot.readString();
+              struct.setSqlIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -503,7 +582,7 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, AgentKey struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TSqlMetaData struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -512,70 +591,81 @@ public class AgentKey implements org.apache.thrift.TBase<AgentKey, AgentKey._Fie
         oprot.writeString(struct.agentId);
         oprot.writeFieldEnd();
       }
-      if (struct.applicationName != null) {
-        if (struct.isSetApplicationName()) {
-          oprot.writeFieldBegin(APPLICATION_NAME_FIELD_DESC);
-          oprot.writeString(struct.applicationName);
-          oprot.writeFieldEnd();
-        }
-      }
       oprot.writeFieldBegin(AGENT_START_TIME_FIELD_DESC);
       oprot.writeI64(struct.agentStartTime);
       oprot.writeFieldEnd();
+      oprot.writeFieldBegin(HASH_CODE_FIELD_DESC);
+      oprot.writeI32(struct.hashCode);
+      oprot.writeFieldEnd();
+      if (struct.sql != null) {
+        oprot.writeFieldBegin(SQL_FIELD_DESC);
+        oprot.writeString(struct.sql);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
 
   }
 
-  private static class AgentKeyTupleSchemeFactory implements SchemeFactory {
-    public AgentKeyTupleScheme getScheme() {
-      return new AgentKeyTupleScheme();
+  private static class TSqlMetaDataTupleSchemeFactory implements SchemeFactory {
+    public TSqlMetaDataTupleScheme getScheme() {
+      return new TSqlMetaDataTupleScheme();
     }
   }
 
-  private static class AgentKeyTupleScheme extends TupleScheme<AgentKey> {
+  private static class TSqlMetaDataTupleScheme extends TupleScheme<TSqlMetaData> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, AgentKey struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TSqlMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
         optionals.set(0);
       }
-      if (struct.isSetApplicationName()) {
+      if (struct.isSetAgentStartTime()) {
         optionals.set(1);
       }
-      if (struct.isSetAgentStartTime()) {
+      if (struct.isSetHashCode()) {
         optionals.set(2);
       }
-      oprot.writeBitSet(optionals, 3);
+      if (struct.isSetSql()) {
+        optionals.set(3);
+      }
+      oprot.writeBitSet(optionals, 4);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
-      }
-      if (struct.isSetApplicationName()) {
-        oprot.writeString(struct.applicationName);
       }
       if (struct.isSetAgentStartTime()) {
         oprot.writeI64(struct.agentStartTime);
       }
+      if (struct.isSetHashCode()) {
+        oprot.writeI32(struct.hashCode);
+      }
+      if (struct.isSetSql()) {
+        oprot.writeString(struct.sql);
+      }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, AgentKey struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TSqlMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(3);
+      BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.applicationName = iprot.readString();
-        struct.setApplicationNameIsSet(true);
-      }
-      if (incoming.get(2)) {
         struct.agentStartTime = iprot.readI64();
         struct.setAgentStartTimeIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.hashCode = iprot.readI32();
+        struct.setHashCodeIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.sql = iprot.readString();
+        struct.setSqlIsSet(true);
       }
     }
   }

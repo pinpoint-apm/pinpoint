@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCmsCollector, StatWithCmsCollector._Fields>, java.io.Serializable, Cloneable, Comparable<StatWithCmsCollector> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("StatWithCmsCollector");
+public class TStatWithG1Collector implements org.apache.thrift.TBase<TStatWithG1Collector, TStatWithG1Collector._Fields>, java.io.Serializable, Cloneable, Comparable<TStatWithG1Collector> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TStatWithG1Collector");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)2);
@@ -44,20 +44,20 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
   private static final org.apache.thrift.protocol.TField JVM_MEMORY_NON_HEAP_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryNonHeapUsed", org.apache.thrift.protocol.TType.I64, (short)7);
   private static final org.apache.thrift.protocol.TField JVM_MEMORY_NON_HEAP_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryNonHeapMax", org.apache.thrift.protocol.TType.I64, (short)8);
   private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_CODE_CACHE_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsCodeCacheUsage", org.apache.thrift.protocol.TType.I64, (short)9);
-  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsParEdenSpaceUsage", org.apache.thrift.protocol.TType.I64, (short)10);
-  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsParSurvivorSpaceUsage", org.apache.thrift.protocol.TType.I64, (short)11);
-  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsCMSOldGenUsage", org.apache.thrift.protocol.TType.I64, (short)12);
-  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsCMSPermGenUsage", org.apache.thrift.protocol.TType.I64, (short)13);
-  private static final org.apache.thrift.protocol.TField JVM_GC_PAR_NEW_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcParNewCount", org.apache.thrift.protocol.TType.I64, (short)14);
-  private static final org.apache.thrift.protocol.TField JVM_GC_PAR_NEW_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcParNewTime", org.apache.thrift.protocol.TType.I64, (short)15);
-  private static final org.apache.thrift.protocol.TField JVM_GC_CMS_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcCmsCount", org.apache.thrift.protocol.TType.I64, (short)16);
-  private static final org.apache.thrift.protocol.TField JVM_GC_CMS_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcCmsTime", org.apache.thrift.protocol.TType.I64, (short)17);
+  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsG1EdenSpaceUsage", org.apache.thrift.protocol.TType.I64, (short)10);
+  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsG1OldGenUsage", org.apache.thrift.protocol.TType.I64, (short)11);
+  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsG1PermGenUsage", org.apache.thrift.protocol.TType.I64, (short)12);
+  private static final org.apache.thrift.protocol.TField JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmMemoryPoolsG1SurvivorSpaceUsage", org.apache.thrift.protocol.TType.I64, (short)13);
+  private static final org.apache.thrift.protocol.TField JVM_GC_G1_OLD_GENERATION_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcG1OldGenerationCount", org.apache.thrift.protocol.TType.I64, (short)14);
+  private static final org.apache.thrift.protocol.TField JVM_GC_G1_OLD_GENERATION_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcG1OldGenerationTime", org.apache.thrift.protocol.TType.I64, (short)15);
+  private static final org.apache.thrift.protocol.TField JVM_GC_G1_YOUNG_GENERATION_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcG1YoungGenerationCount", org.apache.thrift.protocol.TType.I64, (short)16);
+  private static final org.apache.thrift.protocol.TField JVM_GC_G1_YOUNG_GENERATION_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("jvmGcG1YoungGenerationTime", org.apache.thrift.protocol.TType.I64, (short)17);
   private static final org.apache.thrift.protocol.TField METADATA_FIELD_DESC = new org.apache.thrift.protocol.TField("metadata", org.apache.thrift.protocol.TType.STRING, (short)200);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new StatWithCmsCollectorStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new StatWithCmsCollectorTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TStatWithG1CollectorStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TStatWithG1CollectorTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -69,14 +69,14 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
   private long jvmMemoryNonHeapUsed; // required
   private long jvmMemoryNonHeapMax; // required
   private long jvmMemoryPoolsCodeCacheUsage; // required
-  private long jvmMemoryPoolsParEdenSpaceUsage; // required
-  private long jvmMemoryPoolsParSurvivorSpaceUsage; // required
-  private long jvmMemoryPoolsCMSOldGenUsage; // required
-  private long jvmMemoryPoolsCMSPermGenUsage; // required
-  private long jvmGcParNewCount; // required
-  private long jvmGcParNewTime; // required
-  private long jvmGcCmsCount; // required
-  private long jvmGcCmsTime; // required
+  private long jvmMemoryPoolsG1EdenSpaceUsage; // required
+  private long jvmMemoryPoolsG1OldGenUsage; // required
+  private long jvmMemoryPoolsG1PermGenUsage; // required
+  private long jvmMemoryPoolsG1SurvivorSpaceUsage; // required
+  private long jvmGcG1OldGenerationCount; // required
+  private long jvmGcG1OldGenerationTime; // required
+  private long jvmGcG1YoungGenerationCount; // required
+  private long jvmGcG1YoungGenerationTime; // required
   private String metadata; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -90,14 +90,14 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     JVM_MEMORY_NON_HEAP_USED((short)7, "jvmMemoryNonHeapUsed"),
     JVM_MEMORY_NON_HEAP_MAX((short)8, "jvmMemoryNonHeapMax"),
     JVM_MEMORY_POOLS_CODE_CACHE_USAGE((short)9, "jvmMemoryPoolsCodeCacheUsage"),
-    JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE((short)10, "jvmMemoryPoolsParEdenSpaceUsage"),
-    JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE((short)11, "jvmMemoryPoolsParSurvivorSpaceUsage"),
-    JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE((short)12, "jvmMemoryPoolsCMSOldGenUsage"),
-    JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE((short)13, "jvmMemoryPoolsCMSPermGenUsage"),
-    JVM_GC_PAR_NEW_COUNT((short)14, "jvmGcParNewCount"),
-    JVM_GC_PAR_NEW_TIME((short)15, "jvmGcParNewTime"),
-    JVM_GC_CMS_COUNT((short)16, "jvmGcCmsCount"),
-    JVM_GC_CMS_TIME((short)17, "jvmGcCmsTime"),
+    JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE((short)10, "jvmMemoryPoolsG1EdenSpaceUsage"),
+    JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE((short)11, "jvmMemoryPoolsG1OldGenUsage"),
+    JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE((short)12, "jvmMemoryPoolsG1PermGenUsage"),
+    JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE((short)13, "jvmMemoryPoolsG1SurvivorSpaceUsage"),
+    JVM_GC_G1_OLD_GENERATION_COUNT((short)14, "jvmGcG1OldGenerationCount"),
+    JVM_GC_G1_OLD_GENERATION_TIME((short)15, "jvmGcG1OldGenerationTime"),
+    JVM_GC_G1_YOUNG_GENERATION_COUNT((short)16, "jvmGcG1YoungGenerationCount"),
+    JVM_GC_G1_YOUNG_GENERATION_TIME((short)17, "jvmGcG1YoungGenerationTime"),
     METADATA((short)200, "metadata");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -131,22 +131,22 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
           return JVM_MEMORY_NON_HEAP_MAX;
         case 9: // JVM_MEMORY_POOLS_CODE_CACHE_USAGE
           return JVM_MEMORY_POOLS_CODE_CACHE_USAGE;
-        case 10: // JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE
-          return JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE;
-        case 11: // JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE
-          return JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE;
-        case 12: // JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE
-          return JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE;
-        case 13: // JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE
-          return JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE;
-        case 14: // JVM_GC_PAR_NEW_COUNT
-          return JVM_GC_PAR_NEW_COUNT;
-        case 15: // JVM_GC_PAR_NEW_TIME
-          return JVM_GC_PAR_NEW_TIME;
-        case 16: // JVM_GC_CMS_COUNT
-          return JVM_GC_CMS_COUNT;
-        case 17: // JVM_GC_CMS_TIME
-          return JVM_GC_CMS_TIME;
+        case 10: // JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE
+          return JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE;
+        case 11: // JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE
+          return JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE;
+        case 12: // JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE
+          return JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE;
+        case 13: // JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE
+          return JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE;
+        case 14: // JVM_GC_G1_OLD_GENERATION_COUNT
+          return JVM_GC_G1_OLD_GENERATION_COUNT;
+        case 15: // JVM_GC_G1_OLD_GENERATION_TIME
+          return JVM_GC_G1_OLD_GENERATION_TIME;
+        case 16: // JVM_GC_G1_YOUNG_GENERATION_COUNT
+          return JVM_GC_G1_YOUNG_GENERATION_COUNT;
+        case 17: // JVM_GC_G1_YOUNG_GENERATION_TIME
+          return JVM_GC_G1_YOUNG_GENERATION_TIME;
         case 200: // METADATA
           return METADATA;
         default:
@@ -197,14 +197,14 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
   private static final int __JVMMEMORYNONHEAPUSED_ISSET_ID = 5;
   private static final int __JVMMEMORYNONHEAPMAX_ISSET_ID = 6;
   private static final int __JVMMEMORYPOOLSCODECACHEUSAGE_ISSET_ID = 7;
-  private static final int __JVMMEMORYPOOLSPAREDENSPACEUSAGE_ISSET_ID = 8;
-  private static final int __JVMMEMORYPOOLSPARSURVIVORSPACEUSAGE_ISSET_ID = 9;
-  private static final int __JVMMEMORYPOOLSCMSOLDGENUSAGE_ISSET_ID = 10;
-  private static final int __JVMMEMORYPOOLSCMSPERMGENUSAGE_ISSET_ID = 11;
-  private static final int __JVMGCPARNEWCOUNT_ISSET_ID = 12;
-  private static final int __JVMGCPARNEWTIME_ISSET_ID = 13;
-  private static final int __JVMGCCMSCOUNT_ISSET_ID = 14;
-  private static final int __JVMGCCMSTIME_ISSET_ID = 15;
+  private static final int __JVMMEMORYPOOLSG1EDENSPACEUSAGE_ISSET_ID = 8;
+  private static final int __JVMMEMORYPOOLSG1OLDGENUSAGE_ISSET_ID = 9;
+  private static final int __JVMMEMORYPOOLSG1PERMGENUSAGE_ISSET_ID = 10;
+  private static final int __JVMMEMORYPOOLSG1SURVIVORSPACEUSAGE_ISSET_ID = 11;
+  private static final int __JVMGCG1OLDGENERATIONCOUNT_ISSET_ID = 12;
+  private static final int __JVMGCG1OLDGENERATIONTIME_ISSET_ID = 13;
+  private static final int __JVMGCG1YOUNGGENERATIONCOUNT_ISSET_ID = 14;
+  private static final int __JVMGCG1YOUNGGENERATIONTIME_ISSET_ID = 15;
   private short __isset_bitfield = 0;
   private _Fields optionals[] = {_Fields.METADATA};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
@@ -228,32 +228,32 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.JVM_MEMORY_POOLS_CODE_CACHE_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsCodeCacheUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsParEdenSpaceUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsG1EdenSpaceUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsParSurvivorSpaceUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsG1OldGenUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsCMSOldGenUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsG1PermGenUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsCMSPermGenUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE, new org.apache.thrift.meta_data.FieldMetaData("jvmMemoryPoolsG1SurvivorSpaceUsage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_GC_PAR_NEW_COUNT, new org.apache.thrift.meta_data.FieldMetaData("jvmGcParNewCount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_GC_G1_OLD_GENERATION_COUNT, new org.apache.thrift.meta_data.FieldMetaData("jvmGcG1OldGenerationCount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_GC_PAR_NEW_TIME, new org.apache.thrift.meta_data.FieldMetaData("jvmGcParNewTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_GC_G1_OLD_GENERATION_TIME, new org.apache.thrift.meta_data.FieldMetaData("jvmGcG1OldGenerationTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_GC_CMS_COUNT, new org.apache.thrift.meta_data.FieldMetaData("jvmGcCmsCount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_GC_G1_YOUNG_GENERATION_COUNT, new org.apache.thrift.meta_data.FieldMetaData("jvmGcG1YoungGenerationCount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.JVM_GC_CMS_TIME, new org.apache.thrift.meta_data.FieldMetaData("jvmGcCmsTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_GC_G1_YOUNG_GENERATION_TIME, new org.apache.thrift.meta_data.FieldMetaData("jvmGcG1YoungGenerationTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.METADATA, new org.apache.thrift.meta_data.FieldMetaData("metadata", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(StatWithCmsCollector.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TStatWithG1Collector.class, metaDataMap);
   }
 
-  public StatWithCmsCollector() {
+  public TStatWithG1Collector() {
   }
 
-  public StatWithCmsCollector(
+  public TStatWithG1Collector(
     String agentId,
     long timestamp,
     long jvmMemoryTotalUsed,
@@ -263,14 +263,14 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     long jvmMemoryNonHeapUsed,
     long jvmMemoryNonHeapMax,
     long jvmMemoryPoolsCodeCacheUsage,
-    long jvmMemoryPoolsParEdenSpaceUsage,
-    long jvmMemoryPoolsParSurvivorSpaceUsage,
-    long jvmMemoryPoolsCMSOldGenUsage,
-    long jvmMemoryPoolsCMSPermGenUsage,
-    long jvmGcParNewCount,
-    long jvmGcParNewTime,
-    long jvmGcCmsCount,
-    long jvmGcCmsTime)
+    long jvmMemoryPoolsG1EdenSpaceUsage,
+    long jvmMemoryPoolsG1OldGenUsage,
+    long jvmMemoryPoolsG1PermGenUsage,
+    long jvmMemoryPoolsG1SurvivorSpaceUsage,
+    long jvmGcG1OldGenerationCount,
+    long jvmGcG1OldGenerationTime,
+    long jvmGcG1YoungGenerationCount,
+    long jvmGcG1YoungGenerationTime)
   {
     this();
     this.agentId = agentId;
@@ -290,28 +290,28 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     setJvmMemoryNonHeapMaxIsSet(true);
     this.jvmMemoryPoolsCodeCacheUsage = jvmMemoryPoolsCodeCacheUsage;
     setJvmMemoryPoolsCodeCacheUsageIsSet(true);
-    this.jvmMemoryPoolsParEdenSpaceUsage = jvmMemoryPoolsParEdenSpaceUsage;
-    setJvmMemoryPoolsParEdenSpaceUsageIsSet(true);
-    this.jvmMemoryPoolsParSurvivorSpaceUsage = jvmMemoryPoolsParSurvivorSpaceUsage;
-    setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(true);
-    this.jvmMemoryPoolsCMSOldGenUsage = jvmMemoryPoolsCMSOldGenUsage;
-    setJvmMemoryPoolsCMSOldGenUsageIsSet(true);
-    this.jvmMemoryPoolsCMSPermGenUsage = jvmMemoryPoolsCMSPermGenUsage;
-    setJvmMemoryPoolsCMSPermGenUsageIsSet(true);
-    this.jvmGcParNewCount = jvmGcParNewCount;
-    setJvmGcParNewCountIsSet(true);
-    this.jvmGcParNewTime = jvmGcParNewTime;
-    setJvmGcParNewTimeIsSet(true);
-    this.jvmGcCmsCount = jvmGcCmsCount;
-    setJvmGcCmsCountIsSet(true);
-    this.jvmGcCmsTime = jvmGcCmsTime;
-    setJvmGcCmsTimeIsSet(true);
+    this.jvmMemoryPoolsG1EdenSpaceUsage = jvmMemoryPoolsG1EdenSpaceUsage;
+    setJvmMemoryPoolsG1EdenSpaceUsageIsSet(true);
+    this.jvmMemoryPoolsG1OldGenUsage = jvmMemoryPoolsG1OldGenUsage;
+    setJvmMemoryPoolsG1OldGenUsageIsSet(true);
+    this.jvmMemoryPoolsG1PermGenUsage = jvmMemoryPoolsG1PermGenUsage;
+    setJvmMemoryPoolsG1PermGenUsageIsSet(true);
+    this.jvmMemoryPoolsG1SurvivorSpaceUsage = jvmMemoryPoolsG1SurvivorSpaceUsage;
+    setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(true);
+    this.jvmGcG1OldGenerationCount = jvmGcG1OldGenerationCount;
+    setJvmGcG1OldGenerationCountIsSet(true);
+    this.jvmGcG1OldGenerationTime = jvmGcG1OldGenerationTime;
+    setJvmGcG1OldGenerationTimeIsSet(true);
+    this.jvmGcG1YoungGenerationCount = jvmGcG1YoungGenerationCount;
+    setJvmGcG1YoungGenerationCountIsSet(true);
+    this.jvmGcG1YoungGenerationTime = jvmGcG1YoungGenerationTime;
+    setJvmGcG1YoungGenerationTimeIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public StatWithCmsCollector(StatWithCmsCollector other) {
+  public TStatWithG1Collector(TStatWithG1Collector other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -324,21 +324,21 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     this.jvmMemoryNonHeapUsed = other.jvmMemoryNonHeapUsed;
     this.jvmMemoryNonHeapMax = other.jvmMemoryNonHeapMax;
     this.jvmMemoryPoolsCodeCacheUsage = other.jvmMemoryPoolsCodeCacheUsage;
-    this.jvmMemoryPoolsParEdenSpaceUsage = other.jvmMemoryPoolsParEdenSpaceUsage;
-    this.jvmMemoryPoolsParSurvivorSpaceUsage = other.jvmMemoryPoolsParSurvivorSpaceUsage;
-    this.jvmMemoryPoolsCMSOldGenUsage = other.jvmMemoryPoolsCMSOldGenUsage;
-    this.jvmMemoryPoolsCMSPermGenUsage = other.jvmMemoryPoolsCMSPermGenUsage;
-    this.jvmGcParNewCount = other.jvmGcParNewCount;
-    this.jvmGcParNewTime = other.jvmGcParNewTime;
-    this.jvmGcCmsCount = other.jvmGcCmsCount;
-    this.jvmGcCmsTime = other.jvmGcCmsTime;
+    this.jvmMemoryPoolsG1EdenSpaceUsage = other.jvmMemoryPoolsG1EdenSpaceUsage;
+    this.jvmMemoryPoolsG1OldGenUsage = other.jvmMemoryPoolsG1OldGenUsage;
+    this.jvmMemoryPoolsG1PermGenUsage = other.jvmMemoryPoolsG1PermGenUsage;
+    this.jvmMemoryPoolsG1SurvivorSpaceUsage = other.jvmMemoryPoolsG1SurvivorSpaceUsage;
+    this.jvmGcG1OldGenerationCount = other.jvmGcG1OldGenerationCount;
+    this.jvmGcG1OldGenerationTime = other.jvmGcG1OldGenerationTime;
+    this.jvmGcG1YoungGenerationCount = other.jvmGcG1YoungGenerationCount;
+    this.jvmGcG1YoungGenerationTime = other.jvmGcG1YoungGenerationTime;
     if (other.isSetMetadata()) {
       this.metadata = other.metadata;
     }
   }
 
-  public StatWithCmsCollector deepCopy() {
-    return new StatWithCmsCollector(this);
+  public TStatWithG1Collector deepCopy() {
+    return new TStatWithG1Collector(this);
   }
 
   @Override
@@ -360,22 +360,22 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     this.jvmMemoryNonHeapMax = 0;
     setJvmMemoryPoolsCodeCacheUsageIsSet(false);
     this.jvmMemoryPoolsCodeCacheUsage = 0;
-    setJvmMemoryPoolsParEdenSpaceUsageIsSet(false);
-    this.jvmMemoryPoolsParEdenSpaceUsage = 0;
-    setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(false);
-    this.jvmMemoryPoolsParSurvivorSpaceUsage = 0;
-    setJvmMemoryPoolsCMSOldGenUsageIsSet(false);
-    this.jvmMemoryPoolsCMSOldGenUsage = 0;
-    setJvmMemoryPoolsCMSPermGenUsageIsSet(false);
-    this.jvmMemoryPoolsCMSPermGenUsage = 0;
-    setJvmGcParNewCountIsSet(false);
-    this.jvmGcParNewCount = 0;
-    setJvmGcParNewTimeIsSet(false);
-    this.jvmGcParNewTime = 0;
-    setJvmGcCmsCountIsSet(false);
-    this.jvmGcCmsCount = 0;
-    setJvmGcCmsTimeIsSet(false);
-    this.jvmGcCmsTime = 0;
+    setJvmMemoryPoolsG1EdenSpaceUsageIsSet(false);
+    this.jvmMemoryPoolsG1EdenSpaceUsage = 0;
+    setJvmMemoryPoolsG1OldGenUsageIsSet(false);
+    this.jvmMemoryPoolsG1OldGenUsage = 0;
+    setJvmMemoryPoolsG1PermGenUsageIsSet(false);
+    this.jvmMemoryPoolsG1PermGenUsage = 0;
+    setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(false);
+    this.jvmMemoryPoolsG1SurvivorSpaceUsage = 0;
+    setJvmGcG1OldGenerationCountIsSet(false);
+    this.jvmGcG1OldGenerationCount = 0;
+    setJvmGcG1OldGenerationTimeIsSet(false);
+    this.jvmGcG1OldGenerationTime = 0;
+    setJvmGcG1YoungGenerationCountIsSet(false);
+    this.jvmGcG1YoungGenerationCount = 0;
+    setJvmGcG1YoungGenerationTimeIsSet(false);
+    this.jvmGcG1YoungGenerationTime = 0;
     this.metadata = null;
   }
 
@@ -578,180 +578,180 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSCODECACHEUSAGE_ISSET_ID, value);
   }
 
-  public long getJvmMemoryPoolsParEdenSpaceUsage() {
-    return this.jvmMemoryPoolsParEdenSpaceUsage;
+  public long getJvmMemoryPoolsG1EdenSpaceUsage() {
+    return this.jvmMemoryPoolsG1EdenSpaceUsage;
   }
 
-  public void setJvmMemoryPoolsParEdenSpaceUsage(long jvmMemoryPoolsParEdenSpaceUsage) {
-    this.jvmMemoryPoolsParEdenSpaceUsage = jvmMemoryPoolsParEdenSpaceUsage;
-    setJvmMemoryPoolsParEdenSpaceUsageIsSet(true);
+  public void setJvmMemoryPoolsG1EdenSpaceUsage(long jvmMemoryPoolsG1EdenSpaceUsage) {
+    this.jvmMemoryPoolsG1EdenSpaceUsage = jvmMemoryPoolsG1EdenSpaceUsage;
+    setJvmMemoryPoolsG1EdenSpaceUsageIsSet(true);
   }
 
-  public void unsetJvmMemoryPoolsParEdenSpaceUsage() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSPAREDENSPACEUSAGE_ISSET_ID);
+  public void unsetJvmMemoryPoolsG1EdenSpaceUsage() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSG1EDENSPACEUSAGE_ISSET_ID);
   }
 
-  /** Returns true if field jvmMemoryPoolsParEdenSpaceUsage is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmMemoryPoolsParEdenSpaceUsage() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSPAREDENSPACEUSAGE_ISSET_ID);
+  /** Returns true if field jvmMemoryPoolsG1EdenSpaceUsage is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmMemoryPoolsG1EdenSpaceUsage() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSG1EDENSPACEUSAGE_ISSET_ID);
   }
 
-  public void setJvmMemoryPoolsParEdenSpaceUsageIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSPAREDENSPACEUSAGE_ISSET_ID, value);
+  public void setJvmMemoryPoolsG1EdenSpaceUsageIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSG1EDENSPACEUSAGE_ISSET_ID, value);
   }
 
-  public long getJvmMemoryPoolsParSurvivorSpaceUsage() {
-    return this.jvmMemoryPoolsParSurvivorSpaceUsage;
+  public long getJvmMemoryPoolsG1OldGenUsage() {
+    return this.jvmMemoryPoolsG1OldGenUsage;
   }
 
-  public void setJvmMemoryPoolsParSurvivorSpaceUsage(long jvmMemoryPoolsParSurvivorSpaceUsage) {
-    this.jvmMemoryPoolsParSurvivorSpaceUsage = jvmMemoryPoolsParSurvivorSpaceUsage;
-    setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(true);
+  public void setJvmMemoryPoolsG1OldGenUsage(long jvmMemoryPoolsG1OldGenUsage) {
+    this.jvmMemoryPoolsG1OldGenUsage = jvmMemoryPoolsG1OldGenUsage;
+    setJvmMemoryPoolsG1OldGenUsageIsSet(true);
   }
 
-  public void unsetJvmMemoryPoolsParSurvivorSpaceUsage() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSPARSURVIVORSPACEUSAGE_ISSET_ID);
+  public void unsetJvmMemoryPoolsG1OldGenUsage() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSG1OLDGENUSAGE_ISSET_ID);
   }
 
-  /** Returns true if field jvmMemoryPoolsParSurvivorSpaceUsage is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmMemoryPoolsParSurvivorSpaceUsage() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSPARSURVIVORSPACEUSAGE_ISSET_ID);
+  /** Returns true if field jvmMemoryPoolsG1OldGenUsage is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmMemoryPoolsG1OldGenUsage() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSG1OLDGENUSAGE_ISSET_ID);
   }
 
-  public void setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSPARSURVIVORSPACEUSAGE_ISSET_ID, value);
+  public void setJvmMemoryPoolsG1OldGenUsageIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSG1OLDGENUSAGE_ISSET_ID, value);
   }
 
-  public long getJvmMemoryPoolsCMSOldGenUsage() {
-    return this.jvmMemoryPoolsCMSOldGenUsage;
+  public long getJvmMemoryPoolsG1PermGenUsage() {
+    return this.jvmMemoryPoolsG1PermGenUsage;
   }
 
-  public void setJvmMemoryPoolsCMSOldGenUsage(long jvmMemoryPoolsCMSOldGenUsage) {
-    this.jvmMemoryPoolsCMSOldGenUsage = jvmMemoryPoolsCMSOldGenUsage;
-    setJvmMemoryPoolsCMSOldGenUsageIsSet(true);
+  public void setJvmMemoryPoolsG1PermGenUsage(long jvmMemoryPoolsG1PermGenUsage) {
+    this.jvmMemoryPoolsG1PermGenUsage = jvmMemoryPoolsG1PermGenUsage;
+    setJvmMemoryPoolsG1PermGenUsageIsSet(true);
   }
 
-  public void unsetJvmMemoryPoolsCMSOldGenUsage() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSCMSOLDGENUSAGE_ISSET_ID);
+  public void unsetJvmMemoryPoolsG1PermGenUsage() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSG1PERMGENUSAGE_ISSET_ID);
   }
 
-  /** Returns true if field jvmMemoryPoolsCMSOldGenUsage is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmMemoryPoolsCMSOldGenUsage() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSCMSOLDGENUSAGE_ISSET_ID);
+  /** Returns true if field jvmMemoryPoolsG1PermGenUsage is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmMemoryPoolsG1PermGenUsage() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSG1PERMGENUSAGE_ISSET_ID);
   }
 
-  public void setJvmMemoryPoolsCMSOldGenUsageIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSCMSOLDGENUSAGE_ISSET_ID, value);
+  public void setJvmMemoryPoolsG1PermGenUsageIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSG1PERMGENUSAGE_ISSET_ID, value);
   }
 
-  public long getJvmMemoryPoolsCMSPermGenUsage() {
-    return this.jvmMemoryPoolsCMSPermGenUsage;
+  public long getJvmMemoryPoolsG1SurvivorSpaceUsage() {
+    return this.jvmMemoryPoolsG1SurvivorSpaceUsage;
   }
 
-  public void setJvmMemoryPoolsCMSPermGenUsage(long jvmMemoryPoolsCMSPermGenUsage) {
-    this.jvmMemoryPoolsCMSPermGenUsage = jvmMemoryPoolsCMSPermGenUsage;
-    setJvmMemoryPoolsCMSPermGenUsageIsSet(true);
+  public void setJvmMemoryPoolsG1SurvivorSpaceUsage(long jvmMemoryPoolsG1SurvivorSpaceUsage) {
+    this.jvmMemoryPoolsG1SurvivorSpaceUsage = jvmMemoryPoolsG1SurvivorSpaceUsage;
+    setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(true);
   }
 
-  public void unsetJvmMemoryPoolsCMSPermGenUsage() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSCMSPERMGENUSAGE_ISSET_ID);
+  public void unsetJvmMemoryPoolsG1SurvivorSpaceUsage() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMMEMORYPOOLSG1SURVIVORSPACEUSAGE_ISSET_ID);
   }
 
-  /** Returns true if field jvmMemoryPoolsCMSPermGenUsage is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmMemoryPoolsCMSPermGenUsage() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSCMSPERMGENUSAGE_ISSET_ID);
+  /** Returns true if field jvmMemoryPoolsG1SurvivorSpaceUsage is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmMemoryPoolsG1SurvivorSpaceUsage() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMMEMORYPOOLSG1SURVIVORSPACEUSAGE_ISSET_ID);
   }
 
-  public void setJvmMemoryPoolsCMSPermGenUsageIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSCMSPERMGENUSAGE_ISSET_ID, value);
+  public void setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMMEMORYPOOLSG1SURVIVORSPACEUSAGE_ISSET_ID, value);
   }
 
-  public long getJvmGcParNewCount() {
-    return this.jvmGcParNewCount;
+  public long getJvmGcG1OldGenerationCount() {
+    return this.jvmGcG1OldGenerationCount;
   }
 
-  public void setJvmGcParNewCount(long jvmGcParNewCount) {
-    this.jvmGcParNewCount = jvmGcParNewCount;
-    setJvmGcParNewCountIsSet(true);
+  public void setJvmGcG1OldGenerationCount(long jvmGcG1OldGenerationCount) {
+    this.jvmGcG1OldGenerationCount = jvmGcG1OldGenerationCount;
+    setJvmGcG1OldGenerationCountIsSet(true);
   }
 
-  public void unsetJvmGcParNewCount() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCPARNEWCOUNT_ISSET_ID);
+  public void unsetJvmGcG1OldGenerationCount() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCG1OLDGENERATIONCOUNT_ISSET_ID);
   }
 
-  /** Returns true if field jvmGcParNewCount is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmGcParNewCount() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMGCPARNEWCOUNT_ISSET_ID);
+  /** Returns true if field jvmGcG1OldGenerationCount is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmGcG1OldGenerationCount() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMGCG1OLDGENERATIONCOUNT_ISSET_ID);
   }
 
-  public void setJvmGcParNewCountIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCPARNEWCOUNT_ISSET_ID, value);
+  public void setJvmGcG1OldGenerationCountIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCG1OLDGENERATIONCOUNT_ISSET_ID, value);
   }
 
-  public long getJvmGcParNewTime() {
-    return this.jvmGcParNewTime;
+  public long getJvmGcG1OldGenerationTime() {
+    return this.jvmGcG1OldGenerationTime;
   }
 
-  public void setJvmGcParNewTime(long jvmGcParNewTime) {
-    this.jvmGcParNewTime = jvmGcParNewTime;
-    setJvmGcParNewTimeIsSet(true);
+  public void setJvmGcG1OldGenerationTime(long jvmGcG1OldGenerationTime) {
+    this.jvmGcG1OldGenerationTime = jvmGcG1OldGenerationTime;
+    setJvmGcG1OldGenerationTimeIsSet(true);
   }
 
-  public void unsetJvmGcParNewTime() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCPARNEWTIME_ISSET_ID);
+  public void unsetJvmGcG1OldGenerationTime() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCG1OLDGENERATIONTIME_ISSET_ID);
   }
 
-  /** Returns true if field jvmGcParNewTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmGcParNewTime() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMGCPARNEWTIME_ISSET_ID);
+  /** Returns true if field jvmGcG1OldGenerationTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmGcG1OldGenerationTime() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMGCG1OLDGENERATIONTIME_ISSET_ID);
   }
 
-  public void setJvmGcParNewTimeIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCPARNEWTIME_ISSET_ID, value);
+  public void setJvmGcG1OldGenerationTimeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCG1OLDGENERATIONTIME_ISSET_ID, value);
   }
 
-  public long getJvmGcCmsCount() {
-    return this.jvmGcCmsCount;
+  public long getJvmGcG1YoungGenerationCount() {
+    return this.jvmGcG1YoungGenerationCount;
   }
 
-  public void setJvmGcCmsCount(long jvmGcCmsCount) {
-    this.jvmGcCmsCount = jvmGcCmsCount;
-    setJvmGcCmsCountIsSet(true);
+  public void setJvmGcG1YoungGenerationCount(long jvmGcG1YoungGenerationCount) {
+    this.jvmGcG1YoungGenerationCount = jvmGcG1YoungGenerationCount;
+    setJvmGcG1YoungGenerationCountIsSet(true);
   }
 
-  public void unsetJvmGcCmsCount() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCCMSCOUNT_ISSET_ID);
+  public void unsetJvmGcG1YoungGenerationCount() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONCOUNT_ISSET_ID);
   }
 
-  /** Returns true if field jvmGcCmsCount is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmGcCmsCount() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMGCCMSCOUNT_ISSET_ID);
+  /** Returns true if field jvmGcG1YoungGenerationCount is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmGcG1YoungGenerationCount() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONCOUNT_ISSET_ID);
   }
 
-  public void setJvmGcCmsCountIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCCMSCOUNT_ISSET_ID, value);
+  public void setJvmGcG1YoungGenerationCountIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONCOUNT_ISSET_ID, value);
   }
 
-  public long getJvmGcCmsTime() {
-    return this.jvmGcCmsTime;
+  public long getJvmGcG1YoungGenerationTime() {
+    return this.jvmGcG1YoungGenerationTime;
   }
 
-  public void setJvmGcCmsTime(long jvmGcCmsTime) {
-    this.jvmGcCmsTime = jvmGcCmsTime;
-    setJvmGcCmsTimeIsSet(true);
+  public void setJvmGcG1YoungGenerationTime(long jvmGcG1YoungGenerationTime) {
+    this.jvmGcG1YoungGenerationTime = jvmGcG1YoungGenerationTime;
+    setJvmGcG1YoungGenerationTimeIsSet(true);
   }
 
-  public void unsetJvmGcCmsTime() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCCMSTIME_ISSET_ID);
+  public void unsetJvmGcG1YoungGenerationTime() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONTIME_ISSET_ID);
   }
 
-  /** Returns true if field jvmGcCmsTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetJvmGcCmsTime() {
-    return EncodingUtils.testBit(__isset_bitfield, __JVMGCCMSTIME_ISSET_ID);
+  /** Returns true if field jvmGcG1YoungGenerationTime is set (has been assigned a value) and false otherwise */
+  public boolean isSetJvmGcG1YoungGenerationTime() {
+    return EncodingUtils.testBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONTIME_ISSET_ID);
   }
 
-  public void setJvmGcCmsTimeIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCCMSTIME_ISSET_ID, value);
+  public void setJvmGcG1YoungGenerationTimeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __JVMGCG1YOUNGGENERATIONTIME_ISSET_ID, value);
   }
 
   public String getMetadata() {
@@ -851,67 +851,67 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       }
       break;
 
-    case JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE:
+    case JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE:
       if (value == null) {
-        unsetJvmMemoryPoolsParEdenSpaceUsage();
+        unsetJvmMemoryPoolsG1EdenSpaceUsage();
       } else {
-        setJvmMemoryPoolsParEdenSpaceUsage((Long)value);
+        setJvmMemoryPoolsG1EdenSpaceUsage((Long)value);
       }
       break;
 
-    case JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE:
+    case JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE:
       if (value == null) {
-        unsetJvmMemoryPoolsParSurvivorSpaceUsage();
+        unsetJvmMemoryPoolsG1OldGenUsage();
       } else {
-        setJvmMemoryPoolsParSurvivorSpaceUsage((Long)value);
+        setJvmMemoryPoolsG1OldGenUsage((Long)value);
       }
       break;
 
-    case JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE:
+    case JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE:
       if (value == null) {
-        unsetJvmMemoryPoolsCMSOldGenUsage();
+        unsetJvmMemoryPoolsG1PermGenUsage();
       } else {
-        setJvmMemoryPoolsCMSOldGenUsage((Long)value);
+        setJvmMemoryPoolsG1PermGenUsage((Long)value);
       }
       break;
 
-    case JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE:
+    case JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE:
       if (value == null) {
-        unsetJvmMemoryPoolsCMSPermGenUsage();
+        unsetJvmMemoryPoolsG1SurvivorSpaceUsage();
       } else {
-        setJvmMemoryPoolsCMSPermGenUsage((Long)value);
+        setJvmMemoryPoolsG1SurvivorSpaceUsage((Long)value);
       }
       break;
 
-    case JVM_GC_PAR_NEW_COUNT:
+    case JVM_GC_G1_OLD_GENERATION_COUNT:
       if (value == null) {
-        unsetJvmGcParNewCount();
+        unsetJvmGcG1OldGenerationCount();
       } else {
-        setJvmGcParNewCount((Long)value);
+        setJvmGcG1OldGenerationCount((Long)value);
       }
       break;
 
-    case JVM_GC_PAR_NEW_TIME:
+    case JVM_GC_G1_OLD_GENERATION_TIME:
       if (value == null) {
-        unsetJvmGcParNewTime();
+        unsetJvmGcG1OldGenerationTime();
       } else {
-        setJvmGcParNewTime((Long)value);
+        setJvmGcG1OldGenerationTime((Long)value);
       }
       break;
 
-    case JVM_GC_CMS_COUNT:
+    case JVM_GC_G1_YOUNG_GENERATION_COUNT:
       if (value == null) {
-        unsetJvmGcCmsCount();
+        unsetJvmGcG1YoungGenerationCount();
       } else {
-        setJvmGcCmsCount((Long)value);
+        setJvmGcG1YoungGenerationCount((Long)value);
       }
       break;
 
-    case JVM_GC_CMS_TIME:
+    case JVM_GC_G1_YOUNG_GENERATION_TIME:
       if (value == null) {
-        unsetJvmGcCmsTime();
+        unsetJvmGcG1YoungGenerationTime();
       } else {
-        setJvmGcCmsTime((Long)value);
+        setJvmGcG1YoungGenerationTime((Long)value);
       }
       break;
 
@@ -955,29 +955,29 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     case JVM_MEMORY_POOLS_CODE_CACHE_USAGE:
       return Long.valueOf(getJvmMemoryPoolsCodeCacheUsage());
 
-    case JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE:
-      return Long.valueOf(getJvmMemoryPoolsParEdenSpaceUsage());
+    case JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE:
+      return Long.valueOf(getJvmMemoryPoolsG1EdenSpaceUsage());
 
-    case JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE:
-      return Long.valueOf(getJvmMemoryPoolsParSurvivorSpaceUsage());
+    case JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE:
+      return Long.valueOf(getJvmMemoryPoolsG1OldGenUsage());
 
-    case JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE:
-      return Long.valueOf(getJvmMemoryPoolsCMSOldGenUsage());
+    case JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE:
+      return Long.valueOf(getJvmMemoryPoolsG1PermGenUsage());
 
-    case JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE:
-      return Long.valueOf(getJvmMemoryPoolsCMSPermGenUsage());
+    case JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE:
+      return Long.valueOf(getJvmMemoryPoolsG1SurvivorSpaceUsage());
 
-    case JVM_GC_PAR_NEW_COUNT:
-      return Long.valueOf(getJvmGcParNewCount());
+    case JVM_GC_G1_OLD_GENERATION_COUNT:
+      return Long.valueOf(getJvmGcG1OldGenerationCount());
 
-    case JVM_GC_PAR_NEW_TIME:
-      return Long.valueOf(getJvmGcParNewTime());
+    case JVM_GC_G1_OLD_GENERATION_TIME:
+      return Long.valueOf(getJvmGcG1OldGenerationTime());
 
-    case JVM_GC_CMS_COUNT:
-      return Long.valueOf(getJvmGcCmsCount());
+    case JVM_GC_G1_YOUNG_GENERATION_COUNT:
+      return Long.valueOf(getJvmGcG1YoungGenerationCount());
 
-    case JVM_GC_CMS_TIME:
-      return Long.valueOf(getJvmGcCmsTime());
+    case JVM_GC_G1_YOUNG_GENERATION_TIME:
+      return Long.valueOf(getJvmGcG1YoungGenerationTime());
 
     case METADATA:
       return getMetadata();
@@ -1011,22 +1011,22 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       return isSetJvmMemoryNonHeapMax();
     case JVM_MEMORY_POOLS_CODE_CACHE_USAGE:
       return isSetJvmMemoryPoolsCodeCacheUsage();
-    case JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE:
-      return isSetJvmMemoryPoolsParEdenSpaceUsage();
-    case JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE:
-      return isSetJvmMemoryPoolsParSurvivorSpaceUsage();
-    case JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE:
-      return isSetJvmMemoryPoolsCMSOldGenUsage();
-    case JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE:
-      return isSetJvmMemoryPoolsCMSPermGenUsage();
-    case JVM_GC_PAR_NEW_COUNT:
-      return isSetJvmGcParNewCount();
-    case JVM_GC_PAR_NEW_TIME:
-      return isSetJvmGcParNewTime();
-    case JVM_GC_CMS_COUNT:
-      return isSetJvmGcCmsCount();
-    case JVM_GC_CMS_TIME:
-      return isSetJvmGcCmsTime();
+    case JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE:
+      return isSetJvmMemoryPoolsG1EdenSpaceUsage();
+    case JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE:
+      return isSetJvmMemoryPoolsG1OldGenUsage();
+    case JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE:
+      return isSetJvmMemoryPoolsG1PermGenUsage();
+    case JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE:
+      return isSetJvmMemoryPoolsG1SurvivorSpaceUsage();
+    case JVM_GC_G1_OLD_GENERATION_COUNT:
+      return isSetJvmGcG1OldGenerationCount();
+    case JVM_GC_G1_OLD_GENERATION_TIME:
+      return isSetJvmGcG1OldGenerationTime();
+    case JVM_GC_G1_YOUNG_GENERATION_COUNT:
+      return isSetJvmGcG1YoungGenerationCount();
+    case JVM_GC_G1_YOUNG_GENERATION_TIME:
+      return isSetJvmGcG1YoungGenerationTime();
     case METADATA:
       return isSetMetadata();
     }
@@ -1037,12 +1037,12 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof StatWithCmsCollector)
-      return this.equals((StatWithCmsCollector)that);
+    if (that instanceof TStatWithG1Collector)
+      return this.equals((TStatWithG1Collector)that);
     return false;
   }
 
-  public boolean equals(StatWithCmsCollector that) {
+  public boolean equals(TStatWithG1Collector that) {
     if (that == null)
       return false;
 
@@ -1127,75 +1127,75 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
         return false;
     }
 
-    boolean this_present_jvmMemoryPoolsParEdenSpaceUsage = true;
-    boolean that_present_jvmMemoryPoolsParEdenSpaceUsage = true;
-    if (this_present_jvmMemoryPoolsParEdenSpaceUsage || that_present_jvmMemoryPoolsParEdenSpaceUsage) {
-      if (!(this_present_jvmMemoryPoolsParEdenSpaceUsage && that_present_jvmMemoryPoolsParEdenSpaceUsage))
+    boolean this_present_jvmMemoryPoolsG1EdenSpaceUsage = true;
+    boolean that_present_jvmMemoryPoolsG1EdenSpaceUsage = true;
+    if (this_present_jvmMemoryPoolsG1EdenSpaceUsage || that_present_jvmMemoryPoolsG1EdenSpaceUsage) {
+      if (!(this_present_jvmMemoryPoolsG1EdenSpaceUsage && that_present_jvmMemoryPoolsG1EdenSpaceUsage))
         return false;
-      if (this.jvmMemoryPoolsParEdenSpaceUsage != that.jvmMemoryPoolsParEdenSpaceUsage)
-        return false;
-    }
-
-    boolean this_present_jvmMemoryPoolsParSurvivorSpaceUsage = true;
-    boolean that_present_jvmMemoryPoolsParSurvivorSpaceUsage = true;
-    if (this_present_jvmMemoryPoolsParSurvivorSpaceUsage || that_present_jvmMemoryPoolsParSurvivorSpaceUsage) {
-      if (!(this_present_jvmMemoryPoolsParSurvivorSpaceUsage && that_present_jvmMemoryPoolsParSurvivorSpaceUsage))
-        return false;
-      if (this.jvmMemoryPoolsParSurvivorSpaceUsage != that.jvmMemoryPoolsParSurvivorSpaceUsage)
+      if (this.jvmMemoryPoolsG1EdenSpaceUsage != that.jvmMemoryPoolsG1EdenSpaceUsage)
         return false;
     }
 
-    boolean this_present_jvmMemoryPoolsCMSOldGenUsage = true;
-    boolean that_present_jvmMemoryPoolsCMSOldGenUsage = true;
-    if (this_present_jvmMemoryPoolsCMSOldGenUsage || that_present_jvmMemoryPoolsCMSOldGenUsage) {
-      if (!(this_present_jvmMemoryPoolsCMSOldGenUsage && that_present_jvmMemoryPoolsCMSOldGenUsage))
+    boolean this_present_jvmMemoryPoolsG1OldGenUsage = true;
+    boolean that_present_jvmMemoryPoolsG1OldGenUsage = true;
+    if (this_present_jvmMemoryPoolsG1OldGenUsage || that_present_jvmMemoryPoolsG1OldGenUsage) {
+      if (!(this_present_jvmMemoryPoolsG1OldGenUsage && that_present_jvmMemoryPoolsG1OldGenUsage))
         return false;
-      if (this.jvmMemoryPoolsCMSOldGenUsage != that.jvmMemoryPoolsCMSOldGenUsage)
-        return false;
-    }
-
-    boolean this_present_jvmMemoryPoolsCMSPermGenUsage = true;
-    boolean that_present_jvmMemoryPoolsCMSPermGenUsage = true;
-    if (this_present_jvmMemoryPoolsCMSPermGenUsage || that_present_jvmMemoryPoolsCMSPermGenUsage) {
-      if (!(this_present_jvmMemoryPoolsCMSPermGenUsage && that_present_jvmMemoryPoolsCMSPermGenUsage))
-        return false;
-      if (this.jvmMemoryPoolsCMSPermGenUsage != that.jvmMemoryPoolsCMSPermGenUsage)
+      if (this.jvmMemoryPoolsG1OldGenUsage != that.jvmMemoryPoolsG1OldGenUsage)
         return false;
     }
 
-    boolean this_present_jvmGcParNewCount = true;
-    boolean that_present_jvmGcParNewCount = true;
-    if (this_present_jvmGcParNewCount || that_present_jvmGcParNewCount) {
-      if (!(this_present_jvmGcParNewCount && that_present_jvmGcParNewCount))
+    boolean this_present_jvmMemoryPoolsG1PermGenUsage = true;
+    boolean that_present_jvmMemoryPoolsG1PermGenUsage = true;
+    if (this_present_jvmMemoryPoolsG1PermGenUsage || that_present_jvmMemoryPoolsG1PermGenUsage) {
+      if (!(this_present_jvmMemoryPoolsG1PermGenUsage && that_present_jvmMemoryPoolsG1PermGenUsage))
         return false;
-      if (this.jvmGcParNewCount != that.jvmGcParNewCount)
-        return false;
-    }
-
-    boolean this_present_jvmGcParNewTime = true;
-    boolean that_present_jvmGcParNewTime = true;
-    if (this_present_jvmGcParNewTime || that_present_jvmGcParNewTime) {
-      if (!(this_present_jvmGcParNewTime && that_present_jvmGcParNewTime))
-        return false;
-      if (this.jvmGcParNewTime != that.jvmGcParNewTime)
+      if (this.jvmMemoryPoolsG1PermGenUsage != that.jvmMemoryPoolsG1PermGenUsage)
         return false;
     }
 
-    boolean this_present_jvmGcCmsCount = true;
-    boolean that_present_jvmGcCmsCount = true;
-    if (this_present_jvmGcCmsCount || that_present_jvmGcCmsCount) {
-      if (!(this_present_jvmGcCmsCount && that_present_jvmGcCmsCount))
+    boolean this_present_jvmMemoryPoolsG1SurvivorSpaceUsage = true;
+    boolean that_present_jvmMemoryPoolsG1SurvivorSpaceUsage = true;
+    if (this_present_jvmMemoryPoolsG1SurvivorSpaceUsage || that_present_jvmMemoryPoolsG1SurvivorSpaceUsage) {
+      if (!(this_present_jvmMemoryPoolsG1SurvivorSpaceUsage && that_present_jvmMemoryPoolsG1SurvivorSpaceUsage))
         return false;
-      if (this.jvmGcCmsCount != that.jvmGcCmsCount)
+      if (this.jvmMemoryPoolsG1SurvivorSpaceUsage != that.jvmMemoryPoolsG1SurvivorSpaceUsage)
         return false;
     }
 
-    boolean this_present_jvmGcCmsTime = true;
-    boolean that_present_jvmGcCmsTime = true;
-    if (this_present_jvmGcCmsTime || that_present_jvmGcCmsTime) {
-      if (!(this_present_jvmGcCmsTime && that_present_jvmGcCmsTime))
+    boolean this_present_jvmGcG1OldGenerationCount = true;
+    boolean that_present_jvmGcG1OldGenerationCount = true;
+    if (this_present_jvmGcG1OldGenerationCount || that_present_jvmGcG1OldGenerationCount) {
+      if (!(this_present_jvmGcG1OldGenerationCount && that_present_jvmGcG1OldGenerationCount))
         return false;
-      if (this.jvmGcCmsTime != that.jvmGcCmsTime)
+      if (this.jvmGcG1OldGenerationCount != that.jvmGcG1OldGenerationCount)
+        return false;
+    }
+
+    boolean this_present_jvmGcG1OldGenerationTime = true;
+    boolean that_present_jvmGcG1OldGenerationTime = true;
+    if (this_present_jvmGcG1OldGenerationTime || that_present_jvmGcG1OldGenerationTime) {
+      if (!(this_present_jvmGcG1OldGenerationTime && that_present_jvmGcG1OldGenerationTime))
+        return false;
+      if (this.jvmGcG1OldGenerationTime != that.jvmGcG1OldGenerationTime)
+        return false;
+    }
+
+    boolean this_present_jvmGcG1YoungGenerationCount = true;
+    boolean that_present_jvmGcG1YoungGenerationCount = true;
+    if (this_present_jvmGcG1YoungGenerationCount || that_present_jvmGcG1YoungGenerationCount) {
+      if (!(this_present_jvmGcG1YoungGenerationCount && that_present_jvmGcG1YoungGenerationCount))
+        return false;
+      if (this.jvmGcG1YoungGenerationCount != that.jvmGcG1YoungGenerationCount)
+        return false;
+    }
+
+    boolean this_present_jvmGcG1YoungGenerationTime = true;
+    boolean that_present_jvmGcG1YoungGenerationTime = true;
+    if (this_present_jvmGcG1YoungGenerationTime || that_present_jvmGcG1YoungGenerationTime) {
+      if (!(this_present_jvmGcG1YoungGenerationTime && that_present_jvmGcG1YoungGenerationTime))
+        return false;
+      if (this.jvmGcG1YoungGenerationTime != that.jvmGcG1YoungGenerationTime)
         return false;
     }
 
@@ -1217,7 +1217,7 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
   }
 
   @Override
-  public int compareTo(StatWithCmsCollector other) {
+  public int compareTo(TStatWithG1Collector other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -1314,82 +1314,82 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsParEdenSpaceUsage()).compareTo(other.isSetJvmMemoryPoolsParEdenSpaceUsage());
+    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsG1EdenSpaceUsage()).compareTo(other.isSetJvmMemoryPoolsG1EdenSpaceUsage());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmMemoryPoolsParEdenSpaceUsage()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsParEdenSpaceUsage, other.jvmMemoryPoolsParEdenSpaceUsage);
+    if (isSetJvmMemoryPoolsG1EdenSpaceUsage()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsG1EdenSpaceUsage, other.jvmMemoryPoolsG1EdenSpaceUsage);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsParSurvivorSpaceUsage()).compareTo(other.isSetJvmMemoryPoolsParSurvivorSpaceUsage());
+    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsG1OldGenUsage()).compareTo(other.isSetJvmMemoryPoolsG1OldGenUsage());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmMemoryPoolsParSurvivorSpaceUsage()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsParSurvivorSpaceUsage, other.jvmMemoryPoolsParSurvivorSpaceUsage);
+    if (isSetJvmMemoryPoolsG1OldGenUsage()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsG1OldGenUsage, other.jvmMemoryPoolsG1OldGenUsage);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsCMSOldGenUsage()).compareTo(other.isSetJvmMemoryPoolsCMSOldGenUsage());
+    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsG1PermGenUsage()).compareTo(other.isSetJvmMemoryPoolsG1PermGenUsage());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmMemoryPoolsCMSOldGenUsage()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsCMSOldGenUsage, other.jvmMemoryPoolsCMSOldGenUsage);
+    if (isSetJvmMemoryPoolsG1PermGenUsage()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsG1PermGenUsage, other.jvmMemoryPoolsG1PermGenUsage);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsCMSPermGenUsage()).compareTo(other.isSetJvmMemoryPoolsCMSPermGenUsage());
+    lastComparison = Boolean.valueOf(isSetJvmMemoryPoolsG1SurvivorSpaceUsage()).compareTo(other.isSetJvmMemoryPoolsG1SurvivorSpaceUsage());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmMemoryPoolsCMSPermGenUsage()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsCMSPermGenUsage, other.jvmMemoryPoolsCMSPermGenUsage);
+    if (isSetJvmMemoryPoolsG1SurvivorSpaceUsage()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmMemoryPoolsG1SurvivorSpaceUsage, other.jvmMemoryPoolsG1SurvivorSpaceUsage);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmGcParNewCount()).compareTo(other.isSetJvmGcParNewCount());
+    lastComparison = Boolean.valueOf(isSetJvmGcG1OldGenerationCount()).compareTo(other.isSetJvmGcG1OldGenerationCount());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmGcParNewCount()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcParNewCount, other.jvmGcParNewCount);
+    if (isSetJvmGcG1OldGenerationCount()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcG1OldGenerationCount, other.jvmGcG1OldGenerationCount);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmGcParNewTime()).compareTo(other.isSetJvmGcParNewTime());
+    lastComparison = Boolean.valueOf(isSetJvmGcG1OldGenerationTime()).compareTo(other.isSetJvmGcG1OldGenerationTime());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmGcParNewTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcParNewTime, other.jvmGcParNewTime);
+    if (isSetJvmGcG1OldGenerationTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcG1OldGenerationTime, other.jvmGcG1OldGenerationTime);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmGcCmsCount()).compareTo(other.isSetJvmGcCmsCount());
+    lastComparison = Boolean.valueOf(isSetJvmGcG1YoungGenerationCount()).compareTo(other.isSetJvmGcG1YoungGenerationCount());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmGcCmsCount()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcCmsCount, other.jvmGcCmsCount);
+    if (isSetJvmGcG1YoungGenerationCount()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcG1YoungGenerationCount, other.jvmGcG1YoungGenerationCount);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetJvmGcCmsTime()).compareTo(other.isSetJvmGcCmsTime());
+    lastComparison = Boolean.valueOf(isSetJvmGcG1YoungGenerationTime()).compareTo(other.isSetJvmGcG1YoungGenerationTime());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetJvmGcCmsTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcCmsTime, other.jvmGcCmsTime);
+    if (isSetJvmGcG1YoungGenerationTime()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jvmGcG1YoungGenerationTime, other.jvmGcG1YoungGenerationTime);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1421,7 +1421,7 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("StatWithCmsCollector(");
+    StringBuilder sb = new StringBuilder("TStatWithG1Collector(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -1464,36 +1464,36 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     sb.append(this.jvmMemoryPoolsCodeCacheUsage);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmMemoryPoolsParEdenSpaceUsage:");
-    sb.append(this.jvmMemoryPoolsParEdenSpaceUsage);
+    sb.append("jvmMemoryPoolsG1EdenSpaceUsage:");
+    sb.append(this.jvmMemoryPoolsG1EdenSpaceUsage);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmMemoryPoolsParSurvivorSpaceUsage:");
-    sb.append(this.jvmMemoryPoolsParSurvivorSpaceUsage);
+    sb.append("jvmMemoryPoolsG1OldGenUsage:");
+    sb.append(this.jvmMemoryPoolsG1OldGenUsage);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmMemoryPoolsCMSOldGenUsage:");
-    sb.append(this.jvmMemoryPoolsCMSOldGenUsage);
+    sb.append("jvmMemoryPoolsG1PermGenUsage:");
+    sb.append(this.jvmMemoryPoolsG1PermGenUsage);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmMemoryPoolsCMSPermGenUsage:");
-    sb.append(this.jvmMemoryPoolsCMSPermGenUsage);
+    sb.append("jvmMemoryPoolsG1SurvivorSpaceUsage:");
+    sb.append(this.jvmMemoryPoolsG1SurvivorSpaceUsage);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmGcParNewCount:");
-    sb.append(this.jvmGcParNewCount);
+    sb.append("jvmGcG1OldGenerationCount:");
+    sb.append(this.jvmGcG1OldGenerationCount);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmGcParNewTime:");
-    sb.append(this.jvmGcParNewTime);
+    sb.append("jvmGcG1OldGenerationTime:");
+    sb.append(this.jvmGcG1OldGenerationTime);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmGcCmsCount:");
-    sb.append(this.jvmGcCmsCount);
+    sb.append("jvmGcG1YoungGenerationCount:");
+    sb.append(this.jvmGcG1YoungGenerationCount);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("jvmGcCmsTime:");
-    sb.append(this.jvmGcCmsTime);
+    sb.append("jvmGcG1YoungGenerationTime:");
+    sb.append(this.jvmGcG1YoungGenerationTime);
     first = false;
     if (isSetMetadata()) {
       if (!first) sb.append(", ");
@@ -1532,15 +1532,15 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     }
   }
 
-  private static class StatWithCmsCollectorStandardSchemeFactory implements SchemeFactory {
-    public StatWithCmsCollectorStandardScheme getScheme() {
-      return new StatWithCmsCollectorStandardScheme();
+  private static class TStatWithG1CollectorStandardSchemeFactory implements SchemeFactory {
+    public TStatWithG1CollectorStandardScheme getScheme() {
+      return new TStatWithG1CollectorStandardScheme();
     }
   }
 
-  private static class StatWithCmsCollectorStandardScheme extends StandardScheme<StatWithCmsCollector> {
+  private static class TStatWithG1CollectorStandardScheme extends StandardScheme<TStatWithG1Collector> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, StatWithCmsCollector struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TStatWithG1Collector struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1622,66 +1622,66 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE
+          case 10: // JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmMemoryPoolsParEdenSpaceUsage = iprot.readI64();
-              struct.setJvmMemoryPoolsParEdenSpaceUsageIsSet(true);
+              struct.jvmMemoryPoolsG1EdenSpaceUsage = iprot.readI64();
+              struct.setJvmMemoryPoolsG1EdenSpaceUsageIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 11: // JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE
+          case 11: // JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmMemoryPoolsParSurvivorSpaceUsage = iprot.readI64();
-              struct.setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(true);
+              struct.jvmMemoryPoolsG1OldGenUsage = iprot.readI64();
+              struct.setJvmMemoryPoolsG1OldGenUsageIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 12: // JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE
+          case 12: // JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmMemoryPoolsCMSOldGenUsage = iprot.readI64();
-              struct.setJvmMemoryPoolsCMSOldGenUsageIsSet(true);
+              struct.jvmMemoryPoolsG1PermGenUsage = iprot.readI64();
+              struct.setJvmMemoryPoolsG1PermGenUsageIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 13: // JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE
+          case 13: // JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmMemoryPoolsCMSPermGenUsage = iprot.readI64();
-              struct.setJvmMemoryPoolsCMSPermGenUsageIsSet(true);
+              struct.jvmMemoryPoolsG1SurvivorSpaceUsage = iprot.readI64();
+              struct.setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 14: // JVM_GC_PAR_NEW_COUNT
+          case 14: // JVM_GC_G1_OLD_GENERATION_COUNT
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmGcParNewCount = iprot.readI64();
-              struct.setJvmGcParNewCountIsSet(true);
+              struct.jvmGcG1OldGenerationCount = iprot.readI64();
+              struct.setJvmGcG1OldGenerationCountIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 15: // JVM_GC_PAR_NEW_TIME
+          case 15: // JVM_GC_G1_OLD_GENERATION_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmGcParNewTime = iprot.readI64();
-              struct.setJvmGcParNewTimeIsSet(true);
+              struct.jvmGcG1OldGenerationTime = iprot.readI64();
+              struct.setJvmGcG1OldGenerationTimeIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 16: // JVM_GC_CMS_COUNT
+          case 16: // JVM_GC_G1_YOUNG_GENERATION_COUNT
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmGcCmsCount = iprot.readI64();
-              struct.setJvmGcCmsCountIsSet(true);
+              struct.jvmGcG1YoungGenerationCount = iprot.readI64();
+              struct.setJvmGcG1YoungGenerationCountIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 17: // JVM_GC_CMS_TIME
+          case 17: // JVM_GC_G1_YOUNG_GENERATION_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.jvmGcCmsTime = iprot.readI64();
-              struct.setJvmGcCmsTimeIsSet(true);
+              struct.jvmGcG1YoungGenerationTime = iprot.readI64();
+              struct.setJvmGcG1YoungGenerationTimeIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1703,7 +1703,7 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, StatWithCmsCollector struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TStatWithG1Collector struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1736,29 +1736,29 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       oprot.writeFieldBegin(JVM_MEMORY_POOLS_CODE_CACHE_USAGE_FIELD_DESC);
       oprot.writeI64(struct.jvmMemoryPoolsCodeCacheUsage);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_MEMORY_POOLS_PAR_EDEN_SPACE_USAGE_FIELD_DESC);
-      oprot.writeI64(struct.jvmMemoryPoolsParEdenSpaceUsage);
+      oprot.writeFieldBegin(JVM_MEMORY_POOLS_G1_EDEN_SPACE_USAGE_FIELD_DESC);
+      oprot.writeI64(struct.jvmMemoryPoolsG1EdenSpaceUsage);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_MEMORY_POOLS_PAR_SURVIVOR_SPACE_USAGE_FIELD_DESC);
-      oprot.writeI64(struct.jvmMemoryPoolsParSurvivorSpaceUsage);
+      oprot.writeFieldBegin(JVM_MEMORY_POOLS_G1_OLD_GEN_USAGE_FIELD_DESC);
+      oprot.writeI64(struct.jvmMemoryPoolsG1OldGenUsage);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_MEMORY_POOLS_CMSOLD_GEN_USAGE_FIELD_DESC);
-      oprot.writeI64(struct.jvmMemoryPoolsCMSOldGenUsage);
+      oprot.writeFieldBegin(JVM_MEMORY_POOLS_G1_PERM_GEN_USAGE_FIELD_DESC);
+      oprot.writeI64(struct.jvmMemoryPoolsG1PermGenUsage);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_MEMORY_POOLS_CMSPERM_GEN_USAGE_FIELD_DESC);
-      oprot.writeI64(struct.jvmMemoryPoolsCMSPermGenUsage);
+      oprot.writeFieldBegin(JVM_MEMORY_POOLS_G1_SURVIVOR_SPACE_USAGE_FIELD_DESC);
+      oprot.writeI64(struct.jvmMemoryPoolsG1SurvivorSpaceUsage);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_GC_PAR_NEW_COUNT_FIELD_DESC);
-      oprot.writeI64(struct.jvmGcParNewCount);
+      oprot.writeFieldBegin(JVM_GC_G1_OLD_GENERATION_COUNT_FIELD_DESC);
+      oprot.writeI64(struct.jvmGcG1OldGenerationCount);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_GC_PAR_NEW_TIME_FIELD_DESC);
-      oprot.writeI64(struct.jvmGcParNewTime);
+      oprot.writeFieldBegin(JVM_GC_G1_OLD_GENERATION_TIME_FIELD_DESC);
+      oprot.writeI64(struct.jvmGcG1OldGenerationTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_GC_CMS_COUNT_FIELD_DESC);
-      oprot.writeI64(struct.jvmGcCmsCount);
+      oprot.writeFieldBegin(JVM_GC_G1_YOUNG_GENERATION_COUNT_FIELD_DESC);
+      oprot.writeI64(struct.jvmGcG1YoungGenerationCount);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(JVM_GC_CMS_TIME_FIELD_DESC);
-      oprot.writeI64(struct.jvmGcCmsTime);
+      oprot.writeFieldBegin(JVM_GC_G1_YOUNG_GENERATION_TIME_FIELD_DESC);
+      oprot.writeI64(struct.jvmGcG1YoungGenerationTime);
       oprot.writeFieldEnd();
       if (struct.metadata != null) {
         if (struct.isSetMetadata()) {
@@ -1773,16 +1773,16 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
 
   }
 
-  private static class StatWithCmsCollectorTupleSchemeFactory implements SchemeFactory {
-    public StatWithCmsCollectorTupleScheme getScheme() {
-      return new StatWithCmsCollectorTupleScheme();
+  private static class TStatWithG1CollectorTupleSchemeFactory implements SchemeFactory {
+    public TStatWithG1CollectorTupleScheme getScheme() {
+      return new TStatWithG1CollectorTupleScheme();
     }
   }
 
-  private static class StatWithCmsCollectorTupleScheme extends TupleScheme<StatWithCmsCollector> {
+  private static class TStatWithG1CollectorTupleScheme extends TupleScheme<TStatWithG1Collector> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, StatWithCmsCollector struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TStatWithG1Collector struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1812,28 +1812,28 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       if (struct.isSetJvmMemoryPoolsCodeCacheUsage()) {
         optionals.set(8);
       }
-      if (struct.isSetJvmMemoryPoolsParEdenSpaceUsage()) {
+      if (struct.isSetJvmMemoryPoolsG1EdenSpaceUsage()) {
         optionals.set(9);
       }
-      if (struct.isSetJvmMemoryPoolsParSurvivorSpaceUsage()) {
+      if (struct.isSetJvmMemoryPoolsG1OldGenUsage()) {
         optionals.set(10);
       }
-      if (struct.isSetJvmMemoryPoolsCMSOldGenUsage()) {
+      if (struct.isSetJvmMemoryPoolsG1PermGenUsage()) {
         optionals.set(11);
       }
-      if (struct.isSetJvmMemoryPoolsCMSPermGenUsage()) {
+      if (struct.isSetJvmMemoryPoolsG1SurvivorSpaceUsage()) {
         optionals.set(12);
       }
-      if (struct.isSetJvmGcParNewCount()) {
+      if (struct.isSetJvmGcG1OldGenerationCount()) {
         optionals.set(13);
       }
-      if (struct.isSetJvmGcParNewTime()) {
+      if (struct.isSetJvmGcG1OldGenerationTime()) {
         optionals.set(14);
       }
-      if (struct.isSetJvmGcCmsCount()) {
+      if (struct.isSetJvmGcG1YoungGenerationCount()) {
         optionals.set(15);
       }
-      if (struct.isSetJvmGcCmsTime()) {
+      if (struct.isSetJvmGcG1YoungGenerationTime()) {
         optionals.set(16);
       }
       if (struct.isSetMetadata()) {
@@ -1867,29 +1867,29 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
       if (struct.isSetJvmMemoryPoolsCodeCacheUsage()) {
         oprot.writeI64(struct.jvmMemoryPoolsCodeCacheUsage);
       }
-      if (struct.isSetJvmMemoryPoolsParEdenSpaceUsage()) {
-        oprot.writeI64(struct.jvmMemoryPoolsParEdenSpaceUsage);
+      if (struct.isSetJvmMemoryPoolsG1EdenSpaceUsage()) {
+        oprot.writeI64(struct.jvmMemoryPoolsG1EdenSpaceUsage);
       }
-      if (struct.isSetJvmMemoryPoolsParSurvivorSpaceUsage()) {
-        oprot.writeI64(struct.jvmMemoryPoolsParSurvivorSpaceUsage);
+      if (struct.isSetJvmMemoryPoolsG1OldGenUsage()) {
+        oprot.writeI64(struct.jvmMemoryPoolsG1OldGenUsage);
       }
-      if (struct.isSetJvmMemoryPoolsCMSOldGenUsage()) {
-        oprot.writeI64(struct.jvmMemoryPoolsCMSOldGenUsage);
+      if (struct.isSetJvmMemoryPoolsG1PermGenUsage()) {
+        oprot.writeI64(struct.jvmMemoryPoolsG1PermGenUsage);
       }
-      if (struct.isSetJvmMemoryPoolsCMSPermGenUsage()) {
-        oprot.writeI64(struct.jvmMemoryPoolsCMSPermGenUsage);
+      if (struct.isSetJvmMemoryPoolsG1SurvivorSpaceUsage()) {
+        oprot.writeI64(struct.jvmMemoryPoolsG1SurvivorSpaceUsage);
       }
-      if (struct.isSetJvmGcParNewCount()) {
-        oprot.writeI64(struct.jvmGcParNewCount);
+      if (struct.isSetJvmGcG1OldGenerationCount()) {
+        oprot.writeI64(struct.jvmGcG1OldGenerationCount);
       }
-      if (struct.isSetJvmGcParNewTime()) {
-        oprot.writeI64(struct.jvmGcParNewTime);
+      if (struct.isSetJvmGcG1OldGenerationTime()) {
+        oprot.writeI64(struct.jvmGcG1OldGenerationTime);
       }
-      if (struct.isSetJvmGcCmsCount()) {
-        oprot.writeI64(struct.jvmGcCmsCount);
+      if (struct.isSetJvmGcG1YoungGenerationCount()) {
+        oprot.writeI64(struct.jvmGcG1YoungGenerationCount);
       }
-      if (struct.isSetJvmGcCmsTime()) {
-        oprot.writeI64(struct.jvmGcCmsTime);
+      if (struct.isSetJvmGcG1YoungGenerationTime()) {
+        oprot.writeI64(struct.jvmGcG1YoungGenerationTime);
       }
       if (struct.isSetMetadata()) {
         oprot.writeString(struct.metadata);
@@ -1897,7 +1897,7 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, StatWithCmsCollector struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TStatWithG1Collector struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(18);
       if (incoming.get(0)) {
@@ -1937,36 +1937,36 @@ public class StatWithCmsCollector implements org.apache.thrift.TBase<StatWithCms
         struct.setJvmMemoryPoolsCodeCacheUsageIsSet(true);
       }
       if (incoming.get(9)) {
-        struct.jvmMemoryPoolsParEdenSpaceUsage = iprot.readI64();
-        struct.setJvmMemoryPoolsParEdenSpaceUsageIsSet(true);
+        struct.jvmMemoryPoolsG1EdenSpaceUsage = iprot.readI64();
+        struct.setJvmMemoryPoolsG1EdenSpaceUsageIsSet(true);
       }
       if (incoming.get(10)) {
-        struct.jvmMemoryPoolsParSurvivorSpaceUsage = iprot.readI64();
-        struct.setJvmMemoryPoolsParSurvivorSpaceUsageIsSet(true);
+        struct.jvmMemoryPoolsG1OldGenUsage = iprot.readI64();
+        struct.setJvmMemoryPoolsG1OldGenUsageIsSet(true);
       }
       if (incoming.get(11)) {
-        struct.jvmMemoryPoolsCMSOldGenUsage = iprot.readI64();
-        struct.setJvmMemoryPoolsCMSOldGenUsageIsSet(true);
+        struct.jvmMemoryPoolsG1PermGenUsage = iprot.readI64();
+        struct.setJvmMemoryPoolsG1PermGenUsageIsSet(true);
       }
       if (incoming.get(12)) {
-        struct.jvmMemoryPoolsCMSPermGenUsage = iprot.readI64();
-        struct.setJvmMemoryPoolsCMSPermGenUsageIsSet(true);
+        struct.jvmMemoryPoolsG1SurvivorSpaceUsage = iprot.readI64();
+        struct.setJvmMemoryPoolsG1SurvivorSpaceUsageIsSet(true);
       }
       if (incoming.get(13)) {
-        struct.jvmGcParNewCount = iprot.readI64();
-        struct.setJvmGcParNewCountIsSet(true);
+        struct.jvmGcG1OldGenerationCount = iprot.readI64();
+        struct.setJvmGcG1OldGenerationCountIsSet(true);
       }
       if (incoming.get(14)) {
-        struct.jvmGcParNewTime = iprot.readI64();
-        struct.setJvmGcParNewTimeIsSet(true);
+        struct.jvmGcG1OldGenerationTime = iprot.readI64();
+        struct.setJvmGcG1OldGenerationTimeIsSet(true);
       }
       if (incoming.get(15)) {
-        struct.jvmGcCmsCount = iprot.readI64();
-        struct.setJvmGcCmsCountIsSet(true);
+        struct.jvmGcG1YoungGenerationCount = iprot.readI64();
+        struct.setJvmGcG1YoungGenerationCountIsSet(true);
       }
       if (incoming.get(16)) {
-        struct.jvmGcCmsTime = iprot.readI64();
-        struct.setJvmGcCmsTimeIsSet(true);
+        struct.jvmGcG1YoungGenerationTime = iprot.readI64();
+        struct.setJvmGcG1YoungGenerationTimeIsSet(true);
       }
       if (incoming.get(17)) {
         struct.metadata = iprot.readString();

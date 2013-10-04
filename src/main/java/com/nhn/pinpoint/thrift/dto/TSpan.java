@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.io.Serializable, Cloneable, Comparable<Span> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Span");
+public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, java.io.Serializable, Cloneable, Comparable<TSpan> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpan");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)2);
@@ -59,8 +59,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SpanStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SpanTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TSpanStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TSpanTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -77,10 +77,10 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   private short serviceType; // required
   private String endPoint; // optional
   private String remoteAddr; // optional
-  private List<Annotation> annotations; // required
+  private List<TAnnotation> annotations; // required
   private short flag; // optional
   private int err; // optional
-  private List<SpanEvent> spanEventList; // optional
+  private List<TSpanEvent> spanEventList; // optional
   private String parentApplicationName; // optional
   private short parentApplicationType; // optional
   private String acceptorHost; // optional
@@ -250,14 +250,14 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAnnotation.class))));
     tmpMap.put(_Fields.FLAG, new org.apache.thrift.meta_data.FieldMetaData("flag", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.ERR, new org.apache.thrift.meta_data.FieldMetaData("err", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SpanEvent.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TSpanEvent.class))));
     tmpMap.put(_Fields.PARENT_APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("parentApplicationName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PARENT_APPLICATION_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parentApplicationType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -265,17 +265,17 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     tmpMap.put(_Fields.ACCEPTOR_HOST, new org.apache.thrift.meta_data.FieldMetaData("acceptorHost", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Span.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpan.class, metaDataMap);
   }
 
-  public Span() {
+  public TSpan() {
     this.parentSpanId = -1;
 
     this.flag = (short)0;
 
   }
 
-  public Span(
+  public TSpan(
     String agentId,
     String applicationName,
     long agentStartTime,
@@ -286,7 +286,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     long startTime,
     int elapsed,
     short serviceType,
-    List<Annotation> annotations)
+    List<TAnnotation> annotations)
   {
     this();
     this.agentId = agentId;
@@ -312,7 +312,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public Span(Span other) {
+  public TSpan(TSpan other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -341,18 +341,18 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       this.remoteAddr = other.remoteAddr;
     }
     if (other.isSetAnnotations()) {
-      List<Annotation> __this__annotations = new ArrayList<Annotation>(other.annotations.size());
-      for (Annotation other_element : other.annotations) {
-        __this__annotations.add(new Annotation(other_element));
+      List<TAnnotation> __this__annotations = new ArrayList<TAnnotation>(other.annotations.size());
+      for (TAnnotation other_element : other.annotations) {
+        __this__annotations.add(new TAnnotation(other_element));
       }
       this.annotations = __this__annotations;
     }
     this.flag = other.flag;
     this.err = other.err;
     if (other.isSetSpanEventList()) {
-      List<SpanEvent> __this__spanEventList = new ArrayList<SpanEvent>(other.spanEventList.size());
-      for (SpanEvent other_element : other.spanEventList) {
-        __this__spanEventList.add(new SpanEvent(other_element));
+      List<TSpanEvent> __this__spanEventList = new ArrayList<TSpanEvent>(other.spanEventList.size());
+      for (TSpanEvent other_element : other.spanEventList) {
+        __this__spanEventList.add(new TSpanEvent(other_element));
       }
       this.spanEventList = __this__spanEventList;
     }
@@ -365,8 +365,8 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
-  public Span deepCopy() {
-    return new Span(this);
+  public TSpan deepCopy() {
+    return new TSpan(this);
   }
 
   @Override
@@ -723,22 +723,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     return (this.annotations == null) ? 0 : this.annotations.size();
   }
 
-  public java.util.Iterator<Annotation> getAnnotationsIterator() {
+  public java.util.Iterator<TAnnotation> getAnnotationsIterator() {
     return (this.annotations == null) ? null : this.annotations.iterator();
   }
 
-  public void addToAnnotations(Annotation elem) {
+  public void addToAnnotations(TAnnotation elem) {
     if (this.annotations == null) {
-      this.annotations = new ArrayList<Annotation>();
+      this.annotations = new ArrayList<TAnnotation>();
     }
     this.annotations.add(elem);
   }
 
-  public List<Annotation> getAnnotations() {
+  public List<TAnnotation> getAnnotations() {
     return this.annotations;
   }
 
-  public void setAnnotations(List<Annotation> annotations) {
+  public void setAnnotations(List<TAnnotation> annotations) {
     this.annotations = annotations;
   }
 
@@ -805,22 +805,22 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     return (this.spanEventList == null) ? 0 : this.spanEventList.size();
   }
 
-  public java.util.Iterator<SpanEvent> getSpanEventListIterator() {
+  public java.util.Iterator<TSpanEvent> getSpanEventListIterator() {
     return (this.spanEventList == null) ? null : this.spanEventList.iterator();
   }
 
-  public void addToSpanEventList(SpanEvent elem) {
+  public void addToSpanEventList(TSpanEvent elem) {
     if (this.spanEventList == null) {
-      this.spanEventList = new ArrayList<SpanEvent>();
+      this.spanEventList = new ArrayList<TSpanEvent>();
     }
     this.spanEventList.add(elem);
   }
 
-  public List<SpanEvent> getSpanEventList() {
+  public List<TSpanEvent> getSpanEventList() {
     return this.spanEventList;
   }
 
-  public void setSpanEventList(List<SpanEvent> spanEventList) {
+  public void setSpanEventList(List<TSpanEvent> spanEventList) {
     this.spanEventList = spanEventList;
   }
 
@@ -1025,7 +1025,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetAnnotations();
       } else {
-        setAnnotations((List<Annotation>)value);
+        setAnnotations((List<TAnnotation>)value);
       }
       break;
 
@@ -1049,7 +1049,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (value == null) {
         unsetSpanEventList();
       } else {
-        setSpanEventList((List<SpanEvent>)value);
+        setSpanEventList((List<TSpanEvent>)value);
       }
       break;
 
@@ -1206,12 +1206,12 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof Span)
-      return this.equals((Span)that);
+    if (that instanceof TSpan)
+      return this.equals((TSpan)that);
     return false;
   }
 
-  public boolean equals(Span that) {
+  public boolean equals(TSpan that) {
     if (that == null)
       return false;
 
@@ -1413,7 +1413,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
   }
 
   @Override
-  public int compareTo(Span other) {
+  public int compareTo(TSpan other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -1647,7 +1647,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("Span(");
+    StringBuilder sb = new StringBuilder("TSpan(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -1820,15 +1820,15 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
   }
 
-  private static class SpanStandardSchemeFactory implements SchemeFactory {
-    public SpanStandardScheme getScheme() {
-      return new SpanStandardScheme();
+  private static class TSpanStandardSchemeFactory implements SchemeFactory {
+    public TSpanStandardScheme getScheme() {
+      return new TSpanStandardScheme();
     }
   }
 
-  private static class SpanStandardScheme extends StandardScheme<Span> {
+  private static class TSpanStandardScheme extends StandardScheme<TSpan> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, Span struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TSpan struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1954,11 +1954,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list16.size);
+                struct.annotations = new ArrayList<TAnnotation>(_list16.size);
                 for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                 {
-                  Annotation _elem18;
-                  _elem18 = new Annotation();
+                  TAnnotation _elem18;
+                  _elem18 = new TAnnotation();
                   _elem18.read(iprot);
                   struct.annotations.add(_elem18);
                 }
@@ -1989,11 +1989,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list19 = iprot.readListBegin();
-                struct.spanEventList = new ArrayList<SpanEvent>(_list19.size);
+                struct.spanEventList = new ArrayList<TSpanEvent>(_list19.size);
                 for (int _i20 = 0; _i20 < _list19.size; ++_i20)
                 {
-                  SpanEvent _elem21;
-                  _elem21 = new SpanEvent();
+                  TSpanEvent _elem21;
+                  _elem21 = new TSpanEvent();
                   _elem21.read(iprot);
                   struct.spanEventList.add(_elem21);
                 }
@@ -2037,7 +2037,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, Span struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TSpan struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -2107,7 +2107,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-          for (Annotation _iter22 : struct.annotations)
+          for (TAnnotation _iter22 : struct.annotations)
           {
             _iter22.write(oprot);
           }
@@ -2130,7 +2130,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
           oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
-            for (SpanEvent _iter23 : struct.spanEventList)
+            for (TSpanEvent _iter23 : struct.spanEventList)
             {
               _iter23.write(oprot);
             }
@@ -2164,16 +2164,16 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
 
   }
 
-  private static class SpanTupleSchemeFactory implements SchemeFactory {
-    public SpanTupleScheme getScheme() {
-      return new SpanTupleScheme();
+  private static class TSpanTupleSchemeFactory implements SchemeFactory {
+    public TSpanTupleScheme getScheme() {
+      return new TSpanTupleScheme();
     }
   }
 
-  private static class SpanTupleScheme extends TupleScheme<Span> {
+  private static class TSpanTupleScheme extends TupleScheme<TSpan> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TSpan struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -2285,7 +2285,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter24 : struct.annotations)
+          for (TAnnotation _iter24 : struct.annotations)
           {
             _iter24.write(oprot);
           }
@@ -2300,7 +2300,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (struct.isSetSpanEventList()) {
         {
           oprot.writeI32(struct.spanEventList.size());
-          for (SpanEvent _iter25 : struct.spanEventList)
+          for (TSpanEvent _iter25 : struct.spanEventList)
           {
             _iter25.write(oprot);
           }
@@ -2318,7 +2318,7 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, Span struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TSpan struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(21);
       if (incoming.get(0)) {
@@ -2380,11 +2380,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (incoming.get(14)) {
         {
           org.apache.thrift.protocol.TList _list26 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list26.size);
+          struct.annotations = new ArrayList<TAnnotation>(_list26.size);
           for (int _i27 = 0; _i27 < _list26.size; ++_i27)
           {
-            Annotation _elem28;
-            _elem28 = new Annotation();
+            TAnnotation _elem28;
+            _elem28 = new TAnnotation();
             _elem28.read(iprot);
             struct.annotations.add(_elem28);
           }
@@ -2402,11 +2402,11 @@ public class Span implements org.apache.thrift.TBase<Span, Span._Fields>, java.i
       if (incoming.get(17)) {
         {
           org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.spanEventList = new ArrayList<SpanEvent>(_list29.size);
+          struct.spanEventList = new ArrayList<TSpanEvent>(_list29.size);
           for (int _i30 = 0; _i30 < _list29.size; ++_i30)
           {
-            SpanEvent _elem31;
-            _elem31 = new SpanEvent();
+            TSpanEvent _elem31;
+            _elem31 = new TSpanEvent();
             _elem31.read(iprot);
             struct.spanEventList.add(_elem31);
           }

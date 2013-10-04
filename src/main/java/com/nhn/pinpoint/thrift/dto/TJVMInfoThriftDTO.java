@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDTO, JVMInfoThriftDTO._Fields>, java.io.Serializable, Cloneable, Comparable<JVMInfoThriftDTO> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("JVMInfoThriftDTO");
+public class TJVMInfoThriftDTO implements org.apache.thrift.TBase<TJVMInfoThriftDTO, TJVMInfoThriftDTO._Fields>, java.io.Serializable, Cloneable, Comparable<TJVMInfoThriftDTO> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TJVMInfoThriftDTO");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField DATA_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("dataTime", org.apache.thrift.protocol.TType.I64, (short)2);
@@ -50,8 +50,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new JVMInfoThriftDTOStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new JVMInfoThriftDTOTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TJVMInfoThriftDTOStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TJVMInfoThriftDTOTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -200,13 +200,13 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     tmpMap.put(_Fields.PROCESS_CPUTIME, new org.apache.thrift.meta_data.FieldMetaData("processCPUTime", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(JVMInfoThriftDTO.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TJVMInfoThriftDTO.class, metaDataMap);
   }
 
-  public JVMInfoThriftDTO() {
+  public TJVMInfoThriftDTO() {
   }
 
-  public JVMInfoThriftDTO(
+  public TJVMInfoThriftDTO(
     String agentId,
     long dataTime,
     int activeThreadCount,
@@ -234,7 +234,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public JVMInfoThriftDTO(JVMInfoThriftDTO other) {
+  public TJVMInfoThriftDTO(TJVMInfoThriftDTO other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -252,8 +252,8 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     this.processCPUTime = other.processCPUTime;
   }
 
-  public JVMInfoThriftDTO deepCopy() {
-    return new JVMInfoThriftDTO(this);
+  public TJVMInfoThriftDTO deepCopy() {
+    return new TJVMInfoThriftDTO(this);
   }
 
   @Override
@@ -730,12 +730,12 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof JVMInfoThriftDTO)
-      return this.equals((JVMInfoThriftDTO)that);
+    if (that instanceof TJVMInfoThriftDTO)
+      return this.equals((TJVMInfoThriftDTO)that);
     return false;
   }
 
-  public boolean equals(JVMInfoThriftDTO that) {
+  public boolean equals(TJVMInfoThriftDTO that) {
     if (that == null)
       return false;
 
@@ -856,7 +856,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
   }
 
   @Override
-  public int compareTo(JVMInfoThriftDTO other) {
+  public int compareTo(TJVMInfoThriftDTO other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -1000,7 +1000,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("JVMInfoThriftDTO(");
+    StringBuilder sb = new StringBuilder("TJVMInfoThriftDTO(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -1091,15 +1091,15 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     }
   }
 
-  private static class JVMInfoThriftDTOStandardSchemeFactory implements SchemeFactory {
-    public JVMInfoThriftDTOStandardScheme getScheme() {
-      return new JVMInfoThriftDTOStandardScheme();
+  private static class TJVMInfoThriftDTOStandardSchemeFactory implements SchemeFactory {
+    public TJVMInfoThriftDTOStandardScheme getScheme() {
+      return new TJVMInfoThriftDTOStandardScheme();
     }
   }
 
-  private static class JVMInfoThriftDTOStandardScheme extends StandardScheme<JVMInfoThriftDTO> {
+  private static class TJVMInfoThriftDTOStandardScheme extends StandardScheme<TJVMInfoThriftDTO> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TJVMInfoThriftDTO struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1214,7 +1214,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TJVMInfoThriftDTO struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1272,16 +1272,16 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
 
   }
 
-  private static class JVMInfoThriftDTOTupleSchemeFactory implements SchemeFactory {
-    public JVMInfoThriftDTOTupleScheme getScheme() {
-      return new JVMInfoThriftDTOTupleScheme();
+  private static class TJVMInfoThriftDTOTupleSchemeFactory implements SchemeFactory {
+    public TJVMInfoThriftDTOTupleScheme getScheme() {
+      return new TJVMInfoThriftDTOTupleScheme();
     }
   }
 
-  private static class JVMInfoThriftDTOTupleScheme extends TupleScheme<JVMInfoThriftDTO> {
+  private static class TJVMInfoThriftDTOTupleScheme extends TupleScheme<TJVMInfoThriftDTO> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TJVMInfoThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1360,7 +1360,7 @@ public class JVMInfoThriftDTO implements org.apache.thrift.TBase<JVMInfoThriftDT
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, JVMInfoThriftDTO struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TJVMInfoThriftDTO struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(12);
       if (incoming.get(0)) {

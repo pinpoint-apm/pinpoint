@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.thrift.io;
 
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class HeaderTBaseSerializerTest {
         // 10 을 JVMInfoThriftDTO type
         header.setType((short) 10);
 
-        JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
+        TJVMInfoThriftDTO jvmInfoThriftDTO = new TJVMInfoThriftDTO();
         int activeThreadount = 10;
         jvmInfoThriftDTO.setActiveThreadCount(activeThreadount);
         String agentId = "agentId";
@@ -30,7 +30,7 @@ public class HeaderTBaseSerializerTest {
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         TBaseLocator locator = new DefaultTBaseLocator();
-        JVMInfoThriftDTO deserialize = (JVMInfoThriftDTO) deserializer.deserialize(serialize);
+        TJVMInfoThriftDTO deserialize = (TJVMInfoThriftDTO) deserializer.deserialize(serialize);
         logger.info("deserialize:" + deserialize.getClass());
 
         Assert.assertEquals(deserialize.getActiveThreadCount(), activeThreadount);

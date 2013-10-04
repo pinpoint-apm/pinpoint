@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMetaData._Fields>, java.io.Serializable, Cloneable, Comparable<ApiMetaData> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ApiMetaData");
+public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiMetaData._Fields>, java.io.Serializable, Cloneable, Comparable<TApiMetaData> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TApiMetaData");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)2);
@@ -43,8 +43,8 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new ApiMetaDataStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new ApiMetaDataTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TApiMetaDataStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TApiMetaDataTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -143,13 +143,13 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     tmpMap.put(_Fields.LINE, new org.apache.thrift.meta_data.FieldMetaData("line", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ApiMetaData.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TApiMetaData.class, metaDataMap);
   }
 
-  public ApiMetaData() {
+  public TApiMetaData() {
   }
 
-  public ApiMetaData(
+  public TApiMetaData(
     String agentId,
     long agentStartTime,
     int apiId,
@@ -167,7 +167,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public ApiMetaData(ApiMetaData other) {
+  public TApiMetaData(TApiMetaData other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -180,8 +180,8 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     this.line = other.line;
   }
 
-  public ApiMetaData deepCopy() {
-    return new ApiMetaData(this);
+  public TApiMetaData deepCopy() {
+    return new TApiMetaData(this);
   }
 
   @Override
@@ -399,12 +399,12 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof ApiMetaData)
-      return this.equals((ApiMetaData)that);
+    if (that instanceof TApiMetaData)
+      return this.equals((TApiMetaData)that);
     return false;
   }
 
-  public boolean equals(ApiMetaData that) {
+  public boolean equals(TApiMetaData that) {
     if (that == null)
       return false;
 
@@ -462,7 +462,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
   }
 
   @Override
-  public int compareTo(ApiMetaData other) {
+  public int compareTo(TApiMetaData other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -536,7 +536,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("ApiMetaData(");
+    StringBuilder sb = new StringBuilder("TApiMetaData(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -595,15 +595,15 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     }
   }
 
-  private static class ApiMetaDataStandardSchemeFactory implements SchemeFactory {
-    public ApiMetaDataStandardScheme getScheme() {
-      return new ApiMetaDataStandardScheme();
+  private static class TApiMetaDataStandardSchemeFactory implements SchemeFactory {
+    public TApiMetaDataStandardScheme getScheme() {
+      return new TApiMetaDataStandardScheme();
     }
   }
 
-  private static class ApiMetaDataStandardScheme extends StandardScheme<ApiMetaData> {
+  private static class TApiMetaDataStandardScheme extends StandardScheme<TApiMetaData> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, ApiMetaData struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TApiMetaData struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -662,7 +662,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, ApiMetaData struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TApiMetaData struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -693,16 +693,16 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
 
   }
 
-  private static class ApiMetaDataTupleSchemeFactory implements SchemeFactory {
-    public ApiMetaDataTupleScheme getScheme() {
-      return new ApiMetaDataTupleScheme();
+  private static class TApiMetaDataTupleSchemeFactory implements SchemeFactory {
+    public TApiMetaDataTupleScheme getScheme() {
+      return new TApiMetaDataTupleScheme();
     }
   }
 
-  private static class ApiMetaDataTupleScheme extends TupleScheme<ApiMetaData> {
+  private static class TApiMetaDataTupleScheme extends TupleScheme<TApiMetaData> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, ApiMetaData struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -739,7 +739,7 @@ public class ApiMetaData implements org.apache.thrift.TBase<ApiMetaData, ApiMeta
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, ApiMetaData struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {

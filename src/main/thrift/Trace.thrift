@@ -1,6 +1,6 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
-struct Annotation {
+struct TAnnotation {
   1: i32 key,
 
   2: optional string stringValue
@@ -13,15 +13,15 @@ struct Annotation {
   9: optional byte byteValue;
 }
 
-struct AgentKey {
+struct TAgentKey {
     1: string agentId;
     2: optional string applicationName;
     3: i64 agentStartTime;
 }
 
-struct SpanEvent {
+struct TSpanEvent {
   // spanEvent의 agentKey는 매우 특별한 경우에만 생성되므로 필드사이즈를 줄이기 위해 별도 객체로 분리.
-  1: optional AgentKey agentKey;
+  1: optional TAgentKey agentKey;
 
   17: optional i16 parentServiceType
   18: optional string parentEndPoint
@@ -41,7 +41,7 @@ struct SpanEvent {
   12: i16 serviceType
   13: optional string endPoint
 
-  14: list<Annotation> annotations
+  14: list<TAnnotation> annotations
 
   15: optional i32 depth
   16: optional i32 nextSpanId
@@ -53,7 +53,7 @@ struct SpanEvent {
   //15: optional list<string> destinationAddressList;
 }
 
-struct Span {
+struct TSpan {
 
   1: string agentId
   2: string applicationName
@@ -76,19 +76,19 @@ struct Span {
   13: optional string endPoint
   14: optional string remoteAddr
 
-  15: list<Annotation> annotations
+  15: list<TAnnotation> annotations
   16: optional i16 flag = 0
 
   17: optional i32 err
 
-  18: optional list<SpanEvent> spanEventList
+  18: optional list<TSpanEvent> spanEventList
 
   19: optional string parentApplicationName
   20: optional i16 parentApplicationType
   21: optional string acceptorHost
 }
 
-struct SpanChunk {
+struct TSpanChunk {
   1: string agentId
   2: string applicationName
   3: i64 agentStartTime
@@ -103,10 +103,10 @@ struct SpanChunk {
 
   9: optional string endPoint
 
-  10: list<SpanEvent> spanEventList
+  10: list<TSpanEvent> spanEventList
 }
 
-struct SqlMetaData {
+struct TSqlMetaData {
 
     1: string agentId
     2: i64 agentStartTime
@@ -116,7 +116,7 @@ struct SqlMetaData {
 }
 
 
-struct ApiMetaData {
+struct TApiMetaData {
   1: string agentId
   2: i64 agentStartTime
 

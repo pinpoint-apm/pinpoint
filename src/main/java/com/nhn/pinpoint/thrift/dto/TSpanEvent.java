@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._Fields>, java.io.Serializable, Cloneable, Comparable<SpanEvent> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanEvent");
+public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEvent._Fields>, java.io.Serializable, Cloneable, Comparable<TSpanEvent> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpanEvent");
 
   private static final org.apache.thrift.protocol.TField AGENT_KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("agentKey", org.apache.thrift.protocol.TType.STRUCT, (short)1);
   private static final org.apache.thrift.protocol.TField PARENT_SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parentServiceType", org.apache.thrift.protocol.TType.I16, (short)17);
@@ -56,11 +56,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SpanEventStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SpanEventTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TSpanEventStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TSpanEventTupleSchemeFactory());
   }
 
-  private AgentKey agentKey; // optional
+  private TAgentKey agentKey; // optional
   private short parentServiceType; // optional
   private String parentEndPoint; // optional
   private String traceAgentId; // optional
@@ -73,7 +73,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   private String rpc; // optional
   private short serviceType; // required
   private String endPoint; // optional
-  private List<Annotation> annotations; // required
+  private List<TAnnotation> annotations; // required
   private int depth; // optional
   private int nextSpanId; // optional
   private String destinationId; // optional
@@ -205,7 +205,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_KEY, new org.apache.thrift.meta_data.FieldMetaData("agentKey", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, AgentKey.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAgentKey.class)));
     tmpMap.put(_Fields.PARENT_SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parentServiceType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.PARENT_END_POINT, new org.apache.thrift.meta_data.FieldMetaData("parentEndPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -232,7 +232,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ANNOTATIONS, new org.apache.thrift.meta_data.FieldMetaData("annotations", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Annotation.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAnnotation.class))));
     tmpMap.put(_Fields.DEPTH, new org.apache.thrift.meta_data.FieldMetaData("depth", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -243,18 +243,18 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanEvent.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpanEvent.class, metaDataMap);
   }
 
-  public SpanEvent() {
+  public TSpanEvent() {
   }
 
-  public SpanEvent(
+  public TSpanEvent(
     short sequence,
     int startElapsed,
     int endElapsed,
     short serviceType,
-    List<Annotation> annotations)
+    List<TAnnotation> annotations)
   {
     this();
     this.sequence = sequence;
@@ -271,10 +271,10 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public SpanEvent(SpanEvent other) {
+  public TSpanEvent(TSpanEvent other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentKey()) {
-      this.agentKey = new AgentKey(other.agentKey);
+      this.agentKey = new TAgentKey(other.agentKey);
     }
     this.parentServiceType = other.parentServiceType;
     if (other.isSetParentEndPoint()) {
@@ -297,9 +297,9 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       this.endPoint = other.endPoint;
     }
     if (other.isSetAnnotations()) {
-      List<Annotation> __this__annotations = new ArrayList<Annotation>(other.annotations.size());
-      for (Annotation other_element : other.annotations) {
-        __this__annotations.add(new Annotation(other_element));
+      List<TAnnotation> __this__annotations = new ArrayList<TAnnotation>(other.annotations.size());
+      for (TAnnotation other_element : other.annotations) {
+        __this__annotations.add(new TAnnotation(other_element));
       }
       this.annotations = __this__annotations;
     }
@@ -314,8 +314,8 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
   }
 
-  public SpanEvent deepCopy() {
-    return new SpanEvent(this);
+  public TSpanEvent deepCopy() {
+    return new TSpanEvent(this);
   }
 
   @Override
@@ -350,11 +350,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     this.destinationAddress = null;
   }
 
-  public AgentKey getAgentKey() {
+  public TAgentKey getAgentKey() {
     return this.agentKey;
   }
 
-  public void setAgentKey(AgentKey agentKey) {
+  public void setAgentKey(TAgentKey agentKey) {
     this.agentKey = agentKey;
   }
 
@@ -645,22 +645,22 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     return (this.annotations == null) ? 0 : this.annotations.size();
   }
 
-  public java.util.Iterator<Annotation> getAnnotationsIterator() {
+  public java.util.Iterator<TAnnotation> getAnnotationsIterator() {
     return (this.annotations == null) ? null : this.annotations.iterator();
   }
 
-  public void addToAnnotations(Annotation elem) {
+  public void addToAnnotations(TAnnotation elem) {
     if (this.annotations == null) {
-      this.annotations = new ArrayList<Annotation>();
+      this.annotations = new ArrayList<TAnnotation>();
     }
     this.annotations.add(elem);
   }
 
-  public List<Annotation> getAnnotations() {
+  public List<TAnnotation> getAnnotations() {
     return this.annotations;
   }
 
-  public void setAnnotations(List<Annotation> annotations) {
+  public void setAnnotations(List<TAnnotation> annotations) {
     this.annotations = annotations;
   }
 
@@ -790,7 +790,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetAgentKey();
       } else {
-        setAgentKey((AgentKey)value);
+        setAgentKey((TAgentKey)value);
       }
       break;
 
@@ -894,7 +894,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (value == null) {
         unsetAnnotations();
       } else {
-        setAnnotations((List<Annotation>)value);
+        setAnnotations((List<TAnnotation>)value);
       }
       break;
 
@@ -1044,12 +1044,12 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof SpanEvent)
-      return this.equals((SpanEvent)that);
+    if (that instanceof TSpanEvent)
+      return this.equals((TSpanEvent)that);
     return false;
   }
 
-  public boolean equals(SpanEvent that) {
+  public boolean equals(TSpanEvent that) {
     if (that == null)
       return false;
 
@@ -1224,7 +1224,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
   }
 
   @Override
-  public int compareTo(SpanEvent other) {
+  public int compareTo(TSpanEvent other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -1428,7 +1428,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SpanEvent(");
+    StringBuilder sb = new StringBuilder("TSpanEvent(");
     boolean first = true;
 
     if (isSetAgentKey()) {
@@ -1590,15 +1590,15 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
   }
 
-  private static class SpanEventStandardSchemeFactory implements SchemeFactory {
-    public SpanEventStandardScheme getScheme() {
-      return new SpanEventStandardScheme();
+  private static class TSpanEventStandardSchemeFactory implements SchemeFactory {
+    public TSpanEventStandardScheme getScheme() {
+      return new TSpanEventStandardScheme();
     }
   }
 
-  private static class SpanEventStandardScheme extends StandardScheme<SpanEvent> {
+  private static class TSpanEventStandardScheme extends StandardScheme<TSpanEvent> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, SpanEvent struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TSpanEvent struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1610,7 +1610,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         switch (schemeField.id) {
           case 1: // AGENT_KEY
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.agentKey = new AgentKey();
+              struct.agentKey = new TAgentKey();
               struct.agentKey.read(iprot);
               struct.setAgentKeyIsSet(true);
             } else { 
@@ -1717,11 +1717,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                struct.annotations = new ArrayList<Annotation>(_list0.size);
+                struct.annotations = new ArrayList<TAnnotation>(_list0.size);
                 for (int _i1 = 0; _i1 < _list0.size; ++_i1)
                 {
-                  Annotation _elem2;
-                  _elem2 = new Annotation();
+                  TAnnotation _elem2;
+                  _elem2 = new TAnnotation();
                   _elem2.read(iprot);
                   struct.annotations.add(_elem2);
                 }
@@ -1783,7 +1783,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, SpanEvent struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TSpanEvent struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1846,7 +1846,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
         oprot.writeFieldBegin(ANNOTATIONS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.annotations.size()));
-          for (Annotation _iter6 : struct.annotations)
+          for (TAnnotation _iter6 : struct.annotations)
           {
             _iter6.write(oprot);
           }
@@ -1903,16 +1903,16 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
 
   }
 
-  private static class SpanEventTupleSchemeFactory implements SchemeFactory {
-    public SpanEventTupleScheme getScheme() {
-      return new SpanEventTupleScheme();
+  private static class TSpanEventTupleSchemeFactory implements SchemeFactory {
+    public TSpanEventTupleScheme getScheme() {
+      return new TSpanEventTupleScheme();
     }
   }
 
-  private static class SpanEventTupleScheme extends TupleScheme<SpanEvent> {
+  private static class TSpanEventTupleScheme extends TupleScheme<TSpanEvent> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, SpanEvent struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentKey()) {
@@ -2012,7 +2012,7 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (struct.isSetAnnotations()) {
         {
           oprot.writeI32(struct.annotations.size());
-          for (Annotation _iter8 : struct.annotations)
+          for (TAnnotation _iter8 : struct.annotations)
           {
             _iter8.write(oprot);
           }
@@ -2039,11 +2039,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, SpanEvent struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(18);
       if (incoming.get(0)) {
-        struct.agentKey = new AgentKey();
+        struct.agentKey = new TAgentKey();
         struct.agentKey.read(iprot);
         struct.setAgentKeyIsSet(true);
       }
@@ -2098,11 +2098,11 @@ public class SpanEvent implements org.apache.thrift.TBase<SpanEvent, SpanEvent._
       if (incoming.get(13)) {
         {
           org.apache.thrift.protocol.TList _list10 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.annotations = new ArrayList<Annotation>(_list10.size);
+          struct.annotations = new ArrayList<TAnnotation>(_list10.size);
           for (int _i11 = 0; _i11 < _list10.size; ++_i11)
           {
-            Annotation _elem12;
-            _elem12 = new Annotation();
+            TAnnotation _elem12;
+            _elem12 = new TAnnotation();
             _elem12.read(iprot);
             struct.annotations.add(_elem12);
           }

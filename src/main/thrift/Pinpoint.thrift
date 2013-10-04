@@ -1,6 +1,6 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
-struct AgentInfo {
+struct TAgentInfo {
 	1: string	hostname
 	2: string	ip
 	3: string	ports
@@ -12,7 +12,7 @@ struct AgentInfo {
 	9: i32  pid
 }
 
-struct StatWithSerialCollector {
+struct TStatWithSerialCollector {
 	1: string	agentId
 	2: i64		timestamp
 	3: i64		jvmMemoryTotalUsed
@@ -33,7 +33,7 @@ struct StatWithSerialCollector {
 	200: optional string metadata
 }
 
-struct StatWithParallelCollector {
+struct TStatWithParallelCollector {
 	1: string	agentId
 	2: i64		timestamp
 	3: i64		jvmMemoryTotalUsed
@@ -54,7 +54,7 @@ struct StatWithParallelCollector {
 	200: optional string metadata
 }
 
-struct StatWithCmsCollector {
+struct TStatWithCmsCollector {
 	1: string	agentId
 	2: i64		timestamp
 	3: i64		jvmMemoryTotalUsed
@@ -75,7 +75,7 @@ struct StatWithCmsCollector {
 	200: optional string metadata
 }
 
-struct StatWithG1Collector {
+struct TStatWithG1Collector {
 	1: string	agentId
 	2: i64		timestamp
 	3: i64		jvmMemoryTotalUsed
@@ -96,14 +96,14 @@ struct StatWithG1Collector {
 	200: optional string metadata
 }
 
-union AgentStat {
-	1: StatWithSerialCollector		serial
-	2: StatWithParallelCollector	parallel
-	3: StatWithCmsCollector			cms
-	4: StatWithG1Collector			g1
+union TAgentStat {
+	1: TStatWithSerialCollector		serial
+	2: TStatWithParallelCollector	parallel
+	3: TStatWithCmsCollector		cms
+	4: TStatWithG1Collector			g1
 }
 
-struct JVMInfoThriftDTO {
+struct TJVMInfoThriftDTO {
 	1: string	agentId,
 	2: i64 		dataTime,
 	3: i32		activeThreadCount,
@@ -119,7 +119,7 @@ struct JVMInfoThriftDTO {
 }
 
 
-struct Result {
+struct TResult {
   1: bool success
   2: optional string message
 }

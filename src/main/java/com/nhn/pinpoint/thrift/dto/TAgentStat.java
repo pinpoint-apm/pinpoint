@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fields> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AgentStat");
+public class TAgentStat extends org.apache.thrift.TUnion<TAgentStat, TAgentStat._Fields> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TAgentStat");
   private static final org.apache.thrift.protocol.TField SERIAL_FIELD_DESC = new org.apache.thrift.protocol.TField("serial", org.apache.thrift.protocol.TType.STRUCT, (short)1);
   private static final org.apache.thrift.protocol.TField PARALLEL_FIELD_DESC = new org.apache.thrift.protocol.TField("parallel", org.apache.thrift.protocol.TType.STRUCT, (short)2);
   private static final org.apache.thrift.protocol.TField CMS_FIELD_DESC = new org.apache.thrift.protocol.TField("cms", org.apache.thrift.protocol.TType.STRUCT, (short)3);
@@ -110,52 +110,52 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.SERIAL, new org.apache.thrift.meta_data.FieldMetaData("serial", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithSerialCollector.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TStatWithSerialCollector.class)));
     tmpMap.put(_Fields.PARALLEL, new org.apache.thrift.meta_data.FieldMetaData("parallel", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithParallelCollector.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TStatWithParallelCollector.class)));
     tmpMap.put(_Fields.CMS, new org.apache.thrift.meta_data.FieldMetaData("cms", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithCmsCollector.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TStatWithCmsCollector.class)));
     tmpMap.put(_Fields.G1, new org.apache.thrift.meta_data.FieldMetaData("g1", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StatWithG1Collector.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TStatWithG1Collector.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AgentStat.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAgentStat.class, metaDataMap);
   }
 
-  public AgentStat() {
+  public TAgentStat() {
     super();
   }
 
-  public AgentStat(_Fields setField, Object value) {
+  public TAgentStat(_Fields setField, Object value) {
     super(setField, value);
   }
 
-  public AgentStat(AgentStat other) {
+  public TAgentStat(TAgentStat other) {
     super(other);
   }
-  public AgentStat deepCopy() {
-    return new AgentStat(this);
+  public TAgentStat deepCopy() {
+    return new TAgentStat(this);
   }
 
-  public static AgentStat serial(StatWithSerialCollector value) {
-    AgentStat x = new AgentStat();
+  public static TAgentStat serial(TStatWithSerialCollector value) {
+    TAgentStat x = new TAgentStat();
     x.setSerial(value);
     return x;
   }
 
-  public static AgentStat parallel(StatWithParallelCollector value) {
-    AgentStat x = new AgentStat();
+  public static TAgentStat parallel(TStatWithParallelCollector value) {
+    TAgentStat x = new TAgentStat();
     x.setParallel(value);
     return x;
   }
 
-  public static AgentStat cms(StatWithCmsCollector value) {
-    AgentStat x = new AgentStat();
+  public static TAgentStat cms(TStatWithCmsCollector value) {
+    TAgentStat x = new TAgentStat();
     x.setCms(value);
     return x;
   }
 
-  public static AgentStat g1(StatWithG1Collector value) {
-    AgentStat x = new AgentStat();
+  public static TAgentStat g1(TStatWithG1Collector value) {
+    TAgentStat x = new TAgentStat();
     x.setG1(value);
     return x;
   }
@@ -165,25 +165,25 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
     switch (setField) {
       case SERIAL:
-        if (value instanceof StatWithSerialCollector) {
+        if (value instanceof TStatWithSerialCollector) {
           break;
         }
-        throw new ClassCastException("Was expecting value of type StatWithSerialCollector for field 'serial', but got " + value.getClass().getSimpleName());
+        throw new ClassCastException("Was expecting value of type TStatWithSerialCollector for field 'serial', but got " + value.getClass().getSimpleName());
       case PARALLEL:
-        if (value instanceof StatWithParallelCollector) {
+        if (value instanceof TStatWithParallelCollector) {
           break;
         }
-        throw new ClassCastException("Was expecting value of type StatWithParallelCollector for field 'parallel', but got " + value.getClass().getSimpleName());
+        throw new ClassCastException("Was expecting value of type TStatWithParallelCollector for field 'parallel', but got " + value.getClass().getSimpleName());
       case CMS:
-        if (value instanceof StatWithCmsCollector) {
+        if (value instanceof TStatWithCmsCollector) {
           break;
         }
-        throw new ClassCastException("Was expecting value of type StatWithCmsCollector for field 'cms', but got " + value.getClass().getSimpleName());
+        throw new ClassCastException("Was expecting value of type TStatWithCmsCollector for field 'cms', but got " + value.getClass().getSimpleName());
       case G1:
-        if (value instanceof StatWithG1Collector) {
+        if (value instanceof TStatWithG1Collector) {
           break;
         }
-        throw new ClassCastException("Was expecting value of type StatWithG1Collector for field 'g1', but got " + value.getClass().getSimpleName());
+        throw new ClassCastException("Was expecting value of type TStatWithG1Collector for field 'g1', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -196,8 +196,8 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
       switch (setField) {
         case SERIAL:
           if (field.type == SERIAL_FIELD_DESC.type) {
-            StatWithSerialCollector serial;
-            serial = new StatWithSerialCollector();
+            TStatWithSerialCollector serial;
+            serial = new TStatWithSerialCollector();
             serial.read(iprot);
             return serial;
           } else {
@@ -206,8 +206,8 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
           }
         case PARALLEL:
           if (field.type == PARALLEL_FIELD_DESC.type) {
-            StatWithParallelCollector parallel;
-            parallel = new StatWithParallelCollector();
+            TStatWithParallelCollector parallel;
+            parallel = new TStatWithParallelCollector();
             parallel.read(iprot);
             return parallel;
           } else {
@@ -216,8 +216,8 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
           }
         case CMS:
           if (field.type == CMS_FIELD_DESC.type) {
-            StatWithCmsCollector cms;
-            cms = new StatWithCmsCollector();
+            TStatWithCmsCollector cms;
+            cms = new TStatWithCmsCollector();
             cms.read(iprot);
             return cms;
           } else {
@@ -226,8 +226,8 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
           }
         case G1:
           if (field.type == G1_FIELD_DESC.type) {
-            StatWithG1Collector g1;
-            g1 = new StatWithG1Collector();
+            TStatWithG1Collector g1;
+            g1 = new TStatWithG1Collector();
             g1.read(iprot);
             return g1;
           } else {
@@ -247,19 +247,19 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
   protected void standardSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
       case SERIAL:
-        StatWithSerialCollector serial = (StatWithSerialCollector)value_;
+        TStatWithSerialCollector serial = (TStatWithSerialCollector)value_;
         serial.write(oprot);
         return;
       case PARALLEL:
-        StatWithParallelCollector parallel = (StatWithParallelCollector)value_;
+        TStatWithParallelCollector parallel = (TStatWithParallelCollector)value_;
         parallel.write(oprot);
         return;
       case CMS:
-        StatWithCmsCollector cms = (StatWithCmsCollector)value_;
+        TStatWithCmsCollector cms = (TStatWithCmsCollector)value_;
         cms.write(oprot);
         return;
       case G1:
-        StatWithG1Collector g1 = (StatWithG1Collector)value_;
+        TStatWithG1Collector g1 = (TStatWithG1Collector)value_;
         g1.write(oprot);
         return;
       default:
@@ -273,23 +273,23 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
     if (setField != null) {
       switch (setField) {
         case SERIAL:
-          StatWithSerialCollector serial;
-          serial = new StatWithSerialCollector();
+          TStatWithSerialCollector serial;
+          serial = new TStatWithSerialCollector();
           serial.read(iprot);
           return serial;
         case PARALLEL:
-          StatWithParallelCollector parallel;
-          parallel = new StatWithParallelCollector();
+          TStatWithParallelCollector parallel;
+          parallel = new TStatWithParallelCollector();
           parallel.read(iprot);
           return parallel;
         case CMS:
-          StatWithCmsCollector cms;
-          cms = new StatWithCmsCollector();
+          TStatWithCmsCollector cms;
+          cms = new TStatWithCmsCollector();
           cms.read(iprot);
           return cms;
         case G1:
-          StatWithG1Collector g1;
-          g1 = new StatWithG1Collector();
+          TStatWithG1Collector g1;
+          g1 = new TStatWithG1Collector();
           g1.read(iprot);
           return g1;
         default:
@@ -304,19 +304,19 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
   protected void tupleSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
       case SERIAL:
-        StatWithSerialCollector serial = (StatWithSerialCollector)value_;
+        TStatWithSerialCollector serial = (TStatWithSerialCollector)value_;
         serial.write(oprot);
         return;
       case PARALLEL:
-        StatWithParallelCollector parallel = (StatWithParallelCollector)value_;
+        TStatWithParallelCollector parallel = (TStatWithParallelCollector)value_;
         parallel.write(oprot);
         return;
       case CMS:
-        StatWithCmsCollector cms = (StatWithCmsCollector)value_;
+        TStatWithCmsCollector cms = (TStatWithCmsCollector)value_;
         cms.write(oprot);
         return;
       case G1:
-        StatWithG1Collector g1 = (StatWithG1Collector)value_;
+        TStatWithG1Collector g1 = (TStatWithG1Collector)value_;
         g1.write(oprot);
         return;
       default:
@@ -355,57 +355,57 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
   }
 
 
-  public StatWithSerialCollector getSerial() {
+  public TStatWithSerialCollector getSerial() {
     if (getSetField() == _Fields.SERIAL) {
-      return (StatWithSerialCollector)getFieldValue();
+      return (TStatWithSerialCollector)getFieldValue();
     } else {
       throw new RuntimeException("Cannot get field 'serial' because union is currently set to " + getFieldDesc(getSetField()).name);
     }
   }
 
-  public void setSerial(StatWithSerialCollector value) {
+  public void setSerial(TStatWithSerialCollector value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.SERIAL;
     value_ = value;
   }
 
-  public StatWithParallelCollector getParallel() {
+  public TStatWithParallelCollector getParallel() {
     if (getSetField() == _Fields.PARALLEL) {
-      return (StatWithParallelCollector)getFieldValue();
+      return (TStatWithParallelCollector)getFieldValue();
     } else {
       throw new RuntimeException("Cannot get field 'parallel' because union is currently set to " + getFieldDesc(getSetField()).name);
     }
   }
 
-  public void setParallel(StatWithParallelCollector value) {
+  public void setParallel(TStatWithParallelCollector value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.PARALLEL;
     value_ = value;
   }
 
-  public StatWithCmsCollector getCms() {
+  public TStatWithCmsCollector getCms() {
     if (getSetField() == _Fields.CMS) {
-      return (StatWithCmsCollector)getFieldValue();
+      return (TStatWithCmsCollector)getFieldValue();
     } else {
       throw new RuntimeException("Cannot get field 'cms' because union is currently set to " + getFieldDesc(getSetField()).name);
     }
   }
 
-  public void setCms(StatWithCmsCollector value) {
+  public void setCms(TStatWithCmsCollector value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.CMS;
     value_ = value;
   }
 
-  public StatWithG1Collector getG1() {
+  public TStatWithG1Collector getG1() {
     if (getSetField() == _Fields.G1) {
-      return (StatWithG1Collector)getFieldValue();
+      return (TStatWithG1Collector)getFieldValue();
     } else {
       throw new RuntimeException("Cannot get field 'g1' because union is currently set to " + getFieldDesc(getSetField()).name);
     }
   }
 
-  public void setG1(StatWithG1Collector value) {
+  public void setG1(TStatWithG1Collector value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.G1;
     value_ = value;
@@ -432,19 +432,19 @@ public class AgentStat extends org.apache.thrift.TUnion<AgentStat, AgentStat._Fi
 
 
   public boolean equals(Object other) {
-    if (other instanceof AgentStat) {
-      return equals((AgentStat)other);
+    if (other instanceof TAgentStat) {
+      return equals((TAgentStat)other);
     } else {
       return false;
     }
   }
 
-  public boolean equals(AgentStat other) {
+  public boolean equals(TAgentStat other) {
     return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
   @Override
-  public int compareTo(AgentStat other) {
+  public int compareTo(TAgentStat other) {
     int lastComparison = org.apache.thrift.TBaseHelper.compareTo(getSetField(), other.getSetField());
     if (lastComparison == 0) {
       return org.apache.thrift.TBaseHelper.compareTo(getFieldValue(), other.getFieldValue());

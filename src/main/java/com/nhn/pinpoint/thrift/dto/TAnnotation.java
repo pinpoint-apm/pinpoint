@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Annotation implements org.apache.thrift.TBase<Annotation, Annotation._Fields>, java.io.Serializable, Cloneable, Comparable<Annotation> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Annotation");
+public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnotation._Fields>, java.io.Serializable, Cloneable, Comparable<TAnnotation> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TAnnotation");
 
   private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.I32, (short)1);
   private static final org.apache.thrift.protocol.TField STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("stringValue", org.apache.thrift.protocol.TType.STRING, (short)2);
@@ -47,8 +47,8 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new AnnotationStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new AnnotationTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TAnnotationStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TAnnotationTupleSchemeFactory());
   }
 
   private int key; // required
@@ -175,13 +175,13 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     tmpMap.put(_Fields.BYTE_VALUE, new org.apache.thrift.meta_data.FieldMetaData("byteValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Annotation.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAnnotation.class, metaDataMap);
   }
 
-  public Annotation() {
+  public TAnnotation() {
   }
 
-  public Annotation(
+  public TAnnotation(
     int key)
   {
     this();
@@ -192,7 +192,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public Annotation(Annotation other) {
+  public TAnnotation(TAnnotation other) {
     __isset_bitfield = other.__isset_bitfield;
     this.key = other.key;
     if (other.isSetStringValue()) {
@@ -210,8 +210,8 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     this.byteValue = other.byteValue;
   }
 
-  public Annotation deepCopy() {
-    return new Annotation(this);
+  public TAnnotation deepCopy() {
+    return new TAnnotation(this);
   }
 
   @Override
@@ -586,12 +586,12 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof Annotation)
-      return this.equals((Annotation)that);
+    if (that instanceof TAnnotation)
+      return this.equals((TAnnotation)that);
     return false;
   }
 
-  public boolean equals(Annotation that) {
+  public boolean equals(TAnnotation that) {
     if (that == null)
       return false;
 
@@ -685,7 +685,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
   }
 
   @Override
-  public int compareTo(Annotation other) {
+  public int compareTo(TAnnotation other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -799,7 +799,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("Annotation(");
+    StringBuilder sb = new StringBuilder("TAnnotation(");
     boolean first = true;
 
     sb.append("key:");
@@ -888,15 +888,15 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     }
   }
 
-  private static class AnnotationStandardSchemeFactory implements SchemeFactory {
-    public AnnotationStandardScheme getScheme() {
-      return new AnnotationStandardScheme();
+  private static class TAnnotationStandardSchemeFactory implements SchemeFactory {
+    public TAnnotationStandardScheme getScheme() {
+      return new TAnnotationStandardScheme();
     }
   }
 
-  private static class AnnotationStandardScheme extends StandardScheme<Annotation> {
+  private static class TAnnotationStandardScheme extends StandardScheme<TAnnotation> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, Annotation struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TAnnotation struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -987,7 +987,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, Annotation struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TAnnotation struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1044,16 +1044,16 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
 
   }
 
-  private static class AnnotationTupleSchemeFactory implements SchemeFactory {
-    public AnnotationTupleScheme getScheme() {
-      return new AnnotationTupleScheme();
+  private static class TAnnotationTupleSchemeFactory implements SchemeFactory {
+    public TAnnotationTupleScheme getScheme() {
+      return new TAnnotationTupleScheme();
     }
   }
 
-  private static class AnnotationTupleScheme extends TupleScheme<Annotation> {
+  private static class TAnnotationTupleScheme extends TupleScheme<TAnnotation> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, Annotation struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetKey()) {
@@ -1114,7 +1114,7 @@ public class Annotation implements org.apache.thrift.TBase<Annotation, Annotatio
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, Annotation struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(9);
       if (incoming.get(0)) {

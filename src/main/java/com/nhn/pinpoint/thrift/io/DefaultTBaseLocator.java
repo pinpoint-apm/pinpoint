@@ -39,53 +39,53 @@ class DefaultTBaseLocator implements TBaseLocator {
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
             case JVM_INFO_THRIFT_DTO:
-                return new JVMInfoThriftDTO();
+                return new TJVMInfoThriftDTO();
             case SPAN:
-                return new Span();
+                return new TSpan();
             case AGENT_INFO:
-                return new AgentInfo();
+                return new TAgentInfo();
             case AGENT_STAT:
-                return new AgentStat();
+                return new TAgentStat();
             case SPANEVENT:
-                return new SpanEvent();
+                return new TSpanEvent();
             case SPANCHUNK:
-                return new SpanChunk();
+                return new TSpanChunk();
             case SQLMETADATA:
-                return new SqlMetaData();
+                return new TSqlMetaData();
             case APIMETADATA:
-                return new ApiMetaData();
+                return new TApiMetaData();
             case RESULT:
-                return new Result();
+                return new TResult();
         }
         throw new TException("Unsupported type:" + type);
     }
 
     private short typeLookup(TBase<?, ?> tbase) throws TException {
-        if (tbase instanceof Span) {
+        if (tbase instanceof TSpan) {
             return SPAN;
         }
-        if (tbase instanceof SpanChunk) {
+        if (tbase instanceof TSpanChunk) {
             return SPANCHUNK;
         }
-        if (tbase instanceof SpanEvent) {
+        if (tbase instanceof TSpanEvent) {
             return SPANEVENT;
         }
-        if (tbase instanceof JVMInfoThriftDTO) {
+        if (tbase instanceof TJVMInfoThriftDTO) {
             return JVM_INFO_THRIFT_DTO;
         }
-        if (tbase instanceof AgentInfo) {
+        if (tbase instanceof TAgentInfo) {
             return AGENT_INFO;
         }
-        if (tbase instanceof AgentStat) {
+        if (tbase instanceof TAgentStat) {
             return AGENT_STAT;
         }
-        if (tbase instanceof SqlMetaData) {
+        if (tbase instanceof TSqlMetaData) {
             return SQLMETADATA;
         }
-        if (tbase instanceof ApiMetaData) {
+        if (tbase instanceof TApiMetaData) {
             return APIMETADATA;
         }
-        if (tbase instanceof Result) {
+        if (tbase instanceof TResult) {
             return RESULT;
         }
         throw new TException("Unsupported Type" + tbase.getClass());

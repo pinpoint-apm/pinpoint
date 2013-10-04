@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._Fields>, java.io.Serializable, Cloneable, Comparable<SpanChunk> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SpanChunk");
+public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChunk._Fields>, java.io.Serializable, Cloneable, Comparable<TSpanChunk> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpanChunk");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)2);
@@ -48,8 +48,8 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new SpanChunkStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new SpanChunkTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TSpanChunkStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TSpanChunkTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -61,7 +61,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   private long traceTransactionSequence; // required
   private int spanId; // required
   private String endPoint; // optional
-  private List<SpanEvent> spanEventList; // required
+  private List<TSpanEvent> spanEventList; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -179,15 +179,15 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SpanEvent.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TSpanEvent.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SpanChunk.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpanChunk.class, metaDataMap);
   }
 
-  public SpanChunk() {
+  public TSpanChunk() {
   }
 
-  public SpanChunk(
+  public TSpanChunk(
     String agentId,
     String applicationName,
     long agentStartTime,
@@ -196,7 +196,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     long traceAgentStartTime,
     long traceTransactionSequence,
     int spanId,
-    List<SpanEvent> spanEventList)
+    List<TSpanEvent> spanEventList)
   {
     this();
     this.agentId = agentId;
@@ -218,7 +218,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public SpanChunk(SpanChunk other) {
+  public TSpanChunk(TSpanChunk other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -238,16 +238,16 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       this.endPoint = other.endPoint;
     }
     if (other.isSetSpanEventList()) {
-      List<SpanEvent> __this__spanEventList = new ArrayList<SpanEvent>(other.spanEventList.size());
-      for (SpanEvent other_element : other.spanEventList) {
-        __this__spanEventList.add(new SpanEvent(other_element));
+      List<TSpanEvent> __this__spanEventList = new ArrayList<TSpanEvent>(other.spanEventList.size());
+      for (TSpanEvent other_element : other.spanEventList) {
+        __this__spanEventList.add(new TSpanEvent(other_element));
       }
       this.spanEventList = __this__spanEventList;
     }
   }
 
-  public SpanChunk deepCopy() {
-    return new SpanChunk(this);
+  public TSpanChunk deepCopy() {
+    return new TSpanChunk(this);
   }
 
   @Override
@@ -475,22 +475,22 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     return (this.spanEventList == null) ? 0 : this.spanEventList.size();
   }
 
-  public java.util.Iterator<SpanEvent> getSpanEventListIterator() {
+  public java.util.Iterator<TSpanEvent> getSpanEventListIterator() {
     return (this.spanEventList == null) ? null : this.spanEventList.iterator();
   }
 
-  public void addToSpanEventList(SpanEvent elem) {
+  public void addToSpanEventList(TSpanEvent elem) {
     if (this.spanEventList == null) {
-      this.spanEventList = new ArrayList<SpanEvent>();
+      this.spanEventList = new ArrayList<TSpanEvent>();
     }
     this.spanEventList.add(elem);
   }
 
-  public List<SpanEvent> getSpanEventList() {
+  public List<TSpanEvent> getSpanEventList() {
     return this.spanEventList;
   }
 
-  public void setSpanEventList(List<SpanEvent> spanEventList) {
+  public void setSpanEventList(List<TSpanEvent> spanEventList) {
     this.spanEventList = spanEventList;
   }
 
@@ -587,7 +587,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (value == null) {
         unsetSpanEventList();
       } else {
-        setSpanEventList((List<SpanEvent>)value);
+        setSpanEventList((List<TSpanEvent>)value);
       }
       break;
 
@@ -665,12 +665,12 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof SpanChunk)
-      return this.equals((SpanChunk)that);
+    if (that instanceof TSpanChunk)
+      return this.equals((TSpanChunk)that);
     return false;
   }
 
-  public boolean equals(SpanChunk that) {
+  public boolean equals(TSpanChunk that) {
     if (that == null)
       return false;
 
@@ -773,7 +773,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
   }
 
   @Override
-  public int compareTo(SpanChunk other) {
+  public int compareTo(TSpanChunk other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -897,7 +897,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("SpanChunk(");
+    StringBuilder sb = new StringBuilder("TSpanChunk(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -988,15 +988,15 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     }
   }
 
-  private static class SpanChunkStandardSchemeFactory implements SchemeFactory {
-    public SpanChunkStandardScheme getScheme() {
-      return new SpanChunkStandardScheme();
+  private static class TSpanChunkStandardSchemeFactory implements SchemeFactory {
+    public TSpanChunkStandardScheme getScheme() {
+      return new TSpanChunkStandardScheme();
     }
   }
 
-  private static class SpanChunkStandardScheme extends StandardScheme<SpanChunk> {
+  private static class TSpanChunkStandardScheme extends StandardScheme<TSpanChunk> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, SpanChunk struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TSpanChunk struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1082,11 +1082,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
-                struct.spanEventList = new ArrayList<SpanEvent>(_list32.size);
+                struct.spanEventList = new ArrayList<TSpanEvent>(_list32.size);
                 for (int _i33 = 0; _i33 < _list32.size; ++_i33)
                 {
-                  SpanEvent _elem34;
-                  _elem34 = new SpanEvent();
+                  TSpanEvent _elem34;
+                  _elem34 = new TSpanEvent();
                   _elem34.read(iprot);
                   struct.spanEventList.add(_elem34);
                 }
@@ -1106,7 +1106,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, SpanChunk struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TSpanChunk struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1151,7 +1151,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
         oprot.writeFieldBegin(SPAN_EVENT_LIST_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.spanEventList.size()));
-          for (SpanEvent _iter35 : struct.spanEventList)
+          for (TSpanEvent _iter35 : struct.spanEventList)
           {
             _iter35.write(oprot);
           }
@@ -1165,16 +1165,16 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
 
   }
 
-  private static class SpanChunkTupleSchemeFactory implements SchemeFactory {
-    public SpanChunkTupleScheme getScheme() {
-      return new SpanChunkTupleScheme();
+  private static class TSpanChunkTupleSchemeFactory implements SchemeFactory {
+    public TSpanChunkTupleScheme getScheme() {
+      return new TSpanChunkTupleScheme();
     }
   }
 
-  private static class SpanChunkTupleScheme extends TupleScheme<SpanChunk> {
+  private static class TSpanChunkTupleScheme extends TupleScheme<TSpanChunk> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, SpanChunk struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TSpanChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1238,7 +1238,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (struct.isSetSpanEventList()) {
         {
           oprot.writeI32(struct.spanEventList.size());
-          for (SpanEvent _iter36 : struct.spanEventList)
+          for (TSpanEvent _iter36 : struct.spanEventList)
           {
             _iter36.write(oprot);
           }
@@ -1247,7 +1247,7 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, SpanChunk struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TSpanChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(10);
       if (incoming.get(0)) {
@@ -1289,11 +1289,11 @@ public class SpanChunk implements org.apache.thrift.TBase<SpanChunk, SpanChunk._
       if (incoming.get(9)) {
         {
           org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.spanEventList = new ArrayList<SpanEvent>(_list37.size);
+          struct.spanEventList = new ArrayList<TSpanEvent>(_list37.size);
           for (int _i38 = 0; _i38 < _list37.size; ++_i38)
           {
-            SpanEvent _elem39;
-            _elem39 = new SpanEvent();
+            TSpanEvent _elem39;
+            _elem39 = new TSpanEvent();
             _elem39.read(iprot);
             struct.spanEventList.add(_elem39);
           }

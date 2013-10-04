@@ -32,8 +32,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWithParallelCollector, StatWithParallelCollector._Fields>, java.io.Serializable, Cloneable, Comparable<StatWithParallelCollector> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("StatWithParallelCollector");
+public class TStatWithParallelCollector implements org.apache.thrift.TBase<TStatWithParallelCollector, TStatWithParallelCollector._Fields>, java.io.Serializable, Cloneable, Comparable<TStatWithParallelCollector> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TStatWithParallelCollector");
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)2);
@@ -56,8 +56,8 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new StatWithParallelCollectorStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new StatWithParallelCollectorTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TStatWithParallelCollectorStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TStatWithParallelCollectorTupleSchemeFactory());
   }
 
   private String agentId; // required
@@ -247,13 +247,13 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
     tmpMap.put(_Fields.METADATA, new org.apache.thrift.meta_data.FieldMetaData("metadata", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(StatWithParallelCollector.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TStatWithParallelCollector.class, metaDataMap);
   }
 
-  public StatWithParallelCollector() {
+  public TStatWithParallelCollector() {
   }
 
-  public StatWithParallelCollector(
+  public TStatWithParallelCollector(
     String agentId,
     long timestamp,
     long jvmMemoryTotalUsed,
@@ -311,7 +311,7 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public StatWithParallelCollector(StatWithParallelCollector other) {
+  public TStatWithParallelCollector(TStatWithParallelCollector other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetAgentId()) {
       this.agentId = other.agentId;
@@ -337,8 +337,8 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
     }
   }
 
-  public StatWithParallelCollector deepCopy() {
-    return new StatWithParallelCollector(this);
+  public TStatWithParallelCollector deepCopy() {
+    return new TStatWithParallelCollector(this);
   }
 
   @Override
@@ -1037,12 +1037,12 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof StatWithParallelCollector)
-      return this.equals((StatWithParallelCollector)that);
+    if (that instanceof TStatWithParallelCollector)
+      return this.equals((TStatWithParallelCollector)that);
     return false;
   }
 
-  public boolean equals(StatWithParallelCollector that) {
+  public boolean equals(TStatWithParallelCollector that) {
     if (that == null)
       return false;
 
@@ -1217,7 +1217,7 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
   }
 
   @Override
-  public int compareTo(StatWithParallelCollector other) {
+  public int compareTo(TStatWithParallelCollector other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
@@ -1421,7 +1421,7 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("StatWithParallelCollector(");
+    StringBuilder sb = new StringBuilder("TStatWithParallelCollector(");
     boolean first = true;
 
     sb.append("agentId:");
@@ -1532,15 +1532,15 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
     }
   }
 
-  private static class StatWithParallelCollectorStandardSchemeFactory implements SchemeFactory {
-    public StatWithParallelCollectorStandardScheme getScheme() {
-      return new StatWithParallelCollectorStandardScheme();
+  private static class TStatWithParallelCollectorStandardSchemeFactory implements SchemeFactory {
+    public TStatWithParallelCollectorStandardScheme getScheme() {
+      return new TStatWithParallelCollectorStandardScheme();
     }
   }
 
-  private static class StatWithParallelCollectorStandardScheme extends StandardScheme<StatWithParallelCollector> {
+  private static class TStatWithParallelCollectorStandardScheme extends StandardScheme<TStatWithParallelCollector> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, StatWithParallelCollector struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TStatWithParallelCollector struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -1703,7 +1703,7 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, StatWithParallelCollector struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TStatWithParallelCollector struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1773,16 +1773,16 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
 
   }
 
-  private static class StatWithParallelCollectorTupleSchemeFactory implements SchemeFactory {
-    public StatWithParallelCollectorTupleScheme getScheme() {
-      return new StatWithParallelCollectorTupleScheme();
+  private static class TStatWithParallelCollectorTupleSchemeFactory implements SchemeFactory {
+    public TStatWithParallelCollectorTupleScheme getScheme() {
+      return new TStatWithParallelCollectorTupleScheme();
     }
   }
 
-  private static class StatWithParallelCollectorTupleScheme extends TupleScheme<StatWithParallelCollector> {
+  private static class TStatWithParallelCollectorTupleScheme extends TupleScheme<TStatWithParallelCollector> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, StatWithParallelCollector struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TStatWithParallelCollector struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
       if (struct.isSetAgentId()) {
@@ -1897,7 +1897,7 @@ public class StatWithParallelCollector implements org.apache.thrift.TBase<StatWi
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, StatWithParallelCollector struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TStatWithParallelCollector struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(18);
       if (incoming.get(0)) {
