@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
-import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.thrift.dto.SpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 
 public interface TracesDao {
-    void insert(Span span);
+    void insert(TSpan span);
 
-    void insertEvent(SpanEvent spanEvent);
+    void insertEvent(TSpanEvent spanEvent);
 
-    void insertSpanChunk(SpanChunk spanChunk);
+    void insertSpanChunk(TSpanChunk spanChunk);
 }

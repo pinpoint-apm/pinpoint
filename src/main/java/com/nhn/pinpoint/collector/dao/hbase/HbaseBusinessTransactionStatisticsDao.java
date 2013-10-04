@@ -10,7 +10,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
@@ -30,7 +30,7 @@ public class HbaseBusinessTransactionStatisticsDao implements BusinessTransactio
     private AcceptedTimeService acceptedTimeService ;
 
 	@Override
-	public void update(Span span) {
+	public void update(TSpan span) {
 
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
 

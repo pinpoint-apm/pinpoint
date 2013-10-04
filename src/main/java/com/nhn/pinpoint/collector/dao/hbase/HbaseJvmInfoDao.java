@@ -5,11 +5,11 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.SYSTEMINFO_CF_JVM;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.SYSTEMINFO_CN_INFO;
 
 import com.nhn.pinpoint.collector.dao.JvmInfoDao;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
@@ -22,7 +22,7 @@ public class HbaseJvmInfoDao implements JvmInfoDao {
 	private HbaseOperations2 hbaseOperations;
 
 	@Override
-	public void insert(final JVMInfoThriftDTO jvmInfoThriftDTO, final byte[] jvmInfoBytes) {
+	public void insert(final TJVMInfoThriftDTO jvmInfoThriftDTO, final byte[] jvmInfoBytes) {
 		byte[] rowKey = getRowKey(jvmInfoThriftDTO);
 		Put put = new Put(rowKey, jvmInfoThriftDTO.getDataTime());
 		put.add(SYSTEMINFO_CF_JVM, SYSTEMINFO_CN_INFO, jvmInfoBytes);
@@ -30,7 +30,7 @@ public class HbaseJvmInfoDao implements JvmInfoDao {
 		hbaseOperations.put(SYSTEMINFO, put);
 	}
 
-	byte[] getRowKey(JVMInfoThriftDTO jvmInfoThriftDTO) {
+	byte[] getRowKey(TJVMInfoThriftDTO jvmInfoThriftDTO) {
 		String agentId = jvmInfoThriftDTO.getAgentId();
 		// agentId의 제한 필요?
 		// 24byte

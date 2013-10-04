@@ -3,11 +3,10 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.TRACE_INDEX_CF_TRACE;
 
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.nhn.pinpoint.thrift.dto.Span;
 
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -39,7 +38,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 	}
 
 	@Override
-	public void insert(final Span span) {
+	public void insert(final TSpan span) {
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
         byte[] agentIdTraceIndexRowKey = createRowKey(span, acceptedTime);
@@ -50,7 +49,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 		hbaseTemplate.put(tableName, put);
 	}
 
-    private byte[] createRowKey(Span span, long acceptedTime) {
+    private byte[] createRowKey(TSpan span, long acceptedTime) {
         byte[] agentIdTraceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(agentIdTraceIndexRowKey);
     }

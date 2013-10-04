@@ -11,8 +11,8 @@ import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +38,12 @@ public class SpanHandler implements SimpleHandler {
 
 	public void handler(TBase<?, ?> tbase) {
 
-		if (!(tbase instanceof Span)) {
+		if (!(tbase instanceof TSpan)) {
 			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
 		}
 
 		try {
-			Span span = (Span) tbase;
+			TSpan span = (TSpan) tbase;
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SPAN={}", span);
@@ -82,11 +82,11 @@ public class SpanHandler implements SimpleHandler {
 				hostApplicationMapDao.insert(span.getAcceptorHost(), span.getApplicationName(), span.getServiceType());
 			}
 
-			List<SpanEvent> spanEventList = span.getSpanEventList();
+			List<TSpanEvent> spanEventList = span.getSpanEventList();
 			if (spanEventList != null) {
 				logger.debug("handle spanEvent size:{}", spanEventList.size());
 				// TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
-				for (SpanEvent spanEvent : spanEventList) {
+				for (TSpanEvent spanEvent : spanEventList) {
 					ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 					if (!serviceType.isRecordStatistics()) {
 						continue;

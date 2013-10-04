@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +28,12 @@ public class SpanEventHandler implements SimpleHandler {
 	@Override
 	public void handler(TBase<?, ?> tbase) {
 
-		if (!(tbase instanceof SpanEvent)) {
+		if (!(tbase instanceof TSpanEvent)) {
 			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
 		}
 
 		try {
-			SpanEvent spanEvent = (SpanEvent) tbase;
+			TSpanEvent spanEvent = (TSpanEvent) tbase;
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SpanEvent={}", spanEvent);

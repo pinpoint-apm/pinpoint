@@ -30,10 +30,10 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
 
     @Override
     RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
-        if (tBase instanceof SqlMetaData) {
+        if (tBase instanceof TSqlMetaData) {
             return sqlMetaDataHandler;
         }
-        if (tBase instanceof ApiMetaData) {
+        if (tBase instanceof TApiMetaData) {
             return apiMetaDataHandler;
         }
         return null;
@@ -42,7 +42,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     @Override
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
 
-        if (tBase instanceof AgentInfo) {
+        if (tBase instanceof TAgentInfo) {
             return agentInfoHandler;
         }
 

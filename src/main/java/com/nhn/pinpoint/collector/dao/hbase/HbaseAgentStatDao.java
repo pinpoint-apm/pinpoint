@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
 import com.nhn.pinpoint.collector.monitor.AgentStatSupport;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
@@ -32,7 +32,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     @Autowired
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	public void insert(final AgentStat agentStat, final byte[] value) {
+	public void insert(final TAgentStat agentStat, final byte[] value) {
 		long timestamp = AgentStatSupport.getTimestamp(agentStat);
 		byte[] key = getDistributedRowKey(agentStat, timestamp);
 		
@@ -57,7 +57,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 	/**
 	 * row key를 bucket 단위로 분산시킨다.  
 	 */
-    private byte[] getDistributedRowKey(AgentStat agentStat, long timestamp) {
+    private byte[] getDistributedRowKey(TAgentStat agentStat, long timestamp) {
         byte[] key = getRowKey(AgentStatSupport.getAgentId(agentStat), timestamp);
         return rowKeyDistributor.getDistributedKey(key);
     }

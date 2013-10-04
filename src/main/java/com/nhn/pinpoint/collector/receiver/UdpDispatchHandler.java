@@ -26,10 +26,10 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     @Override
     Handler getHandler(TBase<?, ?> tBase) {
         // code값을 기반으로 switch table로 바꾸면 눈꼽만큼 빨라짐.
-        if (tBase instanceof JVMInfoThriftDTO) {
+        if (tBase instanceof TJVMInfoThriftDTO) {
             return jvmDataHandler;
         }
-        if (tBase instanceof AgentStat) {
+        if (tBase instanceof TAgentStat) {
             return agentStatHandler;
         }
         return null;

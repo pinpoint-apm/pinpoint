@@ -1,15 +1,13 @@
 package com.nhn.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.collector.dao.ApiMetaDataDao;
-import com.nhn.pinpoint.thrift.dto.Result;
+import com.nhn.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.net.DatagramPacket;
 
 /**
  *
@@ -24,12 +22,12 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
 
 	@Override
 	public TBase<?, ?> handler(TBase<?, ?> tbase) {
-		if (!(tbase instanceof ApiMetaData)) {
+		if (!(tbase instanceof TApiMetaData)) {
 			logger.error("invalid tbase:{}", tbase);
 			return null;
 		}
 		
-		ApiMetaData apiMetaData = (ApiMetaData) tbase;
+		TApiMetaData apiMetaData = (TApiMetaData) tbase;
         // api 데이터는 중요한거니 그냥 info로 찍음.
 		if (logger.isInfoEnabled()) {
 			logger.info("Received ApiMetaData={}", apiMetaData);
@@ -39,10 +37,10 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
             sqlMetaDataDao.insert(apiMetaData);
         } catch (Exception e) {
             logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
-            Result result = new Result(false);
+            TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;
         }
-        return new Result(true);
+        return new TResult(true);
 	}
 }

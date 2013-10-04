@@ -14,7 +14,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
@@ -39,7 +39,7 @@ public class HbaseJvmInfoDaoTest {
 
 	@Test
 	public void testRowKey() throws Exception {
-		JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
+		TJVMInfoThriftDTO jvmInfoThriftDTO = new TJVMInfoThriftDTO();
 		jvmInfoThriftDTO.setAgentId("test");
 		jvmInfoThriftDTO.setDataTime(System.currentTimeMillis());
 
@@ -57,7 +57,7 @@ public class HbaseJvmInfoDaoTest {
 	@Test
 	public void testInsert() throws Exception {
 
-		final JVMInfoThriftDTO jvmInfoThriftDTO = new JVMInfoThriftDTO();
+		final TJVMInfoThriftDTO jvmInfoThriftDTO = new TJVMInfoThriftDTO();
 		jvmInfoThriftDTO.setAgentId("test_agent");
 		jvmInfoThriftDTO.setDataTime(System.currentTimeMillis());
 

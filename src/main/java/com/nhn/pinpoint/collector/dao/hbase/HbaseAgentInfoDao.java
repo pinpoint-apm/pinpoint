@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
@@ -27,7 +27,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 	private HbaseOperations2 hbaseTemplate;
 
 	@Override
-	public void insert(AgentInfo agentInfo) {
+	public void insert(TAgentInfo agentInfo) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("insert agent info. {}", agentInfo);
 		}

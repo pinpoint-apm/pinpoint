@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.monitor;
 
 import com.nhn.pinpoint.thrift.dto.*;
-import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 
 /**
  * AgentStat 메시지에서 agentId, timestamp 등의 공통 정보를 꺼내올 수 있는 유틸리티.
@@ -11,35 +11,35 @@ import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
  */
 public class AgentStatSupport {
 
-    public static String getAgentId(AgentStat agentStat) {
+    public static String getAgentId(TAgentStat agentStat) {
         _Fields type = agentStat.getSetField();
         Object typeObject = agentStat.getFieldValue();
         switch (type) {
             case CMS:
-                return ((StatWithCmsCollector) typeObject).getAgentId();
+                return ((TStatWithCmsCollector) typeObject).getAgentId();
             case G1:
-                return ((StatWithG1Collector) typeObject).getAgentId();
+                return ((TStatWithG1Collector) typeObject).getAgentId();
             case PARALLEL:
-                return ((StatWithParallelCollector) typeObject).getAgentId();
+                return ((TStatWithParallelCollector) typeObject).getAgentId();
             case SERIAL:
-                return ((StatWithSerialCollector) typeObject).getAgentId();
+                return ((TStatWithSerialCollector) typeObject).getAgentId();
             default:
                 throw new RuntimeException("type not found. type:" + type);
         }
     }
 
-    public static long getTimestamp(AgentStat agentStat) {
+    public static long getTimestamp(TAgentStat agentStat) {
         _Fields type = agentStat.getSetField();
         Object typeObject = agentStat.getFieldValue();
         switch (type) {
             case CMS:
-                return ((StatWithCmsCollector) typeObject).getTimestamp();
+                return ((TStatWithCmsCollector) typeObject).getTimestamp();
             case G1:
-                return ((StatWithG1Collector) typeObject).getTimestamp();
+                return ((TStatWithG1Collector) typeObject).getTimestamp();
             case PARALLEL:
-                return ((StatWithParallelCollector) typeObject).getTimestamp();
+                return ((TStatWithParallelCollector) typeObject).getTimestamp();
             case SERIAL:
-                return ((StatWithSerialCollector) typeObject).getTimestamp();
+                return ((TStatWithSerialCollector) typeObject).getTimestamp();
             default:
                 throw new RuntimeException("type not found. type:" + type);
         }

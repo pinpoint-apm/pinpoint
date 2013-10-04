@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  *
  */
 public interface AgentInfoDao {
-    void insert(AgentInfo agentInfo);
+    void insert(TAgentInfo agentInfo);
 }

@@ -1,17 +1,14 @@
 package com.nhn.pinpoint.collector.handler;
 
 import com.nhn.pinpoint.thrift.io.Header;
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 import com.nhn.pinpoint.thrift.io.PacketUtils;
 import com.nhn.pinpoint.collector.dao.JvmInfoDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.net.DatagramPacket;
 
 @Service
 public class JVMDataHandler implements Handler {
@@ -22,12 +19,12 @@ public class JVMDataHandler implements Handler {
     private JvmInfoDao jvmInfoDao;
 
     public void handler(TBase<?, ?> tbase, byte[] packet, int offset, int length) {
-        if (!(tbase instanceof JVMInfoThriftDTO)) {
+        if (!(tbase instanceof TJVMInfoThriftDTO)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
         }
 
         try {
-            JVMInfoThriftDTO dto = (JVMInfoThriftDTO) tbase;
+            TJVMInfoThriftDTO dto = (TJVMInfoThriftDTO) tbase;
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Received JVM={}", dto);

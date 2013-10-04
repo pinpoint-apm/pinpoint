@@ -4,13 +4,13 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX_CF_AGENTS;
 
 import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +28,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Override
-    public void insert(final AgentInfo agentInfo) {
+    public void insert(final TAgentInfo agentInfo) {
         Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
         byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         byte[] value = Bytes.toBytes(agentInfo.getServiceType());

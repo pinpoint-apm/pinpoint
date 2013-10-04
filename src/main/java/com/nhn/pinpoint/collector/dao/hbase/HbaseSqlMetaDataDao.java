@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
 import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
+import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.thrift.dto.SqlMetaData;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
@@ -25,7 +25,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Override
-    public void insert(SqlMetaData sqlMetaData) {
+    public void insert(TSqlMetaData sqlMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:" + sqlMetaData);
         }

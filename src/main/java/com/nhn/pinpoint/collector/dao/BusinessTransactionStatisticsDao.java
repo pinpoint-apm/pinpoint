@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 
 /**
  * 
@@ -9,5 +9,5 @@ import com.nhn.pinpoint.thrift.dto.Span;
  */
 @Deprecated
 public interface BusinessTransactionStatisticsDao {
-	void update(Span span);
+	void update(TSpan span);
 }

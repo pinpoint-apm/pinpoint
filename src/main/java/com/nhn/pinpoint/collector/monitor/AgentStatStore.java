@@ -1,15 +1,15 @@
 package com.nhn.pinpoint.collector.monitor;
 
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 
 /**
  * @author harebox
  */
 public interface AgentStatStore {
 
-	void store(AgentStat agentStat);
+	void store(TAgentStat agentStat);
 	
-	AgentStat get(String agentId);
+	TAgentStat get(String agentId);
 
 	String getInJson();
 	

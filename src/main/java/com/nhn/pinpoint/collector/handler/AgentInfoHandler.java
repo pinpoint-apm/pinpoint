@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.handler;
 
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
 import com.nhn.pinpoint.collector.dao.AgentInfoDao;
 import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
 import org.springframework.stereotype.Service;
 
 @Service("agentInfoHandler")
@@ -26,13 +26,13 @@ public class AgentInfoHandler implements SimpleHandler {
 	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
 	public void handler(TBase<?, ?> tbase) {
-		if (!(tbase instanceof AgentInfo)) {
+		if (!(tbase instanceof TAgentInfo)) {
 			logger.warn("invalid tbase:{}", tbase);
 			return;
 		}
 
 		try {
-			AgentInfo agentInfo = (AgentInfo) tbase;
+			TAgentInfo agentInfo = (TAgentInfo) tbase;
 
 			logger.debug("Received AgentInfo={}", agentInfo);
 

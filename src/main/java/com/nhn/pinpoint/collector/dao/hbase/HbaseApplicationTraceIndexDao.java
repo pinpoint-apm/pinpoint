@@ -5,11 +5,11 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_
 
 import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
@@ -33,7 +33,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	@Override
-	public void insert(final Span span) {
+	public void insert(final TSpan span) {
 		int elapsedTime = span.getElapsed();
 
 		byte[] value = new byte[8];
@@ -51,7 +51,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
 	}
 
-    private byte[] crateRowKey(Span span, long acceptedTime) {
+    private byte[] crateRowKey(TSpan span, long acceptedTime) {
         // key를 n빵한다.
         byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);

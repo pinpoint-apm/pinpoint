@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 
 public interface ApplicationTraceIndexDao {
-	void insert(Span span);
+	void insert(TSpan span);
 }

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 
 public interface AgentStatDao {
-	void insert(AgentStat agentStat, final byte[] value);
+	void insert(TAgentStat agentStat, final byte[] value);
 }

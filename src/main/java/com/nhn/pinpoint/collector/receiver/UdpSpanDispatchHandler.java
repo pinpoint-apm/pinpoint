@@ -30,13 +30,13 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
 
     @Override
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
-        if (tBase instanceof Span) {
+        if (tBase instanceof TSpan) {
             return spanDataHandler;
         }
-        if (tBase instanceof SpanEvent) {
+        if (tBase instanceof TSpanEvent) {
             return spanEventHandler;
         }
-        if (tBase instanceof SpanChunk) {
+        if (tBase instanceof TSpanChunk) {
             return spanChunkHandler;
         }
 

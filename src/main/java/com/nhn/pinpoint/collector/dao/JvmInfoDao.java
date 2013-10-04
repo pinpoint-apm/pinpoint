@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 
 public interface JvmInfoDao {
-    void insert(JVMInfoThriftDTO jvmInfoThriftDTO, byte[] jvmInfoBytes);
+    void insert(TJVMInfoThriftDTO jvmInfoThriftDTO, byte[] jvmInfoBytes);
 }

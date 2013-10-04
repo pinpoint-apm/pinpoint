@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 
 /**
  *
  */
 public interface ApiMetaDataDao {
 
-    void insert(ApiMetaData apiMetaData);
+    void insert(TApiMetaData apiMetaData);
 }

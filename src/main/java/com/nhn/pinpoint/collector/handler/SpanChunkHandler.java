@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.SpanChunk;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +31,12 @@ public class SpanChunkHandler implements SimpleHandler {
 	@Override
 	public void handler(TBase<?, ?> tbase) {
 
-		if (!(tbase instanceof SpanChunk)) {
+		if (!(tbase instanceof TSpanChunk)) {
 			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
 		}
 
 		try {
-			SpanChunk spanChunk = (SpanChunk) tbase;
+			TSpanChunk spanChunk = (TSpanChunk) tbase;
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SpanChunk={}", spanChunk);
@@ -44,11 +44,11 @@ public class SpanChunkHandler implements SimpleHandler {
 
 			traceDao.insertSpanChunk(spanChunk);
 
-			List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
+			List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
 			if (spanEventList != null) {
 				logger.debug("SpanChunk Size:{}", spanEventList.size());
 				// TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
-				for (SpanEvent spanEvent : spanEventList) {
+				for (TSpanEvent spanEvent : spanEventList) {
 					ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
 					if (!serviceType.isRecordStatistics()) {

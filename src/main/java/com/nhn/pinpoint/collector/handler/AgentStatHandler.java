@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.handler;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
 import com.nhn.pinpoint.thrift.io.Header;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.thrift.io.PacketUtils;
 
 @Service("agentStatHandler")
@@ -24,12 +24,12 @@ public class AgentStatHandler implements Handler {
 	private AgentStatDao agentStatDao;
 
 	public void handler(TBase<?, ?> tbase, byte[] packet, int offset, int length) {
-        if (!(tbase instanceof AgentStat)) {
+        if (!(tbase instanceof TAgentStat)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
         }
 
         try {
-        	AgentStat dto = (AgentStat) tbase;
+        	TAgentStat dto = (TAgentStat) tbase;
         	
             if (logger.isDebugEnabled()) {
                 logger.debug("Received AgentStat={}", dto);

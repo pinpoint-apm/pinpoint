@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.util.TimeUtils;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Result;
@@ -20,8 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.common.hbase.HBaseAdminTemplate;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -83,7 +83,7 @@ public class TraceDaoTest {
     @Test
     public void insertSpan() throws InterruptedException, UnsupportedEncodingException {
 
-        final Span span = createSpan();
+        final TSpan span = createSpan();
 
         acceptedTimeService.accept();
         traceIndex.insert(span);
@@ -97,11 +97,11 @@ public class TraceDaoTest {
         Assert.assertArrayEquals(rowKey, resultRowKey);
     }
 
-    private Span createSpan() {
-        List<Annotation> ano = Collections.emptyList();
+    private TSpan createSpan() {
+        List<TAnnotation> ano = Collections.emptyList();
         long l = System.currentTimeMillis();
 
-        Span span = new Span();
+        TSpan span = new TSpan();
         span.setAgentId("UnitTest");
         span.setApplicationName("testApplication");
         span.setAgentStartTime(123);

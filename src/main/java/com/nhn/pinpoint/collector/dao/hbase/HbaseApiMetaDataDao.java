@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
 import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.buffer.Buffer;
@@ -26,7 +26,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Override
-    public void insert(ApiMetaData apiMetaData) {
+    public void insert(TApiMetaData apiMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", apiMetaData);
         }

@@ -5,10 +5,10 @@ import com.nhn.pinpoint.common.bo.AnnotationBoList;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.thrift.dto.SpanChunk;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.BytesUtils;
@@ -43,7 +43,7 @@ public class HbaseTraceDao implements TracesDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override
-    public void insert(final Span span) {
+    public void insert(final TSpan span) {
 
         SpanBo spanBo = new SpanBo(span);
         final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
@@ -56,7 +56,7 @@ public class HbaseTraceDao implements TracesDao {
         long acceptedTime = acceptedTimeService.getAcceptedTime();
         put.add(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
 
-        List<Annotation> annotations = span.getAnnotations();
+        List<TAnnotation> annotations = span.getAnnotations();
         if (annotations != null && annotations.size() != 0) {
             byte[] bytes = writeAnnotation(annotations);
             put.add(TRACES_CF_ANNOTATION, spanId, bytes);
@@ -72,14 +72,14 @@ public class HbaseTraceDao implements TracesDao {
         return rowKeyDistributor.getDistributedKey(transactionId);
     }
 
-    private void addNestedSpanEvent(Put put, Span span) {
-        List<SpanEvent> spanEventBoList = span.getSpanEventList();
+    private void addNestedSpanEvent(Put put, TSpan span) {
+        List<TSpanEvent> spanEventBoList = span.getSpanEventList();
         if (spanEventBoList == null || spanEventBoList.size() == 0) {
             return;
         }
 
         long acceptedTime0 = acceptedTimeService.getAcceptedTime();
-        for (SpanEvent spanEvent : spanEventBoList) {
+        for (TSpanEvent spanEvent : spanEventBoList) {
             SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
             byte[] value = spanEventBo.writeValue();
@@ -89,7 +89,7 @@ public class HbaseTraceDao implements TracesDao {
 
 
     @Override
-    public void insertEvent(final SpanEvent spanEvent) {
+    public void insertEvent(final TSpanEvent spanEvent) {
         SpanEventBo spanEventBo = new SpanEventBo(spanEvent);
         byte[] value = spanEventBo.writeValue();
 
@@ -103,13 +103,13 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     @Override
-    public void insertSpanChunk(SpanChunk spanChunk) {
+    public void insertSpanChunk(TSpanChunk spanChunk) {
         byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
         Put put = new Put(rowKey);
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
-        List<SpanEvent> spanEventBoList = spanChunk.getSpanEventList();
-        for (SpanEvent spanEvent : spanEventBoList) {
+        List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        for (TSpanEvent spanEvent : spanEventBoList) {
             SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
 
             byte[] value = spanEventBo.writeValue();
@@ -121,9 +121,9 @@ public class HbaseTraceDao implements TracesDao {
 
     }
 
-    private byte[] writeAnnotation(List<Annotation> annotations) {
+    private byte[] writeAnnotation(List<TAnnotation> annotations) {
         List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
-        for (Annotation ano : annotations) {
+        for (TAnnotation ano : annotations) {
             AnnotationBo annotationBo = new AnnotationBo(ano);
             boList.add(annotationBo);
         }

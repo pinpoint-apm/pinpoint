@@ -3,13 +3,12 @@ package com.nhn.pinpoint.collector.monitor;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * 테스트를 위해 메모리에 (AgentId -> AgentStat) 맵을 캐싱해둔다. 
@@ -24,9 +23,9 @@ public class DefaultAgentStatStore implements AgentStatStore {
 	private ObjectMapper jsonObjectMapper;
 	
 	// in-memory storage
-	private Map<String, AgentStat> map = new ConcurrentHashMap<String, AgentStat>();
+	private Map<String, TAgentStat> map = new ConcurrentHashMap<String, TAgentStat>();
 	
-	public void store(AgentStat agentStat) {
+	public void store(TAgentStat agentStat) {
 		String agentId = AgentStatSupport.getAgentId(agentStat);
 		
 		if (agentId != null) {
@@ -37,14 +36,14 @@ public class DefaultAgentStatStore implements AgentStatStore {
 		}
 	}
 
-	public AgentStat get(String agentId) {
+	public TAgentStat get(String agentId) {
 		return map.get(agentId);
 	}
 	
 	public String getInJson(String agentId) {
 		String result = null;
 		try {
-			AgentStat agentStat = map.get(agentId);
+			TAgentStat agentStat = map.get(agentId);
 			if (agentStat != null) {
 				Object typeObject = agentStat.getFieldValue(agentStat.getSetField());
 				result = jsonObjectMapper.writeValueAsString(typeObject);
