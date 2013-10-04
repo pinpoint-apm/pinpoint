@@ -28,7 +28,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     @Override
     public void insert(ApiMetaData apiMetaData) {
         if (logger.isDebugEnabled()) {
-            logger.debug("insert:" + apiMetaData);
+            logger.debug("insert:{}", apiMetaData);
         }
 
 
