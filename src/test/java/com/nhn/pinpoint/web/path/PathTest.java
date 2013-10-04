@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 
 /**
  *
@@ -32,7 +32,7 @@ public class PathTest {
 
 	}
 
-	public void printSpan(String msg, Span span) {
+	public void printSpan(String msg, TSpan span) {
 		// System.out.println(msg + " id:" + span.getSpanID() + " pid:" +
 		// span.getParentSpanId() + " time:" + format.format(new
 		// Date(span.getTimestamp())));

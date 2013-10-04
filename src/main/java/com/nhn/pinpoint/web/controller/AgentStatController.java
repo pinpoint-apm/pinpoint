@@ -6,6 +6,7 @@ import java.util.SortedMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.service.AgentStatService;
@@ -51,7 +51,7 @@ public class AgentStatController {
 		StopWatch watch = new StopWatch();
 		watch.start("getAgentStat");
 		
-		List<AgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, from, to);
+		List<TAgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, from, to);
 		
 		watch.stop();
 		if (logger.isInfoEnabled()) {
@@ -59,7 +59,7 @@ public class AgentStatController {
 		}
 
 		AgentStatLineChart chart = new AgentStatLineChart();
-		for (AgentStat each : agentStatList) {
+		for (TAgentStat each : agentStatList) {
 			chart.addData(each);
 		}
 		

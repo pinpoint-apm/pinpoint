@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
@@ -36,7 +36,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
 	@Autowired
 	@Qualifier("agentStatMapper")
-	private RowMapper<List<AgentStat>> agentStatMapper;
+	private RowMapper<List<TAgentStat>> agentStatMapper;
 	
     @Autowired
     @Qualifier("traceIdRowKeyDistributor") // FIXME traceId와 동일한 distributor를 사용한다.
@@ -48,7 +48,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		this.scanCacheSize = scanCacheSize;
 	}
 	
-	public List<AgentStat> scanAgentStatList(String agentId, long start, long end) {
+	public List<TAgentStat> scanAgentStatList(String agentId, long start, long end) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("scanAgentStat : agentId={}, start={}, end={}", agentId, start, end);
 		}
@@ -60,12 +60,12 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		
 		Scan scan = createScan(agentId, start, end);
 		
-		List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
+		List<List<TAgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 		
 		int expectedSize = (int)((end - start) / 5000); // 5초간 데이터
-        List<AgentStat> merged = new ArrayList<AgentStat>(expectedSize);
+        List<TAgentStat> merged = new ArrayList<TAgentStat>(expectedSize);
         
-        for(List<AgentStat> each : intermediate) {
+        for(List<TAgentStat> each : intermediate) {
             merged.addAll(each);
         }
 		

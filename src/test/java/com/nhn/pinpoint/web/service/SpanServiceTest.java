@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.thrift.TException;
@@ -24,8 +26,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.Span;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseTemplate2;
 import com.nhn.pinpoint.common.util.SpanUtils;
@@ -48,29 +48,29 @@ public class SpanServiceTest {
 	@Autowired
 	private HbaseTemplate2 template2;
 
-	private Span root;
-	private List<Span> deleteSpans = new LinkedList<Span>();
+	private TSpan root;
+	private List<TSpan> deleteSpans = new LinkedList<TSpan>();
 
 	@Before
 	public void before() throws TException {
-		Span span = createRootSpan();
+		TSpan span = createRootSpan();
 		logger.debug("id:{}", new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence()));
 		insert(span);
 		deleteSpans.add(span);
 
-		Span subSpan1 = createSpanEvent(span);
+		TSpan subSpan1 = createSpanEvent(span);
 		insert(subSpan1);
 		deleteSpans.add(subSpan1);
 
-		Span subSpan1_2 = createSpanEvent(span);
+		TSpan subSpan1_2 = createSpanEvent(span);
 		insert(subSpan1_2);
 		deleteSpans.add(subSpan1_2);
 
-		Span subSpan2 = createSpanEvent(subSpan1);
+		TSpan subSpan2 = createSpanEvent(subSpan1);
 		insert(subSpan2);
 		deleteSpans.add(subSpan2);
 
-		Span subSpan3 = createSpanEvent(subSpan1);
+		TSpan subSpan3 = createSpanEvent(subSpan1);
 		insert(subSpan3);
 		deleteSpans.add(subSpan3);
 
@@ -84,7 +84,7 @@ public class SpanServiceTest {
 
 	public void after() {
 		List list = new LinkedList();
-		for (Span span : deleteSpans) {
+		for (TSpan span : deleteSpans) {
 			Delete delete = new Delete(SpanUtils.getTransactionId(span));
 			list.add(delete);
 		}
@@ -102,7 +102,7 @@ public class SpanServiceTest {
 		doRead(root);
 	}
 
-	private void doRead(Span span) {
+	private void doRead(TSpan span) {
 		TransactionId traceId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
 
 		List<SpanAlign> sort = spanService.selectSpan(traceId);
@@ -112,20 +112,20 @@ public class SpanServiceTest {
 		// reorder(spans);
 	}
 
-	private void insert(Span span) throws TException {
+	private void insert(TSpan span) throws TException {
 		traceDao.insert(span);
 	}
 
 	AtomicInteger id = new AtomicInteger(0);
 
-	private Span createRootSpan() {
+	private TSpan createRootSpan() {
 		// 별도 생성기로 뽑을것.
 		UUID uuid = UUID.randomUUID();
-		List<Annotation> ano = Collections.emptyList();
+		List<TAnnotation> ano = Collections.emptyList();
 		long time = System.currentTimeMillis();
 		int andIncrement = id.getAndIncrement();
 
-		Span span = new Span();
+		TSpan span = new TSpan();
 
 		span.setAgentId("UnitTest");
 		span.setApplicationName("ApplicationId");
@@ -140,20 +140,20 @@ public class SpanServiceTest {
 		span.setAnnotations(ano);
 
 		span.setParentSpanId(-1);
-		List<Annotation> annotations = new ArrayList<Annotation>();
-		Annotation annotation = new Annotation(AnnotationKey.API.getCode());
+		List<TAnnotation> annotations = new ArrayList<TAnnotation>();
+		TAnnotation annotation = new TAnnotation(AnnotationKey.API.getCode());
 		annotation.setStringValue("");
 		annotations.add(annotation);
 		span.setAnnotations(annotations);
 		return span;
 	}
 
-	private Span createSpanEvent(Span span) {
-		List<Annotation> ano = Collections.emptyList();
+	private TSpan createSpanEvent(TSpan span) {
+		List<TAnnotation> ano = Collections.emptyList();
 		long time = System.currentTimeMillis();
 		int andIncrement = id.getAndIncrement();
 
-		Span sub = new Span();
+		TSpan sub = new TSpan();
 
 		sub.setAgentId("UnitTest");
 		sub.setApplicationName("ApplicationId");
@@ -168,8 +168,8 @@ public class SpanServiceTest {
 		sub.setAnnotations(ano);
 
 		sub.setParentSpanId(span.getSpanId());
-		List<Annotation> annotations = new ArrayList<Annotation>();
-		Annotation annotation = new Annotation(AnnotationKey.API.getCode());
+		List<TAnnotation> annotations = new ArrayList<TAnnotation>();
+		TAnnotation annotation = new TAnnotation(AnnotationKey.API.getCode());
 		annotation.setStringValue("");
 		annotations.add(annotation);
 		sub.setAnnotations(annotations);

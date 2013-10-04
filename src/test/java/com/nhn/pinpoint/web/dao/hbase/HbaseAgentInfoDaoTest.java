@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
 
 /**
  *
@@ -26,13 +26,13 @@ public class HbaseAgentInfoDaoTest {
 
 	@Test
 	public void testSelectAgentInfoStartTime() throws Exception {
-		AgentInfo agentInfo1 = createAgentInfo(10000);
+		TAgentInfo agentInfo1 = createAgentInfo(10000);
 		insertDao.insert(agentInfo1);
 
-		AgentInfo agentInfo2 = createAgentInfo(20000);
+		TAgentInfo agentInfo2 = createAgentInfo(20000);
 		insertDao.insert(agentInfo2);
 
-		AgentInfo agentInfo3 = createAgentInfo(30000);
+		TAgentInfo agentInfo3 = createAgentInfo(30000);
 		insertDao.insert(agentInfo3);
 
 		AgentInfoBo testcaseAgent1 = selectDao.findAgentInfoBeforeStartTime("testcaseAgent", 20005);
@@ -46,8 +46,8 @@ public class HbaseAgentInfoDaoTest {
 
 	}
 
-	private AgentInfo createAgentInfo(long startTime) {
-		AgentInfo agentInfo = new AgentInfo();
+	private TAgentInfo createAgentInfo(long startTime) {
+		TAgentInfo agentInfo = new TAgentInfo();
 		agentInfo.setAgentId("testcaseAgent");
 		agentInfo.setApplicationName("testcaseApplication");
 		agentInfo.setHostname("testcaseHostName");

@@ -3,9 +3,9 @@ package com.nhn.pinpoint.web.vo.linechart;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
-import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TStatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 
 /**
  * FIXME 일반화 해야 할까?
@@ -16,7 +16,7 @@ public class AgentStatLineChart {
 	private String type;
 	private Map<String, TimestampToValue> charts = new HashMap<String, TimestampToValue>();
 	
-	public void addData(AgentStat data) {
+	public void addData(TAgentStat data) {
 		if (data == null) {
 			return;
 		}
@@ -27,8 +27,8 @@ public class AgentStatLineChart {
 		
 		switch (type) {
 		case CMS:
-			StatWithCmsCollector stat = (StatWithCmsCollector) typeObject;
-			for (StatWithCmsCollector._Fields each : StatWithCmsCollector.metaDataMap.keySet()) {
+			TStatWithCmsCollector stat = (TStatWithCmsCollector) typeObject;
+			for (TStatWithCmsCollector._Fields each : TStatWithCmsCollector.metaDataMap.keySet()) {
 				Object fieldValue = stat.getFieldValue(each);
 				if (! (fieldValue instanceof Long)) {
 					continue;

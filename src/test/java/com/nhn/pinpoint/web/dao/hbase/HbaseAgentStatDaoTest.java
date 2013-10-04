@@ -2,13 +2,12 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.util.List;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * @author harebox
@@ -23,7 +22,7 @@ public class HbaseAgentStatDaoTest {
 	@Test
 	public void selectAgentStat() {
 		long timestamp = System.currentTimeMillis();
-		List<AgentStat> result = dao.scanAgentStatList("FRONT-WEB", timestamp - 100000, timestamp);
+		List<TAgentStat> result = dao.scanAgentStatList("FRONT-WEB", timestamp - 100000, timestamp);
 		System.out.println(result);
 	}
 	

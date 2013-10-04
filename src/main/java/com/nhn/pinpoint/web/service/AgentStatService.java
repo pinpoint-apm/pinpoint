@@ -2,8 +2,7 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 
 public interface AgentStatService {
 
@@ -14,6 +13,6 @@ public interface AgentStatService {
 	 * @param to
 	 * @return
 	 */
-	List<AgentStat> selectAgentStatList(String agentId, long start, long end);
+	List<TAgentStat> selectAgentStatList(String agentId, long start, long end);
 	
 }
