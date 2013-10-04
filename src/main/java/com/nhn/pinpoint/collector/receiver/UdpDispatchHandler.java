@@ -10,11 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired()
-    @Qualifier("JVMDataHandler")
-    private Handler jvmDataHandler;
-
-
-    @Autowired()
     @Qualifier("agentStatHandler")
     private Handler agentStatHandler;
 
@@ -26,9 +21,6 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     @Override
     Handler getHandler(TBase<?, ?> tBase) {
         // code값을 기반으로 switch table로 바꾸면 눈꼽만큼 빨라짐.
-        if (tBase instanceof TJVMInfoThriftDTO) {
-            return jvmDataHandler;
-        }
         if (tBase instanceof TAgentStat) {
             return agentStatHandler;
         }
