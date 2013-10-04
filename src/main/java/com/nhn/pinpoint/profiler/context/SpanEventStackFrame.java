@@ -36,12 +36,12 @@ public class SpanEventStackFrame implements StackFrame {
 
     @Override
     public void markAfterTime() {
-        spanEvent.markEndTime();
+        spanEvent.markAfterTime();
     }
 
     @Override
     public long getAfterTime() {
-        return spanEvent.getEndTime();
+        return spanEvent.getAfterTime();
     }
 
     public void setSequence(short sequence) {

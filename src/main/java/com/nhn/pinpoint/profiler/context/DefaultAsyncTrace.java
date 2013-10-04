@@ -90,7 +90,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void markAfterTime() {
-        spanEvent.markEndTime();
+        spanEvent.markAfterTime();
     }
 
 

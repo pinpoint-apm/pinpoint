@@ -2,15 +2,13 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.PinpointTraceException;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Span represent RPC
@@ -47,18 +45,18 @@ public class Span extends TSpan implements Thriftable {
         this.setStartTime(System.currentTimeMillis());
     }
 
-    public void markEndTime() {
+    public void markAfterTime() {
         if (!isSetStartTime()) {
-            throw new RuntimeException("startTime is not set");
+            throw new PinpointTraceException("startTime is not set");
         }
         final long startTime = this.getStartTime();
         // long으로 바꿀것.
         this.setElapsed((int)(System.currentTimeMillis() - startTime));
     }
 
-    public long getEndTime() {
+    public long getAfterTime() {
         if (!isSetStartTime()) {
-            throw new RuntimeException("startTime is not set");
+            throw new PinpointTraceException("startTime is not set");
         }
         return this.getStartTime() + this.getElapsed();
     }

@@ -17,17 +17,17 @@ public class SpanEventTest {
         Span span = new Span(traceId);
         span.markBeforeTime();
         Thread.sleep(10);
-        span.markEndTime();
+        span.markAfterTime();
         logger.debug("span:{}", span);
 
         final SpanEvent spanEvent = new SpanEvent(span);
         spanEvent.markStartTime();
         Thread.sleep(10);
-        spanEvent.markEndTime();
+        spanEvent.markAfterTime();
         logger.debug("spanEvent:{}", spanEvent);
 
         Assert.assertEquals("startTime", span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getStartTime());
-        Assert.assertEquals("endTime", span.getStartTime() + spanEvent.getStartElapsed() + spanEvent.getEndElapsed(), spanEvent.getEndTime());
+        Assert.assertEquals("endTime", span.getStartTime() + spanEvent.getStartElapsed() + spanEvent.getEndElapsed(), spanEvent.getAfterTime());
     }
 
     @Test

@@ -29,7 +29,7 @@ public class RootStackFrame implements StackFrame {
 
     @Override
     public void markBeforeTime() {
-        this.span.setStartTime(System.currentTimeMillis());
+        this.span.markBeforeTime();
     }
 
     @Override
@@ -39,12 +39,12 @@ public class RootStackFrame implements StackFrame {
 
     @Override
     public void markAfterTime() {
-        this.span.markEndTime();
+        this.span.markAfterTime();
     }
 
     @Override
     public long getAfterTime() {
-        return span.getEndTime();
+        return span.getAfterTime();
     }
 
 

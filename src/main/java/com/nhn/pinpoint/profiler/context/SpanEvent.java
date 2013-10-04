@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.profiler.context;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.nhn.pinpoint.profiler.PinpointTraceException;
 import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
@@ -49,13 +49,19 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
         return span.getStartTime() + getStartElapsed();
     }
 
-    public void markEndTime() {
+    public void markAfterTime() {
+        if (!isSetStartElapsed()) {
+            throw new PinpointTraceException("startTime is not set");
+        }
 //        spanEvent.setEndElapsed((int) (endTime - startTime));
         final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
         this.setEndElapsed(endElapsed);
     }
 
-    public long getEndTime() {
+    public long getAfterTime() {
+        if (!isSetStartElapsed()) {
+            throw new PinpointTraceException("startTime is not set");
+        }
         return span.getStartTime() + getStartElapsed() + getEndElapsed();
     }
 
