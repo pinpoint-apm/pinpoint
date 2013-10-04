@@ -8,10 +8,6 @@ public class HBaseTables {
 	public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
 	
-    public static final String SYSTEMINFO = "Systeminfo";
-    public static final byte[] SYSTEMINFO_CF_JVM = Bytes.toBytes("JVM");
-    public static final byte[] SYSTEMINFO_CN_INFO = Bytes.toBytes("info");
-
     @Deprecated
     public static final String TRACE_INDEX = "TraceIndex";
     @Deprecated
