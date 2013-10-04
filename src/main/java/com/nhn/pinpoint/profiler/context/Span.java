@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.thrift.dto.Annotation;
@@ -167,10 +168,10 @@ public class Span implements Thriftable {
     public com.nhn.pinpoint.thrift.dto.Span toThrift() {
         com.nhn.pinpoint.thrift.dto.Span span = new com.nhn.pinpoint.thrift.dto.Span();
 
-        final DefaultAgent instance = DefaultAgent.getInstance();
-        span.setAgentId(instance.getAgentId());
-        span.setApplicationName(instance.getApplicationName());
-        span.setAgentStartTime(instance.getStartTime());
+        final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
+        span.setAgentId(agentInformation.getAgentId());
+        span.setApplicationName(agentInformation.getApplicationName());
+        span.setAgentStartTime(agentInformation.getStartTime());
 
         span.setStartTime(startTime);
         span.setElapsed((int) (endTime - startTime));

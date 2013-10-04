@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.thrift.dto.ApiMetaData;
 import com.nhn.pinpoint.thrift.dto.SqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -33,11 +34,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
-    private String agentId;
-
-    private String applicationId;
-
-    private long agentStartTime;
+    private AgentInformation agentInformation;
 
     private DataSender priorityDataSender;
 
@@ -117,8 +114,8 @@ public class DefaultTraceContext implements TraceContext {
         // datasender연결 부분 수정 필요.
         final boolean sampling = this.sampler.isSampling();
         if (sampling) {
-            DefaultTrace trace = new DefaultTrace(this.agentId, this.agentStartTime, this.transactionId.getAndIncrement());
             Storage storage = storageFactory.createStorage();
+            final DefaultTrace trace = new DefaultTrace(agentInformation.getAgentId(), agentInformation.getStartTime(), this.transactionId.getAndIncrement());
             trace.setStorage(storage);
             trace.setTraceContext(this);
             trace.setSampling(sampling);
@@ -147,29 +144,13 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public void setAgentId(String agentId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        this.agentId = agentId;
-    }
-
-    @Override
     public String getAgentId() {
-        return agentId;
+        return this.agentInformation.getAgentId();
     }
 
     @Override
-    public void setApplicationId(String applicationId) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
-        }
-        this.applicationId = applicationId;
-    }
-
-    @Override
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationName() {
+        return this.agentInformation.getApplicationName();
     }
 
     public void setStorageFactory(StorageFactory storageFactory) {
@@ -193,8 +174,8 @@ public class DefaultTraceContext implements TraceContext {
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             ApiMetaData apiMetadata = new ApiMetaData();
-            apiMetadata.setAgentId(agentId);
-            apiMetadata.setAgentStartTime(agentStartTime);
+            apiMetadata.setAgentId(this.agentInformation.getAgentId());
+            apiMetadata.setAgentStartTime(this.agentInformation.getStartTime());
 
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
@@ -234,8 +215,8 @@ public class DefaultTraceContext implements TraceContext {
 
 
             SqlMetaData sqlMetaData = new SqlMetaData();
-            sqlMetaData.setAgentId(agentId);
-            sqlMetaData.setAgentStartTime(agentStartTime);
+            sqlMetaData.setAgentId(this.agentInformation.getAgentId());
+            sqlMetaData.setAgentStartTime(this.agentInformation.getStartTime());
 
             sqlMetaData.setHashCode(normalizedSql.hashCode());
             sqlMetaData.setSql(normalizedSql);
@@ -256,11 +237,15 @@ public class DefaultTraceContext implements TraceContext {
         this.priorityDataSender = priorityDataSender;
     }
 
-    public void setAgentStartTime(long agentStartTime) {
-        this.agentStartTime = agentStartTime;
+
+    public void setAgentInformation(AgentInformation agentInformation) {
+        if (agentInformation == null) {
+            throw new NullPointerException("agentInformation must not be null");
+        }
+        this.agentInformation = agentInformation;
     }
 
-    public long getAgentStartTime() {
-        return agentStartTime;
+    public AgentInformation getAgentInformation() {
+        return agentInformation;
     }
 }

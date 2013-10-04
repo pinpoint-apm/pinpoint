@@ -21,7 +21,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
 
-    private ModifierRegistry modifierRegistry;
+    private final ModifierRegistry modifierRegistry;
 
     private Agent agent;
 

@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.thrift.dto.AgentKey;
@@ -177,10 +178,10 @@ public class SpanEvent implements Thriftable {
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
             AgentKey agentKey = new AgentKey();
-            final DefaultAgent agent = DefaultAgent.getInstance();
-            agentKey.setAgentId(agent.getAgentId());
-            agentKey.setApplicationName(agent.getApplicationName());
-            agentKey.setAgentStartTime(agent.getStartTime());
+            final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
+            agentKey.setAgentId(agentInformation.getAgentId());
+            agentKey.setApplicationName(agentInformation.getApplicationName());
+            agentKey.setAgentStartTime(agentInformation.getStartTime());
 
             spanEvent.setAgentKey(agentKey);
 

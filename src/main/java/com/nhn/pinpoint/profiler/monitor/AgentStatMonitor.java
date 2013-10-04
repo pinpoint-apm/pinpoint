@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
@@ -32,19 +30,19 @@ public class AgentStatMonitor {
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
 	private DataSender dataSender;
-	private AgentInfo agentInfo;
+	private String agentId;
 
-	public AgentStatMonitor(DataSender dataSender) {
+	public AgentStatMonitor(DataSender dataSender, String agentId) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
         this.dataSender = dataSender;
+        this.agentId = agentId;
 	}
 
-
-	public void setAgentInfo(AgentInfo agentInfo) {
-		this.agentInfo = agentInfo;
-	}
 
 	public void start() {
 		CollectJob job = new CollectJob(dataSender);
@@ -91,7 +89,7 @@ public class AgentStatMonitor {
 		
 		public void run() {
 			try {
-				garbageCollector.map(monitorRegistry, agentStat, agentInfo.getAgentId());
+				garbageCollector.map(monitorRegistry, agentStat, agentId);
 				dataSender.send(agentStat);
 			} catch (Exception ex) {
 				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);

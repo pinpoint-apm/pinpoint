@@ -32,11 +32,14 @@ public class GarbageCollector {
 	 * AgentStat 객체에 통계 데이터를 매핑한다.
 	 */
 	public void map(MetricMonitorRegistry registry, AgentStat agentStat, String agentId) {
-		if (type == null || registry == null || agentStat == null) {
+		if (type == null || registry == null) {
 			return;
 		}
-		
-		Object typeObject = null;
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
+        Object typeObject = null;
 		
 		if (agentStat.getSetField() != null) {
 			typeObject = agentStat.getFieldValue(agentStat.getSetField());

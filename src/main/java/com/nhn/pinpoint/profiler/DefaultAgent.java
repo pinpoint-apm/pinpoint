@@ -46,17 +46,13 @@ public class DefaultAgent implements Agent {
     private final ServerInfo serverInfo;
     private final AgentStatMonitor agentStatMonitor;
 
-    private DefaultTraceContext traceContext;
+    private final TraceContext traceContext;
 
     private final DataSender tcpDataSender;
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
 
-    private final String machineName;
-    private final String agentId;
-    private final String applicationName;
-    private final long startTime;
-    private final int pid;
+    private final AgentInformation agentInformation;
 
     // agent info는 heartbeat에서 매번 사용한다.
     private AgentInfo agentInfo;
@@ -93,17 +89,13 @@ public class DefaultAgent implements Agent {
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
-        this.machineName = NetworkUtils.getHostName();
-        this.agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
-        this.applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
-        this.startTime = RuntimeMXBeanUtils.getVmStartTime();
-        this.pid = RuntimeMXBeanUtils.getPid();
+        this.agentInformation = createAgentInformation();
 
         this.tcpDataSender = createTcpDataSender();
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor");
 
-        initializeTraceContext();
+        this.traceContext = createTraceContext();
 
         // 매핑 테이블 초기화를 위해 엑세스
 //        ApiMappingTable.findApiId("test", null, null);
@@ -112,12 +104,24 @@ public class DefaultAgent implements Agent {
         this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), agentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
-        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender);
-        this.agentStatMonitor.setAgentInfo(this.agentInfo);
+        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
 
+        preloadClass();
         SingletonHolder.INSTANCE = this;
     }
 
+    private void preloadClass() {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
+    private AgentInformation createAgentInformation() {
+        final String machineName = NetworkUtils.getHostName();
+        final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
+        final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
+        final long startTime = RuntimeMXBeanUtils.getVmStartTime();
+        final int pid = RuntimeMXBeanUtils.getPid();
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName);
+    }
 
 
     private void dumpSystemProperties() {
@@ -183,19 +187,21 @@ public class DefaultAgent implements Agent {
             ports += " " + entry.getKey();
         }
 
-        AgentInfo agentInfo = new AgentInfo();
+        final AgentInfo agentInfo = new AgentInfo();
+        final AgentInformation agentInformation = this.agentInformation;
 
         agentInfo.setIp(ip);
-        agentInfo.setHostname(this.machineName);
+        agentInfo.setHostname(this.agentInformation.getMachineName());
         agentInfo.setPorts(ports);
 
-        agentInfo.setApplicationName(getApplicationName());
-        agentInfo.setAgentId(getAgentId());
-        agentInfo.setPid(this.pid);
+        agentInfo.setAgentId(agentInfo.getAgentId());
+        agentInfo.setApplicationName(agentInfo.getApplicationName());
+        agentInfo.setPid(agentInformation.getPid());
+        agentInfo.setTimestamp(agentInformation.getStartTime());
+
 		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
         agentInfo.setIsAlive(true);
-        agentInfo.setTimestamp(this.startTime);
 
         return agentInfo;
     }
@@ -217,25 +223,23 @@ public class DefaultAgent implements Agent {
     }
 
 
-    private void initializeTraceContext() {
-        this.traceContext = new DefaultTraceContext();
-
-        this.traceContext.setAgentId(this.agentId);
-        this.traceContext.setApplicationId(this.applicationName);
-        this.traceContext.setAgentStartTime(this.startTime);
-        this.traceContext.setPriorityDataSender(this.tcpDataSender);
+    private TraceContext createTraceContext() {
+        DefaultTraceContext traceContext = new DefaultTraceContext();
+        traceContext.setAgentInformation(this.agentInformation);
+        traceContext.setPriorityDataSender(this.tcpDataSender);
 
         Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler.getClass());
 
-        this.traceContext.setSampler(sampler);
+        traceContext.setSampler(sampler);
 
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
             TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig);
-            this.traceContext.setStorageFactory(timeBaseStorageFactory);
+            traceContext.setStorageFactory(timeBaseStorageFactory);
         } else {
-            this.traceContext.setStorageFactory(new BypassStorageFactory(spanDataSender));
+            traceContext.setStorageFactory(new BypassStorageFactory(spanDataSender));
         }
+        return traceContext;
     }
 
     private Sampler createSampler() {
@@ -289,26 +293,13 @@ public class DefaultAgent implements Agent {
         return this.serverInfo;
     }
 
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public int getPid() {
-        return pid;
-    }
-
     public TraceContext getTraceContext() {
         return traceContext;
     }
 
+    public AgentInformation getAgentInformation() {
+        return agentInformation;
+    }
 
     public boolean isRunning() {
         return agentStatus == AgentStatus.RUNNING;

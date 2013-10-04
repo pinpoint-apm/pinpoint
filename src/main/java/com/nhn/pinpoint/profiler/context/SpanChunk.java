@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nhn.pinpoint.profiler.AgentInformation;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
@@ -13,9 +14,12 @@ import com.nhn.pinpoint.thrift.dto.Annotation;
  */
 public class SpanChunk implements Thriftable {
 
-    private List<SpanEvent> spanEventList = new ArrayList<SpanEvent>();
+    private final List<SpanEvent> spanEventList;
 
     public SpanChunk(List<SpanEvent> spanEventList) {
+        if (spanEventList == null) {
+            throw new NullPointerException("spanEventList must not be null");
+        }
         this.spanEventList = spanEventList;
     }
 
@@ -26,10 +30,10 @@ public class SpanChunk implements Thriftable {
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
 
-        final DefaultAgent agent = DefaultAgent.getInstance();
-        tSpanChunk.setAgentId(agent.getAgentId());
-        tSpanChunk.setApplicationName(agent.getApplicationName());
-        tSpanChunk.setAgentStartTime(agent.getStartTime());
+        final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
+        tSpanChunk.setAgentId(agentInformation.getAgentId());
+        tSpanChunk.setApplicationName(agentInformation.getApplicationName());
+        tSpanChunk.setAgentStartTime(agentInformation.getStartTime());
 
         tSpanChunk.setServiceType(parentSpan.getServiceType().getCode());
 
