@@ -18,8 +18,6 @@ public interface Agent {
 
     TraceContext getTraceContext();
 
-    Object getByteCodeInstrumentor();
-
     ProfilerConfig getProfilerConfig();
 
 }
