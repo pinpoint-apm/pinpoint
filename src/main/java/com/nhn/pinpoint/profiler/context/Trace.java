@@ -81,8 +81,6 @@ public interface Trace {
 
     void recordNextSpanId(int spanId);
 
-    void setTraceContext(TraceContext traceContext);
-
     void recordParentApplication(String parentApplicationName, short parentApplicationType);
 
     void recordAcceptorHost(String host);
