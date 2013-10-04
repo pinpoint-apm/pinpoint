@@ -189,7 +189,7 @@ public final class DefaultTrace implements Trace {
      */
     @Override
     public TraceId getTraceId() {
-        return callStack.getSpan().getTraceID();
+        return callStack.getSpan().getTraceId();
     }
 
     public boolean canSampled() {
@@ -342,7 +342,7 @@ public final class DefaultTrace implements Trace {
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setServiceType(serviceType);
+            span.setServiceType(serviceType.getCode());
         } else {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
             spanEvent.setServiceType(serviceType);

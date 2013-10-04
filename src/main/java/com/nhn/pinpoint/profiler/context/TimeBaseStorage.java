@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.sender.DataSender;
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public class TimeBaseStorage implements Storage {
                     this.storage = null;
                 }
                 logger.debug("discard spanEvent");
-                dataSender.send(span);
+                dataSender.send((Thriftable)span);
 
             } else {
                 // 제한 시간이 지났을 경우 모두 flush
@@ -135,9 +136,9 @@ public class TimeBaseStorage implements Storage {
             this.storage = null;
         }
         if (spanEventList != null && spanEventList.size() != 0) {
-            span.setSpanEventList(spanEventList);
+            span.setPSpanEventList(spanEventList);
         }
-        dataSender.send(span);
+        dataSender.send((Thriftable)span);
     }
 
 }

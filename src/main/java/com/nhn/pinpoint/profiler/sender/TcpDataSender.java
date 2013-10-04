@@ -104,10 +104,10 @@ public class TcpDataSender implements DataSender {
     private void sendPacket(Object dto) {
         TBase<?, ?> tBase;
         boolean request = false;
-        if (dto instanceof TBase) {
-            tBase = (TBase<?, ?>) dto;
-        } else if (dto instanceof Thriftable) {
+        if (dto instanceof Thriftable) {
             tBase = ((Thriftable) dto).toThrift();
+        } else if (dto instanceof TBase) {
+            tBase = (TBase<?, ?>) dto;
         } else if(dto instanceof RequestMarker) {
             tBase = ((RequestMarker) dto).getTBase();
             request = true;

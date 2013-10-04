@@ -39,12 +39,14 @@ public class RootStackFrame implements StackFrame {
 
     @Override
     public void markAfterTime() {
-        this.span.setEndTime(System.currentTimeMillis());
+        final long startTime = this.span.getStartTime();
+        // long으로 바꿀것.
+        this.span.setElapsed((int)(System.currentTimeMillis() - startTime));
     }
 
     @Override
     public long getAfterTime() {
-        return this.span.getEndTime();
+        return this.span.getElapsed() + this.span.getStartTime();
     }
 
 

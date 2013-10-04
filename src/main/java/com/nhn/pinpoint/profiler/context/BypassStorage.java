@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.sender.DataSender;
+import org.apache.thrift.TBase;
 
 /**
  *
@@ -41,6 +42,6 @@ public class BypassStorage implements Storage {
 
     @Override
     public void store(Span span) {
-        dataSender.send(span);
+        dataSender.send((Thriftable)span);
     }
 }

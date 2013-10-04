@@ -118,10 +118,10 @@ public class UdpDataSender implements DataSender {
 
 	protected void sendPacket(Object dto) {
 		TBase<?, ?> tBase;
-		if (dto instanceof TBase) {
+        if (dto instanceof Thriftable) {
+            tBase = ((Thriftable) dto).toThrift();
+        } else if (dto instanceof TBase) {
 			tBase = (TBase<?, ?>) dto;
-		} else if (dto instanceof Thriftable) {
-			tBase = ((Thriftable) dto).toThrift();
 		} else {
 			logger.warn("sendPacket fail. invalid type:{}", dto.getClass());
 			return;

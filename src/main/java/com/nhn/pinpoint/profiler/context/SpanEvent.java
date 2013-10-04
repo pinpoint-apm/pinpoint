@@ -145,7 +145,7 @@ public class SpanEvent implements Thriftable {
         sb.append("{");
         sb.append("\n\t Depth = ").append(depth);
         sb.append("\n\t NextSpanid=").append(nextSpanId);
-        sb.append("\n\t ParentTraceID=").append(parentSpan.getTraceID());
+        sb.append("\n\t ParentTraceID=").append(parentSpan.getTraceId());
         sb.append("\n\t Sequence=").append(sequence);
         sb.append(",\n\t StartTime=").append(startTime);
         sb.append(", EndTime=").append(endTime);
@@ -186,14 +186,13 @@ public class SpanEvent implements Thriftable {
 
             spanEvent.setAgentKey(agentKey);
 
-            spanEvent.setParentServiceType(parentSpan.getServiceType().getCode()); // added
+            spanEvent.setParentServiceType(parentSpan.getServiceType()); // added
             spanEvent.setParentEndPoint(parentSpan.getEndPoint()); // added
 
-            final TraceId parentSpanTraceID = parentSpan.getTraceID();
-            spanEvent.setTraceAgentId(parentSpanTraceID.getAgentId());
-            spanEvent.setTraceAgentStartTime(parentSpanTraceID.getAgentStartTime());
-            spanEvent.setTraceTransactionSequence(parentSpanTraceID.getTransactionSequence());
-            spanEvent.setSpanId(parentSpanTraceID.getSpanId());
+            spanEvent.setTraceAgentId(parentSpan.getTraceAgentId());
+            spanEvent.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
+            spanEvent.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
+            spanEvent.setSpanId(parentSpan.getSpanId());
         }
 
         spanEvent.setRpc(rpc);
