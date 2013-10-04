@@ -1,0 +1,28 @@
+<div style="position:absolute;margin-top:-200px;height:200px;width:100%;overflow-y:auto;">
+    <table id="selectedBusinessTransactionsDetail" class="table table-bordered table-condensed table-hover sortable" style="font-size:12px;">
+        <thead>
+        <tr>
+            <th class="sorttable_numeric">#</th>
+            <th class="sorttable_numeric">Time</th>
+            <th>Application</th>
+            <th class="sorttable_numeric">Res. Time (ms)</th>
+            <th>Exception</th>
+            <th>AgentId</th>
+            <th>ClientIP</th>
+            <th>TraceId</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="transaction in transactionList" ng-class="{'error': transaction.exception}" ng-style="{true: {'background-color': '#d9edf7'}, false: {}}[transaction == currentTransaction]">
+                <td style='padding-right:5px;text-align:right'>{{$index + 1}}</td>
+                <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'HH:MM:ss .sss'}}</td>
+                <td ng-click="traceByAppliation(transaction)" style="cursor:pointer">{{transaction.application}} <a href ng-href="#/transactionDetail/{{transaction.traceId}}/{{transaction.collectorAcceptTime}}" class="btn btn-mini" target="_blank">새창</a> <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}" class="btn btn-mini" target="_blank">옛날꺼</a></td>
+                <td style='padding-right:30px;text-align:right'>{{transaction.elapsed | number}}</td>
+                <td>{{transaction.exception}}</td>
+                <td>{{transaction.agentId}}</td>
+                <td ng-click="traceRemoteAddr(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
+                <td ng-click="traceBySequence(transaction)" style="cursor:pointer">{{transaction.transactionSequence}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

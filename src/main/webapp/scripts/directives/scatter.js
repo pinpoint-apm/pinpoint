@@ -205,7 +205,8 @@ pinpointApp.directive('scatter',
                             var token = Math.random() * 10000 + 1;
                             selectdTracesBox[token] = traces;
 
-                            var popupwindow = window.open("/selectedScatter.pinpoint", token);
+//                            var popupwindow = window.open("/selectedScatter.pinpoint", token);
+                            var popupWindoww = window.open("#/transactionList", token);
                         }
                     };
 

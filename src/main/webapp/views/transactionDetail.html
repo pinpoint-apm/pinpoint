@@ -1,0 +1,140 @@
+<link type="text/css" rel="stylesheet" href="/components/pinpoint-grid/jquery.TreeGridTable.css" />
+<link type="text/css" rel="stylesheet" href="/components/jquery-flexigrid/css/flexigrid.css" />
+<link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.css" />
+<link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.theme.simple.css" />
+
+<style type="text/css">
+    /*#wrapper {*/
+        /*padding-top: 5px;*/
+        /*padding-left:30px;*/
+        /*padding-right:30px;*/
+    /*}*/
+    #callStacks TH {
+        text-align:center;
+    }
+    #callStacks TD {
+        font-family:consolas;
+    }
+    #callStacks .error {
+        background-color:#FF8F8B;
+    }
+    #callStacks .info {
+        background-color:#F7E259;
+    }
+    #callStacks .method {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #callStacks .arguments {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #callStacks .exectime {
+        text-align: center;
+    }
+    #callStacks .exectime.info {
+    }
+    #callStacks .time {
+        text-align: right;
+    }
+    #callStacks .gap {
+        text-align: right;
+    }
+    #callStacks .gap.info {
+    }
+    #callStacks .service {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #callStacks .agent {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #callStacks .bar {
+        vertical-align: middle;
+    }
+    #traceTabs a {
+        font-size: 13px;
+    }
+    .tab-content .tab-pane {
+        padding: 5px;
+    }
+</style>
+
+<!-- grid -->
+<script type="text/javascript" src="/components/jquery-flexigrid/js/flexigrid.js"></script>
+<script type="text/javascript" src="/components/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
+<script type="text/javascript" src="/components/pinpoint-grid/jquery.TreeGridTable.js"></script>
+
+<div class="navbar navbar-fixed-top" style="height:30px;background-color:#252a3a;color:#ddd;font-size:13px;">
+    <div class="row-fluid">
+        <div class="span3" style="text-align:center;line-height:30px">Application : applicationName</div>
+        <div class="span3" style="text-align:center;line-height:30px">TransactionId : traceId.formatString</div>
+        <div class="span3" style="text-align:center;line-height:30px">AgentId : recordSet.agentId</div>
+        <div class="span3" style="text-align:center;line-height:30px">ApplicationId : recordSet.applicationId</div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs navbar-fixed-top" id="traceTabs" style="top:32px;">
+    <li class="active"><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
+    <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
+    <li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
+    <li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
+</ul>
+
+<div class="tab-content" style="width:100%;height:100%;overflow:auto;">
+    <div class="tab-pane active" id="CallStacks">
+        <!-- begin new call stack -->
+        <table id="callStacks">
+            <thead>
+            <tr>
+                <th width="500">Method</th>
+                <th width="400">Argument</th>
+                <th width="80">Exec Time</th>
+                <th width="50">Gap</th>
+                <th width="50">Time[ms]</th>
+                <th width="100">Time[%]</th>
+                <th>Class</th>
+                <th>ApiType</th>
+                <th>Agent</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane" id="ServerMap">
+        <div id="servermap" style="width:90%;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
+    </div>
+
+    <div class="tab-pane" id="Timeline">
+        <div id="timeline" style="background-color:#E8E8E8;width:1000px;font-size:11px;">
+        </div>
+        <div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
+        </div>
+    </div>
+
+    <div class="tab-pane" id="Details">
+        <!-- begin details -->
+        <table id="businessTransactions" class="table table-bordered table-hover" style="font-size:12px;">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Action</th>
+                <th>Arguments</th>
+                <th>EndPoint</th>
+                <th>Total[ms]</th>
+                <th>Application</th>
+                <th>Agent</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>

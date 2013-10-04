@@ -1,0 +1,164 @@
+@charset "utf-8";
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* CSS Document */
+body {
+	background: #333;
+	width: 960px;
+	margin: 0px;
+	padding: 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #eee;
+}
+
+ul li {
+	background: url(images/accept.png) no-repeat left;
+	list-style: none;
+	padding: 3px 3px 3px 20px;
+	margin-left:10px;
+}
+
+ul, ol {
+	margin-bottom:10px;
+}
+ol li {
+	list-style: none;
+	padding: 10px 10px 5px;
+}
+ol li div.question {
+	font-weight:bold;
+	color:#ccc;
+	margin-bottom:2px;
+}
+
+a {
+	text-decoration: none;
+	color: #0066FF;
+}
+
+h1 {
+	font-size: 26px;
+	font-weight: normal;
+	margin: 0px;
+	color: #0099FF;
+}
+
+h2 {
+	font-size:15px;
+	font-weight:bold;
+	margin:15px 0 5px;	
+}
+
+.code {
+	background: #555;
+	padding: 10px;
+	margin-bottom: 10px;
+	display: none;
+	color: #eee;
+}
+
+.title {
+	background: #0099FF;
+	color: #fff;
+	padding: 10px;
+}
+
+.bborder {
+	background: #eee;
+	border: 0px solid #ccc;
+	padding: 3px;
+}
+
+.update {
+	border: 1px solid #777;
+	overflow: hidden;
+	margin-top:20px;
+}
+
+.update h3 {
+	margin:5px 0 5px 10px;
+	font-weight:bold;
+	font-size:1.1em;	
+}
+.update.fh {
+	height: auto;
+}
+
+.update p {
+	margin: 10px;
+}
+
+.update h2 {
+	cursor: pointer;
+	display: block;
+	padding: 5px;
+	color: #fff;
+	position: relative;
+	text-transform: uppercase;
+	font-size: 12px;
+	letter-spacing: 2px;
+	border-left: 0px solid #06f;
+	border-bottom: 2px solid #0066FF;
+	font-weight:bold;
+	margin:0 0 3px;
+}
+
+.flexigrid div.fbutton .add {
+	background: url(images/add.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .delete {
+    background: url(images/close.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .edit {
+	background: url(images/edit.png) no-repeat center left;
+}

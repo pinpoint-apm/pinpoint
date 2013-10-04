@@ -19,9 +19,15 @@ pinpointApp.config(function ($routeProvider, $locationProvider) {
     }).when('/spy/:application/:period/:queryEndTime/:agentId', {
         templateUrl: 'views/spy.html',
         controller: 'SpyCtrl'
-    }).when('/filtermap/:appliation/:period/:queryEndTime/:filter', {
-        templateUrl: 'views/filtermap.html',
-        controller: 'FiltermapCtrl'
+    }).when('/transactionList', {
+        templateUrl: 'views/transactionList.html',
+        controller: 'TransactionListCtrl'
+    }).when('/transactionDetail', {
+        templateUrl: 'views/readyForTransactionDetail.html',
+        controller: 'TransactionDetailCtrl'
+    }).when('/transactionDetail/:traceId/:focusTimestamp', {
+        templateUrl: 'views/transactionDetail.html',
+        controller: 'TransactionDetailCtrl'
     }).otherwise({
         redirectTo: '/main'
     });

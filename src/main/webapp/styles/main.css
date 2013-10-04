@@ -18,8 +18,14 @@ canvas {outline:none}
     left:0; 
     right:0;
 }
+#wrapper.no-navbar {
+    padding-top: 0;
+}
+.no-navbar .main-navbar {
+    display: none;
+}
 
-.navbar {  
+.main-navbar {
   position: absolute;
   margin: -40px 0 0 0;
   height: 40px;
@@ -27,13 +33,13 @@ canvas {outline:none}
   width: 100%;
   border-radius: 0;
 }
-.navbar .brand {
+.main-navbar .brand {
   margin-left: 20px;     
 }
-.navbar .nav>li {
+.main-navbar .nav>li {
   margin-top: 5px;  
 }
-.navbar .divider-vertical {
+.main-navbar .divider-vertical {
   height: 35px;
   min-height: 1px;
   margin: 0 9px;
@@ -59,7 +65,7 @@ canvas {outline:none}
   margin-top: 8px;
 }
 
-.navbar .btn-group > .btn > input[type="radio"] {
+.main-navbar .btn-group > .btn > input[type="radio"] {
   display: none;
 }
 

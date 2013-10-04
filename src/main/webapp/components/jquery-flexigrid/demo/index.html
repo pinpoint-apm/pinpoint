@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Flexigrid</title>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" type="text/css" href="../css/flexigrid.pack.css" />
+        <script type="text/javascript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/flexigrid.pack.js"></script>
+    </head>
+    <body>
+        <img src="images/flash.png" alt="Flexigrid" width="960" height="483"
+            usemap="#Map" style="visibility: hidden"
+            onload="$(this).css({visibility:'visible',display:'none'}).fadeIn('slow');"
+            title="Flexigrid" border="0" />
+        <map name="Map" id="Map">
+            <area shape="rect" coords="671,29,853,72" href="https://code.google.com/p/flexigrid/downloads/list?q=label:Featured"
+                alt="Download" />
+        </map>
+
+        <h1 class="title" style="display: none">
+            <strong>Flexigrid</strong> for jQuery<span
+                style="font-size: 12px">by Paulo P. Marinas</span>
+        </h1>
+
+        <div class="update">
+            <h2>What is it?</h2>
+
+            <p>Lightweight but rich data grid with resizable columns and a
+                scrolling data to match the headers, plus an ability to connect to an
+                xml based data source using Ajax to load the content.</p>
+            <p>Similar in concept with the Ext Grid only its pure jQuery love,
+                which makes it light weight and follows the jQuery mantra of running
+                with the least amount of configuration.</p>
+
+            <h3>Features</h3>
+            <ul>
+                <li>Resizable columns</li>
+                <li>Resizable height and width</li>
+                <li>Sortable column headers</li>
+                <li>Cool theme</li>
+                <li>Can convert an ordinary table</li>
+                <li>Ability to connect to an ajax data source (XML and JSON[new])</li>
+                <li>Paging</li>
+                <li>Show/hide columns</li>
+                <li>Toolbar (new)</li>
+                <li>Search (new)</li>
+                <li>Accessible API</li>
+                <li>Many more</li>
+            </ul>
+        </div>
+
+        <div class="update">
+            <h2>FAQ</h2>
+            <ol>
+                <li><div class="question">Where can I get support?</div>
+                    <div class="answer">
+                        Bugs can be reported 
+                        <a href="http://code.google.com/p/flexigrid/">http://code.google.com/p/flexigrid/</a>, and
+                        our fantastic community support is available at 
+                        <a href="http://groups.google.com/group/flexigrid/">http://groups.google.com/group/flexigrid/</a>.
+                    </div>
+                </li>
+                <li>
+                    <div class="question">What's recently changed and what are the known bugs?</div>
+                    <div class="answer">Go to  
+                        <a href="http://code.google.com/p/flexigrid/issues/list">
+                            http://code.google.com/p/flexigrid/issues/list</a>
+                    </div>
+                </li>
+                <li><div class="question">What browsers does Flexigrid support?</div>
+                    <div class="answer">We support browsers IE6, Firefox 3, Opera 9,
+                        Safari 3, Chrome 7 and greater.</div>
+                </li>
+                <li><div class="question">Where can I contribute code or suggest a feature?</div>
+                    <div class="answer"><a href="http://code.google.com/p/flexigrid/">http://code.google.com/p/flexigrid/</a></div>
+                </li>
+                <li><div class="question">Can I use it for personal or commercial projects/modify it/hack it?</div>
+                    <div class="answer">Absolutely! Just make sure you adhere to either the <a href="http://jquery.org/license">GPL or MIT licenses</a>.</div>
+                </li>
+                <li><div class="question">Can I connect this to a form or add Parameters?</div>
+                    <div class="answer">Sure, check out our <a href="sample.html">sample code</a> 
+                        to learn how.</div>
+                </li>
+            </ol>
+        </div>
+
+        <div class="update">
+            <h2>Files you need</h2>
+            <ul>
+                <li><a href="http://www.jquery.com">jQuery</a></li>
+                <li><a href="https://code.google.com/p/flexigrid/downloads/list?q=label:Featured">FlexiGrid Plugin Pack(32K)</a>
+                    (includes the js, css, and images)</li>
+            </ul>
+        </div>
+
+        <div class="update">
+            <h2>How to use</h2>
+            <p>Check out the examples below, or 
+                <a href="http://code.google.com/p/flexigrid/source/">browse the source</a>.</p>
+        </div>
+
+        <h2>Example 1</h2>
+        <p>
+            The most basic example with the zero configuration, with a table
+            converted into flexigrid (<a href="#"
+                onclick="$(this).parent().next().toggle(); return false;">Show
+                sample code</a>)
+        </p>
+        <div class="code">
+            <pre>$('.flexme').flexigrid();</pre>
+        </div>
+        <table class="flexme1">
+            <thead>
+                <tr>
+                    <th width="100">Col 1</th>
+                    <th width="100">Col 2</th>
+                    <th width="100">Col 3 is a long header name</th>
+                    <th width="300">Col 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>This is data 1 with overflowing content</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Example 2</h2>
+        <p>
+            Table converted into flexigrid with height, and width set to auto,
+            stripes remove. (<a href="#"
+                onclick="$(this).parent().next().toggle(); return false;">Show
+                sample code</a>)
+        </p>
+        <div class="code">
+            <pre>$('.flexme2').flexigrid({height:'auto',striped:false});</pre>
+        </div>
+        <table class="flexme2">
+            <thead>
+                <tr>
+                    <th width="100">Col 1</th>
+                    <th width="100">Col 2</th>
+                    <th width="100">Col 3 is a long header name</th>
+                    <th width="300">Col 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>This is data 1 with overflowing content</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+                <tr>
+                    <td>This is data 1</td>
+                    <td>This is data 2</td>
+                    <td>This is data 3</td>
+                    <td>This is data 4</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Example 3</h2>
+        <p>
+            Flexigrid with dynamic data, paging, search, toolbar, and connected to an XML file.
+            (<a href="#" onclick="$(this).parent().next().toggle(); return false;">Show sample code</a>)
+        </p>
+        <div class="code">
+            <pre>
+            $(".flexme3").flexigrid({
+                url : 'post-xml.php',
+                dataType : 'xml',
+                colModel : [ {
+                    display : 'ISO',
+                    name : 'iso',
+                    width : 40,
+                    sortable : true,
+                    align : 'center'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        width : 180,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Printable Name',
+                        name : 'printable_name',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'ISO3',
+                        name : 'iso3',
+                        width : 130,
+                        sortable : true,
+                        align : 'left',
+                        hide : true
+                    }, {
+                        display : 'Number Code',
+                        name : 'numcode',
+                        width : 80,
+                        sortable : true,
+                        align : 'right'
+                } ],
+                buttons : [ {
+                    name : 'Add',
+                    bclass : 'add',
+                    onpress : test
+                    }, {
+                        name : 'Delete',
+                        bclass : 'delete',
+                        onpress : test
+                    }, {
+                        separator : true
+                } ],
+                searchitems : [ {
+                    display : 'ISO',
+                    name : 'iso'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        isdefault : true
+                } ],
+                sortname : "iso",
+                sortorder : "asc",
+                usepager : true,
+                title : 'Countries',
+                useRp : true,
+                rp : 15,
+                showTableToggleBtn : true,
+                width : 700,
+                height : 200
+            });      
+
+            function test(com, grid) {
+                if (com == 'Delete') {
+                    confirm('Delete ' + $('.trSelected', grid).length + ' items?')
+                } else if (com == 'Add') {
+                    alert('Add New Item');
+                }
+            }
+            </pre>
+        </div>
+        <table class="flexme3" style="display: none"></table>
+
+
+        <h2>Example 4</h2>
+        <p>
+            Flexigrid with dynamic data, paging, search, toolbar, and connected to a php-session based JSON file.
+            (<a href="#" onclick="$(this).parent().next().toggle(); return false;">Show sample code</a>)
+        </p>
+        <div class="code">
+            <pre>
+            $(".flexme4").flexigrid({
+                url : 'example4.php',
+                dataType : 'json',
+                colModel : [ {
+                    display : 'EmployeeID',
+                    name : 'employeeID',
+                    width : 90,
+                    sortable : true,
+                    align : 'center'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Primary Language',
+                        name : 'primary_language',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Favorite Color',
+                        name : 'favorite_color',
+                        width : 80,
+                        sortable : true,
+                        align : 'left',
+                        hide : true
+                    }, {
+                        display : 'Favorite Animal',
+                        name : 'favorite_pet',
+                        width : 80,
+                        sortable : true,
+                        align : 'right'
+                } ],
+                buttons : [ {
+                    name : 'Add',
+                    bclass : 'add',
+                    onpress : Example4
+                    }
+                    ,
+                    {
+                        name : 'Edit',
+                        bclass : 'edit',
+                        onpress : Example4
+                    }
+                    ,
+                    {
+                        name : 'Delete',
+                        bclass : 'delete',
+                        onpress : Example4
+                    }
+                    ,
+                    {
+                        separator : true
+                    } 
+                ],
+                searchitems : [ {
+                    display : 'EmployeeID',
+                    name : 'employeeID'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        isdefault : true
+                } ],
+                sortname : "iso",
+                sortorder : "asc",
+                usepager : true,
+                title : 'Employees',
+                useRp : true,
+                rp : 15,
+                showTableToggleBtn : true,
+                width : 750,
+                height : 200
+            });
+
+            function Example4(com, grid) {
+                if (com == 'Delete') {
+                    var conf = confirm('Delete ' + $('.trSelected', grid).length + ' items?')
+                    if(conf){
+                        $.each($('.trSelected', grid),
+                            function(key, value){
+                                $.get('example4.php', { Delete: value.firstChild.innerText}
+                                    , function(){
+                                        // when ajax returns (callback), update the grid to refresh the data
+                                        $(".flexme4").flexReload();
+                                });
+                        });    
+                    }
+                }
+                else if (com == 'Edit') {
+                    var conf = confirm('Edit ' + $('.trSelected', grid).length + ' items?')
+                    if(conf){
+                        $.each($('.trSelected', grid),
+                            function(key, value){
+                                // collect the data
+                                var OrgEmpID = value.children[0].innerText; // in case we're changing the key
+                                var EmpID = prompt("Please enter the New Employee ID",value.children[0].innerText);
+                                var Name = prompt("Please enter the Employee Name",value.children[1].innerText);
+                                var PrimaryLanguage = prompt("Please enter the Employee's Primary Language",value.children[2].innerText);
+                                var FavoriteColor = prompt("Please enter the Employee's Favorite Color",value.children[3].innerText);
+                                var FavoriteAnimal = prompt("Please enter the Employee's Favorite Animal",value.children[4].innerText);
+
+                                // call the ajax to save the data to the session
+                                $.get('example4.php', 
+                                    { Edit: true
+                                        , OrgEmpID: OrgEmpID
+                                        , EmpID: EmpID
+                                        , Name: Name
+                                        , PrimaryLanguage: PrimaryLanguage
+                                        , FavoriteColor: FavoriteColor
+                                        , FavoritePet: FavoriteAnimal  }
+                                    , function(){
+                                        // when ajax returns (callback), update the grid to refresh the data
+                                        $(".flexme4").flexReload();
+                                });
+                        });    
+                    }
+                }
+                else if (com == 'Add') {
+                    // collect the data
+                    var EmpID = prompt("Please enter the Employee ID","5");
+                    var Name = prompt("Please enter the Employee Name","Mark");
+                    var PrimaryLanguage = prompt("Please enter the Employee's Primary Language","php");
+                    var FavoriteColor = prompt("Please enter the Employee's Favorite Color","Tan");
+                    var FavoriteAnimal = prompt("Please enter the Employee's Favorite Animal","Dog");
+
+                    // call the ajax to save the data to the session
+                    $.get('example4.php', { Add: true, EmpID: EmpID, Name: Name, PrimaryLanguage: PrimaryLanguage, FavoriteColor: FavoriteColor, FavoritePet: FavoriteAnimal  }
+                        , function(){
+                            // when ajax returns (callback), update the grid to refresh the data
+                            $(".flexme4").flexReload();
+                    });
+                }
+            }
+            </pre>
+        </div>
+        <table class="flexme4" style="display: none"></table>
+
+
+
+
+        <script type="text/javascript">
+            $('.flexme1').flexigrid();
+            $('.flexme2').flexigrid({
+                height : 'auto',
+                striped : false
+            });
+
+            $(".flexme3").flexigrid({
+                url : 'post-xml.php',
+                dataType : 'xml',
+                colModel : [ {
+                    display : 'ISO',
+                    name : 'iso',
+                    width : 40,
+                    sortable : true,
+                    align : 'center'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        width : 180,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Printable Name',
+                        name : 'printable_name',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'ISO3',
+                        name : 'iso3',
+                        width : 130,
+                        sortable : true,
+                        align : 'left',
+                        hide : true
+                    }, {
+                        display : 'Number Code',
+                        name : 'numcode',
+                        width : 80,
+                        sortable : true,
+                        align : 'right'
+                } ],
+                buttons : [ {
+                    name : 'Add',
+                    bclass : 'add',
+                    onpress : test
+                    }, {
+                        name : 'Delete',
+                        bclass : 'delete',
+                        onpress : test
+                    }, {
+                        separator : true
+                } ],
+                searchitems : [ {
+                    display : 'ISO',
+                    name : 'iso'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        isdefault : true
+                } ],
+                sortname : "iso",
+                sortorder : "asc",
+                usepager : true,
+                title : 'Countries',
+                useRp : true,
+                rp : 15,
+                showTableToggleBtn : true,
+                width : 700,
+                height : 200
+            });      
+
+            function test(com, grid) {
+                if (com == 'Delete') {
+                    confirm('Delete ' + $('.trSelected', grid).length + ' items?')
+                } else if (com == 'Add') {
+                    alert('Add New Item');
+                }
+            }
+
+            $(".flexme4").flexigrid({
+                url : 'example4.php',
+                dataType : 'json',
+                colModel : [ {
+                    display : 'EmployeeID',
+                    name : 'employeeID',
+                    width : 90,
+                    sortable : true,
+                    align : 'center'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Primary Language',
+                        name : 'primary_language',
+                        width : 120,
+                        sortable : true,
+                        align : 'left'
+                    }, {
+                        display : 'Favorite Color',
+                        name : 'favorite_color',
+                        width : 80,
+                        sortable : true,
+                        align : 'left',
+                        hide : true
+                    }, {
+                        display : 'Favorite Animal',
+                        name : 'favorite_pet',
+                        width : 80,
+                        sortable : true,
+                        align : 'right'
+                } ],
+                buttons : [ {
+                    name : 'Add',
+                    bclass : 'add',
+                    onpress : Example4
+                    }
+                    ,
+                    {
+                        name : 'Edit',
+                        bclass : 'edit',
+                        onpress : Example4
+                    }
+                    ,
+                    {
+                        name : 'Delete',
+                        bclass : 'delete',
+                        onpress : Example4
+                    }
+                    ,
+                    {
+                        separator : true
+                    } 
+                ],
+                searchitems : [ {
+                    display : 'EmployeeID',
+                    name : 'employeeID'
+                    }, {
+                        display : 'Name',
+                        name : 'name',
+                        isdefault : true
+                } ],
+                sortname : "iso",
+                sortorder : "asc",
+                usepager : true,
+                title : 'Employees',
+                useRp : true,
+                rp : 15,
+                showTableToggleBtn : true,
+                width : 750,
+                height : 200
+            });
+
+            function Example4(com, grid) {
+                if (com == 'Delete') {
+                    var conf = confirm('Delete ' + $('.trSelected', grid).length + ' items?')
+                    if(conf){
+                        $.each($('.trSelected', grid),
+                            function(key, value){
+                                $.get('example4.php', { Delete: value.firstChild.innerText}
+                                    , function(){
+                                        // when ajax returns (callback), update the grid to refresh the data
+                                        $(".flexme4").flexReload();
+                                });
+                        });    
+                    }
+                }
+                else if (com == 'Edit') {
+                    var conf = confirm('Edit ' + $('.trSelected', grid).length + ' items?')
+                    if(conf){
+                        $.each($('.trSelected', grid),
+                            function(key, value){
+                                // collect the data
+                                var OrgEmpID = value.children[0].innerText; // in case we're changing the key
+                                var EmpID = prompt("Please enter the New Employee ID",value.children[0].innerText);
+                                var Name = prompt("Please enter the Employee Name",value.children[1].innerText);
+                                var PrimaryLanguage = prompt("Please enter the Employee's Primary Language",value.children[2].innerText);
+                                var FavoriteColor = prompt("Please enter the Employee's Favorite Color",value.children[3].innerText);
+                                var FavoriteAnimal = prompt("Please enter the Employee's Favorite Animal",value.children[4].innerText);
+
+                                // call the ajax to save the data to the session
+                                $.get('example4.php', 
+                                    { Edit: true
+                                        , OrgEmpID: OrgEmpID
+                                        , EmpID: EmpID
+                                        , Name: Name
+                                        , PrimaryLanguage: PrimaryLanguage
+                                        , FavoriteColor: FavoriteColor
+                                        , FavoritePet: FavoriteAnimal  }
+                                    , function(){
+                                        // when ajax returns (callback), update the grid to refresh the data
+                                        $(".flexme4").flexReload();
+                                });
+                        });    
+                    }
+                }
+                else if (com == 'Add') {
+                    // collect the data
+                    var EmpID = prompt("Please enter the Employee ID","5");
+                    var Name = prompt("Please enter the Employee Name","Mark");
+                    var PrimaryLanguage = prompt("Please enter the Employee's Primary Language","php");
+                    var FavoriteColor = prompt("Please enter the Employee's Favorite Color","Tan");
+                    var FavoriteAnimal = prompt("Please enter the Employee's Favorite Animal","Dog");
+
+                    // call the ajax to save the data to the session
+                    $.get('example4.php', { Add: true, EmpID: EmpID, Name: Name, PrimaryLanguage: PrimaryLanguage, FavoriteColor: FavoriteColor, FavoritePet: FavoriteAnimal  }
+                        , function(){
+                            // when ajax returns (callback), update the grid to refresh the data
+                            $(".flexme4").flexReload();
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>

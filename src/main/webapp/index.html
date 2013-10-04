@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css"/>
     <link rel="stylesheet" href="components/select2/select2.css">
     <link rel="stylesheet" href="components/nvd3/src/nv.d3.css">
+    <link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css">
     <link rel="stylesheet" href="components/pinpoint-scatter/jquery.dragToSelect.css">
     <link rel="stylesheet" href="components/pinpoint-scatter/jquery.BigScatterChart.css">
     <link rel="stylesheet" href="styles/main.css">
@@ -35,12 +36,7 @@
       <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
-    <div id="wrapper">
-      <!-- Add your site or application content here -->
-  	  <navbar></navbar>
-
-      <!-- Add your site or application content here -->
-      <div class="main-container" ng-view=""></div>
+    <div id="wrapper" ng-class="wrapperClass" ng-style="wrapperStyle" ng-view="">
     </div>
 
     <!-- ng-template -->
@@ -70,6 +66,7 @@
     <script src="components/gojs/go.js"></script>
     <script src="components/d3/d3.min.js"></script>
     <script src="components/nvd3/nv.d3.js"></script>
+    <script src="components/jquery.layout/dist/jquery.layout-latest.js"></script>
 
         <!-- build:js scripts/plugins.js -->
         <script src="components/select2/select2.min.js"></script>
@@ -99,6 +96,10 @@
         <script src="scripts/directives/agentList.js"></script>
         <script src="scripts/directives/agentInfo.js"></script>
         <script src="scripts/filters/filterToString.js"></script>
+        <script src="scripts/controllers/transactionList.js"></script>
+        <script src="scripts/controllers/transactionDetail.js"></script>
+        <script src="scripts/directives/navbar2.js"></script>
+        <script src="scripts/directives/transactionTable.js"></script>
         <!-- endbuild -->
 </body>
 </html>
