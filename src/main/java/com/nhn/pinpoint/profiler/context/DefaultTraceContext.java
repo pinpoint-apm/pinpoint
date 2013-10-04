@@ -245,7 +245,4 @@ public class DefaultTraceContext implements TraceContext {
         this.agentInformation = agentInformation;
     }
 
-    public AgentInformation getAgentInformation() {
-        return agentInformation;
-    }
 }

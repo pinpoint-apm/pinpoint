@@ -90,6 +90,7 @@ public class DefaultAgent implements Agent {
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
         this.agentInformation = createAgentInformation();
+        logger.info("agentInformation:{}", agentInformation);
 
         this.tcpDataSender = createTcpDataSender();
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
@@ -188,17 +189,13 @@ public class DefaultAgent implements Agent {
         }
 
         final AgentInfo agentInfo = new AgentInfo();
-        final AgentInformation agentInformation = this.agentInformation;
-
         agentInfo.setIp(ip);
         agentInfo.setHostname(this.agentInformation.getMachineName());
         agentInfo.setPorts(ports);
-
-        agentInfo.setAgentId(agentInfo.getAgentId());
-        agentInfo.setApplicationName(agentInfo.getApplicationName());
+        agentInfo.setAgentId(agentInformation.getAgentId());
+        agentInfo.setApplicationName(agentInformation.getApplicationName());
         agentInfo.setPid(agentInformation.getPid());
         agentInfo.setTimestamp(agentInformation.getStartTime());
-
 		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
 
         agentInfo.setIsAlive(true);
