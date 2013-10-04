@@ -7,74 +7,55 @@
 	"transactionId" : "${traceId.formatString}",
 	"agentId" : "${recordSet.agentId}",
 	"applicationId" : "${recordSet.applicationId}",
-	
 	"callStackStart" : ${callstackStart},
 	"callStackEnd" : ${callstackEnd},
-	
+	"callStackIndex" : {
+		"depth":0,
+		"begin":1,
+		"end":2,
+		"excludeFromTimeline":3,
+		"service":4,
+		"tab":5,
+		"id":6,
+		"parentId":7,
+		"isMethod":8,
+		"hasChild":9,
+		"title":10,
+		"arguments":11,
+		"execcuteTime":12,
+		"gap":13,
+		"elapsedTime":14,
+		"barWidth":15,                 
+		"simpleClassName":16,
+		"apiType":17,
+		"agent":18,
+		"isFocused":19,
+		"hasException":20
+	},
 	"callStack" : [
-		<c:set var="startTime" scope="page" value="${callstackStart}"/>
-		<c:set var="endTime" scope="page" value="${callstackEnd}"/>
-		<c:set var="seq" scope="page" value="0"/>
-
-		<c:forEach items="${callstack}" var="record" varStatus="status">
-		{
-			<c:set var="depth" scope="page" value="${span.depth}"/>
-			<c:if test="${record.method}">
-				<c:set var="begin" scope="page" value="${record.begin}"/>
-				<c:set var="end" scope="page" value="${record.begin + record.elapsed}"/>
-			</c:if>
-			<c:if test="${status.first}">
-				<c:set var="barRatio" scope="page" value="${100 / (end - begin)}"/>
-			</c:if>
-		
-			<c:choose>
-				<c:when test="${record.parentId > 0}">
-					<c:set var="pid" value="${record.parentId}" />
-				</c:when>
-				<c:otherwise>
-					<c:set var="pid" value="" />
-				</c:otherwise>                
-			</c:choose>
-			
-			"depth" : "${span.depth}",
-			"begin" : ${record.begin},
-			"end" : ${record.begin + record.elapsed},
-			"excludeFromTimeline" : ${record.excludeFromTimeline},
-			"service" : "${record.service}",
-			
-			"tab":${record.tab},
-			"id":"${record.id}",
-			"parentId":"${pid}",
-			"isMethod":${record.method},
-			"hasChild":${record.hasChild},
-			"title":"${record.title}",
-			"arguments":"${record.arguments}",
-			"execcuteTime": "<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>",
-			"gap":"<c:if test="${record.method}"><fmt:formatNumber value="${record.gap}" type="number" /></c:if>",
-			"elapsedTime":"<c:if test="${record.method}"><fmt:formatNumber type="number" value="${record.elapsed}"/></c:if>",
-			"barWidth":"<c:if test="${record.method}"><fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/></c:if>",                 
-			"simpleClassName":"${record.simpleClassName}",
-			"apiType":"${record.apiType}",
-			"agent":"${record.agent}",
-                 	
-			<c:choose>
-				<c:when test="${record.title == 'Exception'}">
-					"isFocused":false,
-					"hasException":true
-				</c:when>
-				<c:when test="${record.focused}">
-					"isFocused":true,
-					"hasException":false
-				</c:when>
-				<c:otherwise>
-					"isFocused":false,
-					"hasException":false
-				</c:otherwise>                
-			</c:choose>
-		}
-		<c:if test="${!status.last}">,</c:if>
-      	</c:forEach>
-	],
+<c:forEach items="${callstack}" var="record" varStatus="status">[
+"${span.depth}",
+${record.begin},
+${record.begin + record.elapsed},
+${record.excludeFromTimeline},
+"${record.service}",
+${record.tab},
+"${record.id}",
+"<c:choose><c:when test="${record.parentId > 0}"><c:set var="pid" value="${record.parentId}" /></c:when><c:otherwise><c:set var="pid" value="" /></c:otherwise></c:choose>",
+${record.method},
+${record.hasChild},
+"${record.title}",
+"${record.arguments}",
+"<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>",
+"<c:if test="${record.method}"><fmt:formatNumber value="${record.gap}" type="number" /></c:if>",
+"<c:if test="${record.method}"><fmt:formatNumber type="number" value="${record.elapsed}"/></c:if>",
+"<c:if test="${record.method}"><fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/></c:if>",                 
+"${record.simpleClassName}",
+"${record.apiType}",
+"${record.agent}",
+<c:choose><c:when test="${record.title == 'Exception'}">false, true</c:when><c:when test="${record.focused}">true,false</c:when><c:otherwise>false,false</c:otherwise></c:choose>
+]<c:if test="${!status.last}">,</c:if></c:forEach>
+],
 	"mapData" : {
 		"nodeDataArray": [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
