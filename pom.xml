@@ -342,8 +342,8 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-                    <!--<debug>false</debug>-->
-                    <debug>true</debug>
+                    <debug>false</debug>
+                    <!--<debug>true</debug>-->
                     <optimize>true</optimize>
                     <encoding>UTF-8</encoding>
                     <!--<showDeprecation>true</showDeprecation>-->
