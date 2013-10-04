@@ -48,7 +48,7 @@
                     <td style='padding-right:5px;text-align:right'>{{transaction.index}}</td>
                     <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'HH:MM:ss .sss'}}</td>
                     <td ng-click="traceByAppliation(transaction)" style="cursor:pointer">{{transaction.application}} <a href ng-href="#/transactionDetail/{{transaction.traceId}}/{{transaction.collectorAcceptTime}}" class="btn btn-mini" target="_blank">새창</a> <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}" class="btn btn-mini" target="_blank">옛날꺼</a></td>
-                    <td style='padding-right:30px;text-align:right'>{{transaction.elapsed | number}}</td>
+                    <td style='padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
                     <td>{{transaction.exception}}</td>
                     <td>{{transaction.agentId}}</td>
                     <td ng-click="traceRemoteAddr(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
