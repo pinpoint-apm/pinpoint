@@ -48,7 +48,6 @@ public class SpanEventBo implements Span {
 	private ServiceType serviceType;
 
     private String destinationId;
-    private List<String> destinationAddress;
 	private String endPoint;
 
 	private List<AnnotationBo> annotationBoList;
@@ -79,7 +78,6 @@ public class SpanEventBo implements Span {
 
 
         this.destinationId = tSpanEvent.getDestinationId();
-        this.destinationAddress = tSpanEvent.getDestinationAddress();
 
         this.endPoint = tSpanEvent.getEndPoint();
 		
@@ -113,7 +111,6 @@ public class SpanEventBo implements Span {
 		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
         this.destinationId = spanEvent.getDestinationId();
-        this.destinationAddress = spanEvent.getDestinationAddress();
 
 		this.endPoint = spanEvent.getEndPoint();
 		
@@ -152,7 +149,6 @@ public class SpanEventBo implements Span {
 		this.endPoint = spanEvent.getEndPoint();
 
         this.destinationId = spanEvent.getDestinationId();
-        this.destinationAddress = spanEvent.getDestinationAddress();
 
 		
 		if (spanEvent.isSetDepth()) {
@@ -278,13 +274,6 @@ public class SpanEventBo implements Span {
         this.destinationId = destinationId;
     }
 
-    public List<String> getDestinationAddress() {
-        return destinationAddress;
-    }
-
-    public void setDestinationAddress(List<String> destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
 
     public List<AnnotationBo> getAnnotationBoList() {
 		return annotationBoList;
@@ -307,6 +296,9 @@ public class SpanEventBo implements Span {
 	}
 
 	private void setAnnotationBoList(List<TAnnotation> annotations) {
+        if (annotations == null) {
+            return;
+        }
 		List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
 		for (TAnnotation ano : annotations) {
 			boList.add(new AnnotationBo(ano));
