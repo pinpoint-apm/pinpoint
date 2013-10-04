@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="pinpoint-bootstrap-build" basedir=".">
+<project name="pinpoint-bootstrap-build" basedir="." default="deploy">
     <property environment="env"/>
 
     <property name="pinpoint.version" value="0.0.4-SNAPSHOT"/>
