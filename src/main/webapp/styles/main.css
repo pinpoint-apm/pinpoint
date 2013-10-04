@@ -5,7 +5,9 @@
 @font-face{font-family:avn85;src:url(../fonts/avenir85.eot);src:local('※'),url(../fonts/avenir85.woff) format('woff')}
 
 html, body {
-  height: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 body,input,textarea,select,button,table{font-family:'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,avn55,sans-serif}
 canvas {outline:none}
