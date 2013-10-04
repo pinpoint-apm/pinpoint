@@ -94,7 +94,10 @@ public class BusinessTransactionController {
 	 * @return
 	 */
 	@RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
-	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp) {
+	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp,
+										// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
+										// 기존 html view에서 json을 넘어가는 중임.
+										@RequestParam(value="jsonResult", required=false, defaultValue="false") boolean jsonResult) {
 		logger.debug("traceId:{}", traceIdParam);
 
 		final TransactionId traceId = new TransactionId(traceIdParam);
@@ -136,6 +139,11 @@ public class BusinessTransactionController {
 			// throw e;
 		}
 
+		// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
+		if (jsonResult) {
+			mv.setViewName("transactionInfoJson");
+		}
+		
 		return mv;
 	}
 }
