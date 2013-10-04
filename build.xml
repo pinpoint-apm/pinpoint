@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="pinpoint_thrift_build" basedir=".">
+<project name="pinpoint_thrift_build" basedir="." default="deploy">
         <property environment="env"/>
 
         <!-- 버전은 맨날 변경해야 됨 -->
