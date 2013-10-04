@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.common.util;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.List;
 
@@ -11,13 +11,13 @@ import java.util.List;
  */
 public class SpanEventUtils {
 
-    public static boolean hasException(SpanEvent spanEvent) {
-        final List<Annotation> annotations = spanEvent.getAnnotations();
+    public static boolean hasException(TSpanEvent spanEvent) {
+        final List<TAnnotation> annotations = spanEvent.getAnnotations();
         if (annotations == null) {
             return true;
         }
 
-        for (Annotation annotation : annotations) {
+        for (TAnnotation annotation : annotations) {
             // 나중에 레인지 체크로 변경되어야 할 가능성이 있음.
             if (annotation.getKey() == AnnotationKey.EXCEPTION.getCode()) {
                 return true;

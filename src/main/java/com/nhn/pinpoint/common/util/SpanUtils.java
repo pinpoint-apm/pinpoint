@@ -2,9 +2,9 @@ package com.nhn.pinpoint.common.util;
 
 import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 
-import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.thrift.dto.SpanChunk;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 public class SpanUtils {
     @Deprecated
@@ -31,7 +31,7 @@ public class SpanUtils {
         return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
 
-	public static byte[] getTransactionId(Span span) {
+	public static byte[] getTransactionId(TSpan span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
@@ -39,14 +39,14 @@ public class SpanUtils {
 
 	}
 
-	public static byte[] getTransactionId(SpanEvent spanEvent) {
+	public static byte[] getTransactionId(TSpanEvent spanEvent) {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
         return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionSequence());
 	}
 
-	public static byte[] getTransactionId(SpanChunk spanChunk) {
+	public static byte[] getTransactionId(TSpanChunk spanChunk) {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
         }

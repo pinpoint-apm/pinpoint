@@ -1,8 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
 import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.thrift.dto.Span;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -53,7 +52,7 @@ public class SpanUtilsTest {
     }
 
     private void check(String agentId0, long l1) {
-        Span span = new Span();
+        TSpan span = new TSpan();
         span.setAgentId(agentId0);
         span.setStartTime(l1);
 

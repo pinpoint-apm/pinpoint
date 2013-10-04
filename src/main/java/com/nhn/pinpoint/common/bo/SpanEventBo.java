@@ -5,11 +5,8 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.thrift.dto.AgentKey;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.SpanChunk;
+import com.nhn.pinpoint.thrift.dto.*;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.thrift.dto.SpanEvent;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
@@ -62,7 +59,7 @@ public class SpanEventBo implements Span {
 	public SpanEventBo() {
 	}
 
-	public SpanEventBo(com.nhn.pinpoint.thrift.dto.Span tSpan, SpanEvent tSpanEvent) {
+	public SpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
 		this.agentId = tSpan.getAgentId();
         this.applicationId = tSpan.getApplicationName();
         this.agentStartTime = tSpan.getAgentStartTime();
@@ -97,7 +94,7 @@ public class SpanEventBo implements Span {
 		setAnnotationBoList(tSpanEvent.getAnnotations());
 	}
 
-	public SpanEventBo(SpanChunk spanChunk, SpanEvent spanEvent) {
+	public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
 		this.agentId = spanChunk.getAgentId();
         this.applicationId = spanChunk.getApplicationName();
         this.agentStartTime = spanChunk.getAgentStartTime();
@@ -131,8 +128,8 @@ public class SpanEventBo implements Span {
 		setAnnotationBoList(spanEvent.getAnnotations());
 	}
 
-	public SpanEventBo(SpanEvent spanEvent) {
-        final AgentKey agentKey = spanEvent.getAgentKey();
+	public SpanEventBo(TSpanEvent spanEvent) {
+        final TAgentKey agentKey = spanEvent.getAgentKey();
         if (agentKey != null) {
             this.agentId = agentKey.getAgentId();
             this.applicationId = agentKey.getApplicationName();
@@ -309,9 +306,9 @@ public class SpanEventBo implements Span {
 		this.nextSpanId = nextSpanId;
 	}
 
-	private void setAnnotationBoList(List<Annotation> annotations) {
+	private void setAnnotationBoList(List<TAnnotation> annotations) {
 		List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
-		for (Annotation ano : annotations) {
+		for (TAnnotation ano : annotations) {
 			boList.add(new AnnotationBo(ano));
 		}
 		this.annotationBoList = boList;

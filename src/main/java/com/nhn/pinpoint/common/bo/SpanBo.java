@@ -7,8 +7,8 @@ import java.util.List;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.Span;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
@@ -63,7 +63,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     
     private String remoteAddr; // optional
 
-	public SpanBo(Span span) {
+	public SpanBo(TSpan span) {
         this.agentId = span.getAgentId();
         this.applicationId = span.getApplicationName();
         this.agentStartTime = span.getAgentStartTime();
@@ -240,9 +240,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         return annotationBoList;
     }
 
-    public void setAnnotationList(List<Annotation> anoList) {
+    public void setAnnotationList(List<TAnnotation> anoList) {
         List<AnnotationBo> boList = new ArrayList<AnnotationBo>(anoList.size());
-        for (Annotation ano : anoList) {
+        for (TAnnotation ano : anoList) {
             boList.add(new AnnotationBo(ano));
         }
         this.annotationBoList = boList;

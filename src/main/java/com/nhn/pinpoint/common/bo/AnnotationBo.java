@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.bo;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.common.util.AnnotationTranscoder;
 import com.nhn.pinpoint.common.buffer.Buffer;
 
@@ -26,7 +26,7 @@ public class AnnotationBo {
     public AnnotationBo() {
     }
 
-    public AnnotationBo(Annotation ano) {
+    public AnnotationBo(TAnnotation ano) {
         this.key = ano.getKey();
         Object value = transcoder.getMappingValue(ano);
         this.valueType = transcoder.getTypeCode(value);

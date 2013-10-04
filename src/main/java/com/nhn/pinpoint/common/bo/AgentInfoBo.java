@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  *
@@ -20,7 +20,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private int pid;
     private ServiceType serviceType;
 
-    public AgentInfoBo(AgentInfo agentInfo) {
+    public AgentInfoBo(TAgentInfo agentInfo) {
     	this.ip = agentInfo.getIp();
         this.hostname = agentInfo.getHostname();
         this.ports = agentInfo.getPorts();
