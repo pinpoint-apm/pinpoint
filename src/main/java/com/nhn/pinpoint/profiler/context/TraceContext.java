@@ -20,13 +20,9 @@ public interface TraceContext {
 
 //    ActiveThreadCounter getActiveThreadCounter();
 
-    void setAgentId(String agentId);
-
     String getAgentId();
 
-    void setApplicationId(String applicationId);
-
-    String getApplicationId();
+    String getApplicationName();
 
     int cacheApi(MethodDescriptor methodDescriptor);
 
