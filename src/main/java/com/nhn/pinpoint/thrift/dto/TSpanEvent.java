@@ -247,6 +247,10 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   }
 
   public TSpanEvent() {
+    this.depth = -1;
+
+    this.nextSpanId = -1;
+
   }
 
   public TSpanEvent(
@@ -342,10 +346,10 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     this.serviceType = 0;
     this.endPoint = null;
     this.annotations = null;
-    setDepthIsSet(false);
-    this.depth = 0;
-    setNextSpanIdIsSet(false);
-    this.nextSpanId = 0;
+    this.depth = -1;
+
+    this.nextSpanId = -1;
+
     this.destinationId = null;
     this.destinationAddress = null;
   }

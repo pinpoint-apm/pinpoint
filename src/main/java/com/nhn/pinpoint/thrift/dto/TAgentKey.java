@@ -46,7 +46,7 @@ public class TAgentKey implements org.apache.thrift.TBase<TAgentKey, TAgentKey._
   }
 
   private String agentId; // required
-  private String applicationName; // optional
+  private String applicationName; // required
   private long agentStartTime; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -116,13 +116,12 @@ public class TAgentKey implements org.apache.thrift.TBase<TAgentKey, TAgentKey._
   // isset id assignments
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.APPLICATION_NAME};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("applicationName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.APPLICATION_NAME, new org.apache.thrift.meta_data.FieldMetaData("applicationName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_START_TIME, new org.apache.thrift.meta_data.FieldMetaData("agentStartTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
@@ -135,10 +134,12 @@ public class TAgentKey implements org.apache.thrift.TBase<TAgentKey, TAgentKey._
 
   public TAgentKey(
     String agentId,
+    String applicationName,
     long agentStartTime)
   {
     this();
     this.agentId = agentId;
+    this.applicationName = applicationName;
     this.agentStartTime = agentStartTime;
     setAgentStartTimeIsSet(true);
   }
@@ -411,16 +412,14 @@ public class TAgentKey implements org.apache.thrift.TBase<TAgentKey, TAgentKey._
       sb.append(this.agentId);
     }
     first = false;
-    if (isSetApplicationName()) {
-      if (!first) sb.append(", ");
-      sb.append("applicationName:");
-      if (this.applicationName == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.applicationName);
-      }
-      first = false;
+    if (!first) sb.append(", ");
+    sb.append("applicationName:");
+    if (this.applicationName == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.applicationName);
     }
+    first = false;
     if (!first) sb.append(", ");
     sb.append("agentStartTime:");
     sb.append(this.agentStartTime);
@@ -513,11 +512,9 @@ public class TAgentKey implements org.apache.thrift.TBase<TAgentKey, TAgentKey._
         oprot.writeFieldEnd();
       }
       if (struct.applicationName != null) {
-        if (struct.isSetApplicationName()) {
-          oprot.writeFieldBegin(APPLICATION_NAME_FIELD_DESC);
-          oprot.writeString(struct.applicationName);
-          oprot.writeFieldEnd();
-        }
+        oprot.writeFieldBegin(APPLICATION_NAME_FIELD_DESC);
+        oprot.writeString(struct.applicationName);
+        oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(AGENT_START_TIME_FIELD_DESC);
       oprot.writeI64(struct.agentStartTime);

@@ -15,7 +15,7 @@ struct TAnnotation {
 
 struct TAgentKey {
     1: string agentId;
-    2: optional string applicationName;
+    2: string applicationName;
     3: i64 agentStartTime;
 }
 
@@ -43,8 +43,8 @@ struct TSpanEvent {
 
   14: list<TAnnotation> annotations
 
-  15: optional i32 depth
-  16: optional i32 nextSpanId
+  15: optional i32 depth = -1
+  16: optional i32 nextSpanId = -1
 
   20: optional string destinationId
   // address주소가 1개일 경우
