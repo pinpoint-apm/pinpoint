@@ -9,11 +9,14 @@ public class ContextClassLoaderExecuteTemplate<V> {
     private final ClassLoader classLoader;
 
     public ContextClassLoaderExecuteTemplate(ClassLoader classLoader) {
+        if (classLoader == null) {
+            throw new NullPointerException("classLoader must not be null");
+        }
         this.classLoader = classLoader;
     }
 
     public V execute(Callable<V> callable) throws BootStrapException {
-        Thread currentThread = Thread.currentThread();
+        final Thread currentThread = Thread.currentThread();
         final ClassLoader before = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(ContextClassLoaderExecuteTemplate.this.classLoader);
         try {

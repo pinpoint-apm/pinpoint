@@ -28,9 +28,8 @@ public class AgentClassLoader {
             throw new NullPointerException("urls");
         }
 
-        ClassLoader classLoader = AgentClassLoader.class.getClassLoader();
-
-        this.classLoader = new PinpointURLClassLoader(urls, classLoader);
+        ClassLoader bootStrapClassLoader = AgentClassLoader.class.getClassLoader();
+        this.classLoader = new PinpointURLClassLoader(urls, bootStrapClassLoader);
 
         this.executeTemplate = new ContextClassLoaderExecuteTemplate(classLoader);
     }
