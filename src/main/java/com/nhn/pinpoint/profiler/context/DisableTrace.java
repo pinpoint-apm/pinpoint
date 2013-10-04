@@ -174,11 +174,6 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void setTraceContext(TraceContext traceContext) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
         throw new UnsupportedOperationException();
     }

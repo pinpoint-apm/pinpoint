@@ -28,7 +28,7 @@ public class DefaultTraceTest {
 
     @Test
     public void testPushPop() {
-        DefaultTrace trace = new DefaultTrace("agent", 0, 1);
+        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), "agent", 0, 1);
         BypassStorage bypassStorage = new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
         trace.setStorage(bypassStorage);
 

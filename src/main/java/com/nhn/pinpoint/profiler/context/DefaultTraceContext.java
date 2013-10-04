@@ -86,10 +86,9 @@ public class DefaultTraceContext implements TraceContext {
         checkBeforeTraceObject();
 
         // datasender연결 부분 수정 필요.
-        DefaultTrace trace = new DefaultTrace(traceID);
+        final DefaultTrace trace = new DefaultTrace(this, traceID);
         Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
-        trace.setTraceContext(this);
         // remote에 의해 trace가 continue될때는  sampling flag를 좀더 상위에서 하므로 무조껀 true여야함.
         // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
         trace.setSampling(true);
@@ -115,9 +114,8 @@ public class DefaultTraceContext implements TraceContext {
         final boolean sampling = this.sampler.isSampling();
         if (sampling) {
             Storage storage = storageFactory.createStorage();
-            final DefaultTrace trace = new DefaultTrace(agentInformation.getAgentId(), agentInformation.getStartTime(), this.transactionId.getAndIncrement());
+            final DefaultTrace trace = new DefaultTrace(this, agentInformation.getAgentId(), agentInformation.getStartTime(), this.transactionId.getAndIncrement());
             trace.setStorage(storage);
-            trace.setTraceContext(this);
             trace.setSampling(sampling);
             threadLocal.set(trace);
             return trace;

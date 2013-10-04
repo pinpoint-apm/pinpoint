@@ -24,17 +24,21 @@ public final class DefaultTrace implements Trace {
 
     private boolean sampling = true;
 
-    private CallStack callStack;
+    private final CallStack callStack;
 
     private Storage storage;
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
     // use for calculating depth of each Span.                                                                               
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
 
-    public DefaultTrace(String agentId, long agentStartTime, long transactionId) {
+    public DefaultTrace(TraceContext traceContext, String agentId, long agentStartTime, long transactionId) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        this.traceContext = traceContext;
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
 
         this.callStack = new CallStack(traceId);
@@ -44,10 +48,14 @@ public final class DefaultTrace implements Trace {
         this.currentStackFrame = stackFrame;
     }
 
-    public DefaultTrace(TraceId continueTraceID) {
+    public DefaultTrace(TraceContext traceContext, TraceId continueTraceID) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
         if (continueTraceID == null) {
             throw new NullPointerException("continueTraceID must not be null");
         }
+        this.traceContext = traceContext;
         this.callStack = new CallStack(continueTraceID);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
@@ -58,7 +66,6 @@ public final class DefaultTrace implements Trace {
     public CallStack getCallStack() {
         return callStack;
     }
-
 
     public void setStorage(Storage storage) {
         this.storage = storage;
@@ -438,11 +445,6 @@ public final class DefaultTrace implements Trace {
             spanEvent.addAnnotation(new Annotation(key));
         }
 
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 
     @Override

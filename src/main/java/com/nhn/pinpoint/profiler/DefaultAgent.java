@@ -7,6 +7,8 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
+import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
@@ -112,9 +114,14 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
 
         SingletonHolder.INSTANCE = this;
+        preLoadClass();
     }
 
+    private void preLoadClass() {
+        logger.debug("preLoadClass:{}", new ArcusMethodFilter().getClass().getName());
+        logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
 
+    }
 
 
     private AgentInformation createAgentInformation() {

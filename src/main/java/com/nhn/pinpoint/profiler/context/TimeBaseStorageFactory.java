@@ -8,39 +8,33 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
  */
 public class TimeBaseStorageFactory implements StorageFactory {
 
-    private DataSender dataSender;
-    private ProfilerConfig config;
-//    private boolean discardEnable;
-//    private int bufferSize;
-//    private long discardTimeLimit;
-//
-//    public TimeBaseStorageFactory(DataSender dataSender, boolean discardEnable, int bufferSize, long discardTimeLimit) {
-//        this.dataSender = dataSender;
-//        this.discardEnable = discardEnable;
-//        this.bufferSize = bufferSize;
-//        this.discardTimeLimit = discardTimeLimit;
-//    }
+    private final DataSender dataSender;
+    private final int bufferSize;
+    private final boolean discardEnable;
+    private final long discardTimeLimit;
 
     public TimeBaseStorageFactory(DataSender dataSender, ProfilerConfig config) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
+        if (config == null) {
+            throw new NullPointerException("config must not be null");
+        }
         this.dataSender = dataSender;
-        this.config = config;
+
+        this.bufferSize = config.getSamplingElapsedTimeBaseBufferSize();
+        this.discardEnable = config.isSamplingElapsedTimeBaseDiscard();
+        this.discardTimeLimit = config.getSamplingElapsedTimeBaseDiscardTimeLimit();
     }
 
 
     @Override
     public Storage createStorage() {
         TimeBaseStorage timeBaseStorage = new TimeBaseStorage(this.dataSender);
-        timeBaseStorage.setBufferSize(config.getSamplingElapsedTimeBaseBufferSize());
-        timeBaseStorage.setLimitTime(config.getSamplingElapsedTimeBaseDiscardTimeLimit());
-        timeBaseStorage.setDiscard(config.isSamplingElapsedTimeBaseDiscard());
+        timeBaseStorage.setBufferSize(this.bufferSize);
+        timeBaseStorage.setLimitTime(this.discardTimeLimit);
+        timeBaseStorage.setDiscard(this.discardEnable);
         return timeBaseStorage;
     }
 
-    @Override
-    public DataSender getDataSender() {
-        return this.dataSender;
-    }
 }

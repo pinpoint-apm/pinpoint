@@ -16,7 +16,7 @@ public class TraceTest {
     @Test
     public void trace() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTrace trace = new DefaultTrace(traceID);
+        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
         trace.setStorage(new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
@@ -39,7 +39,7 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTrace trace = new DefaultTrace(traceID);
+        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
         TestDataSender dataSender = new TestDataSender();
         BypassStorage bypassStorage = new BypassStorage(new LoggingDataSender());
         trace.setStorage(bypassStorage);
