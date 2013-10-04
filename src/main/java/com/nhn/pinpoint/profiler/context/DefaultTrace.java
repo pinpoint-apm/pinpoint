@@ -327,10 +327,10 @@ public final class DefaultTrace implements Trace {
         final StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.addAnnotation(new TraceAnnotation(key, value));
+            span.addAnnotation(new Annotation(key, value));
         } else {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.addAnnotation(new TraceAnnotation(key, value));
+            spanEvent.addAnnotation(new Annotation(key, value));
         }
 
     }
@@ -432,10 +432,10 @@ public final class DefaultTrace implements Trace {
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.addAnnotation(new TraceAnnotation(key));
+            span.addAnnotation(new Annotation(key));
         } else {
             SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.addAnnotation(new TraceAnnotation(key));
+            spanEvent.addAnnotation(new Annotation(key));
         }
 
     }

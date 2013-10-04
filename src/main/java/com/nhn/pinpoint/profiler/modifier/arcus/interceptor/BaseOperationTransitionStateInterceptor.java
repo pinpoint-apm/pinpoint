@@ -96,8 +96,6 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 			// timeObject.markSendTime();
 
 			// long createTime = asyncTrace.getBeforeTime();
-			// asyncTrace.record(TraceAnnotation.ClientSend,
-			// System.currentTimeMillis() - createTime);
 			asyncTrace.markAfterTime();
 //			asyncTrace.traceBlockEnd();
 		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
@@ -113,13 +111,13 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 
 			if (!baseOperation.isCancelled()) {
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(TraceAnnotation.ClientRecv, timeObject.getSendTime());
+				// asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			} else {
 				asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(TraceAnnotation.ClientRecv, timeObject.getCancelTime());
+				// asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			}

@@ -18,7 +18,7 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
 
     private final Span span;
 
-    private List<TraceAnnotation> traceAnnotationList;
+    private List<Annotation> annotationList;
 
     public SpanEvent(Span span) {
         if (span == null) {
@@ -31,11 +31,11 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
         return span;
     }
 
-    public boolean addAnnotation(TraceAnnotation traceAnnotation) {
-        if (traceAnnotationList == null) {
-            this.traceAnnotationList = new ArrayList<TraceAnnotation>(4);
+    public boolean addAnnotation(Annotation annotation) {
+        if (annotationList == null) {
+            this.annotationList = new ArrayList<Annotation>(4);
         }
-        return traceAnnotationList.add(traceAnnotation);
+        return annotationList.add(annotation);
     }
 
 
@@ -87,13 +87,13 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
         }
 
         // 여기서 데이터 인코딩을 하자.
-        if (traceAnnotationList != null) {
-            List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
-            for (TraceAnnotation traceAnnotation : traceAnnotationList) {
-                annotationList.add(traceAnnotation.toThrift());
+        if (annotationList != null) {
+            List<TAnnotation> annotationList = new ArrayList<TAnnotation>(this.annotationList.size());
+            for (Annotation annotation : this.annotationList) {
+                annotationList.add(annotation.toThrift());
             }
             this.setAnnotations(annotationList);
-            this.traceAnnotationList = null;
+            this.annotationList = null;
         }
 
         return this;

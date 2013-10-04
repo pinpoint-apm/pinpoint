@@ -18,7 +18,7 @@ import java.util.List;
 public class Span extends TSpan implements Thriftable {
     private final TraceId traceId;
 
-    private List<TraceAnnotation> traceAnnotationList = new ArrayList<TraceAnnotation>(4);
+    private List<Annotation> annotationList = new ArrayList<Annotation>(4);
 
     public Span(TraceId traceId) {
         if (traceId == null) {
@@ -62,14 +62,13 @@ public class Span extends TSpan implements Thriftable {
     }
 
 
-    public boolean addAnnotation(TraceAnnotation traceAnnotation) {
-        return traceAnnotationList.add(traceAnnotation);
+    public boolean addAnnotation(Annotation annotation) {
+        return annotationList.add(annotation);
     }
 
     public int getAnnotationSize() {
-        return traceAnnotationList.size();
+        return annotationList.size();
     }
-
 
 
     public int getException() {
@@ -93,12 +92,12 @@ public class Span extends TSpan implements Thriftable {
 
 
         // 여기서 데이터 인코딩을 하자.
-        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
-        for (TraceAnnotation traceAnnotation : traceAnnotationList) {
-            annotationList.add(traceAnnotation.toThrift());
+        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(this.annotationList.size());
+        for (Annotation annotation : this.annotationList) {
+            annotationList.add(annotation.toThrift());
         }
         this.setAnnotations(annotationList);
-        this.traceAnnotationList = null;
+        this.annotationList = null;
 
         final List<TSpanEvent> spanEventList = this.getSpanEventList();
         if (spanEventList != null) {

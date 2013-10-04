@@ -130,7 +130,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     @Override
     public void recordAttribute(final AnnotationKey key, final Object value) {
-        spanEvent.addAnnotation(new TraceAnnotation(key, value));
+        spanEvent.addAnnotation(new Annotation(key, value));
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
     }
 
     private void annotate(final AnnotationKey key) {
-        this.spanEvent.addAnnotation(new TraceAnnotation(key));
+        this.spanEvent.addAnnotation(new Annotation(key));
 
     }
 

@@ -7,19 +7,19 @@ import com.nhn.pinpoint.profiler.util.AnnotationTranscoder;
 /**
  * @author netspider
  */
-public class TraceAnnotation implements Thriftable {
+public class Annotation implements Thriftable {
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     private final AnnotationKey key;
     private final Object value;
 
-    public TraceAnnotation(AnnotationKey key) {
+    public Annotation(AnnotationKey key) {
         this.key = key;
         this.value = null;
     }
 
-    public TraceAnnotation(AnnotationKey key, Object value) {
+    public Annotation(AnnotationKey key, Object value) {
         this.key = key;
         this.value = value;
     }
