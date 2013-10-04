@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithParallelCollector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TStatWithParallelCollector;
 
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -21,11 +21,11 @@ public class ParallelCollector extends GarbageCollectorType {
 	}
 
 	@Override
-	public void map(MetricMonitorRegistry registry, AgentStat agentStat, Object typeObject, String agentId) {
+	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, Object typeObject, String agentId) {
 		MetricRegistry r = registry.getRegistry();
-		StatWithParallelCollector stat = (StatWithParallelCollector) typeObject;
+		TStatWithParallelCollector stat = (TStatWithParallelCollector) typeObject;
 		if (stat == null) {
-			stat = new StatWithParallelCollector();
+			stat = new TStatWithParallelCollector();
 			agentStat.setParallel(stat);
 		}
 		stat.setAgentId(agentId);

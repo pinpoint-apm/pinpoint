@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.thrift.dto.Annotation;
 
 /**
  *
@@ -25,7 +27,7 @@ public class SpanChunk implements Thriftable {
 
     @Override
     public TBase toThrift() {
-        com.nhn.pinpoint.thrift.dto.SpanChunk tSpanChunk = new com.nhn.pinpoint.thrift.dto.SpanChunk();
+        TSpanChunk tSpanChunk = new TSpanChunk();
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
         SpanEvent first = spanEventList.get(0);
         Span parentSpan = first.getParentSpan();
@@ -45,17 +47,17 @@ public class SpanChunk implements Thriftable {
         
         tSpanChunk.setEndPoint(parentSpan.getEndPoint());
         
-        List<com.nhn.pinpoint.thrift.dto.SpanEvent> tSpanEvent = createSpanEvent(spanEventList);
+        List<TSpanEvent> tSpanEvent = createSpanEvent(spanEventList);
 
         tSpanChunk.setSpanEventList(tSpanEvent);
 
         return tSpanChunk;
     }
 
-    private List<com.nhn.pinpoint.thrift.dto.SpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
-        List<com.nhn.pinpoint.thrift.dto.SpanEvent> result = new ArrayList<com.nhn.pinpoint.thrift.dto.SpanEvent>(spanEventList.size());
+    private List<TSpanEvent> createSpanEvent(List<SpanEvent> spanEventList) {
+        List<TSpanEvent> result = new ArrayList<TSpanEvent>(spanEventList.size());
         for (SpanEvent spanEvent : spanEventList) {
-            com.nhn.pinpoint.thrift.dto.SpanEvent tSpanEvent = new com.nhn.pinpoint.thrift.dto.SpanEvent();
+            TSpanEvent tSpanEvent = new TSpanEvent();
 
 //            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
 //            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());
@@ -74,7 +76,7 @@ public class SpanChunk implements Thriftable {
             tSpanEvent.setEndPoint(spanEvent.getEndPoint());
 
             // 여기서 데이터 인코딩을 하자.
-            List<Annotation> annotationList = new ArrayList<Annotation>(spanEvent.getAnnotationSize());
+            List<TAnnotation> annotationList = new ArrayList<TAnnotation>(spanEvent.getAnnotationSize());
             for (TraceAnnotation traceAnnotation : spanEvent.getTraceAnnotationList()) {
                 annotationList.add(traceAnnotation.toThrift());
             }

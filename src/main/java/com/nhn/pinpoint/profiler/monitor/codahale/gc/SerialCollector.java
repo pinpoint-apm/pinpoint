@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithSerialCollector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TStatWithSerialCollector;
 
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -21,11 +21,11 @@ public class SerialCollector extends GarbageCollectorType {
 	}
 
 	@Override
-	public void map(MetricMonitorRegistry registry, AgentStat agentStat, Object typeObject, String agentId) {
+	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, Object typeObject, String agentId) {
 		MetricRegistry r = registry.getRegistry();
-		StatWithSerialCollector stat = (StatWithSerialCollector) typeObject;
+		TStatWithSerialCollector stat = (TStatWithSerialCollector) typeObject;
 		if (stat == null) {
-			stat = new StatWithSerialCollector();
+			stat = new TStatWithSerialCollector();
 			agentStat.setSerial(stat);
 		}
 		stat.setAgentId(agentId);

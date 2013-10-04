@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 import java.util.Collection;
 
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -14,7 +14,7 @@ public abstract class GarbageCollectorType {
 
 	abstract public int getTypeCode();
 
-	abstract public void map(MetricMonitorRegistry registry, AgentStat agentStat, Object typeObject, String agentId);
+	abstract public void map(MetricMonitorRegistry registry, TAgentStat agentStat, Object typeObject, String agentId);
 	
 	/**
 	 * 타입 코드로 생성
@@ -52,9 +52,9 @@ public abstract class GarbageCollectorType {
 	}
 
 	// FIXME AgentStat 자체를 타입으로 써도 되지만 일단 이렇게 해둔다.
-	public static final int SERIAL_COLLECTOR = AgentStat._Fields.SERIAL.ordinal();
-	public static final int PARALLEL_COLLECTOR = AgentStat._Fields.PARALLEL.ordinal();
-	public static final int CMS_COLLECTOR = AgentStat._Fields.CMS.ordinal();
-	public static final int G1_COLLECTOR = AgentStat._Fields.G1.ordinal();
+	public static final int SERIAL_COLLECTOR = TAgentStat._Fields.SERIAL.ordinal();
+	public static final int PARALLEL_COLLECTOR = TAgentStat._Fields.PARALLEL.ordinal();
+	public static final int CMS_COLLECTOR = TAgentStat._Fields.CMS.ordinal();
+	public static final int G1_COLLECTOR = TAgentStat._Fields.G1.ordinal();
 
 }

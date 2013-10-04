@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -24,7 +24,7 @@ public class UdpDataSenderTest {
     public void sendAndFlushChck() throws InterruptedException {
         UdpDataSender sender = new UdpDataSender("localhost", 9009, "test");
 
-        AgentInfo agentInfo = new AgentInfo();
+        TAgentInfo agentInfo = new TAgentInfo();
         sender.send(agentInfo);
         sender.send(agentInfo);
         sender.send(agentInfo);

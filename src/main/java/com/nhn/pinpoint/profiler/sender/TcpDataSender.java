@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
-import com.nhn.pinpoint.thrift.dto.Result;
+import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.profiler.context.Thriftable;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
@@ -146,8 +146,8 @@ public class TcpDataSender implements DataSender {
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
                     TBase<?, ?> response = deserialize(future);
-                    if (response instanceof Result) {
-                        Result result = (Result) response;
+                    if (response instanceof TResult) {
+                        TResult result = (TResult) response;
                         if (result.isSuccess()) {
                             logger.debug("result success");
                         } else {

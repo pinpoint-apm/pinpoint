@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.junit.Test;
 
@@ -13,8 +14,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.AgentStat._Fields;
+import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricHistogramMonitor;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 
@@ -102,7 +102,7 @@ public class MetricMonitorRegistryTest {
 	
 	@Test
 	public void mapper() {
-		AgentStat agentStat = new AgentStat();
+		TAgentStat agentStat = new TAgentStat();
 		
 		MetricRegistry r = registry.getRegistry();
 		Map<String, Gauge> map = r.getGauges();
@@ -110,7 +110,7 @@ public class MetricMonitorRegistryTest {
 //			System.out.println(each.getKey() + " : " + each.getValue().getValue().getClass());
 //		}
 //		
-		for (Entry<_Fields, FieldMetaData> each : AgentStat.metaDataMap.entrySet()) {
+		for (Entry<_Fields, FieldMetaData> each : TAgentStat.metaDataMap.entrySet()) {
 			System.out.println(toMetricName(each.getKey().name()));
 			Gauge value = map.get(toMetricName(each.getKey().name()));
 			if (value != null) {

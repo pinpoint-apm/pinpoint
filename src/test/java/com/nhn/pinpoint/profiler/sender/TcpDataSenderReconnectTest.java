@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -8,7 +8,6 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class TcpDataSenderReconnectTest {
 
         Thread.sleep(5000);
         logger.info("sendMessage------------------");
-        sender.send(new ApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
+        sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
 
         Thread.sleep(500);
         logger.info("sender stop------------------");

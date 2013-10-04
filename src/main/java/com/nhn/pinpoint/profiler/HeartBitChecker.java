@@ -1,8 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,12 @@ public class HeartBitChecker {
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-Agent-Heartbeat-Thread", true);
     private long heartBitInterVal;
     private DataSender dataSender;
-    private AgentInfo agentInfo;
+    private TAgentInfo agentInfo;
 
     private Thread ioThread;
 
 
-    public HeartBitChecker(DataSender dataSender, long heartBitInterVal, AgentInfo agentInfo) {
+    public HeartBitChecker(DataSender dataSender, long heartBitInterVal, TAgentInfo agentInfo) {
         this.dataSender = dataSender;
         this.heartBitInterVal = heartBitInterVal;
         this.agentInfo = agentInfo;

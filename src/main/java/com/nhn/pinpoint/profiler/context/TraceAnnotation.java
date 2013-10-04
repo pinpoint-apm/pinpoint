@@ -1,8 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.thrift.dto.Annotation;
-import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.profiler.util.AnnotationTranscoder;
 
 /**
@@ -35,8 +34,8 @@ public class TraceAnnotation implements Thriftable {
         return "Annotation [key=" + key + ", value=" + value + "]";
     }
 
-    public Annotation toThrift() {
-        Annotation ann = new Annotation();
+    public TAnnotation toThrift() {
+        TAnnotation ann = new TAnnotation();
         ann.setKey(key.getCode());
         transcoder.mappingValue(value, ann);
         return ann;

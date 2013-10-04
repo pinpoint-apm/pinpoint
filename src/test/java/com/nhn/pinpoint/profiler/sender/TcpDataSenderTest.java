@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -70,8 +70,8 @@ public class TcpDataSenderTest {
 
         TcpDataSender sender = new TcpDataSender(HOST, PORT);
         try {
-            sender.send(new ApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
-            sender.send(new ApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
+            sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
+            sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
 
 
             boolean received = sendLatch.await(1000, TimeUnit.MILLISECONDS);

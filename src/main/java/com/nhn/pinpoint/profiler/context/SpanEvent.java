@@ -6,8 +6,9 @@ import java.util.List;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.AgentKey;
-import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.TAgentKey;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 /**
  * Span represent RPC
@@ -163,12 +164,12 @@ public class SpanEvent implements Thriftable {
         return sb.toString();
     }
 
-    public com.nhn.pinpoint.thrift.dto.SpanEvent toThrift() {
+    public TSpanEvent toThrift() {
         return toThrift(false);
     }
 
-    public com.nhn.pinpoint.thrift.dto.SpanEvent toThrift(boolean child) {
-        com.nhn.pinpoint.thrift.dto.SpanEvent spanEvent = new com.nhn.pinpoint.thrift.dto.SpanEvent();
+    public TSpanEvent toThrift(boolean child) {
+        TSpanEvent spanEvent = new TSpanEvent();
 
         long parentSpanStartTime = parentSpan.getStartTime();
         spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
@@ -177,7 +178,7 @@ public class SpanEvent implements Thriftable {
         spanEvent.setSequence(sequence);
         // Span내부의 SpanEvent로 들어가지 않을 경우
         if (!child) {
-            AgentKey agentKey = new AgentKey();
+            TAgentKey agentKey = new TAgentKey();
             final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
             agentKey.setAgentId(agentInformation.getAgentId());
             agentKey.setApplicationName(agentInformation.getApplicationName());
@@ -202,7 +203,7 @@ public class SpanEvent implements Thriftable {
         spanEvent.setDestinationId(this.destionationId);
 
         // 여기서 데이터 인코딩을 하자.
-        List<Annotation> annotationList = new ArrayList<Annotation>(traceAnnotationList.size());
+        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
         for (TraceAnnotation traceAnnotation : traceAnnotationList) {
             annotationList.add(traceAnnotation.toThrift());
         }

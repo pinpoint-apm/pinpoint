@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.thrift.dto.JVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.sender.DataSender;
@@ -69,7 +69,7 @@ public class SystemMonitor {
 
 		public void run() {
 			try {
-				JVMInfoThriftDTO jvmInfo = new JVMInfoThriftDTO();
+				TJVMInfoThriftDTO jvmInfo = new TJVMInfoThriftDTO();
 				jvmInfo.setAgentId(traceContext.getAgentId());
 				jvmInfo.setDataTime(System.currentTimeMillis());
 
@@ -85,13 +85,13 @@ public class SystemMonitor {
 			}
 		}
 
-		private void activeThread(TraceContext traceContext, JVMInfoThriftDTO jvmInfo) {
+		private void activeThread(TraceContext traceContext, TJVMInfoThriftDTO jvmInfo) {
 //			int activeThread = traceContext.getActiveThreadCounter().getActiveThread();
             int activeThread = 0;
 			jvmInfo.setActiveThreadCount(activeThread);
 		}
 
-		private void setGCState(JVMInfoThriftDTO jvmInfo) throws Exception {
+		private void setGCState(TJVMInfoThriftDTO jvmInfo) throws Exception {
 			List<GarbageCollectorMXBean> list = ManagementFactory.getGarbageCollectorMXBeans();
 			if (list.size() == 2) {
 				// 제네레이션 기반일 경우 young, old 2개.
@@ -112,7 +112,7 @@ public class SystemMonitor {
 			}
 		}
 
-		public void setMemoryState(JVMInfoThriftDTO jvmInfo) throws Exception {
+		public void setMemoryState(TJVMInfoThriftDTO jvmInfo) throws Exception {
 			MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heap = bean.getHeapMemoryUsage();
 			MemoryUsage nonHeap = bean.getNonHeapMemoryUsage();
@@ -132,7 +132,7 @@ public class SystemMonitor {
 		 * 
 		 * @throws Exception
 		 */
-		private void setProcessCPUUsage(JVMInfoThriftDTO jvmInfo) throws Exception {
+		private void setProcessCPUUsage(TJVMInfoThriftDTO jvmInfo) throws Exception {
 			try {
 				if (processCPUAvailable) {
 					OperatingSystemMXBean sunOSMBean = ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(), ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);

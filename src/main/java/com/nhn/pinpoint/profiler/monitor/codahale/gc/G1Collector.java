@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithG1Collector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TStatWithG1Collector;
 
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -21,11 +21,11 @@ public class G1Collector extends GarbageCollectorType {
 	}
 
 	@Override
-	public void map(MetricMonitorRegistry registry, AgentStat agentStat, Object typeObject, String agentId) {
+	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, Object typeObject, String agentId) {
 		MetricRegistry r = registry.getRegistry();
-		StatWithG1Collector stat = (StatWithG1Collector) typeObject;
+		TStatWithG1Collector stat = (TStatWithG1Collector) typeObject;
 		if (stat == null) {
-			stat = new StatWithG1Collector();
+			stat = new TStatWithG1Collector();
 			agentStat.setG1(stat);
 		}
 		stat.setAgentId(agentId);

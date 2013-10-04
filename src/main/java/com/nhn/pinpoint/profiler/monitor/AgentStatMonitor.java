@@ -4,6 +4,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +13,6 @@ import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
 import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
 
 /**
  * AgentStat monitor
@@ -65,7 +64,7 @@ public class AgentStatMonitor {
 	}
 
     class CollectJob implements Runnable {
-		private AgentStat agentStat;
+		private TAgentStat agentStat;
 		private DataSender dataSender;
 		private MetricMonitorRegistry monitorRegistry;
 		private GarbageCollector garbageCollector;
@@ -80,7 +79,7 @@ public class AgentStatMonitor {
 			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
 			this.monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
 			
-			this.agentStat = new AgentStat();
+			this.agentStat = new TAgentStat();
 
 			this.garbageCollector = new GarbageCollector();
 			this.garbageCollector.setType(monitorRegistry);

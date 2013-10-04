@@ -3,9 +3,6 @@ package com.nhn.pinpoint.profiler.monitor;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.Test;
 
-
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
-
 public class AgentStatMonitorTest {
 
 

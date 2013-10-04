@@ -29,7 +29,7 @@ public class AnnotationTranscoder {
     protected final TranscoderUtils tu = new TranscoderUtils(true);
 
 
-    public Object getMappingValue(Annotation annotation) {
+    public Object getMappingValue(TAnnotation annotation) {
         if (annotation.isSetStringValue()) {
             return annotation.getStringValue();
         } else if(annotation.isSetIntValue()) {
@@ -50,7 +50,7 @@ public class AnnotationTranscoder {
         return null;
     }
 
-    public void mappingValue(Object o, Annotation annotation) {
+    public void mappingValue(Object o, TAnnotation annotation) {
         if (o == null) {
             return;
         }

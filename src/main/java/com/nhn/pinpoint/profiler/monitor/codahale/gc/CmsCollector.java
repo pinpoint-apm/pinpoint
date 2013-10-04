@@ -19,8 +19,8 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
-import com.nhn.pinpoint.thrift.dto.StatWithCmsCollector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TStatWithCmsCollector;
 
 /**
  * HotSpot's Concurrent-Mark-Sweep collector
@@ -35,11 +35,11 @@ public class CmsCollector extends GarbageCollectorType {
 	}
 
 	@Override
-	public void map(MetricMonitorRegistry registry, AgentStat agentStat, Object typeObject, String agentId) {
+	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, Object typeObject, String agentId) {
 		MetricRegistry r = registry.getRegistry();
-		StatWithCmsCollector stat = (StatWithCmsCollector) typeObject;
+		TStatWithCmsCollector stat = (TStatWithCmsCollector) typeObject;
 		if (stat == null) {
-			stat = new StatWithCmsCollector();
+			stat = new TStatWithCmsCollector();
 			agentStat.setCms(stat);
 		}
 		stat.setAgentId(agentId);

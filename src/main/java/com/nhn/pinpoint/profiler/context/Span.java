@@ -3,7 +3,9 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.Annotation;
+import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,8 +167,8 @@ public class Span implements Thriftable {
         return sb.toString();
     }
 
-    public com.nhn.pinpoint.thrift.dto.Span toThrift() {
-        com.nhn.pinpoint.thrift.dto.Span span = new com.nhn.pinpoint.thrift.dto.Span();
+    public TSpan toThrift() {
+        TSpan span = new TSpan();
 
         final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
         span.setAgentId(agentInformation.getAgentId());
@@ -203,7 +205,7 @@ public class Span implements Thriftable {
         }
         
         // 여기서 데이터 인코딩을 하자.
-        List<Annotation> annotationList = new ArrayList<Annotation>(traceAnnotationList.size());
+        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(traceAnnotationList.size());
         for (TraceAnnotation traceAnnotation : traceAnnotationList) {
             annotationList.add(traceAnnotation.toThrift());
         }
@@ -214,9 +216,9 @@ public class Span implements Thriftable {
         List<SpanEvent> spanEventList = this.getSpanEventList();
         if (spanEventList != null && spanEventList.size() != 0) {
 
-            List<com.nhn.pinpoint.thrift.dto.SpanEvent> tSpanEventList = new ArrayList<com.nhn.pinpoint.thrift.dto.SpanEvent>(spanEventList.size());
+            List<TSpanEvent> tSpanEventList = new ArrayList<TSpanEvent>(spanEventList.size());
             for (SpanEvent spanEvent : spanEventList) {
-                com.nhn.pinpoint.thrift.dto.SpanEvent tSpanEvent = spanEvent.toThrift(true);
+                TSpanEvent tSpanEvent = spanEvent.toThrift(true);
                 tSpanEventList.add(tSpanEvent);
             }
             span.setSpanEventList(tSpanEventList);

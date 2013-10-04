@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.context;
 
 
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.thrift.dto.ApiMetaData;
-import com.nhn.pinpoint.thrift.dto.SqlMetaData;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.common.util.SqlParser;
 import com.nhn.pinpoint.exception.PinPointException;
@@ -173,7 +173,7 @@ public class DefaultTraceContext implements TraceContext {
         String fullName = methodDescriptor.getFullName();
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
-            ApiMetaData apiMetadata = new ApiMetaData();
+            TApiMetaData apiMetadata = new TApiMetaData();
             apiMetadata.setAgentId(this.agentInformation.getAgentId());
             apiMetadata.setAgentStartTime(this.agentInformation.getStartTime());
 
@@ -214,7 +214,7 @@ public class DefaultTraceContext implements TraceContext {
             // 그러므로 메타데이터를 서버로 전송해야 한다.
 
 
-            SqlMetaData sqlMetaData = new SqlMetaData();
+            TSqlMetaData sqlMetaData = new TSqlMetaData();
             sqlMetaData.setAgentId(this.agentInformation.getAgentId());
             sqlMetaData.setAgentStartTime(this.agentInformation.getStartTime());
 

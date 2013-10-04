@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.thrift.dto.AgentStat;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 
 /**
  * @author harebox
@@ -31,7 +31,7 @@ public class GarbageCollector {
 	/**
 	 * AgentStat 객체에 통계 데이터를 매핑한다.
 	 */
-	public void map(MetricMonitorRegistry registry, AgentStat agentStat, String agentId) {
+	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, String agentId) {
 		if (type == null || registry == null) {
 			return;
 		}

@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.nhn.pinpoint.thrift.dto.AgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -55,7 +55,7 @@ public class DefaultAgent implements Agent {
     private final AgentInformation agentInformation;
 
     // agent info는 heartbeat에서 매번 사용한다.
-    private AgentInfo agentInfo;
+    private TAgentInfo agentInfo;
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
@@ -107,13 +107,9 @@ public class DefaultAgent implements Agent {
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
 
-        preloadClass();
         SingletonHolder.INSTANCE = this;
     }
 
-    private void preloadClass() {
-        //To change body of created methods use File | Settings | File Templates.
-    }
 
     private AgentInformation createAgentInformation() {
         final String machineName = NetworkUtils.getHostName();
@@ -180,7 +176,7 @@ public class DefaultAgent implements Agent {
 		}
     }
 
-    private AgentInfo createAgentInfo() {
+    private TAgentInfo createAgentInfo() {
         final ServerInfo serverInfo = this.serverInfo;
         String ip = serverInfo.getHostip();
         String ports = "";
@@ -188,7 +184,7 @@ public class DefaultAgent implements Agent {
             ports += " " + entry.getKey();
         }
 
-        final AgentInfo agentInfo = new AgentInfo();
+        final TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setIp(ip);
         agentInfo.setHostname(this.agentInformation.getMachineName());
         agentInfo.setPorts(ports);
