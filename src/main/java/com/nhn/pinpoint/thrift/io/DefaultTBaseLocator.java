@@ -9,12 +9,6 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short JVM_INFO_THRIFT_DTO = 10;
     private static final Header JVM_INFO_THRIFT_HEADER = createHeader(JVM_INFO_THRIFT_DTO);
 
-    private static final short REQUEST_DATA_LIST_THRIFT_DTO = 20;
-    private static final Header REQUEST_DATA_LIST_THRIFT_HEADER = createHeader(REQUEST_DATA_LIST_THRIFT_DTO);
-
-    private static final short REQUEST_THRIFT_DTO = 30;
-    private static final Header REQUEST_THRIFT_HEADER = createHeader(REQUEST_THRIFT_DTO);
-
 
     private static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
@@ -46,10 +40,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         switch (type) {
             case JVM_INFO_THRIFT_DTO:
                 return new JVMInfoThriftDTO();
-            case REQUEST_DATA_LIST_THRIFT_DTO:
-                return new RequestDataListThriftDTO();
-            case REQUEST_THRIFT_DTO:
-                return new RequestThriftDTO();
             case SPAN:
                 return new Span();
             case AGENT_INFO:
@@ -83,12 +73,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof JVMInfoThriftDTO) {
             return JVM_INFO_THRIFT_DTO;
         }
-        if (tbase instanceof RequestDataListThriftDTO) {
-            return REQUEST_DATA_LIST_THRIFT_DTO;
-        }
-        if (tbase instanceof RequestThriftDTO) {
-            return REQUEST_THRIFT_DTO;
-        }
         if (tbase instanceof AgentInfo) {
             return AGENT_INFO;
         }
@@ -115,10 +99,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         switch (type) {
             case JVM_INFO_THRIFT_DTO:
                 return JVM_INFO_THRIFT_HEADER;
-            case REQUEST_DATA_LIST_THRIFT_DTO:
-                return REQUEST_DATA_LIST_THRIFT_HEADER;
-            case REQUEST_THRIFT_DTO:
-                return REQUEST_THRIFT_HEADER;
             case SPAN:
                 return SPAN_HEADER;
             case AGENT_INFO:
