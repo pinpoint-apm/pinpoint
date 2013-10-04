@@ -9,13 +9,14 @@ pinpointApp.directive('transactionTable', [function () {
             /**
              * variables definition
              */
-            var clear, appendTransactionList;
+            var clear, appendTransactionList, resetIndexToTransactionList;
 
             /**
              * variables initialization
              */
             scope.transactionList = [];
             scope.currentTransaction = null;
+            scope.transactionReverse = false;
 
             /**
              * internal methods
@@ -25,6 +26,13 @@ pinpointApp.directive('transactionTable', [function () {
             };
             appendTransactionList = function (transactionList) {
                 scope.transactionList = scope.transactionList.concat(transactionList);
+                resetIndexToTransactionList();
+            };
+            resetIndexToTransactionList = function () {
+                var index = 1;
+                angular.forEach(scope.transactionList, function (val, key) {
+                    val['index'] = index++;
+                });
             };
 
             /**
@@ -43,6 +51,14 @@ pinpointApp.directive('transactionTable', [function () {
             scope.traceRemoteAddr = function (transaction) {
                 console.log('traceRemoteAddr', transaction);
                 alert('not implemented. ip정보 조회 페이지로 연결.');
+            };
+            scope.transactionOrder = function (orderKey) {
+                if (scope.transactionOrderBy === orderKey) {
+                    scope.transactionReverse = !scope.transactionReverse;
+                } else {
+                    scope.transactionReverse = false;
+                }
+                scope.transactionOrderBy = orderKey;
             };
 
             /**
