@@ -35,7 +35,7 @@ public final class DefaultTrace implements Trace {
     private StackFrame currentStackFrame;
 
     public DefaultTrace(String agentId, long agentStartTime, long transactionId) {
-        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
+        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
 
         this.callStack = new CallStack(traceId);
         latestStackIndex = this.callStack.push();
@@ -200,7 +200,7 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
     }
 
-    void logSpan(SpanEvent spanEvent) {
+    private void logSpan(SpanEvent spanEvent) {
         if (isTrace) {
             final Thread th = Thread.currentThread();
             logger.trace("[WRITE SpanEvent]{} Thread ID={} Name={}", spanEvent, th.getId(), th.getName());
@@ -208,7 +208,7 @@ public final class DefaultTrace implements Trace {
         this.storage.store(spanEvent);
     }
 
-    void logSpan(Span span) {
+    private void logSpan(Span span) {
         if (isTrace) {
             final Thread th = Thread.currentThread();
             logger.trace("[WRITE SpanEvent]{} Thread ID={} Name={}", span, th.getId(), th.getName());

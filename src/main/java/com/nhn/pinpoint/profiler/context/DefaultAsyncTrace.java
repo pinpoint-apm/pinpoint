@@ -161,11 +161,11 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     }
 
-    void logSpan(SpanEvent spanEvent) {
+    private void logSpan(SpanEvent spanEvent) {
         try {
             if (isTrace) {
                 Thread thread = Thread.currentThread();
-                logger.trace("[WRITE SpanEvent]" + spanEvent + " CurrentThreadID=" + thread.getId() + ",\n\t CurrentThreadName=" + thread.getName());
+                logger.trace("[WRITE SpanEvent]{} CurrentThreadID={} CurrentThreadName={}", spanEvent, thread.getId(), thread.getName());
             }
             this.storage.store(spanEvent);
         } catch (Exception e) {

@@ -17,7 +17,7 @@ public class DefaultTraceId implements TraceId {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public static DefaultTraceId parse(final String transactionId, int parentSpanID, int spanID, short flags) {
+    public static DefaultTraceId parse(String transactionId, int parentSpanID, int spanID, short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
