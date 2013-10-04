@@ -24,6 +24,12 @@ public class HeartBitChecker {
 
 
     public HeartBitChecker(DataSender dataSender, long heartBitInterVal, TAgentInfo agentInfo) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
+        if (agentInfo == null) {
+            throw new NullPointerException("agentInfo must not be null");
+        }
         this.dataSender = dataSender;
         this.heartBitInterVal = heartBitInterVal;
         this.agentInfo = agentInfo;
