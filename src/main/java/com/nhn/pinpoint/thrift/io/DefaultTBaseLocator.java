@@ -6,10 +6,6 @@ import org.apache.thrift.TException;
 
 class DefaultTBaseLocator implements TBaseLocator {
 
-    private static final short JVM_INFO_THRIFT_DTO = 10;
-    private static final Header JVM_INFO_THRIFT_HEADER = createHeader(JVM_INFO_THRIFT_DTO);
-
-
     private static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
 
@@ -38,8 +34,6 @@ class DefaultTBaseLocator implements TBaseLocator {
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
-            case JVM_INFO_THRIFT_DTO:
-                return new TJVMInfoThriftDTO();
             case SPAN:
                 return new TSpan();
             case AGENT_INFO:
@@ -70,9 +64,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof TSpanEvent) {
             return SPANEVENT;
         }
-        if (tbase instanceof TJVMInfoThriftDTO) {
-            return JVM_INFO_THRIFT_DTO;
-        }
         if (tbase instanceof TAgentInfo) {
             return AGENT_INFO;
         }
@@ -97,8 +88,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         short type = typeLookup(tbase);
         switch (type) {
-            case JVM_INFO_THRIFT_DTO:
-                return JVM_INFO_THRIFT_HEADER;
             case SPAN:
                 return SPAN_HEADER;
             case AGENT_INFO:

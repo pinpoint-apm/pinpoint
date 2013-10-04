@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.thrift.io;
 
-import com.nhn.pinpoint.thrift.dto.TJVMInfoThriftDTO;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -20,25 +21,23 @@ public class HeaderTBaseSerializerTest {
         // 10 을 JVMInfoThriftDTO type
         header.setType((short) 10);
 
-        TJVMInfoThriftDTO jvmInfoThriftDTO = new TJVMInfoThriftDTO();
-        int activeThreadount = 10;
-        jvmInfoThriftDTO.setActiveThreadCount(activeThreadount);
-        String agentId = "agentId";
-        jvmInfoThriftDTO.setAgentId(agentId);
-        byte[] serialize = serializer.serialize(jvmInfoThriftDTO);
+        TAgentInfo tAgentInfo = new TAgentInfo();
+        tAgentInfo.setAgentId("agentId");
+        tAgentInfo.setHostname("host");
+        tAgentInfo.setApplicationName("applicationName");
+
+        byte[] serialize = serializer.serialize(tAgentInfo);
         dump(serialize);
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
-        TBaseLocator locator = new DefaultTBaseLocator();
-        TJVMInfoThriftDTO deserialize = (TJVMInfoThriftDTO) deserializer.deserialize(serialize);
-        logger.info("deserialize:" + deserialize.getClass());
+        TAgentInfo deserialize = (TAgentInfo) deserializer.deserialize(serialize);
+        logger.debug("deserializer:{}", deserialize.getClass());
 
-        Assert.assertEquals(deserialize.getActiveThreadCount(), activeThreadount);
-        Assert.assertEquals(deserialize.getAgentId(), agentId);
+        Assert.assertEquals(deserialize, tAgentInfo);
     }
 
     public void dump(byte[] data) {
         String s = Arrays.toString(data);
-        logger.info("size:"+ data.length + " data:" + s);
+        logger.debug("size:{} data:{}", data.length, s);
     }
 }
