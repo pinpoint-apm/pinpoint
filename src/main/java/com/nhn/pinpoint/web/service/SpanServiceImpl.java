@@ -208,6 +208,7 @@ public class SpanServiceImpl implements SpanService {
 					agentInfoBo = getAgentInfoBo(spanAlign);
 					logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
 				} catch (AgentIdNotFoundException ex) {
+                    logger.warn("AgentIdNotFoundException Caused:{}", ex.getMessage(), ex);
 					AnnotationBo agentInfoNotFound = new AnnotationBo();
 					agentInfoNotFound.setKey(AnnotationKey.ERROR_API_METADATA_AGENT_INFO_NOT_FOUND.getCode());
 					agentInfoNotFound.setValue("API-DynamicID not found. Cause:agentInfo not found. agentId:" + ex.getAgentId() + " startTime:" + ex.getStartTime());
