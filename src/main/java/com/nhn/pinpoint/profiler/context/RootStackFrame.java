@@ -5,8 +5,8 @@ package com.nhn.pinpoint.profiler.context;
  */
 public class RootStackFrame implements StackFrame {
 
+    private final Span span;
     private int stackId;
-    private Span span;
 
 
     public RootStackFrame(Span span) {
@@ -48,12 +48,32 @@ public class RootStackFrame implements StackFrame {
     }
 
 
-    public void setSpan(Span span) {
-        this.span = span;
-    }
-
     public Span getSpan() {
         return span;
+    }
+
+    @Override
+    public void setEndPoint(String endPoint) {
+        this.span.setEndPoint(endPoint);
+    }
+
+    @Override
+    public void setRpc(String rpc) {
+        this.span.setRpc(rpc);
+    }
+
+    @Override
+    public void setServiceType(short serviceType) {
+        this.span.setServiceType(serviceType);
+    }
+
+    @Override
+    public void addAnnotation(Annotation annotation) {
+        this.span.addAnnotation(annotation);
+    }
+
+    public void setRemoteAddress(String remoteAddress) {
+        this.span.setRemoteAddr(remoteAddress);
     }
 
     @Override

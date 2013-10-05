@@ -101,8 +101,6 @@ public final class DefaultTrace implements Trace {
     private StackFrame createSpanStackFrame(int stackId, Span span) {
         RootStackFrame stackFrame = new RootStackFrame(span);
         stackFrame.setStackFrameId(stackId);
-        stackFrame.setSpan(span);
-        stackFrame.setStackFrameId(ROOT_STACKID);
         return stackFrame;
     }
 
@@ -330,121 +328,63 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordAttribute(final AnnotationKey key, final Object value) {
-        // TODO API 단일화 필요.                                                                                             
         final StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.addAnnotation(new Annotation(key, value));
-        } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.addAnnotation(new Annotation(key, value));
-        }
-
+        currentStackFrame.addAnnotation(new Annotation(key, value));
     }
 
 
     @Override
     public void recordServiceType(final ServiceType serviceType) {
-        // TODO API 단일화 필요.                                                                                             
-        StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setServiceType(serviceType.getCode());
-        } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setServiceType(serviceType.getCode());
-        }
-
+        final StackFrame currentStackFrame = this.currentStackFrame;
+        currentStackFrame.setServiceType(serviceType.getCode());
     }
 
     @Override
     public void recordRpcName(final String rpc) {
-        // TODO API 단일화 필요.                                                                                             
         StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setRpc(rpc);
-        } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setRpc(rpc);
-        }
+        currentStackFrame.setRpc(rpc);
 
     }
 
     @Override
     public void recordDestinationId(final String destinationId) {
-        // TODO API 단일화 필요.                                                                                             
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof SpanEventStackFrame) {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setDestinationId(destinationId);
+            ((SpanEventStackFrame) currentStackFrame).setDestinationId(destinationId);
+        } else {
+            throw new PinpointTraceException("not SpanEventStackFrame");
         }
-    }
-
-    @Override
-    @Deprecated
-    public void recordDestinationAddress(List<String> address) {
-        // TODO API 단일화 필요.                                                                                             
-//        StackFrame currentStackFrame = this.currentStackFrame;
-//        if (currentStackFrame instanceof SpanEventStackFrame) {
-//            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-//            spanEvent.setDestinationAddress();
-//        }
-    }
-
-    @Override
-    public void recordDestinationAddressList(List<String> addressList) {
-        //To change body of created methods use File | Settings | File Templates.                                            
     }
 
     @Override
     public void recordEndPoint(final String endPoint) {
         // TODO API 단일화 필요.                                                                                             
         StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setEndPoint(endPoint);
-        } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.setEndPoint(endPoint);
-        }
+        currentStackFrame.setEndPoint(endPoint);
     }
 
     @Override
-    public void recordRemoteAddr(final String remoteAddr) {
+    public void recordRemoteAddress(final String remoteAddress) {
         // TODO API 단일화 필요.
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.setRemoteAddr(remoteAddr);
+            ((RootStackFrame) currentStackFrame).setRemoteAddress(remoteAddress);
         } else {
-            // do nothing.
+            throw new PinpointTraceException("not RootStackFrame");
         }
     }
 
     @Override
     public void recordNextSpanId(int nextSpanId) {
-        StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            logger.warn("OMG. Something's going wrong. Current stackframe is root Span. nextSpanId={}", nextSpanId);
-        } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            if (nextSpanId != -1) {
-                spanEvent.setNextSpanId(nextSpanId);
-            }
+        if (nextSpanId != -1) {
+            return;
         }
-    }
-
-    private void annotate(final AnnotationKey key) {
         StackFrame currentStackFrame = this.currentStackFrame;
-        if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
-            span.addAnnotation(new Annotation(key));
+        if (currentStackFrame instanceof  SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setNextSpanId(nextSpanId);
         } else {
-            SpanEvent spanEvent = ((SpanEventStackFrame) currentStackFrame).getSpanEvent();
-            spanEvent.addAnnotation(new Annotation(key));
+            throw new PinpointTraceException("not SpanEventStackFrame");
         }
-
     }
 
     @Override
@@ -458,7 +398,7 @@ public final class DefaultTrace implements Trace {
                 logger.debug("ParentApplicationName marked. parentApplicationName={}", parentApplicationName);
             }
         } else {
-            // do nothing.
+            throw new PinpointTraceException("not RootStackFrame");
         }
     }
 
@@ -472,7 +412,7 @@ public final class DefaultTrace implements Trace {
                 logger.debug("Acceptor host received. host={}", host);
             }
         } else {
-            // do nothing.
+            throw new PinpointTraceException("not RootStackFrame");
         }
     }
 

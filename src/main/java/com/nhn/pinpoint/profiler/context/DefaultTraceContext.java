@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.profiler.context;
 
 
+import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.common.util.SqlParser;
-import com.nhn.pinpoint.exception.PinPointException;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.metadata.LRUCache;
 import com.nhn.pinpoint.profiler.metadata.Result;
@@ -40,7 +40,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private StorageFactory storageFactory;
 
-    private final LRUCache<String> sqlCache = new LRUCache<String>(1000);
+    private final LRUCache<String> sqlCache = new LRUCache<String>();
     private final SqlParser sqlParser = new SqlParser();
 
     private final StringCache apiCache = new StringCache();
@@ -104,7 +104,7 @@ public class DefaultTraceContext implements TraceContext {
             if (logger.isDebugEnabled()) {
                 logger.warn("beforeTrace:{}", old);
             }
-            throw new PinPointException("already Trace Object exist.");
+            throw new PinpointException("already Trace Object exist.");
         }
     }
 

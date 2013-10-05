@@ -1,9 +1,11 @@
-package com.nhn.pinpoint.profiler;
+package com.nhn.pinpoint.profiler.context;
+
+import com.nhn.pinpoint.exception.PinpointException;
 
 /**
  *
  */
-public class PinpointTraceException extends RuntimeException {
+public class PinpointTraceException extends PinpointException {
 
     public PinpointTraceException() {
     }

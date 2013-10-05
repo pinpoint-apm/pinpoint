@@ -17,7 +17,7 @@ import java.security.ProtectionDomain;
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final ClassLoader agentClassLoader = this.getClass().getClassLoader();

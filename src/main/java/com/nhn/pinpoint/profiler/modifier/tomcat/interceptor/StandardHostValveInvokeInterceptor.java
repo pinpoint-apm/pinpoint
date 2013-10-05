@@ -90,7 +90,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
 
             trace.recordEndPoint(endPoint);
-            trace.recordRemoteAddr(remoteAddr);
+            trace.recordRemoteAddress(remoteAddr);
             
             // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
             if (traceId != null && !traceId.isRoot()) {

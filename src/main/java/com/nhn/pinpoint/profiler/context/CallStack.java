@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.exception.PinPointException;
+import com.nhn.pinpoint.exception.PinpointException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class CallStack {
             stack[index] = null;
             index--;
         } else {
-            PinPointException ex = new PinPointException("Profiler CallStack check. index:" + index + "");
+            PinpointException ex = new PinpointTraceException("Profiler CallStack check. index:" + index + "");
             if (logger.isWarnEnabled()) {
                 // 자체 stack dump 필요.
                 logger.warn("invalid callStack found stack dump:{}", this, ex);
@@ -93,7 +93,7 @@ public class CallStack {
             index--;
             return stack[index];
         } else {
-            PinPointException ex = new PinPointException("Profiler CallStack check. index:" + index + "");
+            PinpointException ex = new PinpointException("Profiler CallStack check. index:" + index + "");
             if (logger.isWarnEnabled()) {
                 // 자체 stack dump 필요.
                 logger.warn("invalid callStack found stack dump:{}", this, ex);

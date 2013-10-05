@@ -4,6 +4,7 @@ package com.nhn.pinpoint.profiler.context;
  *
  */
 public interface StackFrame {
+
     int getStackFrameId();
 
     void setStackFrameId(int stackId);
@@ -15,6 +16,14 @@ public interface StackFrame {
     void markAfterTime();
 
     long getAfterTime();
+
+    void setEndPoint(String endPoint);
+
+    void setRpc(String rpc);
+
+    void setServiceType(short serviceType);
+
+    void addAnnotation(Annotation annotation);
 
     void attachObject(Object object);
 

@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadFactory;
  *
  */
 public class HeartBitChecker {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-Agent-Heartbeat-Thread", true);
     private long heartBitInterVal;

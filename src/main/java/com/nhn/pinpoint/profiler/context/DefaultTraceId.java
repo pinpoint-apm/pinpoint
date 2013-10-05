@@ -5,13 +5,13 @@ import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
 public class DefaultTraceId implements TraceId {
 
-    private String agentId;
-	private long agentStartTime;
-    private long transactionSequence;
+    private final String agentId;
+	private final long agentStartTime;
+    private final long transactionSequence;
 
-	private int parentSpanId;
-	private int spanId;
-	private short flags;
+	private final int parentSpanId;
+	private final int spanId;
+	private final short flags;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
@@ -117,19 +117,6 @@ public class DefaultTraceId implements TraceId {
 		return flags;
 	}
 
-
-	public void setParentSpanId(int parentSpanId) {
-		this.parentSpanId = parentSpanId;
-	}
-
-	public void setSpanId(int spanId) {
-		this.spanId = spanId;
-	}
-
-	public void setFlags(short flags) {
-		this.flags = flags;
-	}
-	
 	public boolean isRoot() {
 		return this.parentSpanId == SpanId.NULL;
 	}

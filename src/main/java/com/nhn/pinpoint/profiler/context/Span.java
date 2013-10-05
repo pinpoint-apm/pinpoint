@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.PinpointTraceException;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;

@@ -53,6 +53,34 @@ public class SpanEventStackFrame implements StackFrame {
     }
 
     @Override
+    public void setEndPoint(String endPoint) {
+        this.spanEvent.setEndPoint(endPoint);
+    }
+
+    @Override
+    public void setRpc(String rpc) {
+        this.spanEvent.setRpc(rpc);
+    }
+
+    @Override
+    public void setServiceType(short serviceType) {
+        spanEvent.setServiceType(serviceType);
+    }
+
+    @Override
+    public void addAnnotation(Annotation annotation) {
+        this.spanEvent.addAnnotation(annotation);
+    }
+
+    public void setDestinationId(String destinationId) {
+        this.spanEvent.setDestinationId(destinationId);
+    }
+
+    public void setNextSpanId(int nextSpanId) {
+        this.spanEvent.setNextSpanId(nextSpanId);
+    }
+
+    @Override
     public void attachObject(Object object) {
 
     }

@@ -148,15 +148,6 @@ public class DisableTrace  implements Trace {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public void recordDestinationAddress(List<String> address) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordDestinationAddressList(List<String> addressList) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public void recordEndPoint(String endPoint) {
@@ -164,7 +155,7 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordRemoteAddr(String remoteAddr) {
+    public void recordRemoteAddress(String remoteAddress) {
         throw new UnsupportedOperationException();
     }
 

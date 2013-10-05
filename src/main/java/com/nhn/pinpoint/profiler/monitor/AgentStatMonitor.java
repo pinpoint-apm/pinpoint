@@ -28,8 +28,8 @@ public class AgentStatMonitor {
 
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
-	private DataSender dataSender;
-	private String agentId;
+	private final DataSender dataSender;
+	private final String agentId;
 
 	public AgentStatMonitor(DataSender dataSender, String agentId) {
         if (dataSender == null) {

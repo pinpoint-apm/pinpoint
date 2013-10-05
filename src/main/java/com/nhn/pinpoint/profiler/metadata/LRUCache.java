@@ -25,7 +25,7 @@ public class LRUCache<T> {
     }
 
     public LRUCache() {
-        this(1000);
+        this(2048);
     }
 
 

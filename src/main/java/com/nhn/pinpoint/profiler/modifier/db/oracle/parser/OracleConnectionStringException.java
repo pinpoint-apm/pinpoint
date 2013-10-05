@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
 
-import com.nhn.pinpoint.exception.PinPointException;
+import com.nhn.pinpoint.exception.PinpointException;
 
 /**
  *
  */
-public class OracleConnectionStringException extends PinPointException {
+public class OracleConnectionStringException extends PinpointException {
 
     public OracleConnectionStringException() {
     }
