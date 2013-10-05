@@ -126,6 +126,11 @@ public class AllInOneController implements DisposableBean {
 
 	@RequestMapping(value = "/allInOne")
 	public String allInOne(Model model) {
+//		arcus();
+//		memcached();
+		mysql();
+//		npc();
+//		unknown();
 		nested();
 
 		String[] ports = new String[] { "9080", "10080", "11080" };
