@@ -56,7 +56,7 @@ ${record.hasChild},
 <c:choose><c:when test="${record.title == 'Exception'}">false, true</c:when><c:when test="${record.focused}">true,false</c:when><c:otherwise>false,false</c:otherwise></c:choose>
 ]<c:if test="${!status.last}">,</c:if></c:forEach>
 ],
-	"mapData" : {
+	"applicationMapData" : {
 		"nodeDataArray": [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
 			{
