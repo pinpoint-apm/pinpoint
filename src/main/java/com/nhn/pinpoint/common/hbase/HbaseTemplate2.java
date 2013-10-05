@@ -418,6 +418,23 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             }
         });
     }
+    
+	public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LastRowHandler lastRowHandler) {
+		final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit);
+		return execute(tableName, new TableCallback<List<T>>() {
+			@Override
+			public List<T> doInTable(HTableInterface htable) throws Throwable {
+				ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+				try {
+					List<T> extractData = resultsExtractor.extractData(scanner);
+					lastRowHandler.handle(((LimitRowMapperResultsExtractor<T>) resultsExtractor).getLastestMappedKeyValue());
+					return extractData;
+				} finally {
+					scanner.close();
+				}
+			}
+		});
+	}
 
     @Override
     public <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
