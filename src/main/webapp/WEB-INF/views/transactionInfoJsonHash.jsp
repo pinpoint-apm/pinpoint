@@ -49,7 +49,7 @@
 			"hasChild":${record.hasChild},
 			"title":"${record.title}",
 			"arguments":"${record.arguments}",
-			"execcuteTime": "<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>",
+			"executeTime": "<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>",
 			"gap":"<c:if test="${record.method}"><fmt:formatNumber value="${record.gap}" type="number" /></c:if>",
 			"elapsedTime":"<c:if test="${record.method}"><fmt:formatNumber type="number" value="${record.elapsed}"/></c:if>",
 			"barWidth":"<c:if test="${record.method}"><fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/></c:if>",                 

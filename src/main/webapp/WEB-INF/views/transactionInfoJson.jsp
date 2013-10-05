@@ -22,7 +22,7 @@
 		"hasChild":9,
 		"title":10,
 		"arguments":11,
-		"execcuteTime":12,
+		"executeTime":12,
 		"gap":13,
 		"elapsedTime":14,
 		"barWidth":15,                 
