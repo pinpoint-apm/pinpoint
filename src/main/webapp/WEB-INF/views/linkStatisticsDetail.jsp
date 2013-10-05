@@ -9,6 +9,7 @@
 	"destApplicationTypeCode" : "${destApplicationType.code}",
 	"from" : ${from},
 	"to" : ${to},
+	"lastFetchedTimestamp" : ${lastFetchedTimestamp},
 	"failedCount" : ${linkStatistics.failedCount},
 	"successCount" : ${linkStatistics.successCount},
 	"histogramSummary" : [

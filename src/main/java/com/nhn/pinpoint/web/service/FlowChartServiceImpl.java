@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.util.StopWatch;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
@@ -35,6 +33,12 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.BusinessTransactions;
+import com.nhn.pinpoint.web.vo.ClientStatistics;
+import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -193,7 +197,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public Set<TransactionId> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to) {
+	public ResultWithMark<Set<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
 		if (applicationName == null) {
 			throw new NullPointerException("applicationName");
 		}
@@ -202,15 +206,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", applicationName, from, to);
 		}
 
-		List<List<TransactionId>> traceIdList = this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to);
-		Set<TransactionId> result = new HashSet<TransactionId>();
-		for (List<TransactionId> list : traceIdList) {
-			for (TransactionId traceId : list) {
-				result.add(traceId);
-				logger.trace("traceid:{}", traceId);
-			}
-		}
-		return result;
+		return this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to, limit);
 	}
 
 	@Override
@@ -349,6 +345,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
 
+		int fetchedTransactionCount = transactionList.size();
+		int returnTransactionCount = 0;
+		
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
@@ -361,6 +360,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 				continue;
 			}
 
+			returnTransactionCount++;
+			
 			transactionSpanMap.clear();
 			for (SpanBo span : transaction) {
 				transactionSpanMap.put(span.getSpanId(), span);

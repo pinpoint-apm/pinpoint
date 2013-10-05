@@ -26,6 +26,7 @@ import com.nhn.pinpoint.web.service.RecordSetService;
 import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
+import com.nhn.pinpoint.web.vo.ResultWithMark;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -57,14 +58,20 @@ public class BusinessTransactionController {
 	 * @return
 	 */
 	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
-	public String getBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam(value = "filter", required = false) String filterText) {
+	public String getBusinessTransactionsData(Model model, HttpServletResponse response,
+											@RequestParam("application") String applicationName,
+											@RequestParam("from") long from, 
+											@RequestParam("to") long to,
+											@RequestParam(value = "filter", required = false) String filterText, 
+											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+		
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-
-		Set<TransactionId> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		ResultWithMark<Set<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 
 		Filter filter = FilterBuilder.build(filterText);
-		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList, applicationName, from, to, filter);
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getValue(), applicationName, from, to, filter);
 
+		model.addAttribute("lastFetchedTimestamp", traceIdList.getMark());
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransactionIterator());
@@ -80,10 +87,14 @@ public class BusinessTransactionController {
 	}
 
 	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
-	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("period") long period, @RequestParam(value = "filter", required = false) String filterText) {
+	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response,
+											@RequestParam("application") String applicationName, 
+											@RequestParam("period") long period,
+											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText);
+		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText, limit);
 	}
 
 	/**

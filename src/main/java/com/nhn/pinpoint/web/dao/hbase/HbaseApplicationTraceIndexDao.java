@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -18,14 +18,19 @@ import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.web.vo.TraceIdWithTime;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.hbase.LastRowHandler;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
+import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.TraceIdWithTime;
+import com.nhn.pinpoint.web.vo.TransactionId;
+import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
  *
@@ -57,10 +62,38 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public List<List<TransactionId>> scanTraceIndex(String applicationName, long start, long end) {
+	public ResultWithMark<Set<TransactionId>, Long> scanTraceIndex(final String applicationName, long start, long end, int limit) {
         logger.debug("scanTraceIndex");
 		Scan scan = createScan(applicationName, start, end);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexMapper);
+		
+		final ResultWithMark<Set<TransactionId>, Long> result = new ResultWithMark<Set<TransactionId>, Long>();
+		
+		List<List<TransactionId>> traceIndexList = hbaseOperations2.find(
+												HBaseTables.APPLICATION_TRACE_INDEX,
+												scan,
+												traceIdRowKeyDistributor,
+												limit,
+												traceIndexMapper,
+												new LastRowHandler() {
+													@Override
+													public void handle(KeyValue keyValue) {
+														byte[] row = keyValue.getRow();
+														byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
+												        long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
+												        long lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+												        result.setMark(lastRowTimestamp);
+													}
+												});
+		
+		Set<TransactionId> set = new HashSet<TransactionId>();
+		for (List<TransactionId> list : traceIndexList) {
+			for (TransactionId traceId : list) {
+				set.add(traceId);
+			}
+		}
+		
+		result.setValue(set);
+		return result;
 	}
 
 //	@Override

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.web.vo.TransactionId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
@@ -22,7 +22,8 @@ import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * 
@@ -96,10 +97,11 @@ public class ApplicationMapController {
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
-											@RequestParam(value = "filter", required = false) String filterText) {
-		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
-		ServerCallTree map = flow.selectServerCallTree(traceIdSet, filter);
+		ServerCallTree map = flow.selectServerCallTree(traceIdSet.getValue(), filter);
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -115,16 +117,21 @@ public class ApplicationMapController {
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
-											@RequestParam(value = "filter", required = false) String filterText) {
+											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
 		
-		ApplicationMap map = flow.selectApplicationMap(traceIdSet, from, to, filter);
+		ApplicationMap map = flow.selectApplicationMap(traceIdSet.getValue(), from, to, filter);
+		
+		model.addAttribute("from", from);
+		model.addAttribute("to", to);
+		model.addAttribute("filter", filter);
+		model.addAttribute("lastFetchedTimestamp", traceIdSet.getMark());
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
-		model.addAttribute("filter", filter);
 		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
 
 		return "applicationmap.filtered2";
@@ -174,12 +181,14 @@ public class ApplicationMapController {
 									@RequestParam("srcServiceType") short srcServiceType,
 									@RequestParam("destApplicationName") String destApplicationName,
 									@RequestParam("destServiceType") short destServiceType,
-									@RequestParam(value = "filter", required = false) String filterText) {
+									@RequestParam(value = "filter", required = false) String filterText,
+									@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		Set<TransactionId> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to);
+		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
-		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet, srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
+		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet.getValue(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
+		model.addAttribute("lastFetchedTimestamp", traceIdSet.getMark());
 		model.addAttribute("linkStatistics", linkStatistics);
 		
 		return "linkStatisticsDetail";

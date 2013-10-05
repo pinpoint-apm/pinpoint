@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.web.dao;
 
 import java.util.List;
+import java.util.Set;
 
+import com.nhn.pinpoint.web.vo.ResultWithMark;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 
@@ -9,7 +11,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
  *
  */
 public interface ApplicationTraceIndexDao {
-	List<List<TransactionId>> scanTraceIndex(String applicationName, long start, long end);
+	ResultWithMark<Set<TransactionId>, Long> scanTraceIndex(String applicationName, long start, long end, int limit);
 
 //	List<List<List<TransactionId>>> multiScanTraceIndex(String[] applicationNames, long start, long end);
 
