@@ -40,11 +40,6 @@ public class DummyAgent implements Agent {
     }
 
     @Override
-    public Object getByteCodeInstrumentor() {
-        return null;
-    }
-
-    @Override
     public ProfilerConfig getProfilerConfig() {
         return null;
     }

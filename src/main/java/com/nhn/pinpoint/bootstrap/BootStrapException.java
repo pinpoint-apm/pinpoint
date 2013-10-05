@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.exception.PinPointException;
+import com.nhn.pinpoint.exception.PinpointException;
 
 /**
  *
  */
-public class BootStrapException extends PinPointException {
+public class BootStrapException extends PinpointException {
 
     public BootStrapException(String message, Throwable cause) {
         super(message, cause);

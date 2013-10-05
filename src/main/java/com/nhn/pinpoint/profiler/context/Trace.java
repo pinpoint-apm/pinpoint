@@ -69,15 +69,9 @@ public interface Trace {
 
     void recordDestinationId(String destinationId);
 
-    // 정규화를 좀더 시켜야 될듯하다. 일단 endpint를 사용한다.
-    @Deprecated
-    void recordDestinationAddress(List<String> address);
-
-    void recordDestinationAddressList(List<String> addressList);
-
     void recordEndPoint(String endPoint);
 
-    void recordRemoteAddr(String remoteAddr);
+    void recordRemoteAddress(String remoteAddress);
 
     void recordNextSpanId(int spanId);
 
