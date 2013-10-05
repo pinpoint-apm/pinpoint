@@ -149,11 +149,21 @@ var BigScatterChart = $.Class({
 			nZIndexForCanvas = this.option('nZIndexForCanvas');
 
 		// container
-		this._welContainer = $('#' + this.option('sContainerId'));
+        var sContainerId = this.option('sContainerId');
+        if (typeof sContainerId === 'string') {
+            this._welContainer = $('#' + sContainerId);
+        } else if (typeof sContainerId === 'object') {
+            this._welContainer = sContainerId;
+        } else if (typeof sContainerId === 'function') {
+            this._welContainer = sContainerId();
+        }
+        if(typeof this._welContainer !== 'object') {
+            return false;
+        }
 		this._welContainer.css({
 			'position' : 'relative',
 			'width' : this.option('nWidth'),
-			'height' : this.option('nHeight'),
+			'height' : this.option('nHeight')
 		}).addClass('bigscatterchart');
 
 		// guide

@@ -4,7 +4,7 @@ pinpointApp.constant('TransactionDetailConfig', {
 });
 
 pinpointApp
-    .controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', function (cfg, $scope, $rootScope, $routeParams) {
+    .controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$route', function (cfg, $scope, $rootScope, $routeParams, $route) {
         $rootScope.wrapperClass = 'no-navbar';
         $rootScope.wrapperStyle = {
             'padding-top': '70px'
@@ -53,5 +53,13 @@ pinpointApp
                 showCallStacks();
             });
         }
+
+        $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
+            $scope.$emit('servermap.initialize', $scope.transactionDetail);
+        });
+        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
+            $scope.$emit('timeline.initialize', $scope.transactionDetail);
+        });
+
 
     }]);

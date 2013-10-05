@@ -3,7 +3,8 @@
         font-size: 13px;
     }
     .tab-content .tab-pane {
-        padding: 5px;
+        width: 100%;
+        height: 100%;
     }
 </style>
 
@@ -21,11 +22,10 @@
     </div>
 </div>
 
-<ul class="nav nav-tabs navbar-fixed-top" id="traceTabs" style="top:32px;">
+<ul id="traceTabs" class="nav nav-tabs navbar-fixed-top" style="top:32px;">
     <li class="active"><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
-    <li><a href="#Details" data-toggle="tab">Details (for PINPOINT developer)</a></li>
 </ul>
 
 <div class="tab-content" style="width:100%;height:100%;overflow:auto;">
@@ -35,32 +35,10 @@
     </div>
 
     <div class="tab-pane" id="ServerMap">
-        <div id="servermap" style="width:90%;height:700px; border:1px solid #DDDDDD; overflow:hidden;"></div>
+        <servermap></servermap>
     </div>
 
     <div class="tab-pane" id="Timeline">
-        <div id="timeline" style="background-color:#E8E8E8;width:1000px;font-size:11px;">
-        </div>
-        <div id="spanDetail${status.count}" style="display:none; position:absolute; left:0; top:0;width:500px;background-color:#E8CA68;padding:10px;">
-        </div>
-    </div>
-
-    <div class="tab-pane" id="Details">
-        <!-- begin details -->
-        <table id="businessTransactions" class="table table-bordered table-hover" style="font-size:12px;">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Action</th>
-                <th>Arguments</th>
-                <th>EndPoint</th>
-                <th>Total[ms]</th>
-                <th>Application</th>
-                <th>Agent</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <timeline></timeline>
     </div>
 </div>

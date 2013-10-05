@@ -41,12 +41,10 @@ pinpointApp.directive('transactionTable', [function () {
             scope.traceByAppliation = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.applicationSelected', transaction);
-                console.log('transactionTable.applicationSelected', transaction);
             };
             scope.etraceBySequence = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.sequenceSelected', transaction);
-                console.log('transactionTable.sequenceSelected', transaction);
             };
             scope.traceRemoteAddr = function (transaction) {
                 console.log('traceRemoteAddr', transaction);

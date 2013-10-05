@@ -1,0 +1,48 @@
+.callStacks TH {
+    text-align:center;
+}
+.callStacks TD {
+    font-family:consolas;
+}
+.callStacks .error {
+    background-color:#FF8F8B;
+}
+.callStacks .info {
+    background-color:#F7E259;
+}
+.callStacks .method {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.callStacks .arguments {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.callStacks .exectime {
+    text-align: center;
+}
+.callStacks .exectime.info {
+}
+.callStacks .time {
+    text-align: right;
+}
+.callStacks .gap {
+    text-align: right;
+}
+.callStacks .gap.info {
+}
+.callStacks .service {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.callStacks .agent {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.callStacks .bar {
+    vertical-align: middle;
+}

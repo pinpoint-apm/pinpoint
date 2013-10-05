@@ -9,19 +9,20 @@ pinpointApp.directive('callStacks', [ function () {
 
             var initialize;
 
-            initialize = function () {
+            scope.transactionDetail = null;
+
+            initialize = function (transactionDetail) {
+                scope.transactionDetail = transactionDetail;
+                scope.key = transactionDetail.callStackIndex;
+                scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
-                    tableId : "callStacks",
+                    tableId : element,
                     height : "auto"
                 });
             };
 
             scope.$on('callStacks.initialize', function (event, transactionDetail) {
-                scope.transactionDetail = transactionDetail;
-                scope.key = transactionDetail.callStackIndex;
-                scope.$digest();
-                initialize();
-                console.log('transactionDetail', transactionDetail);
+                initialize(transactionDetail);
             });
         }
     };

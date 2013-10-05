@@ -13,7 +13,7 @@ var selectdTracesBox = {};
 pinpointApp.directive('scatter',
     [ 'scatterConfig', '$rootScope', '$timeout', function (scatterConfig, $rootScope, $timeout) {
         return {
-            template: '<div id="scatterchart"></div>',
+            template: '<div class="scatter"></div>',
             restrict: 'EA',
             replace: true,
             link: function (scope, element, attrs) {
@@ -172,7 +172,7 @@ pinpointApp.directive('scatter',
 //                    var date = new Date();
 
                     var options = {
-                        sContainerId: targetId,
+                        sContainerId: element,
                         nWidth: w ? w : 400,
                         nHeight: h ? h : 250,
                         // nXMin: date.getTime() - 86400000, nXMax: date.getTime(),

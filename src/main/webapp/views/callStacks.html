@@ -1,80 +1,28 @@
-<div>
-    <style type="text/css">
-        .callStacks TH {
-            text-align:center;
-        }
-        .callStacks TD {
-            font-family:consolas;
-        }
-        .callStacks .error {
-            background-color:#FF8F8B;
-        }
-        .callStacks .info {
-            background-color:#F7E259;
-        }
-        .callStacks .method {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .callStacks .arguments {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .callStacks .exectime {
-            text-align: center;
-        }
-        .callStacks .exectime.info {
-        }
-        .callStacks .time {
-            text-align: right;
-        }
-        .callStacks .gap {
-            text-align: right;
-        }
-        .callStacks .gap.info {
-        }
-        .callStacks .service {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .callStacks .agent {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .callStacks .bar {
-            vertical-align: middle;
-        }
-    </style>
-    <table id="callStacks" class="callStacks">
-        <thead>
-        <tr>
-            <th width="500">Method</th>
-            <th width="400">Argument</th>
-            <th width="80">Exec Time</th>
-            <th width="50">Gap</th>
-            <th width="50">Time[ms]</th>
-            <th width="100">Time[%]</th>
-            <th>Class</th>
-            <th>ApiType</th>
-            <th>Agent</th>
+<table class="callStacks" ng-show="transactionDetail">
+    <thead>
+    <tr>
+        <th width="500">Method</th>
+        <th width="400">Argument</th>
+        <th width="80">Exec Time</th>
+        <th width="50">Gap</th>
+        <th width="50">Time[ms]</th>
+        <th width="100">Time[%]</th>
+        <th>Class</th>
+        <th>ApiType</th>
+        <th>Agent</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}">
+            <td class="method"><i class="icon-info-sign" ng-hide="stack[key.isMethod]"></i>{{stack[key.title]}}</td>
+            <td class="arguments">{{stack[key.arguments]}}</td>
+            <td class="exectime">{{stack[key.begin] | date:'HH:mm:ss SSS'}}</td>
+            <td class="gap">{{stack[key.gap] | number}}</td>
+            <td class="time">{{stack[key.elapsedTime] | number}}</td>
+            <td class="bar"></td>
+            <td class="simpleClassName">{{stack[key.simpleClassName]}}</td>
+            <td class="apiType">{{stack[key.apiType]}}</td>
+            <td class="agent">{{stack[key.agent]}}</td>
         </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}">
-                <td class="method"><i class="icon-info-sign" ng-hide="stack[key.isMethod]"></i>{{stack[key.title]}}</td>
-                <td class="arguments">{{stack[key.arguments]}}</td>
-                <td class="exectime">{{stack[key.begin] | date:'HH:mm:ss SSS'}}</td>
-                <td class="gap">{{stack[key.gap] | number}}</td>
-                <td class="time">{{stack[key.elapsedTime] | number}}</td>
-                <td class="bar"></td>
-                <td class="simpleClassName">{{stack[key.simpleClassName]}}</td>
-                <td class="apiType">{{stack[key.apiType]}}</td>
-                <td class="agent">{{stack[key.agent]}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    </tbody>
+</table>

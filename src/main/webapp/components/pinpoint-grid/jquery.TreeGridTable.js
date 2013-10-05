@@ -39,8 +39,18 @@
 		_executeVendors : function(){
 			var self = this,
 				tableId = this.option('tableId');
-			this._table = $('#' + tableId);
-			
+
+            if (typeof tableId === 'string') {
+                this._table = $('#' + tableId);
+            } else if (typeof tableId === 'object') {
+                this._table = tableId;
+            } else if (typeof tableId === 'function') {
+                this._table = tableId();
+            }
+            if(typeof this._table !== 'object') {
+                return false;
+            }
+
 			if(typeof this._table === 'undefined' || typeof this._table.get(0) === 'undefined' || this._table.get(0).nodeName !== 'TABLE'){
 				console.error('Id of TreeGridTable is undefined.');
 				return;
@@ -68,7 +78,7 @@
 				onNodeCollapsed : function(){
 					self._table.flexHeight();
 				}
-			});
+			}, true);
 			this.expandAll();
 			
 			this._table.flexHeight();
