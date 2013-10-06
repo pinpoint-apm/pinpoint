@@ -14,6 +14,7 @@ pinpointApp.directive('timeline', function () {
                 scope.key = transactionDetail.callStackIndex;
                 scope.barRatio = 1000 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
                 scope.$digest();
+                $('.timeline').tooltip();
             };
 
             scope.$on('timeline.initialize', function (event, transactionDetail) {

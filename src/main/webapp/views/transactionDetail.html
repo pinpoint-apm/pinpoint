@@ -8,11 +8,6 @@
     }
 </style>
 
-<!-- grid -->
-<script type="text/javascript" src="/components/jquery-flexigrid/js/flexigrid.js"></script>
-<script type="text/javascript" src="/components/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
-<script type="text/javascript" src="/components/pinpoint-grid/jquery.TreeGridTable.js"></script>
-
 <div class="navbar navbar-fixed-top" style="height:30px;background-color:#252a3a;color:#ddd;font-size:11px;">
     <div class="row-fluid">
         <div class="span3" style="text-align:center;line-height:30px">Application : {{transactionDetail.applicationName}}</div>
@@ -21,7 +16,7 @@
         <div class="span3" style="text-align:center;line-height:30px">ApplicationId : {{transactionDetail.applicationId}}</div>
     </div>
 </div>
-
+<a><span tooltip-placement="left" tooltip="On the Left!">left</span></a>
 <ul id="traceTabs" class="nav nav-tabs navbar-fixed-top" style="top:32px;">
     <li class="active"><a href="#CallStacks" data-toggle="tab">Call Stacks</a></li>
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
@@ -40,5 +35,24 @@
 
     <div class="tab-pane" id="Timeline">
         <timeline></timeline>
+    </div>
+
+    <div class="tab-pane" id="Details">
+        <!-- begin details -->
+        <table id="businessTransactions" class="table table-bordered table-hover" style="font-size:12px;">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Action</th>
+                <th>Arguments</th>
+                <th>EndPoint</th>
+                <th>Total[ms]</th>
+                <th>Application</th>
+                <th>Agent</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 </div>
