@@ -51,6 +51,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     dateFormat: "yy-mm-dd",
                     timeFormat: "hh:mm tt",
                     beforeShow: function () {
+                        $datetimepicker.datetimepicker('option', 'maxDate', new Date());
                         $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
                     }
                 });
