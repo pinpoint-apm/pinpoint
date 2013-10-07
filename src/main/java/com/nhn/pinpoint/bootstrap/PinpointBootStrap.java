@@ -62,8 +62,9 @@ public class PinpointBootStrap {
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass(BOOT_CLASS);
+            logger.info("pinpoint agent start.");
             agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
-
+            logger.info("pinpoint agent start success.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
         }
@@ -71,23 +72,26 @@ public class PinpointBootStrap {
     }
 
     private static boolean checkProfilerIdSize(String propertyName, int maxSize) {
-        logger.info("check " + propertyName);
+        logger.info("check -D" + propertyName);
         final String value = System.getProperty(propertyName);
         if (value != null) {
             final byte[] bytes;
             try {
                 bytes = toBytes(value);
             } catch (UnsupportedEncodingException e) {
-                logger.warning("toBytes() fail. propertyName:" + propertyName + " propertyValue:" + value);
+                logger.severe("toBytes() fail. propertyName:" + propertyName + " propertyValue:" + value);
                 return false;
             }
             if (bytes.length > maxSize) {
-                logger.warning("invalid " + propertyName + ". too large bytes. length:" + bytes.length + " value:" + value);
+                logger.severe("invalid " + propertyName + ". too large bytes. length:" + bytes.length + " value:" + value);
                 return false;
             }
+            logger.info("check success. -D" + propertyName + ":" + value);
+            return true;
+        } else {
+            logger.severe("-D" + propertyName + " is null.");
+            return false;
         }
-        logger.info("check success. " + propertyName + ":" + value);
-        return true;
     }
 
     private static byte[] toBytes(String property) throws UnsupportedEncodingException {
