@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.bootstrap;
 
 import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
@@ -36,14 +38,20 @@ public class PinpointBootStrap {
             return;
         }
 
+        if (!checkProfilerIdSize("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            return;
+        }
+        if (!checkProfilerIdSize("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+            return;
+        }
+
         String configPath = getConfigPath(classPathResolver);
-        if(configPath == null ) {
+        if (configPath == null ) {
             // 설정파일을 못찾으므로 종료.
             return;
         }
         // 로그가 저장될 위치를 시스템 properties로 저장한다.
         saveLogFilePath(classPathResolver);
-
 
         try {
             // 설정파일 로드 이게 bootstrap에 있어야 되나는게 맞나?
@@ -60,6 +68,30 @@ public class PinpointBootStrap {
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
         }
 
+    }
+
+    private static boolean checkProfilerIdSize(String propertyName, int maxSize) {
+        logger.info("check " + propertyName);
+        final String value = System.getProperty(propertyName);
+        if (value != null) {
+            final byte[] bytes;
+            try {
+                bytes = toBytes(value);
+            } catch (UnsupportedEncodingException e) {
+                logger.warning("toBytes() fail. propertyName:" + propertyName + " propertyValue:" + value);
+                return false;
+            }
+            if (bytes.length > maxSize) {
+                logger.warning("invalid " + propertyName + ". too large bytes. length:" + bytes.length + " value:" + value);
+                return false;
+            }
+        }
+        logger.info("check success. " + propertyName + ":" + value);
+        return true;
+    }
+
+    private static byte[] toBytes(String property) throws UnsupportedEncodingException {
+        return property.getBytes("UTF-8");
     }
 
     private static void saveLogFilePath(ClassPathResolver classPathResolver) {
