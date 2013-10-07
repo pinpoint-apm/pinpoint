@@ -116,7 +116,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private class PingTask implements TimerTask {
         @Override
         public void run(Timeout timeout) throws Exception {
-            if (timeout.isCancelled() || timeout.isExpired()) {
+            if (timeout.isCancelled()) {
                 newPingTimeout(this);
                 return;
             }

@@ -261,7 +261,7 @@ public class PinpointSocketFactory {
 
         @Override
         public void run(Timeout timeout) {
-            if (timeout.isCancelled() || timeout.isExpired()) {
+            if (timeout.isCancelled()) {
                 return;
             }
             // 이벤트는 fire됬지만 close됬을 경우 reconnect를 시도 하지 않음.

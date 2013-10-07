@@ -273,7 +273,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         final TimerTask pintTask = new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
-                if (timeout.isCancelled() || timeout.isExpired()) {
+                if (timeout.isCancelled()) {
                     newPingTimeout(this);
                     return;
                 }
@@ -282,11 +282,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 write.addListener(new ChannelGroupFutureListener() {
                     @Override
                     public void operationComplete(ChannelGroupFuture future) throws Exception {
-                        if (logger.isDebugEnabled()) {
+                        if (logger.isInfoEnabled()) {
                             for (ChannelFuture channelFuture : future) {
                                 if (!channelFuture.isDone()) {
                                     final Throwable cause = channelFuture.getCause();
-                                    logger.debug("ping write fail channel:{} Caused:{}", channelFuture.getChannel(), cause.getMessage(), cause);
+                                    logger.info("ping write fail channel:{} Caused:{}", channelFuture.getChannel(), cause.getMessage(), cause);
+                                } else {
+                                    logger.debug("ping write success channel:{}", channelFuture.getChannel());
                                 }
                             }
                         }
