@@ -205,6 +205,16 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("server channelConnected {}", channel);
         }
+        if (released) {
+            logger.warn("already released. channel:{}", channel);
+            channel.write(new ServerClosePacket()).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    future.getChannel().close();
+                }
+            });
+            return;
+        }
         prepareChannel(channel);
         super.channelConnected(ctx, e);
     }
@@ -213,7 +223,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         if (logger.isDebugEnabled()) {
-            logger.debug("server channelConnected {}", channel);
+            logger.debug("server channelDisconnected {}", channel);
         }
         this.channelGroup.remove(channel);
         super.channelDisconnected(ctx, e);
