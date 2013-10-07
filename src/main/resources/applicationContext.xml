@@ -26,8 +26,8 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>hbase.properties</value>
-                <value>pinpoint-collector.properties</value>
+                <value>classpath:hbase.properties</value>
+                <value>classpath:pinpoint-collector.properties</value>
             </list>
         </property>
 
@@ -71,6 +71,12 @@
     </bean>
 
     <bean id="statServer" class="com.nhn.pinpoint.collector.StatServer">
+    </bean>
+
+    <bean id="tcpRecevier" class="com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver">
+        <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandler"/>
+        <constructor-arg value="#{collectorConfiguration.tcpListenIp}"/>
+        <constructor-arg value="#{collectorConfiguration.tcpListenPort}"/>
     </bean>
 
     <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">

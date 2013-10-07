@@ -11,6 +11,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
+@Deprecated
 public class Server {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

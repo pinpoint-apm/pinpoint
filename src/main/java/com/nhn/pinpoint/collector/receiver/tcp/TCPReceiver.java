@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
@@ -11,7 +10,6 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
@@ -26,6 +24,9 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 public class TCPReceiver {
 
@@ -55,6 +56,7 @@ public class TCPReceiver {
         this.port = port;
 	}
 
+    @PostConstruct
 	public void start() {
         // message handler를 붙일 경우 주의점
         // iothread에서 올라오는 이벤트 이기 때문에. queue에 넣던가. 별도 thread처리등을 해야 한다.
@@ -180,7 +182,9 @@ public class TCPReceiver {
         }
     }
 
+    @PreDestroy
     public void stop() {
+        logger.info("Pinpoint-TCP-Server stop");
         pinpointServerSocket.close();
         worker.shutdown();
         try {

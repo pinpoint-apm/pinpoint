@@ -5,7 +5,7 @@
     <artifactId>pinpoint-collector</artifactId>
     <version>0.0.4-SNAPSHOT</version>
     <name>pinpoint collector</name>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <spring-version>3.1.2.RELEASE</spring-version>
@@ -454,6 +454,16 @@
             <artifactId>spring-test</artifactId>
             <version>${spring-version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>

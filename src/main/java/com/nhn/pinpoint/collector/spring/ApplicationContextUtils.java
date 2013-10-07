@@ -1,12 +1,12 @@
 package com.nhn.pinpoint.collector.spring;
 
-import com.nhn.pinpoint.collector.receiver.UdpDispatchHandler;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
+@Deprecated
 public class ApplicationContextUtils {
 
     public static GenericApplicationContext createContext(String contextPath) {
