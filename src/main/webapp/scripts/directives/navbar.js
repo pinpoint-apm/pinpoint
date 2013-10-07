@@ -46,10 +46,13 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 /**
                  * date time picker
                  */
-                var elDatetimepicker = element.find('#datetimepicker');
-                elDatetimepicker.datetimepicker({
-                    pick12HourFormat: false,
-                    pickSeconds: false
+                var $datetimepicker = element.find('#datetimepicker');
+                $datetimepicker.datetimepicker({
+                    dateFormat: "yy-mm-dd",
+                    timeFormat: "hh:mm tt",
+                    beforeShow: function () {
+                        $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
+                    }
                 });
                 $timeout(function () {
                     if ($routeParams.queryEndTime) {
@@ -63,13 +66,11 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                  * set DateTime
                  */
                 var setDateTime = function (time) {
-                    var elDatetimepicker = element.find('#datetimepicker');
-                    var picker = elDatetimepicker.data('datetimepicker');
                     var date = new Date();
                     if (time) {
                         date.setTime(time);
                     }
-                    picker.setDate(date);
+                    $datetimepicker.datetimepicker('setDate', date);
                 };
 
                 /**
@@ -140,9 +141,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 };
 
                 var getQueryEndTime = function () {
-                    var date = elDatetimepicker.data('datetimepicker'),
-                        time = new Date(date.getDate());
-                    return time.getTime();
+                    return $datetimepicker.datetimepicker('getDate').getTime();
                 };
 
                 /**

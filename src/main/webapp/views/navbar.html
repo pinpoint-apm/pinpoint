@@ -43,21 +43,14 @@
                         </div>
                     </li>
                     <li class="divider-vertical"></li>
-                    <li style="{{useAnchorDate && 'width:194px' || 'width:168px'}}">
-                        <div class="datetimepicker input-prepend date" ng-class="classAnchorDate">
-                          <span class="add-on pull-left">
-                            <label class="checkbox">
-                                <input type="checkbox" ng-model="useAnchorDate" ng-init="useAnchorDate = false">
-                            </label>
-                          </span>
-
-                            <div id="datetimepicker">
-                                <input data-format="yyyy.MM.dd hh:mm" type="text" ng-disabled="!useAnchorDate"></input>
-                                <span class="add-on" ng-show="useAnchorDate">
-                                  <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-                                  </i>
-                                </span>
-                            </div>
+                    <li class="for-datetimepicker">
+                        <div class="datetimepicker input-prepend date">
+                            <span class="add-on pull-left">
+                                <label class="checkbox">
+                                    <input type="checkbox" ng-model="useAnchorDate" ng-init="useAnchorDate = false">
+                                </label>
+                            </span>
+                            <input id="datetimepicker" type="text" ng-disabled="!useAnchorDate">
                         </div>
                     </li>
                     <li style="margin-top:0;" ng-show="useAnchorDate" >

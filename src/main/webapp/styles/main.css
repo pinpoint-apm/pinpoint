@@ -50,17 +50,24 @@ canvas {outline:none}
 .navbar-form {
   margin-bottom: 0; 
 }
+.navbar-form .for-datetimepicker {
+  width:190px;
+}
 .navbar-form .datetimepicker {
   margin: 0;
 }
 .navbar-form .datetimepicker input[type="text"]{
-  width: 120px;
+  width: 140px;
 }
 .navbar-form .datetimepicker .checkbox input[type="checkbox"]{
   float: none;
 }
 .navbar-form .datetimepicker .icon-calendar {
   margin-top: 3px;
+}
+#ui-datepicker-div {
+    font-size: 75%;
+    z-index: 10 !important;
 }
 
 .mt8 {
