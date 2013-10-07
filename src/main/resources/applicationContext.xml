@@ -73,7 +73,7 @@
     <bean id="statServer" class="com.nhn.pinpoint.collector.StatServer">
     </bean>
 
-    <bean id="tcpRecevier" class="com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver">
+    <bean id="tcpReceiver" class="com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver">
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandler"/>
         <constructor-arg value="#{collectorConfiguration.tcpListenIp}"/>
         <constructor-arg value="#{collectorConfiguration.tcpListenPort}"/>
