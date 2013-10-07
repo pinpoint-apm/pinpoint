@@ -23,7 +23,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private volatile Channel channel;
 
     private long timeoutMillis = 3 * 1000;
-    private long pingDelay = 60 * 1000;
+    private long pingDelay = 60 * 1000 * 5;
 
     private final Timer channelTimer;
 
@@ -105,28 +105,34 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private void registerPing() {
-        this.channelTimer.newTimeout(new PingTask(), pingDelay, TimeUnit.MILLISECONDS);
+        final PingTask pingTask = new PingTask();
+        newPingTimeout(pingTask);
+    }
+
+    private void newPingTimeout(TimerTask pingTask) {
+        this.channelTimer.newTimeout(pingTask, pingDelay, TimeUnit.MILLISECONDS);
     }
 
     private class PingTask implements TimerTask {
         @Override
         public void run(Timeout timeout) throws Exception {
-            if (timeout.isCancelled()) {
+            if (timeout.isCancelled() || timeout.isExpired()) {
+                newPingTimeout(this);
                 return;
             }
             if (isClosed()) {
                 return;
             }
-            sendPingInternal();
-            registerPing();
+            writePing();
+            newPingTimeout(this);
         }
     }
 
-    void sendPingInternal() {
+    void writePing() {
         if (!isRun()) {
             return;
         }
-        logger.debug("sendPingInternal {}", channel);
+        logger.debug("writePing {}", channel);
         ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
         write.addListener(pingWriteFailFutureListener);
     }

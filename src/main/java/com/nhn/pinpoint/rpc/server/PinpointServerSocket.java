@@ -5,12 +5,20 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.ChannelGroupFuture;
+import org.jboss.netty.channel.group.ChannelGroupFutureListener;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerBossPool;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.util.ThreadNameDeterminer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +41,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private ServerBootstrap bootstrap;
 
     private Channel serverChannel;
+    private final ChannelGroup channelGroup = new DefaultChannelGroup();
+
+    private final Timer pingTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.");
@@ -42,6 +53,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         setOptions(bootstrap);
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
+        this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
     }
 
     private void addPipeline(ServerBootstrap bootstrap) {
@@ -198,6 +210,16 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     @Override
+    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        final Channel channel = e.getChannel();
+        if (logger.isDebugEnabled()) {
+            logger.debug("server channelConnected {}", channel);
+        }
+        this.channelGroup.remove(channel);
+        super.channelDisconnected(ctx, e);
+    }
+
+    @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         final ChannelContext channelContext = getChannelContext(channel);
@@ -224,6 +246,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         ChannelContext channelContext = new ChannelContext(channel);
 
         channel.setAttachment(channelContext);
+
+        channelGroup.add(channel);
     }
 
     @Override
@@ -241,6 +265,47 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
         InetSocketAddress address = new InetSocketAddress(host, port);
         this.serverChannel = bootstrap.bind(address);
+        sendPing();
+    }
+
+    private void sendPing() {
+        logger.debug("sendPing");
+        final TimerTask pintTask = new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (timeout.isCancelled() || timeout.isExpired()) {
+                    newPingTimeout(this);
+                    return;
+                }
+
+                final ChannelGroupFuture write = channelGroup.write(PingPacket.PING_PACKET);
+                write.addListener(new ChannelGroupFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelGroupFuture future) throws Exception {
+                        if (logger.isDebugEnabled()) {
+                            for (ChannelFuture channelFuture : future) {
+                                if (!channelFuture.isDone()) {
+                                    final Throwable cause = channelFuture.getCause();
+                                    logger.debug("ping write fail channel:{} Caused:{}", channelFuture.getChannel(), cause.getMessage(), cause);
+                                }
+                            }
+                        }
+                    }
+                });
+                newPingTimeout(this);
+            }
+        };
+        newPingTimeout(pintTask);
+    }
+
+    private void newPingTimeout(TimerTask pintTask) {
+        try {
+            logger.debug("newPingTimeout");
+            pingTimer.newTimeout(pintTask, 1000 * 60 * 5, TimeUnit.MILLISECONDS);
+        } catch (IllegalStateException e) {
+            // timer가 stop일 경우 정지.
+            logger.debug("timer stopped. Caused:{}", e.getMessage());
+        }
     }
 
 
@@ -252,7 +317,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             released = true;
         }
 
-
+        pingTimer.stop();
         if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
             close.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);

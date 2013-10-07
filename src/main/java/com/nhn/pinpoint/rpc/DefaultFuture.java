@@ -212,7 +212,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
 
     @Override
     public void run(Timeout timeout) throws Exception {
-        if (timeout.isCancelled()) {
+        if (timeout.isCancelled() || timeout.isExpired()) {
             return;
         }
         this.fireTimeout();
