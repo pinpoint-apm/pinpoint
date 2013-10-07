@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class PacketDecoder extends FrameDecoder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.");
+    private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.", "pong write success.");
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {

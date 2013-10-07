@@ -46,7 +46,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private final Timer pingTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
-    private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.");
+    private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
@@ -279,21 +279,20 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 }
 
                 final ChannelGroupFuture write = channelGroup.write(PingPacket.PING_PACKET);
-                write.addListener(new ChannelGroupFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelGroupFuture future) throws Exception {
-                        if (logger.isInfoEnabled()) {
-                            for (ChannelFuture channelFuture : future) {
-                                if (!channelFuture.isDone()) {
-                                    final Throwable cause = channelFuture.getCause();
-                                    logger.info("ping write fail channel:{} Caused:{}", channelFuture.getChannel(), cause.getMessage(), cause);
-                                } else {
-                                    logger.debug("ping write success channel:{}", channelFuture.getChannel());
+                if (logger.isWarnEnabled()) {
+                    write.addListener(new ChannelGroupFutureListener() {
+                        private final ChannelFutureListener listener = new WriteFailFutureListener(logger, "ping write fail", "ping write success");
+                        @Override
+                        public void operationComplete(ChannelGroupFuture future) throws Exception {
+
+                            if (logger.isWarnEnabled()) {
+                                for (ChannelFuture channelFuture : future) {
+                                    channelFuture.addListener(listener);
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }
                 newPingTimeout(this);
             }
         };
@@ -318,6 +317,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             }
             released = true;
         }
+        sendServerClosedPacket();
 
         pingTimer.stop();
         if (serverChannel != null) {
@@ -329,5 +329,24 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             bootstrap.releaseExternalResources();
             bootstrap = null;
         }
+    }
+
+    private void sendServerClosedPacket() {
+        logger.info("sendServerClosedPacket start");
+        final ChannelGroupFuture write = this.channelGroup.write(new ServerClosePacket());
+        write.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
+        if (logger.isWarnEnabled()) {
+            write.addListener(new ChannelGroupFutureListener() {
+                private final ChannelFutureListener listener = new WriteFailFutureListener(logger, "serverClosePacket write fail", "serverClosePacket write success");
+
+                @Override
+                public void operationComplete(ChannelGroupFuture future) throws Exception {
+                    for (ChannelFuture channelFuture : future) {
+                        channelFuture.addListener(listener);
+                    }
+                }
+            });
+        }
+        logger.info("sendServerClosedPacket end");
     }
 }

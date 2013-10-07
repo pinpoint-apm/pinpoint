@@ -10,17 +10,29 @@ import org.slf4j.Logger;
 public class WriteFailFutureListener implements ChannelFutureListener {
 
     private final Logger logger;
-    private final String message;
+    private final String failMessage;
+    private final String successMessage;
 
-    public WriteFailFutureListener(Logger logger, String message) {
+    public WriteFailFutureListener(Logger logger, String failMessage, String successMessage) {
+        if (logger == null) {
+            throw new NullPointerException("logger must not be null");
+        }
         this.logger = logger;
-        this.message = message;
+        this.failMessage = failMessage;
+        this.successMessage = successMessage;
     }
 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (!future.isSuccess()) {
-            logger.warn("{} channel:{}", message, future.getChannel());
+            if (logger.isWarnEnabled()) {
+                final Throwable cause = future.getCause();
+                logger.warn("{} channel:{} Caused:{}", failMessage, future.getChannel(), cause.getMessage(), cause);
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("{} channel:{}", successMessage, future.getCause());
+            }
         }
     }
 }

@@ -34,8 +34,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final RequestManager requestManager;
     private final StreamChannelManager streamChannelManager;
 
-    private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.");
-    private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send write fail.");
+    private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
+    private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
 
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long timeoutMillis) {
@@ -368,7 +368,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         logger.debug("channel.close()");
 
         ChannelFuture channelFuture = channel.close();
-        channelFuture.addListener(new WriteFailFutureListener(logger, "close() event fail."));
+        channelFuture.addListener(new WriteFailFutureListener(logger, "close() event fail.", "close() event success."));
         channelFuture.awaitUninterruptibly();
         logger.debug("close() complete");
     }
