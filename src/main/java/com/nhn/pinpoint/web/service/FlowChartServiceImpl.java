@@ -382,8 +382,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 				dest = span.getApplicationId();
 				destServiceType = span.getServiceType();
-
-				if(!destServiceType.isRecordStatistics()) {
+				
+				if(!destServiceType.isRecordStatistics() || destServiceType.isRpcClient()) {
 					continue;
 				}
 				
@@ -437,7 +437,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 					dest = spanEvent.getDestinationId();
 					destServiceType = spanEvent.getServiceType();
 
-					if(!destServiceType.isRecordStatistics()) {
+					if(!destServiceType.isRecordStatistics() || destServiceType.isRpcClient()) {
 						continue;
 					}
 					
