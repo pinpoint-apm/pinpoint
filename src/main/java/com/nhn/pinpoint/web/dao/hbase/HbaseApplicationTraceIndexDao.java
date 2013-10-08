@@ -77,6 +77,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 												new LastRowHandler() {
 													@Override
 													public void handle(KeyValue keyValue) {
+														if (keyValue == null) {
+															result.setMark(-1L);
+															return;
+														}
 														byte[] row = keyValue.getRow();
 														byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
 												        long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
