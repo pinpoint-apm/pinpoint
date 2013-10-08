@@ -67,7 +67,7 @@ public class ProfilerConfig {
     private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
 	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
 
-	private ServiceType serviceType = ServiceType.TOMCAT;
+	private ServiceType applicationServerType;
 	
 	public ProfilerConfig() {
 	}
@@ -260,8 +260,8 @@ public class ProfilerConfig {
         return false;
     }
 	
-	public ServiceType getServiceType() {
-		return serviceType;
+	public ServiceType getApplicationServerType() {
+		return applicationServerType;
 	}
 
 	private void readPropertyValues(Properties prop) {
@@ -318,7 +318,7 @@ public class ProfilerConfig {
 		this.heartbeatInterval = readLong(prop, "profiler.heartbeat.interval", DEFAULT_HEART_BEAT_INTERVAL);
 		
 		// service type
-		this.serviceType = readServiceType(prop, "profiler.servicetype", ServiceType.TOMCAT);
+		this.applicationServerType = readServiceType(prop, "profiler.applicationservertype");
 		
 		// profile package include
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
@@ -371,24 +371,28 @@ public class ProfilerConfig {
 		return result;
 	}
 	
-	private ServiceType readServiceType(Properties prop, String propertyName, ServiceType defaultValue) {
+	private ServiceType readServiceType(Properties prop, String propertyName) {
 		String value = prop.getProperty(propertyName);
-		ServiceType svcType;
-
-		if (value == null) {
-			svcType = defaultValue;
-		} else {
-			svcType = ServiceType.valueOf(value);
-		}
-
+        if (value == null) {
+            return null;
+        }
+		ServiceType serviceType = getServiceType(value);
 		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + svcType);
+			logger.info(propertyName + "=" + serviceType);
 		}
-
-		return svcType;
+		return serviceType;
 	}
 
-	private boolean readBoolean(Properties prop, String propertyName, boolean defaultValue) {
+    private ServiceType getServiceType(String defaultValue) {
+        try {
+            return ServiceType.valueOf(defaultValue);
+        } catch (IllegalArgumentException e) {
+            logger.log(Level.WARNING, "ServiceType.valueOf() fail. " + defaultValue + " Caused:" + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private boolean readBoolean(Properties prop, String propertyName, boolean defaultValue) {
 		String value = prop.getProperty(propertyName, Boolean.toString(defaultValue));
 		boolean result = Boolean.parseBoolean(value);
 		if (logger.isLoggable(Level.INFO)) {
@@ -422,7 +426,7 @@ public class ProfilerConfig {
                 "\n profileInclude=" + profileInclude +
                 "\n profileIncludeSub=" + profileIncludeSub +
                 "\n heartbeatInterval=" + heartbeatInterval +
-                "\n serviceType=" + serviceType +
+                "\n applicationServerType=" + applicationServerType +
                 '}';
     }
 }

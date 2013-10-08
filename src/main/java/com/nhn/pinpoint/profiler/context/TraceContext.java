@@ -24,6 +24,10 @@ public interface TraceContext {
 
     String getApplicationName();
 
+    short getServerTypeCode();
+
+    String getServerType();
+
     int cacheApi(MethodDescriptor methodDescriptor);
 
     ParsingResult parseSql(String sql);
