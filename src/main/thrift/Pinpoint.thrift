@@ -103,9 +103,3 @@ union TAgentStat {
 	4: TStatWithG1Collector			g1
 }
 
-
-struct TResult {
-  1: bool success
-  2: optional string message
-}
-

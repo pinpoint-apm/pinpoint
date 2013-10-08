@@ -124,3 +124,8 @@ struct TApiMetaData {
   5: string apiInfo,
   6: optional i32 line,
 }
+
+struct TResult {
+  1: bool success
+  2: optional string message
+}
