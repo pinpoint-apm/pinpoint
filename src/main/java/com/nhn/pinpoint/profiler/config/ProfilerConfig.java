@@ -45,8 +45,9 @@ public class ProfilerConfig {
 
     // 아래는 만들어야 됨.
     private boolean arucs = true;
+    private boolean arucsKeyTrace = false;
     private boolean memcached = true;
-    private boolean arcusParameterTrace = false;
+    private boolean memcachedKeyTrace = false;
 
     // 전역 샘플링
     private boolean samplingEnable = true;
@@ -240,6 +241,22 @@ public class ProfilerConfig {
         return jdbcProfileDbcpConnectionClose;
     }
 
+    public boolean isArucs() {
+        return arucs;
+    }
+
+    public boolean isArucsKeyTrace() {
+        return arucsKeyTrace;
+    }
+
+    public boolean isMemcached() {
+        return memcached;
+    }
+
+    public boolean isMemcachedKeyTrace() {
+        return memcachedKeyTrace;
+    }
+
     /**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
@@ -300,6 +317,11 @@ public class ProfilerConfig {
 
 		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean(prop, "profiler.jdbc.dbcp.connectionclose", false);
+
+        this.arucs = readBoolean(prop, "profiler.arcus", true);
+        this.arucsKeyTrace = readBoolean(prop, "profiler.arcus.keytrace", false);
+        this.memcached = readBoolean(prop, "profiler.memcached", true);
+        this.memcachedKeyTrace = readBoolean(prop, "profiler.memcached.keytrace", false);
 
 
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
