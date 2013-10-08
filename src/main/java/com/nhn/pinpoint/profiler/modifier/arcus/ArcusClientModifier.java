@@ -4,12 +4,11 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
+import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FirstStringParameterExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +46,9 @@ public class ArcusClientModifier extends AbstractModifier {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
+                if (agent.getProfilerConfig().isArucsKeyTrace()) {
+                    ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new FirstStringParameterExtractor());
+                }
                 ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(apiInterceptor, ArcusScope.SCOPE);
                 arcusClient.addInterceptor(method.getMethodName(), method.getMethodParams(), arcusScopeDelegateSimpleInterceptor, Type.around);
 			}

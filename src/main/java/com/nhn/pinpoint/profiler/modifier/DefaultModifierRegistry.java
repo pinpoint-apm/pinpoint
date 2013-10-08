@@ -90,32 +90,45 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
     public void addArcusModifier() {
-        BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
-        addModifier(baseOperationModifier);
+        final boolean arucs = profilerConfig.isArucs();
+        boolean memcached;
+        if (arucs) {
+            // arcus가 true일 경우 memcached는 자동으로 true가 되야 한다.
+            memcached = true;
+        } else {
+            memcached = profilerConfig.isMemcached();
+        }
 
-        MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
-        addModifier(memcachedClientModifier);
+        if (memcached) {
+            BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
+            addModifier(baseOperationModifier);
 
-        ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
-        addModifier(arcusClientModifier);
+            MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
+            addModifier(memcachedClientModifier);
 
-        // future modifier start ---------------------------------------------------
-        CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
-        addModifier(collectionFutureModifier);
+            if (arucs) {
+                ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
+                addModifier(arcusClientModifier);
+            }
 
-        GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
-        addModifier(getFutureModifier);
+            // future modifier start ---------------------------------------------------
+            CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(collectionFutureModifier);
 
-        ImmediateFutureModifier immediateFutureModifier = new ImmediateFutureModifier(byteCodeInstrumentor, agent);
-        addModifier(immediateFutureModifier);
+            GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(getFutureModifier);
 
-        OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
-        addModifier(operationFutureModifier);
+            ImmediateFutureModifier immediateFutureModifier = new ImmediateFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(immediateFutureModifier);
 
-        // future modifier end ---------------------------------------------------
+            OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(operationFutureModifier);
 
-        CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
-        addModifier(cacheManagerModifier);
+            // future modifier end ---------------------------------------------------
+
+            CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
+            addModifier(cacheManagerModifier);
+        }
     }
 
     public void addBLOCModifier() {

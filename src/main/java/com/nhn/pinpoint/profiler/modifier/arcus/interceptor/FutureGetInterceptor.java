@@ -65,8 +65,9 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 
         try {
             trace.recordApi(methodDescriptor);
-            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
-            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
+//            중요한 파라미터가 아님 레코딩 안함.
+//            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
+//            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
 
             // find the target node
             Operation op = (Operation) getOperation.invoke(target);

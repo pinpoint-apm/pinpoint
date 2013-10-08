@@ -255,27 +255,17 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public void recordApi(MethodDescriptor methodDescriptor, Object args, int index) {
+        recordApi(methodDescriptor);
+        recordSingleArg(args, index);
+    }
+
+    @Override
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end) {
         recordApi(methodDescriptor);
         recordArgs(args, start, end);
     }
 
-    @Override
-    public void recordApi(int apiId) {
-        recordAttribute(AnnotationKey.API_ID, apiId);
-    }
-
-    @Override
-    public void recordApi(int apiId, Object[] args) {
-        recordAttribute(AnnotationKey.API_ID, apiId);
-        recordArgs(args);
-    }
-
-    @Override
-    public void recordApi(int apiId, Object[] args, int start, int end) {
-        recordAttribute(AnnotationKey.API_ID, apiId);
-        recordArgs(args);
-    }
 
     private void recordArgs(Object[] args, int start, int end) {
         if (args != null) {
@@ -284,6 +274,12 @@ public final class DefaultTrace implements Trace {
                 recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
             // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
+        }
+    }
+
+    private void recordSingleArg(Object args, int index) {
+        if (args != null) {
+            recordAttribute(AnnotationKey.getArgs(index), args);
         }
     }
 

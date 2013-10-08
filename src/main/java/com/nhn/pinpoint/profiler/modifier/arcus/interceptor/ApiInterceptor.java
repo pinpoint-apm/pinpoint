@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedNode;
@@ -13,16 +14,12 @@ import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
  *
  */
-public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, ParameterExtractorSupport {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -32,6 +29,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
     
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
+    private ParameterExtractor parameterExtractor = EmptyParameterExtractor.INSTANCE;
 
     @Override
 	public void before(Object target, Object[] args) {
@@ -47,44 +45,6 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 		trace.traceBlockBegin();
 		trace.markBeforeTime();
 	}
-    
-    String getAnnotation(Object[] args) {
-    	if (args == null) {
-    		return "";
-    	}
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<args.length; i++) {
-			sb.append(i).append(':');
-			if (args[i] == null) {
-				sb.append("[null]");
-			} else if (i > 0) {
-				if (args[i] instanceof String) {
-					int len = ((String) args[i]).length();
-					if (len > 16) {
-						sb.append("[strlen:");
-                        sb.append(len);
-                        sb.append(']');
-					} else {
-						sb.append(args[i].toString());
-					}
-				} else if (args[i] instanceof byte[]) {
-					// TODO eflag는 실제 값을 보여줘야 할까?
-					int len = ((byte[]) args[i]).length;
-					sb.append("[bytes:");
-                    sb.append(len);
-                    sb.append("]");
-				} else {
-					sb.append(args[i].toString());
-				}
-			} else {
-				sb.append(args[i].toString());
-			}
-			sb.append(" ");
-		}
-		return sb.toString();
-    }
-
-
 
     @Override
     public void after(Object target, Object[] args, Object result) {
@@ -100,8 +60,13 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 			return;
 		}
 		try {
-            trace.recordApi(methodDescriptor);
-            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, getAnnotation(args));
+            final int recordIndex = parameterExtractor.extractIndex(args);
+            if (recordIndex != ParameterExtractor.NOT_FOUND) {
+                final Object recordObject = parameterExtractor.extractObject(args, recordIndex);
+                trace.recordApi(methodDescriptor, recordObject, recordIndex);
+            } else {
+                trace.recordApi(methodDescriptor);
+            }
 
             // find the target node
             if (result instanceof Future) {
@@ -143,5 +108,10 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+    }
+
+    @Override
+    public void setParameterExtractor(ParameterExtractor parameterExtractor) {
+        this.parameterExtractor = parameterExtractor;
     }
 }
