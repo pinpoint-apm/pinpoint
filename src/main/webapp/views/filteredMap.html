@@ -4,6 +4,13 @@
 <!-- Add your site or application content here -->
 <div class="main-container">
     <div class="main" ng-class="main">
+		<div style="width:100%;" class="progress progress-info" id="readProgress">
+			<div class="bar" style="width: 0%">fetched</div>
+			<div id="fetchButtons">
+				<span id="fetchMore" style="cursor:pointer;">fetch more</span> / 
+				<span id="fetchAll" style="cursor:pointer;">fetch all</span>
+			</div>
+		</div>    
         <servermap></servermap>
     </div>
     <div class="sidebar" ng-class="sidebar">

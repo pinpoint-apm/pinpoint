@@ -29,7 +29,8 @@ pinpointApp.constant('cfg', {
         }
     },
     FILTER_DELIMETER : "^",
-    FILTER_ENTRY_DELIMETER : "|"
+    FILTER_ENTRY_DELIMETER : "|",
+    FILTER_FETCH_LIMIT : 99
 });
 
 pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$compile', '$timeout', function (cfg, $rootScope, $templateCache, $compile, $timeout) {
@@ -87,6 +88,47 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 if (filterText) {
                     getFilteredServerMapData(query, function (query, result) {
                         serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
+
+                        var DAY = 60 * 60 * 24 * 1000;
+                        var period = query.to - query.from;
+                        var fetchedPeriod = query.to - result.lastFetchedTimestamp;
+                        var ratio = Math.floor(fetchedPeriod / period * 100);
+                        var nextFetchFrom = result.lastFetchedTimestamp + 1;
+                        
+                        // TODO 대충 24시간으로 계산하나 걸치는 경우 체크가 필요할지도. 예: 22:00 ~ 03:00
+                        // TODO 그냥 날짜까지 보여줄까.
+                        var dateFormat = (period > DAY) ? "yyyy/MM/dd HH:mm:ss" : "HH:mm:ss"; 
+                        
+                        console.log("query", query);
+                        console.log("result", result);
+                        
+                        var strFrom = new Date(query.from).toString(dateFormat);
+                    	var strTo = new Date(query.to).toString(dateFormat);
+                    	var strOffset = new Date(result.lastFetchedTimestamp).toString(dateFormat);
+                        
+                    	$("#readProgress .bar").text("fetched " + strFrom + " ~ " + strTo + " , " + strOffset);
+                    	$("#readProgress .bar").css("width", ratio + "%");
+                    	
+                    	var fetchNext = function() {
+                    		// TODO next 조회 로직 추가 필요.
+                    		// TODO 새로 조회한 것과 기존에 조회된 것 머지 기능 추가 필요.
+                    		console.log("fetch more " + new Date(nextFetchFrom).toString("yyyy/MM/dd HH:mm:ss") + " ~ " + new Date(query.to).toString("yyyy/MM/dd HH:mm:ss"));
+                    	}
+                    	
+                    	var fetchDone = function() {
+                    		// TODO 조회가 완료되면 할 거 없음.
+                    		console.log("That's all.");
+                    	}
+                    	
+                    	// lastFetchedTimestamp + 1 ~ query.to까지 계속 조회하고.
+                    	// 조회된 데이터가 0개이면 모두 조회되었다고 판단해도 됨.
+                    	// lastFetchedTimestamp가 query.to하고 같으면 더 조회하지 않아도 됨.
+                    	var needMoreFetch = result.applicationMapData.nodeDataArray.length > 0;
+                    	needMoreFetch |= result.lastFetchedTimestamp == query.to;
+                    	
+                    	// TODO 밖으로 빼내서 핸들러 하나만 등록하도록 변경할 것.
+                    	$("#readProgress #fetchMore").unbind("click");
+                    	$("#readProgress #fetchMore").bind("click", (needMoreFetch) ? fetchNext : fetchDone);
                     });
                 } else {
                     getServerMapData2(query, function (query, result) {
@@ -132,7 +174,8 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                         serviceType: query.serviceType,
                         from: query.from,
                         to: query.to,
-                        filter: query.filter
+                        filter: query.filter,
+                        limit: cfg.FILTER_FETCH_LIMIT
                     },
                     success: function (result) {
                         callback(query, result);
