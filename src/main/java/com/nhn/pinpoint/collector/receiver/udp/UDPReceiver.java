@@ -3,11 +3,10 @@ package com.nhn.pinpoint.collector.receiver.udp;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.nhn.pinpoint.collector.StatServer;
-import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
-import com.nhn.pinpoint.collector.util.FixedPool;
+import com.nhn.pinpoint.collector.util.ObjectPool;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.Header;
@@ -57,7 +56,7 @@ public class UDPReceiver implements DataReceiver {
 
     // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
     // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
-    private FixedPool<DatagramPacket> datagramPacketPool;
+    private ObjectPool<DatagramPacket> datagramPacketPool;
 
 
     private volatile DatagramSocket socket = null;
@@ -99,7 +98,7 @@ public class UDPReceiver implements DataReceiver {
         this.socket = createSocket(bindAddress, port, receiverBufferSize);
 
         final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
-        this.datagramPacketPool = new FixedPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
+        this.datagramPacketPool = new ObjectPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
         this.worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName + "-Worker", true);
 
         this.timer = statServer.getRegistry().timer(receiverName + "-timer");
