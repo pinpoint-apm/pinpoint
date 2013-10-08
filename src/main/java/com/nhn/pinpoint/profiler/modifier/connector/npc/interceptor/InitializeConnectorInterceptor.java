@@ -33,9 +33,10 @@ public class InitializeConnectorInterceptor implements SimpleAroundInterceptor, 
 			logger.beforeInterceptor(target, args);
 		}
 
-		Trace trace = traceContext.currentRawTraceObject();
+        // Trace trace = traceContext.currentRawTraceObject();
+        // sampling 레이트를 추가로 확인하여 액션을 취하는 로직이 없으므로 그냥 currentTraceObject()fmf g
+        Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.warn("Trace object is null");
 			return;
 		}
 

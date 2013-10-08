@@ -200,6 +200,7 @@ public class TcpDataSender implements DataSender {
     }
 
     private void fireComplete() {
+        logger.debug("fireComplete");
         fireState.compareAndSet(true, false);
     }
 

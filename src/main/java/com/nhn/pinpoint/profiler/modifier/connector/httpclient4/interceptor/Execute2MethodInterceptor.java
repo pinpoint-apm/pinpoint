@@ -50,7 +50,6 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
         }
 
         final HttpUriRequest request = (HttpUriRequest) args[0];
-        // UUID format을 그대로.
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if(isDebug) {
