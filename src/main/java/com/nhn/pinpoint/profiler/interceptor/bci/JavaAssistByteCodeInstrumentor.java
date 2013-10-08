@@ -146,8 +146,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public boolean findClass(String javassistClassName, ClassPool classPool) {
-        // TODO 원래는 get인데. find는 ctclas를 생성하지 않아 변경. 어차피 아래서 생성하기는 함. 유효성 여부 확인
-        // 필요
         URL url = classPool.find(javassistClassName);
         if (url == null) {
             return false;
