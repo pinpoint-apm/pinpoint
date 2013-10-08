@@ -73,8 +73,10 @@ public class PinpointBootStrap {
 
     private static boolean checkProfilerIdSize(String propertyName, int maxSize) {
         logger.info("check -D" + propertyName);
-        final String value = System.getProperty(propertyName);
+        String value = System.getProperty(propertyName);
         if (value != null) {
+            // 문자열 앞뒤에 공백은 허용되지 않음.
+            value = value.trim();
             final byte[] bytes;
             try {
                 bytes = toBytes(value);
@@ -82,11 +84,15 @@ public class PinpointBootStrap {
                 logger.severe("toBytes() fail. propertyName:" + propertyName + " propertyValue:" + value);
                 return false;
             }
+            if (bytes.length == 0) {
+                logger.severe("invalid " + propertyName + ". agentId is empty. length:" + bytes.length + " value:" + value);
+                return false;
+            }
             if (bytes.length > maxSize) {
                 logger.severe("invalid " + propertyName + ". too large bytes. length:" + bytes.length + " value:" + value);
                 return false;
             }
-            logger.info("check success. -D" + propertyName + ":" + value);
+            logger.info("check success. -D" + propertyName + ":" + value + " length:" + bytes.length);
             return true;
         } else {
             logger.severe("-D" + propertyName + " is null.");
