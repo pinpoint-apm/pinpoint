@@ -272,17 +272,29 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_RESPONSE:
                     this.streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
+                case PacketType.CONTROL_SERVER_CLOSE:
+                    messageReceivedServerClosed(e.getChannel());
+                    return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
             }
+        } else {
+            logger.warn("invalid messageReceived:{}", message);
         }
+    }
+
+    private void messageReceivedServerClosed(Channel channel) {
+        logger.info("ServerClosed Packet received. {}", channel);
+        // reconnect 상태로 변경한다.
+        state.setState(State.RECONNECT);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
         if (state.getState() == State.INIT_RECONNECT) {
-            logger.info("exceptionCaught() reconnect fail. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
+            // 재접속시 stackTrace는 제거하였음. 로그가 너무 많이 나옴.
+            logger.info("exceptionCaught() reconnect fail. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage());
         } else {
             logger.warn("exceptionCaught() UnexpectedError happened. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
         }
