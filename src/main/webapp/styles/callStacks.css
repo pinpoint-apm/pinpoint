@@ -1,7 +1,7 @@
-.callStacks TH {
+.callStacks th {
     text-align:center;
 }
-.callStacks TD {
+.callStacks td {
     font-family:consolas;
 }
 .callStacks .error {

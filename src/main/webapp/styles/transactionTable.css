@@ -1,0 +1,35 @@
+.transactiontable th {
+    padding: 0 5px;
+}
+
+.transactiontable .th-inner {
+    position: absolute;
+    top: 0;
+    line-height: 30px;
+    border-left: 1px solid darkgray;
+    padding-left: 5px;
+    margin-left: -5px;
+    width: 100%;
+}
+
+.transactiontable th:first-child .th-inner {
+    border-left: none;
+}
+
+.transactiontable th,
+.transactiontable td {
+    min-width: 45px
+}
+
+.transactiontable td {
+    font-family: consolas;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.transactiontable td {
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
