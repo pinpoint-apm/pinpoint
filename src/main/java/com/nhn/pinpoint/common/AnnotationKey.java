@@ -60,9 +60,9 @@ public enum AnnotationKey {
     EXCEPTION(-50, "Exception", true),
     UNKNOWN(-9999, "UNKNOWN");
 
-    private int code;
-    private String value;
-    private boolean viewInRecordSet;
+    private final int code;
+    private final String value;
+    private final boolean viewInRecordSet;
 
     public final static int MAX_ARGS_SIZE = 10;
 
