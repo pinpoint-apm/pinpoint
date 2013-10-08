@@ -9,8 +9,9 @@ public class AgentInformation {
     private final long startTime;
     private final int pid;
     private final String machineName;
+    private final short serverType;
 
-    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName) {
+    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, short serverType) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -25,6 +26,7 @@ public class AgentInformation {
         this.startTime = startTime;
         this.pid = pid;
         this.machineName = machineName;
+        this.serverType = serverType;
     }
 
 
@@ -49,6 +51,10 @@ public class AgentInformation {
         return machineName;
     }
 
+    public short getServerType() {
+        return serverType;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentInformation{");
@@ -57,6 +63,7 @@ public class AgentInformation {
         sb.append(", startTime=").append(startTime);
         sb.append(", pid=").append(pid);
         sb.append(", machineName='").append(machineName).append('\'');
+        sb.append(", serverType=").append(serverType);
         sb.append('}');
         return sb.toString();
     }

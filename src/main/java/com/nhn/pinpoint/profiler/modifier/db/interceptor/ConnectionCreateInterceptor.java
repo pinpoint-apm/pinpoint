@@ -25,11 +25,9 @@ public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
-        // TODO 생성 시간 측정시 아래 코드를 다시 생각해야 됨.
         if (!InterceptorUtils.isSuccess(result)) {
             return;
         }
-        // TODO before도 같이 후킹하여 Connection 생성시간도 측정해야 됨.
         // datasource의 pool을 고려할것.
         if (result instanceof Connection) {
             Object url = args[4];

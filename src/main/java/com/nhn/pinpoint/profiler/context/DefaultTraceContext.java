@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
@@ -150,6 +151,17 @@ public class DefaultTraceContext implements TraceContext {
     public String getApplicationName() {
         return this.agentInformation.getApplicationName();
     }
+
+    @Override
+    public short getServerTypeCode() {
+        return this.agentInformation.getServerType();
+    }
+
+    @Override
+    public String getServerType() {
+        return ServiceType.findServiceType(this.agentInformation.getServerType()).getDesc();
+    }
+
 
     public void setStorageFactory(StorageFactory storageFactory) {
         if (storageFactory == null) {

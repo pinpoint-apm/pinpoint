@@ -40,7 +40,7 @@ public class HTTPHandlerModifier extends AbstractModifier {
             aClass.addInterceptor("execute", new String[]{"external.org.apache.coyote.Request", "external.org.apache.coyote.Response"}, interceptor);
             return aClass.toBytecode();
         } catch (InstrumentException e) {
-            // TODO log
+            logger.warn("Bloc.HTTPHandlerModifier fail. Caused:", e.getMessage(), e);
             return null;
         }
     }

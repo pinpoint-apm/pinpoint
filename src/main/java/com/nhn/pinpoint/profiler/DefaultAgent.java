@@ -4,10 +4,12 @@ import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
+import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
@@ -86,15 +88,18 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = profilerConfig;
         this.serverInfo = new ServerInfo();
 
-        String[] paths = getTomcatlibPath();
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(paths, this);
+        ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
+        if (!typeResolver.resolve()) {
+            throw new PinpointException("ApplicationServerType not found.");
+        }
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this);
 
         ClassFileTransformerDispatcher classFileTransformerDispatcher = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
         instrumentation.addTransformer(classFileTransformerDispatcher);
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
-        this.agentInformation = createAgentInformation();
+        this.agentInformation = createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
         this.tcpDataSender = createTcpDataSender();
@@ -122,13 +127,13 @@ public class DefaultAgent implements Agent {
     }
 
 
-    private AgentInformation createAgentInformation() {
+    private AgentInformation createAgentInformation(ServiceType serverType) {
         final String machineName = NetworkUtils.getHostName();
         final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName);
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, serverType.getCode());
     }
 
 
@@ -153,35 +158,6 @@ public class DefaultAgent implements Agent {
         return profilerConfig;
     }
 
-    private String[] getTomcatlibPath() {
-        String catalinaHome = System.getProperty("catalina.home");
-
-        if (catalinaHome == null) {
-            logger.info("CATALINA_HOME is null");
-            return new String[0];
-        }
-
-        if (logger.isInfoEnabled()) {
-            logger.info("CATALINA_HOME={}", catalinaHome);
-        }
-
-        File f1 = new File(catalinaHome + "/server/lib/catalina.jar");
-        File f2 = new File(catalinaHome + "/common/lib/servlet-api.jar");
-        
-        // TODO 이 방법이 최선인가?? 모르겠음.
-		if (f1.exists() && f2.exists() && f1.isFile() && f2.isFile()) {
-			// BLOC
-			return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
-		} else {
-			if (profilerConfig.getServiceType() == ServiceType.BLOC) {
-				// BLOC
-				return new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
-			} else {
-				// TOMCAT
-				return new String[] { catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar" };
-			}
-		}
-    }
 
     private TAgentInfo createTAgentInfo() {
         final ServerInfo serverInfo = this.serverInfo;
@@ -199,7 +175,7 @@ public class DefaultAgent implements Agent {
         agentInfo.setApplicationName(agentInformation.getApplicationName());
         agentInfo.setPid(agentInformation.getPid());
         agentInfo.setTimestamp(agentInformation.getStartTime());
-		agentInfo.setServiceType(profilerConfig.getServiceType().getCode());
+		agentInfo.setServiceType(agentInformation.getServerType());
 
         agentInfo.setIsAlive(true);
 

@@ -75,8 +75,7 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
         request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-        // TODO 이게 맞는건가?
-        request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
+        request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), traceContext.getServerType());
 
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 

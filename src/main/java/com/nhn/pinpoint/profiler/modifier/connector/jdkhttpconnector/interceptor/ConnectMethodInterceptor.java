@@ -61,8 +61,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-        // TODO TOMCAT이 맞는건가???
-		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
+		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), traceContext.getServerType());
 
 		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 

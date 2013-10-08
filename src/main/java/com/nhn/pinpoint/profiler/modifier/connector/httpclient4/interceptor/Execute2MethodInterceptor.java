@@ -72,7 +72,7 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
 
 		request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 		request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-		request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), String.valueOf(ServiceType.TOMCAT.getCode()));
+		request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), traceContext.getServerType());
 
 		HttpHost host = extractHost(request.getURI());
 
