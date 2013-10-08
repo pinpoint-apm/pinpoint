@@ -22,4 +22,17 @@ public class AnnotationKeyTest {
 //        -2147483648
         System.out.println(Integer.MIN_VALUE);
     }
+
+    @Test
+    public void isArgsKey() {
+        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGS0.getCode()));
+        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGSN.getCode()));
+        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGS5.getCode()));
+
+        Assert.assertFalse(AnnotationKey.isArgsKey(AnnotationKey.ARGS0.getCode() +1));
+        Assert.assertFalse(AnnotationKey.isArgsKey(AnnotationKey.ARGSN.getCode() -1));
+        Assert.assertFalse(AnnotationKey.isArgsKey(Integer.MAX_VALUE));
+        Assert.assertFalse(AnnotationKey.isArgsKey(Integer.MIN_VALUE));
+
+    }
 }

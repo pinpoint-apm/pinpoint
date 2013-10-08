@@ -35,12 +35,23 @@ public class AnnotationUtils {
         return null;
     }
 
+    public static AnnotationBo findArgsAnnotationBo(List<AnnotationBo> annotationBoList) {
+        for (AnnotationBo annotation : annotationBoList) {
+            if (AnnotationKey.isArgsKey(annotation.getKey())) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
     public static AnnotationBo getDisplayArgument(Span span) {
         // arcus 관련 일반화 필요.
         List<AnnotationBo> list = span.getAnnotationBoList();
         final ServiceType serviceType = span.getServiceType();
         if (serviceType == ServiceType.ARCUS || serviceType == ServiceType.MEMCACHED) {
-            return findAnnotationBo(list, AnnotationKey.ARCUS_COMMAND);
+            // 첫번째 args아무거나 하나를 디스플레이에 뿌린다.
+            // TODO 2개 이상일 경우의 케이스 일때 비기는 하나, 현재 arucs쪽 파라미터 덤프키는 일단 1개뿐이라 괜찮을듯하다.
+            return findArgsAnnotationBo(list);
         }
 
         // rpc connector의 경우 보여주는 code일반화 필요.

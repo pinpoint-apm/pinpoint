@@ -11,6 +11,7 @@ public enum AnnotationKey {
 //    2147483647
 //    -2147483648
     API_DID(10, "API-DID"),
+    @Deprecated // 정적 api 코드를 제거해야 한다. API-DID만 사용할것.
     API_ID(11, "API-ID"),
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
@@ -139,5 +140,12 @@ public enum AnnotationKey {
             default:
                 return ARGSN;
         }
+    }
+
+    public static boolean isArgsKey(int index) {
+        if (index <= ARGS0.getCode() && index >= ARGSN.getCode()) {
+            return true;
+        }
+        return false;
     }
 }
