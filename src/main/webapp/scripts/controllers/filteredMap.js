@@ -2,23 +2,6 @@
 
 pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', function ($scope, $routeParams, $timeout) {
 
-    $timeout(function () {
-        if ($routeParams.application) {
-            $scope.application = $routeParams.application;
-        }
-        if ($routeParams.period) {
-            $scope.period = $routeParams.period;
-        }
-        if ($routeParams.filter) {
-            $scope.filter = $routeParams.filter;
-        }
-        if ($routeParams.queryEndTime) {
-            $scope.queryEndTime = $routeParams.queryEndTime;
-        }
-
-        broadcast();
-    });
-
     /**
      * get query period
      */
@@ -31,8 +14,6 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      */
     var broadcast = function () {
 
-        $scope.queryPeriod = getQueryPeriod();
-
         var splitedApp = $scope.application.split('@'),
             applicationData = {
                 application: $scope.application,
@@ -43,7 +24,29 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
                 queryStartTime: $scope.queryEndTime - $scope.queryPeriod,
                 queryEndTime: $scope.queryEndTime
             };
-        $scope.$emit('servermap.initializeWithApplicationData', applicationData);
-        $scope.$emit('scatter.initializeWithApplicationData', applicationData);
+        $timeout(function () {
+            $scope.$emit('navbar2.initializeWithApplicationData', applicationData);
+            $scope.$emit('servermap.initializeWithApplicationData', applicationData);
+            $scope.$emit('scatter.initializeWithApplicationData', applicationData);
+        });
     };
+
+    $timeout(function () {
+        if ($routeParams.application) {
+            $scope.application = $routeParams.application;
+        }
+        if ($routeParams.period) {
+            $scope.period = $routeParams.period;
+            $scope.queryPeriod = getQueryPeriod();
+        }
+        if ($routeParams.filter) {
+            $scope.filter = $routeParams.filter;
+        }
+        if ($routeParams.queryEndTime) {
+            $scope.queryEndTime = $routeParams.queryEndTime;
+        }
+        $scope.$digest();
+        broadcast();
+    });
+
 }]);

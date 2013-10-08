@@ -2,7 +2,7 @@
 
 pinpointApp.constant('nodeInfoDetailsConfig', {
     applicationStatisticsUrl: '/applicationStatistics.pinpoint',
-    myColors : ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"]
+    myColors: ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"]
 });
 
 pinpointApp
@@ -27,6 +27,7 @@ pinpointApp
                 };
 
                 var showDetailInformation = function (query, node) {
+                    console.log('showinfo', node);
                     scope.nodeName = node.text;
                     scope.nodeCategory = node.category;
                     if (node.category !== 'UNKNOWN_GROUP') {
@@ -34,7 +35,7 @@ pinpointApp
                     }
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
-                    scope.showHosts = (scope.serverList.length > 0) ? true : false;
+                    scope.showHosts = _.isEmpty(scope.serverList) ? false : true;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     scope.$digest();
@@ -68,12 +69,12 @@ pinpointApp
                     nv.addGraph(function () {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
-                        }).y(function(d) {
+                        }).y(function (d) {
                                 return d.value;
                             }).staggerLabels(false).tooltips(false).showValues(true);
 
                         chart.xAxis.tickFormat(function (d) {
-                            if(angular.isNumber(d)) {
+                            if (angular.isNumber(d)) {
                                 return (d >= 1000) ? d / 1000 + "s" : d + "ms";
                             }
                             return d;
@@ -113,7 +114,7 @@ pinpointApp
 //                        renderApplicationStatistics(result.histogramSummary);
 //                    });
 //                };
-                
+
 
                 // histogram 데이터 서버에서 만들지 않고, link정보에서 수집한다.
 //                var extractHistogramFromData = function (data) {
@@ -153,32 +154,34 @@ pinpointApp
                     scope.node = node;
                     if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
-                        
-                    	// application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
-                    	// var histogramData = extractHistogramFromData(node);
-                    	
+
+                        // application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
+                        // var histogramData = extractHistogramFromData(node);
+
                         var key = node.key;
                         var histogram = [];
                         angular.forEach(mapData.applicationMapData.linkDataArray, function (value, index) {
-                        	var i = 0;
-                        	if (value.to == key) {
-                            	angular.forEach(value.histogram, function(v, k) {
-                            		if (histogram[i]) {
-                            			histogram[i].value += Number(v, 10);
-                            		} else {
-                            			histogram[i] = {
-                            					'label' : k,
-                            					'value' : Number(v, 10)
-                            			};
-                            		}
-                            		i++;
-                            	});
-                        	}
+                            var i = 0;
+                            if (value.to == key) {
+                                angular.forEach(value.histogram, function (v, k) {
+                                    if (histogram[i]) {
+                                        histogram[i].value += Number(v, 10);
+                                    } else {
+                                        histogram[i] = {
+                                            'label': k,
+                                            'value': Number(v, 10)
+                                        };
+                                    }
+                                    i++;
+                                });
+                            }
                         });
-                        renderApplicationStatistics([{
-                            'key' : "Response Time Histogram",
-                            'values': histogram
-                        }]);
+                        renderApplicationStatistics([
+                            {
+                                'key': "Response Time Histogram",
+                                'values': histogram
+                            }
+                        ]);
                         //renderApplicationStatistics(histogramData);
                     }
                 });
