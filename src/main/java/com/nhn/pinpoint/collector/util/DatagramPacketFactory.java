@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 /**
  *
  */
-public class DatagramPacketFactory implements FixedPoolFactory<DatagramPacket> {
+public class DatagramPacketFactory implements ObjectPoolFactory<DatagramPacket> {
 
     private static final int AcceptedSize = 65507;
 

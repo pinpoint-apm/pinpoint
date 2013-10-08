@@ -10,9 +10,9 @@ public class ObjectPool<T> {
     // 구지 blocking 할 필요가 없음. queue안에 충분한 양이 무조껀 있어야 됨. 없으면 뭔가 릭임.
     private final Queue<T> queue = new ConcurrentLinkedQueue<T>();
 
-    private final FixedPoolFactory<T> factory;
+    private final ObjectPoolFactory<T> factory;
 
-    public ObjectPool(FixedPoolFactory<T> factory, int size) {
+    public ObjectPool(ObjectPoolFactory<T> factory, int size) {
         if (factory == null) {
             throw new NullPointerException("factory");
         }
