@@ -97,13 +97,13 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         if (trace == null) {
             return;
         }
+        traceContext.detachTraceObject();
+
+        if (!trace.canSampled()) {
+            return;
+        }
+
         try {
-            traceContext.detachTraceObject();
-
-            if (!trace.canSampled()) {
-                return;
-            }
-
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
             String parameters = getRequestParameter(request);
             if (parameters != null && parameters.length() > 0) {
