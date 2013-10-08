@@ -17,9 +17,7 @@ public class AgentStatHandler implements Handler {
 
 	private final Logger logger = LoggerFactory.getLogger(AgentStatHandler.class.getName());
 
-	@Autowired
-	private StatServer statServer;
-	
+
 	@Autowired
 	private AgentStatDao agentStatDao;
 
@@ -34,11 +32,6 @@ public class AgentStatHandler implements Handler {
             if (logger.isDebugEnabled()) {
                 logger.debug("Received AgentStat={}", dto);
             }
-            
-//            if (statServer != null) {
-//            	// 메모리 스토어에 snapshot을 저장한다.
-//            	statServer.getStore().store(dto);
-//            }
             
 			// HBase에 기록한다.
             byte[] value = PacketUtils.sliceData(packet, Header.HEADER_SIZE, length);
