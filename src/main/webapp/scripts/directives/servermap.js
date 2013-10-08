@@ -206,7 +206,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                         + destServiceType + cfg.FILTER_ENTRY_DELIMETER
                         + destApplicationName;
 
-                var url = '#/main/' + application + '/' + period + '/' + queryEndTime + '/' + newFilter;
+                var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + newFilter;
                 window.open(url, "");
                 reset();
             };
@@ -572,13 +572,19 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                 showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, scope.filter,  scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
             });
-            scope.$on('servermap.initialize', function (event, data) {
+            scope.$on('servermap.initializeWithApplicationData', function (event, applicationData) {
+                scope.navbar = applicationData;
+                scope.bShowServerMapStatus = true;
+                bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
+                showServerMap(applicationData.applicationName, applicationData.serviceType, applicationData.queryEndTime, applicationData.queryPeriod, scope.filter,  scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+            });
+            scope.$on('servermap.initializeWithMapData', function (event, mapData) {
                 scope.bShowServerMapStatus = false;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = false;
                 var query = {
-                    applicationName: data.agentId
+                    applicationName: mapData.agentId
                 };
-                serverMapCallback(query, data, false, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(query, mapData, false, scope.linkRouting, scope.linkCurve);
             });
 
             scope.mergeUnknowns = true;

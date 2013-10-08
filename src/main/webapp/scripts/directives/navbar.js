@@ -35,9 +35,6 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     if ($routeParams.period) {
                         scope.period = $routeParams.period;
                     }
-                    if ($routeParams.agentId) {
-                        scope.agentId = $routeParams.agentId;
-                    }
                     if ($routeParams.filter) {
                         scope.filter = $routeParams.filter;
                     }

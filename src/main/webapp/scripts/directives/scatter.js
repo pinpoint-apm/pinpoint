@@ -225,6 +225,10 @@ pinpointApp.directive('scatter',
                     scope.navbar = navbar;
                     makeScatter(navbar.applicationName, navbar.queryStartTime, navbar.queryEndTime, 'scatterchart', navbar.queryPeriod);
                 });
+                scope.$on('scatter.initializeWithApplicationData', function (event, applicationData) {
+                    scope.navbar = applicationData;
+                    makeScatter(applicationData.applicationName, applicationData.queryStartTime, applicationData.queryEndTime, 'scatterchart', applicationData.queryPeriod);
+                });
                 scope.$on('servermap.passingTransactionResponseToScatterChart', function (event, node) {
                     scope.node = node;
                     makeScatter(node.applicationName || node.text, scope.navbar.queryStartTime, scope.navbar.queryEndTime, 'scatterchart', scope.navbar.queryPeriod);

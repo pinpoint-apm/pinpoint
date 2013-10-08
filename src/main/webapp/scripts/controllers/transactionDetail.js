@@ -55,7 +55,7 @@ pinpointApp
         }
 
         $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
-            $scope.$emit('servermap.initialize', $scope.transactionDetail);
+            $scope.$emit('servermap.initializeWithMapData', $scope.transactionDetail);
         });
         $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
             $scope.$emit('timeline.initialize', $scope.transactionDetail);

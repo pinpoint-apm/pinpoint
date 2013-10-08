@@ -10,9 +10,12 @@ pinpointApp.config(function ($routeProvider, $locationProvider) {
     }).when('/main/:application/:period/:queryEndTime', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
-    }).when('/main/:application/:period/:queryEndTime/:filter', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+//    }).when('/main/:application/:period/:queryEndTime/:filter', {
+//        templateUrl: 'views/main.html',
+//        controller: 'MainCtrl'
+    }).when('/filteredMap/:application/:period/:queryEndTime/:filter', {
+        templateUrl: 'views/filteredMap.html',
+        controller: 'FilteredMapCtrl'
     }).when('/spy/:application/:period/:queryEndTime', {
         templateUrl: 'views/spy.html',
         controller: 'SpyCtrl'
