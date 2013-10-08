@@ -43,7 +43,7 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
             $scope.filter = $routeParams.filter;
         }
         if ($routeParams.queryEndTime) {
-            $scope.queryEndTime = $routeParams.queryEndTime;
+            $scope.queryEndTime = parseInt($routeParams.queryEndTime);
         }
         $scope.$digest();
         broadcast();
