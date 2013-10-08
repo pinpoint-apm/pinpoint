@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.common.mapping.ApiMappingTable;
 import com.nhn.pinpoint.common.mapping.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
@@ -213,9 +212,6 @@ public class JavaAssistClass implements InstrumentClass {
                 if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
                     setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
                 }
-                if (interceptor instanceof ApiIdSupport) {
-                    setApiId(behavior, (ApiIdSupport) interceptor);
-                }
             } else {
                 interceptor = InterceptorRegistry.findInterceptor(interceptorId);
             }
@@ -257,13 +253,6 @@ public class JavaAssistClass implements InstrumentClass {
         } catch (CannotCompileException e) {
             throw new InstrumentException(interceptor.getClass().getSimpleName() + "add fail. Cause:" + e.getMessage(), e);
         }
-    }
-
-    private void setApiId(CtBehavior behavior, ApiIdSupport interceptor) throws NotFoundException {
-        CtClass[] parameterTypes = behavior.getParameterTypes();
-        String[] parameterType = JavaAssistUtils.getParameterType(parameterTypes);
-        int apiId = ApiMappingTable.findApiId(ctClass.getName(), behavior.getName(), parameterType);
-        interceptor.setApiId(apiId);
     }
 
     private void setMethodDescriptor(CtBehavior behavior, ByteCodeMethodDescriptorSupport interceptor) throws NotFoundException {

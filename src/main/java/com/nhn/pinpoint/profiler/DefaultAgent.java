@@ -103,8 +103,6 @@ public class DefaultAgent implements Agent {
 
         this.traceContext = createTraceContext();
 
-        // 매핑 테이블 초기화를 위해 엑세스
-//        ApiMappingTable.findApiId("test", null, null);
 
         this.tAgentInfo = createTAgentInfo();
         this.tAgentKey = createTAgentKey();

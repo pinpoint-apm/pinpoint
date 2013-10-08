@@ -12,7 +12,7 @@ public class ClassLoadChecker {
 
     private static final Object EXIST = new Object();
 
-    private ConcurrentMap<LoadClass, Object> load = new ConcurrentHashMap<LoadClass, Object>();
+    private final ConcurrentMap<LoadClass, Object> load = new ConcurrentHashMap<LoadClass, Object>();
 
     public boolean exist(ClassLoader cl, String className) {
         LoadClass key = new LoadClass(cl, className);
@@ -29,11 +29,15 @@ public class ClassLoadChecker {
         return true;
     }
 
-    static class LoadClass {
+    private static class LoadClass {
         private final ClassLoader classLoader;
         private final String className;
 
-        LoadClass(ClassLoader classLoader, String className) {
+        private LoadClass(ClassLoader classLoader, String className) {
+            if (className == null) {
+                throw new NullPointerException("className must not be null");
+            }
+            // classLoader는 null일수도 있을거 같음. 몇몇 java reference의 최상위 로더의 경우 null 이 나옴.
             this.classLoader = classLoader;
             this.className = className;
         }
@@ -46,7 +50,7 @@ public class ClassLoadChecker {
             LoadClass loadClass = (LoadClass) o;
 
             if (classLoader != null ? !classLoader.equals(loadClass.classLoader) : loadClass.classLoader != null) return false;
-            if (className != null ? !className.equals(loadClass.className) : loadClass.className != null) return false;
+            if (!className.equals(loadClass.className)) return false;
 
             return true;
         }
@@ -54,7 +58,7 @@ public class ClassLoadChecker {
         @Override
         public int hashCode() {
             int result = classLoader != null ? classLoader.hashCode() : 0;
-            result = 31 * result + (className != null ? className.hashCode() : 0);
+            result = 31 * result + className.hashCode();
             return result;
         }
     }
