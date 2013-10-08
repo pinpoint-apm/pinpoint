@@ -27,4 +27,9 @@ public class ResultWithMark<V, M> {
 	public void setMark(M mark) {
 		this.mark = mark;
 	}
+
+	@Override
+	public String toString() {
+		return "ResultWithMark [value=" + value + ", mark=" + mark + "]";
+	}
 }
