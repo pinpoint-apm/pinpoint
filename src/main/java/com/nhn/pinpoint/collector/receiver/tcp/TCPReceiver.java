@@ -36,7 +36,7 @@ public class TCPReceiver {
 	private final PinpointServerSocket pinpointServerSocket;
     private final DispatchHandler dispatchHandler;
     private final String bindAddress;
-    private int port;
+    private final int port;
 
     private int threadSize = 256;
     private int workerQueueSize = 1024 * 5;

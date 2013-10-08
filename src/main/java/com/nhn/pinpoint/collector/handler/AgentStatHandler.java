@@ -35,10 +35,10 @@ public class AgentStatHandler implements Handler {
                 logger.debug("Received AgentStat={}", dto);
             }
             
-            if (statServer != null) {
-            	// 메모리 스토어에 snapshot을 저장한다.
-            	statServer.getStore().store(dto);
-            }
+//            if (statServer != null) {
+//            	// 메모리 스토어에 snapshot을 저장한다.
+//            	statServer.getStore().store(dto);
+//            }
             
 			// HBase에 기록한다.
             byte[] value = PacketUtils.sliceData(packet, Header.HEADER_SIZE, length);
