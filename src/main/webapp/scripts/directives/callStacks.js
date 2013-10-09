@@ -14,6 +14,7 @@ pinpointApp.directive('callStacks', [ function () {
             initialize = function (transactionDetail) {
                 scope.transactionDetail = transactionDetail;
                 scope.key = transactionDetail.callStackIndex;
+                scope.barRatio = 100 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
                 scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
                     tableId : element,

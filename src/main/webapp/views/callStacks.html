@@ -18,8 +18,8 @@
             <td class="arguments">{{stack[key.arguments]}}</td>
             <td class="exectime">{{stack[key.begin] | date:'HH:mm:ss SSS'}}</td>
             <td class="gap">{{stack[key.gap] | number}}</td>
-            <td class="time">{{stack[key.elapsedTime] | number}}</td>
-            <td class="bar"></td>
+            <td class="time">{{stack[key.elapsedTime]}}</td>
+            <td class="bar"><div style="height:8px;background-color:#69B2E9;padding:0px;width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>
             <td class="simpleClassName">{{stack[key.simpleClassName]}}</td>
             <td class="apiType">{{stack[key.apiType]}}</td>
             <td class="agent">{{stack[key.agent]}}</td>
