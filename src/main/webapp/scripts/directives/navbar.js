@@ -31,15 +31,6 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 applicationElement.width(200);
                 $http.defaults.useXDomain = true;
 
-                $timeout(function () {
-                    if ($routeParams.period) {
-                        scope.period = $routeParams.period;
-                    }
-                    if ($routeParams.filter) {
-                        scope.filter = $routeParams.filter;
-                    }
-                });
-
                 /**
                  * date time picker
                  */
@@ -52,7 +43,14 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
                     }
                 });
+
                 $timeout(function () {
+                    if ($routeParams.period) {
+                        scope.period = $routeParams.period;
+                    }
+                    if ($routeParams.filter) {
+                        scope.filter = $routeParams.filter;
+                    }
                     if ($routeParams.queryEndTime) {
                         setDateTime($routeParams.queryEndTime);
                     } else {

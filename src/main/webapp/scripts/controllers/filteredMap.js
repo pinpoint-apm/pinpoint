@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', function ($scope, $routeParams, $timeout) {
+pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'timeSliderDao', function ($scope, $routeParams, $timeout, oTimeSliderDao) {
 
     /**
      * get query period
@@ -21,11 +21,18 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
                 serviceType: splitedApp[1],
                 period: $scope.period,
                 queryPeriod: $scope.queryPeriod,
-                queryStartTime: $scope.queryEndTime - $scope.queryPeriod,
+                queryStartTime: $scope.queryStartTime,
                 queryEndTime: $scope.queryEndTime
             };
+
+        oTimeSliderDao
+            .setFrom($scope.queryStartTime)
+            .setTo($scope.queryEndTime)
+            .setInnerFrom($scope.queryStartTime + 10000000)
+            .setInnerTo($scope.queryEndTime);
+
         $timeout(function () {
-            $scope.$emit('navbar2.initializeWithApplicationData', applicationData);
+            $scope.$emit('timeSlider.initialize', oTimeSliderDao);
             $scope.$emit('servermap.initializeWithApplicationData', applicationData);
             $scope.$emit('scatter.initializeWithApplicationData', applicationData);
         });
@@ -43,8 +50,9 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
             $scope.filter = $routeParams.filter;
         }
         if ($routeParams.queryEndTime) {
-            $scope.queryEndTime = parseInt($routeParams.queryEndTime);
+            $scope.queryEndTime = parseInt($routeParams.queryEndTime, 10);
         }
+        $scope.queryStartTime = $scope.queryEndTime - $scope.queryPeriod;
         $scope.$digest();
         broadcast();
     });

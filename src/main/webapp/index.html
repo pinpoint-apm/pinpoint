@@ -14,23 +14,26 @@
 	<link rel="icon" href="/favicon.ico" type="image/x-icon">
 
     <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="components/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css">
-    <link rel="stylesheet" href="components/select2/select2.css">
-    <link rel="stylesheet" href="components/nvd3/src/nv.d3.css">
-    <link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css">
-    <link rel="stylesheet" href="components/pinpoint-scatter/jquery.dragToSelect.css">
-    <link rel="stylesheet" href="components/pinpoint-scatter/jquery.BigScatterChart.css">
-    <link type="text/css" rel="stylesheet" href="/components/pinpoint-grid/jquery.TreeGridTable.css" />
-    <link type="text/css" rel="stylesheet" href="/components/jquery-flexigrid/css/flexigrid.css" />
-    <link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.css" />
-    <link type="text/css" rel="stylesheet" href="/components/jquery-treetable/stylesheets/jquery.treetable.theme.simple.css" />
+    <link type="text/css" rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="components/bootstrap/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css">
+    <link type="text/css" rel="stylesheet" href="components/select2/select2.css">
+    <link type="text/css" rel="stylesheet" href="components/nvd3/src/nv.d3.css">
+    <link type="text/css" rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css">
+    <link type="text/css" rel="stylesheet" href="components/pinpoint-scatter/jquery.dragToSelect.css">
+    <link type="text/css" rel="stylesheet" href="components/pinpoint-scatter/jquery.BigScatterChart.css">
+    <link type="text/css" rel="stylesheet" href="components/pinpoint-grid/jquery.TreeGridTable.css" />
+    <link type="text/css" rel="stylesheet" href="components/jquery-flexigrid/css/flexigrid.css" />
+    <link type="text/css" rel="stylesheet" href="components/jquery-treetable/stylesheets/jquery.treetable.css" />
+    <link type="text/css" rel="stylesheet" href="components/jquery-treetable/stylesheets/jquery.treetable.theme.simple.css" />
+    <link type="text/css" rel="stylesheet" href="components/jquery.jslider/css/jslider.css">
+    <link type="text/css" rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css">
 
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/spy.css">
     <link rel="stylesheet" href="styles/transactionTable.css">
     <link rel="stylesheet" href="styles/callStacks.css">
+    <link rel="stylesheet" href="styles/timeSlider.css">
 
     <!-- endbuild -->
 </head>
@@ -89,6 +92,12 @@
         <script src="components/jquery-flexigrid/js/flexigrid.js"></script>
         <script src="components/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
         <script src="components/pinpoint-grid/jquery.TreeGridTable.js"></script>
+        <script src="components/jquery.jslider/js/draggable-0.1.js"></script>
+        <script src="components/jquery.jslider/js/jshashtable-2.1_src.js"></script>
+        <script src="components/jquery.jslider/js/jquery.dependClass-0.1.js"></script>
+        <script src="components/jquery.jslider/js/jquery.numberformatter-1.2.3.js"></script>
+        <script src="components/jquery.jslider/js/tmpl.js"></script>
+        <script src="components/jquery.jslider/js/jquery.jslider.js"></script>
         <!-- endbuild -->
 
         <!-- build:js scripts/modules.js -->
@@ -111,7 +120,7 @@
         <script src="scripts/filters/filterToString.js"></script>
         <script src="scripts/controllers/transactionList.js"></script>
         <script src="scripts/controllers/transactionDetail.js"></script>
-        <script src="scripts/directives/navbar2.js"></script>
+        <script src="scripts/directives/timeSlider.js"></script>
         <script src="scripts/directives/transactionTable.js"></script>
         <script src="scripts/directives/callStacks.js"></script>
         <script src="scripts/directives/timeline.js"></script>
@@ -119,6 +128,7 @@
         <script src="scripts/filters/timelineWidth.js"></script>
         <script src="scripts/filters/timelineMarginLeft.js"></script>
         <script src="scripts/controllers/filteredMap.js"></script>
+        <script src="scripts/services/timeSliderDao.js"></script>
         <!-- endbuild -->
 </body>
 </html>

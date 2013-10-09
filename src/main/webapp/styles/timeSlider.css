@@ -1,0 +1,16 @@
+.timeslider .timeslider_wrapper {
+    position:absolute;
+    top:-4px;
+    left:250px;
+    right:20px;
+}
+.timeslider .jslider .jslider-value {
+    top: 12px;
+    z-index: 1;
+}
+.timeslider .jslider .jslider-value-to {
+    /*visibility: hidden !important;*/
+}
+.timeslider .jslider .jslider-pointer {
+    cursor: auto;
+}

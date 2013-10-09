@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>jSlider Show/hide test</title>
+	
+	<!-- bin/jquery.slider.min.css -->
+	<link rel="stylesheet" href="../css/jslider.css" type="text/css">
+	<link rel="stylesheet" href="../css/jslider.plastic.css" type="text/css">
+  <!-- end -->
+
+	<script type="text/javascript" src="../js/jquery-1.7.1.js"></script>
+	
+	<!-- bin/jquery.slider.min.js -->
+	<script type="text/javascript" src="../js/jshashtable-2.1_src.js"></script>
+	<script type="text/javascript" src="../js/jquery.numberformatter-1.2.3.js"></script>
+	<script type="text/javascript" src="../js/tmpl.js"></script>
+	<script type="text/javascript" src="../js/jquery.dependClass-0.1.js"></script>
+	<script type="text/javascript" src="../js/draggable-0.1.js"></script>
+	<script type="text/javascript" src="../js/jquery.slider.js"></script>
+  <!-- end -->
+	
+	<style type="text/css" media="screen">
+	  body { background: #EEF0F7; }
+	 .layout { padding: 50px; font-family: Georgia, serif; }
+	 .layout-slider { margin-bottom: 60px; width: 50%; padding: 20px 0; }
+	</style>
+
+</head>
+<body>
+  
+  <div class="layout">
+
+    <div class="layout-slider" style="width: 100%; display: none;">
+      Slider <span style="display: inline-block; width: 400px; padding: 0 5px;"><input id="Slider3" type="text" name="area" value="25;75" /></span>  in string
+    </div>
+    <a href="#" id="trigger">Show/Hide</a> 
+
+    <script type="text/javascript" charset="utf-8">
+      var layout = $(".layout-slider"),
+      trigger = $("#trigger");
+      
+      jQuery("#Slider3").slider({ from: 0, to: 500, heterogeneity: ['50/100', '75/250'], scale: [0, '|', 50, '|', '100', '|', 250, '|', 500], limits: false, step: 1, dimension: '&nbsp;m<small>2</small>', skin: "plastic" });
+      
+      $(trigger).click( function(){
+        layout.slideToggle("fast");
+        $("#Slider3").slider().update();
+      });
+    </script>
+
+  </div>
+</body>
+</html>
