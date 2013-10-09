@@ -30,6 +30,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 //            $("#loader").hide();
             return;
         }
+        console.log('traces.length', traces.length);
         var query = [];
         for (var i = lastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * fetchCount && i < traces.length; i++, j++) {
             if (i > 0) { query.push("&"); }
@@ -43,9 +44,11 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
     };
     fetchNext = function () {
         getTransationList(getQuery(), function (data) {
-            if (data.metadata.length === 0 || data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+            if (data.metadata.length === 0) {
                 $scope.$emit('timeSlider.disableMore');
                 return false;
+            } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+                $scope.$emit('timeSlider.disableMore');
             }
             emitTransactionListToTable(data);
 
@@ -59,9 +62,11 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
     };
     fetchStart = function () {
          getTransationList(getQuery(), function (data) {
-             if (data.metadata.length === 0 || data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+             if (data.metadata.length === 0) {
                  $scope.$emit('timeSlider.disableMore');
                  return false;
+             } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+                 $scope.$emit('timeSlider.disableMore');
              }
              emitTransactionListToTable(data);
 
@@ -81,6 +86,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 
     getTransationList = function (query, cb) {
         $.post(cfg.applicationUrl, query.join(""), function(data) {
+            console.log('data', data);
             cb(data);
         }).fail(function() {
             alert("Failed to fetching the request informations.");
@@ -121,7 +127,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 
     });
     $scope.$on('timeSlider.moreClicked', function (event) {
-        console.log('on timeSlider.moreClicked');
         fetchNext();
     });
 }]);

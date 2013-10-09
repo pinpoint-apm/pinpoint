@@ -33,6 +33,7 @@ pinpointApp.directive('transactionTable', [function () {
                 angular.forEach(scope.transactionList, function (val, key) {
                     val['index'] = index++;
                 });
+                scope.$digest();
             };
 
             /**
