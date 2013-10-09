@@ -52,16 +52,25 @@
 
     <!-- ng-template -->
     <script id="warning" type="text/ng-template">
-	    <div class="warning" style="position:absolute;top:38%;width:100%;display:none;">
-		    <div class="alert alert-block">
-			    <button type="button" class="close" data-dismiss="alert">&times;</button>
-			    <h4>Warning!</h4>
-			    <div class="msg"></div>
-		    </div>
-	    </div>
+        <div class="warning" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;">
+            <div class="alert alert-block">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Warning!</h4>
+                <div class="msg"></div>
+            </div>
+        </div>
+    </script>
+    <script id="info" type="text/ng-template">
+        <div class="info" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;">
+            <div class="alert alert-block alert-info">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Info</h4>
+                <div class="msg"></div>
+            </div>
+        </div>
     </script>
     <script id="loading" type="text/ng-template">
-	    <div class="progress progress-striped active" style="position:absolute;top:40%;width:100%">
+	    <div class="progress progress-striped active" style="position:absolute;top:40%;width:90%;margin-left:5%;">
 		    <div class="bar" style="width: 0%;"></div>
 	    </div>
     </script>
@@ -129,6 +138,8 @@
         <script src="scripts/filters/timelineMarginLeft.js"></script>
         <script src="scripts/controllers/filteredMap.js"></script>
         <script src="scripts/services/timeSliderDao.js"></script>
+        <script src="scripts/services/alerts.js"></script>
+        <script src="scripts/services/progressBar.js"></script>
         <!-- endbuild -->
 </body>
 </html>

@@ -28,12 +28,12 @@ pinpointApp.constant('cfg', {
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
         }
     },
-    FILTER_DELIMETER : "^",
-    FILTER_ENTRY_DELIMETER : "|",
-    FILTER_FETCH_LIMIT : 99
+    FILTER_DELIMETER: "^",
+    FILTER_ENTRY_DELIMETER: "|",
+    FILTER_FETCH_LIMIT: 99
 });
 
-pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$compile', '$timeout', function (cfg, $rootScope, $templateCache, $compile, $timeout) {
+pinpointApp.directive('servermap', [ 'cfg', '$rootScope', 'alerts', 'progressBar', function (cfg, $rootScope, alerts, progressBar) {
     return {
         restrict: 'EA',
         replace: true,
@@ -43,37 +43,15 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
             var oServerMap = null;
             var SERVERMAP_METHOD_CACHE = {};
 
-            /**
-             * loading
-             */
-            var startLoading = function () {
-                setLoading(0);
-                $timeout(function () {
-                    $('.servermap .progress').show();
-                });
-            };
-            var stopLoading = function () {
-                $timeout(function () {
-                    $('.servermap .progress').hide();
-                }, 300);
-            };
-            var setLoading = function (p) {
-                $('.servermap .progress .bar').width(p + '%');
-            };
-
-            var showWarning = function (msg) {
-                $timeout(function () {
-                    $('.servermap .warning').show();
-                    $('.servermap .warning .msg').text(msg);
-                }, 300);
-            };
+            alerts.setParent(element);
+            progressBar.setParent(element);
 
             var showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, hideIndirectAccess, linkRouting, linkCurve) {
-                startLoading();
+                progressBar.startLoading();
                 if (oServerMap) {
                     oServerMap.clear();
                 }
-                setLoading(10);
+                progressBar.setLoading(10);
 
                 var query = {
                     applicationName: applicationName,
@@ -94,41 +72,37 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                         var fetchedPeriod = query.to - result.lastFetchedTimestamp;
                         var ratio = Math.floor(fetchedPeriod / period * 100);
                         var nextFetchFrom = result.lastFetchedTimestamp + 1;
-                        
+
                         // TODO 대충 24시간으로 계산하나 걸치는 경우 체크가 필요할지도. 예: 22:00 ~ 03:00
                         // TODO 그냥 날짜까지 보여줄까.
-                        var dateFormat = (period > DAY) ? "yyyy/MM/dd HH:mm:ss" : "HH:mm:ss"; 
-                        
+                        var dateFormat = (period > DAY) ? "yyyy/MM/dd HH:mm:ss" : "HH:mm:ss";
+
                         console.log("query", query);
                         console.log("result", result);
-                        
+
                         var strFrom = new Date(query.from).toString(dateFormat);
-                    	var strTo = new Date(query.to).toString(dateFormat);
-                    	var strOffset = new Date(result.lastFetchedTimestamp).toString(dateFormat);
-                        
-                    	$("#readProgress .bar").text("fetched " + strFrom + " ~ " + strTo + " , " + strOffset);
-                    	$("#readProgress .bar").css("width", ratio + "%");
-                    	
-                    	var fetchNext = function() {
-                    		// TODO next 조회 로직 추가 필요.
-                    		// TODO 새로 조회한 것과 기존에 조회된 것 머지 기능 추가 필요.
-                    		console.log("fetch more " + new Date(nextFetchFrom).toString("yyyy/MM/dd HH:mm:ss") + " ~ " + new Date(query.to).toString("yyyy/MM/dd HH:mm:ss"));
-                    	}
-                    	
-                    	var fetchDone = function() {
-                    		// TODO 조회가 완료되면 할 거 없음.
-                    		console.log("That's all.");
-                    	}
-                    	
-                    	// lastFetchedTimestamp + 1 ~ query.to까지 계속 조회하고.
-                    	// 조회된 데이터가 0개이면 모두 조회되었다고 판단해도 됨.
-                    	// lastFetchedTimestamp가 query.to하고 같으면 더 조회하지 않아도 됨.
-                    	var needMoreFetch = result.applicationMapData.nodeDataArray.length > 0;
-                    	needMoreFetch |= result.lastFetchedTimestamp == query.to;
-                    	
-                    	// TODO 밖으로 빼내서 핸들러 하나만 등록하도록 변경할 것.
-                    	$("#readProgress #fetchMore").unbind("click");
-                    	$("#readProgress #fetchMore").bind("click", (needMoreFetch) ? fetchNext : fetchDone);
+                        var strTo = new Date(query.to).toString(dateFormat);
+                        var strOffset = new Date(result.lastFetchedTimestamp).toString(dateFormat);
+
+
+                        var fetchNext = function () {
+                            // TODO next 조회 로직 추가 필요.
+                            // TODO 새로 조회한 것과 기존에 조회된 것 머지 기능 추가 필요.
+                            console.log("fetch more " + new Date(nextFetchFrom).toString("yyyy/MM/dd HH:mm:ss") + " ~ " + new Date(query.to).toString("yyyy/MM/dd HH:mm:ss"));
+                        }
+
+                        var fetchDone = function () {
+                            // TODO 조회가 완료되면 할 거 없음.
+                            console.log("That's all.");
+                        }
+
+                        // lastFetchedTimestamp + 1 ~ query.to까지 계속 조회하고.
+                        // 조회된 데이터가 0개이면 모두 조회되었다고 판단해도 됨.
+                        // lastFetchedTimestamp가 query.to하고 같으면 더 조회하지 않아도 됨.
+                        var needMoreFetch = result.applicationMapData.nodeDataArray.length > 0;
+                        needMoreFetch |= result.lastFetchedTimestamp == query.to;
+
+                        // TODO 밖으로 빼내서 핸들러 하나만 등록하도록 변경할 것.
                     });
                 } else {
                     getServerMapData2(query, function (query, result) {
@@ -138,7 +112,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
             };
 
             var getServerMapData2 = function (query, callback) {
-                setLoading(50);
+                progressBar.setLoading(50);
                 jQuery.ajax({
                     type: 'GET',
                     url: '/getServerMapData2.pinpoint',
@@ -152,13 +126,13 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                         hideIndirectAccess: query.hideIndirectAccess
                     },
                     success: function (result) {
-                        setLoading(30);
+                        progressBar.setLoading(30);
                         callback(query, result);
                     },
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
-                        stopLoading();
-                        showWarning('There is some error.');
+                        progressBar.stopLoading();
+                        alerts.showWarning('There is some error.');
                     }
                 });
             };
@@ -182,6 +156,8 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                     },
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
+                        progressBar.stopLoading();
+                        alerts.showWarning('There is some error.');
                     }
                 });
             };
@@ -201,7 +177,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 var nodeContextMenu = element.find('.nodeContextMenu');
                 nodeContextMenu.css({
                     'top': top,
-                    'left' : left
+                    'left': left
                 });
                 scope.$digest();
             };
@@ -212,7 +188,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 var linkContextMenu = element.find('.linkContextMenu');
                 linkContextMenu.css({
                     'top': top,
-                    'left' : left
+                    'left': left
                 });
                 scope.$digest();
             };
@@ -223,7 +199,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 var backgroundContextMenu = element.find('.backgroundContextMenu');
                 backgroundContextMenu.css({
                     'top': top,
-                    'left' : left
+                    'left': left
                 });
                 scope.$digest();
             };
@@ -244,10 +220,10 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                     prevFilter = scope.filter;
 
                 var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
-                        + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
-                        + srcApplicationName + cfg.FILTER_ENTRY_DELIMETER
-                        + destServiceType + cfg.FILTER_ENTRY_DELIMETER
-                        + destApplicationName;
+                    + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
+                    + srcApplicationName + cfg.FILTER_ENTRY_DELIMETER
+                    + destServiceType + cfg.FILTER_ENTRY_DELIMETER
+                    + destApplicationName;
 
                 var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + newFilter;
                 window.open(url, "");
@@ -277,10 +253,10 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
             var serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
                 serverMapCachedQuery = angular.copy(query);
                 serverMapCachedData = angular.copy(data);
-                setLoading(80);
+                progressBar.setLoading(80);
                 if (data.applicationMapData.nodeDataArray.length === 0) {
-                    stopLoading();
-                    showWarning('There is no data.');
+                    progressBar.stopLoading();
+                    alerts.showInfo('There is no data.');
                     return;
                 }
 
@@ -290,7 +266,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
 
                 replaceClientToUser(data);
                 setLinkOption(data, linkRouting, linkCurve);
-                setLoading(90);
+                progressBar.setLoading(90);
 
                 var options = cfg.options;
                 options.fOnNodeContextClicked = function (e, node) {
@@ -334,7 +310,7 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                     $rootScope.$broadcast("servermap.backgroundContextClicked", e, query);
                     reset();
                     if (!bUseBackgroundContextMenu) {
-                         return;
+                        return;
                     }
                     setBackgroundContextMenuPosition(e.diagram.lastInput.event.layerY, e.diagram.lastInput.event.layerX);
                 };
@@ -357,14 +333,14 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                     console.log(e);
                 }
 
-                setLoading(100);
+                progressBar.setLoading(100);
                 if (oServerMap === null) {
                     oServerMap = new ServerMap(options);
                 } else {
                     oServerMap.option(options);
                 }
                 oServerMap.load(data.applicationMapData);
-                stopLoading();
+                progressBar.stopLoading();
             };
 
             var mergeUnknown = function (query, data) {
@@ -613,13 +589,13 @@ pinpointApp.directive('servermap', [ 'cfg', '$rootScope', '$templateCache', '$co
                 scope.navbar = data;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
-                showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, scope.filter,  scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(data.applicationName, data.serviceType, data.queryEndTime, data.queryPeriod, scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
             });
             scope.$on('servermap.initializeWithApplicationData', function (event, applicationData) {
                 scope.navbar = applicationData;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
-                showServerMap(applicationData.applicationName, applicationData.serviceType, applicationData.queryEndTime, applicationData.queryPeriod, scope.filter,  scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(applicationData.applicationName, applicationData.serviceType, applicationData.queryEndTime, applicationData.queryPeriod, scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
             });
             scope.$on('servermap.initializeWithMapData', function (event, mapData) {
                 scope.bShowServerMapStatus = false;
