@@ -83,13 +83,22 @@ public class SpanAlign {
 		this.hasChild = hasChild;
 	}
 
-	@Override
+    @Override
     public String toString() {
-        return "SpanAlign{" +
-                "depth=" + depth +
-                ", spanBo=" + spanBo +
-                ", spanEventBo=" + spanEventBo +
-                ", span=" + span +
-                '}';
+        final StringBuilder sb = new StringBuilder("SpanAlign{");
+        sb.append("depth=").append(depth);
+        sb.append(", sequence=").append(sequence);
+        sb.append(", parentSequence=").append(parentSequence);
+        if (span) {
+            sb.append(", spanBo=").append(spanBo);
+            sb.append(", spanEventBo=").append(spanEventBo);
+        } else {
+            sb.append(", spanEventBo=").append(spanEventBo);
+            sb.append(", spanBo=").append(spanBo);
+        }
+        sb.append(", span=").append(span);
+        sb.append(", hasChild=").append(hasChild);
+        sb.append('}');
+        return sb.toString();
     }
 }
