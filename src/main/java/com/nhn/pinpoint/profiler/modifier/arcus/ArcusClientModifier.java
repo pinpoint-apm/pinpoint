@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
-import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FirstStringParameterExtractor;
+import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,10 @@ public class ArcusClientModifier extends AbstractModifier {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isArucsKeyTrace()) {
-                    ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new FirstStringParameterExtractor());
+                    final int index = ParameterUtils.findFirstString(method);
+                    if (index != -1) {
+                        ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
+                    }
                 }
                 ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(apiInterceptor, ArcusScope.SCOPE);
                 arcusClient.addInterceptor(method.getMethodName(), method.getMethodParams(), arcusScopeDelegateSimpleInterceptor, Type.around);
@@ -61,5 +64,6 @@ public class ArcusClientModifier extends AbstractModifier {
 			return null;
 		}
 	}
+
 
 }

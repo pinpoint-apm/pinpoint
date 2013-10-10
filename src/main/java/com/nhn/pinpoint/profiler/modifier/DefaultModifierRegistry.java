@@ -109,11 +109,12 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             if (arucs) {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
                 addModifier(arcusClientModifier);
+                // arcus의 Future임
+                CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
+                addModifier(collectionFutureModifier);
             }
 
             // future modifier start ---------------------------------------------------
-            CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(collectionFutureModifier);
 
             GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
             addModifier(getFutureModifier);

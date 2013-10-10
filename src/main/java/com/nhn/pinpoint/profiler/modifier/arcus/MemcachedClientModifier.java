@@ -11,7 +11,7 @@ import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
-import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FirstStringParameterExtractor;
+import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,10 @@ public class MemcachedClientModifier extends AbstractModifier {
             for (Method method : declaredMethods) {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isMemcachedKeyTrace()) {
-                    ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new FirstStringParameterExtractor());
+                    final int index = ParameterUtils.findFirstString(method);
+                    if (index != -1) {
+                        ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
+                    }
                 }
                 ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(apiInterceptor, ArcusScope.SCOPE);
 				aClass.addInterceptor(method.getMethodName(), method.getMethodParams(), arcusScopeDelegateSimpleInterceptor, Type.around);
@@ -66,4 +69,5 @@ public class MemcachedClientModifier extends AbstractModifier {
 			return null;
 		}
 	}
+
 }

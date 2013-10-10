@@ -29,7 +29,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
     
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-    private ParameterExtractor parameterExtractor = EmptyParameterExtractor.INSTANCE;
+    private ParameterExtractor parameterExtractor;
 
     @Override
 	public void before(Object target, Object[] args) {
@@ -60,10 +60,10 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 			return;
 		}
 		try {
-            final int recordIndex = parameterExtractor.extractIndex(args);
-            if (recordIndex != ParameterExtractor.NOT_FOUND) {
-                final Object recordObject = parameterExtractor.extractObject(args, recordIndex);
-                trace.recordApi(methodDescriptor, recordObject, recordIndex);
+            if (parameterExtractor != null) {
+                final int index = parameterExtractor.getIndex();
+                final Object recordObject = parameterExtractor.extractObject(args);
+                trace.recordApi(methodDescriptor, recordObject, index);
             } else {
                 trace.recordApi(methodDescriptor);
             }
