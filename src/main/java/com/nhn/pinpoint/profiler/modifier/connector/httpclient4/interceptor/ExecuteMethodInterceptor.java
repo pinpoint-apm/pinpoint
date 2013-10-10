@@ -75,7 +75,7 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         request.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
         request.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-        request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), traceContext.getServerType());
+        request.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 

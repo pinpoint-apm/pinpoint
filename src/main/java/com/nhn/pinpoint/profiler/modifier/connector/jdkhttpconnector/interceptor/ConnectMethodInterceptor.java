@@ -61,7 +61,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
 		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
 		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), traceContext.getServerType());
+		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
 		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 
