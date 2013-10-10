@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.List;
 
 import com.nhn.pinpoint.profiler.Agent;
@@ -14,7 +15,6 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
-import com.nhn.pinpoint.profiler.util.ExcludeBindVariableFilter;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import org.slf4j.Logger;
@@ -81,9 +81,9 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 				}
 			} catch (NotFoundInstrumentException e) {
 				// bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
-				if (logger.isTraceEnabled()) {
-					logger.trace("bindVariable api not found. Cause:{}", e.getMessage(), e);
-				}
+                if (logger.isDebugEnabled()) {
+                    logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
+                }
 			}
 		}
 	}

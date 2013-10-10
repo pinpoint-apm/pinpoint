@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.List;
 
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
@@ -72,7 +73,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
                 // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
                 // stack trace는 일부러 안찍음.
                 if (logger.isDebugEnabled()) {
-                    logger.debug("bindVariable api not found. method:{} Cause:{}", methodName, e.getMessage());
+                    logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }
             }
         }

@@ -342,8 +342,7 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-                    <debug>false</debug>
-                    <!--<debug>true</debug>-->
+                    <debug>${compiler-debug}</debug>
                     <optimize>true</optimize>
                     <encoding>UTF-8</encoding>
                     <!--<showDeprecation>true</showDeprecation>-->
@@ -398,6 +397,7 @@
             <properties>
                 <env>local</env>
                 <deploy-path>deploy</deploy-path>
+                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -406,6 +406,7 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
+                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -414,6 +415,7 @@
             <id>release</id>
             <properties>
                 <env>release</env>
+                <compiler-debug>false</compiler-debug>
             </properties>
         </profile>
     </profiles>

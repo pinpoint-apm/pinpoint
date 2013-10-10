@@ -160,8 +160,8 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
             TraceId id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
-            if (logger.isInfoEnabled()) {
-                logger.info("TraceID exist. continue trace. {}", id);
+            if (isDebug) {
+                logger.debug("TraceID exist. continue trace. {}", id);
             }
             return id;
         } else {
