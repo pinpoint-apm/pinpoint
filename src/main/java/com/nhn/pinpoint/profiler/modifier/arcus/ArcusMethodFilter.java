@@ -61,7 +61,7 @@ public class ArcusMethodFilter implements MethodFilter {
     @Override
     public boolean filter(CtMethod ctMethod) {
         final int modifiers = ctMethod.getModifiers();
-        if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
+        if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return true;
         }
         if (WHITE_LIST_API.get(ctMethod.getName()) == FIND) {

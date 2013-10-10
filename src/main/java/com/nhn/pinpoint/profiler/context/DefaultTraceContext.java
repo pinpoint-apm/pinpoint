@@ -4,6 +4,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -11,7 +12,6 @@ import com.nhn.pinpoint.common.util.SqlParser;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.metadata.LRUCache;
 import com.nhn.pinpoint.profiler.metadata.Result;
-import com.nhn.pinpoint.profiler.metadata.StringCache;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sender.DataSender;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
 
@@ -44,7 +44,7 @@ public class DefaultTraceContext implements TraceContext {
     private final LRUCache<String> sqlCache = new LRUCache<String>();
     private final SqlParser sqlParser = new SqlParser();
 
-    private final StringCache apiCache = new StringCache();
+    private final SimpleCache<String> apiCache = new SimpleCache<String>();
 
     private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
@@ -102,7 +102,7 @@ public class DefaultTraceContext implements TraceContext {
         Trace old = this.threadLocal.get();
         if (old != null) {
             // 잘못된 상황의 old를 덤프할것.
-            if (logger.isDebugEnabled()) {
+            if (logger.isWarnEnabled()) {
                 logger.warn("beforeTrace:{}", old);
             }
             throw new PinpointException("already Trace Object exist.");
@@ -216,7 +216,7 @@ public class DefaultTraceContext implements TraceContext {
 
         boolean newValue = this.sqlCache.put(normalizedSql);
         if (newValue) {
-            if (logger.isDebugEnabled()) {
+            if (isDebug) {
                 // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
             }

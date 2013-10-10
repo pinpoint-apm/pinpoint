@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 public class JavaAssistClass implements InstrumentClass {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private JavaAssistByteCodeInstrumentor instrumentor;
     private CtClass ctClass;
@@ -352,7 +353,7 @@ public class JavaAssistClass implements InstrumentClass {
             after.end();
         }
         final String buildAfter = after.toString();
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             logger.debug("addAfterInterceptor after behavior:{} code:{}", behavior.getLongName(), buildAfter);
         }
         behavior.insertAfter(buildAfter);
@@ -390,7 +391,7 @@ public class JavaAssistClass implements InstrumentClass {
             catchCode.end();
         }
         String buildCatch = catchCode.toString();
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
         CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
@@ -482,7 +483,7 @@ public class JavaAssistClass implements InstrumentClass {
             code.end();
         }
         String buildBefore = code.toString();
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             logger.debug("addStaticBeforeInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildBefore);
         }
 
@@ -511,7 +512,7 @@ public class JavaAssistClass implements InstrumentClass {
 
             for (CtMethod method : methods) {
                 if (method.isEmpty()) {
-                    if (logger.isDebugEnabled()) {
+                    if (isDebug) {
                         logger.debug("{} is empty.", method.getLongName());
                     }
                     continue;
@@ -547,8 +548,8 @@ public class JavaAssistClass implements InstrumentClass {
 
             for (CtConstructor constructor : constructors) {
                 if (constructor.isEmpty()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(constructor.getLongName() + " is empty.");
+                    if (isDebug) {
+                        logger.debug("{} is empty.", constructor.getLongName());
                     }
                     continue;
                 }
@@ -582,8 +583,8 @@ public class JavaAssistClass implements InstrumentClass {
             }
         }
         String paramsStr = sb.toString();
-        if (logger.isDebugEnabled()) {
-            logger.debug("params type:{}");
+        if (isDebug) {
+            logger.debug("params type:{}", paramsStr);
         }
         return paramsStr;
     }
@@ -607,9 +608,9 @@ public class JavaAssistClass implements InstrumentClass {
             ctClass.detach();
             return bytes;
         } catch (IOException e) {
-            logger.info("IoException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            logger.info("IoException class:{} Caused:{}", ctClass.getName(),  e.getMessage(), e);
         } catch (CannotCompileException e) {
-            logger.info("CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            logger.info("CannotCompileException class:{} Caused:{}", ctClass.getName(), e.getMessage(), e);
         }
         return null;
     }
