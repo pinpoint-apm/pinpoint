@@ -89,7 +89,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             } finally {
                 thread.setContextClassLoader(before);
             }
-
         }
         catch (Throwable e) {
             logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
@@ -101,6 +100,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     private ClassLoader getContextClassLoader(Thread thread) {
         try {
             return thread.getContextClassLoader();
+        } catch (SecurityException se) {
+            throw se;
         } catch (Throwable th) {
             if (isDebug) {
                 logger.debug("getContextClassLoader(). Caused:{}", th.getMessage(), th);
