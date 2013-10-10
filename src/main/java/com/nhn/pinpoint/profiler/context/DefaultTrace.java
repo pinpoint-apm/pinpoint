@@ -372,7 +372,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordNextSpanId(int nextSpanId) {
-        if (nextSpanId != -1) {
+        if (nextSpanId == -1) {
             return;
         }
         StackFrame currentStackFrame = this.currentStackFrame;
