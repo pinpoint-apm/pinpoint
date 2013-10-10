@@ -40,7 +40,7 @@ public class MetaObject<R> {
         if (method == null) {
             // 멀티쓰레드에서 중복 엑세스해도 별 문제 없을것임.
             final Class<?> aClass = target.getClass();
-            method = getMethod(aClass);
+            method = findMethod(aClass);
             this.methodRef = method;
         }
         return invoke(method, target, args);
@@ -61,7 +61,7 @@ public class MetaObject<R> {
         }
     }
 
-    private Method getMethod(Class<?> aClass) {
+    private Method findMethod(Class<?> aClass) {
         try {
             final Method method = aClass.getMethod(this.methodName, this.args);
             if (!method.isAccessible()) {
@@ -70,7 +70,7 @@ public class MetaObject<R> {
             }
             return method;
         } catch (NoSuchMethodException e) {
-            logger.warn("{} not found cls:{} Caused:{}", new Object[] { this.methodName, aClass, e.getMessage(), e });
+            logger.warn("{} not found class:{} Caused:{}", new Object[] { this.methodName, aClass, e.getMessage(), e });
             return null;
         }
     }
