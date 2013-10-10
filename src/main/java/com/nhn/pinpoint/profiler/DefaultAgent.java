@@ -93,9 +93,12 @@ public class DefaultAgent implements Agent {
             throw new PinpointException("ApplicationServerType not found.");
         }
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
+        }
         ClassFileTransformerDispatcher classFileTransformerDispatcher = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
         instrumentation.addTransformer(classFileTransformerDispatcher);
+
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.

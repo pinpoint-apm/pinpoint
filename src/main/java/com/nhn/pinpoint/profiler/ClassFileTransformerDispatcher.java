@@ -81,10 +81,30 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         String javassistClassName = className.replace('/', '.');
 
         try {
-            return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
+            final Thread thread = Thread.currentThread();
+            final ClassLoader before = getContextClassLoader(thread);
+            thread.setContextClassLoader(this.agentClassLoader);
+            try {
+                return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
+            } finally {
+                thread.setContextClassLoader(before);
+            }
 
-        } catch (Throwable e) {
-            logger.error("Modifier:{} modify fail. Cause:{}", findModifier.getTargetClass(), e.getMessage(), e);
+        }
+        catch (Throwable e) {
+            logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
+                    findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private ClassLoader getContextClassLoader(Thread thread) {
+        try {
+            return thread.getContextClassLoader();
+        } catch (Throwable th) {
+            if (isDebug) {
+                logger.debug("getContextClassLoader(). Caused:{}", th.getMessage(), th);
+            }
             return null;
         }
     }
