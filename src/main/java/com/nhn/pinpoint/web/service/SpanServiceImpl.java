@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.service;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.common.bo.*;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,6 @@ import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
 import com.nhn.pinpoint.web.dao.SqlMetaDataDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 import com.nhn.pinpoint.common.util.OutputParameterParser;
 import com.nhn.pinpoint.common.util.SqlParser;
 
@@ -86,22 +82,12 @@ public class SpanServiceImpl implements SpanService {
 					return;
 				}
 
-				AgentInfoBo agentInfoBo = null;
-				try {
-					agentInfoBo = getAgentInfoBo(spanAlign);
-					logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
-				} catch (AgentIdNotFoundException ex) {
-					AnnotationBo agentInfoNotFound = new AnnotationBo();
-					agentInfoNotFound.setKey(AnnotationKey.SQL.getCode());
-					agentInfoNotFound.setValue("SQL-ID not found. Cause:agentInfo not found. agentId:" + ex.getAgentId() + " startTime:" + ex.getStartTime());
-					annotationBoList.add(agentInfoNotFound);
-					return;
-				}
+                final AgentKey agentKey = getAgentKey(spanAlign);
 
-				// TODO 일단 시간까지 조회는 하지 말고 하자.
+                // TODO 일단 시간까지 조회는 하지 말고 하자.
 				// 미리 sqlMetaDataList를 indentifier로 필터치는 로직이 더 좋을것으로 생각됨.
 				int hashCode = (Integer) sqlIdAnnotation.getValue();
-				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentInfoBo.getAgentId(), hashCode, agentInfoBo.getStartTime());
+				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), hashCode, agentKey.getAgentStartTime());
 				int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -203,22 +189,10 @@ public class SpanServiceImpl implements SpanService {
 					return;
 				}
 
-				AgentInfoBo agentInfoBo = null;
-				try {
-					agentInfoBo = getAgentInfoBo(spanAlign);
-					logger.info("{} Agent StartTime found:{}", agentInfoBo.getAgentId(), agentInfoBo);
-				} catch (AgentIdNotFoundException ex) {
-                    logger.warn("AgentIdNotFoundException Caused:{}", ex.getMessage(), ex);
-					AnnotationBo agentInfoNotFound = new AnnotationBo();
-					agentInfoNotFound.setKey(AnnotationKey.ERROR_API_METADATA_AGENT_INFO_NOT_FOUND.getCode());
-					agentInfoNotFound.setValue("API-DynamicID not found. Cause:agentInfo not found. agentId:" + ex.getAgentId() + " startTime:" + ex.getStartTime());
-					annotationBoList.add(agentInfoNotFound);
-					return;
-				}
-
-				int apiId = (Integer) apiIdAnnotation.getValue();
+                final AgentKey key = getAgentKey(spanAlign);
+				final int apiId = (Integer) apiIdAnnotation.getValue();
                 // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
-				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(agentInfoBo.getAgentId(), apiId, agentInfoBo.getStartTime(), agentInfoBo.getPid());
+				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), apiId, key.getAgentStartTime());
 				int size = apiMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -250,19 +224,15 @@ public class SpanServiceImpl implements SpanService {
 		});
 	}
 
-	private AgentInfoBo getAgentInfoBo(SpanAlign spanAlign) {
-		String agentId = getAgentId(spanAlign);
-		long agentStartTime = spanAlign.getSpanBo().getAgentStartTime();
-
-		List<AgentInfoBo> agentInfoBo = agentInfoDao.getAgentInfo(agentId, agentStartTime);
-		if (agentInfoBo == null || agentInfoBo.size() == 0) {
-			throw new AgentIdNotFoundException(agentId, agentStartTime);
-		}
-        // 현재는 qualifier에 고정된 상수를 집어 넣으므로 한상 1개 만존재하므로 0으로 검색하면 된다.
-        // span에는 identifier가 없고,
-        // 만약 2개 이상의 starttime을 가진 agentInfo가 존재한다면 동시에 같은 id를 가진 agent가 스타트된것을 확인하는 정도의 기능이 가능한다.
-		return agentInfoBo.get(0);
-	}
+    private AgentKey getAgentKey(SpanAlign spanAlign) {
+        if (spanAlign.isHasChild()) {
+            SpanBo spanBo = spanAlign.getSpanBo();
+            return new AgentKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
+        } else {
+            final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+            return new AgentKey(spanEventBo.getAgentId(), spanEventBo.getAgentStartTime());
+        }
+    }
 
 	private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {
 		// TODO 이거 체크하는 테스트를 따로 만들어야 될듯 하다. 왠간하면 확율상 hashCode 충돌 케이스를 쉽게 만들수 없음.
@@ -299,4 +269,26 @@ public class SpanServiceImpl implements SpanService {
         return sort;
 
 	}
+
+    private static class AgentKey {
+
+        private final String agentId;
+        private final long agentStartTime;
+
+        private AgentKey(String agentId, long agentStartTime) {
+            if (agentId == null) {
+                throw new NullPointerException("agentId must not be null");
+            }
+            this.agentId = agentId;
+            this.agentStartTime = agentStartTime;
+        }
+
+        private String getAgentId() {
+            return agentId;
+        }
+
+        private long getAgentStartTime() {
+            return agentStartTime;
+        }
+    }
 }
