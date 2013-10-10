@@ -16,7 +16,7 @@
         <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}">
             <td class="method"><i class="icon-info-sign" ng-hide="stack[key.isMethod]"></i>{{stack[key.title]}}</td>
             <td class="arguments">{{stack[key.arguments]}}</td>
-            <td class="exectime">{{stack[key.begin] | date:'HH:mm:ss SSS'}}</td>
+            <td class="exectime">{{stack[key.begin] | datejs:'%H:%M:%S u'}}</td>
             <td class="gap">{{stack[key.gap] | number}}</td>
             <td class="time">{{stack[key.elapsedTime]}}</td>
             <td class="bar"><div style="height:8px;background-color:#69B2E9;padding:0px;width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>

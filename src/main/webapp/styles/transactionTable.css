@@ -1,8 +1,34 @@
-.transactiontable th {
+.transaction-table {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    padding-top: 30px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-size: 11px;
+}
+
+.transation-table_wrapper {
+    overflow: auto;
+    height: 100%;
+}
+
+.transaction-table_header {
+    background-color: #D5ECFF;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-bottom: 1px solid darkgray;
+}
+
+.transaction-table_table th {
     padding: 0 5px;
 }
 
-.transactiontable .th-inner {
+.transaction-table_table .th-inner {
     position: absolute;
     top: 0;
     line-height: 30px;
@@ -12,16 +38,16 @@
     width: 100%;
 }
 
-.transactiontable th:first-child .th-inner {
+.transaction-table_table th:first-child .th-inner {
     border-left: none;
 }
 
-.transactiontable th,
-.transactiontable td {
+.transaction-table_table th,
+.transaction-table_table td {
     min-width: 45px
 }
 
-.transactiontable td {
+.transaction-table_table td {
     font-family: consolas;
     border-top: none;
     border-left: none;
@@ -29,7 +55,7 @@
     border-bottom: 1px solid #ccc;
 }
 
-.transactiontable td {
+.transaction-table_table td {
     border-left: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }

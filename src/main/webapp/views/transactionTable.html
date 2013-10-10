@@ -1,7 +1,7 @@
-<div style="position:absolute;width:100%;height:100%;padding:0;padding-top:30px;overflow-x:hidden;overflow-y: auto">
-    <div style="overflow: auto;height:100%">
-        <div style="background-color: #D5ECFF;height: 30px;position: absolute;top: 0;right: 0;left: 0;border-bottom: 1px solid darkgray;"></div>
-        <table class="transactiontable table table-condensed table-hover" style="font-size:12px;" cellspacing="0">
+<div class="transaction-table">
+    <div class="transaction-table_wrapper">
+        <div class="transaction-table_header"></div>
+        <table class="transaction-table_table table table-condensed table-hover" cellspacing="0">
             <thead>
             <tr>
                 <th>
@@ -52,7 +52,7 @@
                 ng-class="{'error': transaction.exception}"
                 ng-style="{true: {'background-color': '#dff0d8'}, false: {}}[transaction == currentTransaction]">
                 <td style='padding-right:5px;text-align:right'>{{transaction.index}}</td>
-                <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'HH:MM:ss .sss'}}
+                <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | datejs:'%H:%M:%S u'}}
                 </td>
                 <td ng-click="traceByAppliation(transaction)" style="cursor:pointer">{{transaction.application}} <a href
                                                                                                                     ng-href="#/transactionDetail/{{transaction.traceId}}/{{transaction.collectorAcceptTime}}"

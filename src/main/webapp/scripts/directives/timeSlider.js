@@ -12,40 +12,40 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
         link: function postLink(scope, element, attrs) {
 
             // define variables
-            var oTimeSliderDao, $elSlider;
+            var $elSlider;
             // define private methods
             var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo,
                 disableMore, enableMore;
 
             // initialize private variables
-            oTimeSliderDao = null;
             $elSlider = element.find('.timeslider_input');
 
             // initialize scope variables
             scope.nInnerFrom = null;
             scope.nInnerTo = null;
             scope.disabledMore = false;
+            scope.timeSliderDao = null;
 
             /**
              * init slider
              * @param timeSliderDao
              */
             initSlider = function (timeSliderDao) {
-                oTimeSliderDao = timeSliderDao;
-                if (oTimeSliderDao === null) {
+                scope.timeSliderDao = timeSliderDao;
+                if (scope.timeSliderDao === null) {
                     return;
                 }
 
                 var scale = parseScaleAsTimeFormat(getScale());
 
-                scope.nInnerFrom = oTimeSliderDao.getInnerFrom();
-                scope.nInnerTo = oTimeSliderDao.getInnerTo();
+                scope.nInnerFrom = scope.timeSliderDao.getInnerFrom();
+                scope.nInnerTo = scope.timeSliderDao.getInnerTo();
                 scope.$digest();
 
                 $elSlider.jslider(
                     {
-                        from: oTimeSliderDao.getFrom(),
-                        to: oTimeSliderDao.getTo(),
+                        from: scope.timeSliderDao.getFrom(),
+                        to: scope.timeSliderDao.getTo(),
                         scale: scale,
                         skin: "round_plastic",
                         calculate: function (value) {
@@ -67,8 +67,8 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
              */
             getScale = function () {
                 // gap이 최대 3일이라 가정하고, 전부 시:분 으로 표시한다.
-                var from =  oTimeSliderDao.getFrom(),
-                    to = oTimeSliderDao.getTo(),
+                var from =  scope.timeSliderDao.getFrom(),
+                    to = scope.timeSliderDao.getTo(),
                     gap = to - from,
                     unit = gap / (cfg.scaleCount - 1),
                     tempScale = [];
@@ -115,12 +115,13 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
 
             // define scope methods
             scope.more = function () {
-                scope.$emit('timeSlider.moreClicked', oTimeSliderDao);
+                scope.$emit('timeSlider.moreClicked', scope.timeSliderDao);
             };
             scope.$on('timeSlider.initialize', function (event, timeSliderDao) {
                 initSlider(timeSliderDao);
             });
             scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderDao) {
+                scope.timeSliderDao = timeSliderDao;
                 setInnerFromTo(timeSliderDao.getInnerFrom(), timeSliderDao.getInnerTo());
             });
             scope.$on('timeSlider.disableMore', function (event) {
