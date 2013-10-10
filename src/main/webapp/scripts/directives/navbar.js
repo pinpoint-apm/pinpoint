@@ -13,22 +13,23 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
             templateUrl: 'views/navbar.html',
             link: function (scope, element, attrs) {
 
-                /**
-                 * initialize
-                 */
+                // define private variables
+                var applicationElement;
+
+                // initialize private variables
+                applicationElement = element.find('.application').width(200);
+
+                // initialize scope variables
                 scope.applications = [
                     {
                         text: 'Loading...',
                         value: ''
                     }
                 ];
-
                 scope.application = '';
                 scope.disableApplication = true;
                 scope.period = '';
                 scope.queryEndTime = '';
-                var applicationElement = element.find('.application');
-                applicationElement.width(200);
                 $http.defaults.useXDomain = true;
 
                 /**
@@ -41,6 +42,12 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                     beforeShow: function () {
                         $datetimepicker.datetimepicker('option', 'maxDate', new Date());
                         $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
+                    },
+                    onClose : function (currentTime, oTime) {
+                        if (currentTime === oTime.lastVal) {
+                            return;
+                        }
+                        broadcast();
                     }
                 });
 
@@ -88,7 +95,7 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 /**
                  * _boardcast as applicationChanged with args
                  */
-                var broadcast = scope.broadcast = function () {
+                var broadcast = function () {
                     var firstPath = getFirstPath();
 
                     scope.queryPeriod = getQueryPeriod();
@@ -239,22 +246,6 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         scope.now();
                     }
                 };
-
-                /**
-                 * watches
-                 */
-                scope.$watch('useAnchorDate', function (newVal, oldVal) {
-                    scope.classAnchorDate = newVal ? 'input-append' : '';
-//						if(newVal === false && oldVal === true){
-//							var now = new Date();
-                    // 초단위 무시.
-//							now.setSeconds(0);
-                    // 5분 단위로 조회
-//							now.setMinutes(Math.floor(now.getMinutes() / 5 + 0.9) * 5);
-//							elDatetimepicker.datetimepicker('setLocalDate', now);
-//							broadcast();
-//						}
-                });
 
                 /**
                  * executes

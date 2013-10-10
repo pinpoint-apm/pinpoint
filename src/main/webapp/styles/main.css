@@ -63,7 +63,7 @@ canvas {outline:none}
   float: none;
 }
 .navbar-form .datetimepicker .icon-calendar {
-  margin-top: 3px;
+  margin-left: 1px;
 }
 #ui-datepicker-div {
     font-size: 75%;

@@ -46,18 +46,10 @@
                     <li class="for-datetimepicker">
                         <div class="datetimepicker input-prepend date">
                             <span class="add-on pull-left">
-                                <label class="checkbox">
-                                    <input type="checkbox" ng-model="useAnchorDate" ng-init="useAnchorDate = false">
-                                </label>
+                                <i class="icon-calendar"></i>
                             </span>
-                            <input id="datetimepicker" type="text" ng-disabled="!useAnchorDate">
+                            <input id="datetimepicker" type="text">
                         </div>
-                    </li>
-                    <li style="margin-top:0;" ng-show="useAnchorDate" >
-                        <button class="btn" type="button" ng-click="broadcast()">Apply</button>
-                    </li>
-                    <li style="margin-top:0;" ng-show="!useAnchorDate" >
-                        <button class="btn" type="button" ng-click="now()">Now</button>
                     </li>
                 </ul>
             </form>
