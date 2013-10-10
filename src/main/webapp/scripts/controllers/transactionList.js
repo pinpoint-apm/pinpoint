@@ -5,29 +5,31 @@ pinpointApp.constant('TransactionListConfig', {
     MAX_FETCH_BLOCK_SIZE: 10
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'timeSliderDao', function (cfg, $scope, $rootScope, $timeout, oTimeSliderDao) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'webStorage', 'timeSliderDao', function (cfg, $scope, $rootScope, $timeout, webStorage, oTimeSliderDao) {
 
     /**
      * variables definition
      */
-    var fetchCount, lastFetchedIndex, traces;
+    var fetchCount, lastFetchedIndex, token, traces;
     var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransationList;
 
     // initialize private variables;
     fetchCount = 1;
     lastFetchedIndex = 0;
-    traces = parent.opener.selectdTracesBox[parent.window.name];
+    token = parent.window.name;
+    traces = webStorage.session.get(token);
+    console.log('token', token, traces.length);
 
     /**
      * internal methods
      */
     emitTransactionListToTable = function (data) {
+        console.log('transactionTable.appendTransactionList', data.metadata);
         $scope.$emit('transactionTable.appendTransactionList', data.metadata);
     };
     getQuery = function () {
         if (!traces) {
             alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
-//            $("#loader").hide();
             return;
         }
         console.log('traces.length', traces.length);
@@ -97,9 +99,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      * initialization
      */
     $(document).ready(function () {
-        if(!parent.opener) {
-            return;
-        }
         fetchStart();
     });
     $timeout(function () {

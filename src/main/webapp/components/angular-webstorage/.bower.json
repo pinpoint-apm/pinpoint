@@ -1,0 +1,24 @@
+{
+  "name": "angular-webstorage",
+  "version": "0.9.3",
+  "main": "angular-webstorage.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "dependencies": {
+    "angular": "~1.0 || ~1.1"
+  },
+  "homepage": "https://github.com/fredricrylander/angular-webstorage",
+  "_release": "0.9.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.9.3",
+    "commit": "803d8f2f76ee45b0f0a77dcce308995c20e59ea4"
+  },
+  "_source": "git://github.com/fredricrylander/angular-webstorage.git",
+  "_target": "~0.9.3",
+  "_originalSource": "angular-webstorage",
+  "_direct": true
+}

@@ -8,10 +8,10 @@ pinpointApp.constant('scatterConfig', {
 });
 
 // FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
-var selectdTracesBox = {};
+//var selectdTracesBox = {};
 
 pinpointApp.directive('scatter',
-    [ 'scatterConfig', '$rootScope', '$timeout', function (scatterConfig, $rootScope, $timeout) {
+    [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', function (cfg, $rootScope, $timeout, webStorage) {
         return {
             template: '<div class="scatter"></div>',
             restrict: 'EA',
@@ -19,13 +19,14 @@ pinpointApp.directive('scatter',
             link: function (scope, element, attrs) {
 
                 var oScatterChart = null;
+                scope.popup = [];
 
                 var showScatter = function (applicationName, from, to, period, filter, w, h) {
                     if (oScatterChart) {
 //							oScatterChart.clear();
                     }
 
-                    selectdTracesBox = {};
+//                    selectdTracesBox = {};
 //						var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen");
 //						fullscreenButton.data("applicationName", applicationName);
 //						fullscreenButton.data("from", from);
@@ -64,13 +65,13 @@ pinpointApp.directive('scatter',
                     var htDataSource = {
                         sUrl: function (nFetchIndex) {
 //								if (!usePeriod) {
-//									return scatterConfig.get.scatterData;
+//									return cfg.get.scatterData;
 //								}
 
 //								if (nFetchIndex === 0) {
-//									return scatterConfig.get.lastScatterData;
+//									return cfg.get.lastScatterData;
 //								} else {
-                            return scatterConfig.get.scatterData;
+                            return cfg.get.scatterData;
 //								}
                         },
                         htParam: function (nFetchIndex, htLastFetchParam, htLastFetchedData) {
@@ -198,15 +199,14 @@ pinpointApp.directive('scatter',
 
                             if (traces.length === 1) {
 //									openTrace(traces[0].traceId, traces[0].x);
-                            	// FIXME 하나만 선택해도 일단 목록 팝업으로 뜨게 함.
+                                // FIXME 하나만 선택해도 일단 목록 팝업으로 뜨게 함.
                                 // return;
                             }
 
-                            var token = Math.random() * 10000 + 1;
-                            selectdTracesBox[token] = traces;
-
-//                            var popupwindow = window.open("/selectedScatter.pinpoint", token);
-                            var popupWindoww = window.open("#/transactionList", token);
+                            var token = 'scatterToken_' + _.random(100000, 999999);
+                            webStorage.session.add(token, traces);
+//                            window.open("/selectedScatter.pinpoint", token);
+                            window.open("#/transactionList", token);
                         }
                     };
 
