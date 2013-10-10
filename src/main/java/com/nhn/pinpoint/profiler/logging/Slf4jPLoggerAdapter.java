@@ -2,11 +2,56 @@ package com.nhn.pinpoint.profiler.logging;
 
 import org.slf4j.Marker;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URL;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  */
 public class Slf4jPLoggerAdapter implements PLogger {
     public static final int BUFFER_SIZE = 512;
+
+    private static final Map<Class<?>, Object> SIMPLE_TYPE = new HashMap<Class<?>, Object>();
+    private static final Object FIND = new Object();
+    static {
+//        SIMPLE_TYPE.put(String.class, FIND);
+        SIMPLE_TYPE.put(Boolean.class, FIND);
+        SIMPLE_TYPE.put(boolean.class, FIND);
+        SIMPLE_TYPE.put(Byte.class, FIND);
+        SIMPLE_TYPE.put(byte.class, FIND);
+        SIMPLE_TYPE.put(Short.class, FIND);
+        SIMPLE_TYPE.put(short.class, FIND);
+        SIMPLE_TYPE.put(Integer.class, FIND);
+        SIMPLE_TYPE.put(int.class, FIND);
+        SIMPLE_TYPE.put(Long.class, FIND);
+        SIMPLE_TYPE.put(long.class, FIND);
+        SIMPLE_TYPE.put(Float.class, FIND);
+        SIMPLE_TYPE.put(float.class, FIND);
+        SIMPLE_TYPE.put(Double.class, FIND);
+        SIMPLE_TYPE.put(double.class, FIND);
+        SIMPLE_TYPE.put(Character.class, FIND);
+        SIMPLE_TYPE.put(char.class, FIND);
+        SIMPLE_TYPE.put(BigDecimal.class, FIND);
+        SIMPLE_TYPE.put(StringBuffer.class, FIND);
+        SIMPLE_TYPE.put(BigInteger.class, FIND);
+        SIMPLE_TYPE.put(Class.class, FIND);
+        SIMPLE_TYPE.put(java.sql.Date.class, FIND);
+        SIMPLE_TYPE.put(java.util.Date.class, FIND);
+        SIMPLE_TYPE.put(Time.class, FIND);
+        SIMPLE_TYPE.put(Timestamp.class, FIND);
+        SIMPLE_TYPE.put(Calendar.class, FIND);
+        SIMPLE_TYPE.put(GregorianCalendar.class, FIND);
+        SIMPLE_TYPE.put(URL.class, FIND);
+        SIMPLE_TYPE.put(Object.class, FIND);
+    }
+
 
     private final org.slf4j.Logger logger;
 
@@ -43,7 +88,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         sb.append(" result:");
-        sb.append(result);
+        sb.append(normalizedParameter(result));
         logger.debug(sb.toString());
     }
 
@@ -53,7 +98,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
         sb.append("after ");
         logMethod(sb, target, args);
         sb.append(" result:");
-        sb.append(result);
+        sb.append(normalizedParameter(result));
         logger.debug(sb.toString());
     }
 
@@ -81,14 +126,14 @@ public class Slf4jPLoggerAdapter implements PLogger {
         sb.append(methodName);
         sb.append(parameterDescription);
         sb.append(" args:");
-        appendArray(sb, args);
+        appendParameterList(sb, args);
     }
 
     private static void logMethod(StringBuilder sb, Object target, Object[] args) {
         sb.append(getTarget(target));
         sb.append(' ');
         sb.append(" args:");
-        appendArray(sb, args);
+        appendParameterList(sb, args);
     }
 
     private static String getTarget(Object target) {
@@ -100,25 +145,49 @@ public class Slf4jPLoggerAdapter implements PLogger {
         }
     }
 
-    private static void appendArray(StringBuilder sb, Object[] args) {
+    private static void appendParameterList(StringBuilder sb, Object[] args) {
         if (args == null) {
-            sb.append("null");
+            sb.append("()");
             return;
         }
         if (args.length == 0) {
+            sb.append("()");
             return;
         }
-
         if (args.length > 0) {
             sb.append('(');
-            sb.append(args[0]);
+            sb.append(normalizedParameter(args[0]));
             for (int i = 1; i < args.length; i++) {
                 sb.append(", ");
-                sb.append(args[i]);
+                sb.append(normalizedParameter(args[i]));
             }
             sb.append(')');
         }
         return;
+    }
+
+    private static String normalizedParameter(Object arg) {
+        // toString을 막 호출할 경우 사이드 이펙트가 있을수 있어 수정함.
+        if (arg == null) {
+            return "null";
+        } else {
+            if (arg instanceof String) {
+                return (String) arg;
+            } else if (isSimpleType(arg)) {
+                // 안전한 타임에 대해서만 toString을 호출하도록 SimpleType 검사
+                return arg.toString();
+            } else {
+                return arg.getClass().getSimpleName();
+            }
+        }
+    }
+
+    private static boolean isSimpleType(Object arg) {
+        final Object find = SIMPLE_TYPE.get(arg.getClass());
+        if (find == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override
