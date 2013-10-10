@@ -14,6 +14,8 @@ import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.MemcachedClient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,8 +35,9 @@ import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
 @Controller
 public class HelloWorldController implements DisposableBean {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final ArcusClient arcus;
+    private final ArcusClient arcus;
 	private final MemcachedClient memcached;
 	private final LevelManager levelManager;
 
@@ -66,13 +69,13 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/encoding")
 	public String encoding(Model model, @RequestParam("name") String name) {
-		System.out.println("name=" + name);
+        logger.debug("name=" + name);
 		return "donothing";
 	}
 
 	@RequestMapping(value = "/donothing")
 	public String donothing(Model model) {
-		System.out.println("do nothing.");
+		logger.debug("do nothing.");
 		return "donothing";
 	}
 
