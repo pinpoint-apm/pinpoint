@@ -18,9 +18,9 @@ public class AsyncQueueingExecutor implements Runnable {
     private static final AsyncQueueingExecutorListener EMPTY_LISTENER = new EmptyAsyncQueueingExecutorListener();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isWarn = logger.isWarnEnabled();
 
     private final LinkedBlockingQueue<Object> queue;
-    private final ThreadFactory threadFactory;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
     private final Thread executeThread;
     private final String executorName;
@@ -40,13 +40,13 @@ public class AsyncQueueingExecutor implements Runnable {
         if (executorName == null) {
             throw new NullPointerException("executorName must not be null");
         }
-        this.executorName = executorName;
         this.queue = new LinkedBlockingQueue<Object>(queueSize);
-        this.threadFactory = new PinpointThreadFactory(executorName, true);
-        this.executeThread = this.createExecuteThread();
+        this.executeThread = this.createExecuteThread(executorName);
+        this.executorName = executeThread.getName();
     }
 
-    private Thread createExecuteThread() {
+    private Thread createExecuteThread(String executorName) {
+        final ThreadFactory threadFactory = new PinpointThreadFactory(executorName, true);
         Thread thread = threadFactory.newThread(this);
         thread.start();
         return thread;
@@ -54,8 +54,7 @@ public class AsyncQueueingExecutor implements Runnable {
 
     @Override
     public void run() {
-        Thread thread = Thread.currentThread();
-        logger.info("{}-({}) started.", thread.getName(), thread.getId());
+        logger.info("{} started.", executorName);
         doExecute();
     }
 
@@ -116,23 +115,23 @@ public class AsyncQueueingExecutor implements Runnable {
     }
 
     public boolean execute(Object data) {
-        final boolean warnEnabled = logger.isWarnEnabled();
+
         if (data == null) {
-            if (warnEnabled) {
+            if (isWarn) {
                 logger.warn("execute(). data is null");
             }
             return false;
         }
         if (!isRun.get()) {
-            if (warnEnabled) {
-                logger.warn("{} is shutdown. discard data:{}", this.executorName, data);
+            if (isWarn) {
+                logger.warn("{} is shutdown. discard data:{}", executorName, data);
             }
             return false;
         }
         boolean offer = queue.offer(data);
         if (!offer) {
-            if (warnEnabled) {
-                logger.warn("{} Drop data. queue is full. size:{}", this.executorName, queue.size());
+            if (isWarn) {
+                logger.warn("{} Drop data. queue is full. size:{}", executorName, queue.size());
             }
         }
         return offer;
