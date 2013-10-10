@@ -8,7 +8,7 @@ public interface ParameterExtractor {
 
     public static final int NOT_FOUND = -1;
 
-    int extractIndex(Object[] parameterList);
+    int getIndex();
 
-    Object extractObject(Object[] parameterList, int index);
+    Object extractObject(Object[] parameterList);
 }

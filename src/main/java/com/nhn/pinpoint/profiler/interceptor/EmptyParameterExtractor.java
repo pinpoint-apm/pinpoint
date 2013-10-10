@@ -11,12 +11,12 @@ public class EmptyParameterExtractor implements ParameterExtractor {
     }
 
     @Override
-    public int extractIndex(Object[] parameterList) {
+    public int getIndex() {
         return NOT_FOUND;
     }
 
     @Override
-    public Object extractObject(Object[] parameterList, int index) {
+    public Object extractObject(Object[] parameterList) {
         return NULL;
     }
 }
