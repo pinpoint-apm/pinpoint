@@ -32,7 +32,7 @@ import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -45,6 +45,7 @@ public class DefaultAgent implements Agent {
     private final PLoggerBinder binder;
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
+    private final ClassFileTransformer classFileTransformer;
 
     private final ProfilerConfig profilerConfig;
 
@@ -96,8 +97,8 @@ public class DefaultAgent implements Agent {
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
-        ClassFileTransformerDispatcher classFileTransformerDispatcher = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
-        instrumentation.addTransformer(classFileTransformerDispatcher);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
+        instrumentation.addTransformer(this.classFileTransformer);
 
 
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
