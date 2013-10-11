@@ -24,10 +24,6 @@ public class RowKeyUtils {
 		return rowKey;
 	}
 
-	public static byte[] getApiId(String agentId, int apiCode, long agentStartTime) {
-		return getMetaInfoRowKey(agentId, apiCode, agentStartTime);
-	}
-
 
 	public static byte[] getMetaInfoRowKey(String agentId, int keyCode, long agentStartTime) {
 		// TODO 일단 agent의 조회 시간 로직을 따로 만들어야 되므로 그냥0으로 하자.
