@@ -48,23 +48,23 @@ public class SpanAligner2 {
 			throw new IllegalStateException("root span not found. rootSpanId=" + rootSpanId + ", map=" + spanMap.keySet());
 		}
 
-		populate(root, 0, 0, 0, list);
+		populate(root, 0, 0, list);
 
 		return list;
 	}
 
-	private int populate(SpanBo parentSpan, int spanDepth, int sequence, int pSequence, List<SpanAlign> container) {
+	private int populate(SpanBo span, int spanDepth, int sequence, List<SpanAlign> container) {
         logger.debug("populate start");
 		int currentDepth = spanDepth;
 		int lastChildSequence = sequence;
         if (logger.isDebugEnabled()) {
-            logger.debug("span type:{} depth:{} spanDepth:{} lastChildSequence:{}", currentDepth, parentSpan.getServiceType(), spanDepth, lastChildSequence);
+            logger.debug("span type:{} depth:{} spanDepth:{} lastChildSequence:{}", currentDepth, span.getServiceType(), spanDepth, lastChildSequence);
         }
 		
-		SpanAlign element = new SpanAlign(currentDepth, parentSpan, ++lastChildSequence, pSequence);
+		SpanAlign element = new SpanAlign(currentDepth, span, ++lastChildSequence);
 		container.add(element);
 
-		List<SpanEventBo> spanEventBoList = parentSpan.getSpanEventBoList();
+		List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (spanEventBoList == null) {
             return sequence;
         }
@@ -81,14 +81,14 @@ public class SpanAligner2 {
 			
 			lastChildSequence++;
 			
-			SpanAlign sa = new SpanAlign(currentDepth, lastChildSequence, sequence, parentSpan, spanEventBo);
+			SpanAlign sa = new SpanAlign(currentDepth, lastChildSequence, span, spanEventBo);
 			container.add(sa);
 
 			// TODO spanEvent이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
 			int nextSpanId = spanEventBo.getNextSpanId();
 			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
                 int childDepth = currentDepth + 1;
-				lastChildSequence = populate(spanMap.get(nextSpanId), childDepth, lastChildSequence, lastChildSequence, container);
+				lastChildSequence = populate(spanMap.get(nextSpanId), childDepth, lastChildSequence, container);
 			}
 		}
         logger.debug("populate end");
