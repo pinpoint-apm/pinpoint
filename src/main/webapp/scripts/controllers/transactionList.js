@@ -7,11 +7,9 @@ pinpointApp.constant('TransactionListConfig', {
 
 pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'webStorage', 'timeSliderDao', function (cfg, $scope, $rootScope, $timeout, webStorage, oTimeSliderDao) {
 
-    /**
-     * variables definition
-     */
-    var fetchCount, lastFetchedIndex, token, traces;
-    var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransationList;
+    // variables definition
+    var fetchCount, lastFetchedIndex, token, traces,
+        fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
 
     // initialize private variables;
     fetchCount = 1;
@@ -80,28 +78,28 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      * fetch start
      */
     fetchStart = function () {
-         getTransationList(getQuery(), function (data) {
-             if (data.metadata.length === 0) {
-                 $scope.$emit('timeSlider.disableMore');
-                 return false;
-             } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
-                 $scope.$emit('timeSlider.disableMore');
-             }
-             emitTransactionListToTable(data);
+        getTransactionList(getQuery(), function (data) {
+            if (data.metadata.length === 0) {
+                $scope.$emit('timeSlider.disableMore');
+                return false;
+            } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+                $scope.$emit('timeSlider.disableMore');
+            }
+            emitTransactionListToTable(data);
 
-             if (oTimeSliderDao.getFrom() === null) {
-                 oTimeSliderDao.setFrom(_.last(traces).x);
-             }
-             if (oTimeSliderDao.getTo() === null) {
-                 var to = _.first(traces).x;
-                 oTimeSliderDao.setTo(to);
-                 oTimeSliderDao.setInnerTo(to);
-             }
-             oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
-             oTimeSliderDao.setCount(data.metadata.length);
+            if (oTimeSliderDao.getFrom() === null) {
+                oTimeSliderDao.setFrom(_.last(traces).x);
+            }
+            if (oTimeSliderDao.getTo() === null) {
+                var to = _.first(traces).x;
+                oTimeSliderDao.setTo(to);
+                oTimeSliderDao.setInnerTo(to);
+            }
+            oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+            oTimeSliderDao.setCount(data.metadata.length);
 
-             $scope.$emit('timeSlider.initialize', oTimeSliderDao);
-         });
+            $scope.$emit('timeSlider.initialize', oTimeSliderDao);
+        });
     };
 
     /**
@@ -109,11 +107,10 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      * @param query
      * @param cb
      */
-    getTransationList = function (query, cb) {
-        $.post(cfg.applicationUrl, query.join(""), function(data) {
-            console.log('data', data);
+    getTransactionList = function (query, cb) {
+        $.post(cfg.applicationUrl, query.join(""),function (data) {
             cb(data);
-        }).fail(function() {
+        }).fail(function () {
             alert("Failed to fetching the request informations.");
         });
     };
