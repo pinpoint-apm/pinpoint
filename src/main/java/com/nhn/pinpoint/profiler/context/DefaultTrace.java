@@ -295,11 +295,6 @@ public final class DefaultTrace implements Trace {
 
 
     @Override
-    public void recordAttribute(final AnnotationKey key, final String value) {
-        recordAttribute(key, (Object) value);
-    }
-
-    @Override
     public ParsingResult recordSqlInfo(String sql) {
         if (sql == null) {
             return null;
@@ -323,9 +318,21 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public void recordAttribute(final AnnotationKey key, final String value) {
+        final StackFrame currentStackFrame = this.currentStackFrame;
+        currentStackFrame.addAnnotation(new Annotation(key.getCode(), value));
+    }
+
+    @Override
+    public void recordAttribute(final AnnotationKey key, final int value) {
+        final StackFrame currentStackFrame = this.currentStackFrame;
+        currentStackFrame.addAnnotation(new Annotation(key.getCode(), value));
+    }
+
+    @Override
     public void recordAttribute(final AnnotationKey key, final Object value) {
         final StackFrame currentStackFrame = this.currentStackFrame;
-        currentStackFrame.addAnnotation(new Annotation(key, value));
+        currentStackFrame.addAnnotation(new Annotation(key.getCode(), value));
     }
 
 

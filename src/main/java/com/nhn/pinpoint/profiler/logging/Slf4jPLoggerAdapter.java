@@ -18,38 +18,37 @@ import java.util.Map;
 public class Slf4jPLoggerAdapter implements PLogger {
     public static final int BUFFER_SIZE = 512;
 
-    private static final Map<Class<?>, Object> SIMPLE_TYPE = new HashMap<Class<?>, Object>();
-    private static final Object FIND = new Object();
+    private static final Map<Class<?>, Class<?>> SIMPLE_TYPE = new HashMap<Class<?>, Class<?>>();
     static {
-//        SIMPLE_TYPE.put(String.class, FIND);
-        SIMPLE_TYPE.put(Boolean.class, FIND);
-        SIMPLE_TYPE.put(boolean.class, FIND);
-        SIMPLE_TYPE.put(Byte.class, FIND);
-        SIMPLE_TYPE.put(byte.class, FIND);
-        SIMPLE_TYPE.put(Short.class, FIND);
-        SIMPLE_TYPE.put(short.class, FIND);
-        SIMPLE_TYPE.put(Integer.class, FIND);
-        SIMPLE_TYPE.put(int.class, FIND);
-        SIMPLE_TYPE.put(Long.class, FIND);
-        SIMPLE_TYPE.put(long.class, FIND);
-        SIMPLE_TYPE.put(Float.class, FIND);
-        SIMPLE_TYPE.put(float.class, FIND);
-        SIMPLE_TYPE.put(Double.class, FIND);
-        SIMPLE_TYPE.put(double.class, FIND);
-        SIMPLE_TYPE.put(Character.class, FIND);
-        SIMPLE_TYPE.put(char.class, FIND);
-        SIMPLE_TYPE.put(BigDecimal.class, FIND);
-        SIMPLE_TYPE.put(StringBuffer.class, FIND);
-        SIMPLE_TYPE.put(BigInteger.class, FIND);
-        SIMPLE_TYPE.put(Class.class, FIND);
-        SIMPLE_TYPE.put(java.sql.Date.class, FIND);
-        SIMPLE_TYPE.put(java.util.Date.class, FIND);
-        SIMPLE_TYPE.put(Time.class, FIND);
-        SIMPLE_TYPE.put(Timestamp.class, FIND);
-        SIMPLE_TYPE.put(Calendar.class, FIND);
-        SIMPLE_TYPE.put(GregorianCalendar.class, FIND);
-        SIMPLE_TYPE.put(URL.class, FIND);
-        SIMPLE_TYPE.put(Object.class, FIND);
+        SIMPLE_TYPE.put(String.class, String.class);
+        SIMPLE_TYPE.put(Boolean.class, Boolean.class);
+        SIMPLE_TYPE.put(boolean.class, boolean.class);
+        SIMPLE_TYPE.put(Byte.class, Byte.class);
+        SIMPLE_TYPE.put(byte.class, byte.class);
+        SIMPLE_TYPE.put(Short.class, Short.class);
+        SIMPLE_TYPE.put(short.class, short.class);
+        SIMPLE_TYPE.put(Integer.class, Integer.class);
+        SIMPLE_TYPE.put(int.class, int.class);
+        SIMPLE_TYPE.put(Long.class, Long.class);
+        SIMPLE_TYPE.put(long.class, long.class);
+        SIMPLE_TYPE.put(Float.class, Float.class);
+        SIMPLE_TYPE.put(float.class, float.class);
+        SIMPLE_TYPE.put(Double.class, Double.class);
+        SIMPLE_TYPE.put(double.class, double.class);
+        SIMPLE_TYPE.put(Character.class, Character.class);
+        SIMPLE_TYPE.put(char.class, char.class);
+        SIMPLE_TYPE.put(BigDecimal.class, BigDecimal.class);
+        SIMPLE_TYPE.put(StringBuffer.class, StringBuffer.class);
+        SIMPLE_TYPE.put(BigInteger.class, BigInteger.class);
+        SIMPLE_TYPE.put(Class.class, Class.class);
+        SIMPLE_TYPE.put(java.sql.Date.class, java.sql.Date.class);
+        SIMPLE_TYPE.put(java.util.Date.class, java.util.Date.class);
+        SIMPLE_TYPE.put(Time.class, Time.class);
+        SIMPLE_TYPE.put(Timestamp.class, Timestamp.class);
+        SIMPLE_TYPE.put(Calendar.class, Calendar.class);
+        SIMPLE_TYPE.put(GregorianCalendar.class, GregorianCalendar.class);
+        SIMPLE_TYPE.put(URL.class, URL.class);
+        SIMPLE_TYPE.put(Object.class, Object.class);
     }
 
 
@@ -171,9 +170,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
         if (arg == null) {
             return "null";
         } else {
-            if (arg instanceof String) {
-                return (String) arg;
-            } else if (isSimpleType(arg)) {
+            if (isSimpleType(arg)) {
                 // 안전한 타임에 대해서만 toString을 호출하도록 SimpleType 검사
                 return arg.toString();
             } else {
@@ -183,7 +180,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static boolean isSimpleType(Object arg) {
-        final Object find = SIMPLE_TYPE.get(arg.getClass());
+        Class<?> find = SIMPLE_TYPE.get(arg.getClass());
         if (find == null) {
             return false;
         }

@@ -17,8 +17,6 @@ import java.util.List;
 public class Span extends TSpan implements Thriftable {
     private final TraceId traceId;
 
-    private List<Annotation> annotationList = new ArrayList<Annotation>(4);
-
     public Span(TraceId traceId) {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
@@ -61,12 +59,8 @@ public class Span extends TSpan implements Thriftable {
     }
 
 
-    public boolean addAnnotation(Annotation annotation) {
-        return annotationList.add(annotation);
-    }
-
-    public int getAnnotationSize() {
-        return annotationList.size();
+    public void addAnnotation(Annotation annotation) {
+        this.addToAnnotations(annotation);
     }
 
 
@@ -89,14 +83,6 @@ public class Span extends TSpan implements Thriftable {
         this.setApplicationName(agentInformation.getApplicationName());
         this.setAgentStartTime(agentInformation.getStartTime());
 
-
-        // 여기서 데이터 인코딩을 하자.
-        List<TAnnotation> annotationList = new ArrayList<TAnnotation>(this.annotationList.size());
-        for (Annotation annotation : this.annotationList) {
-            annotationList.add(annotation.toThrift());
-        }
-        this.setAnnotations(annotationList);
-        this.annotationList = null;
 
         final List<TSpanEvent> spanEventList = this.getSpanEventList();
         if (spanEventList != null) {

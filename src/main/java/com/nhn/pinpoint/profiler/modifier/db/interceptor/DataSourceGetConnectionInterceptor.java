@@ -62,7 +62,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
                 trace.recordApi(descriptor);
             } else if(args.length == 2) {
 //                args[1]은 패스워드라서 뺀다.
-                trace.recordApi(descriptor, args, 0, 1);
+                trace.recordApi(descriptor, args[0], 0);
             }
             trace.recordException(result);
 

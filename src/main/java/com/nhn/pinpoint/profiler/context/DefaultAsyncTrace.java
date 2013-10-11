@@ -106,10 +106,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
         }
     }
 
-    @Override
-    public void recordAttribute(final AnnotationKey key, final String value) {
-        recordAttribute(key, (Object) value);
-    }
+
 
     @Override
     public void recordException(Object result) {
@@ -126,11 +123,20 @@ public class DefaultAsyncTrace implements AsyncTrace {
         }
     }
 
+    @Override
+    public void recordAttribute(final AnnotationKey key, final String value) {
+        spanEvent.addAnnotation(new Annotation(key.getCode(), value));
+    }
+
+    @Override
+    public void recordAttribute(final AnnotationKey key, final int value) {
+        spanEvent.addAnnotation(new Annotation(key.getCode(), value));
+    }
 
 
     @Override
     public void recordAttribute(final AnnotationKey key, final Object value) {
-        spanEvent.addAnnotation(new Annotation(key, value));
+        spanEvent.addAnnotation(new Annotation(key.getCode(), value));
     }
 
     @Override
@@ -154,11 +160,6 @@ public class DefaultAsyncTrace implements AsyncTrace {
     @Override
     public void recordEndPoint(final String endPoint) {
         this.spanEvent.setEndPoint(endPoint);
-    }
-
-    private void annotate(final AnnotationKey key) {
-        this.spanEvent.addAnnotation(new Annotation(key));
-
     }
 
     private void logSpan(SpanEvent spanEvent) {

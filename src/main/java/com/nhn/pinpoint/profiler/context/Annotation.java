@@ -1,43 +1,35 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.profiler.util.AnnotationValueMapper;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.profiler.util.AnnotationTranscoder;
+import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author netspider
  */
-public class Annotation implements Thriftable {
+public class Annotation extends TAnnotation {
 
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-
-    private final AnnotationKey key;
-    private final Object value;
-
-    public Annotation(AnnotationKey key) {
-        this.key = key;
-        this.value = null;
+    public Annotation(int key) {
+        super(key);
     }
 
-    public Annotation(AnnotationKey key, Object value) {
-        this.key = key;
-        this.value = value;
+    public Annotation(int key, Object value) {
+        super(key);
+        AnnotationValueMapper.mappingValue(this, value);
     }
 
-    public AnnotationKey getAnnotationKey() {
-        return this.key;
+    public Annotation(int key, String value) {
+        super(key);
+        this.setValue(TAnnotationValue.stringValue(value));
     }
 
-
-    @Override
-    public String toString() {
-        return "Annotation [key=" + key + ", value=" + value + "]";
+    public Annotation(int key, int value) {
+        super(key);
+        this.setValue(TAnnotationValue.intValue(value));
     }
 
-    public TAnnotation toThrift() {
-        TAnnotation ann = new TAnnotation();
-        ann.setKey(key.getCode());
-        transcoder.mappingValue(value, ann);
-        return ann;
+    public int getAnnotationKey() {
+        return this.getKey();
     }
+
 }

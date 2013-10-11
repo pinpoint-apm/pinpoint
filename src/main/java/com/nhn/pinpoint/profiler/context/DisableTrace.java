@@ -104,17 +104,22 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordAttribute(AnnotationKey key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public ParsingResult recordSqlInfo(String sql) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void recordSqlParsingResult(ParsingResult parsingResult) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, int value) {
         throw new UnsupportedOperationException();
     }
 

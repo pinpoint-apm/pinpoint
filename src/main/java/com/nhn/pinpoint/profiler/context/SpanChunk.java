@@ -56,9 +56,6 @@ public class SpanChunk extends TSpanChunk implements Thriftable {
 
     private List<TSpanEvent> createTSpanEvent(List<TSpanEvent> spanEventList) {
         for (TSpanEvent tSpanEvent : spanEventList) {
-//            tSpanEvent.setAgentId(Agent.getInstance().getAgentId());
-//            tSpanEvent.setApplicationName(Agent.getInstance().getApplicationName());
-//            tSpanEvent.setAgentIdentifier(Agent.getInstance().getPid());
             if (tSpanEvent instanceof SpanEvent) {
                 ((SpanEvent)tSpanEvent).toThrift(true);
             }
