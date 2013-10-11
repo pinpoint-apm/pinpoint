@@ -48,50 +48,51 @@ public class SpanAligner2 {
 			throw new IllegalStateException("root span not found. rootSpanId=" + rootSpanId + ", map=" + spanMap.keySet());
 		}
 
-		populate(root, 0, 0, list);
+		populate(root, 0, list);
 
 		return list;
 	}
 
-	private int populate(SpanBo span, int spanDepth, int sequence, List<SpanAlign> container) {
+	private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
         logger.debug("populate start");
 		int currentDepth = spanDepth;
-		int lastChildSequence = sequence;
         if (logger.isDebugEnabled()) {
-            logger.debug("span type:{} depth:{} spanDepth:{} lastChildSequence:{}", currentDepth, span.getServiceType(), spanDepth, lastChildSequence);
+            logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getServiceType(), spanDepth);
         }
 		
-		SpanAlign element = new SpanAlign(currentDepth, span, ++lastChildSequence);
-		container.add(element);
+		SpanAlign spanAlign = new SpanAlign(currentDepth, span);
+		container.add(spanAlign);
 
 		List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (spanEventBoList == null) {
-            return sequence;
+            return;
         }
         
-        element.setHasChild(true);
+        spanAlign.setHasChild(true);
         
 		for (SpanEventBo spanEventBo : spanEventBoList) {
-			if (spanEventBo.getDepth() != -1) {
+			if (spanEventBo. getDepth() != -1) {
 				currentDepth = spanDepth + spanEventBo.getDepth();
 			}
             if (logger.isDebugEnabled()) {
-                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} lastChildSequence:{}", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth(), lastChildSequence);
+                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
             }
-			
-			lastChildSequence++;
-			
-			SpanAlign sa = new SpanAlign(currentDepth, lastChildSequence, span, spanEventBo);
-			container.add(sa);
+
+			SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
+			container.add(spanEventAlign);
 
 			// TODO spanEvent이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
 			int nextSpanId = spanEventBo.getNextSpanId();
 			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
                 int childDepth = currentDepth + 1;
-				lastChildSequence = populate(spanMap.get(nextSpanId), childDepth, lastChildSequence, container);
+                SpanBo spanBo = spanMap.get(nextSpanId);
+                if (spanBo != null) {
+                    populate(spanBo, childDepth, container);
+                } else {
+                    logger.info("nextSpanId not found. {}", nextSpanId);
+                }
 			}
 		}
         logger.debug("populate end");
-		return lastChildSequence;
 	}
 }

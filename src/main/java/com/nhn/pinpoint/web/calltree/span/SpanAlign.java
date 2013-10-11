@@ -8,37 +8,19 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class SpanAlign {
 	private int depth;
-	private int sequence;
 	private SpanBo spanBo;
 	private SpanEventBo spanEventBo;
 	private boolean span = true;
 	private boolean hasChild = false;
 
-	@Deprecated
 	public SpanAlign(int depth, SpanBo spanBo) {
 		this.depth = depth;
 		this.spanBo = spanBo;
 		this.span = true;
 	}
 	
-	public SpanAlign(int depth, SpanBo spanBo, int sequence) {
-		this.depth = depth;
-		this.sequence = sequence;
-		this.spanBo = spanBo;
-		this.span = true;
-	}
-
-	@Deprecated
 	public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
 		this.depth = depth;
-		this.spanBo = spanBo;
-		this.spanEventBo = spanEventBo;
-		this.span = false;
-	}
-	
-	public SpanAlign(int depth, int sequence, SpanBo spanBo, SpanEventBo spanEventBo) {
-		this.depth = depth;
-		this.sequence = sequence;
 		this.spanBo = spanBo;
 		this.spanEventBo = spanEventBo;
 		this.span = false;
@@ -55,11 +37,6 @@ public class SpanAlign {
 	public int getDepth() {
 		return depth;
 	}
-
-	public int getSequence() {
-		return sequence;
-	}
-
 
 	public SpanBo getSpanBo() {
 		return spanBo;
@@ -81,7 +58,6 @@ public class SpanAlign {
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpanAlign{");
         sb.append("depth=").append(depth);
-        sb.append(", sequence=").append(sequence);
         if (span) {
             sb.append(", spanBo=").append(spanBo);
             sb.append(", spanEventBo=").append(spanEventBo);
