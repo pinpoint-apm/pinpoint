@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@Deprecated
 public class DefaultAsyncTrace implements AsyncTrace {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncTrace.class);
     private static final boolean isDebug = logger.isDebugEnabled();
