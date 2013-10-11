@@ -1,11 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.thrift.dto.TAgentKey;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 /**
@@ -61,29 +57,22 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
 
 
     public TSpanEvent toThrift() {
-        return toThrift(false);
-    }
 
-    public TSpanEvent toThrift(boolean child) {
         // Span내부의 SpanEvent로 들어가지 않을 경우
-        if (!child) {
-            final TAgentKey tAgentKey = DefaultAgent.getInstance().getTAgentKey();
-            this.setAgentKey(tAgentKey);
+        final TAgentKey tAgentKey = DefaultAgent.getInstance().getTAgentKey();
+        this.setAgentKey(tAgentKey);
 
-            // span 데이터 셋은 child일때만 한다.
-            this.setParentServiceType(span.getServiceType()); // added
-            this.setParentEndPoint(span.getEndPoint()); // added
+        // span 데이터 셋은 child일때만 한다.
+        this.setParentServiceType(span.getServiceType()); // added
+        this.setParentEndPoint(span.getEndPoint()); // added
 
-            this.setTraceAgentId(span.getTraceAgentId());
-            this.setTraceAgentStartTime(span.getTraceAgentStartTime());
-            this.setTraceTransactionSequence(span.getTraceTransactionSequence());
-            this.setSpanId(span.getSpanId());
-        }
+        this.setTraceAgentId(span.getTraceAgentId());
+        this.setTraceAgentStartTime(span.getTraceAgentStartTime());
+        this.setTraceTransactionSequence(span.getTraceTransactionSequence());
+        this.setSpanId(span.getSpanId());
 
         return this;
     }
-
-
 
 
 }

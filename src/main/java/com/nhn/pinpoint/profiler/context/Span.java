@@ -2,12 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Span represent RPC
@@ -82,16 +77,6 @@ public class Span extends TSpan implements Thriftable {
         this.setAgentId(agentInformation.getAgentId());
         this.setApplicationName(agentInformation.getApplicationName());
         this.setAgentStartTime(agentInformation.getStartTime());
-
-
-        final List<TSpanEvent> spanEventList = this.getSpanEventList();
-        if (spanEventList != null) {
-            for (TSpanEvent spanEvent : spanEventList) {
-                if (spanEvent instanceof SpanEvent) {
-                    ((SpanEvent)spanEvent).toThrift(true);
-                }
-            }
-        }
 
         return this;
     }

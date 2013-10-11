@@ -29,7 +29,7 @@ public class SpanChunk extends TSpanChunk implements Thriftable {
         final List<TSpanEvent> spanEventList = getSpanEventList();
         TSpanEvent first = spanEventList.get(0);
         if (first == null) {
-            throw new IllegalStateException("fist spanEvent not found");
+            throw new IllegalStateException("first spanEvent not found");
         }
         Span parentSpan = ((SpanEvent)first).getSpan();
 
@@ -47,22 +47,7 @@ public class SpanChunk extends TSpanChunk implements Thriftable {
 
         this.setEndPoint(parentSpan.getEndPoint());
         
-        List<TSpanEvent> tSpanEvent = createTSpanEvent(spanEventList);
-
-        this.setSpanEventList(tSpanEvent);
-
         return this;
     }
-
-    private List<TSpanEvent> createTSpanEvent(List<TSpanEvent> spanEventList) {
-        for (TSpanEvent tSpanEvent : spanEventList) {
-            if (tSpanEvent instanceof SpanEvent) {
-                ((SpanEvent)tSpanEvent).toThrift(true);
-            }
-        }
-        // type check 무시.
-        return spanEventList;
-    }
-
 
 }
