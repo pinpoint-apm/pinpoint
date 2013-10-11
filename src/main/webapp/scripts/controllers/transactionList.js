@@ -51,7 +51,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      * fetch next
      */
     fetchNext = function () {
-        getTransationList(getQuery(), function (data) {
+        getTransactionList(getQuery(), function (data) {
             if (data.metadata.length === 0) {
                 $scope.$emit('timeSlider.disableMore');
                 return false;
