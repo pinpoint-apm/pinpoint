@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import org.apache.hadoop.hbase.client.Delete;
@@ -142,7 +143,7 @@ public class SpanServiceTest {
 		span.setParentSpanId(-1);
 		List<TAnnotation> annotations = new ArrayList<TAnnotation>();
 		TAnnotation annotation = new TAnnotation(AnnotationKey.API.getCode());
-		annotation.setStringValue("");
+		annotation.setValue(TAnnotationValue.stringValue(""));
 		annotations.add(annotation);
 		span.setAnnotations(annotations);
 		return span;
@@ -170,7 +171,7 @@ public class SpanServiceTest {
 		sub.setParentSpanId(span.getSpanId());
 		List<TAnnotation> annotations = new ArrayList<TAnnotation>();
 		TAnnotation annotation = new TAnnotation(AnnotationKey.API.getCode());
-		annotation.setStringValue("");
+        annotation.setValue(TAnnotationValue.stringValue(""));
 		annotations.add(annotation);
 		sub.setAnnotations(annotations);
 		return sub;
