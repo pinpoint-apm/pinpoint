@@ -5,41 +5,24 @@ package com.nhn.pinpoint.common.mapping;
  */
 public class ApiUtils {
 
-    private final static String EMTPY_ARRAY = "()";
-    private static final int METHOD_RANGE = 100;
+    private final static String EMPTY_ARRAY = "()";
 
-    public static int parseClassId(int apiId) {
-        if (apiId == 0) {
-            throw new IllegalArgumentException();
+    public static String mergeParameterVariableNameDescription(String[] parameterType, String[] variableName) {
+        if (parameterType == null && variableName == null) {
+            return EMPTY_ARRAY;
         }
-        return apiId / METHOD_RANGE;
-    }
-
-    public static int parseMethodId(int apiId) {
-        int i = parseClassId(apiId) * METHOD_RANGE;
-        return apiId - i;
-    }
-
-    public static int getApiId(int classId, int methodId) {
-        return classId * METHOD_RANGE + methodId;
-    }
-
-    public static String mergeParameterVariableNameDescription(String[] paramterType, String[] variableName) {
-        if (paramterType == null && variableName == null) {
-            return EMTPY_ARRAY;
-        }
-        if (paramterType.length != variableName.length) {
+        if (parameterType.length != variableName.length) {
             throw new IllegalArgumentException("args size not equal");
         }
-        if (paramterType.length == 0) {
-            return EMTPY_ARRAY;
+        if (parameterType.length == 0) {
+            return EMPTY_ARRAY;
         }
 
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');
-        int end = paramterType.length - 1;
-        for (int i = 0; i < paramterType.length; i++) {
-            sb.append(paramterType[i]);
+        int end = parameterType.length - 1;
+        for (int i = 0; i < parameterType.length; i++) {
+            sb.append(parameterType[i]);
             sb.append(' ');
             sb.append(variableName[i]);
             if (i < end) {
