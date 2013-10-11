@@ -47,7 +47,7 @@ public class ArcusClientModifier extends AbstractModifier {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isArucsKeyTrace()) {
-                    final int index = ParameterUtils.findFirstString(method);
+                    final int index = ParameterUtils.findFirstString(method, 3);
                     if (index != -1) {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }

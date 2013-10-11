@@ -7,12 +7,13 @@ import com.nhn.pinpoint.profiler.interceptor.bci.Method;
  */
 public class ParameterUtils {
 
-    public static int findFirstString(Method method) {
+    public static int findFirstString(Method method, int maxIndex) {
         if (method == null) {
             return -1;
         }
         final String[] methodParams = method.getMethodParams();
-        for(int i =0; i < methodParams.length; i++) {
+        final int minIndex = Math.min(methodParams.length, maxIndex);
+        for(int i =0; i < minIndex; i++) {
             if ("java.lang.String".equals(methodParams[i])) {
                 return i;
             }

@@ -4,6 +4,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import javassist.bytecode.Descriptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
 
 
 public class JavaAssiastTest {
@@ -69,6 +71,31 @@ public class JavaAssiastTest {
         logger.info("" + resource);
 
 //        new URLClassLoader()
+    }
+
+    @Test
+    public void genericTest() throws NotFoundException {
+        CtClass testClass = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass");
+//        CtMethod setb = testClass.getMethod("setb");
+        CtMethod[] declaredMethods = testClass.getDeclaredMethods();
+        for (CtMethod declaredMethod : declaredMethods) {
+            logger.info(declaredMethod.toString());
+            logger.info(declaredMethod.getGenericSignature());
+            logger.info(declaredMethod.getSignature());
+            logger.info("paramTypes:{}", Arrays.toString(declaredMethod.getParameterTypes()));
+            logger.info(declaredMethod.getMethodInfo2().getDescriptor());
+            logger.info(declaredMethod.getMethodInfo().getDescriptor());
+//            logger.info(declaredMethod.());
+        }
+
+
+        CtMethod setb = testClass.getDeclaredMethod("setA", new CtClass[]{pool.get("int")});
+        logger.info(setb.toString());
+        CtMethod setStringArray = testClass.getDeclaredMethod("setStringArray", new CtClass[]{pool.get("java.lang.String[]")});
+        logger.info(setStringArray.toString());
+
+
+
     }
 
     @Test

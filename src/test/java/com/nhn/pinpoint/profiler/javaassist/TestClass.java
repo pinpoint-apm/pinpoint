@@ -1,7 +1,12 @@
 package com.nhn.pinpoint.profiler.javaassist;
 
-public class TestClass {
+import java.util.List;
+
+public class TestClass<T> {
     private int a;
+    private List<T> b;
+    private String[] stringArray;
+
 
     public int getA() {
         return a;
@@ -31,5 +36,13 @@ public class TestClass {
         public void setStr(String str) {
             this.str = str;
         }
+    }
+
+    public void setB(List<T> b) {
+        this.b = b;
+    }
+
+    public void setStringArray(String[] stringArray) {
+        this.stringArray = stringArray;
     }
 }
