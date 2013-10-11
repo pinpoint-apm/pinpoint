@@ -36,14 +36,7 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TAnnotation");
 
   private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("stringValue", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField BOOL_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("boolValue", org.apache.thrift.protocol.TType.BOOL, (short)3);
-  private static final org.apache.thrift.protocol.TField INT_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("intValue", org.apache.thrift.protocol.TType.I32, (short)4);
-  private static final org.apache.thrift.protocol.TField LONG_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("longValue", org.apache.thrift.protocol.TType.I64, (short)5);
-  private static final org.apache.thrift.protocol.TField SHORT_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("shortValue", org.apache.thrift.protocol.TType.I16, (short)6);
-  private static final org.apache.thrift.protocol.TField DOUBLE_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("doubleValue", org.apache.thrift.protocol.TType.DOUBLE, (short)7);
-  private static final org.apache.thrift.protocol.TField BINARY_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("binaryValue", org.apache.thrift.protocol.TType.STRING, (short)8);
-  private static final org.apache.thrift.protocol.TField BYTE_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("byteValue", org.apache.thrift.protocol.TType.BYTE, (short)9);
+  private static final org.apache.thrift.protocol.TField VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("value", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -52,26 +45,12 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
   }
 
   private int key; // required
-  private String stringValue; // optional
-  private boolean boolValue; // optional
-  private int intValue; // optional
-  private long longValue; // optional
-  private short shortValue; // optional
-  private double doubleValue; // optional
-  private ByteBuffer binaryValue; // optional
-  private byte byteValue; // optional
+  private TAnnotationValue value; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     KEY((short)1, "key"),
-    STRING_VALUE((short)2, "stringValue"),
-    BOOL_VALUE((short)3, "boolValue"),
-    INT_VALUE((short)4, "intValue"),
-    LONG_VALUE((short)5, "longValue"),
-    SHORT_VALUE((short)6, "shortValue"),
-    DOUBLE_VALUE((short)7, "doubleValue"),
-    BINARY_VALUE((short)8, "binaryValue"),
-    BYTE_VALUE((short)9, "byteValue");
+    VALUE((short)2, "value");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -88,22 +67,8 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
       switch(fieldId) {
         case 1: // KEY
           return KEY;
-        case 2: // STRING_VALUE
-          return STRING_VALUE;
-        case 3: // BOOL_VALUE
-          return BOOL_VALUE;
-        case 4: // INT_VALUE
-          return INT_VALUE;
-        case 5: // LONG_VALUE
-          return LONG_VALUE;
-        case 6: // SHORT_VALUE
-          return SHORT_VALUE;
-        case 7: // DOUBLE_VALUE
-          return DOUBLE_VALUE;
-        case 8: // BINARY_VALUE
-          return BINARY_VALUE;
-        case 9: // BYTE_VALUE
-          return BYTE_VALUE;
+        case 2: // VALUE
+          return VALUE;
         default:
           return null;
       }
@@ -145,35 +110,15 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
 
   // isset id assignments
   private static final int __KEY_ISSET_ID = 0;
-  private static final int __BOOLVALUE_ISSET_ID = 1;
-  private static final int __INTVALUE_ISSET_ID = 2;
-  private static final int __LONGVALUE_ISSET_ID = 3;
-  private static final int __SHORTVALUE_ISSET_ID = 4;
-  private static final int __DOUBLEVALUE_ISSET_ID = 5;
-  private static final int __BYTEVALUE_ISSET_ID = 6;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.STRING_VALUE,_Fields.BOOL_VALUE,_Fields.INT_VALUE,_Fields.LONG_VALUE,_Fields.SHORT_VALUE,_Fields.DOUBLE_VALUE,_Fields.BINARY_VALUE,_Fields.BYTE_VALUE};
+  private _Fields optionals[] = {_Fields.VALUE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.STRING_VALUE, new org.apache.thrift.meta_data.FieldMetaData("stringValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.BOOL_VALUE, new org.apache.thrift.meta_data.FieldMetaData("boolValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.INT_VALUE, new org.apache.thrift.meta_data.FieldMetaData("intValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.LONG_VALUE, new org.apache.thrift.meta_data.FieldMetaData("longValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.SHORT_VALUE, new org.apache.thrift.meta_data.FieldMetaData("shortValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.DOUBLE_VALUE, new org.apache.thrift.meta_data.FieldMetaData("doubleValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
-    tmpMap.put(_Fields.BINARY_VALUE, new org.apache.thrift.meta_data.FieldMetaData("binaryValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
-    tmpMap.put(_Fields.BYTE_VALUE, new org.apache.thrift.meta_data.FieldMetaData("byteValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+    tmpMap.put(_Fields.VALUE, new org.apache.thrift.meta_data.FieldMetaData("value", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAnnotationValue.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAnnotation.class, metaDataMap);
   }
@@ -195,19 +140,9 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
   public TAnnotation(TAnnotation other) {
     __isset_bitfield = other.__isset_bitfield;
     this.key = other.key;
-    if (other.isSetStringValue()) {
-      this.stringValue = other.stringValue;
+    if (other.isSetValue()) {
+      this.value = new TAnnotationValue(other.value);
     }
-    this.boolValue = other.boolValue;
-    this.intValue = other.intValue;
-    this.longValue = other.longValue;
-    this.shortValue = other.shortValue;
-    this.doubleValue = other.doubleValue;
-    if (other.isSetBinaryValue()) {
-      this.binaryValue = org.apache.thrift.TBaseHelper.copyBinary(other.binaryValue);
-;
-    }
-    this.byteValue = other.byteValue;
   }
 
   public TAnnotation deepCopy() {
@@ -218,20 +153,7 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
   public void clear() {
     setKeyIsSet(false);
     this.key = 0;
-    this.stringValue = null;
-    setBoolValueIsSet(false);
-    this.boolValue = false;
-    setIntValueIsSet(false);
-    this.intValue = 0;
-    setLongValueIsSet(false);
-    this.longValue = 0;
-    setShortValueIsSet(false);
-    this.shortValue = 0;
-    setDoubleValueIsSet(false);
-    this.doubleValue = 0.0;
-    this.binaryValue = null;
-    setByteValueIsSet(false);
-    this.byteValue = 0;
+    this.value = null;
   }
 
   public int getKey() {
@@ -256,191 +178,27 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __KEY_ISSET_ID, value);
   }
 
-  public String getStringValue() {
-    return this.stringValue;
+  public TAnnotationValue getValue() {
+    return this.value;
   }
 
-  public void setStringValue(String stringValue) {
-    this.stringValue = stringValue;
+  public void setValue(TAnnotationValue value) {
+    this.value = value;
   }
 
-  public void unsetStringValue() {
-    this.stringValue = null;
+  public void unsetValue() {
+    this.value = null;
   }
 
-  /** Returns true if field stringValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetStringValue() {
-    return this.stringValue != null;
+  /** Returns true if field value is set (has been assigned a value) and false otherwise */
+  public boolean isSetValue() {
+    return this.value != null;
   }
 
-  public void setStringValueIsSet(boolean value) {
+  public void setValueIsSet(boolean value) {
     if (!value) {
-      this.stringValue = null;
+      this.value = null;
     }
-  }
-
-  public boolean isBoolValue() {
-    return this.boolValue;
-  }
-
-  public void setBoolValue(boolean boolValue) {
-    this.boolValue = boolValue;
-    setBoolValueIsSet(true);
-  }
-
-  public void unsetBoolValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __BOOLVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field boolValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetBoolValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __BOOLVALUE_ISSET_ID);
-  }
-
-  public void setBoolValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __BOOLVALUE_ISSET_ID, value);
-  }
-
-  public int getIntValue() {
-    return this.intValue;
-  }
-
-  public void setIntValue(int intValue) {
-    this.intValue = intValue;
-    setIntValueIsSet(true);
-  }
-
-  public void unsetIntValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __INTVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field intValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetIntValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __INTVALUE_ISSET_ID);
-  }
-
-  public void setIntValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __INTVALUE_ISSET_ID, value);
-  }
-
-  public long getLongValue() {
-    return this.longValue;
-  }
-
-  public void setLongValue(long longValue) {
-    this.longValue = longValue;
-    setLongValueIsSet(true);
-  }
-
-  public void unsetLongValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __LONGVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field longValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetLongValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __LONGVALUE_ISSET_ID);
-  }
-
-  public void setLongValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __LONGVALUE_ISSET_ID, value);
-  }
-
-  public short getShortValue() {
-    return this.shortValue;
-  }
-
-  public void setShortValue(short shortValue) {
-    this.shortValue = shortValue;
-    setShortValueIsSet(true);
-  }
-
-  public void unsetShortValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SHORTVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field shortValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetShortValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __SHORTVALUE_ISSET_ID);
-  }
-
-  public void setShortValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SHORTVALUE_ISSET_ID, value);
-  }
-
-  public double getDoubleValue() {
-    return this.doubleValue;
-  }
-
-  public void setDoubleValue(double doubleValue) {
-    this.doubleValue = doubleValue;
-    setDoubleValueIsSet(true);
-  }
-
-  public void unsetDoubleValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __DOUBLEVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field doubleValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetDoubleValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __DOUBLEVALUE_ISSET_ID);
-  }
-
-  public void setDoubleValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __DOUBLEVALUE_ISSET_ID, value);
-  }
-
-  public byte[] getBinaryValue() {
-    setBinaryValue(org.apache.thrift.TBaseHelper.rightSize(binaryValue));
-    return binaryValue == null ? null : binaryValue.array();
-  }
-
-  public ByteBuffer bufferForBinaryValue() {
-    return binaryValue;
-  }
-
-  public void setBinaryValue(byte[] binaryValue) {
-    setBinaryValue(binaryValue == null ? (ByteBuffer)null : ByteBuffer.wrap(binaryValue));
-  }
-
-  public void setBinaryValue(ByteBuffer binaryValue) {
-    this.binaryValue = binaryValue;
-  }
-
-  public void unsetBinaryValue() {
-    this.binaryValue = null;
-  }
-
-  /** Returns true if field binaryValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetBinaryValue() {
-    return this.binaryValue != null;
-  }
-
-  public void setBinaryValueIsSet(boolean value) {
-    if (!value) {
-      this.binaryValue = null;
-    }
-  }
-
-  public byte getByteValue() {
-    return this.byteValue;
-  }
-
-  public void setByteValue(byte byteValue) {
-    this.byteValue = byteValue;
-    setByteValueIsSet(true);
-  }
-
-  public void unsetByteValue() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __BYTEVALUE_ISSET_ID);
-  }
-
-  /** Returns true if field byteValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetByteValue() {
-    return EncodingUtils.testBit(__isset_bitfield, __BYTEVALUE_ISSET_ID);
-  }
-
-  public void setByteValueIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __BYTEVALUE_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -453,67 +211,11 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
       }
       break;
 
-    case STRING_VALUE:
+    case VALUE:
       if (value == null) {
-        unsetStringValue();
+        unsetValue();
       } else {
-        setStringValue((String)value);
-      }
-      break;
-
-    case BOOL_VALUE:
-      if (value == null) {
-        unsetBoolValue();
-      } else {
-        setBoolValue((Boolean)value);
-      }
-      break;
-
-    case INT_VALUE:
-      if (value == null) {
-        unsetIntValue();
-      } else {
-        setIntValue((Integer)value);
-      }
-      break;
-
-    case LONG_VALUE:
-      if (value == null) {
-        unsetLongValue();
-      } else {
-        setLongValue((Long)value);
-      }
-      break;
-
-    case SHORT_VALUE:
-      if (value == null) {
-        unsetShortValue();
-      } else {
-        setShortValue((Short)value);
-      }
-      break;
-
-    case DOUBLE_VALUE:
-      if (value == null) {
-        unsetDoubleValue();
-      } else {
-        setDoubleValue((Double)value);
-      }
-      break;
-
-    case BINARY_VALUE:
-      if (value == null) {
-        unsetBinaryValue();
-      } else {
-        setBinaryValue((ByteBuffer)value);
-      }
-      break;
-
-    case BYTE_VALUE:
-      if (value == null) {
-        unsetByteValue();
-      } else {
-        setByteValue((Byte)value);
+        setValue((TAnnotationValue)value);
       }
       break;
 
@@ -525,29 +227,8 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
     case KEY:
       return Integer.valueOf(getKey());
 
-    case STRING_VALUE:
-      return getStringValue();
-
-    case BOOL_VALUE:
-      return Boolean.valueOf(isBoolValue());
-
-    case INT_VALUE:
-      return Integer.valueOf(getIntValue());
-
-    case LONG_VALUE:
-      return Long.valueOf(getLongValue());
-
-    case SHORT_VALUE:
-      return Short.valueOf(getShortValue());
-
-    case DOUBLE_VALUE:
-      return Double.valueOf(getDoubleValue());
-
-    case BINARY_VALUE:
-      return getBinaryValue();
-
-    case BYTE_VALUE:
-      return Byte.valueOf(getByteValue());
+    case VALUE:
+      return getValue();
 
     }
     throw new IllegalStateException();
@@ -562,22 +243,8 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
     switch (field) {
     case KEY:
       return isSetKey();
-    case STRING_VALUE:
-      return isSetStringValue();
-    case BOOL_VALUE:
-      return isSetBoolValue();
-    case INT_VALUE:
-      return isSetIntValue();
-    case LONG_VALUE:
-      return isSetLongValue();
-    case SHORT_VALUE:
-      return isSetShortValue();
-    case DOUBLE_VALUE:
-      return isSetDoubleValue();
-    case BINARY_VALUE:
-      return isSetBinaryValue();
-    case BYTE_VALUE:
-      return isSetByteValue();
+    case VALUE:
+      return isSetValue();
     }
     throw new IllegalStateException();
   }
@@ -604,75 +271,12 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
         return false;
     }
 
-    boolean this_present_stringValue = true && this.isSetStringValue();
-    boolean that_present_stringValue = true && that.isSetStringValue();
-    if (this_present_stringValue || that_present_stringValue) {
-      if (!(this_present_stringValue && that_present_stringValue))
+    boolean this_present_value = true && this.isSetValue();
+    boolean that_present_value = true && that.isSetValue();
+    if (this_present_value || that_present_value) {
+      if (!(this_present_value && that_present_value))
         return false;
-      if (!this.stringValue.equals(that.stringValue))
-        return false;
-    }
-
-    boolean this_present_boolValue = true && this.isSetBoolValue();
-    boolean that_present_boolValue = true && that.isSetBoolValue();
-    if (this_present_boolValue || that_present_boolValue) {
-      if (!(this_present_boolValue && that_present_boolValue))
-        return false;
-      if (this.boolValue != that.boolValue)
-        return false;
-    }
-
-    boolean this_present_intValue = true && this.isSetIntValue();
-    boolean that_present_intValue = true && that.isSetIntValue();
-    if (this_present_intValue || that_present_intValue) {
-      if (!(this_present_intValue && that_present_intValue))
-        return false;
-      if (this.intValue != that.intValue)
-        return false;
-    }
-
-    boolean this_present_longValue = true && this.isSetLongValue();
-    boolean that_present_longValue = true && that.isSetLongValue();
-    if (this_present_longValue || that_present_longValue) {
-      if (!(this_present_longValue && that_present_longValue))
-        return false;
-      if (this.longValue != that.longValue)
-        return false;
-    }
-
-    boolean this_present_shortValue = true && this.isSetShortValue();
-    boolean that_present_shortValue = true && that.isSetShortValue();
-    if (this_present_shortValue || that_present_shortValue) {
-      if (!(this_present_shortValue && that_present_shortValue))
-        return false;
-      if (this.shortValue != that.shortValue)
-        return false;
-    }
-
-    boolean this_present_doubleValue = true && this.isSetDoubleValue();
-    boolean that_present_doubleValue = true && that.isSetDoubleValue();
-    if (this_present_doubleValue || that_present_doubleValue) {
-      if (!(this_present_doubleValue && that_present_doubleValue))
-        return false;
-      if (this.doubleValue != that.doubleValue)
-        return false;
-    }
-
-    boolean this_present_binaryValue = true && this.isSetBinaryValue();
-    boolean that_present_binaryValue = true && that.isSetBinaryValue();
-    if (this_present_binaryValue || that_present_binaryValue) {
-      if (!(this_present_binaryValue && that_present_binaryValue))
-        return false;
-      if (!this.binaryValue.equals(that.binaryValue))
-        return false;
-    }
-
-    boolean this_present_byteValue = true && this.isSetByteValue();
-    boolean that_present_byteValue = true && that.isSetByteValue();
-    if (this_present_byteValue || that_present_byteValue) {
-      if (!(this_present_byteValue && that_present_byteValue))
-        return false;
-      if (this.byteValue != that.byteValue)
+      if (!this.value.equals(that.value))
         return false;
     }
 
@@ -702,82 +306,12 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetStringValue()).compareTo(other.isSetStringValue());
+    lastComparison = Boolean.valueOf(isSetValue()).compareTo(other.isSetValue());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetStringValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.stringValue, other.stringValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetBoolValue()).compareTo(other.isSetBoolValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetBoolValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.boolValue, other.boolValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetIntValue()).compareTo(other.isSetIntValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIntValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.intValue, other.intValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetLongValue()).compareTo(other.isSetLongValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetLongValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.longValue, other.longValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetShortValue()).compareTo(other.isSetShortValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetShortValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.shortValue, other.shortValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDoubleValue()).compareTo(other.isSetDoubleValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDoubleValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.doubleValue, other.doubleValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetBinaryValue()).compareTo(other.isSetBinaryValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetBinaryValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.binaryValue, other.binaryValue);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetByteValue()).compareTo(other.isSetByteValue());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetByteValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.byteValue, other.byteValue);
+    if (isSetValue()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.value, other.value);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -805,60 +339,14 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
     sb.append("key:");
     sb.append(this.key);
     first = false;
-    if (isSetStringValue()) {
+    if (isSetValue()) {
       if (!first) sb.append(", ");
-      sb.append("stringValue:");
-      if (this.stringValue == null) {
+      sb.append("value:");
+      if (this.value == null) {
         sb.append("null");
       } else {
-        sb.append(this.stringValue);
+        sb.append(this.value);
       }
-      first = false;
-    }
-    if (isSetBoolValue()) {
-      if (!first) sb.append(", ");
-      sb.append("boolValue:");
-      sb.append(this.boolValue);
-      first = false;
-    }
-    if (isSetIntValue()) {
-      if (!first) sb.append(", ");
-      sb.append("intValue:");
-      sb.append(this.intValue);
-      first = false;
-    }
-    if (isSetLongValue()) {
-      if (!first) sb.append(", ");
-      sb.append("longValue:");
-      sb.append(this.longValue);
-      first = false;
-    }
-    if (isSetShortValue()) {
-      if (!first) sb.append(", ");
-      sb.append("shortValue:");
-      sb.append(this.shortValue);
-      first = false;
-    }
-    if (isSetDoubleValue()) {
-      if (!first) sb.append(", ");
-      sb.append("doubleValue:");
-      sb.append(this.doubleValue);
-      first = false;
-    }
-    if (isSetBinaryValue()) {
-      if (!first) sb.append(", ");
-      sb.append("binaryValue:");
-      if (this.binaryValue == null) {
-        sb.append("null");
-      } else {
-        org.apache.thrift.TBaseHelper.toString(this.binaryValue, sb);
-      }
-      first = false;
-    }
-    if (isSetByteValue()) {
-      if (!first) sb.append(", ");
-      sb.append("byteValue:");
-      sb.append(this.byteValue);
       first = false;
     }
     sb.append(")");
@@ -914,66 +402,11 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // STRING_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.stringValue = iprot.readString();
-              struct.setStringValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // BOOL_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.boolValue = iprot.readBool();
-              struct.setBoolValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // INT_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.intValue = iprot.readI32();
-              struct.setIntValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // LONG_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.longValue = iprot.readI64();
-              struct.setLongValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 6: // SHORT_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
-              struct.shortValue = iprot.readI16();
-              struct.setShortValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 7: // DOUBLE_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.DOUBLE) {
-              struct.doubleValue = iprot.readDouble();
-              struct.setDoubleValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 8: // BINARY_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.binaryValue = iprot.readBinary();
-              struct.setBinaryValueIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 9: // BYTE_VALUE
-            if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
-              struct.byteValue = iprot.readByte();
-              struct.setByteValueIsSet(true);
+          case 2: // VALUE
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.value = new TAnnotationValue();
+              struct.value.read(iprot);
+              struct.setValueIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -994,49 +427,12 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
       oprot.writeFieldBegin(KEY_FIELD_DESC);
       oprot.writeI32(struct.key);
       oprot.writeFieldEnd();
-      if (struct.stringValue != null) {
-        if (struct.isSetStringValue()) {
-          oprot.writeFieldBegin(STRING_VALUE_FIELD_DESC);
-          oprot.writeString(struct.stringValue);
+      if (struct.value != null) {
+        if (struct.isSetValue()) {
+          oprot.writeFieldBegin(VALUE_FIELD_DESC);
+          struct.value.write(oprot);
           oprot.writeFieldEnd();
         }
-      }
-      if (struct.isSetBoolValue()) {
-        oprot.writeFieldBegin(BOOL_VALUE_FIELD_DESC);
-        oprot.writeBool(struct.boolValue);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetIntValue()) {
-        oprot.writeFieldBegin(INT_VALUE_FIELD_DESC);
-        oprot.writeI32(struct.intValue);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetLongValue()) {
-        oprot.writeFieldBegin(LONG_VALUE_FIELD_DESC);
-        oprot.writeI64(struct.longValue);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetShortValue()) {
-        oprot.writeFieldBegin(SHORT_VALUE_FIELD_DESC);
-        oprot.writeI16(struct.shortValue);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetDoubleValue()) {
-        oprot.writeFieldBegin(DOUBLE_VALUE_FIELD_DESC);
-        oprot.writeDouble(struct.doubleValue);
-        oprot.writeFieldEnd();
-      }
-      if (struct.binaryValue != null) {
-        if (struct.isSetBinaryValue()) {
-          oprot.writeFieldBegin(BINARY_VALUE_FIELD_DESC);
-          oprot.writeBinary(struct.binaryValue);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.isSetByteValue()) {
-        oprot.writeFieldBegin(BYTE_VALUE_FIELD_DESC);
-        oprot.writeByte(struct.byteValue);
-        oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -1059,99 +455,30 @@ public class TAnnotation implements org.apache.thrift.TBase<TAnnotation, TAnnota
       if (struct.isSetKey()) {
         optionals.set(0);
       }
-      if (struct.isSetStringValue()) {
+      if (struct.isSetValue()) {
         optionals.set(1);
       }
-      if (struct.isSetBoolValue()) {
-        optionals.set(2);
-      }
-      if (struct.isSetIntValue()) {
-        optionals.set(3);
-      }
-      if (struct.isSetLongValue()) {
-        optionals.set(4);
-      }
-      if (struct.isSetShortValue()) {
-        optionals.set(5);
-      }
-      if (struct.isSetDoubleValue()) {
-        optionals.set(6);
-      }
-      if (struct.isSetBinaryValue()) {
-        optionals.set(7);
-      }
-      if (struct.isSetByteValue()) {
-        optionals.set(8);
-      }
-      oprot.writeBitSet(optionals, 9);
+      oprot.writeBitSet(optionals, 2);
       if (struct.isSetKey()) {
         oprot.writeI32(struct.key);
       }
-      if (struct.isSetStringValue()) {
-        oprot.writeString(struct.stringValue);
-      }
-      if (struct.isSetBoolValue()) {
-        oprot.writeBool(struct.boolValue);
-      }
-      if (struct.isSetIntValue()) {
-        oprot.writeI32(struct.intValue);
-      }
-      if (struct.isSetLongValue()) {
-        oprot.writeI64(struct.longValue);
-      }
-      if (struct.isSetShortValue()) {
-        oprot.writeI16(struct.shortValue);
-      }
-      if (struct.isSetDoubleValue()) {
-        oprot.writeDouble(struct.doubleValue);
-      }
-      if (struct.isSetBinaryValue()) {
-        oprot.writeBinary(struct.binaryValue);
-      }
-      if (struct.isSetByteValue()) {
-        oprot.writeByte(struct.byteValue);
+      if (struct.isSetValue()) {
+        struct.value.write(oprot);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TAnnotation struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(9);
+      BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
         struct.key = iprot.readI32();
         struct.setKeyIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.stringValue = iprot.readString();
-        struct.setStringValueIsSet(true);
-      }
-      if (incoming.get(2)) {
-        struct.boolValue = iprot.readBool();
-        struct.setBoolValueIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.intValue = iprot.readI32();
-        struct.setIntValueIsSet(true);
-      }
-      if (incoming.get(4)) {
-        struct.longValue = iprot.readI64();
-        struct.setLongValueIsSet(true);
-      }
-      if (incoming.get(5)) {
-        struct.shortValue = iprot.readI16();
-        struct.setShortValueIsSet(true);
-      }
-      if (incoming.get(6)) {
-        struct.doubleValue = iprot.readDouble();
-        struct.setDoubleValueIsSet(true);
-      }
-      if (incoming.get(7)) {
-        struct.binaryValue = iprot.readBinary();
-        struct.setBinaryValueIsSet(true);
-      }
-      if (incoming.get(8)) {
-        struct.byteValue = iprot.readByte();
-        struct.setByteValueIsSet(true);
+        struct.value = new TAnnotationValue();
+        struct.value.read(iprot);
+        struct.setValueIsSet(true);
       }
     }
   }

@@ -1,17 +1,22 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
+union TAnnotationValue {
+  1: string stringValue
+  2: bool boolValue;
+  3: i32 intValue;
+  4: i64 longValue;
+  5: i16 shortValue
+  6: double doubleValue;
+  7: binary binaryValue;
+  8: byte byteValue;
+}
+
 struct TAnnotation {
   1: i32 key,
-
-  2: optional string stringValue
-  3: optional bool boolValue;
-  4: optional i32 intValue;
-  5: optional i64 longValue;
-  6: optional i16 shortValue
-  7: optional double doubleValue;
-  8: optional binary binaryValue;
-  9: optional byte byteValue;
+  2: optional TAnnotationValue value
 }
+
+
 
 struct TAgentKey {
     1: string agentId;
