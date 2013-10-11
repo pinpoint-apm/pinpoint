@@ -28,6 +28,7 @@ public class HbaseTraceDao implements TraceDao {
 	private HbaseOperations2 template2;
 
     @Autowired
+    @Qualifier("traceIdRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	@Autowired

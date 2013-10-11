@@ -39,7 +39,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 	private RowMapper<List<TAgentStat>> agentStatMapper;
 	
     @Autowired
-    @Qualifier("traceIdRowKeyDistributor") // FIXME traceId와 동일한 distributor를 사용한다.
+    @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	private int scanCacheSize = 256;
