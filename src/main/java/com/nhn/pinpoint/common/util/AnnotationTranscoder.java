@@ -2,6 +2,7 @@ package com.nhn.pinpoint.common.util;
 
 
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 
 import java.io.*;
 
@@ -29,62 +30,11 @@ public class AnnotationTranscoder {
 
 
     public Object getMappingValue(TAnnotation annotation) {
-        if (annotation.isSetStringValue()) {
-            return annotation.getStringValue();
-        } else if(annotation.isSetIntValue()) {
-            return annotation.getIntValue();
-        } else if(annotation.isSetLongValue()) {
-            return annotation.getLongValue();
-        } else if(annotation.isSetBoolValue()) {
-            return annotation.isBoolValue();
-        } else if(annotation.isSetByteValue()) {
-            return annotation.getByteValue();
-        } else if(annotation.isSetDoubleValue()) {
-            return annotation.getDoubleValue();
-        } else if(annotation.isSetBinaryValue()) {
-            return annotation.getBinaryValue();
-        } else if(annotation.isSetShortValue()) {
-            return annotation.isSetShortValue();
+        final TAnnotationValue value = annotation.getValue();
+        if (value == null) {
+            return null;
         }
-        return null;
-    }
-
-    public void mappingValue(Object o, TAnnotation annotation) {
-        if (o == null) {
-            return;
-        }
-        if (o instanceof String) {
-            annotation.setStringValue((String) o);
-            return;
-        } else if (o instanceof Integer) {
-            annotation.setIntValue((Integer) o);
-            return;
-        } else if (o instanceof Long) {
-            annotation.setLongValue((Long) o);
-            return;
-        } else if (o instanceof Boolean) {
-            annotation.setBoolValue((Boolean) o);
-            return;
-        } else if (o instanceof Byte) {
-            annotation.setByteValue((Byte) o);
-            return;
-        } else if (o instanceof Float) {
-            // thrift는 float가 없음.
-            annotation.setDoubleValue((Float) o);
-            return;
-        } else if (o instanceof Double) {
-            annotation.setDoubleValue((Double) o);
-            return;
-        } else if (o instanceof byte[]) {
-            annotation.setBinaryValue((byte[]) o);
-            return;
-        } else if (o instanceof Short) {
-            annotation.setShortValue((Short) o);
-            return;
-        }
-        String str = o.toString();
-        annotation.setStringValue(str);
-        return;
+        return value.getFieldValue();
     }
 
 
@@ -176,7 +126,7 @@ public class AnnotationTranscoder {
                 String str = o.toString();
                 return encodeString(str);
         }
-        throw new RuntimeException("unsupport DataType:" + typeCode + " data:" + o);
+        throw new RuntimeException("unsupported DataType:" + typeCode + " data:" + o);
     }
 
     /**
