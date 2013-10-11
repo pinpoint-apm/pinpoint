@@ -4,9 +4,9 @@
 		<div ng-switch-when="UnknownLinkInfoBox">
             <dl ng-repeat="target in targetinfo">
                 <dt>
-                    <img ng-src="/images/icons/{{sourceinfo[0].serviceType}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
+                    <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
                     <i class="icon-arrow-right"></i>
-                    <img ng-src="/images/icons/{{target.serviceType}}.png" width="20" height="10" /> {{target.applicationName}}
+                    <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
                     <a href="#" onclick="SERVERMAP_METHOD_CACHE['{{target.applicationName}}']();" title="show details" style="text-decoration:none;">
                         <i class="icon-search"></i>
                     </a>
@@ -22,9 +22,9 @@
 		</div>
 
 		<div ng-switch-when="LinkInfoBox" class="alert alert-info text-center">
-			<img ng-src="/images/icons/{{sourceinfo.serviceType}}.png" width="20" height="10" /> {{sourceinfo.applicationName}}
+			<img ng-src="/images/icons/{{sourceinfo.serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo.applicationName}}
 			<i class="icon-arrow-right"></i>
-			<img ng-src="/images/icons/{{targetinfo.serviceType}}.png" width="20" height="10" /> {{targetinfo.applicationName}}
+			<img ng-src="/images/icons/{{targetinfo.serviceType | icons}}.png" width="20" height="10" /> {{targetinfo.applicationName}}
 			<!--
 			<br/>
 			Total requests : ???<br/>

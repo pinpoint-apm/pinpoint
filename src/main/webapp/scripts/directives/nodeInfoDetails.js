@@ -13,7 +13,16 @@ pinpointApp
             templateUrl: 'views/nodeInfoDetails.html',
             link: function postLink(scope, element, attrs) {
 
-                var reset = function () {
+                // define private variables
+                var htServermapData;
+
+                // define private variables of methods
+                var reset, showDetailInformation, renderApplicationStatistics, recalculateHistogram;
+
+                /**
+                 * reset
+                 */
+                reset = function () {
                     scope.nodeName = null;
                     scope.nodeCategory = null;
                     scope.nodeIcon = 'USER';
@@ -26,8 +35,13 @@ pinpointApp
                     scope.$digest();
                 };
 
-                var showDetailInformation = function (query, node) {
-                    console.log('showinfo', node);
+                /**
+                 * show detail information
+                 * @param query
+                 * @param node
+                 */
+                showDetailInformation = function (query, node) {
+                    console.log('showinfo', node, htServermapData);
                     scope.nodeName = node.text;
                     scope.nodeCategory = node.category;
                     if (node.category !== 'UNKNOWN_GROUP') {
@@ -61,8 +75,11 @@ pinpointApp
 //                        }
 //                    });
 //                };
-
-                var renderApplicationStatistics = function (data) {
+                /**
+                 * render application statistics
+                 * @param data
+                 */
+                renderApplicationStatistics = function (data) {
                     scope.showNodeInfoBarChart = true;
                     scope.$digest();
                     nv.dev = false;
@@ -70,8 +87,8 @@ pinpointApp
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
                         }).y(function (d) {
-                                return d.value;
-                            }).staggerLabels(false).tooltips(false).showValues(true);
+                            return d.value;
+                        }).staggerLabels(false).tooltips(false).showValues(true);
 
                         chart.xAxis.tickFormat(function (d) {
                             if (angular.isNumber(d)) {
@@ -148,42 +165,45 @@ pinpointApp
 //                    return histogramData;
 //                };
 
+
+                recalculateHistogram = function (key, linkDataArray) {
+                    // application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
+                    // var histogramData = extractHistogramFromData(node);
+                    var histogram = [];
+                    angular.forEach(linkDataArray, function (value, index) {
+                        var i = 0;
+                        if (value.to === key) {
+                            angular.forEach(value.histogram, function (v, k) {
+                                if (histogram[i]) {
+                                    histogram[i].value += Number(v, 10);
+                                } else {
+                                    histogram[i] = {
+                                        'label': k,
+                                        'value': Number(v, 10)
+                                    };
+                                }
+                                i += 1;
+                            });
+                        }
+                    });
+                    return histogram;
+                };
+
                 scope.$on('servermap.nodeClicked', function (event, e, query, node, mapData) {
                     reset();
-                    showDetailInformation(query, node);
                     scope.node = node;
+                    htServermapData = mapData;
                     if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
-
-                        // application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
-                        // var histogramData = extractHistogramFromData(node);
-
-                        var key = node.key;
-                        var histogram = [];
-                        angular.forEach(mapData.applicationMapData.linkDataArray, function (value, index) {
-                            var i = 0;
-                            if (value.to == key) {
-                                angular.forEach(value.histogram, function (v, k) {
-                                    if (histogram[i]) {
-                                        histogram[i].value += Number(v, 10);
-                                    } else {
-                                        histogram[i] = {
-                                            'label': k,
-                                            'value': Number(v, 10)
-                                        };
-                                    }
-                                    i++;
-                                });
-                            }
-                        });
                         renderApplicationStatistics([
                             {
                                 'key': "Response Time Histogram",
-                                'values': histogram
+                                'values': recalculateHistogram(node.key, mapData.applicationMapData.linkDataArray)
                             }
                         ]);
                         //renderApplicationStatistics(histogramData);
                     }
+                    showDetailInformation(query, node);
                 });
                 scope.$on('servermap.linkClicked', function (event, e, query, link) {
                     reset();
