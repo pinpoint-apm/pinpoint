@@ -39,9 +39,11 @@ public interface AsyncTrace {
 
     void recordApi(MethodDescriptor methodDescriptor);
 
+    void recordException(Object result);
+
     void recordAttribute(AnnotationKey key, String value);
 
-    void recordException(Object result);
+    void recordAttribute(AnnotationKey key, int value);
 
     void recordAttribute(AnnotationKey key, Object value);
 

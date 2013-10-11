@@ -51,11 +51,13 @@ public interface Trace {
 
     void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end);
 
-    void recordAttribute(AnnotationKey key, String value);
-
     ParsingResult recordSqlInfo(String sql);
 
     void recordSqlParsingResult(ParsingResult parsingResult);
+
+    void recordAttribute(AnnotationKey key, String value);
+
+    void recordAttribute(AnnotationKey key, int value);
 
     void recordAttribute(AnnotationKey key, Object value);
 
