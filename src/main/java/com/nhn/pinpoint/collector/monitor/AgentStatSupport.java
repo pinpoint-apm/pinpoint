@@ -12,6 +12,9 @@ import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 public class AgentStatSupport {
 
     public static String getAgentId(TAgentStat agentStat) {
+        if (agentStat == null) {
+            throw new NullPointerException("agentStat must not be null");
+        }
         _Fields type = agentStat.getSetField();
         Object typeObject = agentStat.getFieldValue();
         switch (type) {
@@ -29,6 +32,9 @@ public class AgentStatSupport {
     }
 
     public static long getTimestamp(TAgentStat agentStat) {
+        if (agentStat == null) {
+            throw new NullPointerException("agentStat must not be null");
+        }
         _Fields type = agentStat.getSetField();
         Object typeObject = agentStat.getFieldValue();
         switch (type) {

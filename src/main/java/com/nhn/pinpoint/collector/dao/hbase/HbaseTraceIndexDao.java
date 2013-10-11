@@ -12,6 +12,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.collector.dao.TraceIndexDao;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 @Deprecated
@@ -27,6 +28,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    @Qualifier("rowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	public String getTableName() {

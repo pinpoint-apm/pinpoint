@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class HbaseTraceDao implements TracesDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    @Qualifier("rowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override

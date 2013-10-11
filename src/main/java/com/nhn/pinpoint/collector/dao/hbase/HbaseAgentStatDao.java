@@ -6,7 +6,10 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_V1;
 
 import org.apache.hadoop.hbase.client.Put;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
@@ -25,17 +28,19 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
+    @Autowired
 	private HbaseOperations2 hbaseTemplate;
 
     @Autowired
+    @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	public void insert(final TAgentStat agentStat, final byte[] value) {
 		long timestamp = AgentStatSupport.getTimestamp(agentStat);
 		byte[] key = getDistributedRowKey(agentStat, timestamp);
-		
+
 		Put put = new Put(key);
 		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_V1, timestamp, value);
 		
