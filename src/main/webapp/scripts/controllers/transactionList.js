@@ -18,21 +18,25 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
     lastFetchedIndex = 0;
     token = parent.window.name;
     traces = webStorage.session.get(token);
-    console.log('token', token, traces.length);
+    oTimeSliderDao.setTotal(traces.length);
 
     /**
-     * internal methods
+     * emit transaction list to table
+     * @param data
      */
     emitTransactionListToTable = function (data) {
-        console.log('transactionTable.appendTransactionList', data.metadata);
         $scope.$emit('transactionTable.appendTransactionList', data.metadata);
     };
+
+    /**
+     * get query
+     * @returns {Array}
+     */
     getQuery = function () {
         if (!traces) {
             alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
             return;
         }
-        console.log('traces.length', traces.length);
         var query = [];
         for (var i = lastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * fetchCount && i < traces.length; i++, j++) {
             if (i > 0) { query.push("&"); }
@@ -44,6 +48,10 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         fetchCount++;
         return query;
     };
+
+    /**
+     * fetch next
+     */
     fetchNext = function () {
         getTransationList(getQuery(), function (data) {
             if (data.metadata.length === 0) {
@@ -55,13 +63,22 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             emitTransactionListToTable(data);
 
             oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+            oTimeSliderDao.addCount(data.metadata.length);
             $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
         });
     };
+
+    /**
+     * fetch all
+     */
     fetchAll = function () {
         cfg.MAX_FETCH_BLOCK_SIZE = 100000000;
         fetchNext();
     };
+
+    /**
+     * fetch start
+     */
     fetchStart = function () {
          getTransationList(getQuery(), function (data) {
              if (data.metadata.length === 0) {
@@ -81,11 +98,17 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                  oTimeSliderDao.setInnerTo(to);
              }
              oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+             oTimeSliderDao.setCount(data.metadata.length);
 
              $scope.$emit('timeSlider.initialize', oTimeSliderDao);
          });
     };
 
+    /**
+     * get transaction list
+     * @param query
+     * @param cb
+     */
     getTransationList = function (query, cb) {
         $.post(cfg.applicationUrl, query.join(""), function(data) {
             console.log('data', data);
@@ -100,12 +123,8 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      */
     $(document).ready(function () {
         fetchStart();
-    });
-    $timeout(function () {
-        var myLayout;
-
-        $(document).ready(function () {
-            myLayout = $("#main-container").layout({
+        $timeout(function () {
+            $("#main-container").layout({
                 north__minSize: 20,
                 north__size: 200,
 //                north__spacing_closed: 20,
@@ -113,11 +132,10 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 //                north__togglerAlign_closed: "top",
                 center__maskContents: true // IMPORTANT - enable iframe masking
             });
-            //loadIframePage('west');
-        });
-    }, 500);
+        }, 500);
+    });
 
-
+    // scope events on\
     $scope.$on('transactionTable.applicationSelected', function (event, transaction) {
         angular.element('#transactionDetail').attr('src', "#/transactionDetail/" + transaction.traceId + "/" + transaction.collectorAcceptTime);
 //        angular.element('#transactionDetail').attr('src', "/transactionInfo.pinpoint?traceId=" + transaction.traceId + "&focusTimestamp=" + transaction.collectorAcceptTime);

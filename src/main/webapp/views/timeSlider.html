@@ -1,11 +1,11 @@
 <div class="timeslider navbar main-navbar bs-docs-nav">
     <div class="nav-container">
         <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"></a>
-        <div class="timeslider_more" ng-show="nInnerFrom && nInnerTo">
-            <button type="button" ng-click="more()" class="btn btn-info btn-small" ng-disabled="disabledMore">{{{true: 'Done', false: 'More'}[disabledMore]}}</button>
+        <div class="timeslider_more" ng-show="timeSliderDao.getInnerFrom() && timeSliderDao.getInnerTo()">
+            <button type="button" ng-click="more()" class="btn btn-info btn-small" ng-disabled="timeSliderDao.getCount() >= timeSliderDao.getTotal()">{{{true: 'More', false: 'Done'}[timeSliderDao.getCount() < timeSliderDao.getTotal()]}}<span ng-show="timeSliderDao.getCount() && timeSliderDao.getTotal()"> ({{timeSliderDao.getCount()}}/{{timeSliderDao.getTotal()}})</span></button>
         </div>
-        <div class="timeslider_wrapper" ng-show="nInnerFrom && nInnerTo">
-            <input class="timeslider_input" type="slider" name="price" value="{{nInnerFrom}};{{nInnerTo}}" />
+        <div class="timeslider_wrapper" ng-show="timeSliderDao.getInnerFrom() && timeSliderDao.getInnerTo()">
+            <input class="timeslider_input" type="slider" name="price" value="{{timeSliderDao.getInnerFrom()}};{{timeSliderDao.getInnerTo()}}" />
         </div>
     </div>
 </div>

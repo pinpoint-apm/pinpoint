@@ -3,13 +3,15 @@
 pinpointApp.factory('timeSliderDao', function () {
 
     // define private variables;
-    var nFrom, nTo, nInnerFrom, nInnerTo;
+    var nFrom, nTo, nInnerFrom, nInnerTo, nCount, nTotal;
 
     // initialize private variables;
     nFrom = null;
     nTo = null;
     nInnerFrom = null;
     nInnerTo = null;
+    nCount = 0;
+    nTotal = 0;
 
     // define public methods;
     return {
@@ -63,6 +65,41 @@ pinpointApp.factory('timeSliderDao', function () {
         },
         getInnerTo: function () {
             return nInnerTo;
+        },
+
+        setCount: function (count) {
+            if (angular.isNumber(count)) {
+                if (angular.isNumber(nTotal) && count > nTotal) {
+                    throw 'timeSliderDao:setCount, It should be smaller than Total value.';
+                }
+                nCount = count;
+            }
+            return this;
+        },
+        addCount: function (count) {
+            if (angular.isNumber(count)) {
+                if (angular.isNumber(nTotal) && (count + nCount) > nTotal) {
+                    throw 'timeSliderDao:setCount, It should be smaller than Total value.';
+                }
+                nCount += count;
+            }
+            return this;
+        },
+        getCount: function () {
+            return nCount;
+        },
+
+        setTotal: function (total) {
+            if (angular.isNumber(total)) {
+                if (angular.isNumber(nCount) && nCount > total) {
+                    throw 'timeSliderDao:setTotal, It should be bigger than Count value.';
+                }
+                nTotal = total;
+            }
+            return this;
+        },
+        getTotal: function () {
+            return nTotal;
         }
     };
 });

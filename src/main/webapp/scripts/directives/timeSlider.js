@@ -14,16 +14,12 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
             // define variables
             var $elSlider;
             // define private methods
-            var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo,
-                disableMore, enableMore;
+            var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo;
 
             // initialize private variables
             $elSlider = element.find('.timeslider_input');
 
             // initialize scope variables
-            scope.nInnerFrom = null;
-            scope.nInnerTo = null;
-            scope.disabledMore = false;
             scope.timeSliderDao = null;
 
             /**
@@ -32,21 +28,16 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
              */
             initSlider = function (timeSliderDao) {
                 scope.timeSliderDao = timeSliderDao;
+                scope.$digest();
                 if (scope.timeSliderDao === null) {
                     return;
                 }
-
-                var scale = parseScaleAsTimeFormat(getScale());
-
-                scope.nInnerFrom = scope.timeSliderDao.getInnerFrom();
-                scope.nInnerTo = scope.timeSliderDao.getInnerTo();
-                scope.$digest();
 
                 $elSlider.jslider(
                     {
                         from: scope.timeSliderDao.getFrom(),
                         to: scope.timeSliderDao.getTo(),
-                        scale: scale,
+                        scale: parseScaleAsTimeFormat(getScale()),
                         skin: "round_plastic",
                         calculate: function (value) {
                             return parseTimestampToTimeFormat(value);
@@ -101,16 +92,13 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
                 return new Date(timestamp).toString('HH:mm');
             };
 
+            /**
+             * set inner from-to
+             * @param innerFrom
+             * @param innerTo
+             */
             setInnerFromTo = function (innerFrom, innerTo) {
                 $elSlider.jslider("value", innerFrom, innerTo);
-            };
-            disableMore = function () {
-                scope.disabledMore = true;
-                scope.$digest();
-            };
-            enableMore = function () {
-                scope.disabledMore = false;
-                scope.$digest();
             };
 
             // define scope methods
@@ -122,13 +110,8 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', function (cfg) {
             });
             scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderDao) {
                 scope.timeSliderDao = timeSliderDao;
+                scope.$digest();
                 setInnerFromTo(timeSliderDao.getInnerFrom(), timeSliderDao.getInnerTo());
-            });
-            scope.$on('timeSlider.disableMore', function (event) {
-                disableMore();
-            });
-            scope.$on('timeSlider.enableMore', function (event) {
-                enableMore();
             });
         }
     };
