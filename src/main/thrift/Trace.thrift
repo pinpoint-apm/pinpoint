@@ -1,5 +1,15 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
+struct TSqlValue {
+    1: i32 id;
+    2: optional string bindValue;
+}
+
+struct TExceptionValue {
+    1: i32 id;
+    2: optional string exceptionMessage;
+}
+
 union TAnnotationValue {
   1: string stringValue
   2: bool boolValue;
@@ -9,6 +19,7 @@ union TAnnotationValue {
   6: double doubleValue;
   7: binary binaryValue;
   8: byte byteValue;
+  9: TSqlValue sqlValue;
 }
 
 struct TAnnotation {
@@ -31,7 +42,7 @@ struct TSpanEvent {
   17: optional i16 parentServiceType
   18: optional string parentEndPoint
 
-
+  // null일 경우 agentId와 동일한 값이다.
   4: optional string traceAgentId
   5: optional i64 traceAgentStartTime;
   6: optional i64 traceTransactionSequence;
@@ -46,16 +57,15 @@ struct TSpanEvent {
   12: i16 serviceType
   13: optional string endPoint
 
-  14: list<TAnnotation> annotations
+  14: optional list<TAnnotation> annotations
 
   15: optional i32 depth = -1
   16: optional i32 nextSpanId = -1
 
   20: optional string destinationId
-  // address주소가 1개일 경우
-  21: optional list<string> destinationAddress;
-  // address주소가 2개이상일 경우
-  //15: optional list<string> destinationAddressList;
+
+  25: optional i32 apiId;
+  26: optional i32 exceptionId;
 }
 
 struct TSpan {
@@ -64,7 +74,8 @@ struct TSpan {
   2: string applicationName
   3: i64 agentStartTime
 
-  4: string traceAgentId
+  // null일 경우 agentId와 동일한 값이다.
+  4: optional string traceAgentId
   5: i64 traceAgentStartTime;
   6: i64 traceTransactionSequence;
 
@@ -81,7 +92,7 @@ struct TSpan {
   13: optional string endPoint
   14: optional string remoteAddr
 
-  15: list<TAnnotation> annotations
+  15: optional list<TAnnotation> annotations
   16: optional i16 flag = 0
 
   17: optional i32 err
@@ -91,6 +102,9 @@ struct TSpan {
   19: optional string parentApplicationName
   20: optional i16 parentApplicationType
   21: optional string acceptorHost
+
+  25: optional i32 apiId;
+  26: optional i32 exceptionId;
 }
 
 struct TSpanChunk {
@@ -100,7 +114,8 @@ struct TSpanChunk {
 
   4: i16 serviceType
 
-  5: string traceAgentId
+  // null일 경우 agentId와 동일한 값이다.
+  5: optional string traceAgentId
   6: i64 traceAgentStartTime;
   7: i64 traceTransactionSequence;
 
