@@ -308,14 +308,34 @@ public class RecordSetServiceImpl implements RecordSetService {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
             for (AnnotationBo ann : annotationBoList) {
+                if (AnnotationKey.EXCEPTION.getCode() == ann.getKey()) {
+                    String exceptionClass = findExceptionClass(annotationBoList);
+                    if (exceptionClass != null) {
+                        final int index = exceptionClass.lastIndexOf('.');
+                        if (index != -1) {
+                            exceptionClass = exceptionClass.substring(index+1, exceptionClass.length());
+                        }
+                        Record record = new Record(depth, getNextId(), parentId, false, exceptionClass, ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
+                        recordList.add(record);
+                    }
+                }
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
-                if (annotation.isViewInRecordSet()) {
+                if (AnnotationKey.EXCEPTION.getCode() != ann.getKey() && annotation.isViewInRecordSet()) {
                     Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
                     recordList.add(record);
                 }
             }
 
             return recordList;
+        }
+
+        private String findExceptionClass(List<AnnotationBo> annotationBoList) {
+            for (AnnotationBo annotationBo : annotationBoList) {
+                if (annotationBo.getKey() == AnnotationKey.EXCEPTION_CLASS.getCode()) {
+                    return annotationBo.getValue().toString();
+                }
+            }
+            return null;
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {

@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,9 +66,17 @@ public class SpanServiceImpl implements SpanService {
 			List<AnnotationBo> annotationBoList;
 			if (spanAlign.isSpan()) {
 				annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
+                if (annotationBoList == null) {
+                    annotationBoList = new ArrayList<AnnotationBo>();
+                    spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
+                }
 				annotationReplacementCallback.replacement(spanAlign, annotationBoList);
 			} else {
 				annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
+                if (annotationBoList == null) {
+                    annotationBoList = new ArrayList<AnnotationBo>();
+                    spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
+                }
 				annotationReplacementCallback.replacement(spanAlign, annotationBoList);
 			}
 		}
@@ -184,13 +193,19 @@ public class SpanServiceImpl implements SpanService {
 		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
 			@Override
 			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-				AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.API_DID.getCode());
-				if (apiIdAnnotation == null) {
-					return;
-				}
+//				AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.API_DID.getCode());
+//				if (apiIdAnnotation == null) {
+//					return;
+//				}
 
                 final AgentKey key = getAgentKey(spanAlign);
-				final int apiId = (Integer) apiIdAnnotation.getValue();
+//				final int apiId = (Integer) apiIdAnnotation.getValue();
+                int apiId;
+                if (spanAlign.isSpan()) {
+                    apiId = spanAlign.getSpanBo().getApiId();
+                } else {
+                    apiId = spanAlign.getSpanEventBo().getApiId();
+                }
                 // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
 				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), apiId, key.getAgentStartTime());
 				int size = apiMetaDataList.size();
@@ -292,3 +307,4 @@ public class SpanServiceImpl implements SpanService {
         }
     }
 }
+
