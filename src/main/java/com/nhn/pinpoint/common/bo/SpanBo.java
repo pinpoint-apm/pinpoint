@@ -411,27 +411,30 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
     @Override
     public String toString() {
-        return "SpanBo{" +
-                "version=" + version +
-                ", agentId='" + agentId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                ", traceAgentId=" + agentId +
-                ", traceAgentStartTime=" + traceAgentStartTime +
-                ", traceTransactionSequence=" + traceTransactionSequence +
-                ", spanId=" + spanId +
-                ", parentSpanId=" + parentSpanId +
-                ", startTime=" + startTime +
-                ", elapsed=" + elapsed +
-                ", rpc='" + rpc + '\'' +
-                ", serviceType=" + serviceType +
-                ", endPoint='" + endPoint + '\'' +
-                ", annotationBoList=" + annotationBoList +
-                ", flag=" + flag +
-                ", exception=" + exception +
-                ", spanEventBoList=" + spanEventBoList +
-                ", collectorAcceptTime=" + collectorAcceptTime +
-                ", remoteAddr='" + remoteAddr + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder(256);
+        sb.append("SpanBo{");
+        sb.append("version=").append(version);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationId='").append(applicationId).append('\'');
+        sb.append(", agentStartTime=").append(agentStartTime);
+        sb.append(", traceAgentId='").append(traceAgentId).append('\'');
+        sb.append(", traceAgentStartTime=").append(traceAgentStartTime);
+        sb.append(", traceTransactionSequence=").append(traceTransactionSequence);
+        sb.append(", spanId=").append(spanId);
+        sb.append(", parentSpanId=").append(parentSpanId);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", elapsed=").append(elapsed);
+        sb.append(", rpc='").append(rpc).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", endPoint='").append(endPoint).append('\'');
+        sb.append(", apiId=").append(apiId);
+        sb.append(", annotationBoList=").append(annotationBoList);
+        sb.append(", flag=").append(flag);
+        sb.append(", exception=").append(exception);
+        sb.append(", spanEventBoList=").append(spanEventBoList);
+        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
+        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -422,28 +422,30 @@ public class SpanEventBo implements Span {
 		return annotationBoList.getAnnotationBoList();
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(512);
-
-		sb.append(this.getClass().getName()).append("={");
-		sb.append(" version=").append(version).append(", agentId=").append(agentId).append(", applicationId=").append(applicationId);
-		sb.append(" serviceType=").append(serviceType);
-        sb.append(" traceAgentId=").append(traceAgentId);
-		sb.append(" traceAgentStartTime=").append(traceAgentStartTime).append(", traceTransactionSequence=").append(traceTransactionSequence);
-		sb.append(" spanId=").append(spanId).append(", sequence=").append(sequence);
-		sb.append(" startElapsed=").append(startElapsed).append(", endElapsed=").append(endElapsed);
-		sb.append(" rpc=").append(rpc).append(", endPoint=").append(endPoint);
-		sb.append(" depth=").append(depth);
-		sb.append(" nextSpanId=").append(nextSpanId);
-		sb.append(" annotations={");
-		for (AnnotationBo a : annotationBoList) {
-			sb.append(" key=").append(a.getKey());
-			sb.append(", value=").append(a.getValue());
-		}
-		sb.append("}");
-		sb.append("}");
-
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(256);
+        sb.append("SpanEventBo{");
+        sb.append("version=").append(version);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationId='").append(applicationId).append('\'');
+        sb.append(", agentStartTime=").append(agentStartTime);
+        sb.append(", traceAgentId='").append(traceAgentId).append('\'');
+        sb.append(", traceAgentStartTime=").append(traceAgentStartTime);
+        sb.append(", traceTransactionSequence=").append(traceTransactionSequence);
+        sb.append(", spanId=").append(spanId);
+        sb.append(", sequence=").append(sequence);
+        sb.append(", startElapsed=").append(startElapsed);
+        sb.append(", endElapsed=").append(endElapsed);
+        sb.append(", rpc='").append(rpc).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", destinationId='").append(destinationId).append('\'');
+        sb.append(", endPoint='").append(endPoint).append('\'');
+        sb.append(", apiId=").append(apiId);
+        sb.append(", annotationBoList=").append(annotationBoList);
+        sb.append(", depth=").append(depth);
+        sb.append(", nextSpanId=").append(nextSpanId);
+        sb.append('}');
+        return sb.toString();
+    }
 }
