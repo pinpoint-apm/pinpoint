@@ -7,7 +7,7 @@
                     <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
                     <i class="icon-arrow-right"></i>
                     <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
-                    <a href="#" onclick="SERVERMAP_METHOD_CACHE['{{target.applicationName}}']();" title="show details" style="text-decoration:none;">
+                    <a href ng-click="showDetailInformation(target.applicationName)" title="show details">
                         <i class="icon-search"></i>
                     </a>
                 </dt>

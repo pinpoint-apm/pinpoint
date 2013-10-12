@@ -13,7 +13,16 @@ pinpointApp
             templateUrl: 'views/linkInfoDetails.html',
             link: function postLink(scope, element, attrs) {
 
-                var reset = function () {
+                // define private variables
+                var htQuery;
+
+                // define private variables of methods;
+                var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeseriesHistogram, renderStatisticsSummary, showApplicationStatistics;
+
+                /**
+                 * reset
+                 */
+                reset = function () {
                     scope.linkCategory = null;
                     scope.rawdata = null;
                     scope.query = null;
@@ -24,17 +33,33 @@ pinpointApp
                     scope.$digest();
                 };
 
-                var showDetailInformation = function (query, data) {
+                /**
+                 * show detail information of scope
+                 * @param applicationName
+                 */
+                scope.showDetailInformation = function (applicationName) {
+                    showDetailInformation(scope.rawdata[applicationName]);
+                };
+
+                /**
+                 * show detail information
+                 * @param query
+                 * @param data
+                 */
+                showDetailInformation = function (data) {
+                    console.log('showDetailInformation', data);
                     if (data.rawdata) {
                         scope.linkCategory = 'UnknownLinkInfoBox';
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
-                        showApplicationStatistics(query.from,
-                            query.to,
+                        showApplicationStatistics(
+                            htQuery.from,
+                            htQuery.to,
                             data.sourceinfo.serviceTypeCode,
                             data.sourceinfo.applicationName,
                             data.targetinfo.serviceTypeCode,
-                            data.targetinfo.applicationName);
+                            data.targetinfo.applicationName
+                        );
                     }
 
                     scope.rawdata = data.rawdata;
@@ -44,7 +69,12 @@ pinpointApp
                     scope.$digest();
                 };
 
-                var getLinkStatisticsData = function (query, callback) {
+                /**
+                 * get link statistics data
+                 * @param query
+                 * @param callback
+                 */
+                getLinkStatisticsData = function (query, callback) {
                     jQuery.ajax({
                         type : 'GET',
                         url : config.linkStatisticsUrl,
@@ -67,13 +97,17 @@ pinpointApp
                     });
                 };
 
-                var renderStatisticsTimeseriesHistogram = function (data) {
+                /**
+                 * render statistics timseries histogram
+                 * @param data
+                 */
+                renderStatisticsTimeseriesHistogram = function (data) {
                     nv.addGraph(function() {
                         var chart = nv.models.multiBarChart().x(function (d) {
                             return d[0];
                         }).y(function(d) {
-                                return d[1];
-                            }).clipEdge(true).showControls(false);
+                            return d[1];
+                        }).clipEdge(true).showControls(false);
 
                         chart.stacked(true);
 
@@ -99,13 +133,17 @@ pinpointApp
                     });
                 };
 
-                var renderStatisticsSummary = function (data) {
+                /**
+                 * render statics summary
+                 * @param data
+                 */
+                renderStatisticsSummary = function (data) {
                     nv.addGraph(function() {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
                         }).y(function (d) {
-                                return d.value;
-                            }).staggerLabels(false).tooltips(false).showValues(true);
+                            return d.value;
+                        }).staggerLabels(false).tooltips(false).showValues(true);
 
                         chart.xAxis.tickFormat(function (d) {
                             if(angular.isNumber(d)) {
@@ -136,7 +174,16 @@ pinpointApp
                     });
                 };
 
-                var showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType, destApplicationName) {
+                /**
+                 * show application statistics
+                 * @param begin
+                 * @param end
+                 * @param srcServiceType
+                 * @param srcApplicationName
+                 * @param destServiceType
+                 * @param destApplicationName
+                 */
+                showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType, destApplicationName) {
                     var params = {
                         "from" : begin,
                         "to" : end,
@@ -155,14 +202,16 @@ pinpointApp
                     });
                 };
 
-                scope.$on('servermap.nodeClicked', function (event, e, query, data, containerId) {
+                // define scope events on
+                scope.$on('servermap.nodeClicked', function (event, e, query, data) {
                     reset();
                 });
-                scope.$on('servermap.linkClicked', function (event, e, query, data, containerId) {
+                scope.$on('servermap.linkClicked', function (event, e, query, data) {
                     reset();
-                    showDetailInformation(query, data);
+                    htQuery = query;
+                    showDetailInformation(data);
                 });
-                scope.$on('servermap.linkContextClicked', function (event, e, query, data, containerId){
+                scope.$on('servermap.linkContextClicked', function (event, e, query, data) {
 //                    alert('linkContextClicked');
                 });
 
