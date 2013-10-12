@@ -53,7 +53,7 @@
 
     <!-- ng-template -->
     <script id="warning" type="text/ng-template">
-        <div class="warning" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;">
+        <div class="warning" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;z-index:10">
             <div class="alert alert-block">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 <h4>Warning!</h4>
@@ -62,7 +62,7 @@
         </div>
     </script>
     <script id="info" type="text/ng-template">
-        <div class="info" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;">
+        <div class="info" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;z-index:10">
             <div class="alert alert-block alert-info">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 <h4>Info</h4>
@@ -71,7 +71,7 @@
         </div>
     </script>
     <script id="loading" type="text/ng-template">
-	    <div class="progress progress-striped active" style="position:absolute;top:40%;width:90%;margin-left:5%;">
+	    <div class="progress progress-striped active" style="position:absolute;top:40%;width:90%;margin-left:5%;display:none;z-index:10">
 		    <div class="bar" style="width: 0%;"></div>
 	    </div>
     </script>

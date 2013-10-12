@@ -2,30 +2,40 @@
 
 pinpointApp.factory('progressBar', [ '$timeout', function ($timeout) {
 
-    var parent;
+    var $elParent, getProgress, getProgressBar;
+
+    $elParent = null;
+
+    getProgress = function () {
+        return $elParent ? $('.progress', $elParent) : $('.progress');
+    };
+
+    getProgressBar = function () {
+        return $elParent ? $('.progress .bar', $elParent) : $('.progress .bar');
+    };
 
     // Public API here
     return {
         setParent: function (element) {
-            parent = element;
+            $elParent = element;
             return this;
         },
         getParent: function () {
-            return parent;
+            return $elParent;
         },
         startLoading: function () {
             this.setLoading(0);
             $timeout(function () {
-                $('.progress', parent).show();
+                getProgress().show();
             });
         },
         stopLoading: function () {
             $timeout(function () {
-                $('.progress', parent).hide();
+                getProgress().hide();
             }, 300);
         },
         setLoading: function (p) {
-            $('.progress .bar', parent).width(p + '%');
+            getProgressBar().width(p + '%');
         }
     };
 }]);

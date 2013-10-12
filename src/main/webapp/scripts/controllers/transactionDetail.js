@@ -4,7 +4,7 @@ pinpointApp.constant('TransactionDetailConfig', {
 });
 
 pinpointApp
-    .controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$route', function (cfg, $scope, $rootScope, $routeParams, $route) {
+    .controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', function (cfg,  $scope, $rootScope, $routeParams) {
         $rootScope.wrapperClass = 'no-navbar';
         $rootScope.wrapperStyle = {
             'padding-top': '70px'
