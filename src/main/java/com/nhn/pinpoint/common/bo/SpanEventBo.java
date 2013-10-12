@@ -49,6 +49,7 @@ public class SpanEventBo implements Span {
 
     private String destinationId;
 	private String endPoint;
+    private int apiId;
 
 	private List<AnnotationBo> annotationBoList;
 
@@ -80,6 +81,7 @@ public class SpanEventBo implements Span {
         this.destinationId = tSpanEvent.getDestinationId();
 
         this.endPoint = tSpanEvent.getEndPoint();
+        this.apiId = tSpanEvent.getApiId();
 		
 		if (tSpanEvent.isSetDepth()) {
 			this.depth = tSpanEvent.getDepth();
@@ -113,6 +115,7 @@ public class SpanEventBo implements Span {
         this.destinationId = spanEvent.getDestinationId();
 
 		this.endPoint = spanEvent.getEndPoint();
+        this.apiId = spanEvent.getApiId();
 		
 		if (spanEvent.isSetDepth()) {
 			this.depth = spanEvent.getDepth();
@@ -147,6 +150,7 @@ public class SpanEventBo implements Span {
 		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
 		this.endPoint = spanEvent.getEndPoint();
+        this.apiId = spanEvent.getApiId();
 
         this.destinationId = spanEvent.getDestinationId();
 
@@ -266,6 +270,14 @@ public class SpanEventBo implements Span {
 		this.endPoint = endPoint;
 	}
 
+    public int getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
+    }
+
     public String getDestinationId() {
         return destinationId;
     }
@@ -348,6 +360,7 @@ public class SpanEventBo implements Span {
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
         buffer.put1PrefixedBytes(destinationIdBytes);
+        buffer.putSVar(apiId);
 
         buffer.putSVar(depth);
         buffer.put(nextSpanId);
@@ -394,6 +407,7 @@ public class SpanEventBo implements Span {
 		this.serviceType = ServiceType.findServiceType(buffer.readShort());
 		this.endPoint = buffer.read1UnsignedPrefixedString();
         this.destinationId = buffer.read1UnsignedPrefixedString();
+        this.apiId = buffer.readSVarInt();
 
 		this.depth = buffer.readSVarInt();
 		this.nextSpanId = buffer.readInt();

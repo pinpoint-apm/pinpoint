@@ -133,6 +133,8 @@ public class FixedBufferTest {
     @Test
     public void testPutVar32() throws Exception {
         checkVarInt(Integer.MAX_VALUE, 5);
+        checkVarInt(25, 1);
+        checkVarInt(100, 1);
 
         checkVarInt(Integer.MIN_VALUE, 10);
 

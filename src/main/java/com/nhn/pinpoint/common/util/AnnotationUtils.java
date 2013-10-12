@@ -18,6 +18,9 @@ public class AnnotationUtils {
     }
 
     public static String findApiAnnotation(List<AnnotationBo> list) {
+        if (list == null) {
+            return null;
+        }
         AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API);
         if (annotationBo != null) {
             return (String) annotationBo.getValue();
@@ -47,6 +50,9 @@ public class AnnotationUtils {
     public static AnnotationBo getDisplayArgument(Span span) {
         // arcus 관련 일반화 필요.
         List<AnnotationBo> list = span.getAnnotationBoList();
+        if (list == null) {
+            return null;
+        }
         final ServiceType serviceType = span.getServiceType();
         if (serviceType == ServiceType.ARCUS || serviceType == ServiceType.MEMCACHED) {
             // 첫번째 args아무거나 하나를 디스플레이에 뿌린다.

@@ -51,6 +51,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     private String rpc;
     private ServiceType serviceType;
     private String endPoint;
+    private int apiId;
 
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
@@ -63,12 +64,15 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     
     private String remoteAddr; // optional
 
-	public SpanBo(TSpan span) {
+    public SpanBo(TSpan span) {
         this.agentId = span.getAgentId();
         this.applicationId = span.getApplicationName();
         this.agentStartTime = span.getAgentStartTime();
 
         this.traceAgentId = span.getTraceAgentId();
+        if (traceAgentId == null) {
+            traceAgentId = this.agentId;
+        }
         this.traceAgentStartTime = span.getTraceAgentStartTime();
         this.traceTransactionSequence = span.getTraceTransactionSequence();
 
@@ -83,6 +87,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.serviceType = ServiceType.findServiceType(span.getServiceType());
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
+        this.apiId = span.getApiId();
 
         this.exception = span.getErr();
         
@@ -233,14 +238,22 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.endPoint = endPoint;
     }
 
+    public int getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
+    }
+
     public List<AnnotationBo> getAnnotationBoList() {
-        if (annotationBoList == null) {
-            return Collections.emptyList();
-        }
         return annotationBoList;
     }
 
     public void setAnnotationList(List<TAnnotation> anoList) {
+        if (anoList == null) {
+            return;
+        }
         List<AnnotationBo> boList = new ArrayList<AnnotationBo>(anoList.size());
         for (TAnnotation ano : anoList) {
             boList.add(new AnnotationBo(ano));
@@ -250,10 +263,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
     public void setAnnotationBoList(List<AnnotationBo> anoList) {
         if (anoList == null) {
-            this.annotationBoList = Collections.emptyList();
-        } else {
-            this.annotationBoList = anoList;
+            return;
         }
+        this.annotationBoList = anoList;
     }
 
     public void addSpanEvent(SpanEventBo spanEventBo) {
@@ -352,6 +364,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         buffer.put(serviceType.getCode());
         buffer.put1PrefixedBytes(endPointBytes);
         buffer.put1PrefixedBytes(remoteAddrBytes);
+        buffer.putSVar(apiId);
 
         // exception code는 음수가 될수 있음.
         buffer.putSVar(exception);
@@ -385,6 +398,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
         this.endPoint = buffer.read1UnsignedPrefixedString();
         this.remoteAddr = buffer.read1UnsignedPrefixedString();
+        this.apiId = buffer.readSVarInt();
         
         this.exception = buffer.readSVarInt();
         

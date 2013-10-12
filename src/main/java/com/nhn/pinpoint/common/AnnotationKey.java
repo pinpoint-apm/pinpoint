@@ -10,6 +10,7 @@ public enum AnnotationKey {
     // 가변 인코딩을 사용하므로, 작은 숫자는 패킷에 전송 되는 데이터로 위주로 사용하고 내부 사용 코드는 숫자를 크게 잡아야 한다.
 //    2147483647
 //    -2147483648
+    @Deprecated // spanEvent와 span으로 apiId를 직접 이동 시킴.
     API_DID(10, "API-DID"),
     @Deprecated // 정적 api 코드를 제거해야 한다. API-DID만 사용할것.
     API_ID(11, "API-ID"),
@@ -40,7 +41,7 @@ public enum AnnotationKey {
     HTTP_URL(40, "http.url"),
     HTTP_PARAM(41, "http.params"),
 
-    ARCUS_COMMAND(50, "arcus.command"),
+//    ARCUS_COMMAND(50, "arcus.command"),
     
     NPC_URL(60, "npc.url"),
     NPC_PARAM(61, "npc.params"),
@@ -59,6 +60,7 @@ public enum AnnotationKey {
     ARGSN(-11, "args[N]"),
 
     EXCEPTION(-50, "Exception", true),
+    EXCEPTION_CLASS(-51, "ExceptionClass"),
     UNKNOWN(-9999, "UNKNOWN");
 
     private final int code;
