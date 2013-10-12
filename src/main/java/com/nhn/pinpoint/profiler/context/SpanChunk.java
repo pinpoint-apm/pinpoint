@@ -34,13 +34,17 @@ public class SpanChunk extends TSpanChunk implements Thriftable {
         Span parentSpan = ((SpanEvent)first).getSpan();
 
         final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
-        this.setAgentId(agentInformation.getAgentId());
+        final String agentId = agentInformation.getAgentId();
+        this.setAgentId(agentId);
         this.setApplicationName(agentInformation.getApplicationName());
         this.setAgentStartTime(agentInformation.getStartTime());
 
         this.setServiceType(parentSpan.getServiceType());
 
-        this.setTraceAgentId(parentSpan.getTraceAgentId());
+        final String traceAgentId = parentSpan.getTraceAgentId();
+        if (!agentId.equals(traceAgentId)) {
+            this.setTraceAgentId(traceAgentId);
+        }
         this.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
         this.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
         this.setSpanId(parentSpan.getSpanId());

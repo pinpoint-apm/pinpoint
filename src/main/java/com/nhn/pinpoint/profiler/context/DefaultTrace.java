@@ -227,6 +227,7 @@ public final class DefaultTrace implements Trace {
             Throwable th = (Throwable) result;
             String drop = StringUtils.drop(th.getMessage(), 256);
             recordAttribute(AnnotationKey.EXCEPTION, drop);
+            recordAttribute(AnnotationKey.EXCEPTION_CLASS, th.getClass().getName());
 
             Span span = getCallStack().getSpan();
             if (span.getException() == 0) {
@@ -243,7 +244,7 @@ public final class DefaultTrace implements Trace {
         if (methodDescriptor.getApiId() == 0) {
             recordAttribute(AnnotationKey.API, methodDescriptor.getFullName());
         } else {
-            recordAttribute(AnnotationKey.API_DID, methodDescriptor.getApiId());
+            recordApiId(methodDescriptor.getApiId());
         }
     }
 
@@ -327,6 +328,11 @@ public final class DefaultTrace implements Trace {
     public void recordAttribute(final AnnotationKey key, final int value) {
         final StackFrame currentStackFrame = this.currentStackFrame;
         currentStackFrame.addAnnotation(new Annotation(key.getCode(), value));
+    }
+
+    public void recordApiId(final int apiId) {
+        final StackFrame currentStackFrame = this.currentStackFrame;
+        currentStackFrame.setApiId(apiId);
     }
 
     @Override

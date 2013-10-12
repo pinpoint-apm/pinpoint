@@ -21,6 +21,8 @@ public interface StackFrame {
 
     void setRpc(String rpc);
 
+    void setApiId(int apiId);
+
     void setServiceType(short serviceType);
 
     void addAnnotation(Annotation annotation);

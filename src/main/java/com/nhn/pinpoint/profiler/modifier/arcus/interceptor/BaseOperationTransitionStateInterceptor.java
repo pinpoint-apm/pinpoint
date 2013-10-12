@@ -89,7 +89,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
             asyncTrace.recordDestinationId(serviceCode);
 
 			String cmd = getCommand(baseOperation);
-			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
+//			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
 
 			// TimeObject timeObject = (TimeObject)
 			// asyncTrace.getAttachObject();

@@ -183,6 +183,8 @@ public class DefaultTraceContext implements TraceContext {
         String fullName = methodDescriptor.getFullName();
         Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
+            methodDescriptor.setApiId(result.getId());
+
             TApiMetaData apiMetadata = new TApiMetaData();
             apiMetadata.setAgentId(this.agentInformation.getAgentId());
             apiMetadata.setAgentStartTime(this.agentInformation.getStartTime());
@@ -192,7 +194,6 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setLine(methodDescriptor.getLineNumber());
 
             this.priorityDataSender.request(apiMetadata);
-            methodDescriptor.setApiId(result.getId());
         }
         return result.getId();
     }

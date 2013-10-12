@@ -66,7 +66,10 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
         this.setParentServiceType(span.getServiceType()); // added
         this.setParentEndPoint(span.getEndPoint()); // added
 
-        this.setTraceAgentId(span.getTraceAgentId());
+        final String traceAgentId = span.getTraceAgentId();
+        if (!tAgentKey.getAgentId().equals(traceAgentId)) {
+            this.setTraceAgentId(traceAgentId);
+        }
         this.setTraceAgentStartTime(span.getTraceAgentStartTime());
         this.setTraceTransactionSequence(span.getTraceTransactionSequence());
         this.setSpanId(span.getSpanId());

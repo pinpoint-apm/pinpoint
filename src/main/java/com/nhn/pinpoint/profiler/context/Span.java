@@ -74,6 +74,10 @@ public class Span extends TSpan implements Thriftable {
     public TSpan toThrift() {
 
         final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
+        final String agentId = agentInformation.getAgentId();
+        if (agentId.equals(this.getTraceAgentId())) {
+            this.unsetTraceAgentId();
+        }
         this.setAgentId(agentInformation.getAgentId());
         this.setApplicationName(agentInformation.getApplicationName());
         this.setAgentStartTime(agentInformation.getStartTime());

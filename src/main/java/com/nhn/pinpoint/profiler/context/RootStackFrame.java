@@ -63,6 +63,11 @@ public class RootStackFrame implements StackFrame {
     }
 
     @Override
+    public void setApiId(int apiId) {
+        this.span.setApiId(apiId);
+    }
+
+    @Override
     public void setServiceType(short serviceType) {
         this.span.setServiceType(serviceType);
     }
