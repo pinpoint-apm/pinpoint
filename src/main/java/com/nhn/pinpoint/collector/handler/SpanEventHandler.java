@@ -38,6 +38,10 @@ public class SpanEventHandler implements SimpleHandler {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SpanEvent={}", spanEvent);
 			}
+            String traceAgentId = spanEvent.getTraceAgentId();
+            if (traceAgentId == null) {
+                spanEvent.setTraceAgentId(spanEvent.getAgentKey().getAgentId());
+            }
 
 			traceDao.insertEvent(spanEvent);
 

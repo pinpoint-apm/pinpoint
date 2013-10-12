@@ -44,12 +44,15 @@ public class SpanHandler implements SimpleHandler {
 
 		try {
 			TSpan span = (TSpan) tbase;
-
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SPAN={}", span);
 			}
+            String traceAgentId = span.getTraceAgentId();
+            if (traceAgentId == null) {
+                span.setTraceAgentId(span.getAgentId());
+            }
 
-			traceDao.insert(span);
+            traceDao.insert(span);
 //			traceIndexDao.insert(span);
 			applicationTraceIndexDao.insert(span);
 

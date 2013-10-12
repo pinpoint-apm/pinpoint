@@ -41,6 +41,10 @@ public class SpanChunkHandler implements SimpleHandler {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SpanChunk={}", spanChunk);
 			}
+            String traceAgentId = spanChunk.getTraceAgentId();
+            if (traceAgentId == null) {
+                spanChunk.setTraceAgentId(spanChunk.getAgentId());
+            }
 
 			traceDao.insertSpanChunk(spanChunk);
 
