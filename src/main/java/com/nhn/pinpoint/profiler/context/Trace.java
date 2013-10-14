@@ -55,6 +55,8 @@ public interface Trace {
 
     void recordSqlParsingResult(ParsingResult parsingResult);
 
+    void recordSqlParsingResult(ParsingResult parsingResult, String bindValue);
+
     void recordAttribute(AnnotationKey key, String value);
 
     void recordAttribute(AnnotationKey key, int value);
