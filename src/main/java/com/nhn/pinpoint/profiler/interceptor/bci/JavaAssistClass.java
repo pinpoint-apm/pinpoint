@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.common.mapping.ApiUtils;
+import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;

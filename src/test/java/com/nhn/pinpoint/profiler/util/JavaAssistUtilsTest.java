@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.common.mapping.ApiUtils;
 import javassist.*;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
-import com.nhn.pinpoint.common.mapping.ApiUtils;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.profiler.util.ApiUtils;
 
 import java.util.Arrays;
 
