@@ -21,6 +21,7 @@ public class ProfilerConfig {
     public int collectorUdpServerPort = 9995;
     public int collectorTcpServerPort = 9994;
 
+    private int jdbcSqlCacheSize = 1024;
 	private boolean jdbcProfile = true;
 
 	private boolean jdbcProfileMySql = true;
@@ -69,8 +70,8 @@ public class ProfilerConfig {
 	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
 
 	private ServiceType applicationServerType;
-	
-	public ProfilerConfig() {
+
+    public ProfilerConfig() {
 	}
 
 	public void readConfigFile(String pinpiontConfigFileName) throws IOException {
@@ -141,6 +142,10 @@ public class ProfilerConfig {
 	public boolean isJdbcProfile() {
 		return jdbcProfile;
 	}
+
+    public int getJdbcSqlCacheSize() {
+        return jdbcSqlCacheSize;
+    }
 
     // mysql start -----------------------------------------------------
 	public boolean isJdbcProfileMySql() {
@@ -294,6 +299,8 @@ public class ProfilerConfig {
 		// JDBC
 		this.jdbcProfile = readBoolean(prop, "profiler.jdbc", true);
 
+        this.jdbcSqlCacheSize = readInt(prop, "profiler.jdbc.sqlcachesize", 1024);
+
 		this.jdbcProfileMySql = readBoolean(prop, "profiler.jdbc.mysql", true);
         this.jdbcProfileMySqlSetAutoCommit = readBoolean(prop, "profiler.jdbc.mysql.setautocommit", false);
         this.jdbcProfileMySqlCommit = readBoolean(prop, "profiler.jdbc.mysql.commit", false);
@@ -423,32 +430,48 @@ public class ProfilerConfig {
 		return result;
 	}
 
-
     @Override
     public String toString() {
-        return "ProfilerConfig{" +
-                "\n profileEnable=" + profileEnable +
-                "\n collectorServerIp='" + collectorServerIp + '\'' +
-                "\n collectorTcpServerPort=" + collectorTcpServerPort +
-                "\n collectorUdpServerPort=" + collectorUdpServerPort +
-                "\n collectorUdpSpanServerPort=" + collectorUdpSpanServerPort +
-                "\n jdbcProfile=" + jdbcProfile +
-                "\n jdbcProfileMySql=" + jdbcProfileMySql +
-                "\n jdbcProfileMsSql=" + jdbcProfileMsSql +
-                "\n jdbcProfileOracle=" + jdbcProfileOracle +
-                "\n jdbcProfileCubrid=" + jdbcProfileCubrid +
-                "\n jdbcProfileDbcp=" + jdbcProfileDbcp +
-                "\n samplingEnable=" + samplingEnable +
-                "\n samplingRate=" + samplingRate +
-                "\n samplingElapsedTimeBaseEnable=" + samplingElapsedTimeBaseEnable +
-                "\n samplingElapsedTimeBaseBufferSize=" + samplingElapsedTimeBaseBufferSize +
-                "\n samplingElapsedTimeBaseDiscard=" + samplingElapsedTimeBaseDiscard +
-                "\n samplingElapsedTimeBaseDiscardTimeLimit=" + samplingElapsedTimeBaseDiscardTimeLimit +
-                "\n profileJvmCollectInterval=" + profileJvmCollectInterval +
-                "\n profileInclude=" + profileInclude +
-                "\n profileIncludeSub=" + profileIncludeSub +
-                "\n heartbeatInterval=" + heartbeatInterval +
-                "\n applicationServerType=" + applicationServerType +
-                '}';
+        final StringBuilder sb = new StringBuilder(512);
+        sb.append("ProfilerConfig{");
+        sb.append("\n profileEnable=").append(profileEnable);
+        sb.append("\n collectorServerIp='").append(collectorServerIp).append('\'');
+        sb.append("\n collectorUdpSpanServerPort=").append(collectorUdpSpanServerPort);
+        sb.append("\n collectorUdpServerPort=").append(collectorUdpServerPort);
+        sb.append("\n collectorTcpServerPort=").append(collectorTcpServerPort);
+        sb.append("\n jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
+        sb.append("\n jdbcProfile=").append(jdbcProfile);
+        sb.append("\n jdbcProfileMySql=").append(jdbcProfileMySql);
+        sb.append("\n jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
+        sb.append("\n jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
+        sb.append("\n jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
+        sb.append("\n jdbcProfileMsSql=").append(jdbcProfileMsSql);
+        sb.append("\n jdbcProfileOracle=").append(jdbcProfileOracle);
+        sb.append("\n jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
+        sb.append("\n jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
+        sb.append("\n jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
+        sb.append("\n jdbcProfileCubrid=").append(jdbcProfileCubrid);
+        sb.append("\n jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
+        sb.append("\n jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
+        sb.append("\n jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
+        sb.append("\n jdbcProfileDbcp=").append(jdbcProfileDbcp);
+        sb.append("\n jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
+        sb.append("\n arucs=").append(arucs);
+        sb.append("\n arucsKeyTrace=").append(arucsKeyTrace);
+        sb.append("\n memcached=").append(memcached);
+        sb.append("\n memcachedKeyTrace=").append(memcachedKeyTrace);
+        sb.append("\n samplingEnable=").append(samplingEnable);
+        sb.append("\n samplingRate=").append(samplingRate);
+        sb.append("\n samplingElapsedTimeBaseEnable=").append(samplingElapsedTimeBaseEnable);
+        sb.append("\n samplingElapsedTimeBaseBufferSize=").append(samplingElapsedTimeBaseBufferSize);
+        sb.append("\n samplingElapsedTimeBaseDiscard=").append(samplingElapsedTimeBaseDiscard);
+        sb.append("\n samplingElapsedTimeBaseDiscardTimeLimit=").append(samplingElapsedTimeBaseDiscardTimeLimit);
+        sb.append("\n profileJvmCollectInterval=").append(profileJvmCollectInterval);
+        sb.append("\n profileInclude=").append(profileInclude);
+        sb.append("\n profileIncludeSub=").append(profileIncludeSub);
+        sb.append("\n heartbeatInterval=").append(heartbeatInterval);
+        sb.append("\n applicationServerType=").append(applicationServerType);
+        sb.append('}');
+        return sb.toString();
     }
 }
