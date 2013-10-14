@@ -13,11 +13,6 @@ struct TIntStringStringValue {
     3: optional string stringValue2;
 }
 
-struct TExceptionValue {
-    1: i32 id;
-    2: optional string exceptionMessage;
-}
-
 union TAnnotationValue {
   1: string stringValue
   2: bool boolValue;
