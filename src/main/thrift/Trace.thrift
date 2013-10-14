@@ -1,8 +1,8 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
-struct TSqlValue {
-    1: i32 id;
-    2: optional string bindValue;
+struct TIntStringValue {
+    1: i32 intValue;
+    2: optional string stringValue;
 }
 
 struct TExceptionValue {
@@ -19,7 +19,7 @@ union TAnnotationValue {
   6: double doubleValue;
   7: binary binaryValue;
   8: byte byteValue;
-  9: TSqlValue sqlValue;
+  9: TIntStringValue intStringValue;
 }
 
 struct TAnnotation {

@@ -42,7 +42,7 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
   private static final org.apache.thrift.protocol.TField DOUBLE_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("doubleValue", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
   private static final org.apache.thrift.protocol.TField BINARY_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("binaryValue", org.apache.thrift.protocol.TType.STRING, (short)7);
   private static final org.apache.thrift.protocol.TField BYTE_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("byteValue", org.apache.thrift.protocol.TType.BYTE, (short)8);
-  private static final org.apache.thrift.protocol.TField SQL_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("sqlValue", org.apache.thrift.protocol.TType.STRUCT, (short)9);
+  private static final org.apache.thrift.protocol.TField INT_STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("intStringValue", org.apache.thrift.protocol.TType.STRUCT, (short)9);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -54,7 +54,7 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     DOUBLE_VALUE((short)6, "doubleValue"),
     BINARY_VALUE((short)7, "binaryValue"),
     BYTE_VALUE((short)8, "byteValue"),
-    SQL_VALUE((short)9, "sqlValue");
+    INT_STRING_VALUE((short)9, "intStringValue");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -85,8 +85,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           return BINARY_VALUE;
         case 8: // BYTE_VALUE
           return BYTE_VALUE;
-        case 9: // SQL_VALUE
-          return SQL_VALUE;
+        case 9: // INT_STRING_VALUE
+          return INT_STRING_VALUE;
         default:
           return null;
       }
@@ -145,8 +145,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.BYTE_VALUE, new org.apache.thrift.meta_data.FieldMetaData("byteValue", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
-    tmpMap.put(_Fields.SQL_VALUE, new org.apache.thrift.meta_data.FieldMetaData("sqlValue", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TSqlValue.class)));
+    tmpMap.put(_Fields.INT_STRING_VALUE, new org.apache.thrift.meta_data.FieldMetaData("intStringValue", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TIntStringValue.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAnnotationValue.class, metaDataMap);
   }
@@ -220,9 +220,9 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     return x;
   }
 
-  public static TAnnotationValue sqlValue(TSqlValue value) {
+  public static TAnnotationValue intStringValue(TIntStringValue value) {
     TAnnotationValue x = new TAnnotationValue();
-    x.setSqlValue(value);
+    x.setIntStringValue(value);
     return x;
   }
 
@@ -270,11 +270,11 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           break;
         }
         throw new ClassCastException("Was expecting value of type Byte for field 'byteValue', but got " + value.getClass().getSimpleName());
-      case SQL_VALUE:
-        if (value instanceof TSqlValue) {
+      case INT_STRING_VALUE:
+        if (value instanceof TIntStringValue) {
           break;
         }
-        throw new ClassCastException("Was expecting value of type TSqlValue for field 'sqlValue', but got " + value.getClass().getSimpleName());
+        throw new ClassCastException("Was expecting value of type TIntStringValue for field 'intStringValue', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -357,12 +357,12 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
-        case SQL_VALUE:
-          if (field.type == SQL_VALUE_FIELD_DESC.type) {
-            TSqlValue sqlValue;
-            sqlValue = new TSqlValue();
-            sqlValue.read(iprot);
-            return sqlValue;
+        case INT_STRING_VALUE:
+          if (field.type == INT_STRING_VALUE_FIELD_DESC.type) {
+            TIntStringValue intStringValue;
+            intStringValue = new TIntStringValue();
+            intStringValue.read(iprot);
+            return intStringValue;
           } else {
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
@@ -411,9 +411,9 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         Byte byteValue = (Byte)value_;
         oprot.writeByte(byteValue);
         return;
-      case SQL_VALUE:
-        TSqlValue sqlValue = (TSqlValue)value_;
-        sqlValue.write(oprot);
+      case INT_STRING_VALUE:
+        TIntStringValue intStringValue = (TIntStringValue)value_;
+        intStringValue.write(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -457,11 +457,11 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
           Byte byteValue;
           byteValue = iprot.readByte();
           return byteValue;
-        case SQL_VALUE:
-          TSqlValue sqlValue;
-          sqlValue = new TSqlValue();
-          sqlValue.read(iprot);
-          return sqlValue;
+        case INT_STRING_VALUE:
+          TIntStringValue intStringValue;
+          intStringValue = new TIntStringValue();
+          intStringValue.read(iprot);
+          return intStringValue;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -505,9 +505,9 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         Byte byteValue = (Byte)value_;
         oprot.writeByte(byteValue);
         return;
-      case SQL_VALUE:
-        TSqlValue sqlValue = (TSqlValue)value_;
-        sqlValue.write(oprot);
+      case INT_STRING_VALUE:
+        TIntStringValue intStringValue = (TIntStringValue)value_;
+        intStringValue.write(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -533,8 +533,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
         return BINARY_VALUE_FIELD_DESC;
       case BYTE_VALUE:
         return BYTE_VALUE_FIELD_DESC;
-      case SQL_VALUE:
-        return SQL_VALUE_FIELD_DESC;
+      case INT_STRING_VALUE:
+        return INT_STRING_VALUE_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -671,17 +671,17 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
     value_ = value;
   }
 
-  public TSqlValue getSqlValue() {
-    if (getSetField() == _Fields.SQL_VALUE) {
-      return (TSqlValue)getFieldValue();
+  public TIntStringValue getIntStringValue() {
+    if (getSetField() == _Fields.INT_STRING_VALUE) {
+      return (TIntStringValue)getFieldValue();
     } else {
-      throw new RuntimeException("Cannot get field 'sqlValue' because union is currently set to " + getFieldDesc(getSetField()).name);
+      throw new RuntimeException("Cannot get field 'intStringValue' because union is currently set to " + getFieldDesc(getSetField()).name);
     }
   }
 
-  public void setSqlValue(TSqlValue value) {
+  public void setIntStringValue(TIntStringValue value) {
     if (value == null) throw new NullPointerException();
-    setField_ = _Fields.SQL_VALUE;
+    setField_ = _Fields.INT_STRING_VALUE;
     value_ = value;
   }
 
@@ -725,8 +725,8 @@ public class TAnnotationValue extends org.apache.thrift.TUnion<TAnnotationValue,
   }
 
 
-  public boolean isSetSqlValue() {
-    return setField_ == _Fields.SQL_VALUE;
+  public boolean isSetIntStringValue() {
+    return setField_ == _Fields.INT_STRING_VALUE;
   }
 
 

@@ -32,25 +32,25 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._Fields>, java.io.Serializable, Cloneable, Comparable<TSqlValue> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSqlValue");
+public class TIntStringValue implements org.apache.thrift.TBase<TIntStringValue, TIntStringValue._Fields>, java.io.Serializable, Cloneable, Comparable<TIntStringValue> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TIntStringValue");
 
-  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField BIND_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("bindValue", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField INT_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("intValue", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField STRING_VALUE_FIELD_DESC = new org.apache.thrift.protocol.TField("stringValue", org.apache.thrift.protocol.TType.STRING, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new TSqlValueStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new TSqlValueTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new TIntStringValueStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new TIntStringValueTupleSchemeFactory());
   }
 
-  private int id; // required
-  private String bindValue; // optional
+  private int intValue; // required
+  private String stringValue; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    ID((short)1, "id"),
-    BIND_VALUE((short)2, "bindValue");
+    INT_VALUE((short)1, "intValue"),
+    STRING_VALUE((short)2, "stringValue");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -65,10 +65,10 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // ID
-          return ID;
-        case 2: // BIND_VALUE
-          return BIND_VALUE;
+        case 1: // INT_VALUE
+          return INT_VALUE;
+        case 2: // STRING_VALUE
+          return STRING_VALUE;
         default:
           return null;
       }
@@ -109,113 +109,113 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
   }
 
   // isset id assignments
-  private static final int __ID_ISSET_ID = 0;
+  private static final int __INTVALUE_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.BIND_VALUE};
+  private _Fields optionals[] = {_Fields.STRING_VALUE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.INT_VALUE, new org.apache.thrift.meta_data.FieldMetaData("intValue", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.BIND_VALUE, new org.apache.thrift.meta_data.FieldMetaData("bindValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.STRING_VALUE, new org.apache.thrift.meta_data.FieldMetaData("stringValue", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSqlValue.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TIntStringValue.class, metaDataMap);
   }
 
-  public TSqlValue() {
+  public TIntStringValue() {
   }
 
-  public TSqlValue(
-    int id)
+  public TIntStringValue(
+    int intValue)
   {
     this();
-    this.id = id;
-    setIdIsSet(true);
+    this.intValue = intValue;
+    setIntValueIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public TSqlValue(TSqlValue other) {
+  public TIntStringValue(TIntStringValue other) {
     __isset_bitfield = other.__isset_bitfield;
-    this.id = other.id;
-    if (other.isSetBindValue()) {
-      this.bindValue = other.bindValue;
+    this.intValue = other.intValue;
+    if (other.isSetStringValue()) {
+      this.stringValue = other.stringValue;
     }
   }
 
-  public TSqlValue deepCopy() {
-    return new TSqlValue(this);
+  public TIntStringValue deepCopy() {
+    return new TIntStringValue(this);
   }
 
   @Override
   public void clear() {
-    setIdIsSet(false);
-    this.id = 0;
-    this.bindValue = null;
+    setIntValueIsSet(false);
+    this.intValue = 0;
+    this.stringValue = null;
   }
 
-  public int getId() {
-    return this.id;
+  public int getIntValue() {
+    return this.intValue;
   }
 
-  public void setId(int id) {
-    this.id = id;
-    setIdIsSet(true);
+  public void setIntValue(int intValue) {
+    this.intValue = intValue;
+    setIntValueIsSet(true);
   }
 
-  public void unsetId() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ID_ISSET_ID);
+  public void unsetIntValue() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __INTVALUE_ISSET_ID);
   }
 
-  /** Returns true if field id is set (has been assigned a value) and false otherwise */
-  public boolean isSetId() {
-    return EncodingUtils.testBit(__isset_bitfield, __ID_ISSET_ID);
+  /** Returns true if field intValue is set (has been assigned a value) and false otherwise */
+  public boolean isSetIntValue() {
+    return EncodingUtils.testBit(__isset_bitfield, __INTVALUE_ISSET_ID);
   }
 
-  public void setIdIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
+  public void setIntValueIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __INTVALUE_ISSET_ID, value);
   }
 
-  public String getBindValue() {
-    return this.bindValue;
+  public String getStringValue() {
+    return this.stringValue;
   }
 
-  public void setBindValue(String bindValue) {
-    this.bindValue = bindValue;
+  public void setStringValue(String stringValue) {
+    this.stringValue = stringValue;
   }
 
-  public void unsetBindValue() {
-    this.bindValue = null;
+  public void unsetStringValue() {
+    this.stringValue = null;
   }
 
-  /** Returns true if field bindValue is set (has been assigned a value) and false otherwise */
-  public boolean isSetBindValue() {
-    return this.bindValue != null;
+  /** Returns true if field stringValue is set (has been assigned a value) and false otherwise */
+  public boolean isSetStringValue() {
+    return this.stringValue != null;
   }
 
-  public void setBindValueIsSet(boolean value) {
+  public void setStringValueIsSet(boolean value) {
     if (!value) {
-      this.bindValue = null;
+      this.stringValue = null;
     }
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case ID:
+    case INT_VALUE:
       if (value == null) {
-        unsetId();
+        unsetIntValue();
       } else {
-        setId((Integer)value);
+        setIntValue((Integer)value);
       }
       break;
 
-    case BIND_VALUE:
+    case STRING_VALUE:
       if (value == null) {
-        unsetBindValue();
+        unsetStringValue();
       } else {
-        setBindValue((String)value);
+        setStringValue((String)value);
       }
       break;
 
@@ -224,11 +224,11 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case ID:
-      return Integer.valueOf(getId());
+    case INT_VALUE:
+      return Integer.valueOf(getIntValue());
 
-    case BIND_VALUE:
-      return getBindValue();
+    case STRING_VALUE:
+      return getStringValue();
 
     }
     throw new IllegalStateException();
@@ -241,10 +241,10 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
     }
 
     switch (field) {
-    case ID:
-      return isSetId();
-    case BIND_VALUE:
-      return isSetBindValue();
+    case INT_VALUE:
+      return isSetIntValue();
+    case STRING_VALUE:
+      return isSetStringValue();
     }
     throw new IllegalStateException();
   }
@@ -253,30 +253,30 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof TSqlValue)
-      return this.equals((TSqlValue)that);
+    if (that instanceof TIntStringValue)
+      return this.equals((TIntStringValue)that);
     return false;
   }
 
-  public boolean equals(TSqlValue that) {
+  public boolean equals(TIntStringValue that) {
     if (that == null)
       return false;
 
-    boolean this_present_id = true;
-    boolean that_present_id = true;
-    if (this_present_id || that_present_id) {
-      if (!(this_present_id && that_present_id))
+    boolean this_present_intValue = true;
+    boolean that_present_intValue = true;
+    if (this_present_intValue || that_present_intValue) {
+      if (!(this_present_intValue && that_present_intValue))
         return false;
-      if (this.id != that.id)
+      if (this.intValue != that.intValue)
         return false;
     }
 
-    boolean this_present_bindValue = true && this.isSetBindValue();
-    boolean that_present_bindValue = true && that.isSetBindValue();
-    if (this_present_bindValue || that_present_bindValue) {
-      if (!(this_present_bindValue && that_present_bindValue))
+    boolean this_present_stringValue = true && this.isSetStringValue();
+    boolean that_present_stringValue = true && that.isSetStringValue();
+    if (this_present_stringValue || that_present_stringValue) {
+      if (!(this_present_stringValue && that_present_stringValue))
         return false;
-      if (!this.bindValue.equals(that.bindValue))
+      if (!this.stringValue.equals(that.stringValue))
         return false;
     }
 
@@ -289,29 +289,29 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
   }
 
   @Override
-  public int compareTo(TSqlValue other) {
+  public int compareTo(TIntStringValue other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetId()).compareTo(other.isSetId());
+    lastComparison = Boolean.valueOf(isSetIntValue()).compareTo(other.isSetIntValue());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
+    if (isSetIntValue()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.intValue, other.intValue);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetBindValue()).compareTo(other.isSetBindValue());
+    lastComparison = Boolean.valueOf(isSetStringValue()).compareTo(other.isSetStringValue());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetBindValue()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.bindValue, other.bindValue);
+    if (isSetStringValue()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.stringValue, other.stringValue);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -333,19 +333,19 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("TSqlValue(");
+    StringBuilder sb = new StringBuilder("TIntStringValue(");
     boolean first = true;
 
-    sb.append("id:");
-    sb.append(this.id);
+    sb.append("intValue:");
+    sb.append(this.intValue);
     first = false;
-    if (isSetBindValue()) {
+    if (isSetStringValue()) {
       if (!first) sb.append(", ");
-      sb.append("bindValue:");
-      if (this.bindValue == null) {
+      sb.append("stringValue:");
+      if (this.stringValue == null) {
         sb.append("null");
       } else {
-        sb.append(this.bindValue);
+        sb.append(this.stringValue);
       }
       first = false;
     }
@@ -376,15 +376,15 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
     }
   }
 
-  private static class TSqlValueStandardSchemeFactory implements SchemeFactory {
-    public TSqlValueStandardScheme getScheme() {
-      return new TSqlValueStandardScheme();
+  private static class TIntStringValueStandardSchemeFactory implements SchemeFactory {
+    public TIntStringValueStandardScheme getScheme() {
+      return new TIntStringValueStandardScheme();
     }
   }
 
-  private static class TSqlValueStandardScheme extends StandardScheme<TSqlValue> {
+  private static class TIntStringValueStandardScheme extends StandardScheme<TIntStringValue> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, TSqlValue struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, TIntStringValue struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -394,18 +394,18 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
           break;
         }
         switch (schemeField.id) {
-          case 1: // ID
+          case 1: // INT_VALUE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.id = iprot.readI32();
-              struct.setIdIsSet(true);
+              struct.intValue = iprot.readI32();
+              struct.setIntValueIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // BIND_VALUE
+          case 2: // STRING_VALUE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.bindValue = iprot.readString();
-              struct.setBindValueIsSet(true);
+              struct.stringValue = iprot.readString();
+              struct.setStringValueIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -419,17 +419,17 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, TSqlValue struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, TIntStringValue struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(ID_FIELD_DESC);
-      oprot.writeI32(struct.id);
+      oprot.writeFieldBegin(INT_VALUE_FIELD_DESC);
+      oprot.writeI32(struct.intValue);
       oprot.writeFieldEnd();
-      if (struct.bindValue != null) {
-        if (struct.isSetBindValue()) {
-          oprot.writeFieldBegin(BIND_VALUE_FIELD_DESC);
-          oprot.writeString(struct.bindValue);
+      if (struct.stringValue != null) {
+        if (struct.isSetStringValue()) {
+          oprot.writeFieldBegin(STRING_VALUE_FIELD_DESC);
+          oprot.writeString(struct.stringValue);
           oprot.writeFieldEnd();
         }
       }
@@ -439,44 +439,44 @@ public class TSqlValue implements org.apache.thrift.TBase<TSqlValue, TSqlValue._
 
   }
 
-  private static class TSqlValueTupleSchemeFactory implements SchemeFactory {
-    public TSqlValueTupleScheme getScheme() {
-      return new TSqlValueTupleScheme();
+  private static class TIntStringValueTupleSchemeFactory implements SchemeFactory {
+    public TIntStringValueTupleScheme getScheme() {
+      return new TIntStringValueTupleScheme();
     }
   }
 
-  private static class TSqlValueTupleScheme extends TupleScheme<TSqlValue> {
+  private static class TIntStringValueTupleScheme extends TupleScheme<TIntStringValue> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, TSqlValue struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, TIntStringValue struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetId()) {
+      if (struct.isSetIntValue()) {
         optionals.set(0);
       }
-      if (struct.isSetBindValue()) {
+      if (struct.isSetStringValue()) {
         optionals.set(1);
       }
       oprot.writeBitSet(optionals, 2);
-      if (struct.isSetId()) {
-        oprot.writeI32(struct.id);
+      if (struct.isSetIntValue()) {
+        oprot.writeI32(struct.intValue);
       }
-      if (struct.isSetBindValue()) {
-        oprot.writeString(struct.bindValue);
+      if (struct.isSetStringValue()) {
+        oprot.writeString(struct.stringValue);
       }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, TSqlValue struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, TIntStringValue struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
-        struct.id = iprot.readI32();
-        struct.setIdIsSet(true);
+        struct.intValue = iprot.readI32();
+        struct.setIntValueIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.bindValue = iprot.readString();
-        struct.setBindValueIsSet(true);
+        struct.stringValue = iprot.readString();
+        struct.setStringValueIsSet(true);
       }
     }
   }
