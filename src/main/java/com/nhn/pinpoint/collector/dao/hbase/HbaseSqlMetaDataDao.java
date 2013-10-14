@@ -27,7 +27,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Override
     public void insert(TSqlMetaData sqlMetaData) {
         if (logger.isDebugEnabled()) {
-            logger.debug("insert:" + sqlMetaData);
+            logger.debug("insert:{}", sqlMetaData);
         }
 
         SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getHashCode(), sqlMetaData.getAgentStartTime());

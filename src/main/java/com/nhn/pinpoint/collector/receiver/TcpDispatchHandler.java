@@ -22,6 +22,11 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     @Qualifier("apiMetaDataHandler")
     private RequestResponseHandler apiMetaDataHandler;
 
+    @Autowired()
+    @Qualifier("stringMetaDataHandler")
+    private RequestResponseHandler stringMetaDataHandler;
+
+
 
     public TcpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -35,6 +40,9 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
         }
         if (tBase instanceof TApiMetaData) {
             return apiMetaDataHandler;
+        }
+        if (tBase instanceof TStringMetaData) {
+            return stringMetaDataHandler;
         }
         return null;
     }
