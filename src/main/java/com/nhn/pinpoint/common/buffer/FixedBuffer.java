@@ -113,8 +113,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public void put(final int v) {
-        BytesUtils.writeInt(v, buffer, offset);
-        this.offset = offset + 4;
+        this.offset = BytesUtils.writeInt(v, buffer, offset);
     }
 
     public void putVar(int v) {
@@ -126,31 +125,21 @@ public class FixedBuffer implements Buffer {
     }
 
     public void putSVar(int v) {
-        putVar32(BytesUtils.encodeZigZagInt(v));
+        this.offset = BytesUtils.writeSVar32(v, buffer, offset);
     }
 
     private void putVar32(int v) {
-        while (true) {
-            if ((v & ~0x7F) == 0) {
-                this.buffer[offset++] = (byte)v;
-                return;
-            } else {
-                this.buffer[offset++] = (byte)((v & 0x7F) | 0x80);
-                v >>>= 7;
-            }
-        }
+        this.offset = BytesUtils.writeVar32(v, buffer, offset);
     }
 
     @Override
     public void put(final short v) {
-        BytesUtils.writeShort(v, buffer, offset);
-        this.offset = offset + 2;
+        this.offset = BytesUtils.writeShort(v, buffer, offset);
     }
 
     @Override
     public void put(final long v) {
-        BytesUtils.writeLong(v, buffer, offset);
-        this.offset = offset + 8;
+        this.offset = BytesUtils.writeLong(v, buffer, offset);
     }
 
     @Override
@@ -164,15 +153,7 @@ public class FixedBuffer implements Buffer {
     }
 
     private void putVar64(long v) {
-        while (true) {
-            if ((v & ~0x7FL) == 0) {
-                this.buffer[offset++] = (byte)v;
-                return;
-            } else {
-                this.buffer[offset++] = (byte)(((int)v & 0x7F) | 0x80);
-                v >>>= 7;
-            }
-        }
+        this.offset = BytesUtils.writeVar64(v, buffer, offset);
     }
 
 

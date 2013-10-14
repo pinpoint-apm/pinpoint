@@ -166,7 +166,7 @@ public final class BytesUtils {
         return rv;
     }
 
-    public static void writeLong(final long value, final byte[] buf, int offset) {
+    public static int writeLong(final long value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -180,7 +180,8 @@ public final class BytesUtils {
         buf[offset++] = (byte) (value >> 24);
         buf[offset++] = (byte) (value >> 16);
         buf[offset++] = (byte) (value >> 8);
-        buf[offset] = (byte) (value);
+        buf[offset++] = (byte) (value);
+        return offset;
     }
 
     public static byte writeShort1(final short value) {
@@ -191,7 +192,7 @@ public final class BytesUtils {
         return (byte) (value);
     }
 
-    public static void writeShort(final short value, final byte[] buf, int offset) {
+    public static int writeShort(final short value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -199,10 +200,11 @@ public final class BytesUtils {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
         }
         buf[offset++] = (byte) (value >> 8);
-        buf[offset] = (byte) (value);
+        buf[offset++] = (byte) (value);
+        return offset;
     }
 
-    public static void writeInt(final int value, final byte[] buf, int offset) {
+    public static int writeInt(final int value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -212,7 +214,42 @@ public final class BytesUtils {
         buf[offset++] = (byte) (value >> 24);
         buf[offset++] = (byte) (value >> 16);
         buf[offset++] = (byte) (value >> 8);
-        buf[offset] = (byte) (value);
+        buf[offset++] = (byte) (value);
+        return offset;
+    }
+
+    public static int writeSVar32(int value, final byte[] buf, int offset) {
+        return writeVar32(encodeZigZagInt(value), buf, offset);
+    }
+
+    public static int writeVar32(int value, final byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        while (true) {
+            if ((value & ~0x7F) == 0) {
+                buf[offset++] = (byte)value;
+                return offset;
+            } else {
+                buf[offset++] = (byte)((value & 0x7F) | 0x80);
+                value >>>= 7;
+            }
+        }
+    }
+
+    public static int writeVar64(long value, final byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf must not be null");
+        }
+        while (true) {
+            if ((value & ~0x7FL) == 0) {
+                buf[offset++] = (byte)value;
+                return offset;
+            } else {
+                buf[offset++] = (byte)(((int)value & 0x7F) | 0x80);
+                value >>>= 7;
+            }
+        }
     }
 
     public static void writeFirstLong(final long value, byte[] buf) {

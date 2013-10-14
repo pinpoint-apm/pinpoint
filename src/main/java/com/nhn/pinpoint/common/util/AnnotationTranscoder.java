@@ -1,14 +1,15 @@
 package com.nhn.pinpoint.common.util;
 
 
+import com.nhn.pinpoint.common.bo.IntStringValue;
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
-
-import java.io.*;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 
 public class AnnotationTranscoder {
-
-    private static final String DEFAULT_CHARSET = "UTF-8";
 
     static final byte CODE_STRING = 0;
     static final byte CODE_NULL = 1;
@@ -25,6 +26,8 @@ public class AnnotationTranscoder {
     static final byte CODE_FLOAT = 9;
     static final byte CODE_DOUBLE = 10;
     static final byte CODE_TOSTRING = 11;
+    // multivalue
+    static final byte CODE_TINTSTRINGVALUE = 20;
 
     protected final TranscoderUtils tu = new TranscoderUtils(true);
 
@@ -64,8 +67,10 @@ public class AnnotationTranscoder {
                 return null;
             case CODE_TOSTRING:
                 return decodeString(data);
+            case CODE_TINTSTRINGVALUE:
+                return decodeTIntStringValue(data);
         }
-        throw new RuntimeException("unsupported DataType:" + dataType);
+        throw new IllegalArgumentException("unsupported DataType:" + dataType);
     }
 
     public byte getTypeCode(Object o) {
@@ -94,6 +99,8 @@ public class AnnotationTranscoder {
             return CODE_DOUBLE;
         } else if (o instanceof byte[]) {
             return CODE_BYTEARRAY;
+        } else if(o instanceof TIntStringValue) {
+            return CODE_TINTSTRINGVALUE;
         }
         return CODE_TOSTRING;
     }
@@ -122,37 +129,44 @@ public class AnnotationTranscoder {
                 return (byte[]) o;
             case CODE_NULL:
                 return null;
-            case  CODE_TOSTRING:
-                String str = o.toString();
+            case CODE_TOSTRING:
+                final String str = o.toString();
                 return encodeString(str);
+            case CODE_TINTSTRINGVALUE:
+                return encodeTIntStringValue(o);
         }
-        throw new RuntimeException("unsupported DataType:" + typeCode + " data:" + o);
+        throw new IllegalArgumentException("unsupported DataType:" + typeCode + " data:" + o);
     }
+
+    private Object decodeTIntStringValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final int intValue = buffer.readSVarInt();
+        final String stringValue  = BytesUtils.toString(buffer.readPrefixedBytes());
+        return new IntStringValue(intValue, stringValue);
+    }
+
+    private byte[] encodeTIntStringValue(Object value) {
+        final TIntStringValue tIntStringValue = (TIntStringValue) value;
+        final int intValue = tIntStringValue.getIntValue();
+        final byte[] stringValue = BytesUtils.getBytes(tIntStringValue.getStringValue());
+        final Buffer buffer = new AutomaticBuffer(stringValue.length + 4 + 8);
+        buffer.putSVar(intValue);
+        buffer.putPrefixedBytes(stringValue);
+        return buffer.getBuffer();
+    }
+
 
     /**
      * Decode the string with the current character set.
      */
     protected String decodeString(byte[] data) {
-        if (data == null) {
-            return "";
-        }
-        try {
-            return new String(data, DEFAULT_CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return BytesUtils.toString(data);
     }
 
     /**
      * Encode a string into the current character set.
      */
     protected byte[] encodeString(String in) {
-        byte[] rv = null;
-        try {
-            rv = in.getBytes(DEFAULT_CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        return rv;
+        return BytesUtils.getBytes(in);
     }
 }
