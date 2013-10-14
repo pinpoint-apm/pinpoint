@@ -113,6 +113,10 @@ public class DisableTrace  implements Trace {
         throw new UnsupportedOperationException();
     }
 
+    public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public void recordAttribute(AnnotationKey key, String value) {
         throw new UnsupportedOperationException();

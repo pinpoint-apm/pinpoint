@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.profiler.util.AnnotationValueMapper;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
+import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 
 /**
@@ -22,6 +23,11 @@ public class Annotation extends TAnnotation {
     public Annotation(int key, TIntStringValue value) {
         super(key);
         this.setValue(TAnnotationValue.intStringValue(value));
+    }
+
+    public Annotation(int key, TIntStringStringValue value) {
+        super(key);
+        this.setValue(TAnnotationValue.intStringStringValue(value));
     }
 
     public Annotation(int key, String value) {

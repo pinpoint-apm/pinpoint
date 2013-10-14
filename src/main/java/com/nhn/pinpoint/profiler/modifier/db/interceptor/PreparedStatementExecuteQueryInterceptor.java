@@ -55,18 +55,13 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             trace.recordDestinationId(databaseInfo.getDatabaseId());
 
 
-            ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
-
-            trace.recordSqlParsingResult(parsingResult);
-
+            final ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
             Map<Integer, String> bindValue = getBindValue.invoke(target);
             if (bindValue != null) {
                 String bindString = toBindVariable(bindValue);
-                if (bindString != null && bindString.length() != 0) {
-                    trace.recordAttribute(AnnotationKey.SQL_BINDVALUE, bindString);
-                }
+                trace.recordSqlParsingResult(parsingResult, bindString);
             } else {
-                logger.warn("bindValue not found.");
+                trace.recordSqlParsingResult(parsingResult);
             }
 
             trace.recordApi(descriptor);
@@ -90,7 +85,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     }
 
     private String toBindVariable(Map<Integer, String> bindValue) {
-        String[] temp = new String[bindValue.size()];
+        final String[] temp = new String[bindValue.size()];
         for (Map.Entry<Integer, String> entry : bindValue.entrySet()) {
             Integer key = entry.getKey() - 1;
             if (temp.length < key) {
@@ -107,7 +102,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         if (temp == null) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(32);
         int end = temp.length - 1;
         for (int i = 0; i < temp.length; i++) {
             sb.append(temp[i]);

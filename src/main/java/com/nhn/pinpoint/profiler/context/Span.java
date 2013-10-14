@@ -68,6 +68,10 @@ public class Span extends TSpan implements Thriftable {
         return super.getExceptionId();
     }
 
+    public boolean isSetErrCode() {
+        return isSetErr();
+    }
+
     public int getErrCode() {
 		return getErr();
 	}

@@ -5,6 +5,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,7 +232,7 @@ public final class DefaultTrace implements Trace {
             recordAttribute(AnnotationKey.EXCEPTION_CLASS, th.getClass().getName());
 
             final Span span = getCallStack().getSpan();
-            if (span.getErrCode() == 0) {
+            if (!span.isSetErrCode()) {
                 span.setErrCode(1);
             }
         }
@@ -308,27 +309,33 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordSqlParsingResult(ParsingResult parsingResult) {
+        recordSqlParsingResult(parsingResult, null);
+    }
+
+    @Override
+    public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
         if (parsingResult == null) {
             return;
         }
-        String sql = parsingResult.getSql();
-        recordAttribute(AnnotationKey.SQL_ID, sql.hashCode());
-        String output = parsingResult.getOutput();
-        if (output != null && output.length() != 0) {
-            recordAttribute(AnnotationKey.SQL_PARAM, output);
+        final String sql = parsingResult.getSql();
+        final TIntStringStringValue tSqlValue = new TIntStringStringValue(sql.hashCode());
+        final String output = parsingResult.getOutput();
+        if (isNotEmpty(output)) {
+            tSqlValue.setStringValue1(output);
         }
-//        final String sql = parsingResult.getSql();
-//        final TIntStringValue tSqlValue = new TIntStringValue(sql.hashCode());
-//        final String output = parsingResult.getOutput();
-//        if (output != null && output.length() != 0) {
-//            tSqlValue.setBindValue(output);
-//        }
-//        recordSqlParam(tSqlValue);
+        if (isNotEmpty(bindValue)) {
+            tSqlValue.setStringValue2(bindValue);
+        }
+        recordSqlParam(tSqlValue);
     }
 
-    private void recordSqlParam(TIntStringValue tIntStringValue) {
+    private static boolean isNotEmpty(final String bindValue) {
+        return bindValue != null && bindValue.length() != 0;
+    }
+
+    private void recordSqlParam(TIntStringStringValue tIntStringStringValue) {
         final StackFrame currentStackFrame = this.currentStackFrame;
-        currentStackFrame.addAnnotation(new Annotation(AnnotationKey.SQL_ID.getCode(), tIntStringValue));
+        currentStackFrame.addAnnotation(new Annotation(AnnotationKey.SQL_ID.getCode(), tIntStringStringValue));
     }
 
     @Override

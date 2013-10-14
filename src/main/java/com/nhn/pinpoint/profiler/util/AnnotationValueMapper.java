@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.util;
 
 
 import com.nhn.pinpoint.thrift.dto.*;
+import org.apache.thrift.TBase;
 
 public class AnnotationValueMapper {
 
@@ -37,6 +38,8 @@ public class AnnotationValueMapper {
         } else if (value instanceof Short) {
             annotation.setValue(TAnnotationValue.shortValue((Short) value));
             return;
+        } else if(value instanceof TBase) {
+            throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }
         String str = StringUtils.drop(value.toString());
         annotation.setValue(TAnnotationValue.stringValue(str));
