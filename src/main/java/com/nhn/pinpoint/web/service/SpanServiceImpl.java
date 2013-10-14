@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.common.bo.*;
+import com.nhn.pinpoint.web.dao.StringMetaDataDao;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,9 @@ public class SpanServiceImpl implements SpanService {
 	@Autowired
 	private ApiMetaDataDao apiMetaDataDao;
 
+    @Autowired
+    private StringMetaDataDao stringMetaDataDao;
+
 	private SqlParser sqlParser = new SqlParser();
 	private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
@@ -53,12 +57,13 @@ public class SpanServiceImpl implements SpanService {
 //		transitionApiId(order);
 		transitionDynamicApiId(order);
 		transitionSqlId(order);
+        transitionCachedString(order);
 		// TODO root span not found시 row data라도 보여줘야 됨.
 
 		return order;
 	}
 
-	private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
+    private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
 		for (SpanAlign spanAlign : spans) {
 			List<AnnotationBo> annotationBoList;
 			if (spanAlign.isSpan()) {
@@ -186,13 +191,6 @@ public class SpanServiceImpl implements SpanService {
 		return sb.toString();
 	}
 
-	private String getAgentId(SpanAlign spanAlign) {
-		if (spanAlign.isSpan()) {
-			return spanAlign.getSpanBo().getAgentId();
-		} else {
-			return spanAlign.getSpanEventBo().getAgentId();
-		}
-	}
 
 	private void transitionDynamicApiId(List<SpanAlign> spans) {
 		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
@@ -232,6 +230,55 @@ public class SpanServiceImpl implements SpanService {
 
 		});
 	}
+
+    private void transitionCachedString(List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+                final AgentKey key = getAgentKey(spanAlign);
+                List<AnnotationBo> cachedStringAnnotation = findCachedStringAnnotation(annotationBoList);
+                if (cachedStringAnnotation.isEmpty()) {
+                    return;
+                }
+                for (AnnotationBo annotationBo : cachedStringAnnotation) {
+                    final int cachedArgsKey = annotationBo.getKey();
+                    int stringMeataDataId = (Integer) annotationBo.getValue();
+                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(key.getAgentId(), stringMeataDataId, key.getAgentStartTime());
+                    int size = stringMetaList.size();
+                    if (size == 0) {
+                        logger.warn("StringMetaData not Found {}/{}/{}", key.getAgentId(), stringMeataDataId, key.getAgentStartTime());
+                        AnnotationBo api = new AnnotationBo();
+                        // API METADATA ERROR가 아님. 추후 수정.
+                        api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
+                        api.setValue("CACHED-STRING-ID not found. stringId:" + cachedArgsKey);
+                        annotationBoList.add(api);
+                    } else if (size >= 1) {
+                        // key 충돌 경우는 후추 처리한다. 실제 상황에서는 일부러 만들지 않는한 발생할수 없다.
+                        StringMetaDataBo stringMetaDataBo = stringMetaList.get(0);
+
+                        AnnotationBo stringMetaData = new AnnotationBo();
+                        stringMetaData.setKey(AnnotationKey.cachedArgsToArgs(cachedArgsKey));
+                        stringMetaData.setValue(stringMetaDataBo.getStringValue());
+                        annotationBoList.add(stringMetaData);
+                        if (size > 1) {
+                            logger.warn("stringMetaData size not 1 :{}", stringMetaList);
+                        }
+                    }
+                }
+            }
+
+        });
+    }
+
+    private List<AnnotationBo> findCachedStringAnnotation(List<AnnotationBo> annotationBoList) {
+        List<AnnotationBo> findAnnotationBoList = new ArrayList<AnnotationBo>(annotationBoList.size());
+        for (AnnotationBo annotationBo : annotationBoList) {
+            if (AnnotationKey.isCachedArgsKey(annotationBo.getKey())) {
+                findAnnotationBoList.add(annotationBo);
+            }
+        }
+        return findAnnotationBoList;
+    }
 
     private int getApiId(SpanAlign spanAlign) {
         if (spanAlign.isSpan()) {
