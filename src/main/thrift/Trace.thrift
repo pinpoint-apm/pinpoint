@@ -69,7 +69,7 @@ struct TSpanEvent {
   20: optional string destinationId
 
   25: optional i32 apiId;
-  26: optional i32 exceptionId;
+  26: optional TIntStringStringValue exceptionInfo;
 }
 
 struct TSpan {
@@ -128,6 +128,16 @@ struct TSpanChunk {
   9: optional string endPoint
 
   10: list<TSpanEvent> spanEventList
+}
+
+
+struct TStringMetaData {
+
+    1: string agentId
+    2: i64 agentStartTime
+
+    4: i32 stringId
+    5: string stringValue;
 }
 
 struct TSqlMetaData {

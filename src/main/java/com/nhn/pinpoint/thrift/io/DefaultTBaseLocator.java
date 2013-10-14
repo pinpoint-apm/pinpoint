@@ -31,6 +31,10 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short RESULT = 320;
     private static final Header RESULT_HEADER = createHeader(RESULT);
 
+    private static final short STRINGMETADATA = 330;
+    private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
+
+
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
@@ -50,6 +54,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TApiMetaData();
             case RESULT:
                 return new TResult();
+            case STRINGMETADATA:
+                return new TStringMetaData();
         }
         throw new TException("Unsupported type:" + type);
     }
@@ -79,6 +85,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof TResult) {
             return RESULT;
         }
+        if (tbase instanceof TStringMetaData) {
+            return STRINGMETADATA;
+        }
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 
@@ -104,6 +113,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return APIMETADATA_HEADER;
             case RESULT:
                 return RESULT_HEADER;
+            case STRINGMETADATA:
+                return STRINGMETADATA_HEADER;
         }
         throw new TException("Unsupported type:" + tbase.getClass());
     }
