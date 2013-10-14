@@ -27,6 +27,9 @@ public class AnnotationBo {
     }
 
     public AnnotationBo(TAnnotation ano) {
+        if (ano == null) {
+            throw new NullPointerException("ano must not be null");
+        }
         this.key = ano.getKey();
         Object value = transcoder.getMappingValue(ano);
         this.valueType = transcoder.getTypeCode(value);
