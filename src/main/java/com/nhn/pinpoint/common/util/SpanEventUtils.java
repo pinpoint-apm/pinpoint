@@ -12,9 +12,12 @@ import java.util.List;
 public class SpanEventUtils {
 
     public static boolean hasException(TSpanEvent spanEvent) {
+//        if (spanEvent.isSetExceptionId()) {
+//            return true;
+//        }
         final List<TAnnotation> annotations = spanEvent.getAnnotations();
         if (annotations == null) {
-            return true;
+            return false;
         }
 
         for (TAnnotation annotation : annotations) {
