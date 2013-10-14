@@ -31,3 +31,7 @@ annotation 말고 apiid를 span이나. spanevent에 넣고, traceAgentId를 agen
 5%성능향상.
 - 4023
 mysql 최초 connect시 이벤트가 30개 이상 발생한 경우
+
+IntString으로 멀티 Value를 가질수 있도록 수정후.
+Sql에 대한 metadata를 던질 때, SqlId와 Sql-param을 같이 던지게 변경함.
+- 4002

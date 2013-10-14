@@ -1,12 +1,14 @@
 package com.nhn.pinpoint.common.util;
 
 
+import com.nhn.pinpoint.common.bo.IntStringStringValue;
 import com.nhn.pinpoint.common.bo.IntStringValue;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
+import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 
 public class AnnotationTranscoder {
@@ -27,7 +29,8 @@ public class AnnotationTranscoder {
     static final byte CODE_DOUBLE = 10;
     static final byte CODE_TOSTRING = 11;
     // multivalue
-    static final byte CODE_TINTSTRINGVALUE = 20;
+    static final byte CODE_INT_STRING = 20;
+    static final byte CODE_INT_STRING_STRING = 21;
 
     protected final TranscoderUtils tu = new TranscoderUtils(true);
 
@@ -67,8 +70,10 @@ public class AnnotationTranscoder {
                 return null;
             case CODE_TOSTRING:
                 return decodeString(data);
-            case CODE_TINTSTRINGVALUE:
-                return decodeTIntStringValue(data);
+            case CODE_INT_STRING:
+                return decodeIntStringValue(data);
+            case CODE_INT_STRING_STRING:
+                return decodeIntStringStringValue(data);
         }
         throw new IllegalArgumentException("unsupported DataType:" + dataType);
     }
@@ -100,7 +105,9 @@ public class AnnotationTranscoder {
         } else if (o instanceof byte[]) {
             return CODE_BYTEARRAY;
         } else if(o instanceof TIntStringValue) {
-            return CODE_TINTSTRINGVALUE;
+            return CODE_INT_STRING;
+        } else if(o instanceof TIntStringStringValue) {
+            return CODE_INT_STRING_STRING;
         }
         return CODE_TOSTRING;
     }
@@ -132,26 +139,51 @@ public class AnnotationTranscoder {
             case CODE_TOSTRING:
                 final String str = o.toString();
                 return encodeString(str);
-            case CODE_TINTSTRINGVALUE:
-                return encodeTIntStringValue(o);
+            case CODE_INT_STRING:
+                return encodeIntStringValue(o);
+            case CODE_INT_STRING_STRING:
+                return encodeIntStringStringValue(o);
         }
         throw new IllegalArgumentException("unsupported DataType:" + typeCode + " data:" + o);
     }
 
-    private Object decodeTIntStringValue(byte[] data) {
+
+    private Object decodeIntStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue = buffer.readSVarInt();
         final String stringValue  = BytesUtils.toString(buffer.readPrefixedBytes());
         return new IntStringValue(intValue, stringValue);
     }
 
-    private byte[] encodeTIntStringValue(Object value) {
+    private byte[] encodeIntStringValue(Object value) {
         final TIntStringValue tIntStringValue = (TIntStringValue) value;
         final int intValue = tIntStringValue.getIntValue();
         final byte[] stringValue = BytesUtils.getBytes(tIntStringValue.getStringValue());
+        // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
         final Buffer buffer = new AutomaticBuffer(stringValue.length + 4 + 8);
         buffer.putSVar(intValue);
         buffer.putPrefixedBytes(stringValue);
+        return buffer.getBuffer();
+    }
+
+    private Object decodeIntStringStringValue(byte[] data) {
+        final Buffer buffer = new FixedBuffer(data);
+        final int intValue = buffer.readSVarInt();
+        final String stringValue1  = BytesUtils.toString(buffer.readPrefixedBytes());
+        final String stringValue2  = BytesUtils.toString(buffer.readPrefixedBytes());
+        return new IntStringStringValue(intValue, stringValue1, stringValue2);
+    }
+
+    private byte[] encodeIntStringStringValue(Object o) {
+        final TIntStringStringValue tIntStringStringValue = (TIntStringStringValue) o;
+        final int intValue = tIntStringStringValue.getIntValue();
+        final byte[] stringValue1 = BytesUtils.getBytes(tIntStringStringValue.getStringValue1());
+        final byte[] stringValue2 = BytesUtils.getBytes(tIntStringStringValue.getStringValue2());
+        // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
+        final Buffer buffer = new AutomaticBuffer(stringValue1.length + stringValue2.length + 4 + 16);
+        buffer.putSVar(intValue);
+        buffer.putPrefixedBytes(stringValue1);
+        buffer.putPrefixedBytes(stringValue2);
         return buffer.getBuffer();
     }
 

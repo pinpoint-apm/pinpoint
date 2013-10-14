@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.common.util;
 
 
+import com.nhn.pinpoint.common.bo.IntStringValue;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -100,6 +102,34 @@ public class AnnotationTranscoderTest {
         write(256);
 
 
+    }
+
+    @Test
+    public void testIntString() {
+
+        testIntString(-1, "");
+        testIntString(0, "");
+        testIntString(1, "");
+        testIntString(Integer.MAX_VALUE, "test");
+        testIntString(Integer.MIN_VALUE, "test");
+
+        // null일때 0인자열로 생각하는 문제점이 있음.
+        testIntString(2, null);
+    }
+
+    private void testIntString(int intValue, String stringValue) {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+        TIntStringValue tIntStringValue = new TIntStringValue(intValue);
+        tIntStringValue.setStringValue(stringValue);
+        byte[] encode = transcoder.encode(tIntStringValue, AnnotationTranscoder.CODE_INT_STRING);
+        IntStringValue decode = (IntStringValue) transcoder.decode(AnnotationTranscoder.CODE_INT_STRING, encode);
+        Assert.assertEquals(tIntStringValue.getIntValue(), decode.getIntValue());
+        if(stringValue != null) {
+            Assert.assertEquals(tIntStringValue.getStringValue(), decode.getStringValue());
+        } else {
+            // null일때 0인자열로 생각하는 문제점이 있음.
+            Assert.assertEquals("", decode.getStringValue());
+        }
     }
 
     private void write(int value) throws TException {
