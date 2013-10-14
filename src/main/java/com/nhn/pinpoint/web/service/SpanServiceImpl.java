@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.bo.*;
 import com.nhn.pinpoint.web.vo.TransactionId;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.calltree.span.SpanAligner2;
-import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
 import com.nhn.pinpoint.web.dao.SqlMetaDataDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
@@ -37,9 +37,6 @@ public class SpanServiceImpl implements SpanService {
 
 	@Autowired
 	private ApiMetaDataDao apiMetaDataDao;
-
-	@Autowired
-	private AgentInfoDao agentInfoDao;
 
 	private SqlParser sqlParser = new SqlParser();
 	private OutputParameterParser outputParameterParser = new OutputParameterParser();
@@ -93,10 +90,11 @@ public class SpanServiceImpl implements SpanService {
 
                 final AgentKey agentKey = getAgentKey(spanAlign);
 
-                // TODO 일단 시간까지 조회는 하지 말고 하자.
-				// 미리 sqlMetaDataList를 indentifier로 필터치는 로직이 더 좋을것으로 생각됨.
-				int hashCode = (Integer) sqlIdAnnotation.getValue();
-				List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), hashCode, agentKey.getAgentStartTime());
+                // sqlId에 대한 annotation은 멀티 value가 날라옴.
+                final IntStringStringValue sqlValue = (IntStringStringValue) sqlIdAnnotation.getValue();
+                final int hashCode = sqlValue.getIntValue();
+                final String sqlParam = sqlValue.getStringValue1();
+				final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), hashCode, agentKey.getAgentStartTime());
 				int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -104,9 +102,8 @@ public class SpanServiceImpl implements SpanService {
 					api.setValue("SQL-ID not found hashCode:" + hashCode);
 					annotationBoList.add(api);
 				} else if (size == 1) {
-					AnnotationBo sqlParamAnnotationBo = findAnnotation(annotationBoList, AnnotationKey.SQL_PARAM.getCode());
 					final SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(0);
-					if (sqlParamAnnotationBo == null) {
+					if (StringUtils.isEmpty(sqlParam)) {
 						AnnotationBo sqlMeta = new AnnotationBo();
 						sqlMeta.setKey(AnnotationKey.SQL_METADATA.getCode());
 						sqlMeta.setValue(sqlMetaDataBo.getSql());
@@ -125,7 +122,7 @@ public class SpanServiceImpl implements SpanService {
 						annotationBoList.add(sql);
 					} else {
 						logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
-						String outputParams = (String) sqlParamAnnotationBo.getValue();
+						String outputParams = sqlParam;
 						List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(outputParams);
 						logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
 						String originalSql = sqlParser.combineOutputParams(sqlMetaDataBo.getSql(), parsedOutputParams);
@@ -150,6 +147,14 @@ public class SpanServiceImpl implements SpanService {
 					api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
 					annotationBoList.add(api);
 				}
+                // bindValue가 존재할 경우 따라 넣어준다.
+                final String bindValue = sqlValue.getStringValue2();
+                if (StringUtils.isNotEmpty(bindValue)) {
+                    AnnotationBo bindValueAnnotation = new AnnotationBo();
+                    bindValueAnnotation.setKey(AnnotationKey.SQL_BINDVALUE.getCode());
+                    bindValueAnnotation.setValue(bindValue);
+                    annotationBoList.add(bindValueAnnotation);
+                }
 
 			}
 
