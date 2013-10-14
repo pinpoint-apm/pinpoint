@@ -8,6 +8,21 @@ import org.junit.Test;
  */
 public class SimpleCacheTest {
 
+
+    @Test
+    public void startKey0() {
+        SimpleCache<String> cache = new SimpleCache<String>(0);
+        Result test = cache.put("test");
+        Assert.assertEquals(0, test.getId());
+    }
+
+    @Test
+    public void startKey1() {
+        SimpleCache<String> cache = new SimpleCache<String>(1);
+        Result test = cache.put("test");
+        Assert.assertEquals(-1, test.getId());
+    }
+
     @Test
     public void put() {
         SimpleCache<String> cache = new SimpleCache<String>();

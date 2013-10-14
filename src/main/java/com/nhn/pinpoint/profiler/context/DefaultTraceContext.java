@@ -16,6 +16,7 @@ import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.sampler.Sampler;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
+import com.nhn.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class DefaultTraceContext implements TraceContext {
     private final SqlParser sqlParser = new SqlParser();
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
-//    private final SimpleCache<String> stringCache = new SimpleCache<String>();
+    private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
     private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
@@ -188,7 +189,7 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public int cacheApi(MethodDescriptor methodDescriptor) {
         String fullName = methodDescriptor.getFullName();
-        Result result = this.apiCache.put(fullName);
+        final Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             methodDescriptor.setApiId(result.getId());
 
@@ -201,6 +202,24 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setLine(methodDescriptor.getLineNumber());
 
             this.priorityDataSender.request(apiMetadata);
+        }
+        return result.getId();
+    }
+
+    @Override
+    public int cacheString(String value) {
+        if (value == null) {
+            return 0;
+        }
+        final Result result = this.stringCache.put(value);
+        if(result.isNewValue()) {
+            TStringMetaData stringMetaData = new TStringMetaData();
+            stringMetaData.setAgentId(this.agentInformation.getAgentId());
+            stringMetaData.setAgentStartTime(this.agentInformation.getStartTime());
+
+            stringMetaData.setStringId(result.getId());
+            stringMetaData.setStringValue(value);
+            this.priorityDataSender.request(stringMetaData);
         }
         return result.getId();
     }

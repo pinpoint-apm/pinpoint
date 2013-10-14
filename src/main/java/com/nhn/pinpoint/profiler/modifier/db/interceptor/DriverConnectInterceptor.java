@@ -74,7 +74,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
             trace.recordDestinationId(databaseInfo.getDatabaseId());
 
 
-            trace.recordApi(descriptor, args[0], 0);
+            trace.recordApiCachedString(descriptor, driverUrl, 0);
             trace.recordException(result);
 
             trace.markAfterTime();

@@ -11,8 +11,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SimpleCache<T> {
     // 0인값은 존재 하지 않음을 나타냄.
-    private final AtomicInteger idGen = new AtomicInteger(1);
+    private final AtomicInteger idGen;
     private final ConcurrentMap<T, Result> cache = new ConcurrentHashMap<T, Result>(512, 0.75f, 32);
+
+    public SimpleCache() {
+        this(1);
+    }
+
+    public SimpleCache(int startValue) {
+        idGen = new AtomicInteger(startValue);
+    }
 
     public Result put(T value) {
         final Result find = this.cache.get(value);

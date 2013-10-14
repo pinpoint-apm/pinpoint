@@ -104,6 +104,11 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
+    public void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public ParsingResult recordSqlInfo(String sql) {
         throw new UnsupportedOperationException();
     }

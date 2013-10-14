@@ -6,7 +6,6 @@ import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,6 +268,12 @@ public final class DefaultTrace implements Trace {
         recordArgs(args, start, end);
     }
 
+    @Override
+    public void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index) {
+        recordApi(methodDescriptor);
+        recordSingleCachedString(args, index);
+    }
+
 
     private void recordArgs(Object[] args, int start, int end) {
         if (args != null) {
@@ -283,6 +288,13 @@ public final class DefaultTrace implements Trace {
     private void recordSingleArg(Object args, int index) {
         if (args != null) {
             recordAttribute(AnnotationKey.getArgs(index), args);
+        }
+    }
+
+    private void recordSingleCachedString(String args, int index) {
+        if (args != null) {
+            int cacheId = traceContext.cacheString(args);
+            recordAttribute(AnnotationKey.getCachedArgs(index), cacheId);
         }
     }
 
