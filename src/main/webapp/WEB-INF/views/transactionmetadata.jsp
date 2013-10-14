@@ -12,7 +12,7 @@
 			"application" : "${span.rpc}",
 			"agentId" : "${span.agentId}",
 			"endpoint" : "${span.endPoint}",
-			"exception" : ${span.exception},
+			"exception" : ${span.errCode},
 			"remoteAddr" : "${span.remoteAddr}"
 		}
     	<c:if test="${!status.last}">,</c:if>

@@ -23,10 +23,10 @@ public class BusinessTransaction {
 		totalTime = maxTime = minTime = elapsed;
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
+        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
 		calls++;
-		if(span.getException() > 0) {
+		if(span.getErrCode() > 0) {
 			error++;
 		}
 	}
@@ -43,10 +43,10 @@ public class BusinessTransaction {
         }
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getException());
+        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
 		this.traces.add(trace);
 
-		if(span.getException() > 0) {
+		if(span.getErrCode() > 0) {
 			error++;
 		}
 		

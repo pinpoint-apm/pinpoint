@@ -47,7 +47,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 			for (SpanBo span : trace) {
 				if (applicationName.equals(span.getApplicationId())) {
                     TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getException()));
+                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode()));
 				}
 			}
 		}
@@ -88,11 +88,11 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	private final Comparator<SpanBo> spanComparator = new Comparator<SpanBo>() {
 		@Override
 		public int compare(SpanBo o1, SpanBo o2) {
-			if (o1.getException() != 0 && o2.getException() != 0) {
+			if (o1.getErrCode() != 0 && o2.getErrCode() != 0) {
 				return o2.getElapsed() - o1.getElapsed();
-			} else if (o1.getException() != 0) {
+			} else if (o1.getErrCode() != 0) {
 				return -1;
-			} else if (o2.getException() != 0) {
+			} else if (o2.getErrCode() != 0) {
 				return 1;
 			} else {
 				return o2.getElapsed() - o1.getElapsed();
