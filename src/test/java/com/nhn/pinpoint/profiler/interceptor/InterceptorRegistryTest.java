@@ -181,7 +181,7 @@ public class InterceptorRegistryTest {
         sb.append("}");
 //        sb.append("catch(Throwable th) {");
 //        sb.append("  System.out.println(\"test11\" + th);");
-//        sb.append("  ctx.setException(th);");
+//        sb.append("  ctx.setErrCode(th);");
 //        sb.append("  System.out.println(\"catch\");");
 //        sb.append("}");
         sb.append("finally {");

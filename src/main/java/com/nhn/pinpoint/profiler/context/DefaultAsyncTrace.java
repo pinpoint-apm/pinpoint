@@ -119,8 +119,8 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
 //            TODO 비동기 api일 경우, span에 exception을 마크하기가 까다로움
 //            AnnotationKey span = getCallStack().getSpan();
-//            if (span.getException() == 0) {
-//                span.setException(1);
+//            if (span.getErrCode() == 0) {
+//                span.setErrCode(1);
 //            }
         }
     }
