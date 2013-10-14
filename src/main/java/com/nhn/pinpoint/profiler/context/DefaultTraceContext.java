@@ -41,16 +41,23 @@ public class DefaultTraceContext implements TraceContext {
 
     private StorageFactory storageFactory;
 
-    private final LRUCache<String> sqlCache = new LRUCache<String>();
+    private final LRUCache<String> sqlCache;
     private final SqlParser sqlParser = new SqlParser();
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
+//    private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
     private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
     private Sampler sampler;
 
+
     public DefaultTraceContext() {
+        this(LRUCache.DEFAULT_CACHE_SIZE);
+    }
+
+    public DefaultTraceContext(int sqlCacheSize) {
+        this.sqlCache = new LRUCache<String>(sqlCacheSize);
     }
 
 
@@ -59,7 +66,7 @@ public class DefaultTraceContext implements TraceContext {
      * @return
      */
     public Trace currentTraceObject() {
-        Trace trace = threadLocal.get();
+        final Trace trace = threadLocal.get();
         if (trace == null) {
             return null;
         }
@@ -88,7 +95,7 @@ public class DefaultTraceContext implements TraceContext {
 
         // datasender연결 부분 수정 필요.
         final DefaultTrace trace = new DefaultTrace(this, traceID);
-        Storage storage = storageFactory.createStorage();
+        final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         // remote에 의해 trace가 continue될때는  sampling flag를 좀더 상위에서 하므로 무조껀 true여야함.
         // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
@@ -99,7 +106,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     private void checkBeforeTraceObject() {
-        Trace old = this.threadLocal.get();
+        final Trace old = this.threadLocal.get();
         if (old != null) {
             // 잘못된 상황의 old를 덤프할것.
             if (logger.isWarnEnabled()) {

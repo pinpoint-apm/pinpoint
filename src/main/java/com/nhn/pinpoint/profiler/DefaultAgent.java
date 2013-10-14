@@ -212,7 +212,8 @@ public class DefaultAgent implements Agent {
 
 
     private TraceContext createTraceContext() {
-        DefaultTraceContext traceContext = new DefaultTraceContext();
+        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
