@@ -65,7 +65,7 @@ public class SpanBoTest {
         Assert.assertEquals(newSpanBo.getAgentStartTime(), spanBo.getAgentStartTime());
         Assert.assertEquals(newSpanBo.getElapsed(), spanBo.getElapsed());
         Assert.assertEquals(newSpanBo.getEndPoint(), spanBo.getEndPoint());
-        Assert.assertEquals(newSpanBo.getException(), spanBo.getException());
+        Assert.assertEquals(newSpanBo.getErrCode(), spanBo.getErrCode());
         Assert.assertEquals(newSpanBo.getFlag(), spanBo.getFlag());
 
 //        이건 serialize에서 안가져옴.

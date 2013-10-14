@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.bo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
@@ -55,7 +54,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
     private List<AnnotationBo> annotationBoList;
     private short flag; // optional
-    private int exception;
+    private int errCode;
 
     private List<SpanEventBo> spanEventBoList;
 
@@ -89,7 +88,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.flag = span.getFlag();
         this.apiId = span.getApiId();
 
-        this.exception = span.getErr();
+        this.errCode = span.getErr();
         
         this.remoteAddr = span.getRemoteAddr();
         
@@ -287,14 +286,14 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.serviceType = serviceType;
     }
     
-    public int getException() {
-		return exception;
+    public int getErrCode() {
+		return errCode;
 	}
 
-	public void setException(int exception) {
-		this.exception = exception;
+	public void setErrCode(int errCode) {
+		this.errCode = errCode;
 	}
-	
+
     public String getRemoteAddr() {
 		return remoteAddr;
 	}
@@ -366,8 +365,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         buffer.put1PrefixedBytes(remoteAddrBytes);
         buffer.putSVar(apiId);
 
-        // exception code는 음수가 될수 있음.
-        buffer.putSVar(exception);
+        // errCode code는 음수가 될수 있음.
+        buffer.putSVar(errCode);
 
         // 공간 절약을 위해서 flag는 무조껀 마지막에 넣어야 한다.
         if (flag != 0) {
@@ -400,8 +399,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.remoteAddr = buffer.read1UnsignedPrefixedString();
         this.apiId = buffer.readSVarInt();
         
-        this.exception = buffer.readSVarInt();
-        
+        this.errCode = buffer.readSVarInt();
+
         // flag는 무조껀 마지막에 넣어야 한다.
         if (buffer.limit() == 2) {
             this.flag = buffer.readShort();
@@ -430,7 +429,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         sb.append(", apiId=").append(apiId);
         sb.append(", annotationBoList=").append(annotationBoList);
         sb.append(", flag=").append(flag);
-        sb.append(", exception=").append(exception);
+        sb.append(", errCode=").append(errCode);
         sb.append(", spanEventBoList=").append(spanEventBoList);
         sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
         sb.append(", remoteAddr='").append(remoteAddr).append('\'');
