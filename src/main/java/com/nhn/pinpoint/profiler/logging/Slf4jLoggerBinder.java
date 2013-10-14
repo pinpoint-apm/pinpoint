@@ -10,20 +10,20 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Slf4jLoggerBinder implements PLoggerBinder {
 
-    private ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>();
+    private ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>(256, 0.75f, 32);
 
     @Override
     public PLogger getLogger(String name) {
 
-        PLogger hitPLogger = loggerCache.get(name);
+        final PLogger hitPLogger = loggerCache.get(name);
         if (hitPLogger != null) {
             return hitPLogger;
         }
 
         org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(name);
 
-        Slf4jPLoggerAdapter slf4jLoggerAdapter = new Slf4jPLoggerAdapter(slf4jLogger);
-        PLogger before = loggerCache.putIfAbsent(name, slf4jLoggerAdapter);
+        final Slf4jPLoggerAdapter slf4jLoggerAdapter = new Slf4jPLoggerAdapter(slf4jLogger);
+        final PLogger before = loggerCache.putIfAbsent(name, slf4jLoggerAdapter);
         if (before != null) {
             return before;
         }

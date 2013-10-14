@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.Assert;
 
 
 public class LifeCycleEventListener {
@@ -13,7 +12,9 @@ public class LifeCycleEventListener {
     private boolean started = false;
 
     public LifeCycleEventListener(Agent agent) {
-        Assert.notNull(agent, "agent must not be null");
+        if (agent == null) {
+            throw new IllegalArgumentException("agent must not be null");
+        }
         this.agent = agent;
     }
 

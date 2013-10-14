@@ -12,12 +12,14 @@ import java.util.concurrent.ConcurrentMap;
 public class LRUCache<T> {
 
     private static final Object V = new Object();
+    public static final int DEFAULT_CACHE_SIZE = 1024;
 
     private final ConcurrentMap<T, Object> cache;
 
+
     public LRUCache(int maxCacheSize) {
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        cacheBuilder.concurrencyLevel(8);
+        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+        cacheBuilder.concurrencyLevel(32);
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         Cache<T, Object> localCache = cacheBuilder.build();
@@ -25,7 +27,7 @@ public class LRUCache<T> {
     }
 
     public LRUCache() {
-        this(2048);
+        this(DEFAULT_CACHE_SIZE);
     }
 
 

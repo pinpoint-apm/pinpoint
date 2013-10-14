@@ -5,7 +5,6 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.util.Assert;
 
 /**
  *
@@ -18,7 +17,9 @@ public class CatalinaAwaitInterceptor implements SimpleAroundInterceptor {
     private Agent agent;
 
     public CatalinaAwaitInterceptor(Agent agent) {
-        Assert.notNull(agent, "agent must not be null");
+        if (agent == null) {
+            throw new IllegalArgumentException("agent must not be null");
+        }
         this.agent = agent;
     }
 

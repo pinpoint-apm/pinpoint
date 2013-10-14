@@ -12,18 +12,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SimpleCache<T> {
     // 0인값은 존재 하지 않음을 나타냄.
     private final AtomicInteger idGen = new AtomicInteger(1);
-    private final ConcurrentMap<T, Integer> cache = new ConcurrentHashMap<T, Integer>();
+    private final ConcurrentMap<T, Result> cache = new ConcurrentHashMap<T, Result>(512, 0.75f, 32);
 
     public Result put(T value) {
-        Integer find = this.cache.get(value);
-        if(find != null) {
-            return new Result(false, find);
+        final Result find = this.cache.get(value);
+        if (find != null) {
+            return find;
         }
         //음수까지 활용하여 가능한 데이터 인코딩을 작게 유지되게 함.
-        int newId = BytesUtils.decodeZigZagInt(idGen.getAndIncrement());
-        Integer before = this.cache.putIfAbsent(value, newId);
+        final int newId = BytesUtils.decodeZigZagInt(idGen.getAndIncrement());
+        final Result result = new Result(false, newId);
+        final Result before = this.cache.putIfAbsent(value, result);
         if (before != null) {
-            return new Result(false, before);
+            return before;
         }
         return new Result(true, newId);
     }
