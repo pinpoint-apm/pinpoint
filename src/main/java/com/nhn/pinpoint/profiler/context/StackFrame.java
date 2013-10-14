@@ -23,6 +23,8 @@ public interface StackFrame {
 
     void setApiId(int apiId);
 
+    void setExceptionId(int id);
+
     void setServiceType(short serviceType);
 
     void addAnnotation(Annotation annotation);

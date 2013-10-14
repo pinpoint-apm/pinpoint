@@ -68,6 +68,11 @@ public class SpanEventStackFrame implements StackFrame {
     }
 
     @Override
+    public void setExceptionId(int id) {
+        this.spanEvent.setExceptionId(id);
+    }
+
+    @Override
     public void setServiceType(short serviceType) {
         spanEvent.setServiceType(serviceType);
     }

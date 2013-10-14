@@ -5,10 +5,9 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 
 /**
@@ -224,14 +223,16 @@ public final class DefaultTrace implements Trace {
     @Override
     public void recordException(Object result) {
         if (result instanceof Throwable) {
-            Throwable th = (Throwable) result;
-            String drop = StringUtils.drop(th.getMessage(), 256);
+            final Throwable th = (Throwable) result;
+            final String drop = StringUtils.drop(th.getMessage(), 256);
+
+//            this.currentStackFrame.setExceptionId();
             recordAttribute(AnnotationKey.EXCEPTION, drop);
             recordAttribute(AnnotationKey.EXCEPTION_CLASS, th.getClass().getName());
 
-            Span span = getCallStack().getSpan();
-            if (span.getException() == 0) {
-                span.setException(1);
+            final Span span = getCallStack().getSpan();
+            if (span.getErrCode() == 0) {
+                span.setErrCode(1);
             }
         }
     }
@@ -316,6 +317,18 @@ public final class DefaultTrace implements Trace {
         if (output != null && output.length() != 0) {
             recordAttribute(AnnotationKey.SQL_PARAM, output);
         }
+//        final String sql = parsingResult.getSql();
+//        final TIntStringValue tSqlValue = new TIntStringValue(sql.hashCode());
+//        final String output = parsingResult.getOutput();
+//        if (output != null && output.length() != 0) {
+//            tSqlValue.setBindValue(output);
+//        }
+//        recordSqlParam(tSqlValue);
+    }
+
+    private void recordSqlParam(TIntStringValue tIntStringValue) {
+        final StackFrame currentStackFrame = this.currentStackFrame;
+        currentStackFrame.addAnnotation(new Annotation(AnnotationKey.SQL_ID.getCode(), tIntStringValue));
     }
 
     @Override

@@ -68,6 +68,11 @@ public class RootStackFrame implements StackFrame {
     }
 
     @Override
+    public void setExceptionId(int id) {
+        this.span.setExceptionId(id);
+    }
+
+    @Override
     public void setServiceType(short serviceType) {
         this.span.setServiceType(serviceType);
     }

@@ -58,12 +58,21 @@ public class Span extends TSpan implements Thriftable {
         this.addToAnnotations(annotation);
     }
 
+    @Override
+    public void setExceptionId(int exceptionId) {
+        super.setExceptionId(exceptionId);
+    }
 
-    public int getException() {
+    @Override
+    public int getExceptionId() {
+        return super.getExceptionId();
+    }
+
+    public int getErrCode() {
 		return getErr();
 	}
 
-	public void setException(int exception) {
+	public void setErrCode(int exception) {
         super.setErr(exception);
 	}
 
