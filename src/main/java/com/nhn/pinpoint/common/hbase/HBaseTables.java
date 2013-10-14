@@ -70,6 +70,9 @@ public class HBaseTables {
     public static final String SQL_METADATA = "SqlMetaData";
     public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
 
+    public static final String STRING_METADATA = "StringMetaData";
+    public static final byte[] STRING_METADATA_CF_STR = Bytes.toBytes("Str");
+
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 

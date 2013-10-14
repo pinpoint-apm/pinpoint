@@ -59,6 +59,18 @@ public enum AnnotationKey {
     ARGS9(-10, "args[9]"),
     ARGSN(-11, "args[N]"),
 
+    CACHE_ARGS0(-30, "cached_args[0]"),
+    CACHE_ARGS1(-31, "cached_args[1]"),
+    CACHE_ARGS2(-32, "cached_args[2]"),
+    CACHE_ARGS3(-33, "cached_args[3]"),
+    CACHE_ARGS4(-34, "cached_args[4]"),
+    CACHE_ARGS5(-35, "cached_args[5]"),
+    CACHE_ARGS6(-36, "cached_args[6]"),
+    CACHE_ARGS7(-37, "cached_args[7]"),
+    CACHE_ARGS8(-38, "cached_args[8]"),
+    CACHE_ARGS9(-39, "cached_args[9]"),
+    CACHE_ARGSN(-40, "cached_args[N]"),
+
     EXCEPTION(-50, "Exception", true),
     EXCEPTION_CLASS(-51, "ExceptionClass"),
     UNKNOWN(-9999, "UNKNOWN");
@@ -149,5 +161,52 @@ public enum AnnotationKey {
             return true;
         }
         return false;
+    }
+
+    public static AnnotationKey getCachedArgs(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("negative index:" + index);
+        }
+        switch (index) {
+            case 0:
+                return CACHE_ARGS0;
+            case 1:
+                return CACHE_ARGS1;
+            case 2:
+                return CACHE_ARGS2;
+            case 3:
+                return CACHE_ARGS3;
+            case 4:
+                return CACHE_ARGS4;
+            case 5:
+                return CACHE_ARGS5;
+            case 6:
+                return CACHE_ARGS6;
+            case 7:
+                return CACHE_ARGS7;
+            case 8:
+                return CACHE_ARGS8;
+            case 9:
+                return CACHE_ARGS9;
+            default:
+                return CACHE_ARGSN;
+        }
+    }
+
+    public static boolean isCachedArgsKey(int index) {
+        if (index <= CACHE_ARGS0.getCode() && index >= CACHE_ARGSN.getCode()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static int cachedArgsToArgs(int index) {
+        if (!isCachedArgsKey(index)) {
+            throw new IllegalArgumentException("non CACHED_ARGS:" + index);
+        }
+
+        final int cachedIndex = CACHE_ARGS0.getCode() - ARGS0.getCode();
+        // 음수라서 -해야 된다.
+        return index - cachedIndex;
     }
 }
