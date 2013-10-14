@@ -193,19 +193,8 @@ public class SpanServiceImpl implements SpanService {
 		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
 			@Override
 			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-//				AnnotationBo apiIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.API_DID.getCode());
-//				if (apiIdAnnotation == null) {
-//					return;
-//				}
-
                 final AgentKey key = getAgentKey(spanAlign);
-//				final int apiId = (Integer) apiIdAnnotation.getValue();
-                int apiId;
-                if (spanAlign.isSpan()) {
-                    apiId = spanAlign.getSpanBo().getApiId();
-                } else {
-                    apiId = spanAlign.getSpanEventBo().getApiId();
-                }
+                final int apiId = getApiId(spanAlign);
                 // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
 				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), apiId, key.getAgentStartTime());
 				int size = apiMetaDataList.size();
@@ -238,6 +227,14 @@ public class SpanServiceImpl implements SpanService {
 
 		});
 	}
+
+    private int getApiId(SpanAlign spanAlign) {
+        if (spanAlign.isSpan()) {
+            return spanAlign.getSpanBo().getApiId();
+        } else {
+            return spanAlign.getSpanEventBo().getApiId();
+        }
+    }
 
     private AgentKey getAgentKey(SpanAlign spanAlign) {
         if (spanAlign.isHasChild()) {
