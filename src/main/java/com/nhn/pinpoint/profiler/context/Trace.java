@@ -51,6 +51,8 @@ public interface Trace {
 
     void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end);
 
+    void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index);
+
     ParsingResult recordSqlInfo(String sql);
 
     void recordSqlParsingResult(ParsingResult parsingResult);

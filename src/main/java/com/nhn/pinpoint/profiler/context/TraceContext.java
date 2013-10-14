@@ -34,6 +34,8 @@ public interface TraceContext {
 
     int cacheApi(MethodDescriptor methodDescriptor);
 
+    int cacheString(String value);
+
     ParsingResult parseSql(String sql);
 
     DatabaseInfo parseJdbcUrl(String sql);
