@@ -10,10 +10,12 @@ public enum AnnotationKey {
     // 가변 인코딩을 사용하므로, 작은 숫자는 패킷에 전송 되는 데이터로 위주로 사용하고 내부 사용 코드는 숫자를 크게 잡아야 한다.
 //    2147483647
 //    -2147483648
-    @Deprecated // spanEvent와 span으로 apiId를 직접 이동 시킴.
-    API_DID(10, "API-DID"),
-    @Deprecated // 정적 api 코드를 제거해야 한다. API-DID만 사용할것.
-    API_ID(11, "API-ID"),
+
+//    @Deprecated // spanEvent와 span으로 apiId를 직접 이동 시킴. int 로 덤프
+//    API_DID(10, "API-DID"),
+//    @Deprecated // 정적 api 코드를 제거해야 한다. API-DID만 사용할것. int로 덤프
+//    API_ID(11, "API-ID"),
+//   api를 string으로 덤프하는 anntation 최초 개발시 사용함. 추후 이것도 없애야 될듯.
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
 
@@ -33,18 +35,23 @@ public enum AnnotationKey {
     SQL_ID(20, "SQL-ID"),
     SQL(21, "SQL", true),
     SQL_METADATA(22, "SQL-METADATA"),
-    SQL_PARAM(23, "SQL-PARAMS"),
+    SQL_PARAM(23, "SQL-PARAM"),
     SQL_BINDVALUE(24, "SQL-BindValue", true),
 
     STRING_ID(30, "STRING_ID"),
 
+    // HTTP_URL은 argument로 치환되므로 true가 아님..
     HTTP_URL(40, "http.url"),
-    HTTP_PARAM(41, "http.params"),
+    HTTP_PARAM(41, "http.param", true),
+    HTTP_PARAM_POST(42, "http.param.post", true),
+    HTTP_COOKIE(45, "http.cookie", true),
+    // httpclient일때 post 파라미터
+
 
 //    ARCUS_COMMAND(50, "arcus.command"),
     
     NPC_URL(60, "npc.url"),
-    NPC_PARAM(61, "npc.params"),
+    NPC_PARAM(61, "npc.param"),
     NPC_CONNECT_OPTION(62, "npc.connect.options"),
 
     ARGS0(-1, "args[0]"),
