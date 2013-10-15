@@ -115,7 +115,12 @@ public class HttpInvoker {
 	}
 
 	private HttpEntity getEntity(Map<String, Object> paramMap) throws UnsupportedEncodingException {
-		return new StringEntity(paramMap.toString(), "UTF-8");
+        if (paramMap.size() != 0) {
+//            size가 0일때 호출하면 entity에 {}가 들어감.
+		    return new StringEntity(paramMap.toString(), "UTF-8");
+        } else {
+            return new StringEntity("", "UTF-8");
+        }
 	}
 
 	private HttpParams getHttpParams() {
