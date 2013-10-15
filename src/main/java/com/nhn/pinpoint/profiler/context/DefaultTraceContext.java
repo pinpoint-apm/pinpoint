@@ -4,6 +4,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
@@ -52,6 +53,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private Sampler sampler;
 
+    private ProfilerConfig profilerConfig;
+
 
     public DefaultTraceContext() {
         this(LRUCache.DEFAULT_CACHE_SIZE);
@@ -81,13 +84,24 @@ public class DefaultTraceContext implements TraceContext {
      * 유효성을 검증하지 않고 Trace를 리턴한다.
      * @return
      */
+    @Override
     public Trace currentRawTraceObject() {
         return threadLocal.get();
     }
 
+    @Override
     public void disableSampling() {
         checkBeforeTraceObject();
         threadLocal.set(DisableTrace.INSTANCE);
+    }
+
+    public void setProfilerConfig(ProfilerConfig profilerConfig) {
+        this.profilerConfig = profilerConfig;
+    }
+
+    @Override
+    public ProfilerConfig getProfilerConfig() {
+        return profilerConfig;
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.

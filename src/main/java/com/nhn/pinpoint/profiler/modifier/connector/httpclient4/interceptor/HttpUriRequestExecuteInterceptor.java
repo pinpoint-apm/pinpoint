@@ -1,7 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
+import java.io.IOException;
 import java.net.URI;
 
+import com.nhn.pinpoint.profiler.config.DumpType;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.Header;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
@@ -14,11 +17,16 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
+import com.nhn.pinpoint.profiler.util.InterceptorUtils;
+import com.nhn.pinpoint.profiler.util.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Method interceptor
@@ -30,13 +38,19 @@ import com.nhn.pinpoint.common.ServiceType;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  */
-public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;
     private TraceContext traceContext;
+
+    private boolean cookie;
+    private DumpType cookieDumpType;
+
+    private boolean entity;
+    private DumpType entityDumpType;
 
     @Override
 	public void before(Object target, Object[] args) {
@@ -50,6 +64,9 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
         }
 
         final HttpUriRequest request = (HttpUriRequest) args[0];
+        if (request == null) {
+            return;
+        }
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if(isDebug) {
@@ -81,8 +98,6 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
         String endpoint = getEndpoint(host.getHostName(), port);
 
         trace.recordDestinationId(endpoint);
-
-		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
 	}
 
     private String getEndpoint(String host, int port) {
@@ -108,6 +123,27 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
 			return;
 		}
         try {
+
+            final HttpUriRequest request = (HttpUriRequest) args[0];
+            if (request != null) {
+                trace.recordAttribute(AnnotationKey.HTTP_URL, request.getRequestLine().getUri());
+
+                final boolean isException = InterceptorUtils.isThrowable(result);
+                if (cookie) {
+                    if (DumpType.ALWAYS == cookieDumpType) {
+                        dumpCookie(request, trace);
+                    } else if(DumpType.EXCEPTION == cookieDumpType && isException){
+                        dumpCookie(request, trace);
+                    }
+                }
+                if (entity) {
+                    if (DumpType.ALWAYS == entityDumpType) {
+                        dumpEntity(request, trace);
+                    } else if(DumpType.EXCEPTION == entityDumpType && isException) {
+                        dumpEntity(request, trace);
+                    }
+                }
+            }
             trace.recordApi(descriptor);
             trace.recordException(result);
 
@@ -117,7 +153,8 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
         }
 	}
 
-	@Override
+
+    @Override
 	public void setMethodDescriptor(MethodDescriptor descriptor) {
 		this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
@@ -180,5 +217,37 @@ public class Execute2MethodInterceptor implements SimpleAroundInterceptor, ByteC
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
+        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
+        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
+        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
+
+    }
+
+
+    private void dumpCookie(HttpUriRequest request, Trace trace) {
+        org.apache.http.Header[] cookies = request.getHeaders("Cookie");
+        for (org.apache.http.Header header: cookies) {
+            trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(header.getValue(), 1024));
+            // Cookie값이 2개 이상일수가 있나?
+            break;
+        }
+    }
+
+    private void dumpEntity(HttpUriRequest request, Trace trace) {
+        if (request instanceof HttpEntityEnclosingRequestBase) {
+            HttpEntityEnclosingRequestBase entityRequest = (HttpEntityEnclosingRequestBase) request;
+            try {
+                HttpEntity entity = entityRequest.getEntity();
+                if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
+                    String entityString = EntityUtils.toString(entityRequest.getEntity(), "UTF8");
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                }
+            } catch (IOException e) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop("DumpError:" + e.getMessage(), 1024));
+            }
+        }
     }
 }

@@ -221,6 +221,7 @@ public class DefaultAgent implements Agent {
         logger.info("SamplerType:{}", sampler.getClass());
 
         traceContext.setSampler(sampler);
+        traceContext.setProfilerConfig(profilerConfig);
 
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
             TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig);
