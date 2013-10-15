@@ -14,6 +14,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
+import com.nhn.pinpoint.profiler.util.StringUtils;
 
 /**
  * @author netspider
@@ -105,7 +106,7 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         try {
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-            String parameters = getRequestParameter(request);
+            String parameters = getRequestParameter(request, 64, 512);
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
@@ -149,21 +150,24 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
     }
 
-    private String getRequestParameter(external.org.apache.coyote.Request request) {
+    private String getRequestParameter(external.org.apache.coyote.Request request, int eachLimit, int totalLimit) {
         Enumeration<?> attrs = request.getParameters().getParameterNames();
-
-        final StringBuilder params = new StringBuilder(32);
-
+        final StringBuilder params = new StringBuilder(64);
         while (attrs.hasMoreElements()) {
-            String keyString = attrs.nextElement().toString();
-            Object value = request.getParameters().getParameter(keyString);
-
+            if (params.length() != 0 ) {
+                params.append('&');
+            }
+            if (params.length() > totalLimit) {
+                // 데이터 사이즈가 너무 클 경우 뒷 파라미터 생략.
+                params.append("...");
+                return  params.toString();
+            }
+            String key = attrs.nextElement().toString();
+            params.append(StringUtils.drop(key, eachLimit));
+            params.append("=");
+            Object value = request.getParameters().getParameter(key);
             if (value != null) {
-                String valueString = value.toString();
-                int valueStringLength = valueString.length();
-
-                if (valueStringLength > 0 && valueStringLength < 100)
-                    params.append(keyString).append("=").append(valueString);
+                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
             }
         }
 

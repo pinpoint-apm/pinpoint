@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import java.util.Enumeration;
+import java.util.Map;
 
 import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
@@ -17,6 +18,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
+import com.nhn.pinpoint.profiler.util.StringUtils;
 
 public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
@@ -105,7 +107,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             }
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Tomcat StandardHostValve trace start fail. Caused:" + e.getMessage(), e);
+                logger.warn("Tomcat StandardHostValve trace start fail. Caused:{}", e.getMessage(), e);
             }
         }
     }
@@ -128,7 +130,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
         try {
             HttpServletRequest request = (HttpServletRequest) args[0];
-            String parameters = getRequestParameter(request);
+            String parameters = getRequestParameter(request, 64, 512);
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
@@ -190,25 +192,25 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 		return ServiceType.UNDEFINED.getCode();
 	}
     
-    private String getRequestParameter(HttpServletRequest request) {
+    private String getRequestParameter(HttpServletRequest request, int eachLimit, int totalLimit) {
         Enumeration<?> attrs = request.getParameterNames();
-        final StringBuilder params = new StringBuilder(32);
+        final StringBuilder params = new StringBuilder(64);
 
         while (attrs.hasMoreElements()) {
-            String keyString = attrs.nextElement().toString();
-            Object value = request.getParameter(keyString);
-
+            if (params.length() != 0 ) {
+                params.append('&');
+            }
+            if (params.length() > totalLimit) {
+                // 데이터 사이즈가 너무 클 경우 뒷 파라미터 생략.
+                params.append("...");
+                return  params.toString();
+            }
+            String key = attrs.nextElement().toString();
+            params.append(StringUtils.drop(key, eachLimit));
+            params.append("=");
+            Object value = request.getParameter(key);
             if (value != null) {
-                String valueString = value.toString();
-                int valueStringLength = valueString.length();
-
-                if (valueStringLength > 0 && valueStringLength < 100) {
-                    params.append(keyString).append("=").append(valueString);
-                }
-
-                if (attrs.hasMoreElements()) {
-                    params.append(", ");
-                }
+                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();
