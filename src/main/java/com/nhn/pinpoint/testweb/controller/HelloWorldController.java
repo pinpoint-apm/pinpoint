@@ -199,10 +199,10 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/nested")
 	public String nested(Model model) {
 		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
-		client2.executeToBloc("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
+		client2.execute("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 		mysql(model);
 		return "remotecombination";
 	}
@@ -214,21 +214,21 @@ public class HelloWorldController implements DisposableBean {
 		String port = ports[random.nextInt(3)];
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
+		client.execute("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
 		
 		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
-		client2.executeToBloc("http://localhost:8080/arcus.pinpoint", new HashMap<String, Object>());
+		client2.execute("http://localhost:8080/arcus.pinpoint", new HashMap<String, Object>());
 
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.execute("http://www.naver.com/", new HashMap<String, Object>());
+		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 		try {
-			client.executeToBloc("http://very.very.very.long.long.url/", new HashMap<String, Object>());
-			client.executeToBloc("http://url1/", new HashMap<String, Object>());
-			client.executeToBloc("http://url2/", new HashMap<String, Object>());
-			client.executeToBloc("http://url2/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
+			client.execute("http://very.very.very.long.long.url/", new HashMap<String, Object>());
+			client.execute("http://url1/", new HashMap<String, Object>());
+			client.execute("http://url2/", new HashMap<String, Object>());
+			client.execute("http://url2/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
 		} catch (Exception e) {
 		}
 		return "remotecombination";
@@ -242,7 +242,7 @@ public class HelloWorldController implements DisposableBean {
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
+		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 
@@ -269,11 +269,11 @@ public class HelloWorldController implements DisposableBean {
 		randomSlowMethod();
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
+		client.execute("http://www.naver.com/", new HashMap<String, Object>());
+		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 
-		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
-		client.executeToBloc("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		client.execute("http://section.cafe.naver.com/", new HashMap<String, Object>());
+		client.execute("http://section.cafe.naver.com/", new HashMap<String, Object>());
 
 		npc(model);
 
@@ -283,7 +283,7 @@ public class HelloWorldController implements DisposableBean {
 	@RequestMapping(value = "/httperror")
 	public String httperror(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://127.0.0.1/", new HashMap<String, Object>());
+		client.execute("http://127.0.0.1/", new HashMap<String, Object>());
 		return "error";
 	}
 
@@ -331,7 +331,7 @@ public class HelloWorldController implements DisposableBean {
 		arcus(model);
 		
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
+		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
 

@@ -94,21 +94,21 @@ public class AllInOneController implements DisposableBean {
 
 	private void nested() {
 		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
-		client2.executeToBloc("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
+		client2.execute("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
 	}
 
 	private void unknown() {
 		try {
 			HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-			client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-			client.executeToBloc("http://www.naver.com/", new HashMap<String, Object>());
-			client.executeToBloc("http://very.very.very.long.long.url/", new HashMap<String, Object>());
-			client.executeToBloc("http://url1/", new HashMap<String, Object>());
-			client.executeToBloc("http://url2/", new HashMap<String, Object>());
-			client.executeToBloc("http://url2/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
-			client.executeToBloc("http://url3/", new HashMap<String, Object>());
+			client.execute("http://www.naver.com/", new HashMap<String, Object>());
+			client.execute("http://www.naver.com/", new HashMap<String, Object>());
+			client.execute("http://very.very.very.long.long.url/", new HashMap<String, Object>());
+			client.execute("http://url1/", new HashMap<String, Object>());
+			client.execute("http://url2/", new HashMap<String, Object>());
+			client.execute("http://url2/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
+			client.execute("http://url3/", new HashMap<String, Object>());
 		} catch (Exception e) {
 		}
 
@@ -141,7 +141,7 @@ public class AllInOneController implements DisposableBean {
 		port = ports[0];
 
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.executeToBloc("http://localhost:" + port + "/allInOne2.pinpoint", new HashMap<String, Object>());
+		client.execute("http://localhost:" + port + "/allInOne2.pinpoint", new HashMap<String, Object>());
 
 		return "remotecombination";
 	}

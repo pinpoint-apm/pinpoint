@@ -9,7 +9,7 @@ public class HTClientTest {
 	@Test
 	public void test() {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		String executeToBloc = client.executeToBloc("http://localhost:9080/", new HashMap<String, Object>());
+		String executeToBloc = client.execute("http://localhost:9080/", new HashMap<String, Object>());
 		System.out.println(executeToBloc);
 
 	}

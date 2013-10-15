@@ -18,18 +18,22 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpInvoker {
 
-	public final static int SLOW_REQUEST_TIME = 1000;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public final static int SLOW_REQUEST_TIME = 1000;
 
 	private HttpConnectorOptions connectorOptions;
 
 	public HttpInvoker() {
 	}
 
-	public HttpInvoker(HttpConnectorOptions cnnectorOptions) {
-		this.connectorOptions = cnnectorOptions;
+	public HttpInvoker(HttpConnectorOptions connectorOptions) {
+		this.connectorOptions = connectorOptions;
 	}
 
 	private HttpClient getHttpClient(HttpParams params) {
@@ -46,34 +50,38 @@ public class HttpInvoker {
 		return httpClient;
 	}
 
-	public String executeToBloc(String uri, Map<String, Object> paramMap) {
-		if (null == uri) {
-			return null;
-		}
+    public String execute(String uri, Map<String, Object> paramMap, String cookie) {
+        if (null == uri) {
+            return null;
+        }
 
-		String responseBody = null;
-		HttpClient httpClient = null;
-		try {
-			HttpPost post = new HttpPost(uri);
-			post.setEntity(getEntity(paramMap));
-			post.setParams(getHttpParams());
-			post.addHeader("Content-Type", "application/json;charset=UTF-8");
+        HttpClient httpClient = null;
+        try {
+            HttpPost post = new HttpPost(uri);
+            if (cookie != null) {
+                post.setHeader("Cookie", cookie);
+            }
+            post.setEntity(getEntity(paramMap));
+            post.setParams(getHttpParams());
+            post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
-			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
 
-			httpClient = getHttpClient(getHttpParams());
+            httpClient = getHttpClient(getHttpParams());
 
-			responseBody = httpClient.execute(post, responseHandler);
+            return httpClient.execute(post, responseHandler);
+        } catch (Exception e) {
+            logger.warn("HttpClient.execute() error. Caused:{}", e.getMessage(), e);
+            return e.getMessage();
+        } finally {
+            if (null != httpClient && null != httpClient.getConnectionManager()) {
+                httpClient.getConnectionManager().shutdown();
+            }
+        }
+    }
 
-			return responseBody;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (null != httpClient && null != httpClient.getConnectionManager()) {
-				httpClient.getConnectionManager().shutdown();
-			}
-		}
+	public String execute(String uri, Map<String, Object> paramMap) {
+		return execute(uri, paramMap, null);
 	}
 
 	public int executeToBlocWithReturnInt(String uri, Map<String, Object> paramMap) {

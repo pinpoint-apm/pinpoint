@@ -50,7 +50,7 @@ public class HttpInvokerSupport {
 //		if (log.isDebugEnabled()) {
 //			log.debug("http invoke : " + targetUri);
 //		}
-//		return new HttpInvoker(connectionOptions).executeToBloc(targetUri, params);
+//		return new HttpInvoker(connectionOptions).execute(targetUri, params);
 //	}
 //
 //	public int invokeWithReturnInt(String uri, Map<String, Object> params) {
