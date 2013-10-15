@@ -43,7 +43,7 @@ public enum AnnotationKey {
     // HTTP_URL은 argument로 치환되므로 true가 아님..
     HTTP_URL(40, "http.url"),
     HTTP_PARAM(41, "http.param", true),
-    HTTP_PARAM_POST(42, "http.param.post", true),
+    HTTP_PARAM_ENTITY(42, "http.entity", true),
     HTTP_COOKIE(45, "http.cookie", true),
     // httpclient일때 post 파라미터
 
