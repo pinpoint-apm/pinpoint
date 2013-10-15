@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.util.ParsingResult;
+import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 
 /**
@@ -43,4 +44,6 @@ public interface TraceContext {
     TraceId createTraceId(String transactionId, int parentSpanID, int spanID, short flags);
 
     void disableSampling();
+
+    ProfilerConfig getProfilerConfig();
 }

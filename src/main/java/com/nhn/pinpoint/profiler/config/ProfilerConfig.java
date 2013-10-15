@@ -44,11 +44,18 @@ public class ProfilerConfig {
 	private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
 
-    // 아래는 만들어야 됨.
     private boolean arucs = true;
     private boolean arucsKeyTrace = false;
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
+
+
+    private boolean apacheHttpClient4Profile = true;
+    private boolean apacheHttpClient4ProfileCookie = false;
+    private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
+    private boolean apacheHttpClient4ProfileEntity = false;
+    private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
+
 
     // 전역 샘플링
     private boolean samplingEnable = true;
@@ -262,6 +269,32 @@ public class ProfilerConfig {
         return memcachedKeyTrace;
     }
 
+    //-----------------------------------------
+    // http apache client
+
+    public boolean isApacheHttpClient4Profile() {
+        return apacheHttpClient4Profile;
+    }
+
+    public boolean isApacheHttpClient4ProfileCookie() {
+        return apacheHttpClient4ProfileCookie;
+    }
+
+    public DumpType getApacheHttpClient4ProfileCookieDumpType() {
+        return apacheHttpClient4ProfileCookieDumpType;
+    }
+
+    public boolean isApacheHttpClient4ProfileEntity() {
+        return apacheHttpClient4ProfileEntity;
+    }
+
+    public DumpType getApacheHttpClient4ProfileEntityDumpType() {
+        return apacheHttpClient4ProfileEntityDumpType;
+    }
+
+
+    //-----------------------------------------
+
     /**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
@@ -331,6 +364,13 @@ public class ProfilerConfig {
         this.memcachedKeyTrace = readBoolean(prop, "profiler.memcached.keytrace", false);
 
 
+        this.apacheHttpClient4Profile = readBoolean(prop, "profiler.apache.httpclient4", true);
+        this.apacheHttpClient4ProfileCookie = readBoolean(prop, "profiler.apache.httpclient4.cookie", false);
+        this.apacheHttpClient4ProfileCookieDumpType = readDumpType(prop, "profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient4ProfileEntity = readBoolean(prop, "profiler.apache.httpclient4.entity", false);
+        this.apacheHttpClient4ProfileEntityDumpType = readDumpType(prop, "profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
+
+
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
 
@@ -358,6 +398,7 @@ public class ProfilerConfig {
 
         logger.info("configuration loaded successfully.");
 	}
+
 
     public void setProfilableClass(String profilableClass) {
         if (profilableClass == null || profilableClass.length() == 0) {
@@ -390,6 +431,20 @@ public class ProfilerConfig {
 		}
 		return result;
 	}
+
+    private DumpType readDumpType(Properties prop, String propertyName, DumpType defaultDump) {
+        String value = prop.getProperty(propertyName).toUpperCase();
+        DumpType result;
+        try {
+            result = DumpType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            result = defaultDump;
+        }
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + result);
+        }
+        return result;
+    }
 
 	private long readLong(Properties prop, String propertyName, long defaultValue) {
 		String value = prop.getProperty(propertyName);
