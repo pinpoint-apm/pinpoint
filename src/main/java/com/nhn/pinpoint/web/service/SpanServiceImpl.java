@@ -289,7 +289,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private AgentKey getAgentKey(SpanAlign spanAlign) {
-        if (spanAlign.isHasChild()) {
+        if (spanAlign.isSpan()) {
             SpanBo spanBo = spanAlign.getSpanBo();
             return new AgentKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
         } else {
