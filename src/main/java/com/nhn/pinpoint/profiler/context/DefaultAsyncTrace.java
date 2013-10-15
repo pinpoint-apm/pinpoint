@@ -103,7 +103,6 @@ public class DefaultAsyncTrace implements AsyncTrace {
         if (methodDescriptor.getApiId() == 0) {
             recordAttribute(AnnotationKey.API, methodDescriptor.getFullName());
         } else {
-//            recordAttribute(AnnotationKey.API_DID, methodDescriptor.getApiId());
             spanEvent.setApiId(methodDescriptor.getApiId());
         }
     }
