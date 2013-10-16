@@ -77,8 +77,9 @@ public enum AnnotationKey {
     CACHE_ARGS8(-38, "cached_args[8]"),
     CACHE_ARGS9(-39, "cached_args[9]"),
     CACHE_ARGSN(-40, "cached_args[N]"),
-
+    @Deprecated
     EXCEPTION(-50, "Exception", true),
+    @Deprecated
     EXCEPTION_CLASS(-51, "ExceptionClass"),
     UNKNOWN(-9999, "UNKNOWN");
 

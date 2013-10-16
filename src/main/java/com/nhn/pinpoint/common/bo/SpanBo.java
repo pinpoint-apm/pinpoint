@@ -7,6 +7,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.BytesUtils;
@@ -22,16 +23,6 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
     private byte version = 0;
 
-    // private static final int MOSTTRACEID = 8;
-    // private static final int LEASTTRACEID = 8;
-    // private static final int SPANID = 4;
-    private static final int PARENTSPANID = 4;
-
-    // private static final int TIMESTAMP = 8;
-    private static final int SERVICETYPE = 2;
-    private static final int FLAG = 2;
-    private static final int AGENTSTARTTIME = 8;
-    private static final int EXCEPTION_SIZE = 4;
 
 //    private AgentKeyBo agentKeyBo;
     private String agentId;
@@ -59,6 +50,11 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     private List<SpanEventBo> spanEventBoList;
 
     private long collectorAcceptTime;
+
+    private boolean hasException = false;
+    private int exceptionId;
+    private String exceptionMessage;
+    private String exceptionClass;
 
     
     private String remoteAddr; // optional
@@ -91,6 +87,13 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.errCode = span.getErr();
         
         this.remoteAddr = span.getRemoteAddr();
+
+        final TIntStringValue exceptionInfo = span.getExceptionInfo();
+        if (exceptionInfo != null) {
+            this.hasException = true;
+            this.exceptionId = exceptionInfo.getIntValue();
+            this.exceptionMessage = exceptionInfo.getStringValue();
+        }
         
         setAnnotationList(span.getAnnotations());
     }
@@ -313,8 +316,28 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     public boolean isRoot() {
     	return -1 == parentSpanId;
     }
-    
-//    private int getBufferLength(int a, int b, int c, int d, int e) {
+
+    public boolean hasException() {
+        return hasException;
+    }
+
+    public int getExceptionId() {
+        return exceptionId;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public String getExceptionClass() {
+        return exceptionClass;
+    }
+
+    public void setExceptionClass(String exceptionClass) {
+        this.exceptionClass = exceptionClass;
+    }
+
+    //    private int getBufferLength(int a, int b, int c, int d, int e) {
 //	    int size = a + b + c + d + e;
 //	    size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 //	    // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
@@ -339,7 +362,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 
         // var encoding 사용시 사이즈를 측정하기 어려움. 안되는것음 아님 편의상 그냥 자동 증가 buffer를 사용한다.
         // 향후 더 효율적으로 메모리를 사용하게 한다면 getBufferLength를 다시 부활 시키는것을 고려한다.
-        Buffer buffer = new AutomaticBuffer(256);
+        final Buffer buffer = new AutomaticBuffer(256);
 
         buffer.put(version);
 
@@ -368,6 +391,14 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         // errCode code는 음수가 될수 있음.
         buffer.putSVar(errCode);
 
+        if (hasException){
+            buffer.put(true);
+            buffer.putSVar(exceptionId);
+            buffer.putPrefixedString(exceptionMessage);
+        } else {
+            buffer.put(false);
+        }
+
         // 공간 절약을 위해서 flag는 무조껀 마지막에 넣어야 한다.
         if (flag != 0) {
             buffer.put(flag);
@@ -376,7 +407,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
     public int readValue(byte[] bytes, int offset) {
-        Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new FixedBuffer(bytes, offset);
 
         this.version = buffer.readByte();
 
@@ -400,6 +431,12 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.apiId = buffer.readSVarInt();
         
         this.errCode = buffer.readSVarInt();
+
+        this.hasException = buffer.readBoolean();
+        if (hasException) {
+            this.exceptionId = buffer.readSVarInt();
+            this.exceptionMessage = buffer.readPrefixedString();
+        }
 
         // flag는 무조껀 마지막에 넣어야 한다.
         if (buffer.limit() == 2) {
@@ -432,6 +469,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         sb.append(", errCode=").append(errCode);
         sb.append(", spanEventBoList=").append(spanEventBoList);
         sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
+        sb.append(", hasException=").append(hasException);
+        sb.append(", exceptionId=").append(exceptionId);
+        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
         sb.append(", remoteAddr='").append(remoteAddr).append('\'');
         sb.append('}');
         return sb.toString();

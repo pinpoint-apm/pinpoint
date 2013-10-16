@@ -12,19 +12,8 @@ import java.util.List;
 public class SpanEventUtils {
 
     public static boolean hasException(TSpanEvent spanEvent) {
-//        if (spanEvent.isSetExceptionId()) {
-//            return true;
-//        }
-        final List<TAnnotation> annotations = spanEvent.getAnnotations();
-        if (annotations == null) {
-            return false;
-        }
-
-        for (TAnnotation annotation : annotations) {
-            // 나중에 레인지 체크로 변경되어야 할 가능성이 있음.
-            if (annotation.getKey() == AnnotationKey.EXCEPTION.getCode()) {
-                return true;
-            }
+        if (spanEvent.isSetExceptionInfo()) {
+            return true;
         }
         return false;
     }

@@ -19,17 +19,6 @@ public class SpanEventBo implements Span {
 
 	private byte version = 0;
 
-	// private static final int MOSTTRACEID = 8;
-	// private static final int LEASTTRACEID = 8;
-	// private static final int SPANID = 4;
-	private static final int PARENTSPANID = 4;
-
-
-	// private static final int TIMESTAMP = 8;
-	private static final int SERVICETYPE = 2;
-	private static final int FLAG = 2;
-    private static final int AGENTSTARTTIME = 8;
-
 	private String agentId;
     private String applicationId;
     private long agentStartTime;
@@ -55,6 +44,13 @@ public class SpanEventBo implements Span {
 
 	private int depth = -1;
 	private int nextSpanId = -1;
+
+    private boolean hasException;
+    private int exceptionId;
+    private String exceptionMessage;
+    // dao에서 찾아야 함.
+    private String exceptionClass;
+
 
 	public SpanEventBo() {
 	}
@@ -92,6 +88,13 @@ public class SpanEventBo implements Span {
 		}
         
 		setAnnotationBoList(tSpanEvent.getAnnotations());
+
+        final TIntStringValue exceptionInfo = tSpanEvent.getExceptionInfo();
+        if (exceptionInfo != null) {
+            this.hasException = true;
+            this.exceptionId = exceptionInfo.getIntValue();
+            this.exceptionMessage = exceptionInfo.getStringValue();
+        }
 	}
 
 	public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
@@ -126,6 +129,13 @@ public class SpanEventBo implements Span {
 		}
 		
 		setAnnotationBoList(spanEvent.getAnnotations());
+
+        final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
+        if (exceptionInfo != null) {
+            this.hasException = true;
+            this.exceptionId = exceptionInfo.getIntValue();
+            this.exceptionMessage = exceptionInfo.getStringValue();
+        }
 	}
 
 	public SpanEventBo(TSpanEvent spanEvent) {
@@ -164,6 +174,13 @@ public class SpanEventBo implements Span {
 		}
 		
 		setAnnotationBoList(spanEvent.getAnnotations());
+
+        final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
+        if (exceptionInfo != null) {
+            this.hasException = true;
+            this.exceptionId = exceptionInfo.getIntValue();
+            this.exceptionMessage = exceptionInfo.getStringValue();
+        }
 	}
 
 	public byte getVersion() {
@@ -318,7 +335,28 @@ public class SpanEventBo implements Span {
 		this.annotationBoList = boList;
 	}
 
-//	private int getBufferLength(int a, int b, int c, int d, int f) {
+    public boolean hasException() {
+        return hasException;
+    }
+
+    public int getExceptionId() {
+        return exceptionId;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public String getExceptionClass() {
+        return exceptionClass;
+    }
+
+    public void setExceptionClass(String exceptionClass) {
+        this.exceptionClass = exceptionClass;
+    }
+
+
+    //	private int getBufferLength(int a, int b, int c, int d, int f) {
 //		int size = a + b + c + d + f;
 //		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
 //		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
@@ -340,7 +378,7 @@ public class SpanEventBo implements Span {
 //        int bufferLength = getBufferLength(agentIDBytes.length, applicationIdBytes.length, rpcBytes.length, endPointBytes.length, destinationIdBytes.length);
 //        int annotationSize = getAnnotationBufferSize(annotationBoList);
 
-        Buffer buffer = new AutomaticBuffer(512);
+        final Buffer buffer = new AutomaticBuffer(512);
 
         buffer.put(version);
 
@@ -365,12 +403,23 @@ public class SpanEventBo implements Span {
         buffer.putSVar(depth);
         buffer.put(nextSpanId);
 
+        if (hasException) {
+            buffer.put(true);
+            buffer.putSVar(exceptionId);
+            buffer.putPrefixedString(exceptionMessage);
+        } else {
+            buffer.put(false);
+        }
+
         writeAnnotation(buffer);
+
 
         return buffer.getBuffer();
     }
 
-	private void writeAnnotation(Buffer buffer) {
+
+
+    private void writeAnnotation(Buffer buffer) {
         AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
         annotationBo.writeValue(buffer);
 	}
@@ -386,7 +435,7 @@ public class SpanEventBo implements Span {
 //	}
 
 	public int readValue(byte[] bytes, int offset) {
-		Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new FixedBuffer(bytes, offset);
 
 		this.version = buffer.readByte();
 
@@ -411,6 +460,12 @@ public class SpanEventBo implements Span {
 
 		this.depth = buffer.readSVarInt();
 		this.nextSpanId = buffer.readInt();
+
+        this.hasException = buffer.readBoolean();
+        if (hasException) {
+            this.exceptionId = buffer.readSVarInt();
+            this.exceptionMessage = buffer.readPrefixedString();
+        }
 		
 		this.annotationBoList = readAnnotation(buffer);
 		return buffer.getOffset();
@@ -445,6 +500,9 @@ public class SpanEventBo implements Span {
         sb.append(", annotationBoList=").append(annotationBoList);
         sb.append(", depth=").append(depth);
         sb.append(", nextSpanId=").append(nextSpanId);
+        sb.append(", hasException=").append(hasException);
+        sb.append(", exceptionId=").append(exceptionId);
+        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
         sb.append('}');
         return sb.toString();
     }
