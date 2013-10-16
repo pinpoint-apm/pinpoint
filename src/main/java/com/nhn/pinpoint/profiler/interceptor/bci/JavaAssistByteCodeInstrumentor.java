@@ -143,9 +143,15 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
         final int modifiers = superClass.getModifiers();
         if (Modifier.isAbstract(modifiers)) {
+            if (this.classLoadChecker.exist(classLoader, superClass.getName())) {
+                // nestedClass는 자기 자신에게만 속해 있으므로 로드 여부 체크가 필요 없으나 abstractClass는 같이 사용할수 있으므로 체크해야 된다.
+                return;
+            }
             if (isInfo) {
                 logger.info("defineAbstractSuperClass class:{} cl:{}", superClass.getName(), classLoader);
             }
+            // 좀더 정확하게 java 스펙처럼 하려면 제귀를 돌면서 추가로 super를 확인해야 되나. 구지 그래야 되나 싶다. 패스.
+            // 스펙상 1차원 abstractClass만 지원하는 것으로..
             superClass.toClass(classLoader, protectedDomain);
         }
     }
