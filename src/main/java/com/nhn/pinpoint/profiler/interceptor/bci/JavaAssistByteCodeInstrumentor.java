@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
@@ -112,14 +113,18 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
-//            아래 classLoaderChecker가 생겼으니 classLoader 를 같이 락으로 잡아야 되지 않는가?
-//            synchronized (classLoader)
-            if (this.classLoadChecker.exist(classLoader, defineClass)) {
-                return classLoader.loadClass(defineClass);
-            } else {
-                CtClass clazz = childClassPool.get(defineClass);
-                defineNestedClass(clazz, classLoader, protectedDomain);
-                return clazz.toClass(classLoader, protectedDomain);
+            // classLoader로 락을 잡는게 안전함.
+            // 어차피 classLoader에서 락을 잡고 들어오는점도 있고. 예외 사항이 발생할수 있기 때문에.
+            // classLoader의 재진입 락을 잡고 들어오는게 무난함.
+            synchronized (classLoader)  {
+                if (this.classLoadChecker.exist(classLoader, defineClass)) {
+                    return classLoader.loadClass(defineClass);
+                } else {
+                    final CtClass clazz = childClassPool.get(defineClass);
+                    defineAbstractSuperClass(clazz, classLoader, protectedDomain);
+                    defineNestedClass(clazz, classLoader, protectedDomain);
+                    return clazz.toClass(classLoader, protectedDomain);
+                }
             }
         } catch (NotFoundException e) {
             throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
@@ -127,6 +132,21 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             throw new InstrumentException(defineClass + " class define fail. cl:" + classLoader + " Cause:" + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
             throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
+        }
+    }
+
+    private void defineAbstractSuperClass(CtClass clazz, ClassLoader classLoader, ProtectionDomain protectedDomain) throws NotFoundException, CannotCompileException {
+        final CtClass superClass = clazz.getSuperclass();
+        if (superClass == null) {
+            // java.lang.Object가 아닌 경우 null은 안나올듯.
+            return;
+        }
+        final int modifiers = superClass.getModifiers();
+        if (Modifier.isAbstract(modifiers)) {
+            if (isInfo) {
+                logger.info("defineAbstractSuperClass class:{} cl:{}", superClass.getName(), classLoader);
+            }
+            superClass.toClass(classLoader, protectedDomain);
         }
     }
 
