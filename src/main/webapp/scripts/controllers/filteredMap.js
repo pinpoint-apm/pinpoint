@@ -2,21 +2,20 @@
 
 pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderDao', function ($scope, $routeParams, $timeout, TimeSliderDao) {
 
-    var oTimeSliderDao;
-
-    oTimeSliderDao = new TimeSliderDao();
+    // define private variables of methods
+    var getQueryPeriod, broadcast;
 
     /**
      * get query period
      */
-    var getQueryPeriod = function () {
+    getQueryPeriod = function () {
         return $scope.period * 1000 * 60;
     };
 
     /**
      * _boardcast as applicationChanged with args
      */
-    var broadcast = function () {
+    broadcast = function () {
 
         var splitedApp = $scope.application.split('@'),
             applicationData = {
@@ -29,11 +28,11 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
                 queryEndTime: $scope.queryEndTime
             };
 
-        oTimeSliderDao
-            .setFrom($scope.queryStartTime)
-            .setTo($scope.queryEndTime)
-            .setInnerFrom($scope.queryStartTime + 10000000)
-            .setInnerTo($scope.queryEndTime);
+        var oTimeSliderDao = new TimeSliderDao()
+                .setFrom($scope.queryStartTime)
+                .setTo($scope.queryEndTime)
+                .setInnerFrom($scope.queryStartTime + 10000000)
+                .setInnerTo($scope.queryEndTime);
 
         $timeout(function () {
             $scope.$emit('timeSlider.initialize', oTimeSliderDao);
@@ -42,6 +41,9 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
         });
     };
 
+    /**
+     * initialize
+     */
     $timeout(function () {
         if ($routeParams.application) {
             $scope.application = $routeParams.application;

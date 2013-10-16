@@ -5,19 +5,20 @@ pinpointApp.constant('TransactionListConfig', {
     MAX_FETCH_BLOCK_SIZE: 10
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'webStorage', 'TimeSliderDao', function (cfg, $scope, $rootScope, $timeout, webStorage, TimeSliderDao) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', 'webStorage', 'TimeSliderDao', function (cfg, $scope, $rootScope, $timeout, $window, webStorage, TimeSliderDao) {
 
-    // variables definition
-    var fetchCount, lastFetchedIndex, token, traces, oTimeSliderDao,
-        fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
+    // define private variables
+    var nFetchCount, nLastFetchedIndex, aTraces, oTimeSliderDao;
+
+    // define private variables of methods
+    var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
 
     // initialize private variables;
-    fetchCount = 1;
-    lastFetchedIndex = 0;
-    token = parent.window.name;
-    traces = webStorage.session.get(token);
+    nFetchCount = 1;
+    nLastFetchedIndex = 0;
+    aTraces = webStorage.session.get($window.name);
     oTimeSliderDao = new TimeSliderDao();
-    oTimeSliderDao.setTotal(traces.length);
+    oTimeSliderDao.setTotal(aTraces.length);
 
     /**
      * emit transaction list to table
@@ -32,19 +33,19 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
      * @returns {Array}
      */
     getQuery = function () {
-        if (!traces) {
-            alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
+        if (!aTraces) {
+            $window.alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
             return;
         }
         var query = [];
-        for (var i = lastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * fetchCount && i < traces.length; i++, j++) {
+        for (var i = nLastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * nFetchCount && i < aTraces.length; i++, j++) {
             if (i > 0) { query.push("&"); }
-            query = query.concat(["I", j, "=", traces[i].traceId]);
-            query = query.concat(["&T", j, "=", traces[i].x]);
-            query = query.concat(["&R", j, "=", traces[i].y]);
-            lastFetchedIndex++;
+            query = query.concat(["I", j, "=", aTraces[i].traceId]);
+            query = query.concat(["&T", j, "=", aTraces[i].x]);
+            query = query.concat(["&R", j, "=", aTraces[i].y]);
+            nLastFetchedIndex++;
         }
-        fetchCount++;
+        nFetchCount++;
         return query;
     };
 
@@ -89,10 +90,10 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             emitTransactionListToTable(data);
 
             if (oTimeSliderDao.getFrom() === null) {
-                oTimeSliderDao.setFrom(_.last(traces).x);
+                oTimeSliderDao.setFrom(_.last(aTraces).x);
             }
             if (oTimeSliderDao.getTo() === null) {
-                var to = _.first(traces).x;
+                var to = _.first(aTraces).x;
                 oTimeSliderDao.setTo(to);
                 oTimeSliderDao.setInnerTo(to);
             }
@@ -112,14 +113,14 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         $.post(cfg.applicationUrl, query.join(""),function (data) {
             cb(data);
         }).fail(function () {
-            alert("Failed to fetching the request informations.");
+            $window.alert("Failed to fetching the request information.");
         });
     };
 
     /**
      * initialization
      */
-    $(document).ready(function () {
+    $timeout(function () {
         fetchStart();
         $timeout(function () {
             $("#main-container").layout({
@@ -133,7 +134,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         }, 500);
     });
 
-    // scope events on\
+    // scope events on
     $scope.$on('transactionTable.applicationSelected', function (event, transaction) {
         angular.element('#transactionDetail').attr('src', "#/transactionDetail/" + transaction.traceId + "/" + transaction.collectorAcceptTime);
 //        angular.element('#transactionDetail').attr('src', "/transactionInfo.pinpoint?traceId=" + transaction.traceId + "&focusTimestamp=" + transaction.collectorAcceptTime);
