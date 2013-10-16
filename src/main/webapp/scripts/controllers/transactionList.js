@@ -5,10 +5,10 @@ pinpointApp.constant('TransactionListConfig', {
     MAX_FETCH_BLOCK_SIZE: 10
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'webStorage', 'timeSliderDao', function (cfg, $scope, $rootScope, $timeout, webStorage, oTimeSliderDao) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', 'webStorage', 'TimeSliderDao', function (cfg, $scope, $rootScope, $timeout, webStorage, TimeSliderDao) {
 
     // variables definition
-    var fetchCount, lastFetchedIndex, token, traces,
+    var fetchCount, lastFetchedIndex, token, traces, oTimeSliderDao,
         fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
 
     // initialize private variables;
@@ -16,6 +16,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
     lastFetchedIndex = 0;
     token = parent.window.name;
     traces = webStorage.session.get(token);
+    oTimeSliderDao = new TimeSliderDao();
     oTimeSliderDao.setTotal(traces.length);
 
     /**

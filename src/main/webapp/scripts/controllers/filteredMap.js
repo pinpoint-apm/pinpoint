@@ -1,6 +1,10 @@
 'use strict';
 
-pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'timeSliderDao', function ($scope, $routeParams, $timeout, oTimeSliderDao) {
+pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderDao', function ($scope, $routeParams, $timeout, TimeSliderDao) {
+
+    var oTimeSliderDao;
+
+    oTimeSliderDao = new TimeSliderDao();
 
     /**
      * get query period
