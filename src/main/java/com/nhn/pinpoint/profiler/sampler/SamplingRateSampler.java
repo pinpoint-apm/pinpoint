@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.profiler.sampler;
 
-import com.nhn.pinpoint.profiler.sampler.Sampler;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

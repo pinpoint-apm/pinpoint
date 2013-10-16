@@ -18,6 +18,8 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 import com.nhn.pinpoint.profiler.util.InterceptorUtils;
+import com.nhn.pinpoint.profiler.util.SimpleSampler;
+import com.nhn.pinpoint.profiler.util.SimpleSamplerFactory;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -48,9 +50,12 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
 
     private boolean cookie;
     private DumpType cookieDumpType;
+    private SimpleSampler cookieSampler;
 
     private boolean entity;
     private DumpType entityDumpType;
+    private SimpleSampler entitySampler;
+
 
     @Override
 	public void before(Object target, Object[] args) {
@@ -221,8 +226,16 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
         this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
+        if (cookie){
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+        }
+
+
         this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
         this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
+        if (entity) {
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+        }
 
     }
 
@@ -232,7 +245,9 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
         for (org.apache.http.Header header: cookies) {
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
-                trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                if (cookieSampler.isSampling()) {
+                    trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                }
             }
             // Cookie값이 2개 이상일수가 있나?
             break;
@@ -245,13 +260,16 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
             try {
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
-                    // entity utils의 toString시 일정 length까지만 데이터를 읽도록하는 기능이 필요함.
-                    String entityString = EntityUtils.toString(entityRequest.getEntity(), "UTF8");
-                    trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                    if (entitySampler.isSampling()) {
+                        // entity utils의 toString시 일정 length까지만 데이터를 읽도록하는 기능이 필요함.
+                        String entityString = EntityUtils.toString(entityRequest.getEntity(), "UTF8");
+                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                    }
                 }
             } catch (IOException e) {
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop("DumpError:" + e.getMessage(), 1024));
             }
         }
     }
+
 }
