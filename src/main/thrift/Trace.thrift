@@ -1,10 +1,9 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
 
-
 struct TIntStringValue {
-    1: i32 intValue;
-    2: optional string stringValue;
+     1: i32 intValue;
+     2: optional string stringValue;
 }
 
 struct TIntStringStringValue {
@@ -12,6 +11,7 @@ struct TIntStringStringValue {
     2: optional string stringValue1;
     3: optional string stringValue2;
 }
+
 
 union TAnnotationValue {
   1: string stringValue
@@ -69,7 +69,7 @@ struct TSpanEvent {
   20: optional string destinationId
 
   25: optional i32 apiId;
-  26: optional TIntStringStringValue exceptionInfo;
+  26: optional TIntStringValue exceptionInfo;
 }
 
 struct TSpan {
@@ -108,7 +108,7 @@ struct TSpan {
   21: optional string acceptorHost
 
   25: optional i32 apiId;
-  26: optional i32 exceptionId;
+  26: optional TIntStringValue exceptionInfo;
 }
 
 struct TSpanChunk {

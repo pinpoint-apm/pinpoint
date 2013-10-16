@@ -79,7 +79,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private int nextSpanId; // optional
   private String destinationId; // optional
   private int apiId; // optional
-  private TIntStringStringValue exceptionInfo; // optional
+  private TIntStringValue exceptionInfo; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -248,7 +248,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     tmpMap.put(_Fields.API_ID, new org.apache.thrift.meta_data.FieldMetaData("apiId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.EXCEPTION_INFO, new org.apache.thrift.meta_data.FieldMetaData("exceptionInfo", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TIntStringStringValue.class)));
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TIntStringValue.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpanEvent.class, metaDataMap);
   }
@@ -318,7 +318,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     }
     this.apiId = other.apiId;
     if (other.isSetExceptionInfo()) {
-      this.exceptionInfo = new TIntStringStringValue(other.exceptionInfo);
+      this.exceptionInfo = new TIntStringValue(other.exceptionInfo);
     }
   }
 
@@ -778,11 +778,11 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __APIID_ISSET_ID, value);
   }
 
-  public TIntStringStringValue getExceptionInfo() {
+  public TIntStringValue getExceptionInfo() {
     return this.exceptionInfo;
   }
 
-  public void setExceptionInfo(TIntStringStringValue exceptionInfo) {
+  public void setExceptionInfo(TIntStringValue exceptionInfo) {
     this.exceptionInfo = exceptionInfo;
   }
 
@@ -951,7 +951,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (value == null) {
         unsetExceptionInfo();
       } else {
-        setExceptionInfo((TIntStringStringValue)value);
+        setExceptionInfo((TIntStringValue)value);
       }
       break;
 
@@ -1828,7 +1828,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
             break;
           case 26: // EXCEPTION_INFO
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.exceptionInfo = new TIntStringStringValue();
+              struct.exceptionInfo = new TIntStringValue();
               struct.exceptionInfo.read(iprot);
               struct.setExceptionInfoIsSet(true);
             } else { 
@@ -2189,7 +2189,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         struct.setApiIdIsSet(true);
       }
       if (incoming.get(18)) {
-        struct.exceptionInfo = new TIntStringStringValue();
+        struct.exceptionInfo = new TIntStringValue();
         struct.exceptionInfo.read(iprot);
         struct.setExceptionInfoIsSet(true);
       }
