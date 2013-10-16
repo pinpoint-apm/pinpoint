@@ -230,7 +230,10 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
     private void dumpCookie(HttpUriRequest request, Trace trace) {
         org.apache.http.Header[] cookies = request.getHeaders("Cookie");
         for (org.apache.http.Header header: cookies) {
-            trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(header.getValue(), 1024));
+            final String value = header.getValue();
+            if (value != null && !value.isEmpty()) {
+                trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+            }
             // Cookie값이 2개 이상일수가 있나?
             break;
         }
@@ -240,8 +243,9 @@ public class HttpUriRequestExecuteInterceptor implements SimpleAroundInterceptor
         if (request instanceof HttpEntityEnclosingRequestBase) {
             HttpEntityEnclosingRequestBase entityRequest = (HttpEntityEnclosingRequestBase) request;
             try {
-                HttpEntity entity = entityRequest.getEntity();
+                final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
+                    // entity utils의 toString시 일정 length까지만 데이터를 읽도록하는 기능이 필요함.
                     String entityString = EntityUtils.toString(entityRequest.getEntity(), "UTF8");
                     trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                 }
