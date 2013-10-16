@@ -264,21 +264,13 @@ public class FlowChartServiceImpl implements FlowChartService {
 				}
 
 				// find dest elapsed time
-				for (SpanEventBo ev : spanEventBoList) {
-					if (destServiceType == ev.getServiceType().getCode() && destApplicationName.equals(ev.getDestinationId())) {
+				for (SpanEventBo spanEventBo : spanEventBoList) {
+					if (destServiceType == spanEventBo.getServiceType().getCode() && destApplicationName.equals(spanEventBo.getDestinationId())) {
 						// find exception
-						boolean hasException = false;
-						List<AnnotationBo> annList = ev.getAnnotationBoList();
-						for (AnnotationBo ann : annList) {
-							if (ann.getKey() == AnnotationKey.EXCEPTION.getCode()) {
-								hasException = true;
-								break;
-							}
-						}
-
+						boolean hasException = spanEventBo.hasException();
 						// add sample
 						// TODO : 실제값 대신 slot값을 넣어야 함.
-						statistics.addSample(span.getStartTime() + ev.getStartElapsed(), ev.getEndElapsed(), 1, hasException);
+						statistics.addSample(span.getStartTime() + spanEventBo.getStartElapsed(), spanEventBo.getEndElapsed(), 1, hasException);
 						break;
 					}
 				}

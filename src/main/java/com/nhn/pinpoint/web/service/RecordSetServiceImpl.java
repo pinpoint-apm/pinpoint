@@ -224,6 +224,11 @@ public class RecordSetServiceImpl implements RecordSetService {
                         record.setFullApiDescription("");
                         recordList.add(record);
                     }
+                    // exception이 발생했을 경우 record추가.
+                    final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoSequence);
+                    if (exceptionRecord != null) {
+                        recordList.add(exceptionRecord);
+                    }
 
                     List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoSequence, spanBo.getAnnotationBoList());
                     recordList.addAll(annotationRecord);
@@ -265,6 +270,11 @@ public class RecordSetServiceImpl implements RecordSetService {
 
                         recordList.add(record);
                     }
+                    // exception이 발생했을 경우 record추가.
+                    final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoEventSequence);
+                    if (exceptionRecord != null) {
+                        recordList.add(exceptionRecord);
+                    }
 
                     List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoEventSequence, spanEventBo.getAnnotationBoList());
                     recordList.addAll(annotationRecord);
@@ -272,6 +282,35 @@ public class RecordSetServiceImpl implements RecordSetService {
             }
             return recordList;
         }
+
+        private Record getExceptionRecord(SpanAlign spanAlign, int parentSequence) {
+            if (spanAlign.isSpan()) {
+                final SpanBo spanBo = spanAlign.getSpanBo();
+                if (spanBo.hasException()) {
+                    String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
+                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false);
+                }
+            } else {
+                final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+                if (spanEventBo.hasException()) {
+                    String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
+                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanEventBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false);
+                }
+            }
+            return null;
+        }
+
+        private String getSimpleExceptionName(String exceptionClass) {
+            if (exceptionClass == null) {
+                return "";
+            }
+            final int index = exceptionClass.lastIndexOf('.');
+            if (index != -1) {
+                exceptionClass = exceptionClass.substring(index+1, exceptionClass.length());
+            }
+            return exceptionClass;
+        }
+
 
         private long getGap(Stack<SpanDepth> stack) {
             SpanDepth last = stack.getLast();
@@ -308,34 +347,14 @@ public class RecordSetServiceImpl implements RecordSetService {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
             for (AnnotationBo ann : annotationBoList) {
-                if (AnnotationKey.EXCEPTION.getCode() == ann.getKey()) {
-                    String exceptionClass = findExceptionClass(annotationBoList);
-                    if (exceptionClass != null) {
-                        final int index = exceptionClass.lastIndexOf('.');
-                        if (index != -1) {
-                            exceptionClass = exceptionClass.substring(index+1, exceptionClass.length());
-                        }
-                        Record record = new Record(depth, getNextId(), parentId, false, exceptionClass, ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
-                        recordList.add(record);
-                    }
-                }
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
-                if (AnnotationKey.EXCEPTION.getCode() != ann.getKey() && annotation.isViewInRecordSet()) {
+                if (annotation.isViewInRecordSet()) {
                     Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
                     recordList.add(record);
                 }
             }
 
             return recordList;
-        }
-
-        private String findExceptionClass(List<AnnotationBo> annotationBoList) {
-            for (AnnotationBo annotationBo : annotationBoList) {
-                if (annotationBo.getKey() == AnnotationKey.EXCEPTION_CLASS.getCode()) {
-                    return annotationBo.getValue().toString();
-                }
-            }
-            return null;
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {

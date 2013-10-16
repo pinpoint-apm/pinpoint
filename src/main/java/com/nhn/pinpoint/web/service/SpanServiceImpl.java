@@ -58,10 +58,13 @@ public class SpanServiceImpl implements SpanService {
 		transitionDynamicApiId(order);
 		transitionSqlId(order);
         transitionCachedString(order);
+        transitionException(order);
 		// TODO root span not found시 row data라도 보여줘야 됨.
 
 		return order;
 	}
+
+
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
 		for (SpanAlign spanAlign : spans) {
@@ -242,11 +245,11 @@ public class SpanServiceImpl implements SpanService {
                 }
                 for (AnnotationBo annotationBo : cachedStringAnnotation) {
                     final int cachedArgsKey = annotationBo.getKey();
-                    int stringMeataDataId = (Integer) annotationBo.getValue();
-                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(key.getAgentId(), stringMeataDataId, key.getAgentStartTime());
+                    int stringMetaDataId = (Integer) annotationBo.getValue();
+                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(key.getAgentId(), stringMetaDataId, key.getAgentStartTime());
                     int size = stringMetaList.size();
                     if (size == 0) {
-                        logger.warn("StringMetaData not Found {}/{}/{}", key.getAgentId(), stringMeataDataId, key.getAgentStartTime());
+                        logger.warn("StringMetaData not Found {}/{}/{}", key.getAgentId(), stringMetaDataId, key.getAgentStartTime());
                         AnnotationBo api = new AnnotationBo();
                         // API METADATA ERROR가 아님. 추후 수정.
                         api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
@@ -278,6 +281,40 @@ public class SpanServiceImpl implements SpanService {
             }
         }
         return findAnnotationBoList;
+    }
+
+    private void transitionException(List<SpanAlign> spanAlignList) {
+        for (SpanAlign spanAlign : spanAlignList) {
+            if (spanAlign.isSpan()) {
+                final SpanBo spanBo = spanAlign.getSpanBo();
+                if (spanBo.hasException()) {
+                    StringMetaDataBo stringMetaData = selectStringMetaData(spanBo.getAgentId(), spanBo.getExceptionId(), spanBo.getAgentStartTime());
+                    spanBo.setExceptionClass(stringMetaData.getStringValue());
+                }
+            } else {
+                final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+                if (spanEventBo.hasException()) {
+                    StringMetaDataBo stringMetaData = selectStringMetaData(spanEventBo.getAgentId(), spanEventBo.getExceptionId(), spanEventBo.getAgentStartTime());
+                    spanEventBo.setExceptionClass(stringMetaData.getStringValue());
+                }
+            }
+        }
+
+    }
+
+    private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
+        final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, cacheId, agentStartTime);
+        if (metaDataList == null || metaDataList.isEmpty()) {
+            logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
+            return null;
+        }
+        if (metaDataList.size() == 1) {
+            return metaDataList.get(0);
+        } else {
+            // 일단 로그 찍고 처리.
+            logger.warn("stringMetaData size not 1 :{}", metaDataList);
+            return metaDataList.get(0);
+        }
     }
 
     private int getApiId(SpanAlign spanAlign) {
