@@ -7,10 +7,16 @@ pinpointApp.directive('callStacks', [ function () {
         templateUrl: 'views/callStacks.html',
         link: function postLink(scope, element, attrs) {
 
+            // define private variables of methods
             var initialize;
 
+            // initialize scope variables
             scope.transactionDetail = null;
 
+            /**
+             * initialize
+             * @param transactionDetail
+             */
             initialize = function (transactionDetail) {
                 scope.transactionDetail = transactionDetail;
                 scope.key = transactionDetail.callStackIndex;
@@ -22,6 +28,9 @@ pinpointApp.directive('callStacks', [ function () {
                 });
             };
 
+            /**
+             * scope event on callStacks.initialize
+             */
             scope.$on('callStacks.initialize', function (event, transactionDetail) {
                 initialize(transactionDetail);
             });

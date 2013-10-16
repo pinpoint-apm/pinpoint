@@ -49,7 +49,7 @@ pinpointApp
                     ]);
 //                    jQuery.ajax({
 //                        type: 'GET',
-//                        url: cfg.agentListUrl,
+//                        url: cfg.agentGroupUrl,
 //                        cache: false,
 //                        dataType: 'json',
 //                        data: {
