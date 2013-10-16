@@ -53,8 +53,10 @@ public class ProfilerConfig {
     private boolean apacheHttpClient4Profile = true;
     private boolean apacheHttpClient4ProfileCookie = false;
     private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
+    private int apacheHttpClient4ProfileCookieSamplingRate = 1;
     private boolean apacheHttpClient4ProfileEntity = false;
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
+    private int apacheHttpClient4ProfileEntitySamplingRate = 1;
 
 
     // 전역 샘플링
@@ -284,6 +286,10 @@ public class ProfilerConfig {
         return apacheHttpClient4ProfileCookieDumpType;
     }
 
+    public int getApacheHttpClient4ProfileCookieSamplingRate() {
+        return apacheHttpClient4ProfileCookieSamplingRate;
+    }
+
     public boolean isApacheHttpClient4ProfileEntity() {
         return apacheHttpClient4ProfileEntity;
     }
@@ -292,6 +298,9 @@ public class ProfilerConfig {
         return apacheHttpClient4ProfileEntityDumpType;
     }
 
+    public int getApacheHttpClient4ProfileEntitySamplingRate() {
+        return apacheHttpClient4ProfileEntitySamplingRate;
+    }
 
     //-----------------------------------------
 
@@ -367,8 +376,11 @@ public class ProfilerConfig {
         this.apacheHttpClient4Profile = readBoolean(prop, "profiler.apache.httpclient4", true);
         this.apacheHttpClient4ProfileCookie = readBoolean(prop, "profiler.apache.httpclient4.cookie", false);
         this.apacheHttpClient4ProfileCookieDumpType = readDumpType(prop, "profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient4ProfileCookieSamplingRate = readInt(prop, "profiler.apache.httpclient4.cookie.sampling.rate", 1);
+
         this.apacheHttpClient4ProfileEntity = readBoolean(prop, "profiler.apache.httpclient4.entity", false);
         this.apacheHttpClient4ProfileEntityDumpType = readDumpType(prop, "profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient4ProfileEntitySamplingRate = readInt(prop, "profiler.apache.httpclient4.entity.sampling.rate", 1);
 
 
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
