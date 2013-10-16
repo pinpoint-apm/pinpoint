@@ -114,6 +114,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
         if (result instanceof Throwable) {
             Throwable th = (Throwable) result;
             String drop = StringUtils.drop(th.getMessage());
+
             recordAttribute(AnnotationKey.EXCEPTION, drop);
 
 //            TODO 비동기 api일 경우, span에 exception을 마크하기가 까다로움

@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.thrift.dto.TAgentKey;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 /**
@@ -26,6 +27,14 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
 
     public void addAnnotation(Annotation annotation) {
         this.addToAnnotations(annotation);
+    }
+
+    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+        final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
+        if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+            exceptionInfo.setStringValue(exceptionMessage);
+        }
+        super.setExceptionInfo(exceptionInfo);
     }
 
 

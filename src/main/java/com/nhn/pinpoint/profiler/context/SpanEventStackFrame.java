@@ -68,8 +68,8 @@ public class SpanEventStackFrame implements StackFrame {
     }
 
     @Override
-    public void setExceptionId(int id) {
-//        this.spanEvent.setExceptionId(id);
+    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
+        this.spanEvent.setExceptionInfo(exceptionId, exceptionMessage);
     }
 
     @Override

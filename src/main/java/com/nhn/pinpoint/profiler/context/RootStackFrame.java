@@ -68,8 +68,8 @@ public class RootStackFrame implements StackFrame {
     }
 
     @Override
-    public void setExceptionId(int id) {
-        this.span.setExceptionId(id);
+    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
+        this.span.setExceptionInfo(exceptionId, exceptionMessage);
     }
 
     @Override

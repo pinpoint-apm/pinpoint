@@ -225,10 +225,9 @@ public final class DefaultTrace implements Trace {
         if (result instanceof Throwable) {
             final Throwable th = (Throwable) result;
             final String drop = StringUtils.drop(th.getMessage(), 256);
-
-//            this.currentStackFrame.setExceptionId();
-            recordAttribute(AnnotationKey.EXCEPTION, drop);
-            recordAttribute(AnnotationKey.EXCEPTION_CLASS, th.getClass().getName());
+            // exception class가 proxy라서 class Name이 불규칙하면 문제가 발생할수 있다.
+            final int exceptionId = traceContext.cacheString(th.getClass().getName());
+            this.currentStackFrame.setExceptionInfo(exceptionId, drop);
 
             final Span span = getCallStack().getSpan();
             if (!span.isSetErrCode()) {

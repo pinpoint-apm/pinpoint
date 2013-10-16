@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 
 /**
@@ -60,14 +61,12 @@ public class Span extends TSpan implements Thriftable {
         this.addToAnnotations(annotation);
     }
 
-    @Override
-    public void setExceptionId(int exceptionId) {
-        super.setExceptionId(exceptionId);
-    }
-
-    @Override
-    public int getExceptionId() {
-        return super.getExceptionId();
+    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+        final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
+        if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+            exceptionInfo.setStringValue(exceptionMessage);
+        }
+        super.setExceptionInfo(exceptionInfo);
     }
 
     public boolean isSetErrCode() {

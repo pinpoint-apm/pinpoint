@@ -26,6 +26,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 /**
  *
  */
+@Deprecated
 public class BaseOperationTransitionStateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

@@ -70,7 +70,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 //            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
 
             // find the target node
-            Operation op = (Operation) getOperation.invoke(target);
+            final Operation op = (Operation) getOperation.invoke(target);
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
                 SocketAddress socketAddress = handlingNode.getSocketAddress();
@@ -92,10 +92,13 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
                 trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
             }
 
-            trace.recordException(op.getException());
-            if (op.isCancelled()) {
-                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+            if (op != null) {
+                trace.recordException(op.getException());
             }
+//            cancel일때 exception은 안던지는 것인가?
+//            if (op.isCancelled()) {
+//                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+//            }
 
             trace.markAfterTime();
         } finally {

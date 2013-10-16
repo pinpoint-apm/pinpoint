@@ -23,7 +23,7 @@ public interface StackFrame {
 
     void setApiId(int apiId);
 
-    void setExceptionId(int id);
+    void setExceptionInfo(int exceptionId, String exceptionMessage);
 
     void setServiceType(short serviceType);
 
