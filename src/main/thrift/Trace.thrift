@@ -55,7 +55,7 @@ struct TSpanEvent {
   8: i16 sequence
 
   9: i32 startElapsed
-  10: i32 endElapsed
+  10: optional i32 endElapsed = 0
 
   11: optional string rpc
   12: i16 serviceType
@@ -88,7 +88,7 @@ struct TSpan {
 
   // span 이벤트의 시작시간.
   9: i64 startTime
-  10: i32 elapsed
+  10: optional i32 elapsed = 0
 
   11: optional string rpc
 

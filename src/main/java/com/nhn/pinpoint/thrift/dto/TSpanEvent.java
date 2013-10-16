@@ -70,7 +70,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private int spanId; // optional
   private short sequence; // required
   private int startElapsed; // required
-  private int endElapsed; // required
+  private int endElapsed; // optional
   private String rpc; // optional
   private short serviceType; // required
   private String endPoint; // optional
@@ -206,7 +206,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private static final int __NEXTSPANID_ISSET_ID = 9;
   private static final int __APIID_ISSET_ID = 10;
   private short __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.AGENT_KEY,_Fields.PARENT_SERVICE_TYPE,_Fields.PARENT_END_POINT,_Fields.TRACE_AGENT_ID,_Fields.TRACE_AGENT_START_TIME,_Fields.TRACE_TRANSACTION_SEQUENCE,_Fields.SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
+  private _Fields optionals[] = {_Fields.AGENT_KEY,_Fields.PARENT_SERVICE_TYPE,_Fields.PARENT_END_POINT,_Fields.TRACE_AGENT_ID,_Fields.TRACE_AGENT_START_TIME,_Fields.TRACE_TRANSACTION_SEQUENCE,_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -228,7 +228,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.START_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("startElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.END_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("endElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.END_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("endElapsed", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -254,6 +254,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   }
 
   public TSpanEvent() {
+    this.endElapsed = 0;
+
     this.depth = -1;
 
     this.nextSpanId = -1;
@@ -263,7 +265,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   public TSpanEvent(
     short sequence,
     int startElapsed,
-    int endElapsed,
     short serviceType)
   {
     this();
@@ -271,8 +272,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     setSequenceIsSet(true);
     this.startElapsed = startElapsed;
     setStartElapsedIsSet(true);
-    this.endElapsed = endElapsed;
-    setEndElapsedIsSet(true);
     this.serviceType = serviceType;
     setServiceTypeIsSet(true);
   }
@@ -344,8 +343,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     this.sequence = 0;
     setStartElapsedIsSet(false);
     this.startElapsed = 0;
-    setEndElapsedIsSet(false);
     this.endElapsed = 0;
+
     this.rpc = null;
     setServiceTypeIsSet(false);
     this.serviceType = 0;
@@ -1165,8 +1164,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         return false;
     }
 
-    boolean this_present_endElapsed = true;
-    boolean that_present_endElapsed = true;
+    boolean this_present_endElapsed = true && this.isSetEndElapsed();
+    boolean that_present_endElapsed = true && that.isSetEndElapsed();
     if (this_present_endElapsed || that_present_endElapsed) {
       if (!(this_present_endElapsed && that_present_endElapsed))
         return false;
@@ -1542,10 +1541,12 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     sb.append("startElapsed:");
     sb.append(this.startElapsed);
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("endElapsed:");
-    sb.append(this.endElapsed);
-    first = false;
+    if (isSetEndElapsed()) {
+      if (!first) sb.append(", ");
+      sb.append("endElapsed:");
+      sb.append(this.endElapsed);
+      first = false;
+    }
     if (isSetRpc()) {
       if (!first) sb.append(", ");
       sb.append("rpc:");
@@ -1882,9 +1883,11 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       oprot.writeFieldBegin(START_ELAPSED_FIELD_DESC);
       oprot.writeI32(struct.startElapsed);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(END_ELAPSED_FIELD_DESC);
-      oprot.writeI32(struct.endElapsed);
-      oprot.writeFieldEnd();
+      if (struct.isSetEndElapsed()) {
+        oprot.writeFieldBegin(END_ELAPSED_FIELD_DESC);
+        oprot.writeI32(struct.endElapsed);
+        oprot.writeFieldEnd();
+      }
       if (struct.rpc != null) {
         if (struct.isSetRpc()) {
           oprot.writeFieldBegin(RPC_FIELD_DESC);

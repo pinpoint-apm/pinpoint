@@ -74,7 +74,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   private int spanId; // required
   private int parentSpanId; // optional
   private long startTime; // required
-  private int elapsed; // required
+  private int elapsed; // optional
   private String rpc; // optional
   private short serviceType; // required
   private String endPoint; // optional
@@ -228,7 +228,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   private static final int __APIID_ISSET_ID = 11;
   private static final int __EXCEPTIONID_ISSET_ID = 12;
   private short __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.TRACE_AGENT_ID,_Fields.PARENT_SPAN_ID,_Fields.RPC,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.ANNOTATIONS,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST,_Fields.PARENT_APPLICATION_NAME,_Fields.PARENT_APPLICATION_TYPE,_Fields.ACCEPTOR_HOST,_Fields.API_ID,_Fields.EXCEPTION_ID};
+  private _Fields optionals[] = {_Fields.TRACE_AGENT_ID,_Fields.PARENT_SPAN_ID,_Fields.ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.REMOTE_ADDR,_Fields.ANNOTATIONS,_Fields.FLAG,_Fields.ERR,_Fields.SPAN_EVENT_LIST,_Fields.PARENT_APPLICATION_NAME,_Fields.PARENT_APPLICATION_TYPE,_Fields.ACCEPTOR_HOST,_Fields.API_ID,_Fields.EXCEPTION_ID};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -250,7 +250,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RPC, new org.apache.thrift.meta_data.FieldMetaData("rpc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -287,6 +287,8 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   public TSpan() {
     this.parentSpanId = -1;
 
+    this.elapsed = 0;
+
     this.flag = (short)0;
 
   }
@@ -299,7 +301,6 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     long traceTransactionSequence,
     int spanId,
     long startTime,
-    int elapsed,
     short serviceType)
   {
     this();
@@ -315,8 +316,6 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     setSpanIdIsSet(true);
     this.startTime = startTime;
     setStartTimeIsSet(true);
-    this.elapsed = elapsed;
-    setElapsedIsSet(true);
     this.serviceType = serviceType;
     setServiceTypeIsSet(true);
   }
@@ -400,8 +399,8 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
 
     setStartTimeIsSet(false);
     this.startTime = 0;
-    setElapsedIsSet(false);
     this.elapsed = 0;
+
     this.rpc = null;
     setServiceTypeIsSet(false);
     this.serviceType = 0;
@@ -1384,8 +1383,8 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
         return false;
     }
 
-    boolean this_present_elapsed = true;
-    boolean that_present_elapsed = true;
+    boolean this_present_elapsed = true && this.isSetElapsed();
+    boolean that_present_elapsed = true && that.isSetElapsed();
     if (this_present_elapsed || that_present_elapsed) {
       if (!(this_present_elapsed && that_present_elapsed))
         return false;
@@ -1827,10 +1826,12 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     sb.append("startTime:");
     sb.append(this.startTime);
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("elapsed:");
-    sb.append(this.elapsed);
-    first = false;
+    if (isSetElapsed()) {
+      if (!first) sb.append(", ");
+      sb.append("elapsed:");
+      sb.append(this.elapsed);
+      first = false;
+    }
     if (isSetRpc()) {
       if (!first) sb.append(", ");
       sb.append("rpc:");
@@ -2236,9 +2237,11 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
       oprot.writeI64(struct.startTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(ELAPSED_FIELD_DESC);
-      oprot.writeI32(struct.elapsed);
-      oprot.writeFieldEnd();
+      if (struct.isSetElapsed()) {
+        oprot.writeFieldBegin(ELAPSED_FIELD_DESC);
+        oprot.writeI32(struct.elapsed);
+        oprot.writeFieldEnd();
+      }
       if (struct.rpc != null) {
         if (struct.isSetRpc()) {
           oprot.writeFieldBegin(RPC_FIELD_DESC);
