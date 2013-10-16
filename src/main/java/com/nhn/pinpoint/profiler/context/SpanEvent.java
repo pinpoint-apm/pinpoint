@@ -43,9 +43,10 @@ public class SpanEvent extends TSpanEvent implements Thriftable {
         if (!isSetStartElapsed()) {
             throw new PinpointTraceException("startTime is not set");
         }
-//        spanEvent.setEndElapsed((int) (endTime - startTime));
         final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
-        this.setEndElapsed(endElapsed);
+        if (endElapsed != 0) {
+            this.setEndElapsed(endElapsed);
+        }
     }
 
     public long getAfterTime() {

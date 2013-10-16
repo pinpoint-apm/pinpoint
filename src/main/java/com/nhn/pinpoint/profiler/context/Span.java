@@ -41,9 +41,11 @@ public class Span extends TSpan implements Thriftable {
         if (!isSetStartTime()) {
             throw new PinpointTraceException("startTime is not set");
         }
-        final long startTime = this.getStartTime();
+        final int after = (int)(System.currentTimeMillis() - this.getStartTime());
         // long으로 바꿀것.
-        this.setElapsed((int)(System.currentTimeMillis() - startTime));
+        if (after != 0) {
+            this.setElapsed(after);
+        }
     }
 
     public long getAfterTime() {
