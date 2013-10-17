@@ -8,6 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class FilterModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			Interceptor doFilterInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+			Interceptor doFilterInterceptor = new MethodInterceptor();
 
 //			setTraceContext(doFilterInterceptor);
 

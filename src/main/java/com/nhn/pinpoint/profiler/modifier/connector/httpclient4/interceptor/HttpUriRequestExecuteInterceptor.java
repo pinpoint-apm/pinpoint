@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
 import java.net.URI;
 
+import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.pair.NameIntValuePair;
 import org.apache.http.HttpRequest;
@@ -17,7 +18,7 @@ import org.apache.http.client.methods.HttpUriRequest;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  */
-public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute {
+public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 

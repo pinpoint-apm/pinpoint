@@ -8,6 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +37,11 @@ public class HttpServletModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			Interceptor doGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.method.method.interceptor.MethodInterceptor");
-			Interceptor doPostInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.method.method.interceptor.MethodInterceptor");
-
-
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
-
+            Interceptor doGetInterceptor = new MethodInterceptor();
 			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
+
+            Interceptor doPostInterceptor = new MethodInterceptor();
 			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doPostInterceptor);
 
 			return servlet.toBytecode();

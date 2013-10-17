@@ -7,6 +7,7 @@ import java.util.List;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import javassist.CtClass;
 import javassist.CtMethod;
 
@@ -49,7 +50,7 @@ public class MethodModifier extends AbstractModifier {
 
 			List<Method> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
 			for (Method method : methodList) {
-				Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+				final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
                 }

@@ -3,10 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor;
 import java.util.Enumeration;
 
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
 import com.nhn.pinpoint.common.AnnotationKey;
@@ -19,7 +16,7 @@ import com.nhn.pinpoint.profiler.util.StringUtils;
 /**
  * @author netspider
  */
-public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

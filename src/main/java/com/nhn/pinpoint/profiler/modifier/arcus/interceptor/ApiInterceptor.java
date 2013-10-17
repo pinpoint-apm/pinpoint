@@ -10,7 +10,6 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
-import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
@@ -19,7 +18,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 /**
  *
  */
-public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, ParameterExtractorSupport {
+public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, ParameterExtractorSupport, TargetClassLoader {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

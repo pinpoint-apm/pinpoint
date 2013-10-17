@@ -3,10 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor;
 import java.net.InetSocketAddress;
 
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.MetaObject;
@@ -19,7 +16,7 @@ import com.nhncorp.lucy.npc.connector.NpcConnectorOption;
  * @author netspider
  * 
  */
-public class ConnectorConstructorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class ConnectorConstructorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 	private final boolean isDebug = logger.isDebugEnabled();

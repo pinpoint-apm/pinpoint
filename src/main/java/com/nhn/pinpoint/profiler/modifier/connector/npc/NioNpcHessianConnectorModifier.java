@@ -9,6 +9,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class NioNpcHessianConnectorModifier extends AbstractModifier {
 			connectorClass.addConstructorInterceptor(new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" }, constructorInterceptor);
 
 			// invoke
-			Interceptor invokeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor");
+			Interceptor invokeInterceptor = new InvokeInterceptor();
 			connectorClass.addInterceptor("invoke", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, invokeInterceptor);
 
 			return connectorClass.toBytecode();

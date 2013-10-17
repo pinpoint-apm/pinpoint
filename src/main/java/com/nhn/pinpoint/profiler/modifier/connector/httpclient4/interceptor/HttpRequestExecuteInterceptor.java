@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
+import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.pair.NameIntValuePair;
 import org.apache.http.HttpHost;
@@ -18,7 +19,7 @@ import org.apache.http.HttpRequest;
  *            throws IOException, ClientProtocolException {
  * </pre>
  */
-public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute {
+public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
     private static final int HTTP_HOST_INDEX = 0;
     private static final int HTTP_REQUEST_INDEX = 1;

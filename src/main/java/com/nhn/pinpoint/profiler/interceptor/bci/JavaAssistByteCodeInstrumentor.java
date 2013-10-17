@@ -10,6 +10,7 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -121,6 +122,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                     return classLoader.loadClass(defineClass);
                 } else {
                     final CtClass clazz = childClassPool.get(defineClass);
+                    if (isDebug) {
+                        // 개발환경에서 체크해도 충분한 내용이라. 로그 레벨이 debug일때만 체크한다.
+                        checkTargetClassInterface(clazz);
+                    }
                     defineAbstractSuperClass(clazz, classLoader, protectedDomain);
                     defineNestedClass(clazz, classLoader, protectedDomain);
                     return clazz.toClass(classLoader, protectedDomain);
@@ -133,6 +138,17 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         } catch (ClassNotFoundException e) {
             throw new InstrumentException(defineClass + " class not found. Cause:" + e.getMessage(), e);
         }
+    }
+
+    private void checkTargetClassInterface(CtClass clazz) throws NotFoundException, InstrumentException {
+        final String name = TargetClassLoader.class.getName();
+        final CtClass[] interfaces = clazz.getInterfaces();
+        for (CtClass anInterface : interfaces) {
+            if (name.equals(anInterface.getName())) {
+                return;
+            }
+        }
+        throw new InstrumentException("newInterceptor() not support. " + clazz.getName());
     }
 
     private void defineAbstractSuperClass(CtClass clazz, ClassLoader classLoader, ProtectionDomain protectedDomain) throws NotFoundException, CannotCompileException {

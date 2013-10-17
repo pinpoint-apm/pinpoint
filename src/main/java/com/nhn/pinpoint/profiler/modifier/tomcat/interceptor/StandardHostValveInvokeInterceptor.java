@@ -4,10 +4,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
@@ -20,7 +17,7 @@ import com.nhn.pinpoint.profiler.util.NetworkUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 
-public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isInfoEnabled();

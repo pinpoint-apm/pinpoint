@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedNode;
@@ -13,16 +14,12 @@ import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
  *
  */
-public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

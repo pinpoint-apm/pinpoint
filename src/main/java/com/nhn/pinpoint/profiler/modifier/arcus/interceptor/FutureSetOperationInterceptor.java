@@ -1,21 +1,18 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
+import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 
 /**
  * @author harebox
  */
-public class FutureSetOperationInterceptor implements SimpleAroundInterceptor {
+public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
