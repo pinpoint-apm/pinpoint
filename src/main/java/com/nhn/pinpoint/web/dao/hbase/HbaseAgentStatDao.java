@@ -80,7 +80,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		if (agentId == null) {
 			throw new IllegalArgumentException("agentId must not null");
 		}
-		byte[] bAgentId = BytesUtils.getBytes(agentId);
+		byte[] bAgentId = BytesUtils.toBytes(agentId);
 		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
 
