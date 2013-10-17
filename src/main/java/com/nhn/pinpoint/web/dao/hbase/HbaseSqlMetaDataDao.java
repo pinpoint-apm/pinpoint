@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.util.List;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,14 +27,22 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Qualifier("sqlMetaDataMapper")
     private RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
+    @Autowired
+    @Qualifier("metadataRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int hashCode) {
         SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, hashCode);
-        byte[] sqlId = sqlMetaData.toRowKey();
+        byte[] sqlId = getDistributedKey(sqlMetaData.toRowKey());
 
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.SQL_METADATA_CF_SQL);
 
         return hbaseOperations2.get(HBaseTables.SQL_METADATA, get, sqlMetaDataMapper);
+    }
+
+    private byte[] getDistributedKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 }

@@ -295,7 +295,9 @@ public class SpanServiceImpl implements SpanService {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
                 if (spanEventBo.hasException()) {
                     StringMetaDataBo stringMetaData = selectStringMetaData(spanEventBo.getAgentId(), spanEventBo.getExceptionId(), spanEventBo.getAgentStartTime());
-                    spanEventBo.setExceptionClass(stringMetaData.getStringValue());
+                    if (stringMetaData != null) {
+                        spanEventBo.setExceptionClass(stringMetaData.getStringValue());
+                    }
                 }
             }
         }
