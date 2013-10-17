@@ -103,7 +103,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             CtClass cc = childClassPool.get(javassistClassName);
             return new JavaAssistClass(this, cc);
         } catch (NotFoundException e) {
-            throw new InstrumentException(javassistClassName + " class not fund. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
         }
     }
 
@@ -127,11 +127,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 }
             }
         } catch (NotFoundException e) {
-            throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(defineClass + " class not found. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
             throw new InstrumentException(defineClass + " class define fail. cl:" + classLoader + " Cause:" + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-            throw new InstrumentException(defineClass + " class not fund. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(defineClass + " class not found. Cause:" + e.getMessage(), e);
         }
     }
 
