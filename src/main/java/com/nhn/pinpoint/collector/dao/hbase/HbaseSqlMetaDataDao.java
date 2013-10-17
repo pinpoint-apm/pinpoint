@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -24,6 +26,10 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
+    @Autowired
+    @Qualifier("metadataRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public void insert(TSqlMetaData sqlMetaData) {
         if (logger.isDebugEnabled()) {
@@ -31,7 +37,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         }
 
         SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getHashCode());
-        byte[] rowKey = sqlMetaDataBo.toRowKey();
+        final byte[] rowKey = getDistributedKey(sqlMetaDataBo.toRowKey());
 
 
         Put put = new Put(rowKey);
@@ -41,5 +47,9 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         put.add(HBaseTables.SQL_METADATA_CF_SQL, sqlBytes, null);
 
         hbaseTemplate.put(HBaseTables.SQL_METADATA, put);
+    }
+
+    private byte[] getDistributedKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 }
