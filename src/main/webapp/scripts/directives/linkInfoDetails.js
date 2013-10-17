@@ -16,7 +16,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
             var htQuery;
 
             // define private variables of methods;
-            var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeseriesHistogram, renderStatisticsSummary, showApplicationStatistics;
+            var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram, renderStatisticsSummary, showApplicationStatistics;
 
             /**
              * reset
@@ -100,7 +100,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * render statistics timseries histogram
              * @param data
              */
-            renderStatisticsTimeseriesHistogram = function (data) {
+            renderStatisticsTimeSeriesHistogram = function (data) {
                 nv.addGraph(function () {
                     var chart = nv.models.multiBarChart().x(function (d) {
                         return d[0];
@@ -141,8 +141,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                     var chart = nv.models.discreteBarChart().x(function (d) {
                         return d.label;
                     }).y(function (d) {
-                            return d.value;
-                        }).staggerLabels(false).tooltips(false).showValues(true);
+                        return d.value;
+                    }).staggerLabels(false).tooltips(false).showValues(true);
 
                     chart.xAxis.tickFormat(function (d) {
                         if (angular.isNumber(d)) {
@@ -196,24 +196,26 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                     scope.showLinkInfoChart = true;
                     scope.showLinkInfoBarChart = true;
                     scope.$digest();
-                    renderStatisticsTimeseriesHistogram(result.timeseriesHistogram);
+                    renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
                     renderStatisticsSummary(result.histogramSummary);
                 });
             };
 
-            // define scope events on
-            scope.$on('servermap.nodeClicked', function (event, e, query, data) {
+            /**
+             * scope event on servermap.nodeClicked
+             */
+            scope.$on('linkInfoDetails.initializeWithNodeData', function (event, e, query, node, data) {
                 reset();
-            });
-            scope.$on('servermap.linkClicked', function (event, e, query, data) {
-                reset();
-                htQuery = query;
-                showDetailInformation(data);
-            });
-            scope.$on('servermap.linkContextClicked', function (event, e, query, data) {
-//                    alert('linkContextClicked');
             });
 
+            /**
+             * scope event on servermap.linkClicked
+             */
+            scope.$on('linkInfoDetails.initializeWithLinkData', function (event, e, query, link, data) {
+                reset();
+                htQuery = query;
+                showDetailInformation(link);
+            });
         }
     };
 } ]);

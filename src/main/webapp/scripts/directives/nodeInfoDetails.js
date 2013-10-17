@@ -41,7 +41,6 @@ pinpointApp
                  * @param node
                  */
                 showDetailInformation = function (query, node) {
-                    console.log('showinfo', node, htServermapData);
                     scope.nodeName = node.text;
                     scope.nodeCategory = node.category;
                     if (node.category !== 'UNKNOWN_GROUP') {
@@ -189,7 +188,10 @@ pinpointApp
                     return histogram;
                 };
 
-                scope.$on('servermap.nodeClicked', function (event, e, query, node, mapData) {
+                /**
+                 * scope event on nodeInfoDetails.initializeWithNodeData
+                 */
+                scope.$on('nodeInfoDetails.initializeWithNodeData', function (event, e, query, node, mapData) {
                     reset();
                     scope.node = node;
                     htServermapData = mapData;
@@ -205,7 +207,11 @@ pinpointApp
                     }
                     showDetailInformation(query, node);
                 });
-                scope.$on('servermap.linkClicked', function (event, e, query, link) {
+
+                /**
+                 * scope event on nodeInfoDetails.initializeWithLinkData
+                 */
+                scope.$on('nodeInfoDetails.initializeWithLinkData', function (event, e, query, link) {
                     reset();
                 });
 

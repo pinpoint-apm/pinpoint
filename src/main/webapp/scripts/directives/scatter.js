@@ -18,10 +18,28 @@ pinpointApp.directive('scatter',
             replace: true,
             link: function (scope, element, attrs) {
 
-                var oScatterChart = null;
+                // define private variables
+                var oScatterChart, oNavbarDao;
+
+                // define private variables of methods
+                var showScatter, makeScatter;
+
+                // initialize
+                oScatterChart = null;
+                oNavbarDao = null;
                 scope.popup = [];
 
-                var showScatter = function (applicationName, from, to, period, filter, w, h) {
+                /**
+                 * show scatter
+                 * @param applicationName
+                 * @param from
+                 * @param to
+                 * @param period
+                 * @param filter
+                 * @param w
+                 * @param h
+                 */
+                showScatter = function (applicationName, from, to, period, filter, w, h) {
                     if (oScatterChart) {
 //							oScatterChart.clear();
                     }
@@ -164,7 +182,17 @@ pinpointApp.directive('scatter',
                     };
                     oScatterChart.drawWithDataSource(htDataSource);
                 };
-                var makeScatter = function (title, start, end, targetId, period, w, h) {
+
+                /**
+                 * make scatter
+                 * @param title
+                 * @param start
+                 * @param end
+                 * @param period
+                 * @param w
+                 * @param h
+                 */
+                makeScatter = function (title, start, end, period, w, h) {
                     if (!Modernizr.canvas) {
                         alert("Can't draw scatter. Not supported browser.");
                     }
@@ -192,15 +220,8 @@ pinpointApp.directive('scatter',
                         },
                         fOnSelect: function (htPosition, htXY) {
                             var traces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
-
                             if (traces.length === 0) {
                                 return;
-                            }
-
-                            if (traces.length === 1) {
-//									openTrace(traces[0].traceId, traces[0].x);
-                                // FIXME 하나만 선택해도 일단 목록 팝업으로 뜨게 함.
-                                // return;
                             }
 
                             var token = 'scatterToken_' + _.random(100000, 999999);
@@ -215,23 +236,17 @@ pinpointApp.directive('scatter',
                             oScatterChart.destroy();
                         }
                         oScatterChart = new BigScatterChart(options);
-                        showScatter(scope.navbar.applicationName, start, end, period);
+                        showScatter(title, start, end, period);
                     }, 100);
 
                 };
 
-
-                scope.$on('navbar.applicationChanged', function (event, navbar) {
-                    scope.navbar = navbar;
-                    makeScatter(navbar.applicationName, navbar.queryStartTime, navbar.queryEndTime, 'scatterchart', navbar.queryPeriod);
+                scope.$on('scatter.initialize', function (event, navbarDao) {
+                    oNavbarDao = navbarDao;
+                    makeScatter(oNavbarDao.getApplicationName(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
                 });
-                scope.$on('scatter.initializeWithApplicationData', function (event, applicationData) {
-                    scope.navbar = applicationData;
-                    makeScatter(applicationData.applicationName, applicationData.queryStartTime, applicationData.queryEndTime, 'scatterchart', applicationData.queryPeriod);
-                });
-                scope.$on('servermap.passingTransactionResponseToScatterChart', function (event, node) {
-                    scope.node = node;
-                    makeScatter(node.applicationName || node.text, scope.navbar.queryStartTime, scope.navbar.queryEndTime, 'scatterchart', scope.navbar.queryPeriod);
+                scope.$on('scatter.initializeWithNode', function (event, node) {
+                    makeScatter(node.applicationName || node.text, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
                 });
 
             }

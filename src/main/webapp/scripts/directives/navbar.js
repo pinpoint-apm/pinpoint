@@ -1,12 +1,12 @@
 'use strict';
 
-pinpointApp.constant('navbarConfig', {
+pinpointApp.constant('cfg', {
     applicationUrl: '/applications.pinpoint'
 });
 
-pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
+pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
     '$document', '$timeout', '$location', '$routeParams',
-    function (navbarConfig, $rootScope, $http, $document, $timeout, $location, $routeParams) {
+    function (cfg, $rootScope, $http, $document, $timeout, $location, $routeParams) {
         return {
             restrict: 'EA',
             replace: true,
@@ -14,61 +14,55 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
             link: function (scope, element, attrs) {
 
                 // define private variables
-                var applicationElement;
+                var $application, $datetimepicker, oNavbarDao;
 
-                // initialize private variables
-                applicationElement = element.find('.application').width(200);
+                // define private variables of methods
+                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getFirstPathOfLocation,
+                    broadcast, getApplicationList, getQueryPeriod, getQueryEndTime, parseApplicationList;
 
-                // initialize scope variables
-                scope.applications = [
-                    {
-                        text: 'Loading...',
-                        value: ''
-                    }
-                ];
-                scope.application = '';
-                scope.disableApplication = true;
-                scope.period = '';
-                scope.queryEndTime = '';
-                $http.defaults.useXDomain = true;
+                initialize = function (navbarDao) {
+                    oNavbarDao = navbarDao;
 
-                /**
-                 * date time picker
-                 */
-                var $datetimepicker = element.find('#datetimepicker');
-                $datetimepicker.datetimepicker({
-                    dateFormat: "yy-mm-dd",
-                    timeFormat: "hh:mm tt",
-                    beforeShow: function () {
-                        $datetimepicker.datetimepicker('option', 'maxDate', new Date());
-                        $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
-                    },
-                    onClose : function (currentTime, oTime) {
-                        if (currentTime === oTime.lastVal) {
-                            return;
+                    $application = element.find('.application').width(200);
+                    scope.applications = [
+                        {
+                            text: 'Loading...',
+                            value: ''
                         }
-                        broadcast();
-                    }
-                });
+                    ];
+                    scope.application = oNavbarDao.getApplication() || '';
+                    scope.disableApplication = true;
+                    scope.period = oNavbarDao.getPeriod() || '';
+                    scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
+                    $http.defaults.useXDomain = true;
 
-                $timeout(function () {
-                    if ($routeParams.period) {
-                        scope.period = $routeParams.period;
-                    }
-                    if ($routeParams.filter) {
-                        scope.filter = $routeParams.filter;
-                    }
-                    if ($routeParams.queryEndTime) {
-                        setDateTime($routeParams.queryEndTime);
-                    } else {
-                        setDateTime();
-                    }
-                });
+                    initializeDateTimePicker();
+                    getApplicationList();
+                };
+
+                initializeDateTimePicker = function () {
+                    $datetimepicker = element.find('#datetimepicker');
+                    $datetimepicker.datetimepicker({
+                        dateFormat: "yy-mm-dd",
+                        timeFormat: "hh:mm tt",
+                        beforeShow: function () {
+                            $datetimepicker.datetimepicker('option', 'maxDate', new Date());
+                            $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
+                        },
+                        onClose : function (currentTime, oTime) {
+                            if (currentTime === oTime.lastVal) {
+                                return;
+                            }
+                            broadcast();
+                }
+                    });
+                    setDateTime(oNavbarDao.getQueryEndTime());
+                };
 
                 /**
                  * set DateTime
                  */
-                var setDateTime = function (time) {
+                setDateTime = function (time) {
                     var date = new Date();
                     if (time) {
                         date.setTime(time);
@@ -77,17 +71,10 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 };
 
                 /**
-                 * now
+                 * get first path of loction
+                 * @returns {*|string}
                  */
-                scope.now = function () {
-                    setDateTime();
-                    if (!scope.period) {
-                        scope.period = 20;
-                    }
-                    broadcast();
-                };
-
-                var getFirstPath = function () {
+                getFirstPathOfLocation = function () {
                     var splitedPath = $location.path().split('/');
                     return splitedPath[1] || 'main';
                 };
@@ -95,64 +82,40 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                 /**
                  * _boardcast as applicationChanged with args
                  */
-                var broadcast = function () {
-                    var firstPath = getFirstPath();
+                broadcast = function () {
+                    var firstPath = getFirstPathOfLocation();
 
-                    scope.queryPeriod = getQueryPeriod();
-                    scope.queryEndTime = getQueryEndTime();
+//                    var splitedApp = scope.application.split('@');
 
-                    if (!scope.application || !scope.period || !scope.queryEndTime) {
-                        $location.path('/' + firstPath);
-                        return;
-                    }
+                    oNavbarDao.setApplication(scope.application);
+                    oNavbarDao.setPeriod(scope.period);
+                    oNavbarDao.setQueryEndTime(getQueryEndTime());
 
-                    var splitedApp = scope.application.split('@'),
-                        data = {
-                            application: scope.application,
-                            applicationName: splitedApp[0],
-                            serviceType: splitedApp[1],
-                            period: scope.period,
-                            queryPeriod: scope.queryPeriod,
-                            queryStartTime: scope.queryEndTime - scope.queryPeriod,
-                            queryEndTime: scope.queryEndTime
-                        },
-                        url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
+//                    scope.queryPeriod = getQueryPeriod();
+//                    scope.queryEndTime = getQueryEndTime();
 
-                    if (scope.agentId) {
-                        data.agentId = scope.agentId;
-                        url += '/' + scope.agentId;
-                    } else if (scope.filter) {
-                        data.filter = scope.filter;
-                        url += '/' + scope.filter;
-                    }
+//                    console.log(scope.application, scope.period, scope.queryEndTime);
+//                    if (!scope.application || !scope.period || !scope.queryEndTime) {
+//                        $location.path('/' + firstPath);
+//                        return;
+//                    }
+//                        url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
 
-                    if($location.path() !== url) {
-                        $location.path(url);
-                    }
+//                    if ($location.path() !== url) {
+//                        $location.path(url);
+//                    }
 
                     $timeout(function () {
-                        $rootScope.$broadcast('navbar.applicationChanged', data);
-                    }, 100);
+                        scope.$emit('navbar.changed', oNavbarDao);
+                    });
 
-                };
-
-                /**
-                 * get query period
-                 */
-                var getQueryPeriod = function () {
-                    return scope.period * 1000 * 60;
-                };
-
-                var getQueryEndTime = function () {
-                    return $datetimepicker.datetimepicker('getDate').getTime();
                 };
 
                 /**
                  * get Application List
                  */
-                var getApplicationList = function () {
-                    $http.get(navbarConfig.applicationUrl).success(function (data, status) {
-
+                getApplicationList = function () {
+                    $http.get(cfg.applicationUrl).success(function (data, status) {
                         if (angular.isArray(data) === false || data.length === 0) {
                             scope.applications[0].text = 'Application not found.';
                         } else {
@@ -160,20 +123,27 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                                 scope.disableApplication = false;
                                 $timeout(function () { // it should be apply after pushing data, so
                                     // it should work like nextTick
-                                    applySelect2Plugnin();
+                                    initializeApplication();
                                 });
                             });
                         }
-
                     }).error(function (data, status) {
                         scope.applications[0].text = 'Application error.';
                     });
                 };
 
                 /**
+                 * get query end time
+                 * @returns {*}
+                 */
+                getQueryEndTime = function () {
+                    return $datetimepicker.datetimepicker('getDate').getTime();
+                };
+
+                /**
                  * parse Application List
                  */
-                var parseApplicationList = function (data, cb) {
+                parseApplicationList = function (data, cb) {
                     scope.applications = [
                         {
                             text: '',
@@ -186,21 +156,24 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                             value: value.applicationName + "@" + value.code
                         });
                     });
-                    if (angular.isFunction(cb))
+                    if (angular.isFunction(cb)) {
                         cb.apply(scope);
+                    }
                 };
 
-
                 /**
-                 * apply Select2 Plugin
+                 * initialize application
                  */
-                var applySelect2Plugnin = function () {
+                initializeApplication = function () {
                     /**
-                     * formatOptionText
+                     * format option text
+                     * @param state
+                     * @returns {*}
                      */
-                    var formatOptionText = function (state) {
-                        if (!state.id)
+                    function formatOptionText(state) {
+                        if (!state.id) {
                             return state.text;
+                        }
                         var chunk = state.text.split("@");
                         if (chunk.length > 1) {
                             var img = $document.get(0).createElement("img");
@@ -209,9 +182,9 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         } else {
                             return state.text;
                         }
-                    };
+                    }
 
-                    applicationElement.select2({
+                    $application.select2({
                         placeholder: "Select an application.",
                         allowClear: false,
                         formatResult: formatOptionText,
@@ -219,38 +192,40 @@ pinpointApp.directive('navbar', [ 'navbarConfig', '$rootScope', '$http',
                         escapeMarkup: function (m) {
                             return m;
                         }
-                    });
-                    if ($routeParams.application) {
-                        applicationElement.select2('val', $routeParams.application);
-                        scope.application = $routeParams.application;
-                        broadcast();
-                    }
-                    applicationElement.on("change", function (e) {
+                    }).on("change", function (e) {
                         scope.application = e.val;
+                        scope.$digest();
                         broadcast();
                         // 참고1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
                         // 참고2 : http://jsfiddle.net/CDvGy/2/
-                        scope.$digest();
                     });
+
+                    if (oNavbarDao.getApplication()) {
+                        $application.select2('val', oNavbarDao.getApplication());
+                        scope.application = oNavbarDao.getApplication();
+                        broadcast();
+                    }
                 };
 
                 /**
-                 * period click
+                 * scope period click
                  * @param val
                  */
                 scope.periodClick = function (val) {
                     if (scope.period !== val) {
                         scope.period = val;
-                        broadcast();
                     } else {
-                        scope.now();
+                        setDateTime();
                     }
+                    broadcast();
                 };
 
                 /**
-                 * executes
+                 * scope event on navbar.initialize
                  */
-                getApplicationList();
+                scope.$on('navbar.initialize', function (event, navbarDao) {
+                    initialize(navbarDao);
+                });
             }
         };
     } ]);

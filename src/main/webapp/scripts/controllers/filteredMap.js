@@ -16,7 +16,6 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * _boardcast as applicationChanged with args
      */
     broadcast = function () {
-
         var splitedApp = $scope.application.split('@'),
             applicationData = {
                 application: $scope.application,
