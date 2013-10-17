@@ -29,6 +29,8 @@ public interface TraceContext {
 
     String getApplicationName();
 
+    long getAgentStartTime();
+
     short getServerTypeCode();
 
     String getServerType();
