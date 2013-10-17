@@ -12,10 +12,6 @@ public class AutomaticBufferTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Test
-    public void testPut1PrefixedBytes() throws Exception {
-
-    }
 
     @Test
     public void testPutPrefixedBytes() throws Exception {
@@ -25,14 +21,10 @@ public class AutomaticBufferTest {
         Assert.assertEquals(buf.length, 4);
     }
 
-    @Test
-    public void testPutNullTerminatedBytes() throws Exception {
-
-    }
 
     @Test
     public void testCurrentTime() throws InterruptedException {
-        Buffer buffer = new FixedBuffer(32);
+        Buffer buffer = new AutomaticBuffer(32);
 
         long l = System.currentTimeMillis();
         buffer.putSVar(l);

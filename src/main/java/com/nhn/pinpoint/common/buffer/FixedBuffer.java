@@ -12,9 +12,6 @@ public class FixedBuffer implements Buffer {
     protected byte[] buffer;
     protected int offset;
 
-    private static final int BYTE_UNSIGNED_MAX = 256;
-    private static final int SHORT_UNSIGNED_MAX = 65536;
-
     public FixedBuffer() {
         this(32);
     }
@@ -44,56 +41,18 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-    public void put1PrefixedBytes(final byte[] bytes) {
-        if (bytes == null) {
-            put((byte)0);
-        } else {
-            final int length = bytes.length;
-            if (length >= BYTE_UNSIGNED_MAX) {
-                throw new IllegalArgumentException("too large bytes:" + bytes.length);
-            }
-            put((byte) length);
-            put(bytes);
-        }
-    }
-
-    @Override
-    public void put2PrefixedBytes(final byte[] bytes) {
-        if (bytes == null) {
-            put((short)0);
-        } else {
-            final int length = bytes.length;
-            if (length >= SHORT_UNSIGNED_MAX) {
-                throw new IllegalArgumentException("too large bytes:" + bytes.length);
-            }
-            put((short) length);
-            put(bytes);
-        }
-    }
-
-    @Override
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put(0);
+            putSVar(-1);
         } else {
-            put(bytes.length);
+            putSVar(bytes.length);
             put(bytes);
-        }
-    }
-
-    @Override
-    public void putNullTerminatedBytes(final byte[] bytes) {
-        if (bytes == null) {
-            put((byte) 0);
-        } else {
-            put(bytes);
-            put((byte) 0);
         }
     }
 
     @Override
     public void putPrefixedString(final String string) {
-        byte[] bytes = BytesUtils.getBytes(string);
+        final byte[] bytes = BytesUtils.toBytes(string);
         putPrefixedBytes(bytes);
     }
 
@@ -149,7 +108,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public void putSVar(long v) {
-        putVar64(BytesUtils.encodeZigZagLong(v));
+        putVar64(BytesUtils.longToZigZag(v));
     }
 
     private void putVar64(long v) {
@@ -226,7 +185,7 @@ public class FixedBuffer implements Buffer {
     }
 
     public int readSVarInt() {
-        return BytesUtils.decodeZigZagInt(readVarInt());
+        return BytesUtils.zigzagToInt(readVarInt());
     }
 
     @Override
@@ -264,35 +223,21 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public long readSVarLong() {
-        return BytesUtils.decodeZigZagLong(readVarLong());
+        return BytesUtils.zigzagToLong(readVarLong());
     }
 
     @Override
     public byte[] readPrefixedBytes() {
-        final int size = readInt();
+        final int size = readSVarInt();
+        if (size == -1) {
+            return null;
+        }
         if (size == 0) {
             return EMPTY;
         }
         return readBytes(size);
     }
 
-    @Override
-    public byte[] read1PrefixedBytes() {
-        final int b = readUnsignedByte();
-        if (b == 0) {
-            return EMPTY;
-        }
-        return readBytes(b);
-    }
-
-    @Override
-    public byte[] read2PrefixedBytes() {
-        final int b = readUnsignedShort();
-        if (b == 0) {
-            return EMPTY;
-        }
-        return readBytes(b);
-    }
 
     private byte[] readBytes(int size) {
         final byte[] b = new byte[size];
@@ -303,59 +248,14 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public String readPrefixedString() {
-        final int size = readInt();
+        final int size = readSVarInt();
+        if (size == -1) {
+            return null;
+        }
         if (size == 0) {
             return "";
         }
         return readString(size);
-    }
-
-    @Override
-    public String read1PrefixedString() {
-        final int size = readUnsignedByte();
-        if (size == 0) {
-            return "";
-        }
-        return readString(size);
-    }
-
-    @Override
-    public String read1UnsignedPrefixedString() {
-        final int size = readUnsignedByte();
-        if (size == 0) {
-            return "";
-        }
-        return readString(size);
-    }
-
-    @Override
-    public String read2PrefixedString() {
-        final int size = readShort();
-        if (size == 0) {
-            return "";
-        }
-        return readString(size);
-    }
-
-    @Override
-    public String readNullTerminatedString() {
-        final int size = findNull();
-        if (size == 0) {
-            return "";
-        } else if (size == -1) {
-            throw new IllegalArgumentException("null not found");
-        }
-        return readString(size);
-    }
-
-    private int findNull() {
-        for (int i = offset; i < buffer.length; i++) {
-            final byte b = this.buffer[i];
-            if (b == 0) {
-                return i - offset;
-            }
-        }
-        return -1;
     }
 
 

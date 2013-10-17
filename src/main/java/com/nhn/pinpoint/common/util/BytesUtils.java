@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
 
-import org.apache.hadoop.hbase.util.Bytes;
-
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +15,7 @@ public final class BytesUtils {
     private static final String UTF8 = "UTF-8";
     private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());
 
+    @Deprecated
     public static byte[] longLongToBytes(final long value1, final long value2) {
         final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH];
         writeFirstLong0(value1, buffer);
@@ -31,7 +30,7 @@ public final class BytesUtils {
         if (maxStringSize < 0) {
             throw new IllegalArgumentException("maxStringSize");
         }
-        final byte[] stringBytes = getBytes(string);
+        final byte[] stringBytes = toBytes(string);
         if (stringBytes.length > maxStringSize) {
             throw new IllegalArgumentException("string is max " + stringBytes.length);
         }
@@ -52,7 +51,7 @@ public final class BytesUtils {
         System.arraycopy(stringBytes, 0, buffer, offset, stringBytes.length);
     }
 
-
+    @Deprecated
     public static long[] bytesToLongLong(final byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -218,8 +217,8 @@ public final class BytesUtils {
         return offset;
     }
 
-    public static int writeSVar32(int value, final byte[] buf, int offset) {
-        return writeVar32(encodeZigZagInt(value), buf, offset);
+    public static int writeSVar32(final int value, final byte[] buf, final int offset) {
+        return writeVar32(intToZigZag(value), buf, offset);
     }
 
     public static int writeVar32(int value, final byte[] buf, int offset) {
@@ -252,6 +251,7 @@ public final class BytesUtils {
         }
     }
 
+    @Deprecated
     public static void writeFirstLong(final long value, final byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -284,6 +284,7 @@ public final class BytesUtils {
         buf[7 + offset] = (byte) (value);
     }
 
+    @Deprecated
     public static void writeSecondLong(final long value, final byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -322,7 +323,7 @@ public final class BytesUtils {
     }
 
     public static byte[] add(final String prefix, final long postfix) {
-        byte[] agentByte = getBytes(prefix);
+        byte[] agentByte = toBytes(prefix);
         return add(agentByte, postfix);
     }
 
@@ -355,9 +356,9 @@ public final class BytesUtils {
         return buf;
     }
 
-    public static byte[] getBytes(final String value) {
+    public static byte[] toBytes(final String value) {
         if (value == null) {
-            return EMPTY_BYTES;
+            return null;
         }
         try {
             return value.getBytes(UTF8);
@@ -382,7 +383,7 @@ public final class BytesUtils {
     }
 
     public static byte[] toFixedLengthBytes(final String str, final int length) {
-        byte[] b1 = getBytes(str);
+        byte[] b1 = toBytes(str);
 
         if (b1.length > length) {
             throw new IllegalArgumentException("String is longer then target length of bytes.");
@@ -394,21 +395,20 @@ public final class BytesUtils {
     }
 
 
-    public static int encodeZigZagInt(final int n) {
+    public static int intToZigZag(final int n) {
         return (n << 1) ^ (n >> 31);
     }
 
-    public static int decodeZigZagInt(final int n) {
+    public static int zigzagToInt(final int n) {
         return (n >>> 1) ^ -(n & 1);
     }
 
 
-
-    public static long encodeZigZagLong(final long n) {
+    public static long longToZigZag(final long n) {
         return (n << 1) ^ (n >> 63);
     }
 
-    public static long decodeZigZagLong(final long n) {
+    public static long zigzagToLong(final long n) {
         return (n >>> 1) ^ -(n & 1);
     }
 

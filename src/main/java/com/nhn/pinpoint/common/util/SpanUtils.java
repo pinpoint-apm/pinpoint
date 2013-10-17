@@ -12,7 +12,7 @@ public class SpanUtils {
 		if (agentId == null) {
 			throw new IllegalArgumentException("agentId must not null");
 		}
-		byte[] bAgentId = BytesUtils.getBytes(agentId);
+		final byte[] bAgentId = BytesUtils.toBytes(agentId);
 		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
 
@@ -20,7 +20,7 @@ public class SpanUtils {
 		if (applicationName == null) {
 			throw new IllegalArgumentException("agentId must not null");
 		}
-		byte[] bApplicationName = BytesUtils.getBytes(applicationName);
+		final byte[] bApplicationName = BytesUtils.toBytes(applicationName);
 		return RowKeyUtils.concatFixedByteAndLong(bApplicationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
 	

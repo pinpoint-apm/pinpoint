@@ -4,11 +4,18 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.transport.TMemoryBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class BytesUtilsTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testLongLongToBytes() throws Exception {
         long most = Long.MAX_VALUE;
@@ -121,8 +128,28 @@ public class BytesUtilsTest {
 
 
     private void testEncodingDecodingZigZag(int value) {
-        int encode = BytesUtils.encodeZigZagInt(value);
-        int decode = BytesUtils.decodeZigZagInt(encode);
+        int encode = BytesUtils.intToZigZag(value);
+        int decode = BytesUtils.zigzagToInt(encode);
         Assert.assertEquals(value, decode);
     }
+
+
+    @Test
+    public void compactProtocolVint() throws TException {
+        TMemoryBuffer tMemoryBuffer = writeVInt32(BytesUtils.zigzagToInt(64));
+        logger.debug("length:{}", tMemoryBuffer.length());
+
+        TMemoryBuffer tMemoryBuffer2 = writeVInt32(64);
+        logger.debug("length:{}", tMemoryBuffer2.length());
+
+    }
+
+    private TMemoryBuffer writeVInt32(int i) throws TException {
+        TMemoryBuffer tMemoryBuffer = new TMemoryBuffer(10);
+        TCompactProtocol tCompactProtocol = new TCompactProtocol(tMemoryBuffer);
+        tCompactProtocol.writeI32(i);
+        return tMemoryBuffer;
+    }
+
+
 }

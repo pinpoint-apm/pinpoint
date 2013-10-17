@@ -158,7 +158,7 @@ public class AnnotationTranscoder {
     private byte[] encodeIntStringValue(Object value) {
         final TIntStringValue tIntStringValue = (TIntStringValue) value;
         final int intValue = tIntStringValue.getIntValue();
-        final byte[] stringValue = BytesUtils.getBytes(tIntStringValue.getStringValue());
+        final byte[] stringValue = BytesUtils.toBytes(tIntStringValue.getStringValue());
         // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
         final Buffer buffer = new AutomaticBuffer(stringValue.length + 4 + 8);
         buffer.putSVar(intValue);
@@ -177,8 +177,8 @@ public class AnnotationTranscoder {
     private byte[] encodeIntStringStringValue(Object o) {
         final TIntStringStringValue tIntStringStringValue = (TIntStringStringValue) o;
         final int intValue = tIntStringStringValue.getIntValue();
-        final byte[] stringValue1 = BytesUtils.getBytes(tIntStringStringValue.getStringValue1());
-        final byte[] stringValue2 = BytesUtils.getBytes(tIntStringStringValue.getStringValue2());
+        final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
+        final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
         // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
         final Buffer buffer = new AutomaticBuffer(stringValue1.length + stringValue2.length + 4 + 16);
         buffer.putSVar(intValue);
@@ -199,6 +199,6 @@ public class AnnotationTranscoder {
      * Encode a string into the current character set.
      */
     protected byte[] encodeString(String in) {
-        return BytesUtils.getBytes(in);
+        return BytesUtils.toBytes(in);
     }
 }

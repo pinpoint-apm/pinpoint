@@ -337,29 +337,10 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.exceptionClass = exceptionClass;
     }
 
-    //    private int getBufferLength(int a, int b, int c, int d, int e) {
-//	    int size = a + b + c + d + e;
-//	    size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
-//	    // size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
-//        // PARENTSPANID + FLAG + TERMINAL;
-//        size += PARENTSPANID + SERVICETYPE + AGENTSTARTTIME + EXCEPTION_SIZE;
-//        if (flag != 0) {
-//            size += FLAG;
-//        }
-//        // startTime 8, elapsed 4;
-//        size += 12;
-//        return size;
-//    }
 
     // io wirte시 variable encoding을 추가함.
     // 약 10%정도 byte 사이즈가 줄어드는 효과가 있음.
     public byte[] writeValue() {
-        byte[] agentIDBytes = BytesUtils.getBytes(agentId);
-        byte[] rpcBytes = BytesUtils.getBytes(rpc);
-        byte[] applicationIdBytes = BytesUtils.getBytes(applicationId);
-        byte[] endPointBytes = BytesUtils.getBytes(endPoint);
-        byte[] remoteAddrBytes = BytesUtils.getBytes(remoteAddr);
-
         // var encoding 사용시 사이즈를 측정하기 어려움. 안되는것음 아님 편의상 그냥 자동 증가 buffer를 사용한다.
         // 향후 더 효율적으로 메모리를 사용하게 한다면 getBufferLength를 다시 부활 시키는것을 고려한다.
         final Buffer buffer = new AutomaticBuffer(256);
@@ -369,7 +350,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         // buffer.put(mostTraceID);
         // buffer.put(leastTraceID);
 
-        buffer.put1PrefixedBytes(agentIDBytes);
+        buffer.putPrefixedString(agentId);
         // time의 경우도 현재 시간을 기준으로 var를 사용하는게 사이즈가 더 작음 6byte를 먹음.
         buffer.putVar(agentStartTime);
 
@@ -381,11 +362,11 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         buffer.putVar(startTime);
         buffer.putVar(elapsed);
 
-        buffer.put1PrefixedBytes(rpcBytes);
-        buffer.put1PrefixedBytes(applicationIdBytes);
+        buffer.putPrefixedString(rpc);
+        buffer.putPrefixedString(applicationId);
         buffer.put(serviceType.getCode());
-        buffer.put1PrefixedBytes(endPointBytes);
-        buffer.put1PrefixedBytes(remoteAddrBytes);
+        buffer.putPrefixedString(endPoint);
+        buffer.putPrefixedString(remoteAddr);
         buffer.putSVar(apiId);
 
         // errCode code는 음수가 될수 있음.
@@ -414,7 +395,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         // this.mostTraceID = buffer.readLong();
         // this.leastTraceID = buffer.readLong();
 
-        this.agentId = buffer.read1PrefixedString();
+        this.agentId = buffer.readPrefixedString();
         this.agentStartTime = buffer.readVarLong();
 
         // this.spanID = buffer.readLong();
@@ -423,11 +404,11 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.startTime = buffer.readVarLong();
         this.elapsed = buffer.readVarInt();
 
-        this.rpc = buffer.read1UnsignedPrefixedString();
-        this.applicationId = buffer.read1UnsignedPrefixedString();
+        this.rpc = buffer.readPrefixedString();
+        this.applicationId = buffer.readPrefixedString();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
-        this.endPoint = buffer.read1UnsignedPrefixedString();
-        this.remoteAddr = buffer.read1UnsignedPrefixedString();
+        this.endPoint = buffer.readPrefixedString();
+        this.remoteAddr = buffer.readPrefixedString();
         this.apiId = buffer.readSVarInt();
         
         this.errCode = buffer.readSVarInt();

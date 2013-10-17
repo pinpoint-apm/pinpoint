@@ -12,16 +12,9 @@ public interface Buffer {
 
     public static final String UTF8 = "UTF-8";
 
-    void put1PrefixedBytes(byte[] bytes);
-
-    void put2PrefixedBytes(byte[] bytes);
-
     void putPrefixedBytes(byte[] bytes);
 
     void putPrefixedString(String string);
-
-    void putNullTerminatedBytes(byte[] bytes);
-
 
     void put(byte v);
 
@@ -72,10 +65,6 @@ public interface Buffer {
 
     void put(byte[] v);
 
-
-//    void put(String string);
-
-
     byte readByte();
 
     int readUnsignedByte();
@@ -99,20 +88,7 @@ public interface Buffer {
 
     byte[] readPrefixedBytes();
 
-    byte[] read1PrefixedBytes();
-
-    byte[] read2PrefixedBytes();
-
     String readPrefixedString();
-
-    String read1PrefixedString();
-
-    String read1UnsignedPrefixedString();
-
-    String read2PrefixedString();
-
-    String readNullTerminatedString();
-
 
     byte[] getBuffer();
 

@@ -356,28 +356,8 @@ public class SpanEventBo implements Span {
     }
 
 
-    //	private int getBufferLength(int a, int b, int c, int d, int f) {
-//		int size = a + b + c + d + f;
-//		size += 1 + 1 + 1 + 1 + 1 + VERSION_SIZE; // chunk size chunk
-//		// size = size + TIMESTAMP + MOSTTRACEID + LEASTTRACEID + SPANID +
-//		// PARENTSPANID + FLAG + TERMINAL;
-//		size += SERVICETYPE + AGENTSTARTTIME;
-//
-//		// startTime 4, elapsed 4, depth 4, nextSpanId 4
-//		size += 16;
-//		return size;
-//	}
 
     public byte[] writeValue() {
-        byte[] agentIDBytes = BytesUtils.getBytes(agentId);
-        byte[] applicationIdBytes = BytesUtils.getBytes(applicationId);
-        byte[] rpcBytes = BytesUtils.getBytes(rpc);
-        byte[] endPointBytes = BytesUtils.getBytes(endPoint);
-        byte[] destinationIdBytes = BytesUtils.getBytes(this.destinationId);
-
-//        int bufferLength = getBufferLength(agentIDBytes.length, applicationIdBytes.length, rpcBytes.length, endPointBytes.length, destinationIdBytes.length);
-//        int annotationSize = getAnnotationBufferSize(annotationBoList);
-
         final Buffer buffer = new AutomaticBuffer(512);
 
         buffer.put(version);
@@ -385,8 +365,8 @@ public class SpanEventBo implements Span {
         // buffer.put(mostTraceID);
         // buffer.put(leastTraceID);
 
-        buffer.put1PrefixedBytes(agentIDBytes);
-        buffer.put1PrefixedBytes(applicationIdBytes);
+        buffer.putPrefixedString(agentId);
+        buffer.putPrefixedString(applicationId);
         buffer.putVar(agentStartTime);
 
         buffer.putVar(startElapsed);
@@ -394,10 +374,10 @@ public class SpanEventBo implements Span {
         // Qualifier에서 읽어서 set하므로 필요 없음.
         // buffer.put(sequence);
 
-        buffer.put1PrefixedBytes(rpcBytes);
+        buffer.putPrefixedString(rpc);
         buffer.put(serviceType.getCode());
-        buffer.put1PrefixedBytes(endPointBytes);
-        buffer.put1PrefixedBytes(destinationIdBytes);
+        buffer.putPrefixedString(endPoint);
+        buffer.putPrefixedString(destinationId);
         buffer.putSVar(apiId);
 
         buffer.putSVar(depth);
@@ -424,15 +404,6 @@ public class SpanEventBo implements Span {
         annotationBo.writeValue(buffer);
 	}
 
-//	private int getAnnotationBufferSize(List<AnnotationBo> boList) {
-//		int size = 0;
-//		for (AnnotationBo ano : boList) {
-//			size += ano.getBufferSize();
-//		}
-//		// size
-//		size += 4;
-//		return size;
-//	}
 
 	public int readValue(byte[] bytes, int offset) {
         final Buffer buffer = new FixedBuffer(bytes, offset);
@@ -442,8 +413,8 @@ public class SpanEventBo implements Span {
 		// this.mostTraceID = buffer.readLong();
 		// this.leastTraceID = buffer.readLong();
 
-		this.agentId = buffer.read1PrefixedString();
-        this.applicationId = buffer.read1UnsignedPrefixedString();
+		this.agentId = buffer.readPrefixedString();
+        this.applicationId = buffer.readPrefixedString();
         this.agentStartTime = buffer.readVarLong();
 
 		this.startElapsed = buffer.readVarInt();
@@ -452,10 +423,10 @@ public class SpanEventBo implements Span {
 		// this.sequence = buffer.readShort();
 
 
-		this.rpc = buffer.read1UnsignedPrefixedString();
+		this.rpc = buffer.readPrefixedString();
 		this.serviceType = ServiceType.findServiceType(buffer.readShort());
-		this.endPoint = buffer.read1UnsignedPrefixedString();
-        this.destinationId = buffer.read1UnsignedPrefixedString();
+		this.endPoint = buffer.readPrefixedString();
+        this.destinationId = buffer.readPrefixedString();
         this.apiId = buffer.readSVarInt();
 
 		this.depth = buffer.readSVarInt();
