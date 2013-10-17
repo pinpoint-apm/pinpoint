@@ -42,7 +42,7 @@ public final class BytesUtils {
         return buffer;
     }
 
-    public static void writeBytes(byte[] buffer, int offset, byte[] stringBytes) {
+    public static void writeBytes(final byte[] buffer, int offset, final byte[] stringBytes) {
         if (buffer == null) {
             throw new NullPointerException("buffer must not be null");
         }
@@ -154,7 +154,7 @@ public final class BytesUtils {
         return bytesToSecondLong0(buf);
     }
 
-    private static long bytesToSecondLong0(byte[] buf) {
+    private static long bytesToSecondLong0(final byte[] buf) {
         final long rv = (((long) buf[8] & 0xff) << 56)
                 | (((long) buf[9] & 0xff) << 48)
                 | (((long) buf[10] & 0xff) << 40)
@@ -252,7 +252,7 @@ public final class BytesUtils {
         }
     }
 
-    public static void writeFirstLong(final long value, byte[] buf) {
+    public static void writeFirstLong(final long value, final byte[] buf) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
@@ -412,7 +412,7 @@ public final class BytesUtils {
         return (n >>> 1) ^ -(n & 1);
     }
 
-	public static byte[] concat(byte[]... arrays) {
+	public static byte[] concat(final byte[]... arrays) {
 		int totalLength = 0;
 
 		for (int i = 0; i < arrays.length; i++) {
@@ -459,12 +459,12 @@ public final class BytesUtils {
         }
     }
 
-    public static String toStringAndRightTrim(byte[] bytes, int offset, int length) {
+    public static String toStringAndRightTrim(final byte[] bytes, final int offset, final int length) {
         String string = toString(bytes, offset, length);
         return trimRight(string);
     }
 
-    public static String trimRight(String string) {
+    public static String trimRight(final String string) {
         if (string == null) {
             return null;
         }
