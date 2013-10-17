@@ -15,17 +15,17 @@ public class CallStack {
     // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
     private static final int TRACE_STACK_MAX_SIZE = 64;
 
-    private Span span;
+    private final Span span;
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
     private StackFrame[] stack = new StackFrame[8];
 
     private int index = -1;
 
-    public CallStack(TraceId traceId) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
+    public CallStack(Span span) {
+        if (span == null) {
+            throw new NullPointerException("span  must not be null");
         }
-        this.span = new Span(traceId);
+        this.span = span;
     }
 
     public Span getSpan() {

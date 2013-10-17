@@ -19,7 +19,7 @@ public class DeadlineSpanMap {
 		Span span = map.get(traceIdKey);
 
 		if (span == null) {
-			span = new Span(traceId);
+			span = new Span();
 			map.put(traceIdKey, span);
 
 			TimerTask task = new FlushTimedoutSpanTask(span);

@@ -60,7 +60,7 @@ public class DefaultTraceContext implements TraceContext {
         this(LRUCache.DEFAULT_CACHE_SIZE);
     }
 
-    public DefaultTraceContext(int sqlCacheSize) {
+    public DefaultTraceContext(final int sqlCacheSize) {
         this.sqlCache = new LRUCache<String>(sqlCacheSize);
     }
 
@@ -95,7 +95,7 @@ public class DefaultTraceContext implements TraceContext {
         threadLocal.set(DisableTrace.INSTANCE);
     }
 
-    public void setProfilerConfig(ProfilerConfig profilerConfig) {
+    public void setProfilerConfig(final ProfilerConfig profilerConfig) {
         this.profilerConfig = profilerConfig;
     }
 
@@ -105,7 +105,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.
-    public Trace continueTraceObject(TraceId traceID) {
+    public Trace continueTraceObject(final TraceId traceID) {
         checkBeforeTraceObject();
 
         // datasender연결 부분 수정 필요.
@@ -136,15 +136,15 @@ public class DefaultTraceContext implements TraceContext {
         // datasender연결 부분 수정 필요.
         final boolean sampling = this.sampler.isSampling();
         if (sampling) {
-            Storage storage = storageFactory.createStorage();
+            final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(this, agentInformation.getAgentId(), agentInformation.getStartTime(), this.transactionId.getAndIncrement());
             trace.setStorage(storage);
             trace.setSampling(sampling);
             threadLocal.set(trace);
             return trace;
         } else {
-            DisableTrace instance = DisableTrace.INSTANCE;
-            threadLocal.set(instance);
+            final DisableTrace instance = DisableTrace.INSTANCE;
+            threadLocal.set(DisableTrace.INSTANCE);
             return instance;
         }
     }
@@ -164,6 +164,10 @@ public class DefaultTraceContext implements TraceContext {
         return activeThreadCounter;
     }
 
+    public AgentInformation getAgentInformation() {
+        return agentInformation;
+    }
+
     @Override
     public String getAgentId() {
         return this.agentInformation.getAgentId();
@@ -172,6 +176,11 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public String getApplicationName() {
         return this.agentInformation.getApplicationName();
+    }
+
+    @Override
+    public long getAgentStartTime() {
+        return this.agentInformation.getStartTime();
     }
 
     @Override
@@ -185,14 +194,14 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
-    public void setStorageFactory(StorageFactory storageFactory) {
+    public void setStorageFactory(final StorageFactory storageFactory) {
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }
         this.storageFactory = storageFactory;
     }
 
-    public void setSampler(Sampler sampler) {
+    public void setSampler(final Sampler sampler) {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
@@ -201,13 +210,13 @@ public class DefaultTraceContext implements TraceContext {
 
 
     @Override
-    public int cacheApi(MethodDescriptor methodDescriptor) {
-        String fullName = methodDescriptor.getFullName();
+    public int cacheApi(final MethodDescriptor methodDescriptor) {
+        final String fullName = methodDescriptor.getFullName();
         final Result result = this.apiCache.put(fullName);
         if (result.isNewValue()) {
             methodDescriptor.setApiId(result.getId());
 
-            TApiMetaData apiMetadata = new TApiMetaData();
+            final TApiMetaData apiMetadata = new TApiMetaData();
             apiMetadata.setAgentId(this.agentInformation.getAgentId());
             apiMetadata.setAgentStartTime(this.agentInformation.getStartTime());
 
@@ -221,13 +230,13 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public int cacheString(String value) {
+    public int cacheString(final String value) {
         if (value == null) {
             return 0;
         }
         final Result result = this.stringCache.put(value);
         if(result.isNewValue()) {
-            TStringMetaData stringMetaData = new TStringMetaData();
+            final TStringMetaData stringMetaData = new TStringMetaData();
             stringMetaData.setAgentId(this.agentInformation.getAgentId());
             stringMetaData.setAgentStartTime(this.agentInformation.getStartTime());
 
@@ -239,7 +248,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(String transactionId, int parentSpanID, int spanID, short flags) {
+    public TraceId createTraceId(final String transactionId, final int parentSpanID, final int spanID, final short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
@@ -249,13 +258,13 @@ public class DefaultTraceContext implements TraceContext {
 
 
     @Override
-    public ParsingResult parseSql(String sql) {
+    public ParsingResult parseSql(final String sql) {
 
-        ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
-        String normalizedSql = parsingResult.getSql();
+        final ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
+        final String normalizedSql = parsingResult.getSql();
         // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
 
-        boolean newValue = this.sqlCache.put(normalizedSql);
+        final boolean newValue = this.sqlCache.put(normalizedSql);
         if (newValue) {
             if (isDebug) {
                 // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
@@ -265,7 +274,7 @@ public class DefaultTraceContext implements TraceContext {
             // 그러므로 메타데이터를 서버로 전송해야 한다.
 
 
-            TSqlMetaData sqlMetaData = new TSqlMetaData();
+            final TSqlMetaData sqlMetaData = new TSqlMetaData();
             sqlMetaData.setAgentId(this.agentInformation.getAgentId());
             sqlMetaData.setAgentStartTime(this.agentInformation.getStartTime());
 
@@ -280,16 +289,17 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public DatabaseInfo parseJdbcUrl(String url) {
+    public DatabaseInfo parseJdbcUrl(final String url) {
         return this.jdbcUrlParser.parse(url);
     }
 
-    public void setPriorityDataSender(DataSender priorityDataSender) {
+    public void setPriorityDataSender(final DataSender priorityDataSender) {
+
         this.priorityDataSender = priorityDataSender;
     }
 
 
-    public void setAgentInformation(AgentInformation agentInformation) {
+    public void setAgentInformation(final AgentInformation agentInformation) {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }

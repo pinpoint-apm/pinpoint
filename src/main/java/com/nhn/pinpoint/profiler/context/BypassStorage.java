@@ -27,6 +27,6 @@ public class BypassStorage implements Storage {
 
     @Override
     public void store(Span span) {
-        dataSender.send((Thriftable)span);
+        dataSender.send(span);
     }
 }

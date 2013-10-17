@@ -111,7 +111,7 @@ public class TimeBaseStorage implements Storage {
                     this.storage = null;
                 }
                 logger.debug("discard spanEvent");
-                dataSender.send((Thriftable)span);
+                dataSender.send(span);
 
             } else {
                 // 제한 시간이 지났을 경우 모두 flush
@@ -131,7 +131,7 @@ public class TimeBaseStorage implements Storage {
         if (spanEventList != null && spanEventList.size() != 0) {
             span.setSpanEventList((List) spanEventList);
         }
-        dataSender.send((Thriftable)span);
+        dataSender.send(span);
     }
 
 }

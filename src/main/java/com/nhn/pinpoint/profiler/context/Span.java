@@ -10,19 +10,19 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
  *
  * @author netspider
  */
-public class Span extends TSpan implements Thriftable {
-    private final TraceId traceId;
+public class Span extends TSpan {
 
-    public Span(TraceId traceId) {
+    public Span() {
+    }
+
+    public void recordTraceId(final TraceId traceId) {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
-        this.traceId = traceId;
-        recordTraceId(traceId);
-    }
 
-    private void recordTraceId(TraceId traceId) {
-        this.setTraceAgentId(traceId.getAgentId());
+        if (!this.getAgentId().equals(traceId.getAgentId())) {
+            this.setTraceAgentId(traceId.getAgentId());
+        }
         this.setTraceAgentStartTime(traceId.getAgentStartTime());
         this.setTraceTransactionSequence(traceId.getTransactionSequence());
 
@@ -80,24 +80,6 @@ public class Span extends TSpan implements Thriftable {
 	public void setErrCode(int exception) {
         super.setErr(exception);
 	}
-
-    public TraceId getTraceId() {
-        return traceId;
-    }
-
-    public TSpan toThrift() {
-
-        final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
-        final String agentId = agentInformation.getAgentId();
-        if (agentId.equals(this.getTraceAgentId())) {
-            this.unsetTraceAgentId();
-        }
-        this.setAgentId(agentInformation.getAgentId());
-        this.setApplicationName(agentInformation.getApplicationName());
-        this.setAgentStartTime(agentInformation.getStartTime());
-
-        return this;
-    }
 
 
 }

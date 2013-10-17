@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
@@ -23,39 +24,55 @@ public final class DefaultTrace implements Trace {
 
     private boolean sampling = true;
 
+    private final TraceId traceId;
+
     private final CallStack callStack;
 
     private Storage storage;
 
-    private final TraceContext traceContext;
+    private final DefaultTraceContext traceContext;
 
     // use for calculating depth of each Span.                                                                               
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
 
-    public DefaultTrace(TraceContext traceContext, String agentId, long agentStartTime, long transactionId) {
+    public DefaultTrace(DefaultTraceContext traceContext, String agentId, long agentStartTime, long transactionId) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
         this.traceContext = traceContext;
-        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
+        this.traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
 
-        this.callStack = new CallStack(traceId);
+        final Span span = createSpan(traceId);
+        this.callStack = new CallStack(span);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
         this.currentStackFrame = stackFrame;
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceID) {
+    private Span createSpan(TraceId traceId) {
+        final Span span = new Span();
+        final AgentInformation agentInformation = traceContext.getAgentInformation();
+        span.setAgentId(agentInformation.getAgentId());
+        span.setApplicationName(agentInformation.getApplicationName());
+        span.setAgentStartTime(agentInformation.getStartTime());
+        // traceId 레코드를 나중에 해야 된다.
+        span.recordTraceId(traceId);
+        return span;
+    }
+
+    public DefaultTrace(DefaultTraceContext traceContext, TraceId continueTraceId) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
-        if (continueTraceID == null) {
-            throw new NullPointerException("continueTraceID must not be null");
+        if (continueTraceId == null) {
+            throw new NullPointerException("continueTraceId must not be null");
         }
         this.traceContext = traceContext;
-        this.callStack = new CallStack(continueTraceID);
+        this.traceId = continueTraceId;
+        final Span span = createSpan(continueTraceId);
+        this.callStack = new CallStack(span);
         latestStackIndex = this.callStack.push();
         StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
@@ -193,7 +210,7 @@ public final class DefaultTrace implements Trace {
      */
     @Override
     public TraceId getTraceId() {
-        return callStack.getSpan().getTraceId();
+        return this.traceId;
     }
 
     public boolean canSampled() {
@@ -341,7 +358,7 @@ public final class DefaultTrace implements Trace {
     }
 
     private static boolean isNotEmpty(final String bindValue) {
-        return bindValue != null && bindValue.length() != 0;
+        return bindValue != null && !bindValue.isEmpty();
     }
 
     private void recordSqlParam(TIntStringStringValue tIntStringStringValue) {
@@ -431,7 +448,7 @@ public final class DefaultTrace implements Trace {
     public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
-            Span span = ((RootStackFrame) currentStackFrame).getSpan();
+            final Span span = ((RootStackFrame) currentStackFrame).getSpan();
             span.setParentApplicationName(parentApplicationName);
             span.setParentApplicationType(parentApplicationType);
             if (isDebug) {
