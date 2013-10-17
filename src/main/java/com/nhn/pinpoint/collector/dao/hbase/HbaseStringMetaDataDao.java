@@ -29,7 +29,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
             logger.debug("insert:{}", stringMetaData);
         }
 
-        final StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo(stringMetaData.getAgentId(), stringMetaData.getStringId(), stringMetaData.getAgentStartTime());
+        final StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo(stringMetaData.getAgentId(), stringMetaData.getAgentStartTime(), stringMetaData.getStringId());
         final byte[] rowKey = sqlMetaDataBo.toRowKey();
 
 

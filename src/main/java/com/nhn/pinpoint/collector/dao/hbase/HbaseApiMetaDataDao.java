@@ -32,7 +32,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         }
 
 
-        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getApiId(), apiMetaData.getAgentStartTime());
+        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
         byte[] rowKey = apiMetaDataBo.toRowKey();
 
         Put put = new Put(rowKey);
