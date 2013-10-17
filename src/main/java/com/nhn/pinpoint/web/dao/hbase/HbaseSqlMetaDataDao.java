@@ -27,8 +27,8 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
     @Override
-    public List<SqlMetaDataBo> getSqlMetaData(String agentId, int hashCode, long time) {
-        SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, hashCode, time);
+    public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int hashCode) {
+        SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, hashCode);
         byte[] sqlId = sqlMetaData.toRowKey();
 
         Get get = new Get(sqlId);

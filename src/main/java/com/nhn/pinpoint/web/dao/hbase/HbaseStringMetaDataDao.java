@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 import com.nhn.pinpoint.common.bo.StringMetaDataBo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -27,8 +26,8 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
     private RowMapper<List<StringMetaDataBo>> stringMetaDataMapper;
 
     @Override
-    public List<StringMetaDataBo> getStringMetaData(String agentId, int stringId, long time) {
-        StringMetaDataBo stringMetaData = new StringMetaDataBo(agentId, stringId, time);
+    public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
+        StringMetaDataBo stringMetaData = new StringMetaDataBo(agentId, time, stringId);
         byte[] rowKey = stringMetaData.toRowKey();
 
         Get get = new Get(rowKey);

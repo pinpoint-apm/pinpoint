@@ -102,7 +102,7 @@ public class SpanServiceImpl implements SpanService {
                 final IntStringStringValue sqlValue = (IntStringStringValue) sqlIdAnnotation.getValue();
                 final int hashCode = sqlValue.getIntValue();
                 final String sqlParam = sqlValue.getStringValue1();
-				final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), hashCode, agentKey.getAgentStartTime());
+				final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), agentKey.getAgentStartTime(), hashCode);
 				int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -202,7 +202,7 @@ public class SpanServiceImpl implements SpanService {
                 final AgentKey key = getAgentKey(spanAlign);
                 final int apiId = getApiId(spanAlign);
                 // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
-				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), apiId, key.getAgentStartTime());
+				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), key.getAgentStartTime(), apiId);
 				int size = apiMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
@@ -246,7 +246,7 @@ public class SpanServiceImpl implements SpanService {
                 for (AnnotationBo annotationBo : cachedStringAnnotation) {
                     final int cachedArgsKey = annotationBo.getKey();
                     int stringMetaDataId = (Integer) annotationBo.getValue();
-                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(key.getAgentId(), stringMetaDataId, key.getAgentStartTime());
+                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(key.getAgentId(), key.getAgentStartTime(), stringMetaDataId);
                     int size = stringMetaList.size();
                     if (size == 0) {
                         logger.warn("StringMetaData not Found {}/{}/{}", key.getAgentId(), stringMetaDataId, key.getAgentStartTime());
@@ -303,7 +303,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
-        final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, cacheId, agentStartTime);
+        final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
         if (metaDataList == null || metaDataList.isEmpty()) {
             logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
             return null;

@@ -8,5 +8,5 @@ import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
  *
  */
 public interface ApiMetaDataDao {
-    List<ApiMetaDataBo> getApiMetaData(String agentId, int apiId, long time);
+    List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId);
 }

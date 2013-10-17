@@ -9,5 +9,5 @@ import java.util.List;
  *
  */
 public interface StringMetaDataDao {
-    List<StringMetaDataBo> getStringMetaData(String agentId, int stringId, long time);
+    List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId);
 }
