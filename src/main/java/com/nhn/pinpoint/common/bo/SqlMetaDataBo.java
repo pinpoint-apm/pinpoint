@@ -6,15 +6,16 @@ import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
-import static com.nhn.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
+import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 /**
  *
  */
 public class SqlMetaDataBo {
     private String agentId;
-    private int hashCode;
     private long startTime;
+
+    private int hashCode;
 
     private String sql;
 
@@ -22,7 +23,7 @@ public class SqlMetaDataBo {
     }
 
 
-    public SqlMetaDataBo(String agentId, int hashCode, long startTime) {
+    public SqlMetaDataBo(String agentId, long startTime, int hashCode) {
         this.agentId = agentId;
         this.hashCode = hashCode;
         this.startTime = startTime;
@@ -63,29 +64,29 @@ public class SqlMetaDataBo {
 
     public void readRowKey(byte[] rowKey) {
         this.agentId = Bytes.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
-        this.hashCode = readKeyCode(rowKey);
         this.startTime = TimeUtils.recoveryCurrentTimeMillis(readTime(rowKey));
+        this.hashCode = readKeyCode(rowKey);
     }
 
 
     private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH);
+        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN);
     }
 
     private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN);
+        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
     }
 
     public byte[] toRowKey() {
-        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.hashCode, this.startTime);
+        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.hashCode);
     }
 
     @Override
     public String toString() {
         return "SqlMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
-                ", hashCode=" + hashCode +
                 ", startTime=" + startTime +
+                ", hashCode=" + hashCode +
                 ", sql='" + sql + '\'' +
                 '}';
     }

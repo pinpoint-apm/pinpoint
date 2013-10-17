@@ -11,7 +11,7 @@ public class RowKeyUtilsTest {
     @Test
     public void testGetSqlId() throws Exception {
         long startTime = System.currentTimeMillis();
-        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo("agent", 1, startTime);
+        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo("agent", startTime, 1);
         byte[] agents = sqlMetaDataBo.toRowKey();
 
 

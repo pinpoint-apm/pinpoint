@@ -6,7 +6,7 @@ import com.nhn.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
-import static com.nhn.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
+import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 /**
  *
@@ -23,14 +23,14 @@ public class ApiMetaDataBo {
     public ApiMetaDataBo() {
     }
 
-    public ApiMetaDataBo(String agentId, int apiId, long startTime) {
+    public ApiMetaDataBo(String agentId, long startTime, int apiId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
         this.agentId = agentId;
-        this.apiId = apiId;
         this.startTime = startTime;
+        this.apiId = apiId;
     }
 
     public String getAgentId() {
@@ -76,20 +76,20 @@ public class ApiMetaDataBo {
 
     public void readRowKey(byte[] bytes) {
         this.agentId = Bytes.toString(bytes, 0, AGENT_NAME_MAX_LEN).trim();
-        this.apiId = readKeyCode(bytes);
         this.startTime = TimeUtils.recoveryCurrentTimeMillis(readTime(bytes));
+        this.apiId = readKeyCode(bytes);
     }
 
     private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH);
+        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN);
     }
 
     private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN);
+        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
     }
 
     public byte[] toRowKey() {
-        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.apiId, this.startTime);
+        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.apiId);
     }
 
     @Override

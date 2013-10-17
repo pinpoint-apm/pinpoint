@@ -25,22 +25,24 @@ public class RowKeyUtils {
 	}
 
 
-	public static byte[] getMetaInfoRowKey(String agentId, int keyCode, long agentStartTime) {
+	public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
 		// TODO 일단 agent의 조회 시간 로직을 따로 만들어야 되므로 그냥0으로 하자.
 		if (agentId == null) {
 			throw new NullPointerException("agentId must not be null");
 		}
 
-		byte[] agentBytes = Bytes.toBytes(agentId);
+		final byte[] agentBytes = Bytes.toBytes(agentId);
 		if (agentBytes.length > AGENT_NAME_MAX_LEN) {
 			throw new IllegalArgumentException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
 		}
 
-		byte[] buffer = new byte[AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH + LONG_BYTE_LENGTH];
+		final byte[] buffer = new byte[AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
 		Bytes.putBytes(buffer, 0, agentBytes, 0, agentBytes.length);
-        BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_MAX_LEN);
+
 		long reverseCurrentTimeMillis = TimeUtils.reverseCurrentTimeMillis(agentStartTime);
-		BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_MAX_LEN + INT_BYTE_LENGTH);
+		BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_MAX_LEN);
+
+        BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
 		return buffer;
 	}
 
