@@ -257,7 +257,7 @@ public class DefaultAgent implements Agent {
 
     private void validateId(String id, String idName, int maxlen) {
         // 에러 체크 로직을 bootclass 앞단으로 이동시킴.
-        byte[] bytes = BytesUtils.getBytes(id);
+        byte[] bytes = BytesUtils.toBytes(id);
         if (bytes.length > maxlen) {
             logger.warn("{} is too long(1~24). value={}", idName, id);
         }

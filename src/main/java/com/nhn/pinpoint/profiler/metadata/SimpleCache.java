@@ -28,7 +28,7 @@ public class SimpleCache<T> {
             return find;
         }
         //음수까지 활용하여 가능한 데이터 인코딩을 작게 유지되게 함.
-        final int newId = BytesUtils.decodeZigZagInt(idGen.getAndIncrement());
+        final int newId = BytesUtils.zigzagToInt(idGen.getAndIncrement());
         final Result result = new Result(false, newId);
         final Result before = this.cache.putIfAbsent(value, result);
         if (before != null) {
