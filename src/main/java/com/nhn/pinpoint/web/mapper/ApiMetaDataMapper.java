@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -22,10 +25,14 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    @Qualifier("metadataRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public List<ApiMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
 
-        byte[] rowKey = result.getRow();
+        final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();
         KeyValue[] keyList = result.raw();
@@ -45,5 +52,11 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         }
         return apiMetaDataList;
     }
+
+    private byte[] getOriginalKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
+    }
+
+
 }
 

@@ -3,9 +3,12 @@ package com.nhn.pinpoint.web.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +19,15 @@ import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
  */
 @Component
 public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
+
+    @Autowired
+    @Qualifier("metadataRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
 
-        byte[] rowKey = result.getRow();
+        final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
         KeyValue[] keyList = result.raw();
@@ -31,5 +39,9 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
             sqlMetaDataList.add(sqlMetaDataBo);
         }
         return sqlMetaDataList;
+    }
+
+    private byte[] getOriginalKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
     }
 }
