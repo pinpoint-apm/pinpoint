@@ -160,10 +160,19 @@ public class AnnotationTranscoder {
         final int intValue = tIntStringValue.getIntValue();
         final byte[] stringValue = BytesUtils.toBytes(tIntStringValue.getStringValue());
         // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
-        final Buffer buffer = new AutomaticBuffer(stringValue.length + 4 + 8);
+        final int bufferSize = getBufferSize(stringValue, 4 + 8);
+        final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putSVar(intValue);
         buffer.putPrefixedBytes(stringValue);
         return buffer.getBuffer();
+    }
+
+    private int getBufferSize(byte[] stringValue, int reserve) {
+        if (stringValue == null) {
+            return reserve;
+        } else {
+            return stringValue.length + reserve;
+        }
     }
 
     private Object decodeIntStringStringValue(byte[] data) {

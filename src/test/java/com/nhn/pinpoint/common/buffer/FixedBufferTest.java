@@ -11,47 +11,9 @@ import org.slf4j.LoggerFactory;
 public class FixedBufferTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Test
-    public void testPut1PrefixedBytes() {
-        testPut1PrefixedBytes(255, 256);
-        testPut1PrefixedBytes(0, 256);
-        try {
-            testPut1PrefixedBytes(256, 257);
-            Assert.fail();
-        } catch (Exception e) {
-        }
 
-    }
 
-    private void testPut1PrefixedBytes(int dataSize, int bufferSize) {
-        FixedBuffer fixedBuffer = new FixedBuffer(bufferSize);
-        fixedBuffer.put1PrefixedBytes(new byte[dataSize]);
 
-        FixedBuffer read = new FixedBuffer(fixedBuffer.getBuffer());
-        byte[] bytes = read.read1PrefixedBytes();
-        Assert.assertEquals(bytes.length, dataSize);
-    }
-
-    @Test
-    public void testPut2PrefixedBytes() {
-        testPut2PrefixedBytes(65535, 65537);
-        testPut2PrefixedBytes(0, 65537);
-        try {
-            testPut2PrefixedBytes(65536, 65538);
-            Assert.fail();
-        } catch (Exception e) {
-        }
-
-    }
-
-    private void testPut2PrefixedBytes(int dataSize, int bufferSize) {
-        FixedBuffer fixedBuffer = new FixedBuffer(bufferSize);
-        fixedBuffer.put2PrefixedBytes(new byte[dataSize]);
-
-        FixedBuffer read = new FixedBuffer(fixedBuffer.getBuffer());
-        byte[] bytes = read.read2PrefixedBytes();
-        Assert.assertEquals(bytes.length, dataSize);
-    }
 
     @Test
     public void testPutPrefixedBytes() throws Exception {
@@ -94,29 +56,8 @@ public class FixedBufferTest {
 
     }
 
-    @Test
-    public void testReadPrefixedBytes() throws Exception {
-        Buffer buffer = new FixedBuffer(1024);
-        buffer.put1PrefixedBytes("string".getBytes("UTF-8"));
-        byte[] buffer1 = buffer.getBuffer();
 
-        Buffer read = new FixedBuffer(buffer1);
-        byte[] bytes = read.read1PrefixedBytes();
-        String s = new String(bytes, "UTF-8");
-        logger.info(s);
-    }
 
-    @Test
-    public void testNullTerminatedBytes() throws Exception {
-        Buffer buffer = new FixedBuffer(1024);
-        buffer.putNullTerminatedBytes("string".getBytes("UTF-8"));
-        byte[] buffer1 = buffer.getBuffer();
-
-        Buffer read = new FixedBuffer(buffer1);
-        String readString = read.readNullTerminatedString();
-
-        logger.info(readString);
-    }
 
     @Test
     public void testReadPrefixedString() throws Exception {

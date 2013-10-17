@@ -124,12 +124,7 @@ public class AnnotationTranscoderTest {
         byte[] encode = transcoder.encode(tIntStringValue, AnnotationTranscoder.CODE_INT_STRING);
         IntStringValue decode = (IntStringValue) transcoder.decode(AnnotationTranscoder.CODE_INT_STRING, encode);
         Assert.assertEquals(tIntStringValue.getIntValue(), decode.getIntValue());
-        if(stringValue != null) {
-            Assert.assertEquals(tIntStringValue.getStringValue(), decode.getStringValue());
-        } else {
-            // null일때 0인자열로 생각하는 문제점이 있음.
-            Assert.assertEquals("", decode.getStringValue());
-        }
+        Assert.assertEquals(tIntStringValue.getStringValue(), decode.getStringValue());
     }
 
     private void write(int value) throws TException {
