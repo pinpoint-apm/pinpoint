@@ -189,11 +189,24 @@ public class AnnotationTranscoder {
         final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
         final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
         // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
-        final Buffer buffer = new AutomaticBuffer(stringValue1.length + stringValue2.length + 4 + 16);
+        final int bufferSize = getBufferSize(stringValue1, stringValue2, 4 + 8);
+        final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putSVar(intValue);
         buffer.putPrefixedBytes(stringValue1);
         buffer.putPrefixedBytes(stringValue2);
         return buffer.getBuffer();
+    }
+
+    private int getBufferSize(byte[] stringValue1, byte[] stringValue2, int reserve) {
+        int length = 0;
+        if (stringValue1 != null) {
+            length += stringValue1.length;
+        }
+        if (stringValue2 != null) {
+            length += stringValue2.length;
+
+        }
+        return length + reserve;
     }
 
 
