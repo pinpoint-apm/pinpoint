@@ -164,6 +164,10 @@ public class FixedBufferTest {
 
     @Test
     public void testPutSVar32() throws Exception {
+        // 63이 1바이트 경계.
+        checkSVarInt(63, -1);
+        // 8191이 2바이트 경계
+        checkSVarInt((1024*8)-1, -1);
 
         checkSVarInt(3, -1);
 
