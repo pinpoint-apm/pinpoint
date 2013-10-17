@@ -14,9 +14,9 @@ import com.nhn.pinpoint.profiler.interceptor.*;
  * 
  */
 public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSupport, ByteCodeMethodDescriptorSupport, TraceContextSupport {
-    // method intereptor는 객체의 라이프 사이클을 알수 없이 자주 호출될수 있으므로 그냥 static으로 선언한다.
-	private static final PLogger logger = PLoggerFactory.getLogger(MethodInterceptor.class);
-    private static final boolean isDebug = logger.isDebugEnabled();
+
+	private final PLogger logger = PLoggerFactory.getLogger(MethodInterceptor.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
