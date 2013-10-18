@@ -39,13 +39,6 @@ public class SpanUtils {
 
 	}
 
-	public static byte[] getTransactionId(TSpanEvent spanEvent) {
-        if (spanEvent == null) {
-            throw new NullPointerException("spanEvent must not be null");
-        }
-        return BytesUtils.stringLongLongToBytes(spanEvent.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanEvent.getTraceAgentStartTime(), spanEvent.getTraceTransactionSequence());
-	}
-
 	public static byte[] getTransactionId(TSpanChunk spanChunk) {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
