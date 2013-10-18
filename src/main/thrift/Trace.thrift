@@ -64,9 +64,10 @@ struct TSpan {
   3: i64 agentStartTime
 
   // null일 경우 agentId와 동일한 값이다.
-  4: optional string traceAgentId
-  5: i64 traceAgentStartTime;
-  6: i64 traceTransactionSequence;
+  //4: optional string traceAgentId
+  //5: i64 traceAgentStartTime;
+  //6: i64 traceTransactionSequence;
+  4: binary  transactionId;
 
   7: i32 spanId
   8: optional i32 parentSpanId = -1
@@ -104,9 +105,10 @@ struct TSpanChunk {
   4: i16 serviceType
 
   // null일 경우 agentId와 동일한 값이다.
-  5: optional string traceAgentId
-  6: i64 traceAgentStartTime;
-  7: i64 traceTransactionSequence;
+//  5: optional string traceAgentId
+//  6: i64 traceAgentStartTime;
+//  7: i64 traceTransactionSequence;
+    5: binary  transactionId;
 
   8: i32 spanId
 
