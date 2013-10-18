@@ -83,7 +83,7 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = profilerConfig;
         this.serverInfo = new ServerInfo();
 
-        ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }

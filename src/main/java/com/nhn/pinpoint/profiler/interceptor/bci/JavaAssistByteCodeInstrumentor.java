@@ -87,6 +87,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
+        // 최상위 classLoader일 경우 null이라 찾을필요가 없음.
+        if (classLoader == null) {
+            return;
+        }
         // TODO Util로 뽑을까?
         boolean findClass = findClass(javassistClassName, classPool);
         if (findClass) {
