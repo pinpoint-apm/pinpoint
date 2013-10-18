@@ -33,7 +33,7 @@ pinpointApp.constant('serverMapConfig', {
     FILTER_FETCH_LIMIT: 99
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 'progressBar', function (cfg, $rootScope, alerts, progressBar) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 'ProgressBar', function (cfg, $rootScope, Alerts, ProgressBar) {
     return {
         restrict: 'EA',
         replace: true,
@@ -42,7 +42,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
 
             // define private variables
             var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu,
-                bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE;
+                bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar;
 
             // define private variables of methods
             var showServerMap, getServerMapData2, getFilteredServerMapData, reset, setNodeContextMenuPosition,
@@ -52,8 +52,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
             // initialize
             oServerMap = null;
             SERVERMAP_METHOD_CACHE = {};
-            alerts.setParent(element);
-            progressBar.setParent(element);
+            oAlert = new Alerts(element);
+            oProgressBar = new ProgressBar(element);
             scope.oNavbar = null;
             scope.mergeUnknowns = true;
             scope.totalRequestCount = true;
@@ -74,11 +74,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
              * @param linkCurve
              */
             showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, hideIndirectAccess, linkRouting, linkCurve) {
-                progressBar.startLoading();
+                oProgressBar.startLoading();
                 if (oServerMap) {
                     oServerMap.clear();
                 }
-                progressBar.setLoading(10);
+                oProgressBar.setLoading(10);
 
                 var query = {
                     applicationName: applicationName,
@@ -144,7 +144,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
              * @param callback
              */
             getServerMapData2 = function (query, callback) {
-                progressBar.setLoading(50);
+                oProgressBar.setLoading(50);
                 jQuery.ajax({
                     type: 'GET',
                     url: '/getServerMapData2.pinpoint',
@@ -158,13 +158,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
                         hideIndirectAccess: query.hideIndirectAccess
                     },
                     success: function (result) {
-                        progressBar.setLoading(30);
+                        oProgressBar.setLoading(30);
                         callback(query, result);
                     },
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
-                        progressBar.stopLoading();
-                        alerts.showWarning('There is some error.');
+                        oProgressBar.stopLoading();
+                        oAlert.showWarning('There is some error.');
                     }
                 });
             };
@@ -193,8 +193,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
                     },
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
-                        progressBar.stopLoading();
-                        alerts.showWarning('There is some error.');
+                        oProgressBar.stopLoading();
+                        oAlert.showWarning('There is some error.');
                     }
                 });
             };
@@ -272,10 +272,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
             serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
                 serverMapCachedQuery = angular.copy(query);
                 serverMapCachedData = angular.copy(data);
-                progressBar.setLoading(80);
+                oProgressBar.setLoading(80);
                 if (data.applicationMapData.nodeDataArray.length === 0) {
-                    progressBar.stopLoading();
-                    alerts.showInfo('There is no data.');
+                    oProgressBar.stopLoading();
+                    oAlert.showInfo('There is no data.');
                     return;
                 }
 
@@ -285,7 +285,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
 
                 replaceClientToUser(data);
                 setLinkOption(data, linkRouting, linkCurve);
-                progressBar.setLoading(90);
+                oProgressBar.setLoading(90);
 
                 var options = cfg.options;
                 options.fOnNodeContextClicked = function (e, node) {
@@ -359,7 +359,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'alerts', 
                     oServerMap.option(options);
                 }
                 oServerMap.load(data.applicationMapData);
-                progressBar.stopLoading();
+                oProgressBar.stopLoading();
             };
 
             /**
