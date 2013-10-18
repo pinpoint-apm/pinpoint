@@ -14,9 +14,6 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
     @Qualifier("spanHandler")
     private SimpleHandler spanDataHandler;
 
-    @Autowired()
-    @Qualifier("spanEventHandler")
-    private SimpleHandler spanEventHandler;
 
     @Autowired()
     @Qualifier("spanChunkHandler")
@@ -32,9 +29,6 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
         if (tBase instanceof TSpan) {
             return spanDataHandler;
-        }
-        if (tBase instanceof TSpanEvent) {
-            return spanEventHandler;
         }
         if (tBase instanceof TSpanChunk) {
             return spanChunkHandler;

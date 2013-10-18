@@ -7,7 +7,5 @@ import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 public interface TracesDao {
     void insert(TSpan span);
 
-    void insertEvent(TSpanEvent spanEvent);
-
     void insertSpanChunk(TSpanChunk spanChunk);
 }

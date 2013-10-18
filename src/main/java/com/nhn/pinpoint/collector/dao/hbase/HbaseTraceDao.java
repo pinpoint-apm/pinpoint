@@ -90,19 +90,6 @@ public class HbaseTraceDao implements TracesDao {
     }
 
 
-    @Override
-    public void insertEvent(final TSpanEvent spanEvent) {
-        SpanEventBo spanEventBo = new SpanEventBo(spanEvent);
-        byte[] value = spanEventBo.writeValue();
-
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanEvent));
-        Put spanEventPut = new Put(rowKey);
-
-        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
-        spanEventPut.add(TRACES_CF_TERMINALSPAN, rowId, value);
-
-        hbaseTemplate.put(TRACES, spanEventPut);
-    }
 
     @Override
     public void insertSpanChunk(TSpanChunk spanChunk) {
