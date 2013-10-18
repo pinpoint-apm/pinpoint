@@ -24,12 +24,17 @@ public class TimeBaseStorage implements Storage {
 
     private List<SpanEvent> storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
     private final DataSender dataSender;
+    private final SpanChunkFactory spanChunkFactory;
 
-    public TimeBaseStorage(DataSender dataSender) {
+    public TimeBaseStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
+        if (spanChunkFactory == null) {
+            throw new NullPointerException("spanChunkFactory must not be null");
+        }
         this.dataSender = dataSender;
+        this.spanChunkFactory = spanChunkFactory;
     }
 
     public void setDiscard(boolean discard) {
@@ -59,34 +64,30 @@ public class TimeBaseStorage implements Storage {
             List<SpanEvent> flushData = null;
             boolean add;
             synchronized (this) {
-                add = addSpanEvent(spanEvent);
-                if (add && storage.size() >= bufferSize) {
+                addSpanEvent(spanEvent);
+                if (storage.size() >= bufferSize) {
                     // data copy
                     flushData = storage;
                     storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
                 }
             }
-            if (!add) {
-                // add가 실패하였을 경우는 이미 span이 flush된 상태이다.
-                dataSender.send((Thriftable)spanEvent);
-                return;
-            }
             if (flushData != null) {
-                dataSender.send((Thriftable) new SpanChunk(flushData));
+                final SpanChunk spanChunk = spanChunkFactory.create(flushData);
+                dataSender.send(spanChunk);
             }
         }
     }
 
-    private boolean addSpanEvent(SpanEvent spanEvent) {
+    private void addSpanEvent(SpanEvent spanEvent) {
         if (storage == null) {
-            if (isDebug) {
-                logger.debug("storage is null. direct send");
+            if (logger.isErrorEnabled()) {
+                logger.error("storage is null. direct send");
             }
             // 이미 span이 와서 flush된 상황임.
-            return false;
+            return;
         }
         storage.add(spanEvent);
-        return true;
+        return;
     }
 
     private boolean checkLimit(SpanEvent spanEvent) {

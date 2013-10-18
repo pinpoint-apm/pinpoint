@@ -19,6 +19,10 @@ public class Span extends TSpan {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
+        final String agentId = this.getAgentId();
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
 
         if (!this.getAgentId().equals(traceId.getAgentId())) {
             this.setTraceAgentId(traceId.getAgentId());

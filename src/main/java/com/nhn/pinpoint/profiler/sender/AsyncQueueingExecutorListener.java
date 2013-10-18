@@ -5,9 +5,9 @@ import java.util.Collection;
 /**
  *
  */
-public interface AsyncQueueingExecutorListener {
+public interface AsyncQueueingExecutorListener<T> {
 
-    void execute(Collection<Object> dtoList);
+    void execute(Collection<T> dtoList);
 
-    void execute(Object dto);
+    void execute(T dto);
 }

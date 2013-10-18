@@ -8,7 +8,7 @@ import java.util.Collection;
 /**
  *
  */
-public class EmptyAsyncQueueingExecutorListener implements AsyncQueueingExecutorListener {
+public class EmptyAsyncQueueingExecutorListener implements AsyncQueueingExecutorListener<Object> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

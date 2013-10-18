@@ -11,7 +11,6 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.profiler.context.Thriftable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,7 @@ public class UdpDataSender implements DataSender {
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
 
-    private AsyncQueueingExecutor executor;
+    private AsyncQueueingExecutor<TBase<?, ?>> executor;
 
 	public UdpDataSender(String host, int port, String threadName) {
         if (host == null ) {
@@ -49,16 +48,16 @@ public class UdpDataSender implements DataSender {
         this.executor = getExecutor(threadName);
 	}
 
-    private AsyncQueueingExecutor getExecutor(String senderName) {
-        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, senderName);
-        executor.setListener(new AsyncQueueingExecutorListener() {
+    private AsyncQueueingExecutor<TBase<?, ?>> getExecutor(String senderName) {
+        final AsyncQueueingExecutor<TBase<?, ?>> executor = new AsyncQueueingExecutor<TBase<?, ?>>(1024 * 5, senderName);
+        executor.setListener(new AsyncQueueingExecutorListener<TBase<?, ?>>() {
             @Override
-            public void execute(Collection<Object> dtoList) {
+            public void execute(Collection<TBase<?, ?>> dtoList) {
                 sendPacketN(dtoList);
             }
 
             @Override
-            public void execute(Object dto) {
+            public void execute(TBase<?, ?> dto) {
                 sendPacket(dto);
             }
         });
@@ -80,13 +79,11 @@ public class UdpDataSender implements DataSender {
 		}
 	}
 
+    @Override
 	public boolean send(TBase<?, ?> data) {
 		return executor.execute(data);
 	}
 
-	public boolean send(Thriftable thriftable) {
-		return executor.execute(thriftable);
-	}
 
     @Override
     public boolean request(TBase<?, ?> data) {
@@ -101,8 +98,8 @@ public class UdpDataSender implements DataSender {
 
 
 
-    protected void sendPacketN(Collection<Object> dtoList) {
-        Object[] dataList = dtoList.toArray();
+    protected void sendPacketN(Collection<TBase<?, ?>> dtoList) {
+        TBase<?, ?>[] dataList = (TBase<?, ?>[]) dtoList.toArray();
 //        for (Object data : dataList) {
 //        이렇게 바꾸지 말것. copy해서 return 하는게 아니라 항상 max치가 나옴.
         final int size = dtoList.size();
@@ -116,33 +113,31 @@ public class UdpDataSender implements DataSender {
 	}
 
 
-	protected void sendPacket(Object dto) {
-		TBase<?, ?> tBase;
-        if (dto instanceof Thriftable) {
-            tBase = ((Thriftable) dto).toThrift();
-        } else if (dto instanceof TBase) {
-			tBase = (TBase<?, ?>) dto;
+	protected void sendPacket(TBase<?, ?> dto) {
+        if (dto instanceof TBase) {
+            final TBase<?, ?> tBase = (TBase<?, ?>) dto;
+            // single thread이므로 데이터 array를 nocopy해서 보냄.
+            byte[] interBufferData = serialize(tBase);
+            int interBufferSize = serializer.getInterBufferSize();
+            if (interBufferData == null) {
+                logger.warn("interBufferData is null");
+                return;
+            }
+            // single thread이므로 그냥 재활용한다.
+            reusePacket.setData(interBufferData, 0, interBufferSize);
+            try {
+                udpSocket.send(reusePacket);
+                if (isTrace) {
+                    logger.trace("Data sent. {}", dto);
+                }
+            } catch (IOException e) {
+                logger.warn("packet send error {}", dto, e);
+            }
 		} else {
 			logger.warn("sendPacket fail. invalid type:{}", dto.getClass());
 			return;
 		}
-        // single thread이므로 데이터 array를 nocopy해서 보냄.
-		byte[] interBufferData = serialize(tBase);
-        int interBufferSize = serializer.getInterBufferSize();
-        if (interBufferData == null) {
-			logger.warn("interBufferData is null");
-			return;
-		}
-        // single thread이므로 그냥 재활용한다.
-		reusePacket.setData(interBufferData, 0, interBufferSize);
-		try {
-			udpSocket.send(reusePacket);
-			if (isTrace) {
-				logger.trace("Data sent. {}", dto);
-			}
-		} catch (IOException e) {
-			logger.warn("packet send error {}", dto, e);
-		}
+
 	}
 
 

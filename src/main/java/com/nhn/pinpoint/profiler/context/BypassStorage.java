@@ -5,6 +5,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 /**
  *
  */
+@Deprecated
 public class BypassStorage implements Storage {
 
     private final DataSender dataSender;
@@ -22,7 +23,7 @@ public class BypassStorage implements Storage {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
-        dataSender.send((Thriftable) spanEvent);
+        dataSender.send(spanEvent);
     }
 
     @Override

@@ -14,7 +14,7 @@ import com.nhn.pinpoint.profiler.DefaultAgent;
 /**
  *
  */
-public class SpanChunk extends TSpanChunk implements Thriftable {
+public class SpanChunk extends TSpanChunk {
 
     public SpanChunk(List<SpanEvent> spanEventList) {
         if (spanEventList == null) {
@@ -22,36 +22,4 @@ public class SpanChunk extends TSpanChunk implements Thriftable {
         }
         setSpanEventList((List) spanEventList);
     }
-
-    @Override
-    public TBase toThrift() {
-        // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
-        final List<TSpanEvent> spanEventList = getSpanEventList();
-        TSpanEvent first = spanEventList.get(0);
-        if (first == null) {
-            throw new IllegalStateException("first spanEvent not found");
-        }
-        Span parentSpan = ((SpanEvent)first).getSpan();
-
-        final AgentInformation agentInformation = DefaultAgent.getInstance().getAgentInformation();
-        final String agentId = agentInformation.getAgentId();
-        this.setAgentId(agentId);
-        this.setApplicationName(agentInformation.getApplicationName());
-        this.setAgentStartTime(agentInformation.getStartTime());
-
-        this.setServiceType(parentSpan.getServiceType());
-
-        final String traceAgentId = parentSpan.getTraceAgentId();
-        if (!agentId.equals(traceAgentId)) {
-            this.setTraceAgentId(traceAgentId);
-        }
-        this.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
-        this.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
-        this.setSpanId(parentSpan.getSpanId());
-
-        this.setEndPoint(parentSpan.getEndPoint());
-        
-        return this;
-    }
-
 }

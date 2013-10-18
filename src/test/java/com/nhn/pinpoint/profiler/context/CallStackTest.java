@@ -13,8 +13,11 @@ public class CallStackTest {
 
     @Test
     public void testPush() throws Exception {
-        DefaultTraceId traceID = new DefaultTraceId("test", 0, 1);
-        CallStack callStack = new CallStack(traceID);
+        DefaultTraceId traceId = new DefaultTraceId("test", 0, 1);
+        Span span = new Span();
+        span.setAgentId("agentId");
+        span.recordTraceId(traceId);
+        CallStack callStack = new CallStack(span);
         int stackIndex = callStack.getStackFrameIndex();
         logger.info(String.valueOf(stackIndex));
         callStack.push();

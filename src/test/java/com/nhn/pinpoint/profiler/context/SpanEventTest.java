@@ -14,7 +14,9 @@ public class SpanEventTest {
     @Test
     public void testMarkStartTime() throws Exception {
         final DefaultTraceId traceId = new DefaultTraceId("agentTime", 0, 0);
-        Span span = new Span(traceId);
+        Span span = new Span();
+        span.setAgentId("agentId");
+        span.recordTraceId(traceId);
         span.markBeforeTime();
         Thread.sleep(10);
         span.markAfterTime();

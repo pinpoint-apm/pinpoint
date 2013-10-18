@@ -13,23 +13,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public class AsyncQueueingExecutor implements Runnable {
+public class AsyncQueueingExecutor<T> implements Runnable {
 
     private static final AsyncQueueingExecutorListener EMPTY_LISTENER = new EmptyAsyncQueueingExecutorListener();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isWarn = logger.isWarnEnabled();
 
-    private final LinkedBlockingQueue<Object> queue;
+    private final LinkedBlockingQueue<T> queue;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
     private final Thread executeThread;
     private final String executorName;
 
     private final int maxDrainSize = 10;
     // 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
-    private final Collection<Object> drain = new UnsafeArrayCollection<Object>(maxDrainSize);
+    private final Collection<T> drain = new UnsafeArrayCollection<T>(maxDrainSize);
 
-    private AsyncQueueingExecutorListener listener = EMPTY_LISTENER;
+    private AsyncQueueingExecutorListener<T> listener = EMPTY_LISTENER;
 
 
     public AsyncQueueingExecutor() {
@@ -40,7 +40,7 @@ public class AsyncQueueingExecutor implements Runnable {
         if (executorName == null) {
             throw new NullPointerException("executorName must not be null");
         }
-        this.queue = new LinkedBlockingQueue<Object>(queueSize);
+        this.queue = new LinkedBlockingQueue<T>(queueSize);
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
     }
@@ -62,7 +62,7 @@ public class AsyncQueueingExecutor implements Runnable {
         drainStartEntry:
         while (isRun()) {
             try {
-                Collection<Object> dtoList = getDrainQueue();
+                Collection<T> dtoList = getDrainQueue();
                 int drainSize = takeN(dtoList, this.maxDrainSize);
                 if (drainSize > 0) {
                     doExecute(dtoList);
@@ -70,7 +70,7 @@ public class AsyncQueueingExecutor implements Runnable {
                 }
 
                 while (isRun()) {
-                    Object dto = takeOne();
+                    T dto = takeOne();
                     if (dto != null) {
                         doExecute(dto);
                         continue drainStartEntry;
@@ -89,7 +89,7 @@ public class AsyncQueueingExecutor implements Runnable {
             logger.debug("Loop is stop.");
         }
         while(true) {
-            Collection<Object> dtoList = getDrainQueue();
+            Collection<T> dtoList = getDrainQueue();
            int drainSize = takeN(dtoList, this.maxDrainSize);
             if (drainSize == 0) {
                 break;
@@ -101,7 +101,7 @@ public class AsyncQueueingExecutor implements Runnable {
         }
     }
 
-    protected Object takeOne() {
+    protected T takeOne() {
         try {
             return queue.poll(1000 * 2, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -110,11 +110,11 @@ public class AsyncQueueingExecutor implements Runnable {
         }
     }
 
-    protected int takeN(Collection<Object> drain, int maxDrainSize) {
+    protected int takeN(Collection<T> drain, int maxDrainSize) {
         return queue.drainTo(drain, maxDrainSize);
     }
 
-    public boolean execute(Object data) {
+    public boolean execute(T data) {
 
         if (data == null) {
             if (isWarn) {
@@ -137,18 +137,18 @@ public class AsyncQueueingExecutor implements Runnable {
         return offer;
     }
 
-    public void setListener(AsyncQueueingExecutorListener listener) {
+    public void setListener(AsyncQueueingExecutorListener<T> listener) {
         if (listener == null) {
             throw new NullPointerException("listener must not be null");
         }
         this.listener = listener;
     }
 
-    private void doExecute(Collection<Object> dtoList) {
+    private void doExecute(Collection<T> dtoList) {
         this.listener.execute(dtoList);
     }
 
-    private void doExecute(Object dto) {
+    private void doExecute(T dto) {
         this.listener.execute(dto);
     }
 
@@ -177,7 +177,7 @@ public class AsyncQueueingExecutor implements Runnable {
         logger.info("{} stopped.", executorName);
     }
 
-    Collection<Object> getDrainQueue() {
+    Collection<T> getDrainQueue() {
         this.drain.clear();
         return drain;
     }

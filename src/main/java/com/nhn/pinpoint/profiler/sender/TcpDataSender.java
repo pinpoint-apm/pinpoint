@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.sender;
 
 
 import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.profiler.context.Thriftable;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
 import com.nhn.pinpoint.rpc.Future;
@@ -42,7 +41,7 @@ public class TcpDataSender implements DataSender {
 
     private RetryQueue retryQueue = new RetryQueue();
 
-    private AsyncQueueingExecutor executor;
+    private AsyncQueueingExecutor<Object> executor;
 
     public TcpDataSender(String host, int port) {
         pinpointSocketFactory = new PinpointSocketFactory();
@@ -66,9 +65,9 @@ public class TcpDataSender implements DataSender {
         this.socket = pinpointSocketFactory.scheduledConnect(host, port);
     }
 
-    public AsyncQueueingExecutor getExecutor() {
-        AsyncQueueingExecutor executor = new AsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
-        executor.setListener(new AsyncQueueingExecutorListener() {
+    public AsyncQueueingExecutor<Object> getExecutor() {
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(1024 * 5, "Pinpoint-TcpDataExecutor");
+        executor.setListener(new AsyncQueueingExecutorListener<Object>() {
             @Override
             public void execute(Collection<Object> dtoList) {
                 sendPacketN(dtoList);
@@ -104,9 +103,7 @@ public class TcpDataSender implements DataSender {
     private void sendPacket(Object dto) {
         TBase<?, ?> tBase;
         boolean request = false;
-        if (dto instanceof Thriftable) {
-            tBase = ((Thriftable) dto).toThrift();
-        } else if (dto instanceof TBase) {
+        if (dto instanceof TBase) {
             tBase = (TBase<?, ?>) dto;
         } else if(dto instanceof RequestMarker) {
             tBase = ((RequestMarker) dto).getTBase();
@@ -241,11 +238,6 @@ public class TcpDataSender implements DataSender {
     }
 
     @Override
-    public boolean send(Thriftable thriftable) {
-        return executor.execute(thriftable);
-    }
-
-    @Override
     public void stop() {
         executor.stop();
         socket.close();
@@ -253,7 +245,7 @@ public class TcpDataSender implements DataSender {
     }
 
     private static class RequestMarker {
-        private TBase tBase;
+        private final TBase tBase;
 
         private RequestMarker(TBase tBase) {
             this.tBase = tBase;

@@ -5,6 +5,7 @@ import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.exception.PinpointException;
+import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
@@ -14,10 +15,6 @@ import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.context.BypassStorageFactory;
-import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
-import com.nhn.pinpoint.profiler.context.TimeBaseStorageFactory;
-import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
@@ -28,7 +25,6 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.NetworkUtils;
-import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +55,6 @@ public class DefaultAgent implements Agent {
     private final DataSender spanDataSender;
 
     private final AgentInformation agentInformation;
-
-    private final TAgentKey tAgentKey;
 
     // agent info는 heartbeat에서 매번 사용한다.
     private final TAgentInfo tAgentInfo;
@@ -110,17 +104,16 @@ public class DefaultAgent implements Agent {
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor");
 
-        this.traceContext = createTraceContext();
-
 
         this.tAgentInfo = createTAgentInfo();
-        this.tAgentKey = createTAgentKey();
+
+        this.traceContext = createTraceContext();
+
         this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
 
-        SingletonHolder.INSTANCE = this;
         preLoadClass();
     }
 
@@ -186,13 +179,7 @@ public class DefaultAgent implements Agent {
         return agentInfo;
     }
 
-    private TAgentKey createTAgentKey() {
-        return new TAgentKey(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
-    }
 
-    public TAgentKey getTAgentKey() {
-        return tAgentKey;
-    }
 
     private void changeStatus(AgentStatus status) {
         this.agentStatus = status;
@@ -213,23 +200,30 @@ public class DefaultAgent implements Agent {
 
     private TraceContext createTraceContext() {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
-        Sampler sampler = createSampler();
+        final Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler.getClass());
 
         traceContext.setSampler(sampler);
         traceContext.setProfilerConfig(profilerConfig);
 
-        if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
-            TimeBaseStorageFactory timeBaseStorageFactory = new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig);
-            traceContext.setStorageFactory(timeBaseStorageFactory);
-        } else {
-            traceContext.setStorageFactory(new BypassStorageFactory(spanDataSender));
-        }
+
+        final StorageFactory storageFactory = createStorageFactory();
+        logger.info("StorageFactoryType:{}", storageFactory.getClass());
+        traceContext.setStorageFactory(storageFactory);
         return traceContext;
+    }
+
+    private StorageFactory createStorageFactory() {
+        if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
+            return new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
+        } else {
+            return new SpanStorageFactory(spanDataSender);
+
+        }
     }
 
     private Sampler createSampler() {
@@ -263,16 +257,6 @@ public class DefaultAgent implements Agent {
         }
     }
 
-
-    private static class SingletonHolder {
-        public static DefaultAgent INSTANCE;
-    }
-
-
-    @Deprecated
-    public static DefaultAgent getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
 
     public void addConnector(String protocol, int port){
         this.serverInfo.addConnector(protocol, port);

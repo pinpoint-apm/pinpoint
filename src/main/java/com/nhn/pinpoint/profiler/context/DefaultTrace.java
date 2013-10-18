@@ -36,7 +36,7 @@ public final class DefaultTrace implements Trace {
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
 
-    public DefaultTrace(DefaultTraceContext traceContext, String agentId, long agentStartTime, long transactionId) {
+    public DefaultTrace(final DefaultTraceContext traceContext, final String agentId, long agentStartTime, long transactionId) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -45,13 +45,14 @@ public final class DefaultTrace implements Trace {
 
         final Span span = createSpan(traceId);
         this.callStack = new CallStack(span);
-        latestStackIndex = this.callStack.push();
-        StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
+        this.latestStackIndex = this.callStack.push();
+
+        final StackFrame stackFrame = createSpanStackFrame(ROOT_STACKID, callStack.getSpan());
         this.callStack.setStackFrame(stackFrame);
         this.currentStackFrame = stackFrame;
     }
 
-    private Span createSpan(TraceId traceId) {
+    private Span createSpan(final TraceId traceId) {
         final Span span = new Span();
         final AgentInformation agentInformation = traceContext.getAgentInformation();
         span.setAgentId(agentInformation.getAgentId());
@@ -108,6 +109,8 @@ public final class DefaultTrace implements Trace {
 
     private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
+        // Span내부의 SpanEvent로 들어가지 않을 경우 사용하기 위해 set한다.
+
         SpanEventStackFrame stackFrame = new SpanEventStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSequence(getSequence());

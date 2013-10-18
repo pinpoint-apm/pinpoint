@@ -62,12 +62,6 @@ public class TraceTest {
         }
 
         @Override
-        public boolean send(Thriftable thriftable) {
-            this.event = true;
-            return false;
-        }
-
-        @Override
         public void stop() {
         }
 
