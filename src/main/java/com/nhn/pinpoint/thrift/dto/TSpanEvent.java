@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEvent._Fields>, java.io.Serializable, Cloneable, Comparable<TSpanEvent> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpanEvent");
 
-  private static final org.apache.thrift.protocol.TField AGENT_KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("agentKey", org.apache.thrift.protocol.TType.STRUCT, (short)1);
   private static final org.apache.thrift.protocol.TField PARENT_SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parentServiceType", org.apache.thrift.protocol.TType.I16, (short)17);
   private static final org.apache.thrift.protocol.TField PARENT_END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("parentEndPoint", org.apache.thrift.protocol.TType.STRING, (short)18);
   private static final org.apache.thrift.protocol.TField TRACE_AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("traceAgentId", org.apache.thrift.protocol.TType.STRING, (short)4);
@@ -61,7 +60,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     schemes.put(TupleScheme.class, new TSpanEventTupleSchemeFactory());
   }
 
-  private TAgentKey agentKey; // optional
   private short parentServiceType; // optional
   private String parentEndPoint; // optional
   private String traceAgentId; // optional
@@ -83,7 +81,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    AGENT_KEY((short)1, "agentKey"),
     PARENT_SERVICE_TYPE((short)17, "parentServiceType"),
     PARENT_END_POINT((short)18, "parentEndPoint"),
     TRACE_AGENT_ID((short)4, "traceAgentId"),
@@ -116,8 +113,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // AGENT_KEY
-          return AGENT_KEY;
         case 17: // PARENT_SERVICE_TYPE
           return PARENT_SERVICE_TYPE;
         case 18: // PARENT_END_POINT
@@ -206,12 +201,10 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private static final int __NEXTSPANID_ISSET_ID = 9;
   private static final int __APIID_ISSET_ID = 10;
   private short __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.AGENT_KEY,_Fields.PARENT_SERVICE_TYPE,_Fields.PARENT_END_POINT,_Fields.TRACE_AGENT_ID,_Fields.TRACE_AGENT_START_TIME,_Fields.TRACE_TRANSACTION_SEQUENCE,_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
+  private _Fields optionals[] = {_Fields.PARENT_SERVICE_TYPE,_Fields.PARENT_END_POINT,_Fields.TRACE_AGENT_ID,_Fields.TRACE_AGENT_START_TIME,_Fields.TRACE_TRANSACTION_SEQUENCE,_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.AGENT_KEY, new org.apache.thrift.meta_data.FieldMetaData("agentKey", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAgentKey.class)));
     tmpMap.put(_Fields.PARENT_SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parentServiceType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.PARENT_END_POINT, new org.apache.thrift.meta_data.FieldMetaData("parentEndPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -281,9 +274,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
    */
   public TSpanEvent(TSpanEvent other) {
     __isset_bitfield = other.__isset_bitfield;
-    if (other.isSetAgentKey()) {
-      this.agentKey = new TAgentKey(other.agentKey);
-    }
     this.parentServiceType = other.parentServiceType;
     if (other.isSetParentEndPoint()) {
       this.parentEndPoint = other.parentEndPoint;
@@ -328,7 +318,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   @Override
   public void clear() {
-    this.agentKey = null;
     setParentServiceTypeIsSet(false);
     this.parentServiceType = 0;
     this.parentEndPoint = null;
@@ -358,29 +347,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     setApiIdIsSet(false);
     this.apiId = 0;
     this.exceptionInfo = null;
-  }
-
-  public TAgentKey getAgentKey() {
-    return this.agentKey;
-  }
-
-  public void setAgentKey(TAgentKey agentKey) {
-    this.agentKey = agentKey;
-  }
-
-  public void unsetAgentKey() {
-    this.agentKey = null;
-  }
-
-  /** Returns true if field agentKey is set (has been assigned a value) and false otherwise */
-  public boolean isSetAgentKey() {
-    return this.agentKey != null;
-  }
-
-  public void setAgentKeyIsSet(boolean value) {
-    if (!value) {
-      this.agentKey = null;
-    }
   }
 
   public short getParentServiceType() {
@@ -803,14 +769,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case AGENT_KEY:
-      if (value == null) {
-        unsetAgentKey();
-      } else {
-        setAgentKey((TAgentKey)value);
-      }
-      break;
-
     case PARENT_SERVICE_TYPE:
       if (value == null) {
         unsetParentServiceType();
@@ -960,9 +918,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case AGENT_KEY:
-      return getAgentKey();
-
     case PARENT_SERVICE_TYPE:
       return Short.valueOf(getParentServiceType());
 
@@ -1028,8 +983,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     }
 
     switch (field) {
-    case AGENT_KEY:
-      return isSetAgentKey();
     case PARENT_SERVICE_TYPE:
       return isSetParentServiceType();
     case PARENT_END_POINT:
@@ -1082,15 +1035,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   public boolean equals(TSpanEvent that) {
     if (that == null)
       return false;
-
-    boolean this_present_agentKey = true && this.isSetAgentKey();
-    boolean that_present_agentKey = true && that.isSetAgentKey();
-    if (this_present_agentKey || that_present_agentKey) {
-      if (!(this_present_agentKey && that_present_agentKey))
-        return false;
-      if (!this.agentKey.equals(that.agentKey))
-        return false;
-    }
 
     boolean this_present_parentServiceType = true && this.isSetParentServiceType();
     boolean that_present_parentServiceType = true && that.isSetParentServiceType();
@@ -1270,16 +1214,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetAgentKey()).compareTo(other.isSetAgentKey());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetAgentKey()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.agentKey, other.agentKey);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetParentServiceType()).compareTo(other.isSetParentServiceType());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1480,17 +1414,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     StringBuilder sb = new StringBuilder("TSpanEvent(");
     boolean first = true;
 
-    if (isSetAgentKey()) {
-      sb.append("agentKey:");
-      if (this.agentKey == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.agentKey);
-      }
-      first = false;
-    }
     if (isSetParentServiceType()) {
-      if (!first) sb.append(", ");
       sb.append("parentServiceType:");
       sb.append(this.parentServiceType);
       first = false;
@@ -1626,9 +1550,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
     // check for sub-struct validity
-    if (agentKey != null) {
-      agentKey.validate();
-    }
     if (exceptionInfo != null) {
       exceptionInfo.validate();
     }
@@ -1670,15 +1591,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
           break;
         }
         switch (schemeField.id) {
-          case 1: // AGENT_KEY
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.agentKey = new TAgentKey();
-              struct.agentKey.read(iprot);
-              struct.setAgentKeyIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 17: // PARENT_SERVICE_TYPE
             if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
               struct.parentServiceType = iprot.readI16();
@@ -1848,13 +1760,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.agentKey != null) {
-        if (struct.isSetAgentKey()) {
-          oprot.writeFieldBegin(AGENT_KEY_FIELD_DESC);
-          struct.agentKey.write(oprot);
-          oprot.writeFieldEnd();
-        }
-      }
       if (struct.traceAgentId != null) {
         if (struct.isSetTraceAgentId()) {
           oprot.writeFieldBegin(TRACE_AGENT_ID_FIELD_DESC);
@@ -1978,67 +1883,61 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     public void write(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetAgentKey()) {
+      if (struct.isSetParentServiceType()) {
         optionals.set(0);
       }
-      if (struct.isSetParentServiceType()) {
+      if (struct.isSetParentEndPoint()) {
         optionals.set(1);
       }
-      if (struct.isSetParentEndPoint()) {
+      if (struct.isSetTraceAgentId()) {
         optionals.set(2);
       }
-      if (struct.isSetTraceAgentId()) {
+      if (struct.isSetTraceAgentStartTime()) {
         optionals.set(3);
       }
-      if (struct.isSetTraceAgentStartTime()) {
+      if (struct.isSetTraceTransactionSequence()) {
         optionals.set(4);
       }
-      if (struct.isSetTraceTransactionSequence()) {
+      if (struct.isSetSpanId()) {
         optionals.set(5);
       }
-      if (struct.isSetSpanId()) {
+      if (struct.isSetSequence()) {
         optionals.set(6);
       }
-      if (struct.isSetSequence()) {
+      if (struct.isSetStartElapsed()) {
         optionals.set(7);
       }
-      if (struct.isSetStartElapsed()) {
+      if (struct.isSetEndElapsed()) {
         optionals.set(8);
       }
-      if (struct.isSetEndElapsed()) {
+      if (struct.isSetRpc()) {
         optionals.set(9);
       }
-      if (struct.isSetRpc()) {
+      if (struct.isSetServiceType()) {
         optionals.set(10);
       }
-      if (struct.isSetServiceType()) {
+      if (struct.isSetEndPoint()) {
         optionals.set(11);
       }
-      if (struct.isSetEndPoint()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(12);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetDepth()) {
         optionals.set(13);
       }
-      if (struct.isSetDepth()) {
+      if (struct.isSetNextSpanId()) {
         optionals.set(14);
       }
-      if (struct.isSetNextSpanId()) {
+      if (struct.isSetDestinationId()) {
         optionals.set(15);
       }
-      if (struct.isSetDestinationId()) {
+      if (struct.isSetApiId()) {
         optionals.set(16);
       }
-      if (struct.isSetApiId()) {
+      if (struct.isSetExceptionInfo()) {
         optionals.set(17);
       }
-      if (struct.isSetExceptionInfo()) {
-        optionals.set(18);
-      }
-      oprot.writeBitSet(optionals, 19);
-      if (struct.isSetAgentKey()) {
-        struct.agentKey.write(oprot);
-      }
+      oprot.writeBitSet(optionals, 18);
       if (struct.isSetParentServiceType()) {
         oprot.writeI16(struct.parentServiceType);
       }
@@ -2104,61 +2003,56 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(19);
+      BitSet incoming = iprot.readBitSet(18);
       if (incoming.get(0)) {
-        struct.agentKey = new TAgentKey();
-        struct.agentKey.read(iprot);
-        struct.setAgentKeyIsSet(true);
-      }
-      if (incoming.get(1)) {
         struct.parentServiceType = iprot.readI16();
         struct.setParentServiceTypeIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(1)) {
         struct.parentEndPoint = iprot.readString();
         struct.setParentEndPointIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(2)) {
         struct.traceAgentId = iprot.readString();
         struct.setTraceAgentIdIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(3)) {
         struct.traceAgentStartTime = iprot.readI64();
         struct.setTraceAgentStartTimeIsSet(true);
       }
-      if (incoming.get(5)) {
+      if (incoming.get(4)) {
         struct.traceTransactionSequence = iprot.readI64();
         struct.setTraceTransactionSequenceIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(5)) {
         struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(6)) {
         struct.sequence = iprot.readI16();
         struct.setSequenceIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(7)) {
         struct.startElapsed = iprot.readI32();
         struct.setStartElapsedIsSet(true);
       }
-      if (incoming.get(9)) {
+      if (incoming.get(8)) {
         struct.endElapsed = iprot.readI32();
         struct.setEndElapsedIsSet(true);
       }
-      if (incoming.get(10)) {
+      if (incoming.get(9)) {
         struct.rpc = iprot.readString();
         struct.setRpcIsSet(true);
       }
-      if (incoming.get(11)) {
+      if (incoming.get(10)) {
         struct.serviceType = iprot.readI16();
         struct.setServiceTypeIsSet(true);
       }
-      if (incoming.get(12)) {
+      if (incoming.get(11)) {
         struct.endPoint = iprot.readString();
         struct.setEndPointIsSet(true);
       }
-      if (incoming.get(13)) {
+      if (incoming.get(12)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<TAnnotation>(_list5.size);
@@ -2172,23 +2066,23 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(14)) {
+      if (incoming.get(13)) {
         struct.depth = iprot.readI32();
         struct.setDepthIsSet(true);
       }
-      if (incoming.get(15)) {
+      if (incoming.get(14)) {
         struct.nextSpanId = iprot.readI32();
         struct.setNextSpanIdIsSet(true);
       }
-      if (incoming.get(16)) {
+      if (incoming.get(15)) {
         struct.destinationId = iprot.readString();
         struct.setDestinationIdIsSet(true);
       }
-      if (incoming.get(17)) {
+      if (incoming.get(16)) {
         struct.apiId = iprot.readI32();
         struct.setApiIdIsSet(true);
       }
-      if (incoming.get(18)) {
+      if (incoming.get(17)) {
         struct.exceptionInfo = new TIntStringValue();
         struct.exceptionInfo.read(iprot);
         struct.setExceptionInfoIsSet(true);

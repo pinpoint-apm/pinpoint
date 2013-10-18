@@ -15,8 +15,6 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short AGENT_STAT = 55;
     private static final Header AGENT_STAT_HEADER = createHeader(AGENT_STAT);
 
-    private static final short SPANEVENT = 60;
-    private static final Header SPANEVENT_HEADER = createHeader(SPANEVENT);
 
     private static final short SPANCHUNK = 70;
     private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
@@ -44,8 +42,6 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TAgentInfo();
             case AGENT_STAT:
                 return new TAgentStat();
-            case SPANEVENT:
-                return new TSpanEvent();
             case SPANCHUNK:
                 return new TSpanChunk();
             case SQLMETADATA:
@@ -66,9 +62,6 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof TSpanChunk) {
             return SPANCHUNK;
-        }
-        if (tbase instanceof TSpanEvent) {
-            return SPANEVENT;
         }
         if (tbase instanceof TAgentInfo) {
             return AGENT_INFO;
@@ -103,8 +96,6 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return AGENT_INFO_HEADER;
             case AGENT_STAT:
                 return AGENT_STAT_HEADER;
-            case SPANEVENT:
-                return SPANEVENT_HEADER;
             case SPANCHUNK:
                 return SPANCHUNK_HEADER;
             case SQLMETADATA:

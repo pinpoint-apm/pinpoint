@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.thrift.io;
 
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.thrift.dto.TAgentKey;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

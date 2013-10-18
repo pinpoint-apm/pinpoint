@@ -33,15 +33,8 @@ struct TAnnotation {
 
 
 
-struct TAgentKey {
-    1: string agentId;
-    2: string applicationName;
-    3: i64 agentStartTime;
-}
 
 struct TSpanEvent {
-  // spanEvent의 agentKey는 매우 특별한 경우에만 생성되므로 필드사이즈를 줄이기 위해 별도 객체로 분리.
-  1: optional TAgentKey agentKey;
 
   17: optional i16 parentServiceType
   18: optional string parentEndPoint
