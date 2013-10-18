@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 
@@ -11,7 +10,6 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
  * @author netspider
  */
 public class Span extends TSpan {
-
     public Span() {
     }
 
@@ -24,11 +22,12 @@ public class Span extends TSpan {
             throw new NullPointerException("agentId must not be null");
         }
 
-        if (!this.getAgentId().equals(traceId.getAgentId())) {
-            this.setTraceAgentId(traceId.getAgentId());
+        final String transactionAgentId = traceId.getAgentId();
+        if (!agentId.equals(transactionAgentId)) {
+            this.setTransactionId(TransactionIdUtils.formatBytes(transactionAgentId, traceId.getAgentStartTime(), traceId.getTransactionSequence()));
+        } else {
+            this.setTransactionId(TransactionIdUtils.formatBytes(null, traceId.getAgentStartTime(), traceId.getTransactionSequence()));
         }
-        this.setTraceAgentStartTime(traceId.getAgentStartTime());
-        this.setTraceTransactionSequence(traceId.getTransactionSequence());
 
         this.setSpanId(traceId.getSpanId());
         final int parentSpanId = traceId.getParentSpanId();

@@ -36,12 +36,11 @@ public class SpanChunkFactory {
 
         spanChunk.setServiceType(parentSpan.getServiceType());
 
-        final String traceAgentId = parentSpan.getTraceAgentId();
-        if (!agentId.equals(traceAgentId)) {
-            spanChunk.setTraceAgentId(traceAgentId);
-        }
-        spanChunk.setTraceAgentStartTime(parentSpan.getTraceAgentStartTime());
-        spanChunk.setTraceTransactionSequence(parentSpan.getTraceTransactionSequence());
+
+        final byte[] transactionId = parentSpan.getTransactionId();
+        spanChunk.setTransactionId(transactionId);
+
+
         spanChunk.setSpanId(parentSpan.getSpanId());
 
         spanChunk.setEndPoint(parentSpan.getEndPoint());

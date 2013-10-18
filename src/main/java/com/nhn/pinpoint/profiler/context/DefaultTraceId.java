@@ -59,50 +59,6 @@ public class DefaultTraceId implements TraceId {
         return transactionSequence;
     }
 
-    public TraceKey getTraceKey() {
-		return new TraceKey(this.agentId, agentStartTime, transactionSequence, spanId);
-	}
-
-	public static final class TraceKey {
-        private final String agentId;
-		private final long agentStartTime;
-		private final long transactionSequence;
-		private final int span;
-
-		public TraceKey(String agentId, long agentStartTime, long transactionSequence, int span) {
-            if (agentId == null) {
-                throw new NullPointerException("agentId must not be null");
-            }
-            this.agentId = agentId;
-			this.agentStartTime = agentStartTime;
-			this.transactionSequence = transactionSequence;
-			this.span = span;
-		}
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TraceKey traceKey = (TraceKey) o;
-
-            if (agentStartTime != traceKey.agentStartTime) return false;
-            if (span != traceKey.span) return false;
-            if (transactionSequence != traceKey.transactionSequence) return false;
-            if (!agentId.equals(traceKey.agentId)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = agentId.hashCode();
-            result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-            result = 31 * result + (int) (transactionSequence ^ (transactionSequence >>> 32));
-            result = 31 * result + span;
-            return result;
-        }
-    }
 
 	public int getParentSpanId() {
 		return parentSpanId;

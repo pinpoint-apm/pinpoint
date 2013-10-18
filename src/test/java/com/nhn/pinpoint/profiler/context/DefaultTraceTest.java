@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.nhn.pinpoint.profiler.context.BypassStorage;
-import com.nhn.pinpoint.profiler.context.DefaultTrace;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.*;
 import org.slf4j.Logger;
@@ -29,8 +27,7 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
         DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), "agent", 0, 1);
-        BypassStorage bypassStorage = new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
-        trace.setStorage(bypassStorage);
+        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 
         Assert.assertEquals(0, trace.getCallStackDepth());
 

@@ -17,7 +17,7 @@ public class TraceTest {
     public void trace() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
-        trace.setStorage(new BypassStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
         // http server receive
@@ -41,8 +41,7 @@ public class TraceTest {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
         TestDataSender dataSender = new TestDataSender();
-        BypassStorage bypassStorage = new BypassStorage(new LoggingDataSender());
-        trace.setStorage(bypassStorage);
+        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 //        trace.traceBlockBegin();
 
         // response to client
