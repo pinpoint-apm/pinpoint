@@ -35,11 +35,6 @@ import org.slf4j.LoggerFactory;
 public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEvent._Fields>, java.io.Serializable, Cloneable, Comparable<TSpanEvent> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpanEvent");
 
-  private static final org.apache.thrift.protocol.TField PARENT_SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("parentServiceType", org.apache.thrift.protocol.TType.I16, (short)17);
-  private static final org.apache.thrift.protocol.TField PARENT_END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("parentEndPoint", org.apache.thrift.protocol.TType.STRING, (short)18);
-  private static final org.apache.thrift.protocol.TField TRACE_AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("traceAgentId", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField TRACE_AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("traceAgentStartTime", org.apache.thrift.protocol.TType.I64, (short)5);
-  private static final org.apache.thrift.protocol.TField TRACE_TRANSACTION_SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("traceTransactionSequence", org.apache.thrift.protocol.TType.I64, (short)6);
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)7);
   private static final org.apache.thrift.protocol.TField SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("sequence", org.apache.thrift.protocol.TType.I16, (short)8);
   private static final org.apache.thrift.protocol.TField START_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("startElapsed", org.apache.thrift.protocol.TType.I32, (short)9);
@@ -60,11 +55,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     schemes.put(TupleScheme.class, new TSpanEventTupleSchemeFactory());
   }
 
-  private short parentServiceType; // optional
-  private String parentEndPoint; // optional
-  private String traceAgentId; // optional
-  private long traceAgentStartTime; // optional
-  private long traceTransactionSequence; // optional
   private int spanId; // optional
   private short sequence; // required
   private int startElapsed; // required
@@ -81,11 +71,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    PARENT_SERVICE_TYPE((short)17, "parentServiceType"),
-    PARENT_END_POINT((short)18, "parentEndPoint"),
-    TRACE_AGENT_ID((short)4, "traceAgentId"),
-    TRACE_AGENT_START_TIME((short)5, "traceAgentStartTime"),
-    TRACE_TRANSACTION_SEQUENCE((short)6, "traceTransactionSequence"),
     SPAN_ID((short)7, "spanId"),
     SEQUENCE((short)8, "sequence"),
     START_ELAPSED((short)9, "startElapsed"),
@@ -113,16 +98,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 17: // PARENT_SERVICE_TYPE
-          return PARENT_SERVICE_TYPE;
-        case 18: // PARENT_END_POINT
-          return PARENT_END_POINT;
-        case 4: // TRACE_AGENT_ID
-          return TRACE_AGENT_ID;
-        case 5: // TRACE_AGENT_START_TIME
-          return TRACE_AGENT_START_TIME;
-        case 6: // TRACE_TRANSACTION_SEQUENCE
-          return TRACE_TRANSACTION_SEQUENCE;
         case 7: // SPAN_ID
           return SPAN_ID;
         case 8: // SEQUENCE
@@ -189,32 +164,19 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   }
 
   // isset id assignments
-  private static final int __PARENTSERVICETYPE_ISSET_ID = 0;
-  private static final int __TRACEAGENTSTARTTIME_ISSET_ID = 1;
-  private static final int __TRACETRANSACTIONSEQUENCE_ISSET_ID = 2;
-  private static final int __SPANID_ISSET_ID = 3;
-  private static final int __SEQUENCE_ISSET_ID = 4;
-  private static final int __STARTELAPSED_ISSET_ID = 5;
-  private static final int __ENDELAPSED_ISSET_ID = 6;
-  private static final int __SERVICETYPE_ISSET_ID = 7;
-  private static final int __DEPTH_ISSET_ID = 8;
-  private static final int __NEXTSPANID_ISSET_ID = 9;
-  private static final int __APIID_ISSET_ID = 10;
-  private short __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.PARENT_SERVICE_TYPE,_Fields.PARENT_END_POINT,_Fields.TRACE_AGENT_ID,_Fields.TRACE_AGENT_START_TIME,_Fields.TRACE_TRANSACTION_SEQUENCE,_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
+  private static final int __SPANID_ISSET_ID = 0;
+  private static final int __SEQUENCE_ISSET_ID = 1;
+  private static final int __STARTELAPSED_ISSET_ID = 2;
+  private static final int __ENDELAPSED_ISSET_ID = 3;
+  private static final int __SERVICETYPE_ISSET_ID = 4;
+  private static final int __DEPTH_ISSET_ID = 5;
+  private static final int __NEXTSPANID_ISSET_ID = 6;
+  private static final int __APIID_ISSET_ID = 7;
+  private byte __isset_bitfield = 0;
+  private _Fields optionals[] = {_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.PARENT_SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("parentServiceType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.PARENT_END_POINT, new org.apache.thrift.meta_data.FieldMetaData("parentEndPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TRACE_AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("traceAgentId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TRACE_AGENT_START_TIME, new org.apache.thrift.meta_data.FieldMetaData("traceAgentStartTime", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TRACE_TRANSACTION_SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("traceTransactionSequence", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("sequence", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -274,15 +236,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
    */
   public TSpanEvent(TSpanEvent other) {
     __isset_bitfield = other.__isset_bitfield;
-    this.parentServiceType = other.parentServiceType;
-    if (other.isSetParentEndPoint()) {
-      this.parentEndPoint = other.parentEndPoint;
-    }
-    if (other.isSetTraceAgentId()) {
-      this.traceAgentId = other.traceAgentId;
-    }
-    this.traceAgentStartTime = other.traceAgentStartTime;
-    this.traceTransactionSequence = other.traceTransactionSequence;
     this.spanId = other.spanId;
     this.sequence = other.sequence;
     this.startElapsed = other.startElapsed;
@@ -318,14 +271,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   @Override
   public void clear() {
-    setParentServiceTypeIsSet(false);
-    this.parentServiceType = 0;
-    this.parentEndPoint = null;
-    this.traceAgentId = null;
-    setTraceAgentStartTimeIsSet(false);
-    this.traceAgentStartTime = 0;
-    setTraceTransactionSequenceIsSet(false);
-    this.traceTransactionSequence = 0;
     setSpanIdIsSet(false);
     this.spanId = 0;
     setSequenceIsSet(false);
@@ -347,118 +292,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     setApiIdIsSet(false);
     this.apiId = 0;
     this.exceptionInfo = null;
-  }
-
-  public short getParentServiceType() {
-    return this.parentServiceType;
-  }
-
-  public void setParentServiceType(short parentServiceType) {
-    this.parentServiceType = parentServiceType;
-    setParentServiceTypeIsSet(true);
-  }
-
-  public void unsetParentServiceType() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __PARENTSERVICETYPE_ISSET_ID);
-  }
-
-  /** Returns true if field parentServiceType is set (has been assigned a value) and false otherwise */
-  public boolean isSetParentServiceType() {
-    return EncodingUtils.testBit(__isset_bitfield, __PARENTSERVICETYPE_ISSET_ID);
-  }
-
-  public void setParentServiceTypeIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PARENTSERVICETYPE_ISSET_ID, value);
-  }
-
-  public String getParentEndPoint() {
-    return this.parentEndPoint;
-  }
-
-  public void setParentEndPoint(String parentEndPoint) {
-    this.parentEndPoint = parentEndPoint;
-  }
-
-  public void unsetParentEndPoint() {
-    this.parentEndPoint = null;
-  }
-
-  /** Returns true if field parentEndPoint is set (has been assigned a value) and false otherwise */
-  public boolean isSetParentEndPoint() {
-    return this.parentEndPoint != null;
-  }
-
-  public void setParentEndPointIsSet(boolean value) {
-    if (!value) {
-      this.parentEndPoint = null;
-    }
-  }
-
-  public String getTraceAgentId() {
-    return this.traceAgentId;
-  }
-
-  public void setTraceAgentId(String traceAgentId) {
-    this.traceAgentId = traceAgentId;
-  }
-
-  public void unsetTraceAgentId() {
-    this.traceAgentId = null;
-  }
-
-  /** Returns true if field traceAgentId is set (has been assigned a value) and false otherwise */
-  public boolean isSetTraceAgentId() {
-    return this.traceAgentId != null;
-  }
-
-  public void setTraceAgentIdIsSet(boolean value) {
-    if (!value) {
-      this.traceAgentId = null;
-    }
-  }
-
-  public long getTraceAgentStartTime() {
-    return this.traceAgentStartTime;
-  }
-
-  public void setTraceAgentStartTime(long traceAgentStartTime) {
-    this.traceAgentStartTime = traceAgentStartTime;
-    setTraceAgentStartTimeIsSet(true);
-  }
-
-  public void unsetTraceAgentStartTime() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TRACEAGENTSTARTTIME_ISSET_ID);
-  }
-
-  /** Returns true if field traceAgentStartTime is set (has been assigned a value) and false otherwise */
-  public boolean isSetTraceAgentStartTime() {
-    return EncodingUtils.testBit(__isset_bitfield, __TRACEAGENTSTARTTIME_ISSET_ID);
-  }
-
-  public void setTraceAgentStartTimeIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TRACEAGENTSTARTTIME_ISSET_ID, value);
-  }
-
-  public long getTraceTransactionSequence() {
-    return this.traceTransactionSequence;
-  }
-
-  public void setTraceTransactionSequence(long traceTransactionSequence) {
-    this.traceTransactionSequence = traceTransactionSequence;
-    setTraceTransactionSequenceIsSet(true);
-  }
-
-  public void unsetTraceTransactionSequence() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID);
-  }
-
-  /** Returns true if field traceTransactionSequence is set (has been assigned a value) and false otherwise */
-  public boolean isSetTraceTransactionSequence() {
-    return EncodingUtils.testBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID);
-  }
-
-  public void setTraceTransactionSequenceIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TRACETRANSACTIONSEQUENCE_ISSET_ID, value);
   }
 
   public int getSpanId() {
@@ -769,46 +602,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case PARENT_SERVICE_TYPE:
-      if (value == null) {
-        unsetParentServiceType();
-      } else {
-        setParentServiceType((Short)value);
-      }
-      break;
-
-    case PARENT_END_POINT:
-      if (value == null) {
-        unsetParentEndPoint();
-      } else {
-        setParentEndPoint((String)value);
-      }
-      break;
-
-    case TRACE_AGENT_ID:
-      if (value == null) {
-        unsetTraceAgentId();
-      } else {
-        setTraceAgentId((String)value);
-      }
-      break;
-
-    case TRACE_AGENT_START_TIME:
-      if (value == null) {
-        unsetTraceAgentStartTime();
-      } else {
-        setTraceAgentStartTime((Long)value);
-      }
-      break;
-
-    case TRACE_TRANSACTION_SEQUENCE:
-      if (value == null) {
-        unsetTraceTransactionSequence();
-      } else {
-        setTraceTransactionSequence((Long)value);
-      }
-      break;
-
     case SPAN_ID:
       if (value == null) {
         unsetSpanId();
@@ -918,21 +711,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case PARENT_SERVICE_TYPE:
-      return Short.valueOf(getParentServiceType());
-
-    case PARENT_END_POINT:
-      return getParentEndPoint();
-
-    case TRACE_AGENT_ID:
-      return getTraceAgentId();
-
-    case TRACE_AGENT_START_TIME:
-      return Long.valueOf(getTraceAgentStartTime());
-
-    case TRACE_TRANSACTION_SEQUENCE:
-      return Long.valueOf(getTraceTransactionSequence());
-
     case SPAN_ID:
       return Integer.valueOf(getSpanId());
 
@@ -983,16 +761,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     }
 
     switch (field) {
-    case PARENT_SERVICE_TYPE:
-      return isSetParentServiceType();
-    case PARENT_END_POINT:
-      return isSetParentEndPoint();
-    case TRACE_AGENT_ID:
-      return isSetTraceAgentId();
-    case TRACE_AGENT_START_TIME:
-      return isSetTraceAgentStartTime();
-    case TRACE_TRANSACTION_SEQUENCE:
-      return isSetTraceTransactionSequence();
     case SPAN_ID:
       return isSetSpanId();
     case SEQUENCE:
@@ -1035,51 +803,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   public boolean equals(TSpanEvent that) {
     if (that == null)
       return false;
-
-    boolean this_present_parentServiceType = true && this.isSetParentServiceType();
-    boolean that_present_parentServiceType = true && that.isSetParentServiceType();
-    if (this_present_parentServiceType || that_present_parentServiceType) {
-      if (!(this_present_parentServiceType && that_present_parentServiceType))
-        return false;
-      if (this.parentServiceType != that.parentServiceType)
-        return false;
-    }
-
-    boolean this_present_parentEndPoint = true && this.isSetParentEndPoint();
-    boolean that_present_parentEndPoint = true && that.isSetParentEndPoint();
-    if (this_present_parentEndPoint || that_present_parentEndPoint) {
-      if (!(this_present_parentEndPoint && that_present_parentEndPoint))
-        return false;
-      if (!this.parentEndPoint.equals(that.parentEndPoint))
-        return false;
-    }
-
-    boolean this_present_traceAgentId = true && this.isSetTraceAgentId();
-    boolean that_present_traceAgentId = true && that.isSetTraceAgentId();
-    if (this_present_traceAgentId || that_present_traceAgentId) {
-      if (!(this_present_traceAgentId && that_present_traceAgentId))
-        return false;
-      if (!this.traceAgentId.equals(that.traceAgentId))
-        return false;
-    }
-
-    boolean this_present_traceAgentStartTime = true && this.isSetTraceAgentStartTime();
-    boolean that_present_traceAgentStartTime = true && that.isSetTraceAgentStartTime();
-    if (this_present_traceAgentStartTime || that_present_traceAgentStartTime) {
-      if (!(this_present_traceAgentStartTime && that_present_traceAgentStartTime))
-        return false;
-      if (this.traceAgentStartTime != that.traceAgentStartTime)
-        return false;
-    }
-
-    boolean this_present_traceTransactionSequence = true && this.isSetTraceTransactionSequence();
-    boolean that_present_traceTransactionSequence = true && that.isSetTraceTransactionSequence();
-    if (this_present_traceTransactionSequence || that_present_traceTransactionSequence) {
-      if (!(this_present_traceTransactionSequence && that_present_traceTransactionSequence))
-        return false;
-      if (this.traceTransactionSequence != that.traceTransactionSequence)
-        return false;
-    }
 
     boolean this_present_spanId = true && this.isSetSpanId();
     boolean that_present_spanId = true && that.isSetSpanId();
@@ -1214,56 +937,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetParentServiceType()).compareTo(other.isSetParentServiceType());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetParentServiceType()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentServiceType, other.parentServiceType);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetParentEndPoint()).compareTo(other.isSetParentEndPoint());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetParentEndPoint()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.parentEndPoint, other.parentEndPoint);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTraceAgentId()).compareTo(other.isSetTraceAgentId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTraceAgentId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceAgentId, other.traceAgentId);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTraceAgentStartTime()).compareTo(other.isSetTraceAgentStartTime());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTraceAgentStartTime()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceAgentStartTime, other.traceAgentStartTime);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTraceTransactionSequence()).compareTo(other.isSetTraceTransactionSequence());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTraceTransactionSequence()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.traceTransactionSequence, other.traceTransactionSequence);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetSpanId()).compareTo(other.isSetSpanId());
     if (lastComparison != 0) {
       return lastComparison;
@@ -1414,45 +1087,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     StringBuilder sb = new StringBuilder("TSpanEvent(");
     boolean first = true;
 
-    if (isSetParentServiceType()) {
-      sb.append("parentServiceType:");
-      sb.append(this.parentServiceType);
-      first = false;
-    }
-    if (isSetParentEndPoint()) {
-      if (!first) sb.append(", ");
-      sb.append("parentEndPoint:");
-      if (this.parentEndPoint == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.parentEndPoint);
-      }
-      first = false;
-    }
-    if (isSetTraceAgentId()) {
-      if (!first) sb.append(", ");
-      sb.append("traceAgentId:");
-      if (this.traceAgentId == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.traceAgentId);
-      }
-      first = false;
-    }
-    if (isSetTraceAgentStartTime()) {
-      if (!first) sb.append(", ");
-      sb.append("traceAgentStartTime:");
-      sb.append(this.traceAgentStartTime);
-      first = false;
-    }
-    if (isSetTraceTransactionSequence()) {
-      if (!first) sb.append(", ");
-      sb.append("traceTransactionSequence:");
-      sb.append(this.traceTransactionSequence);
-      first = false;
-    }
     if (isSetSpanId()) {
-      if (!first) sb.append(", ");
       sb.append("spanId:");
       sb.append(this.spanId);
       first = false;
@@ -1591,46 +1226,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
           break;
         }
         switch (schemeField.id) {
-          case 17: // PARENT_SERVICE_TYPE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
-              struct.parentServiceType = iprot.readI16();
-              struct.setParentServiceTypeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 18: // PARENT_END_POINT
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.parentEndPoint = iprot.readString();
-              struct.setParentEndPointIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // TRACE_AGENT_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.traceAgentId = iprot.readString();
-              struct.setTraceAgentIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // TRACE_AGENT_START_TIME
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.traceAgentStartTime = iprot.readI64();
-              struct.setTraceAgentStartTimeIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 6: // TRACE_TRANSACTION_SEQUENCE
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.traceTransactionSequence = iprot.readI64();
-              struct.setTraceTransactionSequenceIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 7: // SPAN_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.spanId = iprot.readI32();
@@ -1760,23 +1355,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.traceAgentId != null) {
-        if (struct.isSetTraceAgentId()) {
-          oprot.writeFieldBegin(TRACE_AGENT_ID_FIELD_DESC);
-          oprot.writeString(struct.traceAgentId);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.isSetTraceAgentStartTime()) {
-        oprot.writeFieldBegin(TRACE_AGENT_START_TIME_FIELD_DESC);
-        oprot.writeI64(struct.traceAgentStartTime);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetTraceTransactionSequence()) {
-        oprot.writeFieldBegin(TRACE_TRANSACTION_SEQUENCE_FIELD_DESC);
-        oprot.writeI64(struct.traceTransactionSequence);
-        oprot.writeFieldEnd();
-      }
       if (struct.isSetSpanId()) {
         oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
         oprot.writeI32(struct.spanId);
@@ -1834,18 +1412,6 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         oprot.writeI32(struct.nextSpanId);
         oprot.writeFieldEnd();
       }
-      if (struct.isSetParentServiceType()) {
-        oprot.writeFieldBegin(PARENT_SERVICE_TYPE_FIELD_DESC);
-        oprot.writeI16(struct.parentServiceType);
-        oprot.writeFieldEnd();
-      }
-      if (struct.parentEndPoint != null) {
-        if (struct.isSetParentEndPoint()) {
-          oprot.writeFieldBegin(PARENT_END_POINT_FIELD_DESC);
-          oprot.writeString(struct.parentEndPoint);
-          oprot.writeFieldEnd();
-        }
-      }
       if (struct.destinationId != null) {
         if (struct.isSetDestinationId()) {
           oprot.writeFieldBegin(DESTINATION_ID_FIELD_DESC);
@@ -1883,76 +1449,46 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     public void write(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetParentServiceType()) {
+      if (struct.isSetSpanId()) {
         optionals.set(0);
       }
-      if (struct.isSetParentEndPoint()) {
+      if (struct.isSetSequence()) {
         optionals.set(1);
       }
-      if (struct.isSetTraceAgentId()) {
+      if (struct.isSetStartElapsed()) {
         optionals.set(2);
       }
-      if (struct.isSetTraceAgentStartTime()) {
+      if (struct.isSetEndElapsed()) {
         optionals.set(3);
       }
-      if (struct.isSetTraceTransactionSequence()) {
+      if (struct.isSetRpc()) {
         optionals.set(4);
       }
-      if (struct.isSetSpanId()) {
+      if (struct.isSetServiceType()) {
         optionals.set(5);
       }
-      if (struct.isSetSequence()) {
+      if (struct.isSetEndPoint()) {
         optionals.set(6);
       }
-      if (struct.isSetStartElapsed()) {
+      if (struct.isSetAnnotations()) {
         optionals.set(7);
       }
-      if (struct.isSetEndElapsed()) {
+      if (struct.isSetDepth()) {
         optionals.set(8);
       }
-      if (struct.isSetRpc()) {
+      if (struct.isSetNextSpanId()) {
         optionals.set(9);
       }
-      if (struct.isSetServiceType()) {
+      if (struct.isSetDestinationId()) {
         optionals.set(10);
       }
-      if (struct.isSetEndPoint()) {
+      if (struct.isSetApiId()) {
         optionals.set(11);
       }
-      if (struct.isSetAnnotations()) {
+      if (struct.isSetExceptionInfo()) {
         optionals.set(12);
       }
-      if (struct.isSetDepth()) {
-        optionals.set(13);
-      }
-      if (struct.isSetNextSpanId()) {
-        optionals.set(14);
-      }
-      if (struct.isSetDestinationId()) {
-        optionals.set(15);
-      }
-      if (struct.isSetApiId()) {
-        optionals.set(16);
-      }
-      if (struct.isSetExceptionInfo()) {
-        optionals.set(17);
-      }
-      oprot.writeBitSet(optionals, 18);
-      if (struct.isSetParentServiceType()) {
-        oprot.writeI16(struct.parentServiceType);
-      }
-      if (struct.isSetParentEndPoint()) {
-        oprot.writeString(struct.parentEndPoint);
-      }
-      if (struct.isSetTraceAgentId()) {
-        oprot.writeString(struct.traceAgentId);
-      }
-      if (struct.isSetTraceAgentStartTime()) {
-        oprot.writeI64(struct.traceAgentStartTime);
-      }
-      if (struct.isSetTraceTransactionSequence()) {
-        oprot.writeI64(struct.traceTransactionSequence);
-      }
+      oprot.writeBitSet(optionals, 13);
       if (struct.isSetSpanId()) {
         oprot.writeI32(struct.spanId);
       }
@@ -2003,56 +1539,36 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(18);
+      BitSet incoming = iprot.readBitSet(13);
       if (incoming.get(0)) {
-        struct.parentServiceType = iprot.readI16();
-        struct.setParentServiceTypeIsSet(true);
-      }
-      if (incoming.get(1)) {
-        struct.parentEndPoint = iprot.readString();
-        struct.setParentEndPointIsSet(true);
-      }
-      if (incoming.get(2)) {
-        struct.traceAgentId = iprot.readString();
-        struct.setTraceAgentIdIsSet(true);
-      }
-      if (incoming.get(3)) {
-        struct.traceAgentStartTime = iprot.readI64();
-        struct.setTraceAgentStartTimeIsSet(true);
-      }
-      if (incoming.get(4)) {
-        struct.traceTransactionSequence = iprot.readI64();
-        struct.setTraceTransactionSequenceIsSet(true);
-      }
-      if (incoming.get(5)) {
         struct.spanId = iprot.readI32();
         struct.setSpanIdIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(1)) {
         struct.sequence = iprot.readI16();
         struct.setSequenceIsSet(true);
       }
-      if (incoming.get(7)) {
+      if (incoming.get(2)) {
         struct.startElapsed = iprot.readI32();
         struct.setStartElapsedIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(3)) {
         struct.endElapsed = iprot.readI32();
         struct.setEndElapsedIsSet(true);
       }
-      if (incoming.get(9)) {
+      if (incoming.get(4)) {
         struct.rpc = iprot.readString();
         struct.setRpcIsSet(true);
       }
-      if (incoming.get(10)) {
+      if (incoming.get(5)) {
         struct.serviceType = iprot.readI16();
         struct.setServiceTypeIsSet(true);
       }
-      if (incoming.get(11)) {
+      if (incoming.get(6)) {
         struct.endPoint = iprot.readString();
         struct.setEndPointIsSet(true);
       }
-      if (incoming.get(12)) {
+      if (incoming.get(7)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.annotations = new ArrayList<TAnnotation>(_list5.size);
@@ -2066,23 +1582,23 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         }
         struct.setAnnotationsIsSet(true);
       }
-      if (incoming.get(13)) {
+      if (incoming.get(8)) {
         struct.depth = iprot.readI32();
         struct.setDepthIsSet(true);
       }
-      if (incoming.get(14)) {
+      if (incoming.get(9)) {
         struct.nextSpanId = iprot.readI32();
         struct.setNextSpanIdIsSet(true);
       }
-      if (incoming.get(15)) {
+      if (incoming.get(10)) {
         struct.destinationId = iprot.readString();
         struct.setDestinationIdIsSet(true);
       }
-      if (incoming.get(16)) {
+      if (incoming.get(11)) {
         struct.apiId = iprot.readI32();
         struct.setApiIdIsSet(true);
       }
-      if (incoming.get(17)) {
+      if (incoming.get(12)) {
         struct.exceptionInfo = new TIntStringValue();
         struct.exceptionInfo.read(iprot);
         struct.setExceptionInfoIsSet(true);

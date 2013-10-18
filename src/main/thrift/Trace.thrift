@@ -36,14 +36,6 @@ struct TAnnotation {
 
 struct TSpanEvent {
 
-  17: optional i16 parentServiceType
-  18: optional string parentEndPoint
-
-  // null일 경우 agentId와 동일한 값이다.
-  4: optional string traceAgentId
-  5: optional i64 traceAgentStartTime;
-  6: optional i64 traceTransactionSequence;
-
   7: optional i32 spanId
   8: i16 sequence
 
