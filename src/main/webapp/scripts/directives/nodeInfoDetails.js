@@ -164,7 +164,12 @@ pinpointApp
 //                    return histogramData;
 //                };
 
-
+                /**
+                 * recalculate histogram
+                 * @param key
+                 * @param linkDataArray
+                 * @returns {Array}
+                 */
                 recalculateHistogram = function (key, linkDataArray) {
                     // application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
                     // var histogramData = extractHistogramFromData(node);

@@ -16,6 +16,18 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
     };
 
     /**
+     * initialize
+     */
+    $timeout(function () {
+        if ($routeParams.traceId && $routeParams.focusTimestamp) {
+            getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (result) {
+                parseTransactionDetail(result);
+                showCallStacks();
+            });
+        }
+    });
+
+    /**
      * get transaction detail
      * @param traceId
      * @param focusTimestamp
@@ -59,18 +71,6 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             $scope.$emit('callStacks.initialize', $scope.transactionDetail);
         }
     };
-
-    /**
-     * initialize
-     */
-    $timeout(function () {
-        if ($routeParams.traceId && $routeParams.focusTimestamp) {
-            getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (result) {
-                parseTransactionDetail(result);
-                showCallStacks();
-            });
-        }
-    });
 
     // events binding
     $("#traceTabs li:nth-child(2) a").bind("click", function (e) {

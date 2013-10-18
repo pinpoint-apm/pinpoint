@@ -8,7 +8,9 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'Navb
     // define private variables of methods
     var broadcast;
 
-    // initialize
+    /**
+     * initialize
+     */
     $timeout(function () {
         oNavbarDao = new NavbarDao();
         if ($routeParams.application) {

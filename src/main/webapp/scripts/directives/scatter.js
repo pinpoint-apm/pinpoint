@@ -241,10 +241,17 @@ pinpointApp.directive('scatter',
 
                 };
 
+                /**
+                 * scope event on scatter.initialize
+                 */
                 scope.$on('scatter.initialize', function (event, navbarDao) {
                     oNavbarDao = navbarDao;
                     makeScatter(oNavbarDao.getApplicationName(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
                 });
+
+                /**
+                 * scope event on scatter.initializeWithNode
+                 */
                 scope.$on('scatter.initializeWithNode', function (event, node) {
                     makeScatter(node.applicationName || node.text, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
                 });

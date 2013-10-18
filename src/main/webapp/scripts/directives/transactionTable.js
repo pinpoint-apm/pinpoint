@@ -6,28 +6,34 @@ pinpointApp.directive('transactionTable', [function () {
         replace: true,
         templateUrl: 'views/transactionTable.html',
         link: function postLink(scope, element, attrs) {
-            /**
-             * variables definition
-             */
+
+            // define private variables of methods
             var clear, appendTransactionList, resetIndexToTransactionList;
 
-            /**
-             * variables initialization
-             */
+            // initialize scope variables
             scope.transactionList = [];
             scope.currentTransaction = null;
             scope.transactionReverse = false;
 
             /**
-             * internal methods
+             * clear
              */
             clear = function () {
                 scope.transactionList = [];
             };
+
+            /**
+             * append transaction list
+             * @param transactionList
+             */
             appendTransactionList = function (transactionList) {
                 scope.transactionList = scope.transactionList.concat(transactionList);
                 resetIndexToTransactionList();
             };
+
+            /**
+             * reset index to transaction list
+             */
             resetIndexToTransactionList = function () {
                 var index = 1;
                 angular.forEach(scope.transactionList, function (val, key) {
@@ -36,20 +42,36 @@ pinpointApp.directive('transactionTable', [function () {
             };
 
             /**
-             * scope methods
+             * scope trace by application
+             * @param transaction
              */
             scope.traceByAppliation = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.applicationSelected', transaction);
             };
-            scope.etraceBySequence = function (transaction) {
+
+            /**
+             * scope trace by sequence
+             * @param transaction
+             */
+            scope.traceBySequence = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.sequenceSelected', transaction);
             };
+
+            /**
+             * scope trace remote addr
+             * @param transaction
+             */
             scope.traceRemoteAddr = function (transaction) {
                 console.log('traceRemoteAddr', transaction);
                 alert('not implemented. ip정보 조회 페이지로 연결.');
             };
+
+            /**
+             * scope transaction order
+             * @param orderKey
+             */
             scope.transactionOrder = function (orderKey) {
                 if (scope.transactionOrderBy === orderKey) {
                     scope.transactionReverse = !scope.transactionReverse;
@@ -60,11 +82,15 @@ pinpointApp.directive('transactionTable', [function () {
             };
 
             /**
-             * event listeners
+             * scope event on transactionTable.appendTransactionList
              */
             scope.$on('transactionTable.appendTransactionList', function (event, transactionList) {
                 appendTransactionList(transactionList);
             });
+
+            /**
+             * scope event on transactionTable.clear
+             */
             scope.$on('transactionTable.clear', function (event) {
                 clear();
             });

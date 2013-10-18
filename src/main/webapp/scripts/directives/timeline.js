@@ -7,8 +7,13 @@ pinpointApp.directive('timeline', function () {
         templateUrl: 'views/timeline.html',
         link: function postLink(scope, element, attrs) {
 
+            // define private variables of methods
             var initialize;
 
+            /**
+             * initialize
+             * @param transactionDetail
+             */
             initialize = function (transactionDetail) {
                 scope.timeline = transactionDetail;
                 scope.key = transactionDetail.callStackIndex;
@@ -17,6 +22,9 @@ pinpointApp.directive('timeline', function () {
                 $('.timeline').tooltip();
             };
 
+            /**
+             * scope event on timeline.initialize
+             */
             scope.$on('timeline.initialize', function (event, transactionDetail) {
                 initialize(transactionDetail);
             });
