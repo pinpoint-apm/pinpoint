@@ -352,7 +352,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
                     console.log(e);
                 }
 
-                progressBar.setLoading(100);
+                oProgressBar.setLoading(100);
                 if (oServerMap === null) {
                     oServerMap = new ServerMap(options);
                 } else {

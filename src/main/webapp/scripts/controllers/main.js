@@ -1,12 +1,12 @@
 'use strict';
 
-pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'NavbarDao', function ($scope, $timeout, $routeParams, NavbarDao) {
+pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarDao', function ($scope, $timeout, $routeParams, $location, NavbarDao) {
 
     // define private variables
     var oNavbarDao;
 
     // define private variables of methods
-    var broadcast;
+    var getFirstPathOfLocation, changeLocation;
 
     /**
      * initialize
@@ -22,23 +22,38 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'Navb
         if ($routeParams.queryEndTime) {
             oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
+
         $scope.$emit('navbar.initialize', oNavbarDao);
+        $scope.$emit('scatter.initialize', oNavbarDao);
+        $scope.$emit('serverMap.initialize', oNavbarDao);
     });
 
     /**
-     * broadcast
+     * get first path of loction
+     * @returns {*|string}
      */
-    broadcast = function () {
-        $scope.$emit('scatter.initialize', oNavbarDao);
-        $scope.$emit('serverMap.initialize', oNavbarDao);
+    getFirstPathOfLocation = function () {
+        var splitedPath = $location.path().split('/');
+        return splitedPath[1] || 'main';
+    };
+
+    /**
+     * change location
+     */
+    changeLocation = function () {
+        var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
+        if ($location.path() !== url) {
+            $location.path(url);
+        }
     };
 
     /**
      * scope event on navbar.changed
      */
     $scope.$on('navbar.changed', function (event, navbarDao) {
+        console.log('navbar.changed', navbarDao);
         oNavbarDao = navbarDao;
-        broadcast();
+        changeLocation(oNavbarDao);
     });
 
     /**

@@ -6,7 +6,7 @@ pinpointApp.constant('cfg', {
 
 pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
     '$document', '$timeout', '$location', '$routeParams',
-    function (cfg, $rootScope, $http, $document, $timeout, $location, $routeParams) {
+    function (cfg, $rootScope, $http, $document, $timeout) {
         return {
             restrict: 'EA',
             replace: true,
@@ -17,12 +17,15 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 var $application, $datetimepicker, oNavbarDao;
 
                 // define private variables of methods
-                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getFirstPathOfLocation,
-                    broadcast, getApplicationList, getQueryPeriod, getQueryEndTime, parseApplicationList;
+                var initialize, initializeDateTimePicker, initializeApplication, setDateTime,
+                    broadcast, getApplicationList, getQueryEndTime, parseApplicationList;
+
+                scope.showNavbar = false;
 
                 initialize = function (navbarDao) {
                     oNavbarDao = navbarDao;
 
+                    scope.showNavbar = true;
                     $application = element.find('.application').width(200);
                     scope.applications = [
                         {
@@ -34,7 +37,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     scope.disableApplication = true;
                     scope.period = oNavbarDao.getPeriod() || '';
                     scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
-                    $http.defaults.useXDomain = true;
+//                    $http.defaults.useXDomain = true;
 
                     initializeDateTimePicker();
                     getApplicationList();
@@ -54,7 +57,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                                 return;
                             }
                             broadcast();
-                }
+                        }
                     });
                     setDateTime(oNavbarDao.getQueryEndTime());
                 };
@@ -71,39 +74,17 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 /**
-                 * get first path of loction
-                 * @returns {*|string}
-                 */
-                getFirstPathOfLocation = function () {
-                    var splitedPath = $location.path().split('/');
-                    return splitedPath[1] || 'main';
-                };
-
-                /**
                  * _boardcast as applicationChanged with args
                  */
                 broadcast = function () {
-                    var firstPath = getFirstPathOfLocation();
 
-//                    var splitedApp = scope.application.split('@');
+                    if (!scope.application || !scope.period || !getQueryEndTime()) {
+                        return;
+                    }
 
                     oNavbarDao.setApplication(scope.application);
                     oNavbarDao.setPeriod(scope.period);
                     oNavbarDao.setQueryEndTime(getQueryEndTime());
-
-//                    scope.queryPeriod = getQueryPeriod();
-//                    scope.queryEndTime = getQueryEndTime();
-
-//                    console.log(scope.application, scope.period, scope.queryEndTime);
-//                    if (!scope.application || !scope.period || !scope.queryEndTime) {
-//                        $location.path('/' + firstPath);
-//                        return;
-//                    }
-//                        url = '/' + firstPath + '/' + scope.application + '/' + scope.period + '/' + getQueryEndTime();
-
-//                    if ($location.path() !== url) {
-//                        $location.path(url);
-//                    }
 
                     $timeout(function () {
                         scope.$emit('navbar.changed', oNavbarDao);
@@ -224,6 +205,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * scope event on navbar.initialize
                  */
                 scope.$on('navbar.initialize', function (event, navbarDao) {
+                    console.log('aaa : ', scope);
                     initialize(navbarDao);
                 });
             }
