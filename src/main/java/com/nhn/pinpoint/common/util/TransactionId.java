@@ -18,6 +18,11 @@ public class TransactionId {
         this.transactionSequence = transactionSequence;
     }
 
+    public TransactionId(long agentStartTime, long transactionSequence) {
+        this.agentStartTime = agentStartTime;
+        this.transactionSequence = transactionSequence;
+    }
+
     public String getAgentId() {
         return agentId;
     }

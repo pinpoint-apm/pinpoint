@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.util.TransactionId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
@@ -64,12 +64,13 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.applicationId = span.getApplicationName();
         this.agentStartTime = span.getAgentStartTime();
 
-        this.traceAgentId = span.getTraceAgentId();
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(span.getTransactionId());
+        this.traceAgentId = transactionId.getAgentId();
         if (traceAgentId == null) {
             traceAgentId = this.agentId;
         }
-        this.traceAgentStartTime = span.getTraceAgentStartTime();
-        this.traceTransactionSequence = span.getTraceTransactionSequence();
+        this.traceAgentStartTime = transactionId.getAgentStartTime();
+        this.traceTransactionSequence = transactionId.getTransactionSequence();
 
         this.spanId = span.getSpanId();
         this.parentSpanId = span.getParentSpanId();

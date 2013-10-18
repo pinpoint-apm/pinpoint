@@ -35,7 +35,13 @@ public class SpanUtils {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), AGENT_NAME_MAX_LEN, span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+        final byte[] transactionIdBytes = span.getTransactionId();
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
+        String agentId = transactionId.getAgentId();
+        if (agentId == null) {
+            agentId = span.getAgentId();
+        }
+        return BytesUtils.stringLongLongToBytes(agentId, AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
 
 	}
 
@@ -43,6 +49,12 @@ public class SpanUtils {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
         }
-        return BytesUtils.stringLongLongToBytes(spanChunk.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanChunk.getTraceAgentStartTime(), spanChunk.getTraceTransactionSequence());
+        final byte[] transactionIdBytes = spanChunk.getTransactionId();
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
+        String agentId = transactionId.getAgentId();
+        if (agentId == null) {
+            agentId = spanChunk.getAgentId();
+        }
+        return BytesUtils.stringLongLongToBytes(agentId, AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
 	}
 }

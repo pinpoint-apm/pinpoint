@@ -5,9 +5,10 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.util.TransactionId;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.*;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
@@ -60,9 +61,13 @@ public class SpanEventBo implements Span {
         this.applicationId = tSpan.getApplicationName();
         this.agentStartTime = tSpan.getAgentStartTime();
 
-        this.traceAgentId = tSpan.getTraceAgentId();
-		this.traceAgentStartTime = tSpan.getTraceAgentStartTime();
-		this.traceTransactionSequence = tSpan.getTraceTransactionSequence();
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(tSpan.getTransactionId());
+        this.traceAgentId = transactionId.getAgentId();
+        if (traceAgentId == null) {
+            traceAgentId = this.agentId;
+        }
+        this.traceAgentStartTime = transactionId.getAgentStartTime();
+        this.traceTransactionSequence = transactionId.getTransactionSequence();
 
 		this.spanId = tSpan.getSpanId();
 		this.sequence = tSpanEvent.getSequence();
@@ -102,9 +107,13 @@ public class SpanEventBo implements Span {
         this.applicationId = spanChunk.getApplicationName();
         this.agentStartTime = spanChunk.getAgentStartTime();
 
-        this.traceAgentId = spanChunk.getTraceAgentId();
-		this.traceAgentStartTime = spanChunk.getTraceAgentStartTime();
-		this.traceTransactionSequence = spanChunk.getTraceTransactionSequence();
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(spanChunk.getTransactionId());
+        this.traceAgentId = transactionId.getAgentId();
+        if (traceAgentId == null) {
+            traceAgentId = this.agentId;
+        }
+        this.traceAgentStartTime = transactionId.getAgentStartTime();
+        this.traceTransactionSequence = transactionId.getTransactionSequence();
 
 		this.spanId = spanChunk.getSpanId();
 		this.sequence = spanEvent.getSequence();

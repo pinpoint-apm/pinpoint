@@ -1,11 +1,16 @@
 package com.nhn.pinpoint.common.util;
 
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
+
 /**
  *
  */
-public class TransactionIdUtils {
+public final class TransactionIdUtils {
     // html 에서 표시되는 값이라. html 상에서 해석이 다르게 되는 문자열은 사용하면 안됨.
     public static final String TRANSACTION_ID_DELIMITER = "^";
+    public static final byte VERSION = 0;
 
     public static final String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
@@ -18,6 +23,37 @@ public class TransactionIdUtils {
         sb.append(TRANSACTION_ID_DELIMITER);
         sb.append(transactionSequence);
         return sb.toString();
+    }
+
+    public static final byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
+        // agentId는 null이 될수 있음.
+        // vesion + prefixed size + string + long + long
+        final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
+        buffer.put(VERSION);
+        buffer.putPrefixedString(agentId);
+        buffer.putVar(agentStartTime);
+        buffer.putVar(transactionSequence);
+        return buffer.getBuffer();
+    }
+
+    public static TransactionId parseTransactionId(final byte[] transactionId) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        final Buffer buffer = new FixedBuffer(transactionId);
+        final byte version = buffer.readByte();
+        if (version != VERSION) {
+            throw new IllegalArgumentException("invalid Version");
+        }
+
+        final String agentId = buffer.readPrefixedString();
+        final long agentStartTime = buffer.readVarLong();
+        final long transactionSequence = buffer.readVarLong();
+        if (agentId == null) {
+            return new TransactionId(agentStartTime, transactionSequence);
+        } else {
+            return new TransactionId(agentId, agentStartTime,transactionSequence);
+        }
     }
 
     public static TransactionId parseTransactionId(final String transactionId) {

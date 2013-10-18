@@ -24,4 +24,24 @@ public class TransactionIdUtilsTest {
     }
 
 
+    @Test
+    public void testParseTransactionIdByte() {
+        long time = System.currentTimeMillis();
+        byte[] bytes = TransactionIdUtils.formatBytes("test", time, 2);
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes);
+        Assert.assertEquals(transactionId.getAgentId(), "test");
+        Assert.assertEquals(transactionId.getAgentStartTime(), time);
+        Assert.assertEquals(transactionId.getTransactionSequence(), 2L);
+    }
+
+    @Test
+    public void testParseTransactionIdByte_AgentIdisNull() {
+        long time = System.currentTimeMillis();
+        byte[] bytes = TransactionIdUtils.formatBytes(null, time, 1);
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes);
+        Assert.assertEquals(transactionId.getAgentId(), null);
+        Assert.assertEquals(transactionId.getAgentStartTime(), time);
+        Assert.assertEquals(transactionId.getTransactionSequence(), 1L);
+    }
+
 }
