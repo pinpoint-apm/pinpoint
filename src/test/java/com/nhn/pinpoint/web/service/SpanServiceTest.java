@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
+import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
@@ -55,7 +56,8 @@ public class SpanServiceTest {
 	@Before
 	public void before() throws TException {
 		TSpan span = createRootSpan();
-		logger.debug("id:{}", new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence()));
+        com.nhn.pinpoint.common.util.TransactionId id = TransactionIdUtils.parseTransactionId(span.getTransactionId());
+		logger.debug("id:{}", new TransactionId(id.getAgentId(), id.getAgentStartTime(), id.getTransactionSequence()));
 		insert(span);
 		deleteSpans.add(span);
 
@@ -104,7 +106,8 @@ public class SpanServiceTest {
 	}
 
 	private void doRead(TSpan span) {
-		TransactionId traceId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+        com.nhn.pinpoint.common.util.TransactionId id = TransactionIdUtils.parseTransactionId(span.getTransactionId());
+        TransactionId traceId = new TransactionId(id.getAgentId(), id.getAgentStartTime(), id.getTransactionSequence());
 
 		List<SpanAlign> sort = spanService.selectSpan(traceId);
 		for (SpanAlign spanAlign : sort) {
@@ -130,9 +133,9 @@ public class SpanServiceTest {
 
 		span.setAgentId("UnitTest");
 		span.setApplicationName("ApplicationId");
-        span.setTraceAgentId("traceAgentId");
-		span.setTraceAgentStartTime(System.currentTimeMillis());
-		span.setTraceTransactionSequence(0);
+        byte[] bytes = TransactionIdUtils.formatBytes("traceAgentId", System.currentTimeMillis(), 0);
+        span.setTransactionId(bytes);
+
 		span.setStartTime(time);
 		span.setElapsed(5);
 		span.setRpc("RPC");
@@ -159,9 +162,9 @@ public class SpanServiceTest {
 		sub.setAgentId("UnitTest");
 		sub.setApplicationName("ApplicationId");
         sub.setAgentStartTime(123);
-        sub.setTraceAgentId(span.getTraceAgentId());
-		sub.setTraceAgentStartTime(span.getTraceAgentStartTime());
-		sub.setTraceTransactionSequence(span.getTraceTransactionSequence());
+
+        sub.setTransactionId(span.getTransactionId());
+
 		sub.setStartTime(time);
 		sub.setElapsed(5);
 		sub.setRpc("RPC");
