@@ -138,50 +138,7 @@ public class SpanEventBo implements Span {
         }
 	}
 
-	public SpanEventBo(TSpanEvent spanEvent) {
-        final TAgentKey agentKey = spanEvent.getAgentKey();
-        if (agentKey != null) {
-            this.agentId = agentKey.getAgentId();
-            this.applicationId = agentKey.getApplicationName();
-            this.agentStartTime = agentKey.getAgentStartTime();
-        }
 
-        this.traceAgentId = spanEvent.getTraceAgentId();
-		this.traceAgentStartTime = spanEvent.getTraceAgentStartTime();
-		this.traceTransactionSequence = spanEvent.getTraceTransactionSequence();
-
-		this.spanId = spanEvent.getSpanId();
-		this.sequence = spanEvent.getSequence();
-
-		this.startElapsed = spanEvent.getStartElapsed();
-		this.endElapsed = spanEvent.getEndElapsed();
-
-		this.rpc = spanEvent.getRpc();
-		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
-
-		this.endPoint = spanEvent.getEndPoint();
-        this.apiId = spanEvent.getApiId();
-
-        this.destinationId = spanEvent.getDestinationId();
-
-		
-		if (spanEvent.isSetDepth()) {
-			this.depth = spanEvent.getDepth();
-		}
-
-		if (spanEvent.isSetNextSpanId()) {
-			this.nextSpanId = spanEvent.getNextSpanId();
-		}
-		
-		setAnnotationBoList(spanEvent.getAnnotations());
-
-        final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
-        if (exceptionInfo != null) {
-            this.hasException = true;
-            this.exceptionId = exceptionInfo.getIntValue();
-            this.exceptionMessage = exceptionInfo.getStringValue();
-        }
-	}
 
 	public byte getVersion() {
 		return version;
