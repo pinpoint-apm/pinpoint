@@ -47,10 +47,6 @@ public class SpanHandler implements SimpleHandler {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Received SPAN={}", span);
 			}
-            String traceAgentId = span.getTraceAgentId();
-            if (traceAgentId == null) {
-                span.setTraceAgentId(span.getAgentId());
-            }
 
             traceDao.insert(span);
 //			traceIndexDao.insert(span);

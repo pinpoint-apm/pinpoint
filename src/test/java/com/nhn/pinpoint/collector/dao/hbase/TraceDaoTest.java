@@ -106,9 +106,7 @@ public class TraceDaoTest {
         span.setApplicationName("testApplication");
         span.setAgentStartTime(123);
 
-        span.setTraceAgentId("traceAgent");
-        span.setTraceAgentStartTime(System.currentTimeMillis());
-        span.setTraceTransactionSequence(0);
+
         span.setStartTime(l);
         span.setElapsed(5);
         span.setRpc("RPC");
