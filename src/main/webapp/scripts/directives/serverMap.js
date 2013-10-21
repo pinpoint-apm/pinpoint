@@ -1,8 +1,8 @@
 'use strict';
 
 pinpointApp.constant('serverMapConfig', {
-    applicationUrl: '/applications.pinpoint',
-    filteredServerMapData2: '/getFilteredServerMapData2.pinpoint',
+    serverMapDataUrl: '/getServerMapData2.pinpoint',
+    filteredServerMapDataUrl: '/getFilteredServerMapData2.pinpoint',
     filtermapUrl: '/filtermap.pinpoint',
     lastTransactionListUrl: '/lastTransactionList.pinpoint',
     transactionListUrl: '/transactionList.pinpoint',
@@ -33,7 +33,7 @@ pinpointApp.constant('serverMapConfig', {
     FILTER_FETCH_LIMIT: 99
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 'ProgressBar', function (cfg, $rootScope, Alerts, ProgressBar) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', function (cfg, $rootScope, $window, Alerts, ProgressBar) {
     return {
         restrict: 'EA',
         replace: true,
@@ -42,16 +42,23 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
 
             // define private variables
             var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu,
-                bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar;
+                bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar, htLastMapData;
 
             // define private variables of methods
             var showServerMap, getServerMapData2, getFilteredServerMapData, reset, setNodeContextMenuPosition,
                 setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
-                replaceClientToUser, setLinkOption;
+                replaceClientToUser, setLinkOption, mergeFilteredMapData;
 
             // initialize
             oServerMap = null;
             SERVERMAP_METHOD_CACHE = {};
+            htLastMapData = {
+                applicationMapData : {
+                    linkDataArray : [],
+                    nodeDataArray : []
+                },
+                lastFetchedTimestamp : []
+            };
             oAlert = new Alerts(element);
             oProgressBar = new ProgressBar(element);
             scope.oNavbar = null;
@@ -92,50 +99,22 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
 
                 if (filterText) {
                     getFilteredServerMapData(query, function (query, result) {
-                        serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
+                        scope.$emit('serverMap.fetched', result.lastFetchedTimestamp, result.applicationMapData.nodeDataArray.length);
+                        serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
 
-                        var DAY = 60 * 60 * 24 * 1000;
-                        var period = query.to - query.from;
-                        var fetchedPeriod = query.to - result.lastFetchedTimestamp;
-                        var ratio = Math.floor(fetchedPeriod / period * 100);
-                        var nextFetchFrom = result.lastFetchedTimestamp + 1;
-
-                        // TODO 대충 24시간으로 계산하나 걸치는 경우 체크가 필요할지도. 예: 22:00 ~ 03:00
-                        // TODO 그냥 날짜까지 보여줄까.
-                        var dateFormat = (period > DAY) ? "yyyy/MM/dd HH:mm:ss" : "HH:mm:ss";
-
-                        console.log("query", query);
-                        console.log("result", result);
-
-                        var strFrom = new Date(query.from).toString(dateFormat);
-                        var strTo = new Date(query.to).toString(dateFormat);
-                        var strOffset = new Date(result.lastFetchedTimestamp).toString(dateFormat);
-
-
-                        var fetchNext = function () {
-                            // TODO next 조회 로직 추가 필요.
-                            // TODO 새로 조회한 것과 기존에 조회된 것 머지 기능 추가 필요.
-                            console.log("fetch more " + new Date(nextFetchFrom).toString("yyyy/MM/dd HH:mm:ss") + " ~ " + new Date(query.to).toString("yyyy/MM/dd HH:mm:ss"));
-                        }
-
-                        var fetchDone = function () {
-                            // TODO 조회가 완료되면 할 거 없음.
-                            console.log("That's all.");
-                        }
-
-                        // lastFetchedTimestamp + 1 ~ query.to까지 계속 조회하고.
-                        // 조회된 데이터가 0개이면 모두 조회되었다고 판단해도 됨.
-                        // lastFetchedTimestamp가 query.to하고 같으면 더 조회하지 않아도 됨.
-                        var needMoreFetch = result.applicationMapData.nodeDataArray.length > 0;
-                        needMoreFetch |= result.lastFetchedTimestamp == query.to;
-
-                        // TODO 밖으로 빼내서 핸들러 하나만 등록하도록 변경할 것.
                     });
                 } else {
                     getServerMapData2(query, function (query, result) {
                         serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
                     });
                 }
+            };
+
+            mergeFilteredMapData = function (mapData, cb) {
+                htLastMapData.applicationMapData.linkDataArray = htLastMapData.applicationMapData.linkDataArray.concat(mapData.applicationMapData.linkDataArray);
+                htLastMapData.applicationMapData.nodeDataArray = htLastMapData.applicationMapData.nodeDataArray.concat(mapData.applicationMapData.nodeDataArray);
+                htLastMapData.lastFetchedTimestamp = mapData.lastFetchedTimestamp;
+                return htLastMapData;
             };
 
             /**
@@ -147,7 +126,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
                 oProgressBar.setLoading(50);
                 jQuery.ajax({
                     type: 'GET',
-                    url: '/getServerMapData2.pinpoint',
+                    url: cfg.serverMapDataUrl,
                     cache: false,
                     dataType: 'json',
                     data: {
@@ -177,7 +156,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
             getFilteredServerMapData = function (query, callback) {
                 jQuery.ajax({
                     type: 'GET',
-                    url: cfg.filteredServerMapData2,
+                    url: cfg.filteredServerMapDataUrl,
                     cache: false,
                     dataType: 'json',
                     data: {
@@ -604,9 +583,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
              * scope passing transaction map
              */
             scope.passingTransactionMap = function () {
-                var application = scope.navbar.application,
-                    period = scope.navbar.period,
-                    queryEndTime = scope.navbar.queryEndTime,
+                var application = scope.oNavbarDao.getApplication(),
+                    period = scope.oNavbarDao.getPeriod(),
+                    queryEndTime = scope.oNavbarDao.getQueryEndTime(),
                     srcServiceType = scope.srcServiceType,
                     srcApplicationName = scope.srcApplicationName,
                     destServiceType = scope.destServiceType,
@@ -620,7 +599,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
                     + destApplicationName;
 
                 var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + newFilter;
-                window.open(url, "");
+                $window.open(url, "");
                 reset();
             };
 
@@ -681,7 +660,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
                 scope.oNavbarDao = navbarDao;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
-                showServerMap(navbarDao.getApplicationName(), navbarDao.getServiceType(), navbarDao.getQueryEndTime(), navbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(navbarDao.getApplicationName(), navbarDao.getServiceType(), navbarDao.getQueryEndTime(), navbarDao.getQueryPeriod(), navbarDao.getFilter(), scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
             });
 
             /**
@@ -695,7 +674,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', 'Alerts', 
                 };
                 serverMapCallback(query, mapData, false, scope.linkRouting, scope.linkCurve);
             });
-
 
         }
     };

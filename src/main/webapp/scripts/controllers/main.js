@@ -22,6 +22,7 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
         if ($routeParams.queryEndTime) {
             oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
+        oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
         console.log('main.js', oNavbarDao);
         $scope.$emit('navbar.initialize', oNavbarDao);
         $scope.$emit('scatter.initialize', oNavbarDao);

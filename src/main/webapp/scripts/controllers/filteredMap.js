@@ -1,65 +1,58 @@
 'use strict';
 
-pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderDao', function ($scope, $routeParams, $timeout, TimeSliderDao) {
+pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderDao', 'NavbarDao', function ($scope, $routeParams, $timeout, TimeSliderDao, NavbarDao) {
 
-    // define private variables of methods
-    var getQueryPeriod, broadcast;
-
-    /**
-     * get query period
-     */
-    getQueryPeriod = function () {
-        return $scope.period * 1000 * 60;
-    };
-
-    /**
-     * _boardcast as applicationChanged with args
-     */
-    broadcast = function () {
-        var splitedApp = $scope.application.split('@'),
-            applicationData = {
-                application: $scope.application,
-                applicationName: splitedApp[0],
-                serviceType: splitedApp[1],
-                period: $scope.period,
-                queryPeriod: $scope.queryPeriod,
-                queryStartTime: $scope.queryStartTime,
-                queryEndTime: $scope.queryEndTime
-            };
-
-        var oTimeSliderDao = new TimeSliderDao()
-                .setFrom($scope.queryStartTime)
-                .setTo($scope.queryEndTime)
-                .setInnerFrom($scope.queryStartTime + 10000000)
-                .setInnerTo($scope.queryEndTime);
-
-        $timeout(function () {
-            $scope.$emit('timeSlider.initialize', oTimeSliderDao);
-            $scope.$emit('servermap.initializeWithApplicationData', applicationData);
-            $scope.$emit('scatter.initializeWithApplicationData', applicationData);
-        });
-    };
+    // define private variables
+    var oNavbarDao, oTimeSliderDao;
 
     /**
      * initialize
      */
     $timeout(function () {
+        oNavbarDao = new NavbarDao();
         if ($routeParams.application) {
-            $scope.application = $routeParams.application;
+            oNavbarDao.setApplication($routeParams.application);
         }
         if ($routeParams.period) {
-            $scope.period = $routeParams.period;
-            $scope.queryPeriod = getQueryPeriod();
-        }
-        if ($routeParams.filter) {
-            $scope.filter = $routeParams.filter;
+            oNavbarDao.setPeriod(Number($routeParams.period, 10));
         }
         if ($routeParams.queryEndTime) {
-            $scope.queryEndTime = parseInt($routeParams.queryEndTime, 10);
+            oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
-        $scope.queryStartTime = $scope.queryEndTime - $scope.queryPeriod;
-        $scope.$digest();
-        broadcast();
+        if ($routeParams.filter) {
+            oNavbarDao.setFilter($routeParams.filter);
+        }
+        oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
+
+        oTimeSliderDao = new TimeSliderDao()
+            .setFrom(oNavbarDao.getQueryStartTime())
+            .setTo(oNavbarDao.getQueryEndTime())
+            .setInnerFrom(oNavbarDao.getQueryEndTime() - 1)
+            .setInnerTo(oNavbarDao.getQueryEndTime());
+
+        $timeout(function () {
+            $scope.$emit('timeSlider.initialize', oTimeSliderDao);
+            $scope.$emit('serverMap.initialize', oNavbarDao);
+            $scope.$emit('scatter.initialize', oNavbarDao);
+        });
     });
 
+    /**
+     * scope event on serverMap.linkClicked
+     */
+    $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, nodeLength) {
+        if (nodeLength === 0) {
+            $scope.$emit('timeSlider.disableMore');
+            oTimeSliderDao.setInnerFrom(oTimeSliderDao.getFrom());
+        } else {
+            oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
+        }
+        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+    });
+
+    $scope.$on('timeSlider.moreClicked', function (event) {
+        oNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
+        oNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+        $scope.$emit('serverMap.initialize', oNavbarDao);
+    });
 }]);

@@ -7,6 +7,10 @@ pinpointApp.factory('NavbarDao', function () {
         this._sApplication = false;
         this._nPeriod = false;
         this._nQueryEndTime = false;
+        this._sFilter = false;
+
+        this._nQueryPeriod = false;
+        this._nQueryStartTime = false;
 
         this.setApplication = function (application) {
             if (angular.isString(application) && application.indexOf('@') > 0) {
@@ -39,7 +43,7 @@ pinpointApp.factory('NavbarDao', function () {
         };
 
         this.getQueryPeriod = function () {
-            return self._nPeriod  * 1000 * 60;
+            return self._nQueryPeriod;
         };
 
         this.getApplicationName = function () {
@@ -51,12 +55,33 @@ pinpointApp.factory('NavbarDao', function () {
         };
 
         this.getQueryStartTime = function () {
-            return self._nQueryEndTime - self.getQueryPeriod();
+            return self._nQueryStartTime;
         };
 
         this.getReady = function () {
             return self._sApplication && self._nPeriod && self._nQueryEndTime;
         };
 
+        this.setFilter = function (filter) {
+            if (angular.isString(filter)) {
+                self._sFilter = filter;
+            }
+            return self;
+        };
+        this.getFilter = function () {
+            return self._sFilter;
+        };
+
+        this.autoCalculateByQueryEndTimeAndPeriod = function () {
+            self._nQueryPeriod = self._nPeriod  * 1000 * 60;
+            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
+            return self;
+        };
+
+        this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
+            self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
+            self._nPeriod = self._nQueryPeriod / 1000 / 60;
+            return self;
+        };
     };
 });

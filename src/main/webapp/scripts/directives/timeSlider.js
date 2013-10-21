@@ -14,13 +14,14 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
             // define variables
             var $elSlider;
             // define private methods
-            var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo;
+            var initSlider, getScale, parseScaleAsTimeFormat, parseTimestampToTimeFormat, setInnerFromTo, checkDisableMore;
 
             // initialize private variables
             $elSlider = element.find('.timeslider_input');
 
             // initialize scope variables
             scope.oTimeSliderDao = null;
+            scope.disableMore = false;
 
             /**
              * init slider
@@ -52,7 +53,16 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
                         }
                     );
                 });
+                checkDisableMore();
+            };
 
+            checkDisableMore = function () {
+                if (scope.oTimeSliderDao.getCount() && scope.oTimeSliderDao.getTotal()) {
+                    if (scope.oTimeSliderDao.getCount() >= scope.oTimeSliderDao.getTotal()) {
+                        scope.disableMore = true;
+                        scope.$digest();
+                    }
+                }
             };
 
             /**
@@ -116,6 +126,7 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              */
             scope.$on('timeSlider.initialize', function (event, timeSliderDao) {
                 initSlider(timeSliderDao);
+                checkDisableMore();
             });
 
             /**
@@ -124,6 +135,21 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
             scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderDao) {
                 scope.oTimeSliderDao = timeSliderDao;
                 setInnerFromTo(timeSliderDao.getInnerFrom(), timeSliderDao.getInnerTo());
+                checkDisableMore();
+            });
+
+            /**
+             * scope event on enable more
+             */
+            scope.$on('timeSlider.enableMore', function (event) {
+               scope.disableMore = false;
+            });
+
+            /**
+             * scope event on disable more
+             */
+            scope.$on('timeSlider.disableMore', function (event) {
+                scope.disableMore = true;
             });
         }
     };
