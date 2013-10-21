@@ -108,7 +108,8 @@ public class BusinessTransactionController {
 	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp,
 										// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
 										// 기존 html view에서 json을 넘어가는 중임.
-										@RequestParam(value="jsonResult", required=false, defaultValue="false") boolean jsonResult) {
+										@RequestParam(value="jsonResult", required=false, defaultValue="false") boolean jsonResult,
+										@RequestParam(value="v", required=false) int viewVersion) {
 		logger.debug("traceId:{}", traceIdParam);
 
 		final TransactionId traceId = new TransactionId(traceIdParam);
@@ -152,7 +153,11 @@ public class BusinessTransactionController {
 
 		// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
 		if (jsonResult) {
-			mv.setViewName("transactionInfoJson");
+			if (viewVersion == 2) {
+				mv.setViewName("transactionInfoJsonHash");
+			} else {
+				mv.setViewName("transactionInfoJson");
+			}
 		}
 		
 		return mv;
