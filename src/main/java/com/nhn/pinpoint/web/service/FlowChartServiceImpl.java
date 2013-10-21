@@ -344,7 +344,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
 
-		TimeseriesResponses tr = new TimeseriesResponses(from, to);
+//		TimeseriesResponses tr = new TimeseriesResponses(from, to);
 		
 		// 통계정보로 변환한다.
 		for (List<SpanBo> transaction : transactionList) {
@@ -410,10 +410,10 @@ public class FlowChartServiceImpl implements FlowChartService {
 				statisticsMap.put(statId, stat);
 				
 				// link timeseries statistics추가.
-				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+//				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				
 				// application timeseries statistics
-				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+//				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				
 				/**
 				 * span event의 statistics추가.
@@ -462,17 +462,17 @@ public class FlowChartServiceImpl implements FlowChartService {
 					statisticsMap.put(statId2, stat2);
 					
 					// link timeseries statistics추가.
-					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed() , 1L);
+//					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed() , 1L);
 					
 					// application timeseries statistics
-					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+//					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				}
 			}
 		}
 		
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
 
-		map.setTimeseriesResponses(tr);
+//		map.setTimeseriesResponses(tr);
 		
 		watch.stop();
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());

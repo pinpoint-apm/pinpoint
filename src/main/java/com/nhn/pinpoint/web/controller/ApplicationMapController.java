@@ -132,7 +132,7 @@ public class ApplicationMapController {
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
-		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
+//		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
 
 		return "applicationmap.filtered2";
 	}

@@ -31,7 +31,7 @@ public class ApplicationMap {
 	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
 
 	private final Set<String> applicationNames = new HashSet<String>();
-	private TimeseriesResponses timeseriesResponses;
+//	private TimeseriesResponses timeseriesResponses;
 
 	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
 		this.rawData = new RawStatisticsData(rawData);
@@ -154,11 +154,11 @@ public class ApplicationMap {
 		relations.putOrMerge(relation.getId(), relation);
 	}
 
-	public TimeseriesResponses getTimeseriesResponses() {
-		return timeseriesResponses;
-	}
-
-	public void setTimeseriesResponses(TimeseriesResponses timeseriesResponses) {
-		this.timeseriesResponses = timeseriesResponses;
-	}
+//	public TimeseriesResponses getTimeseriesResponses() {
+//		return timeseriesResponses;
+//	}
+//
+//	public void setTimeseriesResponses(TimeseriesResponses timeseriesResponses) {
+//		this.timeseriesResponses = timeseriesResponses;
+//	}
 }
