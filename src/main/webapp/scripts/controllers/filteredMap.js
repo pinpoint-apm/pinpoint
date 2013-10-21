@@ -50,9 +50,36 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
         $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
     });
 
+    /**
+     * scope event of timeSlider.moreClicked
+     */
     $scope.$on('timeSlider.moreClicked', function (event) {
         oNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
         oNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
         $scope.$emit('serverMap.initialize', oNavbarDao);
+    });
+
+    /**
+     * scope event on serverMap.passingTransactionResponseToScatterChart
+     */
+    $scope.$on('serverMap.passingTransactionResponseToScatterChart', function (event, node) {
+        $scope.$emit('scatter.initializeWithNode', node);
+    });
+
+    /**
+     * scope event on serverMap.nodeClicked
+     */
+    $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
+        $scope.$emit('nodeInfoDetails.initializeWithNodeData', e, query, node, data);
+        $scope.$emit('linkInfoDetails.initializeWithNodeData', e, query, node, data);
+    });
+
+
+    /**
+     * scope event on serverMap.linkClicked
+     */
+    $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
+        $scope.$emit('nodeInfoDetails.initializeWithLinkData', e, query, link, data);
+        $scope.$emit('linkInfoDetails.initializeWithLinkData', e, query, link, data);
     });
 }]);
