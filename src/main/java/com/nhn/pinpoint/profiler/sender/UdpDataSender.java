@@ -99,13 +99,13 @@ public class UdpDataSender implements DataSender {
 
 
     protected void sendPacketN(Collection<TBase<?, ?>> dtoList) {
-        TBase<?, ?>[] dataList = (TBase<?, ?>[]) dtoList.toArray();
+        Object[] dataList = dtoList.toArray();
 //        for (Object data : dataList) {
 //        이렇게 바꾸지 말것. copy해서 return 하는게 아니라 항상 max치가 나옴.
         final int size = dtoList.size();
         for (int i = 0; i < size; i++) {
 			try {
-				sendPacket(dataList[i]);
+				sendPacket((TBase<?, ?>)dataList[i]);
 			} catch (Throwable th) {
 				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
 			}
