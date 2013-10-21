@@ -16,13 +16,13 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.pair.NameIntValuePair;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 import com.nhn.pinpoint.profiler.util.*;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequest;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.*;
+import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  *
@@ -174,8 +174,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
-                        // entity utils의 toString시 일정 length까지만 데이터를 읽도록하는 기능이 필요함.
-                        String entityString = EntityUtils.toString(entity, "UTF8");
+                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
                         trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }
@@ -183,6 +182,86 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
             }
         }
+    }
+
+    /**
+     * copy: EntityUtils
+     * Get the entity content as a String, using the provided default character set
+     * if none is found in the entity.
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     *
+     * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     */
+    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
+        final InputStream instream = entity.getContent();
+        if (instream == null) {
+            return null;
+        }
+        try {
+            if (entity.getContentLength() > Integer.MAX_VALUE) {
+                return "HTTP entity too large to be buffered in memory length:" + entity.getContentLength();
+            }
+            int i = (int)entity.getContentLength();
+            if (i < 0) {
+                i = 4096;
+            }
+            String charset = getContentCharSet(entity);
+            if (charset == null) {
+                charset = defaultCharset;
+            }
+            if (charset == null) {
+                charset = HTTP.DEFAULT_CONTENT_CHARSET;
+            }
+            Reader reader = new InputStreamReader(instream, charset);
+            final StringBuilder buffer = new StringBuilder(maxLength * 2);
+            char[] tmp = new char[1024];
+            int l;
+            while((l = reader.read(tmp)) != -1) {
+                buffer.append(tmp, 0, l);
+                // maxLength 이상 읽었을 경우 stream을 그만 읽는다.
+                if (buffer.length() >= maxLength) {
+                    break;
+                }
+            }
+            return buffer.toString();
+        } finally {
+            instream.close();
+        }
+    }
+
+    /**
+     * copy: EntityUtils
+     * Obtains character set of the entity, if known.
+     *
+     * @param entity must not be null
+     * @return the character set, or null if not found
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null
+     */
+    public static String getContentCharSet(final HttpEntity entity) throws ParseException {
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
+        String charset = null;
+        if (entity.getContentType() != null) {
+            HeaderElement values[] = entity.getContentType().getElements();
+            if (values.length > 0) {
+                NameValuePair param = values[0].getParameterByName("charset");
+                if (param != null) {
+                    charset = param.getValue();
+                }
+            }
+        }
+        return charset;
     }
 
     @Override
