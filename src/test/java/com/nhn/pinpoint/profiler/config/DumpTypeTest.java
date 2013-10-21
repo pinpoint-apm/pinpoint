@@ -13,7 +13,7 @@ public class DumpTypeTest {
 
     @Test
     public void find() {
-        DumpType none = DumpType.valueOf("NONE");
+        DumpType none = DumpType.valueOf("ALWAYS");
         logger.debug("type:{}", none);
 
         try {

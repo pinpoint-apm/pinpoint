@@ -328,7 +328,11 @@ public class ProfilerConfig {
 		return applicationServerType;
 	}
 
-	private void readPropertyValues(Properties prop) {
+    public void setApplicationServerType(ServiceType applicationServerType) {
+        this.applicationServerType = applicationServerType;
+    }
+
+    private void readPropertyValues(Properties prop) {
 		// TODO : use Properties defaultvalue instead of using temp variable.
 
 		this.profileEnable = readBoolean(prop, "profiler.enable", true);
