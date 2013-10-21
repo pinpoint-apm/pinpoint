@@ -205,7 +205,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * scope event on navbar.initialize
                  */
                 scope.$on('navbar.initialize', function (event, navbarDao) {
-                    console.log('aaa : ', scope);
+                    console.log('navbar.initialize : ', scope);
                     initialize(navbarDao);
                 });
             }
