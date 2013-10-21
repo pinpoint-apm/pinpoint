@@ -656,7 +656,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              * scope event on serverMap.initialize
              */
             scope.$on('serverMap.initialize', function (event, navbarDao) {
-                console.log('serverMap.initialize', navbarDao);
                 scope.oNavbarDao = navbarDao;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
