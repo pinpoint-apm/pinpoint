@@ -17,6 +17,13 @@ else
 	echo "*********************"
 fi
 
+rm -fr $DEPLOY_DIR/pinpoint-collector-$VERSION
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "BUILD FAILED $rc"
+        exit $rc
+fi
+
 #server
 mvn clean eclipse:eclipse install package dependency:copy-dependencies -Dmaven.test.skip $PROFILE
 rc=$?
