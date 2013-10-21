@@ -219,13 +219,17 @@ pinpointApp.directive('scatter',
                             'Failed': '#d62728'
                         },
                         fOnSelect: function (htPosition, htXY) {
-                            var traces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
-                            if (traces.length === 0) {
+                            var transactions = {
+                                htXY : htXY,
+                                aTraces : []
+                            };
+                            transactions.aTraces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
+                            if (transactions.aTraces === 0) {
                                 return;
                             }
 
-                            var token = 'scatterToken_' + _.random(100000, 999999);
-                            webStorage.session.add(token, traces);
+                            var token = 'transactionsFromScatter_' + _.random(100000, 999999);
+                            webStorage.session.add(token, transactions);
 //                            window.open("/selectedScatter.pinpoint", token);
                             window.open("#/transactionList", token);
                         }

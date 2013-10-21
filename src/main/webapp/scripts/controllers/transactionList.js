@@ -9,7 +9,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
     function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderDao) {
 
         // define private variables
-        var nFetchCount, nLastFetchedIndex, aTraces, oTimeSliderDao;
+        var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderDao;
 
         // define private variables of methods
         var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
@@ -17,9 +17,9 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         // initialize private variables;
         nFetchCount = 1;
         nLastFetchedIndex = 0;
-        aTraces = webStorage.session.get($window.name);
+        htTransactions = webStorage.session.get($window.name);
         oTimeSliderDao = new TimeSliderDao();
-        oTimeSliderDao.setTotal(aTraces.length);
+        oTimeSliderDao.setTotal(htTransactions.aTraces.length);
 
         /**
          * emit transaction list to table
@@ -34,18 +34,18 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @returns {Array | Boolean}
          */
         getQuery = function () {
-            if (!aTraces) {
+            if (!htTransactions.aTraces) {
                 $window.alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
                 return false;
             }
             var query = [];
-            for (var i = nLastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * nFetchCount && i < aTraces.length; i++, j++) {
+            for (var i = nLastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * nFetchCount && i < htTransactions.aTraces.length; i++, j++) {
                 if (i > 0) {
                     query.push("&");
                 }
-                query = query.concat(["I", j, "=", aTraces[i].traceId]);
-                query = query.concat(["&T", j, "=", aTraces[i].x]);
-                query = query.concat(["&R", j, "=", aTraces[i].y]);
+                query = query.concat(["I", j, "=", htTransactions.aTraces[i].traceId]);
+                query = query.concat(["&T", j, "=", htTransactions.aTraces[i].x]);
+                query = query.concat(["&R", j, "=", htTransactions.aTraces[i].y]);
                 nLastFetchedIndex++;
             }
             nFetchCount++;
@@ -62,10 +62,12 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     return false;
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
                     $scope.$emit('timeSlider.disableMore');
+                    oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
+                } else {
+                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
                 }
                 emitTransactionListToTable(data);
 
-                oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
                 oTimeSliderDao.addCount(data.metadata.length);
                 $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
             });
@@ -89,17 +91,18 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     return false;
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
                     $scope.$emit('timeSlider.disableMore');
+                    oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
+                } else {
+                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
                 }
                 emitTransactionListToTable(data);
 
-                var to = _.first(aTraces).x;
-
-                oTimeSliderDao.setFrom(_.last(aTraces).x);
-                oTimeSliderDao.setTo(to);
-
-                oTimeSliderDao.setInnerTo(to);
-                oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+                oTimeSliderDao.setFrom(htTransactions.htXY.nXFrom);
+                oTimeSliderDao.setTo(htTransactions.htXY.nXTo);
+                oTimeSliderDao.setInnerTo(htTransactions.htXY.nXTo);
                 oTimeSliderDao.setCount(data.metadata.length);
+
+                console.log('oTimeSliderDao', oTimeSliderDao);
 
                 $scope.$emit('timeSlider.initialize', oTimeSliderDao);
             });
