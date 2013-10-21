@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.util.JsonSerializable;
@@ -12,18 +13,25 @@ import com.nhn.pinpoint.web.util.Mergeable;
  */
 public class ServerInstance implements Comparable<ServerInstance>, Mergeable<ServerInstance>, JsonSerializable {
 
+	private final String name;
+	private final ServiceType serviceType;
+	
 	private final String id;
 	private final AgentInfoBo agentInfo;
 	private ResponseHistogram histogram;
 
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
-		this.id = agentInfo.getAgentId() + agentInfo.getServiceType();
+		this.name = agentInfo.getAgentId();
+		this.serviceType = agentInfo.getServiceType();
+		this.id = name + serviceType;
 		this.agentInfo = agentInfo;
 		this.histogram = histogram;
 	}
 	
-	public ServerInstance(String id, ResponseHistogram histogram) {
-		this.id = id;
+	public ServerInstance(String name, ServiceType serviceType, ResponseHistogram histogram) {
+		this.name = name;
+		this.serviceType = serviceType;
+		this.id = name + serviceType;
 		this.agentInfo = null;
 		this.histogram = histogram;
 	}
@@ -48,7 +56,8 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Ser
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-		sb.append("\"agentId\":\"").append(id).append("\",");
+		sb.append("\"name\":\"").append(name).append("\",");
+		sb.append("\"serviceType\":\"").append(serviceType).append("\",");
 		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfo.getJson()).append(",");
 		sb.append("\"histogram\":").append((histogram == null) ? null : histogram.getJson());
 		sb.append("}");

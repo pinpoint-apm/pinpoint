@@ -74,7 +74,9 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		}
 		
 		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
-			String key = entry.getKey() + entry.getValue().getServiceType();
+			String name = entry.getKey();
+			ServiceType serviceType = entry.getValue().getServiceType();
+			String key = name + serviceType; // entry.getKey() + entry.getValue().getServiceType();
 			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(key);
 
 //			ResponseHistogram histogram = null;
@@ -87,7 +89,7 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 
 //			application histogram front end에서 계산함.
 //			ServerInstance serverInstance = new ServerInstance(key, entry.getValue().getHistogram());
-			ServerInstance serverInstance = new ServerInstance(key, null);
+			ServerInstance serverInstance = new ServerInstance(name, serviceType, null);
 
 			if (serverInstanceMap == null) {
 				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
