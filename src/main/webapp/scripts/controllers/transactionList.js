@@ -60,7 +60,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 if (data.metadata.length === 0) {
                     $scope.$emit('timeSlider.disableMore');
                     return false;
-                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length + oTimeSliderDao.getCount()) {
                     $scope.$emit('timeSlider.disableMore');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
@@ -89,7 +89,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 if (data.metadata.length === 0) {
                     $scope.$emit('timeSlider.disableMore');
                     return false;
-                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE) {
+                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length) {
                     $scope.$emit('timeSlider.disableMore');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
