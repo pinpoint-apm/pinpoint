@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
@@ -30,10 +31,11 @@ public class MySQLConnectionImplModifierTest {
 
     @Before
     public void setUp() throws Exception {
-
+        System.setProperty("catalina.home", "test");
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.setApplicationServerType(ServiceType.TOMCAT);
         DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);
         loader = new TestClassLoader(agent);
 

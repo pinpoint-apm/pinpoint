@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.*;
@@ -26,7 +28,10 @@ public class DefaultTraceTest {
 
     @Test
     public void testPushPop() {
-        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), "agent", 0, 1);
+        DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
+        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", ServiceType.TOMCAT.getCode()));
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, "agent", 0, 1);
+
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 
         Assert.assertEquals(0, trace.getCallStackDepth());

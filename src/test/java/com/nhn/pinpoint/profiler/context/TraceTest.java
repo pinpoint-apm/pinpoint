@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
@@ -16,7 +17,8 @@ public class TraceTest {
     @Test
     public void trace() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
+        DefaultTraceContext defaultTraceConetxt = getDefaultTraceConetxt();
+        DefaultTrace trace = new DefaultTrace(defaultTraceConetxt , traceID);
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
@@ -39,7 +41,8 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTrace trace = new DefaultTrace(new DefaultTraceContext(), traceID);
+        DefaultTraceContext defaultTraceConetxt = getDefaultTraceConetxt();
+        DefaultTrace trace = new DefaultTrace(defaultTraceConetxt, traceID);
         TestDataSender dataSender = new TestDataSender();
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 //        trace.traceBlockBegin();
@@ -49,6 +52,12 @@ public class TraceTest {
         trace.traceRootBlockEnd();
 
         logger.info(String.valueOf(dataSender.event));
+    }
+
+    private DefaultTraceContext getDefaultTraceConetxt() {
+        DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
+        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", ServiceType.TOMCAT.getCode()));
+        return defaultTraceContext;
     }
 
     public class TestDataSender implements DataSender {
