@@ -31,7 +31,7 @@ public class WriteFailFutureListener implements ChannelFutureListener {
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("{} channel:{}", successMessage, future.getCause());
+                logger.debug("{} channel:{}", successMessage, future.getChannel());
             }
         }
     }
