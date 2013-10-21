@@ -35,6 +35,7 @@ public class ApplicationMap {
 
 	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
 		this.rawData = new RawStatisticsData(rawData);
+		logger.debug("ApplicationMap rawdata={}", this.rawData);
 	}
 
 	public ApplicationMap build() {
