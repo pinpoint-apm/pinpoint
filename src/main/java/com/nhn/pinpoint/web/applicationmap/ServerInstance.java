@@ -23,7 +23,7 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Ser
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
 		this.name = agentInfo.getAgentId();
 		this.serviceType = agentInfo.getServiceType();
-		this.id = name + serviceType;
+		this.id = name;// + serviceType;
 		this.agentInfo = agentInfo;
 		this.histogram = histogram;
 	}

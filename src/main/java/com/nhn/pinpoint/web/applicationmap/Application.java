@@ -76,7 +76,7 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
 			String name = entry.getKey();
 			ServiceType serviceType = entry.getValue().getServiceType();
-			String key = name + serviceType; // entry.getKey() + entry.getValue().getServiceType();
+			String key = name;// + serviceType; // entry.getKey() + entry.getValue().getServiceType();
 			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(key);
 
 //			ResponseHistogram histogram = null;
