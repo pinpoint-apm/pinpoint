@@ -47,12 +47,13 @@
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.slowCount},
 				"histogram" : ${link.histogram.json},
-				"targetHosts" : [
+				"targetHosts" : {
 					<c:forEach items="${link.hostList}" var="host" varStatus="status2">
-						${host.value.json}
-						<c:if test="${!status2.last}">,</c:if>
+						"${host.value.host}" : {
+							"histogram" : ${host.value.histogram.json}
+						}<c:if test="${!status2.last}">,</c:if>
 					</c:forEach>	
-				],
+				},
 				<c:choose>
 					<c:when test="${(link.histogram.errorCount / link.histogram.totalCount * 100) > 10}">"category" : "bad"</c:when>
 					<c:otherwise>"category" : "default"</c:otherwise>
