@@ -21,6 +21,7 @@
 				"serverList" : {
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						"${serverInstance.key}" : {
+							"name" : "${serverInstance.key}", 
 							"status" : null,
 							"instanceList" : {
 								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
