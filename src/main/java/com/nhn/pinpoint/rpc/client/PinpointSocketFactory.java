@@ -36,8 +36,9 @@ public class PinpointSocketFactory {
 
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
-    // ping은 1분 주기
-    private long pingDelay = 60 * 1000;
+    // 이 값이 짧아야 될 필요가 없음. client에서 server로 가는 핑 주기를 짧게 유지한다고 해서.
+    // 연결끊김이 빨랑 디텍트 되는게 아님. 오히려 server에서 client의 ping주기를 짧게 해야 디텍트 속도가 빨라짐.
+    private long pingDelay = 5 * 60 * 1000;
     private long timeoutMillis = 3 * 1000;
 
 
