@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.util.JsonSerializable;
 import com.nhn.pinpoint.web.util.Mergeable;
 import com.nhn.pinpoint.web.util.MergeableMap;
@@ -48,26 +47,6 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		return serverInstanceList;
 	}
 
-//	application histogram front end에서 계산함.
-//	public void mapHistogram(Map<String, ResponseHistogram> histogramMap) {
-//		if (this.serverInstanceList.isEmpty()) {
-//			logger.warn("serverInstanceList is empty. id={}", id);
-//		}
-//		for (Entry<String, MergeableMap<String, ServerInstance>> mapEntry : this.serverInstanceList.entrySet()) {
-//			for (Entry<String, ServerInstance> entry : mapEntry.getValue().entrySet()) {
-//				ServerInstance instance = entry.getValue();
-//				logger.debug("instance id={}", instance.getId());
-//				ResponseHistogram histogram = histogramMap.get(instance.getId());
-//				if (histogram != null) {
-//					instance.setHistogram(histogram);
-//					logger.debug("set histogram {}", histogram);
-//				} else {
-//					logger.warn("histogram not found. id={} instance.id={}", id, instance.getId());
-//				}
-//			}
-//		}
-//	}
-
 	private void fillServerInstanceList(final Map<String, Host> hostHistogram) {
 		if (hostHistogram == null) {
 			return;
@@ -76,27 +55,16 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
 			String name = entry.getKey();
 			ServiceType serviceType = entry.getValue().getServiceType();
-			String key = name;// + serviceType; // entry.getKey() + entry.getValue().getServiceType();
-			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(key);
+			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(name);
 
-//			ResponseHistogram histogram = null;
-//			if (agentHistogram != null) {
-//				Host host = agentHistogram.get(agent.getAgentId());
-//				if (host != null) {
-//					histogram = host.getHistogram();
-//				}
-//			}
-
-//			application histogram front end에서 계산함.
-//			ServerInstance serverInstance = new ServerInstance(key, entry.getValue().getHistogram());
 			ServerInstance serverInstance = new ServerInstance(name, serviceType, null);
 
 			if (serverInstanceMap == null) {
 				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
 				value.put(serverInstance.getId(), serverInstance);
-				serverInstanceList.put(key, value);
+				serverInstanceList.put(name, value);
 			} else {
-				MergeableMap<String, ServerInstance> map = serverInstanceList.get(key);
+				MergeableMap<String, ServerInstance> map = serverInstanceList.get(name);
 				map.putOrMerge(serverInstance.getId(), serverInstance);
 			}
 		}

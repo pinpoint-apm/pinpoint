@@ -14,7 +14,6 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.util.MergeableHashMap;
 import com.nhn.pinpoint.web.util.MergeableMap;
-import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 
 /**
  * Application map
@@ -29,9 +28,7 @@ public class ApplicationMap {
 	private final RawStatisticsData rawData;
 	private final MergeableMap<String, Application> applications = new MergeableHashMap<String, Application>();
 	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
-
 	private final Set<String> applicationNames = new HashSet<String>();
-//	private TimeseriesResponses timeseriesResponses;
 
 	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
 		this.rawData = new RawStatisticsData(rawData);
@@ -46,8 +43,6 @@ public class ApplicationMap {
 		Map<String, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
 		
 		// extract application and histogram
-//		application histogram front end에서 계산함.
-//		MergeableMap<String, ResponseHistogram> hostHistogramMap = new MergeableHashMap<String, ResponseHistogram>();
 		for (TransactionFlowStatistics stat : rawData) {
 			// FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
 			if (!stat.getFromServiceType().isRpcClient()) {
@@ -60,35 +55,9 @@ public class ApplicationMap {
 			// FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
 			if (!stat.getToServiceType().isRpcClient()) {
 				String id = stat.getToApplicationId();
-				// application histogram map 생성.
-//				application histogram front end에서 계산함.
-//				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
-//					Host host = entry.getValue();
-//					ResponseHistogram histogram = host.getHistogram();
-//					ResponseHistogram value= new ResponseHistogram(histogram.getId(), histogram.getServiceType());
-//					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
-//				}
 				addApplication(new Application(id, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
 			}
-			
-			// FIXME 이거 필요없을듯
-//			if (!applicationNames.contains(stat.getTo())) {
-//				Set<AgentInfoBo> agentSet = agentMap.get(stat.getFromApplicationId());
-//				// application histogram map 생성.
-//				for (Entry<String, Host> entry : stat.getToHostList().entrySet()) {
-//					Host host = entry.getValue();
-//					ResponseHistogram histogram = host.getHistogram();
-//					ResponseHistogram value = new ResponseHistogram(histogram.getId(), histogram.getServiceType());
-//					hostHistogramMap.putOrMerge(value.getId(), value.mergeWith(histogram));
-//				}
-//				addApplication(new Application(stat.getToApplicationId(), stat.getTo(), stat.getToServiceType(), stat.getToHostList(), agentSet));
-//			}
 		}
-		
-//		for (Entry<String, Application> entry : applications.entrySet()) {
-//			Application application = entry.getValue();
-//			application.mapHistogram(hostHistogramMap);
-//		}
 		
 		// indexing application
 		indexingApplication();
@@ -103,8 +72,7 @@ public class ApplicationMap {
 				continue;
 			}
 
-			// RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로
-			// 변경.
+			// RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
 			if (to.getServiceType().isRpcClient()) {
 				if (!applicationNames.contains(to.getApplicationName())) {
 					addRelation(new ApplicationRelation(from, to, stat.getToHostList()));
@@ -147,18 +115,11 @@ public class ApplicationMap {
 		if (!application.getServiceType().isRpcClient()) {
 			applicationNames.add(application.getApplicationName());
 		}
+		logger.debug("add application {}", application);
 		applications.putOrMerge(application.getId(), application);
 	}
 
 	private void addRelation(ApplicationRelation relation) {
 		relations.putOrMerge(relation.getId(), relation);
 	}
-
-//	public TimeseriesResponses getTimeseriesResponses() {
-//		return timeseriesResponses;
-//	}
-//
-//	public void setTimeseriesResponses(TimeseriesResponses timeseriesResponses) {
-//		this.timeseriesResponses = timeseriesResponses;
-//	}
 }

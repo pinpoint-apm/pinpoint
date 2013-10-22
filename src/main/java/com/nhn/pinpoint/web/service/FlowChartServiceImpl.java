@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
@@ -38,7 +36,6 @@ import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.ClientStatistics;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.ResultWithMark;
-import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -337,9 +334,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
 
-		int fetchedTransactionCount = transactionList.size();
-		int returnTransactionCount = 0;
-		
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
@@ -351,8 +345,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 			if (!filter.include(transaction)) {
 				continue;
 			}
-
-			returnTransactionCount++;
 			
 			transactionSpanMap.clear();
 			for (SpanBo span : transaction) {
@@ -365,7 +357,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
 
 				if (span.isRoot() || parentSpan == null) {
-					src = ServiceType.CLIENT.toString() + "-" + span.getApplicationId();
+					src = /*ServiceType.CLIENT.toString() + "-" +*/ span.getApplicationId();
 					srcServiceType = ServiceType.CLIENT;
 				} else {
 					src = parentSpan.getApplicationId();
