@@ -60,7 +60,6 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
                 if (scope.oTimeSliderDao.getCount() && scope.oTimeSliderDao.getTotal()) {
                     if (scope.oTimeSliderDao.getCount() >= scope.oTimeSliderDao.getTotal()) {
                         scope.disableMore = true;
-                        scope.$digest();
                     }
                 }
             };

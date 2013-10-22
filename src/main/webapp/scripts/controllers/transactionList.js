@@ -102,8 +102,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 oTimeSliderDao.setInnerTo(htTransactions.htXY.nXTo);
                 oTimeSliderDao.setCount(data.metadata.length);
 
-                console.log('oTimeSliderDao', oTimeSliderDao);
-
                 $scope.$emit('timeSlider.initialize', oTimeSliderDao);
             });
         };
