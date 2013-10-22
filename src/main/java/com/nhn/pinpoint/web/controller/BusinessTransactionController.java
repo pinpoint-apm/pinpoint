@@ -109,7 +109,7 @@ public class BusinessTransactionController {
 										// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
 										// 기존 html view에서 json을 넘어가는 중임.
 										@RequestParam(value="jsonResult", required=false, defaultValue="false") boolean jsonResult,
-										@RequestParam(value="v", required=false) int viewVersion) {
+										@RequestParam(value="v", required=false, defaultValue="0") int viewVersion) {
 		logger.debug("traceId:{}", traceIdParam);
 
 		final TransactionId traceId = new TransactionId(traceIdParam);
