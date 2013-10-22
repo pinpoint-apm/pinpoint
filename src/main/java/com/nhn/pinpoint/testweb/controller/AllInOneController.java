@@ -126,9 +126,9 @@ public class AllInOneController implements DisposableBean {
 
 	@RequestMapping(value = "/allInOne")
 	public String allInOne(Model model) {
-//		arcus();
+		arcus();
 //		memcached();
-		mysql();
+//		mysql();
 //		npc();
 //		unknown();
 		nested();
