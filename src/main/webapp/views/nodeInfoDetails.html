@@ -16,25 +16,25 @@
 		</div>
 
 		<div ng-switch-default>
-			<div ng-show="showHosts">
-                <div class="alert alert-info text-center">
-                    <img ng-src="/images/icons/{{nodeIcon | icons}}.png" width="20" height="10"/> {{nodeName}}
-                </div>
-				<h5>Servers <a class="btn btn-mini" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank"><i class="icon-search"></i></a></h5>
-				<ul>
-					<li ng-repeat="(key, server) in serverList">
-						<span class="label label-success">OK</span>
-						{{server.name}}
-						<a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
-						<a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
-						<ul>
-							<li ng-repeat="instance in server.instanceList">
-								<span class="label label-success">OK</span>
-								{{instance.name}}
-							</li>
-						</ul>
-					</li>
-				</ul>
+            <div class="alert alert-info text-center">
+                <img ng-src="/images/icons/{{nodeIcon | icons}}.png" width="20" height="10"/> {{nodeName}}
+            </div>
+            <div ng-show="showServers">
+                <h5>Servers <a class="btn btn-mini" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank"><i class="icon-search"></i></a></h5>
+                <ul>
+                    <li ng-repeat="(key, server) in serverList">
+                        <span class="label label-success">OK</span>
+                        {{server.name}}
+                        <a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
+                        <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
+                        <ul>
+                            <li ng-repeat="instance in server.instanceList">
+                                <span class="label label-success">OK</span>
+                                {{instance.name}}
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
 			</div>
 			<!-- 
 			<div ng-show="showAgents">

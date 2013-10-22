@@ -28,7 +28,7 @@ pinpointApp
                     scope.nodeIcon = 'USER';
                     scope.unknownGroup = null;
                     scope.hosts = null;
-                    scope.showHosts = false;
+                    scope.showServers = false;
                     scope.agents = null;
                     scope.showAgents = false;
                     scope.showNodeInfoBarChart = false;
@@ -48,7 +48,7 @@ pinpointApp
                     }
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
-                    scope.showHosts = _.isEmpty(scope.serverList) ? false : true;
+                    scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     scope.$digest();
