@@ -8,8 +8,22 @@
 			{
 				"id" : ${status.count},
 				"key" : ${status.count},
-				"text" : "${node.applicationName}",
-				"category" : "${node.serviceType.desc}",
+				<c:choose>
+					<c:when test="${node.applicationName == 'CLIENT'}">
+					"text" : "USER",
+					</c:when>
+					<c:otherwise>
+					"text" : "${node.applicationName}",
+					</c:otherwise>
+				</c:choose>
+				<c:choose>
+					<c:when test="${node.serviceType.desc == 'CLIENT'}">
+					"category" : "USER",
+					</c:when>
+					<c:otherwise>
+					"category" : "${node.serviceType.desc}",
+					</c:otherwise>
+				</c:choose>
 				<c:choose>
 					<c:when test="${node.serviceType.desc == 'CLIENT'}">"fig" : "Ellipse"</c:when>
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
