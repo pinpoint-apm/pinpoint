@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.common.buffer;
 
+import com.nhn.pinpoint.common.util.BytesUtils;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -19,7 +20,18 @@ public class AutomaticBufferTest {
         buffer.put(1);
         byte[] buf = buffer.getBuffer();
         Assert.assertEquals(buf.length, 4);
+        Assert.assertEquals(1, BytesUtils.bytesToInt(buf, 0));
     }
+
+    @Test
+    public void testPutPrefixedBytesCheckRange() throws Exception {
+        Buffer buffer = new AutomaticBuffer(1);
+        buffer.putPrefixedString(null);
+        byte[] internalBuffer = buffer.getInternalBuffer();
+        // 상속 관계에 의해서 강제로 버퍼 사이즈를 늘어나지 않아도 되는데 사이즈가 늘어남.
+        Assert.assertEquals(1, internalBuffer.length);
+    }
+
 
 
     @Test

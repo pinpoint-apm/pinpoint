@@ -59,11 +59,13 @@ public class AutomaticBuffer extends FixedBuffer {
     @Override
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            checkExpend(VINT_MAX_SIZE);
+            checkExpend(1);
+            super.putSVar(-1);
         } else {
             checkExpend(bytes.length + VINT_MAX_SIZE);
+            super.putSVar(bytes.length);
+            super.put(bytes);
         }
-        super.putPrefixedBytes(bytes);
     }
 
 
