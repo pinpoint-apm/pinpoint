@@ -34,6 +34,16 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 	private AgentInfoDao agentInfoDao;
 
 	/**
+	 * FIXME application에 속하는 agent 목록 조회, 임시로 사용되는 것임. 조회 기간에 따른 서버 인스턴스 추가 제거 유무 고려하지 않음. 
+	 */
+	@Override
+	public String[] getApplicationAgentList(String applicationName) {
+		String[] applicationAgentList = applicationIndexDao.selectAgentIds(applicationName);
+		Arrays.sort(applicationAgentList);
+		return applicationAgentList;
+	}
+	
+	/**
 	 * FIXME 인터페이스에 from, to가 있으나 실제로 사용되지 않음. 나중에 agent list snapshot기능이 추가되면
 	 * 사용될 것임.
 	 */

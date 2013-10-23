@@ -2,11 +2,9 @@ package com.nhn.pinpoint.web.controller;
 
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.SortedMap;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.service.AgentStatService;
 import com.nhn.pinpoint.web.vo.linechart.AgentStatLineChart;
@@ -77,15 +74,12 @@ public class AgentStatController {
 	}
 
 	// http://localhost:7080/getAgentList.pinpoint?application=FRONT-WEB&from=1378780103769&to=1379039303769
-	// FIXME 인터페이스에 from, to가 있으나 실제로 사용되지 않음. 나중에 agent list snapshot기능이 추가되면 사용될 것임.
+	// FIXME 인터페이스에 from, to가 있는 API가 있으나 사용되지 않음. 나중에 agent list snapshot기능이 추가되면 사용될 것임.
 	@RequestMapping(value = "/getAgentList", method = RequestMethod.GET)
 	public String getApplicationAgentList(Model model, HttpServletResponse response,
 				@RequestParam("application") String applicationName,
-				@RequestParam("from") long from,
-				@RequestParam("to") long to,
 				@RequestParam(value = "_callback", required = false) String jsonpCallback) {
-
-		SortedMap<String, List<AgentInfoBo>> applicationAgentList = agentInfoService.getApplicationAgentList(applicationName, from, to);
+		String[] applicationAgentList = agentInfoService.getApplicationAgentList(applicationName);
 		model.addAttribute("applicationAgentList", applicationAgentList);
 		return "agentList";
 	}
