@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.directive('transactionTable', [function () {
+pinpointApp.directive('transactionTable', ['$window', function ($window) {
     return {
         restrict: 'EA',
         replace: true,
@@ -45,9 +45,13 @@ pinpointApp.directive('transactionTable', [function () {
              * scope trace by application
              * @param transaction
              */
-            scope.traceByAppliation = function (transaction) {
+            scope.traceByApplication = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.applicationSelected', transaction);
+            };
+
+            scope.traceByApplicationInNewWindow = function (transaction) {
+                $window.open('#/transactionDetail/' + transaction.traceId + '/' +transaction.collectorAcceptTime);
             };
 
             /**
