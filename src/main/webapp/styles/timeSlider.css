@@ -8,8 +8,9 @@
     top: 12px;
     z-index: 1;
 }
+.timeslider .jslider .jslider-value,
 .timeslider .jslider .jslider-value-to {
-    /*visibility: hidden !important;*/
+    visibility: hidden !important;
 }
 .timeslider .jslider .jslider-pointer {
     cursor: auto;
