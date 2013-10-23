@@ -26,7 +26,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     oNavbarDao = navbarDao;
 
                     scope.showNavbar = true;
-                    $application = element.find('.application').width(200);
+                    $application = element.find('.application');
                     scope.applications = [
                         {
                             text: 'Loading...',
