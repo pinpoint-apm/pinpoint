@@ -14,10 +14,9 @@ public interface ApplicationMapService {
 	 * @param serviceType
 	 * @param from
 	 * @param to
-	 * @param hideIndirectAccess
 	 * @return
 	 */
-	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to, boolean hideIndirectAccess);
+	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to);
 	
 	/**
 	 * 서버 통계정보 조회

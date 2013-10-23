@@ -77,11 +77,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              * @param period
              * @param filterText
              * @param mergeUnknowns
-             * @param hideIndirectAccess
              * @param linkRouting
              * @param linkCurve
              */
-            showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, hideIndirectAccess, linkRouting, linkCurve) {
+            showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, linkRouting, linkCurve) {
                 oProgressBar.startLoading();
                 if (oServerMap) {
                     oServerMap.clear();
@@ -94,8 +93,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     from: to - period,
                     to: to,
                     period: period,
-                    filter: filterText,
-                    hideIndirectAccess: hideIndirectAccess
+                    filter: filterText
                 };
 
                 if (filterText) {
@@ -255,8 +253,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                         application: query.applicationName,
                         serviceType: query.serviceType,
                         from: query.from,
-                        to: query.to,
-                        hideIndirectAccess: query.hideIndirectAccess
+                        to: query.to
                     },
                     success: function (result) {
                         oProgressBar.setLoading(30);
@@ -714,16 +711,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleMergeUnknowns = function () {
                 scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
-                reset();
-            };
-
-            /**
-             * toggle hide indirect access
-             */
-            scope.toggleHideIndirectAccess = function () {
-                scope.hideIndirectAccess = (scope.hideIndirectAccess) ? false : true;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -734,7 +722,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             scope.toggleLinkLableTextType = function (type) {
                 scope.totalRequestCount = (type !== 'tps') ? true : false;
                 scope.tps = (type === 'tps') ? true : false;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -744,7 +732,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleLinkRouting = function (type) {
                 scope.linkRouting = cfg.options.htLinkType.sRouting = type;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -754,7 +742,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleLinkCurve = function (type) {
                 scope.linkCurve = cfg.options.htLinkType.sCurve = type;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.filter, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -765,7 +753,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 scope.oNavbarDao = navbarDao;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
-                showServerMap(navbarDao.getApplicationName(), navbarDao.getServiceType(), navbarDao.getQueryEndTime(), navbarDao.getQueryPeriod(), navbarDao.getFilter(), scope.mergeUnknowns, scope.hideIndirectAccess, scope.linkRouting, scope.linkCurve);
+                showServerMap(navbarDao.getApplicationName(), navbarDao.getServiceType(), navbarDao.getQueryEndTime(), navbarDao.getQueryPeriod(), navbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
 
             /**

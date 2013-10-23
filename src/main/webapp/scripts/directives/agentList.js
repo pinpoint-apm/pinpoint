@@ -66,8 +66,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
 //                            application: query.applicationName,
 //                            serviceType: query.serviceType,
 //                            from: query.from,
-//                            to: query.to,
-//                            hideIndirectAccess: query.hideIndirectAccess
+//                            to: query.to
 //                        },
 //                        success: function (result) {
 //                            callback(query, result);
