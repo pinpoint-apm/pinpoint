@@ -6,10 +6,14 @@ struct TAgentInfo {
 	3: string	ports
 	4: string	agentId
 	5: string	applicationName
-	6: i16	serviceType
-	7: bool	isAlive
-	8: i64	timestamp
-	9: i32  pid
+	6: i16	    serviceType
+	7: i32      pid
+
+	8: i64	    startTimestamp
+
+	9: optional i64      endTimestamp
+	10: optional i32     endStatus
+
 }
 
 struct TStatWithSerialCollector {

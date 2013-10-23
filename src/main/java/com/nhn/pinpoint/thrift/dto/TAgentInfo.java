@@ -41,9 +41,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)5);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)6);
-  private static final org.apache.thrift.protocol.TField IS_ALIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("isAlive", org.apache.thrift.protocol.TType.BOOL, (short)7);
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)8);
-  private static final org.apache.thrift.protocol.TField PID_FIELD_DESC = new org.apache.thrift.protocol.TField("pid", org.apache.thrift.protocol.TType.I32, (short)9);
+  private static final org.apache.thrift.protocol.TField PID_FIELD_DESC = new org.apache.thrift.protocol.TField("pid", org.apache.thrift.protocol.TType.I32, (short)7);
+  private static final org.apache.thrift.protocol.TField START_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("startTimestamp", org.apache.thrift.protocol.TType.I64, (short)8);
+  private static final org.apache.thrift.protocol.TField END_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("endTimestamp", org.apache.thrift.protocol.TType.I64, (short)9);
+  private static final org.apache.thrift.protocol.TField END_STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("endStatus", org.apache.thrift.protocol.TType.I32, (short)10);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -57,9 +58,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private String agentId; // required
   private String applicationName; // required
   private short serviceType; // required
-  private boolean isAlive; // required
-  private long timestamp; // required
   private int pid; // required
+  private long startTimestamp; // required
+  private long endTimestamp; // optional
+  private int endStatus; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -69,9 +71,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     AGENT_ID((short)4, "agentId"),
     APPLICATION_NAME((short)5, "applicationName"),
     SERVICE_TYPE((short)6, "serviceType"),
-    IS_ALIVE((short)7, "isAlive"),
-    TIMESTAMP((short)8, "timestamp"),
-    PID((short)9, "pid");
+    PID((short)7, "pid"),
+    START_TIMESTAMP((short)8, "startTimestamp"),
+    END_TIMESTAMP((short)9, "endTimestamp"),
+    END_STATUS((short)10, "endStatus");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -98,12 +101,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
           return APPLICATION_NAME;
         case 6: // SERVICE_TYPE
           return SERVICE_TYPE;
-        case 7: // IS_ALIVE
-          return IS_ALIVE;
-        case 8: // TIMESTAMP
-          return TIMESTAMP;
-        case 9: // PID
+        case 7: // PID
           return PID;
+        case 8: // START_TIMESTAMP
+          return START_TIMESTAMP;
+        case 9: // END_TIMESTAMP
+          return END_TIMESTAMP;
+        case 10: // END_STATUS
+          return END_STATUS;
         default:
           return null;
       }
@@ -145,10 +150,12 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
 
   // isset id assignments
   private static final int __SERVICETYPE_ISSET_ID = 0;
-  private static final int __ISALIVE_ISSET_ID = 1;
-  private static final int __TIMESTAMP_ISSET_ID = 2;
-  private static final int __PID_ISSET_ID = 3;
+  private static final int __PID_ISSET_ID = 1;
+  private static final int __STARTTIMESTAMP_ISSET_ID = 2;
+  private static final int __ENDTIMESTAMP_ISSET_ID = 3;
+  private static final int __ENDSTATUS_ISSET_ID = 4;
   private byte __isset_bitfield = 0;
+  private _Fields optionals[] = {_Fields.END_TIMESTAMP,_Fields.END_STATUS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -164,11 +171,13 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("serviceType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.IS_ALIVE, new org.apache.thrift.meta_data.FieldMetaData("isAlive", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.PID, new org.apache.thrift.meta_data.FieldMetaData("pid", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.START_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("startTimestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.END_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("endTimestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.END_STATUS, new org.apache.thrift.meta_data.FieldMetaData("endStatus", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAgentInfo.class, metaDataMap);
@@ -184,9 +193,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     String agentId,
     String applicationName,
     short serviceType,
-    boolean isAlive,
-    long timestamp,
-    int pid)
+    int pid,
+    long startTimestamp)
   {
     this();
     this.hostname = hostname;
@@ -196,12 +204,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     this.applicationName = applicationName;
     this.serviceType = serviceType;
     setServiceTypeIsSet(true);
-    this.isAlive = isAlive;
-    setIsAliveIsSet(true);
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
     this.pid = pid;
     setPidIsSet(true);
+    this.startTimestamp = startTimestamp;
+    setStartTimestampIsSet(true);
   }
 
   /**
@@ -225,9 +231,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       this.applicationName = other.applicationName;
     }
     this.serviceType = other.serviceType;
-    this.isAlive = other.isAlive;
-    this.timestamp = other.timestamp;
     this.pid = other.pid;
+    this.startTimestamp = other.startTimestamp;
+    this.endTimestamp = other.endTimestamp;
+    this.endStatus = other.endStatus;
   }
 
   public TAgentInfo deepCopy() {
@@ -243,12 +250,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     this.applicationName = null;
     setServiceTypeIsSet(false);
     this.serviceType = 0;
-    setIsAliveIsSet(false);
-    this.isAlive = false;
-    setTimestampIsSet(false);
-    this.timestamp = 0;
     setPidIsSet(false);
     this.pid = 0;
+    setStartTimestampIsSet(false);
+    this.startTimestamp = 0;
+    setEndTimestampIsSet(false);
+    this.endTimestamp = 0;
+    setEndStatusIsSet(false);
+    this.endStatus = 0;
   }
 
   public String getHostname() {
@@ -388,50 +397,6 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SERVICETYPE_ISSET_ID, value);
   }
 
-  public boolean isIsAlive() {
-    return this.isAlive;
-  }
-
-  public void setIsAlive(boolean isAlive) {
-    this.isAlive = isAlive;
-    setIsAliveIsSet(true);
-  }
-
-  public void unsetIsAlive() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ISALIVE_ISSET_ID);
-  }
-
-  /** Returns true if field isAlive is set (has been assigned a value) and false otherwise */
-  public boolean isSetIsAlive() {
-    return EncodingUtils.testBit(__isset_bitfield, __ISALIVE_ISSET_ID);
-  }
-
-  public void setIsAliveIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ISALIVE_ISSET_ID, value);
-  }
-
-  public long getTimestamp() {
-    return this.timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
-  }
-
-  public void unsetTimestamp() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
-  }
-
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return EncodingUtils.testBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
-  }
-
-  public void setTimestampIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TIMESTAMP_ISSET_ID, value);
-  }
-
   public int getPid() {
     return this.pid;
   }
@@ -452,6 +417,72 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
 
   public void setPidIsSet(boolean value) {
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PID_ISSET_ID, value);
+  }
+
+  public long getStartTimestamp() {
+    return this.startTimestamp;
+  }
+
+  public void setStartTimestamp(long startTimestamp) {
+    this.startTimestamp = startTimestamp;
+    setStartTimestampIsSet(true);
+  }
+
+  public void unsetStartTimestamp() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __STARTTIMESTAMP_ISSET_ID);
+  }
+
+  /** Returns true if field startTimestamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetStartTimestamp() {
+    return EncodingUtils.testBit(__isset_bitfield, __STARTTIMESTAMP_ISSET_ID);
+  }
+
+  public void setStartTimestampIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __STARTTIMESTAMP_ISSET_ID, value);
+  }
+
+  public long getEndTimestamp() {
+    return this.endTimestamp;
+  }
+
+  public void setEndTimestamp(long endTimestamp) {
+    this.endTimestamp = endTimestamp;
+    setEndTimestampIsSet(true);
+  }
+
+  public void unsetEndTimestamp() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ENDTIMESTAMP_ISSET_ID);
+  }
+
+  /** Returns true if field endTimestamp is set (has been assigned a value) and false otherwise */
+  public boolean isSetEndTimestamp() {
+    return EncodingUtils.testBit(__isset_bitfield, __ENDTIMESTAMP_ISSET_ID);
+  }
+
+  public void setEndTimestampIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ENDTIMESTAMP_ISSET_ID, value);
+  }
+
+  public int getEndStatus() {
+    return this.endStatus;
+  }
+
+  public void setEndStatus(int endStatus) {
+    this.endStatus = endStatus;
+    setEndStatusIsSet(true);
+  }
+
+  public void unsetEndStatus() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ENDSTATUS_ISSET_ID);
+  }
+
+  /** Returns true if field endStatus is set (has been assigned a value) and false otherwise */
+  public boolean isSetEndStatus() {
+    return EncodingUtils.testBit(__isset_bitfield, __ENDSTATUS_ISSET_ID);
+  }
+
+  public void setEndStatusIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ENDSTATUS_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -504,27 +535,35 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       }
       break;
 
-    case IS_ALIVE:
-      if (value == null) {
-        unsetIsAlive();
-      } else {
-        setIsAlive((Boolean)value);
-      }
-      break;
-
-    case TIMESTAMP:
-      if (value == null) {
-        unsetTimestamp();
-      } else {
-        setTimestamp((Long)value);
-      }
-      break;
-
     case PID:
       if (value == null) {
         unsetPid();
       } else {
         setPid((Integer)value);
+      }
+      break;
+
+    case START_TIMESTAMP:
+      if (value == null) {
+        unsetStartTimestamp();
+      } else {
+        setStartTimestamp((Long)value);
+      }
+      break;
+
+    case END_TIMESTAMP:
+      if (value == null) {
+        unsetEndTimestamp();
+      } else {
+        setEndTimestamp((Long)value);
+      }
+      break;
+
+    case END_STATUS:
+      if (value == null) {
+        unsetEndStatus();
+      } else {
+        setEndStatus((Integer)value);
       }
       break;
 
@@ -551,14 +590,17 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     case SERVICE_TYPE:
       return Short.valueOf(getServiceType());
 
-    case IS_ALIVE:
-      return Boolean.valueOf(isIsAlive());
-
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
-
     case PID:
       return Integer.valueOf(getPid());
+
+    case START_TIMESTAMP:
+      return Long.valueOf(getStartTimestamp());
+
+    case END_TIMESTAMP:
+      return Long.valueOf(getEndTimestamp());
+
+    case END_STATUS:
+      return Integer.valueOf(getEndStatus());
 
     }
     throw new IllegalStateException();
@@ -583,12 +625,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       return isSetApplicationName();
     case SERVICE_TYPE:
       return isSetServiceType();
-    case IS_ALIVE:
-      return isSetIsAlive();
-    case TIMESTAMP:
-      return isSetTimestamp();
     case PID:
       return isSetPid();
+    case START_TIMESTAMP:
+      return isSetStartTimestamp();
+    case END_TIMESTAMP:
+      return isSetEndTimestamp();
+    case END_STATUS:
+      return isSetEndStatus();
     }
     throw new IllegalStateException();
   }
@@ -660,30 +704,39 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         return false;
     }
 
-    boolean this_present_isAlive = true;
-    boolean that_present_isAlive = true;
-    if (this_present_isAlive || that_present_isAlive) {
-      if (!(this_present_isAlive && that_present_isAlive))
-        return false;
-      if (this.isAlive != that.isAlive)
-        return false;
-    }
-
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
-        return false;
-      if (this.timestamp != that.timestamp)
-        return false;
-    }
-
     boolean this_present_pid = true;
     boolean that_present_pid = true;
     if (this_present_pid || that_present_pid) {
       if (!(this_present_pid && that_present_pid))
         return false;
       if (this.pid != that.pid)
+        return false;
+    }
+
+    boolean this_present_startTimestamp = true;
+    boolean that_present_startTimestamp = true;
+    if (this_present_startTimestamp || that_present_startTimestamp) {
+      if (!(this_present_startTimestamp && that_present_startTimestamp))
+        return false;
+      if (this.startTimestamp != that.startTimestamp)
+        return false;
+    }
+
+    boolean this_present_endTimestamp = true && this.isSetEndTimestamp();
+    boolean that_present_endTimestamp = true && that.isSetEndTimestamp();
+    if (this_present_endTimestamp || that_present_endTimestamp) {
+      if (!(this_present_endTimestamp && that_present_endTimestamp))
+        return false;
+      if (this.endTimestamp != that.endTimestamp)
+        return false;
+    }
+
+    boolean this_present_endStatus = true && this.isSetEndStatus();
+    boolean that_present_endStatus = true && that.isSetEndStatus();
+    if (this_present_endStatus || that_present_endStatus) {
+      if (!(this_present_endStatus && that_present_endStatus))
+        return false;
+      if (this.endStatus != that.endStatus)
         return false;
     }
 
@@ -763,32 +816,42 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetIsAlive()).compareTo(other.isSetIsAlive());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIsAlive()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.isAlive, other.isAlive);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(other.isSetTimestamp());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, other.timestamp);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetPid()).compareTo(other.isSetPid());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetPid()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.pid, other.pid);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetStartTimestamp()).compareTo(other.isSetStartTimestamp());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetStartTimestamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.startTimestamp, other.startTimestamp);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetEndTimestamp()).compareTo(other.isSetEndTimestamp());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEndTimestamp()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endTimestamp, other.endTimestamp);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetEndStatus()).compareTo(other.isSetEndStatus());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEndStatus()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.endStatus, other.endStatus);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -857,17 +920,25 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     sb.append(this.serviceType);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("isAlive:");
-    sb.append(this.isAlive);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("pid:");
     sb.append(this.pid);
     first = false;
+    if (!first) sb.append(", ");
+    sb.append("startTimestamp:");
+    sb.append(this.startTimestamp);
+    first = false;
+    if (isSetEndTimestamp()) {
+      if (!first) sb.append(", ");
+      sb.append("endTimestamp:");
+      sb.append(this.endTimestamp);
+      first = false;
+    }
+    if (isSetEndStatus()) {
+      if (!first) sb.append(", ");
+      sb.append("endStatus:");
+      sb.append(this.endStatus);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -961,26 +1032,34 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // IS_ALIVE
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.isAlive = iprot.readBool();
-              struct.setIsAliveIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 8: // TIMESTAMP
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 9: // PID
+          case 7: // PID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.pid = iprot.readI32();
               struct.setPidIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 8: // START_TIMESTAMP
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.startTimestamp = iprot.readI64();
+              struct.setStartTimestampIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 9: // END_TIMESTAMP
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.endTimestamp = iprot.readI64();
+              struct.setEndTimestampIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 10: // END_STATUS
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.endStatus = iprot.readI32();
+              struct.setEndStatusIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1026,15 +1105,22 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       oprot.writeFieldBegin(SERVICE_TYPE_FIELD_DESC);
       oprot.writeI16(struct.serviceType);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(IS_ALIVE_FIELD_DESC);
-      oprot.writeBool(struct.isAlive);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
-      oprot.writeFieldEnd();
       oprot.writeFieldBegin(PID_FIELD_DESC);
       oprot.writeI32(struct.pid);
       oprot.writeFieldEnd();
+      oprot.writeFieldBegin(START_TIMESTAMP_FIELD_DESC);
+      oprot.writeI64(struct.startTimestamp);
+      oprot.writeFieldEnd();
+      if (struct.isSetEndTimestamp()) {
+        oprot.writeFieldBegin(END_TIMESTAMP_FIELD_DESC);
+        oprot.writeI64(struct.endTimestamp);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetEndStatus()) {
+        oprot.writeFieldBegin(END_STATUS_FIELD_DESC);
+        oprot.writeI32(struct.endStatus);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1071,16 +1157,19 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetServiceType()) {
         optionals.set(5);
       }
-      if (struct.isSetIsAlive()) {
+      if (struct.isSetPid()) {
         optionals.set(6);
       }
-      if (struct.isSetTimestamp()) {
+      if (struct.isSetStartTimestamp()) {
         optionals.set(7);
       }
-      if (struct.isSetPid()) {
+      if (struct.isSetEndTimestamp()) {
         optionals.set(8);
       }
-      oprot.writeBitSet(optionals, 9);
+      if (struct.isSetEndStatus()) {
+        optionals.set(9);
+      }
+      oprot.writeBitSet(optionals, 10);
       if (struct.isSetHostname()) {
         oprot.writeString(struct.hostname);
       }
@@ -1099,21 +1188,24 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetServiceType()) {
         oprot.writeI16(struct.serviceType);
       }
-      if (struct.isSetIsAlive()) {
-        oprot.writeBool(struct.isAlive);
-      }
-      if (struct.isSetTimestamp()) {
-        oprot.writeI64(struct.timestamp);
-      }
       if (struct.isSetPid()) {
         oprot.writeI32(struct.pid);
+      }
+      if (struct.isSetStartTimestamp()) {
+        oprot.writeI64(struct.startTimestamp);
+      }
+      if (struct.isSetEndTimestamp()) {
+        oprot.writeI64(struct.endTimestamp);
+      }
+      if (struct.isSetEndStatus()) {
+        oprot.writeI32(struct.endStatus);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TAgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(9);
+      BitSet incoming = iprot.readBitSet(10);
       if (incoming.get(0)) {
         struct.hostname = iprot.readString();
         struct.setHostnameIsSet(true);
@@ -1139,16 +1231,20 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         struct.setServiceTypeIsSet(true);
       }
       if (incoming.get(6)) {
-        struct.isAlive = iprot.readBool();
-        struct.setIsAliveIsSet(true);
-      }
-      if (incoming.get(7)) {
-        struct.timestamp = iprot.readI64();
-        struct.setTimestampIsSet(true);
-      }
-      if (incoming.get(8)) {
         struct.pid = iprot.readI32();
         struct.setPidIsSet(true);
+      }
+      if (incoming.get(7)) {
+        struct.startTimestamp = iprot.readI64();
+        struct.setStartTimestampIsSet(true);
+      }
+      if (incoming.get(8)) {
+        struct.endTimestamp = iprot.readI64();
+        struct.setEndTimestampIsSet(true);
+      }
+      if (incoming.get(9)) {
+        struct.endStatus = iprot.readI32();
+        struct.setEndStatusIsSet(true);
       }
     }
   }
