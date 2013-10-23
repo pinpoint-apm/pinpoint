@@ -47,7 +47,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             // define private variables of methods
             var showServerMap, getServerMapData2, getFilteredServerMapData, reset, setNodeContextMenuPosition,
                 setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
-                replaceClientToUser, setLinkOption, mergeFilteredMapData;
+                setLinkOption, mergeFilteredMapData, findExistingNodeFromLastMapData, mergeNodeData,
+                findExistingLinkFromLastMapData, mergeLinkData;
 
             // initialize
             oServerMap = null;
@@ -99,9 +100,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
 
                 if (filterText) {
                     getFilteredServerMapData(query, function (query, result) {
-                        scope.$emit('serverMap.fetched', result.lastFetchedTimestamp, result.applicationMapData.nodeDataArray.length);
-                        serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
-
+                        if (query.from === result.lastFetchedTimestamp) {
+                            scope.$emit('serverMap.allFetched');
+                        } else {
+                            htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
+                            scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result.applicationMapData.nodeDataArray.length);
+                            serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
+                        }
                     });
                 } else {
                     getServerMapData2(query, function (query, result) {
@@ -110,11 +115,128 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 }
             };
 
-            mergeFilteredMapData = function (mapData, cb) {
-                htLastMapData.applicationMapData.linkDataArray = htLastMapData.applicationMapData.linkDataArray.concat(mapData.applicationMapData.linkDataArray);
-                htLastMapData.applicationMapData.nodeDataArray = htLastMapData.applicationMapData.nodeDataArray.concat(mapData.applicationMapData.nodeDataArray);
-                htLastMapData.lastFetchedTimestamp = mapData.lastFetchedTimestamp;
+            /**
+             * merge filtered map data
+             * @param mapData
+             * @returns {{applicationMapData: {linkDataArray: Array, nodeDataArray: Array}, lastFetchedTimestamp: Array}}
+             */
+            mergeFilteredMapData = function (mapData) {
+                if (htLastMapData.applicationMapData.linkDataArray.length === 0 && htLastMapData.applicationMapData.nodeDataArray.length === 0) {
+                    htLastMapData.applicationMapData.linkDataArray = mapData.applicationMapData.linkDataArray;
+                    htLastMapData.applicationMapData.nodeDataArray = mapData.applicationMapData.nodeDataArray;
+                } else {
+                    var newKey = {};
+                    angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
+                        var foundNodeKeyFromLastMapData = findExistingNodeFromLastMapData(node);
+                        if (foundNodeKeyFromLastMapData) {
+                            mergeNodeData(foundNodeKeyFromLastMapData, node);
+                            newKey[node.key] = foundNodeKeyFromLastMapData;
+                        } else {
+                            node.key = node.id = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
+                            htLastMapData.applicationMapData.nodeDataArray.push(node);
+                        }
+                    });
+                    angular.forEach(mapData.applicationMapData.linkDataArray, function (link, key) {
+                        var foundLinkKeyFromLastMapData = findExistingLinkFromLastMapData(link, newKey);
+                        if (foundLinkKeyFromLastMapData) {
+                            mergeLinkData(foundLinkKeyFromLastMapData, link);
+                        } else {
+                            link.from = newKey[link.from];
+                            link.to = newKey[link.to];
+                            link.id = [link.from, '-', link.to].join('');
+                            htLastMapData.applicationMapData.linkDataArray.push(link);
+                        }
+                    });
+                }
                 return htLastMapData;
+            };
+
+            /**
+             * find existing node from last map data
+             * @param node
+             * @returns {*}
+             */
+            findExistingNodeFromLastMapData = function (node) {
+                for (var key in htLastMapData.applicationMapData.nodeDataArray) {
+                    if (htLastMapData.applicationMapData.nodeDataArray[key].text === node.text && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+                        return htLastMapData.applicationMapData.nodeDataArray[key].key;
+                    }
+                }
+                return false;
+            };
+
+            /**
+             * merge node data
+             * @param nodeKey
+             * @param node
+             */
+            mergeNodeData = function (nodeKey, node) {
+                for (var key in node.serverList) {
+                    if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
+                        for (var innerKey in node.serverList[key].instanceList) {
+                            if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey]) {
+                                for (var insideKey in node.serverList[key].instanceList[innerKey].histogram) {
+                                    if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey]) {
+                                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] += node.serverList[key].instanceList[innerKey].histogram[insideKey];
+                                    } else {
+                                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] = node.serverList[key].instanceList[innerKey].histogram[insideKey];
+                                    }
+                                }
+                            } else {
+                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey] = node.serverList[key].instanceList[innerKey];
+                            }
+                        }
+                    } else {
+                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key] = node.serverList[key];
+                    }
+                }
+            };
+
+            /**
+             * find existing link from last map data
+             * @param link
+             * @param newKey
+             * @returns {*}
+             */
+            findExistingLinkFromLastMapData = function (link, newKey) {
+                for (var key in htLastMapData.applicationMapData.linkDataArray) {
+                    console.log(htLastMapData.applicationMapData.linkDataArray[key].from , newKey[link.from] , htLastMapData.applicationMapData.linkDataArray[key].to , newKey[link.to]);
+                    if (htLastMapData.applicationMapData.linkDataArray[key].from === newKey[link.from] && htLastMapData.applicationMapData.linkDataArray[key].to === newKey[link.to]) {
+                        return key;
+                    }
+                }
+                return false;
+            };
+
+            /**
+             * merge link data
+             * @param linkKey
+             * @param link
+             */
+            mergeLinkData = function (linkKey, link) {
+                htLastMapData.applicationMapData.linkDataArray[linkKey].text += link.text;
+                htLastMapData.applicationMapData.linkDataArray[linkKey].error += link.error;
+                htLastMapData.applicationMapData.linkDataArray[linkKey].slow += link.slow;
+                for (var key in link.histogram) {
+                    if (htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key]) {
+                        htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] += link.histogram[key];
+                    } else {
+                        htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] = link.histogram[key];
+                    }
+                }
+                for (var key in link.targetHosts) {
+                    if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key]) {
+                        for (var innerKey in link.targetHosts[key].histogram) {
+                            if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey]) {
+                                htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] += link.targetHosts[key].histogram[innerKey];
+                            } else {
+                                htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] = link.targetHosts[key].histogram[innerKey];
+                            }
+                        }
+                    } else {
+                        htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key] = link.targetHosts[key];
+                    }
+                }
             };
 
             /**
@@ -262,7 +384,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     mergeUnknown(query, data);
                 }
 
-                replaceClientToUser(data);
                 setLinkOption(data, linkRouting, linkCurve);
                 oProgressBar.setLoading(90);
 
@@ -539,21 +660,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                             links.splice(i, 1);
                         }
                     });
-                });
-            };
-
-            // TODO 임시코드로 나중에 USER와 backend를 구분할 예정.
-            /**
-             * replace client to user
-             * @param data
-             */
-            replaceClientToUser = function (data) {
-                var nodes = data.applicationMapData.nodeDataArray;
-                nodes.forEach(function (node) {
-                    if (node.category === "CLIENT") {
-                        node.category = "USER";
-                        node.text = "USER";
-                    }
                 });
             };
 

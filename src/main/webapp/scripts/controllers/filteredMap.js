@@ -38,7 +38,7 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
     });
 
     /**
-     * scope event on serverMap.linkClicked
+     * scope event on serverMap.fetched
      */
     $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, nodeLength) {
         if (nodeLength === 0) {
@@ -47,6 +47,14 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
         } else {
             oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
         }
+        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+    });
+
+    /**
+     * scope event on serverMap. allFetched
+     */
+    $scope.$on('serverMap.allFetched', function (event) {
+        oTimeSliderDao.setInnerFrom(oTimeSliderDao.getFrom());
         $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
     });
 
