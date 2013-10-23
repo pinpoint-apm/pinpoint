@@ -100,12 +100,11 @@ public class DefaultAgent implements Agent {
         this.agentInformation = createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
+        this.tAgentInfo = createTAgentInfo();
         this.tcpDataSender = createTcpDataSender();
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor");
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor");
 
-
-        this.tAgentInfo = createTAgentInfo();
 
         this.traceContext = createTraceContext();
 
@@ -120,7 +119,6 @@ public class DefaultAgent implements Agent {
     private void preLoadClass() {
         logger.debug("preLoadClass:{}", new ArcusMethodFilter().getClass().getName());
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
-
     }
 
 
@@ -171,10 +169,10 @@ public class DefaultAgent implements Agent {
         agentInfo.setAgentId(agentInformation.getAgentId());
         agentInfo.setApplicationName(agentInformation.getApplicationName());
         agentInfo.setPid(agentInformation.getPid());
-        agentInfo.setTimestamp(agentInformation.getStartTime());
+        agentInfo.setStartTimestamp(agentInformation.getStartTime());
 		agentInfo.setServiceType(agentInformation.getServerType());
 
-        agentInfo.setIsAlive(true);
+//        agentInfo.setIsAlive(true);
 
         return agentInfo;
     }
@@ -299,12 +297,15 @@ public class DefaultAgent implements Agent {
     public void stop() {
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
-        tAgentInfo.setIsAlive(false);
+        this.heartBitChecker.stop();
+
+        tAgentInfo.setEndStatus(0);
+        tAgentInfo.setEndTimestamp(System.currentTimeMillis());
         this.tcpDataSender.send(tAgentInfo);
         // TODO send tAgentInfo alive false후 send 메시지의 처리가 정확하지 않음
 
         changeStatus(AgentStatus.STOPPING);
-        this.heartBitChecker.stop();
+
         this.agentStatMonitor.stop();
 
         // 종료 처리 필요.

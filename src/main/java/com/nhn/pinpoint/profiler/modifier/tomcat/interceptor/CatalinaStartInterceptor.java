@@ -23,8 +23,6 @@ public class CatalinaStartInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-    	System.out.println("TOMCAT-START");
-    	StackTraceUtil.printCurrentStackTrace();
     }
 
     @Override
