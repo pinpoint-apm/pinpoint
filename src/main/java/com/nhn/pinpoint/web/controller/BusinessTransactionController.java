@@ -66,7 +66,7 @@ public class BusinessTransactionController {
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		ResultWithMark<Set<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		ResultWithMark<List<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 
 		Filter filter = FilterBuilder.build(filterText);
 		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getValue(), applicationName, from, to, filter);

@@ -17,20 +17,20 @@ import com.nhn.pinpoint.web.vo.TransactionId;
  */
 public interface FlowChartService {
 
-	public ResultWithMark<Set<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit);
+	public ResultWithMark<List<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit);
 
 	public List<Application> selectAllApplicationNames();
 
 	public ServerCallTree selectServerCallTree(TransactionId traceId);
 
-	public BusinessTransactions selectBusinessTransactions(Set<TransactionId> traceIds, String applicationName, long from, long to, Filter filter);
+	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter);
 	
 	@Deprecated
 	public ServerCallTree selectServerCallTree(Set<TransactionId> traceIdSet, Filter filter);
 	
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType);
 
-	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
+	public LinkStatistics linkStatisticsDetail(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
 
-	public ApplicationMap selectApplicationMap(Set<TransactionId> traceIdSet, long from, long to, Filter filter);
+	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdSet, long from, long to, Filter filter);
 }

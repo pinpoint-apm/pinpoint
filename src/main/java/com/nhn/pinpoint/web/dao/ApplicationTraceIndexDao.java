@@ -11,7 +11,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
  *
  */
 public interface ApplicationTraceIndexDao {
-	ResultWithMark<Set<TransactionId>, Long> scanTraceIndex(String applicationName, long start, long end, int limit);
+	ResultWithMark<List<TransactionId>, Long> scanTraceIndex(String applicationName, long start, long end, int limit);
 
 //	List<List<List<TransactionId>>> multiScanTraceIndex(String[] applicationNames, long start, long end);
 

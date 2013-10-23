@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.controller;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -129,7 +130,7 @@ public class ApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		ResultWithMark<List<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
 		
 		ApplicationMap map = flow.selectApplicationMap(traceIdSet.getValue(), from, to, filter);
@@ -249,7 +250,7 @@ public class ApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		ResultWithMark<List<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
 		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet.getValue(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		

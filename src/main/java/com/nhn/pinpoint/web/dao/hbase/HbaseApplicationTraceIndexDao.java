@@ -1,10 +1,8 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.nhn.pinpoint.common.hbase.LimitEventHandler;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.hbase.LastRowHandler;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
@@ -62,43 +59,48 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public ResultWithMark<Set<TransactionId>, Long> scanTraceIndex(final String applicationName, long start, long end, int limit) {
+	public ResultWithMark<List<TransactionId>, Long> scanTraceIndex(final String applicationName, long start, long end, int limit) {
         logger.debug("scanTraceIndex");
 		Scan scan = createScan(applicationName, start, end);
 		
-		final ResultWithMark<Set<TransactionId>, Long> result = new ResultWithMark<Set<TransactionId>, Long>();
-		
-		List<List<TransactionId>> traceIndexList = hbaseOperations2.find(
-												HBaseTables.APPLICATION_TRACE_INDEX,
-												scan,
-												traceIdRowKeyDistributor,
-												limit,
-												traceIndexMapper,
-												new LastRowHandler() {
-													@Override
-													public void handle(KeyValue keyValue) {
-														if (keyValue == null) {
-															result.setMark(-1L);
-															return;
-														}
-														byte[] row = keyValue.getRow();
-														byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
-												        long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
-												        long lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
-												        result.setMark(lastRowTimestamp);
-													}
-												});
-		
-		Set<TransactionId> set = new HashSet<TransactionId>();
-		for (List<TransactionId> list : traceIndexList) {
-			for (TransactionId traceId : list) {
-				set.add(traceId);
-			}
-		}
-		
-		result.setValue(set);
-		return result;
+		final ResultWithMark<List<TransactionId>, Long> resultWithMark = new ResultWithMark<List<TransactionId>, Long>();
+        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
+                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
+
+        Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
+        resultWithMark.setMark(lastRowTimestamp);
+
+        List<TransactionId> transactionIdSum = new ArrayList<TransactionId>(128);
+        for(List<TransactionId> transactionId: traceIndexList) {
+            transactionIdSum.addAll(transactionId);
+        }
+		resultWithMark.setValue(transactionIdSum);
+
+		return resultWithMark;
 	}
+
+    private class LastRowAccessor implements LimitEventHandler {
+
+        private Long lastRowTimestamp = -1L;
+
+        @Override
+        public void handleLastResult(Result result) {
+            if (result == null) {
+                return;
+            }
+            KeyValue[] keyValueArray = result.raw();
+            KeyValue last = keyValueArray[keyValueArray.length];
+            byte[] row = last.getRow();
+            byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
+            long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
+            this.lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+        }
+
+        private Long getLastRowTimestamp() {
+            return lastRowTimestamp;
+        }
+    }
 
 //	@Override
 //	public List<List<List<TransactionId>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {

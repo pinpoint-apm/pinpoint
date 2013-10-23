@@ -194,7 +194,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public ResultWithMark<Set<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
+	public ResultWithMark<List<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
 		if (applicationName == null) {
 			throw new NullPointerException("applicationName");
 		}
@@ -207,7 +207,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public BusinessTransactions selectBusinessTransactions(Set<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
+	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
 		List<List<SpanBo>> traceList;
 
 		if (filter == Filter.NONE) {
@@ -234,7 +234,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 	
 	@Override
-	public LinkStatistics linkStatisticsDetail(long from, long to, Set<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+	public LinkStatistics linkStatisticsDetail(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -328,7 +328,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(Set<TransactionId> traceIdSet, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdSet, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
