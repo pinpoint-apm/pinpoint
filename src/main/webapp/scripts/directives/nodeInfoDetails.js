@@ -23,6 +23,7 @@ pinpointApp
                  * reset
                  */
                 reset = function () {
+                    scope.showNodeInfoDetails = false;
                     scope.nodeName = null;
                     scope.nodeCategory = null;
                     scope.nodeIcon = 'USER';
@@ -41,6 +42,7 @@ pinpointApp
                  * @param node
                  */
                 showDetailInformation = function (query, node) {
+                    scope.showNodeInfoDetails = true;
                     scope.nodeName = node.text;
                     scope.nodeCategory = node.category;
                     if (node.category !== 'UNKNOWN_GROUP') {
@@ -194,9 +196,9 @@ pinpointApp
                 };
 
                 /**
-                 * scope event on nodeInfoDetails.initializeWithNodeData
+                 * scope event on nodeInfoDetails.initialize
                  */
-                scope.$on('nodeInfoDetails.initializeWithNodeData', function (event, e, query, node, mapData) {
+                scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData) {
                     reset();
                     scope.node = node;
                     htServermapData = mapData;
@@ -214,9 +216,9 @@ pinpointApp
                 });
 
                 /**
-                 * scope event on nodeInfoDetails.initializeWithLinkData
+                 * scope event on nodeInfoDetails.reset
                  */
-                scope.$on('nodeInfoDetails.initializeWithLinkData', function (event, e, query, link) {
+                scope.$on('nodeInfoDetails.reset', function (event, e, query, link) {
                     reset();
                 });
 

@@ -22,6 +22,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * reset
              */
             reset = function () {
+                scope.showLinkInfoDetails = false;
                 scope.linkCategory = null;
                 scope.rawdata = null;
                 scope.query = null;
@@ -46,7 +47,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * @param data
              */
             showDetailInformation = function (data) {
-                console.log('showDetailInformation', data);
                 if (data.rawdata) {
                     scope.linkCategory = 'UnknownLinkInfoBox';
                 } else {
@@ -65,7 +65,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                 scope.query = data.query;
                 scope.targetinfo = data.targetinfo;
                 scope.sourceinfo = data.sourceinfo;
-                scope.$digest();
+                scope.showLinkInfoDetails = true;
+                if (!scope.$$phase) {
+                    scope.$digest();
+                }
             };
 
             /**
@@ -202,16 +205,16 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
             };
 
             /**
-             * scope event on servermap.nodeClicked
+             * scope event on linkInfoDetails.reset
              */
-            scope.$on('linkInfoDetails.initializeWithNodeData', function (event, e, query, node, data) {
+            scope.$on('linkInfoDetails.reset', function (event, e, query, node, data) {
                 reset();
             });
 
             /**
-             * scope event on servermap.linkClicked
+             * scope event on linkInfoDetails.linkClicked
              */
-            scope.$on('linkInfoDetails.initializeWithLinkData', function (event, e, query, link, data) {
+            scope.$on('linkInfoDetails.initialize', function (event, e, query, link, data) {
                 reset();
                 htQuery = query;
                 showDetailInformation(link);
