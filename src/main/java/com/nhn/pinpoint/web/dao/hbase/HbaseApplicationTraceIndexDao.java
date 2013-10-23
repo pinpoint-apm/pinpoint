@@ -85,12 +85,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         private Long lastRowTimestamp = -1L;
 
         @Override
-        public void handleLastResult(Result result) {
-            if (result == null) {
+        public void handleLastResult(Result lastResult) {
+            if (lastResult == null) {
                 return;
             }
-            KeyValue[] keyValueArray = result.raw();
-            KeyValue last = keyValueArray[keyValueArray.length];
+            KeyValue[] keyValueArray = lastResult.raw();
+            KeyValue last = keyValueArray[keyValueArray.length - 1];
             byte[] row = last.getRow();
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
