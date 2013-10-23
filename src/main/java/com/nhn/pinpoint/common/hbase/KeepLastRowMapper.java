@@ -11,6 +11,7 @@ import com.nhn.pinpoint.common.hbase.KeepLastRowValue;
  * 
  * @param <T>
  */
+@Deprecated
 public interface KeepLastRowMapper<T> extends RowMapper<T> {
 	public KeepLastRowValue<T> mapRowAndReturnLastRow(Result result, int rowNum) throws Exception;
 }

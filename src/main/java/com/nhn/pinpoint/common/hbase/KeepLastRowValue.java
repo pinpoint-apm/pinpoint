@@ -2,6 +2,7 @@ package com.nhn.pinpoint.common.hbase;
 
 import org.apache.hadoop.hbase.KeyValue;
 
+@Deprecated
 public class KeepLastRowValue<T> {
 	private final KeyValue lastRow;
 	private final T value;

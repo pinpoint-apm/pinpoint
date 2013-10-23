@@ -107,7 +107,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(HTableInterface htable) throws Throwable {
-                ResultScanner scanner = htable.getScanner(scan);
+                final ResultScanner scanner = htable.getScanner(scan);
                 try {
                     return action.extractData(scanner);
                 } finally {
@@ -371,7 +371,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             public List<T> doInTable(HTableInterface htable) throws Throwable {
                 List<T> result = new ArrayList<T>(scanList.size());
                 for (Scan scan : scanList) {
-                    ResultScanner scanner = htable.getScanner(scan);
+                    final ResultScanner scanner = htable.getScanner(scan);
                     try {
                         T t = action.extractData(scanner);
                         result.add(t);
@@ -394,7 +394,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
-                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
                 try {
                     return resultsExtractor.extractData(scanner);
                 } finally {
@@ -409,7 +409,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
-                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
                 try {
                     return resultsExtractor.extractData(scanner);
                 } finally {
@@ -419,22 +419,21 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
     
-	public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LastRowHandler lastRowHandler) {
-		final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit);
+	public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
+		final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit, limitEventHandler);
 		return execute(tableName, new TableCallback<List<T>>() {
 			@Override
 			public List<T> doInTable(HTableInterface htable) throws Throwable {
-				ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+				final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
 				try {
-					List<T> extractData = resultsExtractor.extractData(scanner);
-					lastRowHandler.handle(((LimitRowMapperResultsExtractor<T>) resultsExtractor).getLastestMappedKeyValue());
-					return extractData;
+					return resultsExtractor.extractData(scanner);
 				} finally {
 					scanner.close();
 				}
 			}
 		});
 	}
+
 
     @Override
     public <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
@@ -448,7 +447,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                     watch = new StopWatch();
                     watch.start();
                 }
-                ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
+                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
                 if (debugEnabled) {
                     logger.debug("DistributeScanner createTime:{}", watch.stop());
                 }

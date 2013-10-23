@@ -10,26 +10,35 @@ import com.nhn.pinpoint.thrift.dto.TAgentInfo;
  *
  */
 public class AgentInfoBo implements Comparable<AgentInfoBo> {
-	private String ip;
     private String hostname;
+    private String ip;
     private String ports;
     private String agentId;
     private String applicationName;
-    private boolean isAlive;
-    private long startTime;
-    private int pid;
     private ServiceType serviceType;
+    private int pid;
+
+    private long startTime;
+
+    private long endTimeStamp;
+    private int endStatus;
+
+
+
 
     public AgentInfoBo(TAgentInfo agentInfo) {
-    	this.ip = agentInfo.getIp();
         this.hostname = agentInfo.getHostname();
+        this.ip = agentInfo.getIp();
         this.ports = agentInfo.getPorts();
         this.agentId = agentInfo.getAgentId();
         this.applicationName = agentInfo.getApplicationName();
-        this.isAlive = agentInfo.isIsAlive();
-        this.startTime = agentInfo.getTimestamp();
-        this.pid = agentInfo.getPid();
         this.serviceType = ServiceType.findServiceType(agentInfo.getServiceType());
+        this.pid = agentInfo.getPid();
+
+        this.startTime = agentInfo.getStartTimestamp();
+
+        this.endTimeStamp = agentInfo.getEndTimestamp();
+        this.endStatus = agentInfo.getEndStatus();
     }
 
     public AgentInfoBo() {
@@ -75,13 +84,6 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.applicationName = applicationName;
     }
 
-    public boolean isAlive() {
-        return isAlive;
-    }
-
-    public void setAlive(boolean alive) {
-        isAlive = alive;
-    }
 
     public long getStartTime() {
         return startTime;
@@ -89,6 +91,14 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public long getEndTimeStamp() {
+        return endTimeStamp;
+    }
+
+    public int getEndStatus() {
+        return endStatus;
     }
 
     public int getPid() {
@@ -108,26 +118,34 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 	}
 
 	public byte[] writeValue() {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putPrefixedString(this.getIp());
+        final Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(this.getHostname());
+        buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
-        buffer.put(this.isAlive());
-        buffer.put(this.getPid());
         buffer.put(this.serviceType.getCode());
+        buffer.put(this.getPid());
+
+        buffer.put(this.getStartTime());
+        buffer.put(this.getEndTimeStamp());
+        buffer.put(this.getEndStatus());
+
         return buffer.getBuffer();
     }
 
     public int readValue(byte[] value) {
-        Buffer buffer = new FixedBuffer(value);
-		this.ip = buffer.readPrefixedString();
+        final Buffer buffer = new FixedBuffer(value);
         this.hostname = buffer.readPrefixedString();
+        this.ip = buffer.readPrefixedString();
         this.ports = buffer.readPrefixedString();
         this.applicationName = buffer.readPrefixedString();
-        this.isAlive = buffer.readBoolean();
-        this.pid = buffer.readInt();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
+        this.pid = buffer.readInt();
+
+        this.startTime = buffer.readLong();
+        this.endTimeStamp = buffer.readLong();
+        this.endStatus = buffer.readInt();
+
         return buffer.getOffset();
     }
     
@@ -171,22 +189,25 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		
 		return sb.toString();
 	}
-	
-	@Override
+
+    @Override
     public String toString() {
-        return "AgentInfoBo{" +
-        		"ip='" + ip + '\'' +
-                "hostname='" + hostname + '\'' +
-                ", ports='" + ports + '\'' +
-                ", agentId='" + agentId + '\'' +
-                ", applicationName='" + applicationName + '\'' +
-                ", isAlive=" + isAlive +
-                ", startTime=" + startTime +
-                ", pid=" + pid +
-                '}';
+        final StringBuilder sb = new StringBuilder("AgentInfoBo{");
+        sb.append("hostname='").append(hostname).append('\'');
+        sb.append(", ip='").append(ip).append('\'');
+        sb.append(", ports='").append(ports).append('\'');
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationName='").append(applicationName).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", pid=").append(pid);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", endTimeStamp=").append(endTimeStamp);
+        sb.append(", endStatus=").append(endStatus);
+        sb.append('}');
+        return sb.toString();
     }
 
-	@Override
+    @Override
 	public int compareTo(AgentInfoBo agentInfoBo) {
 		return this.agentId.compareTo(agentInfoBo.agentId);
 	}

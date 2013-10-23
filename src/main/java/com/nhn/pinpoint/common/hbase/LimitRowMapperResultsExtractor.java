@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.common.hbase;
 
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
@@ -18,9 +17,11 @@ import java.util.Map;
  */
 public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<T>> {
 
+    private static final LimitEventHandler EMPTY = new EmptyLimitEventHandler();
+
     private int limit = Integer.MAX_VALUE;
     private final RowMapper<T> rowMapper;
-    private KeyValue lastestMappedKeyValue;
+    private LimitEventHandler eventHandler;
 
     public int getLimit() {
         return limit;
@@ -30,36 +31,36 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         this.limit = limit;
     }
     
-    public KeyValue getLastestMappedKeyValue() {
-		return lastestMappedKeyValue;
-	}
-
 	/**
      * Create a new RowMapperResultSetExtractor.
      *
      * @param rowMapper the RowMapper which creates an object for each row
      */
     public LimitRowMapperResultsExtractor(RowMapper<T> rowMapper, int limit) {
-        Assert.notNull(rowMapper, "RowMapper is required");
-        this.rowMapper = rowMapper;
-        this.limit = limit;
+        this(rowMapper, limit, EMPTY);
     }
 
-	public List<T> extractData(ResultScanner results) throws Exception {
-		List<T> rs = new ArrayList<T>();
+    /**
+     * Create a new RowMapperResultSetExtractor.
+     *
+     * @param rowMapper the RowMapper which creates an object for each row
+     */
+    public LimitRowMapperResultsExtractor(RowMapper<T> rowMapper, int limit, LimitEventHandler eventHandler) {
+        Assert.notNull(rowMapper, "RowMapper is required");
+        Assert.notNull(eventHandler, "LimitEventHandler is required");
+        this.rowMapper = rowMapper;
+        this.limit = limit;
+        this.eventHandler = eventHandler;
+    }
+
+    public List<T> extractData(ResultScanner results) throws Exception {
+		final List<T> rs = new ArrayList<T>();
 		int rowNum = 0;
-		
-		KeepLastRowMapper<T> keepLastRowMapper = (this.rowMapper instanceof KeepLastRowMapper) ? (KeepLastRowMapper<T>) rowMapper : null;
+        Result lastResult = null;
 		
 		for (Result result : results) {
-			T t;
-			if (keepLastRowMapper == null) {
-				t = this.rowMapper.mapRow(result, rowNum++);
-			} else {
-				KeepLastRowValue<T> v = keepLastRowMapper.mapRowAndReturnLastRow(result, rowNum++);
-				t = v.getValue();
-				lastestMappedKeyValue = v.getLastRow();
-			}
+			final T t = this.rowMapper.mapRow(result, rowNum++);
+            lastResult = result;
 			if (t instanceof Collection) {
 				rowNum += ((Collection<?>) t).size();
 			} else if (t instanceof Map) {
@@ -76,6 +77,8 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
 				break;
 			}
 		}
+
+        eventHandler.handleLastResult(lastResult);
 		return rs;
 	}
 }
