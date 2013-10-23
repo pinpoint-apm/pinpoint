@@ -33,7 +33,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 		}
 
 		byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-		long reverseKey = TimeUtils.reverseCurrentTimeMillis(agentInfo.getTimestamp());
+		long reverseKey = TimeUtils.reverseCurrentTimeMillis(agentInfo.getStartTimestamp());
 		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
 		Put put = new Put(rowKey);
 
