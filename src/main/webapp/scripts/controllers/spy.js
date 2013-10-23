@@ -20,7 +20,7 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$timeout', '$routeParams', 'Navba
             oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
         $scope.$emit('navbar.initialize', oNavbarDao);
-    });
+    }, 100);
 
     /**
      * scope event on navbar.changed
