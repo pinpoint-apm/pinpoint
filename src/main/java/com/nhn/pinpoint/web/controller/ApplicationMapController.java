@@ -36,8 +36,20 @@ public class ApplicationMapController {
 	@Autowired
 	private FlowChartService flow;
 
-	@RequestMapping(value = "/getServerMapData2", method = RequestMethod.GET)
-	public String getServerMapData2(Model model,
+	/**
+	 * FROM ~ TO기간의 서버 맵 데이터 조회
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param serviceType
+	 * @param from
+	 * @param to
+	 * @param hideIndirectAccess
+	 * @return
+	 */
+	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
+	public String getServerMapData(Model model,
 									HttpServletResponse response,
 									@RequestParam("application") String applicationName, 
 									@RequestParam("serviceType") short serviceType, 
@@ -53,8 +65,19 @@ public class ApplicationMapController {
 		return "applicationmap";
 	}
 
-	@RequestMapping(value = "/getLastServerMapData2", method = RequestMethod.GET)
-	public String getLastServerMapData2(Model model,
+	/**
+	 * Period before 부터 현재시간까지의 서버맵 조회.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param serviceType
+	 * @param period
+	 * @param hideIndirectAccess
+	 * @return
+	 */
+	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
+	public String getLastServerMapData(Model model,
 										HttpServletResponse response,
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
@@ -63,7 +86,7 @@ public class ApplicationMapController {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData2(model, response, applicationName, serviceType, from, to, hideIndirectAccess);
+		return getServerMapData(model, response, applicationName, serviceType, from, to, hideIndirectAccess);
 	}
 
 	@RequestMapping(value = "/filtermap", method = RequestMethod.GET)
@@ -87,29 +110,21 @@ public class ApplicationMapController {
 		return "applicationmap.filtered.view";
 	}
 
-//	@Deprecated
-//	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
-//	public String getFilteredServerMapData(Model model,
-//											HttpServletResponse response,
-//											@RequestParam("application") String applicationName, 
-//											@RequestParam("serviceType") short serviceType,
-//											@RequestParam("from") long from,
-//											@RequestParam("to") long to,
-//											@RequestParam(value = "filter", required = false) String filterText,
-//											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
-//		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-//		Filter filter = FilterBuilder.build(filterText);
-//		ServerCallTree map = flow.selectServerCallTree(traceIdSet.getValue(), filter);
-//		
-//		model.addAttribute("nodes", map.getNodes());
-//		model.addAttribute("links", map.getLinks());
-//		model.addAttribute("filter", filter);
-//
-//		return "applicationmap.filtered";
-//	}
-	
-	@RequestMapping(value = "/getFilteredServerMapData2", method = RequestMethod.GET)
-	public String getFilteredServerMapData2(Model model,
+	/**
+	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param serviceType
+	 * @param from
+	 * @param to
+	 * @param filterText
+	 * @param limit
+	 * @return
+	 */
+	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
+	public String getFilteredServerMapData(Model model,
 											HttpServletResponse response,
 											@RequestParam("application") String applicationName, 
 											@RequestParam("serviceType") short serviceType,
@@ -135,8 +150,46 @@ public class ApplicationMapController {
 		return "applicationmap.filtered2";
 	}
 	
-	// 선택한 연결선을 통과하는 요청의 통계 정보 조회.
-	// 필터 사용 안함.
+	/**
+	 * 필터가 적용된 서버맵의 Period before 부터 현재시간까지의 데이터 조회.
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param serviceType
+	 * @param from
+	 * @param to
+	 * @param filterText
+	 * @param limit
+	 * @return
+	 */
+	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
+	public String getLastFilteredServerMapData(Model model,
+			HttpServletResponse response,
+			@RequestParam("application") String applicationName, 
+			@RequestParam("serviceType") short serviceType,
+			@RequestParam("period") long period,
+			@RequestParam(value = "filter", required = false) String filterText,
+			@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+
+		long to = TimeUtils.getDelayLastTime();
+		long from = to - period;
+		return getFilteredServerMapData(model, response, applicationName, serviceType, from, to, filterText, limit); 
+	}
+	
+	/**
+	 * 필터가 사용되지 않은 서버맵의 연결선을 통과하는 요청의 통계정보 조회
+	 * 
+	 * @param model
+	 * @param response
+	 * @param from
+	 * @param to
+	 * @param srcApplicationName
+	 * @param srcServiceType
+	 * @param destApplicationName
+	 * @param destServiceType
+	 * @return
+	 */
 	@RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
 	public String getLinkStatistics(Model model,
 									HttpServletResponse response, 
@@ -169,21 +222,36 @@ public class ApplicationMapController {
 		return "linkStatisticsDetail";
 	}
 	
-	// 선택한 연결선을 통과하는 요청의 통계 정보 조회.
-	// 필터 사용.
+	/**
+	 * 필터가 사용된 서버맵의 연결선을 통과하는 요청의 통계정보 조회
+	 * 
+	 * @param model
+	 * @param response
+	 * @param applicationName
+	 * @param serviceType
+	 * @param from
+	 * @param to
+	 * @param srcApplicationName
+	 * @param srcServiceType
+	 * @param destApplicationName
+	 * @param destServiceType
+	 * @param filterText
+	 * @param limit
+	 * @return
+	 */
 	@RequestMapping(value = "/filteredLinkStatistics", method = RequestMethod.GET)
 	public String getFilteredLinkStatistics(Model model,
-									HttpServletResponse response, 
-									@RequestParam("application") String applicationName,
-									@RequestParam("serviceType") short serviceType,
-									@RequestParam("from") long from,
-									@RequestParam("to") long to,
-									@RequestParam("srcApplicationName") String srcApplicationName,
-									@RequestParam("srcServiceType") short srcServiceType,
-									@RequestParam("destApplicationName") String destApplicationName,
-									@RequestParam("destServiceType") short destServiceType,
-									@RequestParam(value = "filter", required = false) String filterText,
-									@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+											HttpServletResponse response, 
+											@RequestParam("application") String applicationName,
+											@RequestParam("serviceType") short serviceType,
+											@RequestParam("from") long from,
+											@RequestParam("to") long to,
+											@RequestParam("srcApplicationName") String srcApplicationName,
+											@RequestParam("srcServiceType") short srcServiceType,
+											@RequestParam("destApplicationName") String destApplicationName,
+											@RequestParam("destServiceType") short destServiceType,
+											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		ResultWithMark<Set<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
@@ -194,22 +262,4 @@ public class ApplicationMapController {
 		
 		return "linkStatisticsDetail";
 	}
-	
-//	@Deprecated
-//	@RequestMapping(value = "/applicationStatistics", method = RequestMethod.GET)
-//	public String getLinkStatistics(Model model,
-//			HttpServletResponse response, 
-//			@RequestParam("from") long from,
-//			@RequestParam("to") long to,
-//			@RequestParam("applicationName") String applicationName,
-//			@RequestParam("serviceType") short serviceType) {
-//		
-//		ApplicationStatistics stat = applicationMapService.selectApplicationStatistics(applicationName, serviceType, from, to);
-//		
-//		model.addAttribute("from", from);
-//		model.addAttribute("to", to);
-//		model.addAttribute("applicationStatistics", stat);
-//
-//		return "applicationStatisticsDetail";
-//	}
 }

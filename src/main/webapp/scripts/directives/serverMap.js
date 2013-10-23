@@ -1,8 +1,8 @@
 'use strict';
 
 pinpointApp.constant('serverMapConfig', {
-    serverMapDataUrl: '/getServerMapData2.pinpoint',
-    filteredServerMapDataUrl: '/getFilteredServerMapData2.pinpoint',
+    serverMapDataUrl: '/getServerMapData.pinpoint',
+    filteredServerMapDataUrl: '/getFilteredServerMapData.pinpoint',
     filtermapUrl: '/filtermap.pinpoint',
     lastTransactionListUrl: '/lastTransactionList.pinpoint',
     transactionListUrl: '/transactionList.pinpoint',
@@ -45,7 +45,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar, htLastMapData;
 
             // define private variables of methods
-            var showServerMap, getServerMapData2, getFilteredServerMapData, reset, setNodeContextMenuPosition,
+            var showServerMap, getServerMapData, getFilteredServerMapData, reset, setNodeContextMenuPosition,
                 setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
                 setLinkOption, mergeFilteredMapData, findExistingNodeFromLastMapData, mergeNodeData,
                 findExistingLinkFromLastMapData, mergeLinkData;
@@ -109,7 +109,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                         }
                     });
                 } else {
-                    getServerMapData2(query, function (query, result) {
+                    getServerMapData(query, function (query, result) {
                         serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
                     });
                 }
@@ -244,7 +244,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              * @param query
              * @param callback
              */
-            getServerMapData2 = function (query, callback) {
+            getServerMapData = function (query, callback) {
                 oProgressBar.setLoading(50);
                 jQuery.ajax({
                     type: 'GET',
