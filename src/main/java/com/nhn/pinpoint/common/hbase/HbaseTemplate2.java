@@ -477,11 +477,30 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         }
 
         ResultScanner[] scanner = new ResultScanner[scans.length];
-        for (int i = 0; i < scans.length; i++) {
-            scanner[i] = htable.getScanner(scans[i]);
+        boolean success = false;
+        try {
+            for (int i = 0; i < scans.length; i++) {
+                scanner[i] = htable.getScanner(scans[i]);
+            }
+            success = true;
+        } finally {
+            if (!success) {
+                closeScanner(scanner);
+            }
         }
 
         return new DistributedScanner(rowKeyDistributor, scanner);
+    }
+
+    private void closeScanner(ResultScanner[] scannerList ) {
+        for (ResultScanner scanner : scannerList) {
+            if (scanner != null) {
+                try {
+                    scanner.close();
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     public Result increment(String tableName, final Increment increment) {
