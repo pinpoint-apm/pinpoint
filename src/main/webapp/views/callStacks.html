@@ -13,13 +13,13 @@
     </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}">
+        <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}" ng-class="{true:'info', false:''}[stack[key.isFocused]]">
             <td class="method"><i class="icon-info-sign" ng-hide="stack[key.isMethod]"></i>{{stack[key.title]}}</td>
             <td class="arguments">{{stack[key.arguments]}}</td>
-            <td class="exectime">{{stack[key.begin] | datejs:'%H:%M:%S u'}}</td>
-            <td class="gap">{{stack[key.gap] | number}}</td>
-            <td class="time">{{stack[key.elapsedTime]}}</td>
-            <td class="bar"><div style="height:8px;background-color:#69B2E9;padding:0px;width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>
+            <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | datejs:'%H:%M:%S u'}}</span></td>
+            <td class="gap" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.gap] | number}}</span></td>
+            <td class="time" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.elapsedTime]}}</span></td>
+            <td class="bar"><div ng-show="stack[key.isMethod]" style="height:8px;background-color:#69B2E9;padding:0px;width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>
             <td class="simpleClassName">{{stack[key.simpleClassName]}}</td>
             <td class="apiType">{{stack[key.apiType]}}</td>
             <td class="agent">{{stack[key.agent]}}</td>

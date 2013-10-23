@@ -3,7 +3,10 @@ pinpointApp.constant('TransactionDetailConfig', {
     applicationUrl: '/transactionInfo.pinpoint'
 });
 
-pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', function (cfg, $scope, $rootScope, $routeParams, $timeout) {
+pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, Alerts, ProgressBar) {
+
+    // defien private variables
+    var oAlert, oProgressBar;
 
     // define private variables of methods
     var getTransactionDetail, parseTransactionDetail, showCallStacks, bShowCallStacksOnce;
@@ -14,15 +17,22 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
     $rootScope.wrapperStyle = {
         'padding-top': '70px'
     };
+    oAlert = new Alerts($rootElement);
+    oProgressBar = new ProgressBar($rootElement);
 
     /**
      * initialize
      */
     $timeout(function () {
         if ($routeParams.traceId && $routeParams.focusTimestamp) {
+            oProgressBar.startLoading();
             getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (result) {
                 parseTransactionDetail(result);
                 showCallStacks();
+                $timeout(function () {
+                    oProgressBar.setLoading(100);
+                    oProgressBar.stopLoading();
+                }, 100);
             });
         }
     });
@@ -34,6 +44,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
      * @param cb
      */
     getTransactionDetail = function (traceId, focusTimestamp, cb) {
+        oProgressBar.setLoading(30);
         jQuery.ajax({
             type: 'GET',
             url: cfg.applicationUrl,
@@ -45,9 +56,11 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
                 focusTimestamp: focusTimestamp
             },
             success: function (result) {
+                oProgressBar.setLoading(70);
                 cb(result);
             },
             error: function (xhr, status, error) {
+                oProgressBar.stopLoading();
                 console.log("ERROR", status, error);
             }
         });

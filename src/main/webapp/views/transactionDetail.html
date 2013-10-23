@@ -27,6 +27,10 @@
     <div class="tab-pane active" id="CallStacks">
         <!-- begin new call stack -->
         <call-stacks></call-stacks>
+
+        <div ng-include=" 'warning' "></div>
+        <div ng-include=" 'info' "></div>
+        <div ng-include=" 'loading' "></div>
     </div>
 
     <div class="tab-pane" id="ServerMap">
