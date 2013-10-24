@@ -9,8 +9,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.hbase.KeepLastRowMapper;
-import com.nhn.pinpoint.common.hbase.KeepLastRowValue;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**

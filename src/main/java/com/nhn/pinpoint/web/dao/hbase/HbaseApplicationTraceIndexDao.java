@@ -68,14 +68,25 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
 
-        Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
-        resultWithMark.setMark(lastRowTimestamp);
-
         List<TransactionId> transactionIdSum = new ArrayList<TransactionId>(128);
         for(List<TransactionId> transactionId: traceIndexList) {
             transactionIdSum.addAll(transactionId);
         }
 		resultWithMark.setValue(transactionIdSum);
+
+        if (transactionIdSum.size() >= limit) {
+            Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
+            resultWithMark.setMark(lastRowTimestamp);
+            if (logger.isDebugEnabled()) {
+                logger.debug("lastRowTimestamp lastTime:{}", new Date(lastRowTimestamp));
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("scanner start lastTime:{}", new Date(end));
+            }
+            resultWithMark.setMark(start);
+        }
+
 
 		return resultWithMark;
 	}
