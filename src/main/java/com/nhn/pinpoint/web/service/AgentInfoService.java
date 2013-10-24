@@ -9,7 +9,5 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
  * @author netspider
  */
 public interface AgentInfoService {
-	public String[] getApplicationAgentList(String applicationName);
-	
 	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, long from, long to);
 }

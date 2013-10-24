@@ -18,6 +18,7 @@ import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,22 +37,81 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     /**
      * agentId, startTime을 기반으로 유니크한 AgentInfo를 찾아낸다.
      * @param agentId
-     * @param startTime
+     * @param from
+     * @param to
      * @return
      */
     @Override
-    public List<AgentInfoBo> getAgentInfo(final String agentId, final long startTime) {
+	public List<AgentInfoBo> getAgentInfo(final String agentId, final long from, final long to) {
+    	logger.debug("get agentInfo with, agentId={}, from={}, to={}", agentId, from, to);
+    	
+        Scan scan = new Scan();
+        scan.setCaching(20);
+        
+		long fromTime = TimeUtils.reverseCurrentTimeMillis(to);
+		long toTime = TimeUtils.reverseCurrentTimeMillis(1);
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        long reverseStartTime = TimeUtils.reverseCurrentTimeMillis(startTime);
-        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseStartTime);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, fromTime);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, toTime);
 
-        Get get = new Get(rowKey);
-        get.addFamily(HBaseTables.AGENTINFO_CF_INFO);
+        scan.setStartRow(startKeyBytes);
+        scan.setStopRow(endKeyBytes);
+        scan.addFamily(HBaseTables.AGENTINFO_CF_INFO);
 
-        List<AgentInfoBo> agentInfoBoList = hbaseOperations2.get(HBaseTables.AGENTINFO, get, agentInfoMapper);
-
-        return agentInfoBoList;
+        List<AgentInfoBo> found = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<List<AgentInfoBo>>() {
+			@Override
+			public List<AgentInfoBo> extractData(ResultScanner results) throws Exception {
+				List<AgentInfoBo> result = new ArrayList<AgentInfoBo>();
+				int found = 0;
+				for (Result next; (next = results.next()) != null;) {
+					found++;
+					byte[] row = next.getRow();
+					long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
+					long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+					byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
+					
+					logger.debug("found={}, from={}, to={}, start={}", found, from, to, startTime);
+					
+					if (found > 1 && startTime <= from) {
+						logger.debug("stop finding agentinfo.");
+						break;
+					}
+					
+					AgentInfoBo agentInfoBo = new AgentInfoBo();
+					agentInfoBo.setAgentId(agentId);
+					agentInfoBo.setStartTime(startTime);
+					agentInfoBo.readValue(value);
+					
+					logger.debug("found agentInfoBo {}", agentInfoBo);
+					result.add(agentInfoBo);
+				}
+				logger.debug("extracted agentInfoBo {}", result);
+				return result;
+			}
+		});
+        
+        logger.debug("get agentInfo result, {}", found);
+        
+        return found;
+        
+//        F 1382320380000
+//        S 1382579080389
+//        T 1382579580000
+        
+//        F 1382557980000
+//        S 1382579080389
+//        T 1382579580000
+        
+//		byte[] agentIdBytes = Bytes.toBytes(agentId);
+//		long reverseStartTime = TimeUtils.reverseCurrentTimeMillis(from);
+//		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseStartTime);
+//
+//		Get get = new Get(rowKey);
+//		get.addFamily(HBaseTables.AGENTINFO_CF_INFO);
+//
+//		List<AgentInfoBo> agentInfoBoList = hbaseOperations2.get(HBaseTables.AGENTINFO, get, agentInfoMapper);
+//		return agentInfoBoList;
     }
 
     /**

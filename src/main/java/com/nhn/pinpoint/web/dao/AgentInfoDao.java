@@ -11,5 +11,5 @@ public interface AgentInfoDao {
     @Deprecated
     AgentInfoBo findAgentInfoBeforeStartTime(String agentId, long currentTime);
 
-    List<AgentInfoBo> getAgentInfo(String agentId, long startTime);
+    List<AgentInfoBo> getAgentInfo(String agentId, long from, long to);
 }
