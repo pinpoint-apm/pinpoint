@@ -23,38 +23,38 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              * @param cb
              */
             getAgentGroup = function (query, cb) {
-                    jQuery.ajax({
-                        type: 'GET',
-                        url: cfg.agentGroupUrl,
-                        cache: false,
-                        dataType: 'json',
-                        data: {
-                            application: query.applicationName
-                        },
-                        success: function (result) {
-                            console.log('result', result);
-                            cb(result);
-                        },
-                        error: function (xhr, status, error) {
-                            console.log("ERROR", status, error);
-                        }
-                    });
+                jQuery.ajax({
+                    type: 'GET',
+                    url: cfg.agentGroupUrl,
+                    cache: false,
+                    dataType: 'json',
+                    data: {
+                        application: query.applicationName,
+                        from: query.from,
+                        to: query.to
+                    },
+                    success: function (result) {
+                        console.log('result', result);
+                        cb(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("ERROR", status, error);
+                    }
+                });
             };
 
             /**
              * show agent group
              * @param applicationName
              * @param serviceType
+             * @param from
              * @param to
-             * @param period
              */
-            showAgentGroup = function (applicationName, serviceType, to, period) {
+            showAgentGroup = function (applicationName, serviceType, from, to) {
                 var query = {
                     applicationName: applicationName,
-                    serviceType: serviceType,
-                    from: to - period,
-                    to: to,
-                    period: period
+                    from: from,
+                    to: to
                 };
                 getAgentGroup(query, function (result) {
                     scope.agentGroup = result;
@@ -76,7 +76,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              */
             scope.$on('agentList.initialize', function (event, navbarDao) {
                 oNavbarDao = navbarDao;
-                showAgentGroup(oNavbarDao.getApplicationName(), oNavbarDao.getServiceType(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
+                showAgentGroup(oNavbarDao.getApplicationName(), oNavbarDao.getServiceType(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime());
             });
         }
     };

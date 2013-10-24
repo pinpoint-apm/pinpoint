@@ -3,11 +3,11 @@
         <input type="text" ng-model="searchAgents.name" placeholder="Search Agents" style="width:174px;">
     </div>
     <ul class="nav nav-list">
-        <li ng-repeat="group in agentGroup">
-            <span class="nav-header">{{group.host}}</span>
+        <li ng-repeat="(key, group) in agentGroup">
+            <span class="nav-header">{{key}}</span>
             <ul class="nav">
                 <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group.agentList | filter:searchAgents">
-                    <a href ng-click="select(agent)">{{agent.name}}</a>
+                    <a href ng-click="select(agent)">{{agent.agentId}}</a>
                 </li>
             </ul>
         </li>
