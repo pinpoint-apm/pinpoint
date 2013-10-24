@@ -59,4 +59,10 @@ public class MainController {
 
 		return "agentstatus";
 	}
+
+	@RequestMapping(value = "/serverTime", method = RequestMethod.GET)
+	public String getServerTime(Model model, HttpServletResponse response) {
+		model.addAttribute("currentServerTime", System.currentTimeMillis());
+		return "serverTime";
+	}
 }
