@@ -3,11 +3,11 @@
 
 		<div ng-switch-when="UNKNOWN_GROUP">
             <div class="alert alert-info text-center">
-                UNKNOWN GROUP
+                <img src="/images/icons/UNKNOWN_CLOUD.png" width="20" height="10" /> UNKNOWN GROUP
             </div>
 			<ul>
 				<li ng-repeat="node in unknownGroup">
-					<img src="/images/icons/UNKNOWN_CLOUD.png" width="20" height="10" /> {{node.applicationName}}<br/>
+					{{node.applicationName}}<br/>
 				</li>
 			</ul>
 		</div>
