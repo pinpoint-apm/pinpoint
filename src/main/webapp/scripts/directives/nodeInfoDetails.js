@@ -51,6 +51,7 @@ pinpointApp
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
+                    scope.isWas = node.isWas;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     scope.$digest();

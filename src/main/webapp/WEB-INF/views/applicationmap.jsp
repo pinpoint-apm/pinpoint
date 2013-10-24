@@ -31,6 +31,7 @@
 				</c:choose>,
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
+				"isWas" : ${node.serviceType.was},
 				"serverList" : {
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						"${serverInstance.key}" : {
