@@ -54,6 +54,13 @@ pinpointApp.factory('NavbarDao', function () {
             return self._sApplication.split('@')[1];
         };
 
+        this.setQueryStartTime = function (queryStartTime) {
+            if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
+                self._nQueryStartTime = queryStartTime;
+            }
+            return self;
+        };
+
         this.getQueryStartTime = function () {
             return self._nQueryStartTime;
         };

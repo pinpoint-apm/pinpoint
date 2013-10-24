@@ -1,12 +1,14 @@
 'use strict';
 
 pinpointApp.constant('cfg', {
-    applicationUrl: '/applications.pinpoint'
+    applicationUrl: '/applications.pinpoint',
+    serverTimeUrl: '/serverTime.pinpoint',
+    periodTypePrefix: '.navbar.periodType'
 });
 
 pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
-    '$document', '$timeout', '$location', '$routeParams',
-    function (cfg, $rootScope, $http, $document, $timeout) {
+    '$document', '$timeout', '$window',  'webStorage',
+    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage) {
         return {
             restrict: 'EA',
             replace: true,
@@ -14,17 +16,22 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
             link: function (scope, element, attrs) {
 
                 // define private variables
-                var $application, $datetimepicker, oNavbarDao;
+                var $application, $fromPicker, $toPicker, oNavbarDao;
 
                 // define private variables of methods
-                var initialize, initializeDateTimePicker, initializeApplication, setDateTime,
-                    broadcast, getApplicationList, getQueryEndTime, parseApplicationList;
+                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
+                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged;
 
                 scope.showNavbar = false;
 
                 initialize = function (navbarDao) {
                     oNavbarDao = navbarDao;
 
+                    if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
+                        scope.periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
+                    } else {
+                        scope.periodType = oNavbarDao.getApplication() ? 'range' : 'last';
+                    }
                     scope.showNavbar = true;
                     $application = element.find('.application');
                     scope.applications = [
@@ -35,7 +42,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     ];
                     scope.application = oNavbarDao.getApplication() || '';
                     scope.disableApplication = true;
-                    scope.period = oNavbarDao.getPeriod() || '';
+                    scope.period = oNavbarDao.getPeriod() || 20;
                     scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
 //                    $http.defaults.useXDomain = true;
 
@@ -44,52 +51,103 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 initializeDateTimePicker = function () {
-                    $datetimepicker = element.find('#datetimepicker');
-                    $datetimepicker.datetimepicker({
+                    $fromPicker = element.find('#from-picker');
+                    $fromPicker.datetimepicker({
+                        dateFormat: "yy-mm-dd",
+                        timeFormat: "hh:mm tt",
+                        onSelect : function () {
+                            $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
+                        },
+                        onClose : function (currentTime, oTime) {
+                            if ($toPicker.val() !== '') {
+                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
+                                    $toPicker.datetimepicker('setDate', $fromPicker.datetimepicker('getDate'));
+                                }
+                            } else {
+                                $toPicker.val(currentTime);
+                            }
+                        }
+                    });
+                    setDateTime($fromPicker, oNavbarDao.getQueryStartTime() || new Date().addMinutes(-20));
+
+                    $toPicker = element.find('#to-picker');
+                    $toPicker.datetimepicker({
                         dateFormat: "yy-mm-dd",
                         timeFormat: "hh:mm tt",
                         beforeShow: function () {
-                            $datetimepicker.datetimepicker('option', 'maxDate', new Date());
-                            $datetimepicker.datetimepicker('option', 'maxDateTime', new Date());
+                            $toPicker.datetimepicker('option', 'maxDate', new Date());
+                            $toPicker.datetimepicker('option', 'maxDateTime', new Date());
+                        },
+                        onSelect : function () {
+                            $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
                         },
                         onClose : function (currentTime, oTime) {
-                            if (currentTime === oTime.lastVal) {
-                                return;
+                            if ($fromPicker.val() !== '') {
+                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
+                                    $fromPicker.datetimepicker('setDate', $toPicker.datetimepicker('getDate'));
+                                }
+                            } else {
+                                $fromPicker.val(currentTime);
                             }
-                            broadcast();
                         }
                     });
-                    setDateTime(oNavbarDao.getQueryEndTime());
+                    setDateTime($toPicker, oNavbarDao.getQueryEndTime());
                 };
 
                 /**
                  * set DateTime
                  */
-                setDateTime = function (time) {
+                setDateTime = function ($picker, time) {
                     var date = new Date();
                     if (time) {
                         date.setTime(time);
                     }
-                    $datetimepicker.datetimepicker('setDate', date);
+                    $picker.datetimepicker('setDate', date);
                 };
 
                 /**
-                 * _boardcast as applicationChanged with args
+                 * broadcast
                  */
                 broadcast = function () {
-
-                    if (!scope.application || !scope.period || !getQueryEndTime()) {
+                    if (!scope.application) {
                         return;
                     }
-
                     oNavbarDao.setApplication(scope.application);
-                    oNavbarDao.setPeriod(scope.period);
-                    oNavbarDao.setQueryEndTime(getQueryEndTime());
 
-                    $timeout(function () {
-                        scope.$emit('navbar.changed', oNavbarDao);
+                    if (scope.periodType === 'last' && scope.period) {
+                        getQueryEndTimeFromServer(function (currentServerTime) {
+                            oNavbarDao.setPeriod(scope.period);
+                            oNavbarDao.setQueryEndTime(currentServerTime);
+                            oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
+                            emitAsChanged();
+                        });
+                    } else if (getQueryStartTime() && getQueryEndTime()) {
+                        oNavbarDao.setQueryStartTime(getQueryStartTime());
+                        oNavbarDao.setQueryEndTime(getQueryEndTime());
+                        oNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+                        emitAsChanged();
+                    }
+                };
+
+                /**
+                 * emit as changed
+                 */
+                emitAsChanged = function () {
+                    $window.name = $window.name || 'window.' + _.random(100000, 999999);
+                    webStorage.session.add($window.name + cfg.periodTypePrefix, scope.periodType);
+                    scope.$emit('navbar.changed', oNavbarDao);
+                };
+
+                /**
+                 * get query end time from server
+                 * @param cb
+                 */
+                getQueryEndTimeFromServer = function (cb) {
+                    $http.get(cfg.serverTimeUrl).success(function (data, status) {
+                        cb(data.currentServerTime);
+                    }).error(function (data, status) {
+
                     });
-
                 };
 
                 /**
@@ -114,11 +172,19 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 /**
+                 * get query start time
+                 * @returns {*}
+                 */
+                getQueryStartTime = function () {
+                    return $fromPicker.datetimepicker('getDate').getTime();
+                };
+
+                /**
                  * get query end time
                  * @returns {*}
                  */
                 getQueryEndTime = function () {
-                    return $datetimepicker.datetimepicker('getDate').getTime();
+                    return $toPicker.datetimepicker('getDate').getTime();
                 };
 
                 /**
@@ -184,7 +250,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     if (oNavbarDao.getApplication()) {
                         $application.select2('val', oNavbarDao.getApplication());
                         scope.application = oNavbarDao.getApplication();
-                        broadcast();
                     }
                 };
 
@@ -198,6 +263,21 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     } else {
                         setDateTime();
                     }
+                    broadcast();
+                };
+
+                /**
+                 * change period type to
+                 * @param periodType
+                 */
+                scope.changePeriodTypeTo = function (periodType) {
+                    scope.periodType = periodType;
+                };
+
+                /**
+                 * search
+                 */
+                scope.search = function () {
                     broadcast();
                 };
 

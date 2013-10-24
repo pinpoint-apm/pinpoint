@@ -51,10 +51,10 @@ canvas {outline:none}
   margin-bottom: 0; 
 }
 .navbar-form .for-datetimepicker {
-  width:190px;
+  width:470px;
 }
 .navbar-form .datetimepicker {
-  margin: 0;
+  margin: 0 0 0 1px;
 }
 .navbar-form .datetimepicker input[type="text"]{
   width: 140px;
