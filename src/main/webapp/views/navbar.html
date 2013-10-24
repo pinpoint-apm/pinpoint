@@ -5,10 +5,13 @@
         <div class="nav-collapse collapse">
             <form class="navbar-form pull-left">
                 <ul class="nav navbar-nav">
-                    <li>
-                        <select class="application" ng-disabled="disableApplication" style="width:200px;margin:0;height:28px;">
-                            <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
-                        </select>
+                    <li style="margin-top:0px;">
+                        <div ng-show="showApplication" style="margin-top:5px;">
+                            <select class="application" ng-disabled="disableApplication" style="width:200px;margin:5px 0 0 0;height:28px;">
+                                <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
+                            </select>
+                        </div>
+                        <div ng-show="showStaticApplication" class="btn disabled" style="background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
                     </li>
                     <li class="divider-vertical"></li>
                     <li class="for-datetimepicker">

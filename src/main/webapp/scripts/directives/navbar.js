@@ -20,7 +20,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 // define private variables of methods
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
-                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged;
+                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
+                    initializeWithStaticApplication;
 
                 scope.showNavbar = false;
 
@@ -33,6 +34,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         scope.periodType = oNavbarDao.getApplication() ? 'range' : 'last';
                     }
                     scope.showNavbar = true;
+                    scope.showApplication = true;
+                    scope.showStatic = !scope.showApplication;
                     $application = element.find('.application');
                     scope.applications = [
                         {
@@ -48,6 +51,26 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                     initializeDateTimePicker();
                     getApplicationList();
+                };
+
+                initializeWithStaticApplication = function (navbarDao) {
+                    oNavbarDao = navbarDao;
+
+                    if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
+                        scope.periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
+                    } else {
+                        scope.periodType = oNavbarDao.getApplication() ? 'range' : 'last';
+                    }
+                    scope.showNavbar = true;
+                    scope.showApplication = false;
+                    scope.showStaticApplication = !scope.showApplication;
+                    $application = element.find('.application');
+                    scope.application = oNavbarDao.getApplication() || '';
+                    scope.applicationName = oNavbarDao.getApplicationName() || '';
+                    scope.period = oNavbarDao.getPeriod() || 20;
+                    scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
+
+                    initializeDateTimePicker();
                 };
 
                 initializeDateTimePicker = function () {
@@ -284,8 +307,14 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * scope event on navbar.initialize
                  */
                 scope.$on('navbar.initialize', function (event, navbarDao) {
-                    console.log('navbar.initialize : ', scope);
                     initialize(navbarDao);
+                });
+
+                /**
+                 * scope event on navbar.initializeWithStaticApplication
+                 */
+                scope.$on('navbar.initializeWithStaticApplication', function (event, navbarDao) {
+                    initializeWithStaticApplication(navbarDao);
                 });
             }
         };
