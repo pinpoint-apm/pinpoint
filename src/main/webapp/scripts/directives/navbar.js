@@ -55,10 +55,10 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     $fromPicker.datetimepicker({
                         dateFormat: "yy-mm-dd",
                         timeFormat: "hh:mm tt",
-                        onSelect : function () {
+                        onSelect: function () {
                             $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
                         },
-                        onClose : function (currentTime, oTime) {
+                        onClose: function (currentTime, oTime) {
                             if ($toPicker.val() !== '') {
                                 if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
                                     $toPicker.datetimepicker('setDate', $fromPicker.datetimepicker('getDate'));
@@ -74,14 +74,10 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     $toPicker.datetimepicker({
                         dateFormat: "yy-mm-dd",
                         timeFormat: "hh:mm tt",
-                        beforeShow: function () {
-                            $toPicker.datetimepicker('option', 'maxDate', new Date());
-                            $toPicker.datetimepicker('option', 'maxDateTime', new Date());
-                        },
-                        onSelect : function () {
+                        onSelect: function () {
                             $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
                         },
-                        onClose : function (currentTime, oTime) {
+                        onClose: function (currentTime, oTime) {
                             if ($fromPicker.val() !== '') {
                                 if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
                                     $fromPicker.datetimepicker('setDate', $toPicker.datetimepicker('getDate'));
@@ -92,6 +88,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         }
                     });
                     setDateTime($toPicker, oNavbarDao.getQueryEndTime());
+
+                    $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
+                    $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
                 };
 
                 /**
