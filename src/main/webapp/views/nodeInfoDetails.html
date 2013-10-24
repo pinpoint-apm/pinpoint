@@ -2,6 +2,9 @@
 	<div class='info' ng-switch="nodeCategory">
 
 		<div ng-switch-when="UNKNOWN_GROUP">
+            <div class="alert alert-info text-center">
+                UNKNOWN GROUP
+            </div>
 			<ul>
 				<li ng-repeat="node in unknownGroup">
 					<img src="/images/icons/UNKNOWN_CLOUD.png" width="20" height="10" /> {{node.applicationName}}<br/>
