@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.constant('agentListConfig', {
-    agentGroupUrl: '/getAgentGroup.pinpoint'
+    agentGroupUrl: '/getAgentList.pinpoint'
 });
 
 pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (cfg, $rootScope) {
@@ -23,58 +23,22 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              * @param cb
              */
             getAgentGroup = function (query, cb) {
-                cb([
-                    {
-                        "host": "HOST_NAME1",
-                        "status": "good",
-                        "agentList": [
-                            {
-                                "name": "AGENT_ID1",
-                                "status": "good"
-                            },
-                            {
-                                "name": "AGENT_ID2",
-                                "status": "good"
-                            },
-                            {
-                                "name": "AGENT_ID3",
-                                "status": "good"
-                            }
-                        ]
-                    },
-                    {
-                        "host": "HOST_NAME2",
-                        "status": "good",
-                        "agentList": [
-                            {
-                                "name": "AGENT_ID1",
-                                "status": "good"
-                            },
-                            {
-                                "name": "AGENT_ID2",
-                                "status": "good"
-                            }
-                        ]
-                    }
-                ]);
-//                    jQuery.ajax({
-//                        type: 'GET',
-//                        url: cfg.agentGroupUrl,
-//                        cache: false,
-//                        dataType: 'json',
-//                        data: {
-//                            application: query.applicationName,
-//                            serviceType: query.serviceType,
-//                            from: query.from,
-//                            to: query.to
-//                        },
-//                        success: function (result) {
-//                            callback(query, result);
-//                        },
-//                        error: function (xhr, status, error) {
-//                            console.log("ERROR", status, error);
-//                        }
-//                    });
+                    jQuery.ajax({
+                        type: 'GET',
+                        url: cfg.agentGroupUrl,
+                        cache: false,
+                        dataType: 'json',
+                        data: {
+                            application: query.applicationName
+                        },
+                        success: function (result) {
+                            console.log('result', result);
+                            cb(result);
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("ERROR", status, error);
+                        }
+                    });
             };
 
             /**
@@ -94,6 +58,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
                 };
                 getAgentGroup(query, function (result) {
                     scope.agentGroup = result;
+                    scope.$digest();
                 });
             };
 

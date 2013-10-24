@@ -262,7 +262,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
                         oProgressBar.stopLoading();
-                        oAlert.showWarning('There is some error.');
+                        oAlert.showError('There is some error.');
                     }
                 });
             };
@@ -292,7 +292,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     error: function (xhr, status, error) {
                         console.log("ERROR", status, error);
                         oProgressBar.stopLoading();
-                        oAlert.showWarning('There is some error.');
+                        oAlert.showError('There is some error.');
                     }
                 });
             };

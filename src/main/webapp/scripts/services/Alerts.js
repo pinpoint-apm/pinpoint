@@ -14,6 +14,13 @@ pinpointApp.factory('Alerts', ['$timeout', function ($timeout) {
             return this.$parent;
         }.bind(this);
 
+        this.showError = function (msg) {
+            $timeout(function () {
+                this.getElement('.error').show();
+                this.getElement('.error .msg').text(msg);
+            }.bind(this), 300);
+        }.bind(this);
+
         this.showWarning = function (msg) {
             $timeout(function () {
                 this.getElement('.warning').show();
