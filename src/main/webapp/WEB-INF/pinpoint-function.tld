@@ -12,7 +12,7 @@
 	<function>
 		<description></description>
 		<name>longToDateStr</name>
-		<function-class>com.nhn.pinpoint.common.util.AnnotationUtils</function-class>
+		<function-class>com.nhn.pinpoint.common.util.DateUtils</function-class>
 		<function-signature>java.lang.String longToDateStr(long, java.lang.String)</function-signature>
 	</function>
 	

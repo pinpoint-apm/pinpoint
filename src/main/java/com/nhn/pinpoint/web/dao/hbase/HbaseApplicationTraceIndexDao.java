@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 import java.util.*;
 
 import com.nhn.pinpoint.common.hbase.LimitEventHandler;
+import com.nhn.pinpoint.common.util.*;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -19,9 +20,6 @@ import org.springframework.stereotype.Repository;
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.SpanUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.vo.ResultWithMark;
 import com.nhn.pinpoint.web.vo.TraceIdWithTime;
@@ -78,11 +76,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
             resultWithMark.setMark(lastRowTimestamp);
             if (logger.isDebugEnabled()) {
-                logger.debug("lastRowTimestamp lastTime:{}", new Date(lastRowTimestamp));
+                logger.debug("lastRowTimestamp lastTime:{}", DateUtils.longToDateStr(lastRowTimestamp));
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("scanner start lastTime:{}", new Date(end));
+                logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(start));
             }
             resultWithMark.setMark(start);
         }
