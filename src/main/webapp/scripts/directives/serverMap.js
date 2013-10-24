@@ -103,8 +103,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                         } else {
                             htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                             scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result.applicationMapData.nodeDataArray.length);
-                            serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
                         }
+                        serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
                     });
                 } else {
                     getServerMapData(query, function (query, result) {
@@ -273,6 +273,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              * @param callback
              */
             getFilteredServerMapData = function (query, callback) {
+                oProgressBar.setLoading(50);
                 jQuery.ajax({
                     type: 'GET',
                     url: cfg.filteredServerMapDataUrl,
