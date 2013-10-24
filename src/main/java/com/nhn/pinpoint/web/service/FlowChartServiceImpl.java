@@ -357,7 +357,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
 
 				if (span.isRoot() || parentSpan == null) {
-					src = /*ServiceType.CLIENT.toString() + "-" +*/ span.getApplicationId();
+					src = span.getApplicationId();
 					srcServiceType = ServiceType.CLIENT;
 				} else {
 					src = parentSpan.getApplicationId();
@@ -406,6 +406,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 				
 				// application timeseries statistics
 //				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+
+				System.out.println("\n----------------------------------");
+				System.out.println("src\t\t" + src);
+				System.out.println("srcType\t\t" + srcServiceType);
+				System.out.println("dest\t\t" + dest);
+				System.out.println("destType\t" + destServiceType);
+				System.out.println("span\t\t" + span);
+				System.out.println("stat\t\t" + stat);
+				System.out.println("----------------------------------\n\n");
 				
 				/**
 				 * span event의 statistics추가.
@@ -420,8 +429,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 				for (SpanEventBo spanEvent : spanEventBoList) {
 					dest = spanEvent.getDestinationId();
 					destServiceType = spanEvent.getServiceType();
-
-					if(!destServiceType.isRecordStatistics() || destServiceType.isRpcClient()) {
+					
+					if(!destServiceType.isRecordStatistics() /* || destServiceType.isRpcClient() */) {
 						continue;
 					}
 					
@@ -458,6 +467,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 					
 					// application timeseries statistics
 //					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+					
+					System.out.println("\n\t----------------------------------");
+					System.out.println("\tsrc\t\t" + src);
+					System.out.println("\tsrcType\t\t" + srcServiceType);
+					System.out.println("\tdest\t\t" + dest);
+					System.out.println("\tdestType\t\t" + destServiceType);
+					System.out.println("\tspanEv\t\t" + spanEvent);
+					System.out.println("\tstat\t\t" + stat2);
+					System.out.println("\t----------------------------------\n\n");
 				}
 			}
 		}
