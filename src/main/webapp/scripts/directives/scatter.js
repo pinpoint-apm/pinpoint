@@ -224,7 +224,7 @@ pinpointApp.directive('scatter',
                                 aTraces : []
                             };
                             transactions.aTraces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
-                            if (transactions.aTraces === 0) {
+                            if (transactions.aTraces.length === 0) {
                                 return;
                             }
 
