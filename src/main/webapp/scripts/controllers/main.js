@@ -51,7 +51,6 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * scope event on navbar.changed
      */
     $scope.$on('navbar.changed', function (event, navbarDao) {
-        console.log('navbar.changed', navbarDao);
         oNavbarDao = navbarDao;
         changeLocation(oNavbarDao);
     });
