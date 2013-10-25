@@ -395,22 +395,16 @@ var BigScatterChart = $.Class({
         		}
 			},
 			activate : function(e, ui){
-				console.log('activate');
 			},
 			deactivate : function(e, ui){
-				console.log('deactivate');
 			},
 			create : function(e, ui){
-				console.log('create');
 			},
 			remove : function(e, ui){
-				console.log('remove');
 			},
 			update : function(e, ui){
-				console.log('update');
 			},
 			sort : function(e, ui){
-				console.log('sort');
 			}
 		});
 

@@ -280,11 +280,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * @param val
                  */
                 scope.periodClick = function (val) {
-                    if (scope.period !== val) {
-                        scope.period = val;
-                    } else {
-                        setDateTime();
-                    }
+                    scope.period = val;
                     broadcast();
                 };
 
