@@ -24,15 +24,15 @@
             </div>
             <div ng-show="showServers">
                 <h5>Servers <a class="btn btn-mini" ng-show="isWas" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank"><i class="icon-search"></i></a></h5>
-                <ul>
+                <ul class="server-list">
                     <li ng-repeat="(key, server) in serverList">
-                        <span class="label label-success">OK</span>
+                        <i class="icon-home"></i>
                         {{server.name.split(':')[0]}}
                         <a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
                         <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
                         <ul>
                             <li ng-repeat="instance in server.instanceList">
-                                <span class="label label-success">OK</span>
+                                <i class="icon-hdd"></i>
                                 {{instance.name}}
                             </li>
                         </ul>

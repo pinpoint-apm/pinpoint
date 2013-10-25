@@ -1,0 +1,7 @@
+.nodeInfoDetails .server-list,
+.nodeInfoDetails .server-list ul {
+    list-style: none;
+}
+.nodeInfoDetails .server-list li {
+    line-height: 30px;
+}

@@ -20,7 +20,7 @@
                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('elapsed')" style="cursor:pointer">Res. Time (ms)
+                    <div class="th-inner" ng-click="transactionOrder('elapsed')" style="cursor:pointer">Res. Time
                         <i ng-show="transactionOrderBy == 'elapsed'"
                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
                 </th>
@@ -41,7 +41,7 @@
                 </th>
                 <th>
                     <div class="th-inner" ng-click="transactionOrder('transactionSequence')" style="cursor:pointer">
-                        TraceId <i ng-show="transactionOrderBy == 'transactionSequence'"
+                        TransactionId <i ng-show="transactionOrderBy == 'transactionSequence'"
                                    ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i>
                     </div>
                 </th>
@@ -57,17 +57,16 @@
                             {{transaction.index}}
                         </div>
                     </td>
-                    <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | datejs:'%H:%M:%S u'}}
+                    <td sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | datejs:'%m/%d %H:%M:%S u'}}
                     </td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">
                         {{transaction.application}}
                         <a ng-click="traceByApplicationInNewWindow(transaction);$event.stopPropagation()" target="_blank"><i class="icon-share" style="margin-top:-1px;"></i></a>
                     <td style='padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
-                    <td>{{transaction.exception}}</td>
+                    <td style="text-align:center;">{{{true: 'true', false: ''}[transaction.exception == 1]}}</td>
                     <td>{{transaction.agentId}}</td>
-                    <td ng-click="traceRemoteAddr(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
-                    <td ng-click="traceBySequence(transaction)" style="cursor:pointer">{{transaction.transactionSequence}}
-                    </td>
+                    <td>{{transaction.remoteAddr}}</td>
+                    <td>{{transaction.traceId}}</td>
                 </tr>
             </tbody>
         </table>

@@ -151,14 +151,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          */
         $scope.$on('transactionTable.applicationSelected', function (event, transaction) {
             angular.element('#transactionDetail').attr('src', "#/transactionDetail/" + transaction.traceId + "/" + transaction.collectorAcceptTime);
-//        angular.element('#transactionDetail').attr('src', "/transactionInfo.pinpoint?traceId=" + transaction.traceId + "&focusTimestamp=" + transaction.collectorAcceptTime);
-        });
-
-        /**
-         * scope event on transactionTable.sequenceSelected
-         */
-        $scope.$on('transactionTable.sequenceSelected', function (event, transaction) {
-
         });
 
         /**
