@@ -10,6 +10,7 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
+import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -50,7 +51,7 @@ public class DefaultAgent implements Agent {
 
     private final TraceContext traceContext;
 
-    private final DataSender tcpDataSender;
+    private final EnhancedDataSender tcpDataSender;
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
 
@@ -233,7 +234,7 @@ public class DefaultAgent implements Agent {
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
-    private DataSender createTcpDataSender() {
+    private EnhancedDataSender createTcpDataSender() {
         return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
     }
 

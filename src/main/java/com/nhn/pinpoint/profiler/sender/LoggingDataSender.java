@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class LoggingDataSender implements DataSender {
+public class LoggingDataSender implements EnhancedDataSender {
 
     public static final DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
 
@@ -30,5 +30,11 @@ public class LoggingDataSender implements DataSender {
     public boolean request(TBase<?, ?> data) {
         logger.info("request tBase:{}", data);
         return true;
+    }
+
+    @Override
+    public boolean request(TBase<?, ?> data, int retry) {
+        logger.info("request tBase:{} retry:{}", data, retry);
+        return false;
     }
 }

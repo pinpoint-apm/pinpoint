@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public class TcpDataSender implements DataSender {
+public class TcpDataSender implements EnhancedDataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -101,28 +101,26 @@ public class TcpDataSender implements DataSender {
     }
 
     private void sendPacket(Object dto) {
-        TBase<?, ?> tBase;
-        boolean request = false;
-        if (dto instanceof TBase) {
-            tBase = (TBase<?, ?>) dto;
-        } else if(dto instanceof RequestMarker) {
-            tBase = ((RequestMarker) dto).getTBase();
-            request = true;
-        } else {
-            logger.error("sendPacket fail. invalid dto type:{}", dto.getClass());
-            return;
-        }
-        byte[] copy = serialize(tBase);
-        if (copy == null) {
-            return;
-        }
-
-        // 일단 send로 함. 추가로 request and response로 교체나 추가 api로 교체하고 재전송 로직을 어느정도 확보할것
         try {
-            if (request) {
-                doRequest(copy, 0);
-            } else  {
+            if (dto instanceof TBase) {
+                TBase<?, ?> tBase = (TBase<?, ?>) dto;
+                byte[] copy = serialize(tBase);
+                if (copy == null) {
+                    return;
+                }
                 doSend(copy);
+            } else if(dto instanceof RequestMarker) {
+                RequestMarker requestMarker = (RequestMarker) dto;
+                TBase<?, ?> tBase = requestMarker.getTBase();
+                int retry = requestMarker.getRetryCount();
+                byte[] copy = serialize(tBase);
+                if (copy == null) {
+                    return;
+                }
+                doRequest(copy, retry);
+            } else {
+                logger.error("sendPacket fail. invalid dto type:{}", dto.getClass());
+                return;
             }
         } catch (Exception e) {
             // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
@@ -228,7 +226,12 @@ public class TcpDataSender implements DataSender {
 
     @Override
     public boolean request(TBase<?, ?> data) {
-        RequestMarker requestMarker = new RequestMarker(data);
+        return this.request(data, 3);
+    }
+
+    @Override
+    public boolean request(TBase<?, ?> data, int retryCount) {
+        RequestMarker requestMarker = new RequestMarker(data, retryCount);
         return executor.execute(requestMarker);
     }
 
@@ -246,13 +249,19 @@ public class TcpDataSender implements DataSender {
 
     private static class RequestMarker {
         private final TBase tBase;
+        private final int retryCount;
 
-        private RequestMarker(TBase tBase) {
+        private RequestMarker(TBase tBase, int retryCount) {
             this.tBase = tBase;
+            this.retryCount = retryCount;
         }
 
         private TBase getTBase() {
             return tBase;
+        }
+
+        private int getRetryCount() {
+            return retryCount;
         }
     }
 

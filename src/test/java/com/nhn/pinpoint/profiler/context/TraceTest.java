@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.sender.DataSender;
 
+import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.apache.thrift.TBase;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class TraceTest {
         return defaultTraceContext;
     }
 
-    public class TestDataSender implements DataSender {
+    public class TestDataSender implements EnhancedDataSender {
         public boolean event;
 
         @Override
@@ -75,6 +75,11 @@ public class TraceTest {
 
         @Override
         public boolean request(TBase<?, ?> data) {
+            return send(data);
+        }
+
+        @Override
+        public boolean request(TBase<?, ?> data, int retry) {
             return send(data);
         }
     }

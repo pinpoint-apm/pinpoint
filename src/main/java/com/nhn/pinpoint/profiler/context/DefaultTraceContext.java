@@ -6,6 +6,7 @@ import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
+import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -39,7 +40,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private AgentInformation agentInformation;
 
-    private DataSender priorityDataSender;
+    private EnhancedDataSender priorityDataSender;
 
     private StorageFactory storageFactory;
 
@@ -293,8 +294,7 @@ public class DefaultTraceContext implements TraceContext {
         return this.jdbcUrlParser.parse(url);
     }
 
-    public void setPriorityDataSender(final DataSender priorityDataSender) {
-
+    public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
     }
 
