@@ -13,7 +13,7 @@
     </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}" ng-class="{true:'info', false:''}[stack[key.isFocused]]">
+        <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}" ng-class="{true:'info', false:{'error' : stack[key.hasException]}}[stack[key.isFocused]]">
             <td class="method"><i class="icon-info-sign" ng-hide="stack[key.isMethod]"></i>{{stack[key.title]}}</td>
             <td class="arguments">{{stack[key.arguments]}}</td>
             <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | datejs:'%H:%M:%S u'}}</span></td>
