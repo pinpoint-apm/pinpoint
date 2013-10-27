@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import perftest.LevelManager;
 
@@ -115,37 +116,66 @@ public class AllInOneController implements DisposableBean {
 	}
 
 	@RequestMapping(value = "/allInOne2")
-	public String allInOne2(Model model) {
-		arcus();
-		memcached();
-		mysql();
-		npc();
-		unknown();
+	public String allInOne2(Model model,
+			@RequestParam(value = "arcus2", required = false, defaultValue = "true") boolean arcus2,
+			@RequestParam(value = "memcached2", required = false, defaultValue = "false") boolean memcached2,
+			@RequestParam(value = "mysql2", required = false, defaultValue = "false") boolean mysql2,
+			@RequestParam(value = "npc2", required = false, defaultValue = "false") boolean npc2,
+			@RequestParam(value = "unknown2", required = false, defaultValue = "false") boolean unknown2) {
+
+		if (arcus2) arcus();
+		if (memcached2) memcached();
+		if (mysql2) mysql();
+		if (npc2) npc();
+		if (unknown2) unknown();
+		
 		return "remotecombination";
 	}
 
 	@RequestMapping(value = "/allInOne")
-	public String allInOne(Model model) {
-		arcus();
-//		memcached();
-//		mysql();
-//		npc();
-//		unknown();
-		nested();
+	public String allInOne(Model model,
+							@RequestParam(value = "arcus", required = false, defaultValue = "true") boolean arcus,
+							@RequestParam(value = "memcached", required = false, defaultValue = "false") boolean memcached,
+							@RequestParam(value = "mysql", required = false, defaultValue = "false") boolean mysql,
+							@RequestParam(value = "npc", required = false, defaultValue = "false") boolean npc,
+							@RequestParam(value = "unknown", required = false, defaultValue = "false") boolean unknown,
+							@RequestParam(value = "nested", required = false, defaultValue = "true") boolean nested,
+							
+							@RequestParam(value = "arcus2", required = false, defaultValue = "true") boolean arcus2,
+							@RequestParam(value = "memcached2", required = false, defaultValue = "true") boolean memcached2,
+							@RequestParam(value = "mysql2", required = false, defaultValue = "true") boolean mysql2,
+							@RequestParam(value = "npc2", required = false, defaultValue = "true") boolean npc2,
+							@RequestParam(value = "unknown2", required = false, defaultValue = "true") boolean unknown2,
+							
+							@RequestParam(value = "remote", required = false, defaultValue = "true") boolean remote,
+							@RequestParam(value = "randomRemotePort", required = false, defaultValue = "false") boolean randomRemotePort) {
+		
+		if (arcus) arcus();
+		if (memcached) memcached();
+		if (mysql) mysql();
+		if (npc) npc();
+		if (unknown) unknown();
+		if (nested) nested();
 
-		String[] ports = new String[] { "9080", "10080", "11080" };
-		Random random = new Random();
-		String port = ports[random.nextInt(3)];
-
-		// override
-		port = ports[0];
-
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.execute("http://localhost:" + port + "/allInOne2.pinpoint", new HashMap<String, Object>());
-
+		if (remote) {
+			String[] ports = new String[] { "9080", "10080", "11080" };
+			Random random = new Random();
+			String port = (randomRemotePort) ? ports[random.nextInt(3)] : ports[0];
+			HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+			
+			StringBuilder params = new StringBuilder();
+			params.append("arcus2=").append(arcus2).append("&");
+			params.append("memcached2=").append(memcached2).append("&");
+			params.append("mysql2=").append(mysql2).append("&");
+			params.append("npc2=").append(npc2).append("&");
+			params.append("unknown2=").append(unknown2).append("&");
+			
+			client.execute("http://localhost:" + port + "/allInOne2.pinpoint?", new HashMap<String, Object>());
+		}
+		
 		return "remotecombination";
 	}
-
+	
 	@Override
 	public void destroy() throws Exception {
 		arcus.shutdown();
