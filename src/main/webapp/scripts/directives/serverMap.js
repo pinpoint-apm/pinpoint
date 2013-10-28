@@ -406,7 +406,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     scope.srcApplicationName = link.sourceinfo.applicationName || '';
                     scope.destServiceType = link.targetinfo.serviceType || '';
                     scope.destApplicationName = link.targetinfo.applicationName || '';
-                    if (!bUseLinkContextMenu) {
+
+
+                    if (!bUseLinkContextMenu || angular.isArray(link.targetinfo)) {
                         return;
                     }
                     setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
