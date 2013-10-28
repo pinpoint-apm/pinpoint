@@ -25,6 +25,10 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 scope.showNavbar = false;
 
+                element.bind('selectstart', function (e) {
+                    return false;
+                });
+
                 initialize = function (navbarDao) {
                     oNavbarDao = navbarDao;
 
