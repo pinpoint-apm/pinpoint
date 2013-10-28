@@ -7,9 +7,6 @@ import com.nhn.pinpoint.common.util.BytesUtils;
  */
 public class AutomaticBuffer extends FixedBuffer {
 
-    private static final int VLONG_MAX_SIZE = 10;
-    private static final int VINT_MAX_SIZE = 5;
-
     public AutomaticBuffer() {
         super(32);
     }
@@ -62,7 +59,7 @@ public class AutomaticBuffer extends FixedBuffer {
             checkExpend(1);
             super.putSVar(-1);
         } else {
-            checkExpend(bytes.length + VINT_MAX_SIZE);
+            checkExpend(bytes.length + BytesUtils.VINT_MAX_SIZE);
             super.putSVar(bytes.length);
             super.put(bytes);
         }
@@ -100,22 +97,22 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
     public void putVar(final int v) {
-        checkExpend(VLONG_MAX_SIZE);
+        checkExpend(BytesUtils.VLONG_MAX_SIZE);
         super.putVar(v);
     }
 
     public void putSVar(final int v) {
-        checkExpend(VINT_MAX_SIZE);
+        checkExpend(BytesUtils.VINT_MAX_SIZE);
         super.putSVar(v);
     }
 
     public void putVar(final long v) {
-        checkExpend(VLONG_MAX_SIZE);
+        checkExpend(BytesUtils.VLONG_MAX_SIZE);
         super.putVar(v);
     }
 
     public void putSVar(final long v) {
-        checkExpend(VLONG_MAX_SIZE);
+        checkExpend(BytesUtils.VLONG_MAX_SIZE);
         super.putSVar(v);
     }
 

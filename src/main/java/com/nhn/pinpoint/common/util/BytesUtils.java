@@ -11,6 +11,9 @@ public final class BytesUtils {
     public static final int LONG_BYTE_LENGTH = 8;
     public static final int LONG_LONG_BYTE_LENGTH = 16;
 
+    public static final int VLONG_MAX_SIZE = 10;
+    public static final int VINT_MAX_SIZE = 5;
+
     private static final byte[] EMPTY_BYTES = new byte[0];
     private static final String UTF8 = "UTF-8";
     private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());

@@ -32,8 +32,6 @@ public class AnnotationTranscoder {
     static final byte CODE_INT_STRING = 20;
     static final byte CODE_INT_STRING_STRING = 21;
 
-    protected final TranscoderUtils tu = new TranscoderUtils(true);
-
 
     public Object getMappingValue(TAnnotation annotation) {
         final TAnnotationValue value = annotation.getValue();
@@ -44,7 +42,7 @@ public class AnnotationTranscoder {
     }
 
 
-    public Object decode(byte dataType, byte[] data) {
+    public Object decode(final byte dataType, final byte[] data) {
         switch (dataType) {
             case CODE_STRING:
                 return decodeString(data);
@@ -52,18 +50,23 @@ public class AnnotationTranscoder {
                 return Boolean.TRUE;
             case CODE_BOOLEAN_FALSE:
                 return Boolean.FALSE;
-            case CODE_INT:
-                return tu.decodeInt(data);
-            case CODE_LONG:
-                return tu.decodeLong(data);
+            case CODE_INT: {
+                final Buffer buffer = new FixedBuffer(data);
+                return buffer.readSVarInt();
+            }
+            case CODE_LONG: {
+                final Buffer buffer = new FixedBuffer(data);
+                return buffer.readSVarLong();
+            }
             case CODE_BYTE:
-                return tu.decodeByte(data);
+                return data[0];
             case CODE_SHORT:
-                return tu.decodeShort(data);
+                final Buffer buffer = new FixedBuffer(data);
+                return (short)buffer.readSVarInt();
             case CODE_FLOAT:
-                return Float.intBitsToFloat(tu.decodeInt(data));
+                return Float.intBitsToFloat(BytesUtils.bytesToInt(data, 0));
             case CODE_DOUBLE:
-                return Double.longBitsToDouble(tu.decodeLong(data));
+                return Double.longBitsToDouble(BytesUtils.bytesToLong(data, 0));
             case CODE_BYTEARRAY:
                 return data;
             case CODE_NULL:
@@ -116,22 +119,42 @@ public class AnnotationTranscoder {
         switch (typeCode) {
             case CODE_STRING:
                 return encodeString((String) o);
-            case CODE_INT:
-                return tu.encodeInt((Integer) o);
-            case CODE_BOOLEAN_TRUE:
+            case CODE_INT: {
+                final Buffer buffer = new FixedBuffer(BytesUtils.VINT_MAX_SIZE);
+                buffer.putSVar((Integer)o);
+                return buffer.getBuffer();
+            }
+            case CODE_BOOLEAN_TRUE: {
                 return new byte[0];
-            case CODE_BOOLEAN_FALSE:
+            }
+            case CODE_BOOLEAN_FALSE: {
                 return new byte[0];
-            case CODE_LONG:
-                return tu.encodeLong((Long) o);
-            case CODE_BYTE:
-                return tu.encodeByte((Byte) o);
-            case CODE_SHORT:
-                return tu.encodeShort((Short) o);
-            case CODE_FLOAT:
-                return tu.encodeInt(Float.floatToRawIntBits((Float) o));
-            case CODE_DOUBLE:
-                return tu.encodeLong(Double.doubleToRawLongBits((Double) o));
+            }
+            case CODE_LONG: {
+                final Buffer buffer = new FixedBuffer(BytesUtils.VLONG_MAX_SIZE);
+                buffer.putSVar((Long)o);
+                return buffer.getBuffer();
+            }
+            case CODE_BYTE: {
+                final byte[] bytes = new byte[1];
+                bytes[0] = (Byte)o;
+                return bytes;
+            }
+            case CODE_SHORT: {
+                final Buffer buffer = new FixedBuffer(BytesUtils.VINT_MAX_SIZE);
+                buffer.putSVar((Short) o);
+                return buffer.getBuffer();
+            }
+            case CODE_FLOAT: {
+                final byte[] buffer = new byte[4];
+                BytesUtils.writeInt(Float.floatToRawIntBits((Float) o), buffer, 0);
+                return buffer;
+            }
+            case CODE_DOUBLE: {
+                final byte[] buffer = new byte[8];
+                BytesUtils.writeLong(Double.doubleToRawLongBits((Double) o), buffer, 0);
+                return buffer;
+            }
             case CODE_BYTEARRAY:
                 return (byte[]) o;
             case CODE_NULL:
