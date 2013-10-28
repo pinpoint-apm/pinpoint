@@ -27,49 +27,6 @@ canvas {outline:none}
     display: none;
 }
 
-.main-navbar {
-  position: absolute;
-  margin: -40px 0 0 0;
-  height: 40px;
-  background-color: #252a3a;
-  width: 100%;
-  border-radius: 0;
-}
-.main-navbar .brand {
-  margin-left: 20px;     
-}
-.main-navbar .nav>li {
-  margin-top: 5px;  
-}
-.main-navbar .divider-vertical {
-  height: 35px;
-  min-height: 1px;
-  margin: 0 9px;
-  border: 0;
-}
-.navbar-form {
-  margin-bottom: 0; 
-}
-.navbar-form .for-datetimepicker {
-  width:470px;
-}
-.navbar-form .datetimepicker {
-  margin: 0 0 0 1px;
-}
-.navbar-form .datetimepicker input[type="text"]{
-  width: 140px;
-}
-.navbar-form .datetimepicker .checkbox input[type="checkbox"]{
-  float: none;
-}
-.navbar-form .datetimepicker .icon-calendar {
-  margin-left: 1px;
-}
-#ui-datepicker-div {
-    font-size: 75%;
-    z-index: 10 !important;
-}
-
 .mt8 {
   margin-top: 8px;
 }
