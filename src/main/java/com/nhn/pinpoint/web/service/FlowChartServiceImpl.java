@@ -1,12 +1,15 @@
 package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,10 +331,22 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdSet, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
+		// 중복 transaction id 제거.
+		// FIXME 운덕과장님 봐주세요.
+		// TransactionId.compareTo도 같이... 정렬은 그냥 ASC고 고정시켜버렸는데. 여기다 comparator넣어도되고.
+		// list의 index기반으로 sortedset에 넣을 수 있다는게 무슨 말인지 모르겠음 ㅡㅡ;
+		// sortedMap을 이야기 하는건가...
+		SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+		
+//		System.out.println(traceIdList);
+//		System.out.println(traceIdSet);
+		
+//		System.out.println("@traceIdSet=" + traceIdSet);
+		
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
 
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
@@ -339,12 +354,16 @@ public class FlowChartServiceImpl implements FlowChartService {
 		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
 
 //		TimeseriesResponses tr = new TimeseriesResponses(from, to);
+
+//		System.out.println("@transactionList.size=" + transactionList.size() + "\n");
 		
 		// 통계정보로 변환한다.
 		for (List<SpanBo> transaction : transactionList) {
 			if (!filter.include(transaction)) {
 				continue;
 			}
+			
+//			System.out.println("@transaction.size=" + transaction.size() + "\n");
 			
 			transactionSpanMap.clear();
 			for (SpanBo span : transaction) {
@@ -407,14 +426,14 @@ public class FlowChartServiceImpl implements FlowChartService {
 				// application timeseries statistics
 //				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 
-				System.out.println("\n----------------------------------");
-				System.out.println("src\t\t" + src);
-				System.out.println("srcType\t\t" + srcServiceType);
-				System.out.println("dest\t\t" + dest);
-				System.out.println("destType\t" + destServiceType);
-				System.out.println("span\t\t" + span);
-				System.out.println("stat\t\t" + stat);
-				System.out.println("----------------------------------\n\n");
+//				System.out.println("\n----------------------------------");
+//				System.out.println("@src\t\t" + src);
+//				System.out.println("@srcType\t\t" + srcServiceType);
+//				System.out.println("@dest\t\t" + dest);
+//				System.out.println("@destType\t" + destServiceType);
+//				System.out.println("@span\t\t" + span);
+//				System.out.println("@stat\t\t" + stat);
+//				System.out.println("----------------------------------\n\n");
 				
 				/**
 				 * span event의 statistics추가.
@@ -468,14 +487,14 @@ public class FlowChartServiceImpl implements FlowChartService {
 					// application timeseries statistics
 //					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 					
-					System.out.println("\n\t----------------------------------");
-					System.out.println("\tsrc\t\t" + src);
-					System.out.println("\tsrcType\t\t" + srcServiceType);
-					System.out.println("\tdest\t\t" + dest);
-					System.out.println("\tdestType\t\t" + destServiceType);
-					System.out.println("\tspanEv\t\t" + spanEvent);
-					System.out.println("\tstat\t\t" + stat2);
-					System.out.println("\t----------------------------------\n\n");
+//					System.out.println("\n\t----------------------------------");
+//					System.out.println("\t@src\t\t" + src);
+//					System.out.println("\t@srcType\t\t" + srcServiceType);
+//					System.out.println("\t@dest\t\t" + dest);
+//					System.out.println("\t@destType\t\t" + destServiceType);
+//					System.out.println("\t@spanEv\t\t" + spanEvent);
+//					System.out.println("\t@stat\t\t" + stat2);
+//					System.out.println("\t----------------------------------\n\n");
 				}
 			}
 		}

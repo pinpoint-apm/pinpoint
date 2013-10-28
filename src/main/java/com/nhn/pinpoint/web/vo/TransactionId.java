@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
-public class TransactionId {
+public class TransactionId implements Comparable<TransactionId> {
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
 
@@ -106,4 +106,25 @@ public class TransactionId {
         return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
     }
 
+	@Override
+	public int compareTo(TransactionId transactionId) {
+		int r1 = this.agentId.compareTo(transactionId.agentId);
+		if (r1 == 0) {
+			if (this.agentStartTime > transactionId.agentStartTime) {
+				return 1;
+			} else if (this.agentStartTime < transactionId.agentStartTime) {
+				return -1;
+			} else {
+				if (this.transactionSequence > transactionId.transactionSequence) {
+					return 1;
+				} else if (this.transactionSequence < transactionId.transactionSequence) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		} else {
+			return r1;
+		}
+	}
 }
