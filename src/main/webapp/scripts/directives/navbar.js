@@ -21,7 +21,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 // define private variables of methods
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
-                    initializeWithStaticApplication;
+                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent;
 
                 scope.showNavbar = false;
 
@@ -29,14 +29,14 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     return false;
                 });
 
+                /**
+                 * initialize
+                 * @param navbarDao
+                 */
                 initialize = function (navbarDao) {
                     oNavbarDao = navbarDao;
 
-                    if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
-                        scope.periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
-                    } else {
-                        scope.periodType = oNavbarDao.getApplication() ? 'range' : 'last';
-                    }
+                    scope.periodType = getPeriodType();
                     scope.showNavbar = true;
                     scope.showApplication = true;
                     scope.showStatic = !scope.showApplication;
@@ -57,14 +57,14 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     getApplicationList();
                 };
 
+                /**
+                 * initialize with static application
+                 * @param navbarDao
+                 */
                 initializeWithStaticApplication = function (navbarDao) {
                     oNavbarDao = navbarDao;
 
-                    if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
-                        scope.periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
-                    } else {
-                        scope.periodType = oNavbarDao.getApplication() ? 'range' : 'last';
-                    }
+                    scope.periodType = getPeriodType();
                     scope.showNavbar = true;
                     scope.showApplication = false;
                     scope.showStaticApplication = !scope.showApplication;
@@ -77,6 +77,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     initializeDateTimePicker();
                 };
 
+                /**
+                 * initialize date time picker
+                 */
                 initializeDateTimePicker = function () {
                     $fromPicker = element.find('#from-picker');
                     $fromPicker.datetimepicker({
@@ -121,6 +124,25 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 /**
+                 * get preiod type
+                 * @returns {*}
+                 */
+                getPeriodType = function () {
+                    var periodType;
+                    if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
+                        periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
+                    } else {
+                        periodType = oNavbarDao.getApplication() ? 'range' : 'last';
+                    }
+                    return periodType;
+                };
+
+                setPeriodTypeAsCurrent = function () {
+                    $window.name = $window.name || 'window.' + _.random(100000, 999999);
+                    webStorage.session.add($window.name + cfg.periodTypePrefix, scope.periodType);
+                };
+
+                /**
                  * set DateTime
                  */
                 setDateTime = function ($picker, time) {
@@ -159,8 +181,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * emit as changed
                  */
                 emitAsChanged = function () {
-                    $window.name = $window.name || 'window.' + _.random(100000, 999999);
-                    webStorage.session.add($window.name + cfg.periodTypePrefix, scope.periodType);
+                    setPeriodTypeAsCurrent();
                     scope.$emit('navbar.changed', oNavbarDao);
                 };
 
