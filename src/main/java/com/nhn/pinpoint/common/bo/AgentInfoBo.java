@@ -17,6 +17,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private String applicationName;
     private ServiceType serviceType;
     private int pid;
+    private String version;
 
     private long startTime;
 
@@ -34,6 +35,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.applicationName = agentInfo.getApplicationName();
         this.serviceType = ServiceType.findServiceType(agentInfo.getServiceType());
         this.pid = agentInfo.getPid();
+        this.version = agentInfo.getVersion();
 
         this.startTime = agentInfo.getStartTimestamp();
 
@@ -117,7 +119,15 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		this.serviceType = serviceType;
 	}
 
-	public byte[] writeValue() {
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(this.getHostname());
         buffer.putPrefixedString(this.getIp());
@@ -125,6 +135,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         buffer.putPrefixedString(this.getApplicationName());
         buffer.put(this.serviceType.getCode());
         buffer.put(this.getPid());
+        buffer.putPrefixedString(this.getVersion());;
 
         buffer.put(this.getStartTime());
         buffer.put(this.getEndTimeStamp());
@@ -141,6 +152,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         this.applicationName = buffer.readPrefixedString();
         this.serviceType = ServiceType.findServiceType(buffer.readShort());
         this.pid = buffer.readInt();
+        this.version = buffer.readPrefixedString();
 
         this.startTime = buffer.readLong();
         this.endTimeStamp = buffer.readLong();
@@ -184,6 +196,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		sb.append("\t\"agentId\" : \"").append(agentId).append("\",");
 		sb.append("\t\"applicationName\" : \"").append(applicationName).append("\",");
 		sb.append("\t\"serviceType\" : \"").append(serviceType).append("\",");
+        sb.append("\t\"version\" : \"").append(version).append("\",");
 		sb.append("\t\"uptime\" : \"").append(startTime).append("\"");
 		sb.append("}");
 		
@@ -200,6 +213,7 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", serviceType=").append(serviceType);
         sb.append(", pid=").append(pid);
+        sb.append(", version='").append(version).append('\'');
         sb.append(", startTime=").append(startTime);
         sb.append(", endTimeStamp=").append(endTimeStamp);
         sb.append(", endStatus=").append(endStatus);

@@ -619,6 +619,49 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo.groovy</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                <![CDATA[
+        println("==== Creating Version.java ====");
+        File mainDir = new File("src/main");
+        if(mainDir.exists() && !mainDir.isDirectory()) {
+            println("Main dir does not exist, wont create version.txt!");
+            return;
+        }
+        File versionFile = new File("src/main/java/com/nhn/pinpoint/common/Version.java");
+        if(versionFile.exists() && versionFile.isDirectory()) {
+            println("Version file exists and is directory! Wont overwrite");
+            return;
+        }
+        if(versionFile.exists() && versionFile.isDirectory()) {
+            println("Version file already exists, overwriting!");
+        }
+        println("Creating Version.java File");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(versionFile));
+
+        writer.write("package com.nhn.pinpoint.common;\n");
+        writer.write("public final class Version {\n");
+        writer.write("  public static final String VERSION = \"${project.version}\";\n");
+        writer.write("}");
+        writer.close();
+        ]]>
+
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.5.2</version>
