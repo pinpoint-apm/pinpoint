@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler;
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.*;
@@ -129,7 +130,7 @@ public class DefaultAgent implements Agent {
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, serverType.getCode());
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, serverType.getCode(), Version.VERSION);
     }
 
 

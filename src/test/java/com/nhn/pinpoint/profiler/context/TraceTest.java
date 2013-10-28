@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
 
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
@@ -56,7 +57,7 @@ public class TraceTest {
 
     private DefaultTraceContext getDefaultTraceConetxt() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
-        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", ServiceType.TOMCAT.getCode()));
+        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", ServiceType.TOMCAT.getCode(), Version.VERSION));
         return defaultTraceContext;
     }
 

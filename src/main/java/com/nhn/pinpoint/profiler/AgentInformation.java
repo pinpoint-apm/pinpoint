@@ -10,8 +10,9 @@ public class AgentInformation {
     private final int pid;
     private final String machineName;
     private final short serverType;
+    private final String version;
 
-    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, short serverType) {
+    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, short serverType, String version) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -21,12 +22,16 @@ public class AgentInformation {
         if (machineName == null) {
             throw new NullPointerException("machineName must not be null");
         }
+        if (version == null) {
+            throw new NullPointerException("version must not be null");
+        }
         this.agentId = agentId;
         this.applicationName = applicationName;
         this.startTime = startTime;
         this.pid = pid;
         this.machineName = machineName;
         this.serverType = serverType;
+        this.version = version;
     }
 
 
@@ -55,6 +60,10 @@ public class AgentInformation {
         return serverType;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentInformation{");
@@ -64,6 +73,7 @@ public class AgentInformation {
         sb.append(", pid=").append(pid);
         sb.append(", machineName='").append(machineName).append('\'');
         sb.append(", serverType=").append(serverType);
+        sb.append(", version='").append(version).append('\'');
         sb.append('}');
         return sb.toString();
     }
