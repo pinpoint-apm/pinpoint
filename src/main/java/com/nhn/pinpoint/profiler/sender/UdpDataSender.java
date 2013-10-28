@@ -129,7 +129,7 @@ public class UdpDataSender implements DataSender {
                 logger.warn("packet send error {}", dto, e);
             }
 		} else {
-			logger.warn("sendPacket fail. invalid type:{}", dto.getClass());
+			logger.warn("sendPacket fail. invalid type:{}", dto != null ? dto.getClass() : null);
 			return;
 		}
 
