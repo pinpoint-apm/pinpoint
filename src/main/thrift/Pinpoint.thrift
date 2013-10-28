@@ -8,11 +8,12 @@ struct TAgentInfo {
 	5: string	applicationName
 	6: i16	    serviceType
 	7: i32      pid
+	8: string   version;
 
-	8: i64	    startTimestamp
+	10: i64	    startTimestamp
 
-	9: optional i64      endTimestamp
-	10: optional i32     endStatus
+	11: optional i64      endTimestamp
+	12: optional i32     endStatus
 
 }
 

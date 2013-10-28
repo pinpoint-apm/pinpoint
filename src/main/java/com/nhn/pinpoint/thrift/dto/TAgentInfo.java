@@ -42,9 +42,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)5);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)6);
   private static final org.apache.thrift.protocol.TField PID_FIELD_DESC = new org.apache.thrift.protocol.TField("pid", org.apache.thrift.protocol.TType.I32, (short)7);
-  private static final org.apache.thrift.protocol.TField START_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("startTimestamp", org.apache.thrift.protocol.TType.I64, (short)8);
-  private static final org.apache.thrift.protocol.TField END_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("endTimestamp", org.apache.thrift.protocol.TType.I64, (short)9);
-  private static final org.apache.thrift.protocol.TField END_STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("endStatus", org.apache.thrift.protocol.TType.I32, (short)10);
+  private static final org.apache.thrift.protocol.TField VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("version", org.apache.thrift.protocol.TType.STRING, (short)8);
+  private static final org.apache.thrift.protocol.TField START_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("startTimestamp", org.apache.thrift.protocol.TType.I64, (short)10);
+  private static final org.apache.thrift.protocol.TField END_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("endTimestamp", org.apache.thrift.protocol.TType.I64, (short)11);
+  private static final org.apache.thrift.protocol.TField END_STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("endStatus", org.apache.thrift.protocol.TType.I32, (short)12);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -59,6 +60,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private String applicationName; // required
   private short serviceType; // required
   private int pid; // required
+  private String version; // required
   private long startTimestamp; // required
   private long endTimestamp; // optional
   private int endStatus; // optional
@@ -72,9 +74,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     APPLICATION_NAME((short)5, "applicationName"),
     SERVICE_TYPE((short)6, "serviceType"),
     PID((short)7, "pid"),
-    START_TIMESTAMP((short)8, "startTimestamp"),
-    END_TIMESTAMP((short)9, "endTimestamp"),
-    END_STATUS((short)10, "endStatus");
+    VERSION((short)8, "version"),
+    START_TIMESTAMP((short)10, "startTimestamp"),
+    END_TIMESTAMP((short)11, "endTimestamp"),
+    END_STATUS((short)12, "endStatus");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -103,11 +106,13 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
           return SERVICE_TYPE;
         case 7: // PID
           return PID;
-        case 8: // START_TIMESTAMP
+        case 8: // VERSION
+          return VERSION;
+        case 10: // START_TIMESTAMP
           return START_TIMESTAMP;
-        case 9: // END_TIMESTAMP
+        case 11: // END_TIMESTAMP
           return END_TIMESTAMP;
-        case 10: // END_STATUS
+        case 12: // END_STATUS
           return END_STATUS;
         default:
           return null;
@@ -173,6 +178,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.PID, new org.apache.thrift.meta_data.FieldMetaData("pid", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.VERSION, new org.apache.thrift.meta_data.FieldMetaData("version", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.START_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("startTimestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.END_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("endTimestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -194,6 +201,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     String applicationName,
     short serviceType,
     int pid,
+    String version,
     long startTimestamp)
   {
     this();
@@ -206,6 +214,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     setServiceTypeIsSet(true);
     this.pid = pid;
     setPidIsSet(true);
+    this.version = version;
     this.startTimestamp = startTimestamp;
     setStartTimestampIsSet(true);
   }
@@ -232,6 +241,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     }
     this.serviceType = other.serviceType;
     this.pid = other.pid;
+    if (other.isSetVersion()) {
+      this.version = other.version;
+    }
     this.startTimestamp = other.startTimestamp;
     this.endTimestamp = other.endTimestamp;
     this.endStatus = other.endStatus;
@@ -252,6 +264,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     this.serviceType = 0;
     setPidIsSet(false);
     this.pid = 0;
+    this.version = null;
     setStartTimestampIsSet(false);
     this.startTimestamp = 0;
     setEndTimestampIsSet(false);
@@ -419,6 +432,29 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PID_ISSET_ID, value);
   }
 
+  public String getVersion() {
+    return this.version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  public void unsetVersion() {
+    this.version = null;
+  }
+
+  /** Returns true if field version is set (has been assigned a value) and false otherwise */
+  public boolean isSetVersion() {
+    return this.version != null;
+  }
+
+  public void setVersionIsSet(boolean value) {
+    if (!value) {
+      this.version = null;
+    }
+  }
+
   public long getStartTimestamp() {
     return this.startTimestamp;
   }
@@ -543,6 +579,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       }
       break;
 
+    case VERSION:
+      if (value == null) {
+        unsetVersion();
+      } else {
+        setVersion((String)value);
+      }
+      break;
+
     case START_TIMESTAMP:
       if (value == null) {
         unsetStartTimestamp();
@@ -593,6 +637,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     case PID:
       return Integer.valueOf(getPid());
 
+    case VERSION:
+      return getVersion();
+
     case START_TIMESTAMP:
       return Long.valueOf(getStartTimestamp());
 
@@ -627,6 +674,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       return isSetServiceType();
     case PID:
       return isSetPid();
+    case VERSION:
+      return isSetVersion();
     case START_TIMESTAMP:
       return isSetStartTimestamp();
     case END_TIMESTAMP:
@@ -710,6 +759,15 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (!(this_present_pid && that_present_pid))
         return false;
       if (this.pid != that.pid)
+        return false;
+    }
+
+    boolean this_present_version = true && this.isSetVersion();
+    boolean that_present_version = true && that.isSetVersion();
+    if (this_present_version || that_present_version) {
+      if (!(this_present_version && that_present_version))
+        return false;
+      if (!this.version.equals(that.version))
         return false;
     }
 
@@ -826,6 +884,16 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetVersion()).compareTo(other.isSetVersion());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetVersion()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.version, other.version);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetStartTimestamp()).compareTo(other.isSetStartTimestamp());
     if (lastComparison != 0) {
       return lastComparison;
@@ -922,6 +990,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     if (!first) sb.append(", ");
     sb.append("pid:");
     sb.append(this.pid);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("version:");
+    if (this.version == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.version);
+    }
     first = false;
     if (!first) sb.append(", ");
     sb.append("startTimestamp:");
@@ -1040,7 +1116,15 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // START_TIMESTAMP
+          case 8: // VERSION
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.version = iprot.readString();
+              struct.setVersionIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 10: // START_TIMESTAMP
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.startTimestamp = iprot.readI64();
               struct.setStartTimestampIsSet(true);
@@ -1048,7 +1132,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 9: // END_TIMESTAMP
+          case 11: // END_TIMESTAMP
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.endTimestamp = iprot.readI64();
               struct.setEndTimestampIsSet(true);
@@ -1056,7 +1140,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // END_STATUS
+          case 12: // END_STATUS
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.endStatus = iprot.readI32();
               struct.setEndStatusIsSet(true);
@@ -1108,6 +1192,11 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       oprot.writeFieldBegin(PID_FIELD_DESC);
       oprot.writeI32(struct.pid);
       oprot.writeFieldEnd();
+      if (struct.version != null) {
+        oprot.writeFieldBegin(VERSION_FIELD_DESC);
+        oprot.writeString(struct.version);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(START_TIMESTAMP_FIELD_DESC);
       oprot.writeI64(struct.startTimestamp);
       oprot.writeFieldEnd();
@@ -1160,16 +1249,19 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetPid()) {
         optionals.set(6);
       }
-      if (struct.isSetStartTimestamp()) {
+      if (struct.isSetVersion()) {
         optionals.set(7);
       }
-      if (struct.isSetEndTimestamp()) {
+      if (struct.isSetStartTimestamp()) {
         optionals.set(8);
       }
-      if (struct.isSetEndStatus()) {
+      if (struct.isSetEndTimestamp()) {
         optionals.set(9);
       }
-      oprot.writeBitSet(optionals, 10);
+      if (struct.isSetEndStatus()) {
+        optionals.set(10);
+      }
+      oprot.writeBitSet(optionals, 11);
       if (struct.isSetHostname()) {
         oprot.writeString(struct.hostname);
       }
@@ -1191,6 +1283,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetPid()) {
         oprot.writeI32(struct.pid);
       }
+      if (struct.isSetVersion()) {
+        oprot.writeString(struct.version);
+      }
       if (struct.isSetStartTimestamp()) {
         oprot.writeI64(struct.startTimestamp);
       }
@@ -1205,7 +1300,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TAgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(10);
+      BitSet incoming = iprot.readBitSet(11);
       if (incoming.get(0)) {
         struct.hostname = iprot.readString();
         struct.setHostnameIsSet(true);
@@ -1235,14 +1330,18 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         struct.setPidIsSet(true);
       }
       if (incoming.get(7)) {
+        struct.version = iprot.readString();
+        struct.setVersionIsSet(true);
+      }
+      if (incoming.get(8)) {
         struct.startTimestamp = iprot.readI64();
         struct.setStartTimestampIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(9)) {
         struct.endTimestamp = iprot.readI64();
         struct.setEndTimestampIsSet(true);
       }
-      if (incoming.get(9)) {
+      if (incoming.get(10)) {
         struct.endStatus = iprot.readI32();
         struct.setEndStatusIsSet(true);
       }
