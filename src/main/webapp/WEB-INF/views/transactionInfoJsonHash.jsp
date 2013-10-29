@@ -10,6 +10,7 @@
 	
 	"callStackStart" : ${callstackStart},
 	"callStackEnd" : ${callstackEnd},
+    "completeState" : "${completeState}",
 	
 	"callStack" : [
 		<c:set var="startTime" scope="page" value="${callstackStart}"/>

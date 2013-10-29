@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -108,8 +107,9 @@ public class SpanServiceTest {
 	private void doRead(TSpan span) {
         com.nhn.pinpoint.common.util.TransactionId id = TransactionIdUtils.parseTransactionId(span.getTransactionId());
         TransactionId traceId = new TransactionId(id.getAgentId(), id.getAgentStartTime(), id.getTransactionSequence());
-
-		List<SpanAlign> sort = spanService.selectSpan(traceId);
+        // selectedHint를 좀더 정확히 수정할것.
+        SpanResult spanResult = spanService.selectSpan(traceId, System.currentTimeMillis());
+        List<SpanAlign> sort = spanResult.getSpanAlign();
 		for (SpanAlign spanAlign : sort) {
 			logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpanBo());
 		}
@@ -124,7 +124,6 @@ public class SpanServiceTest {
 
 	private TSpan createRootSpan() {
 		// 별도 생성기로 뽑을것.
-		UUID uuid = UUID.randomUUID();
 		List<TAnnotation> ano = Collections.emptyList();
 		long time = System.currentTimeMillis();
 		int andIncrement = id.getAndIncrement();

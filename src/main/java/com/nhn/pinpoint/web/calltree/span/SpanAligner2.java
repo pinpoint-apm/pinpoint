@@ -15,33 +15,88 @@ import org.slf4j.LoggerFactory;
 public class SpanAligner2 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // 매치가 안됨.
+    public static final int FAIL_MATCH = 0;
+    // transaction이 완벽하게 끝남.
+    public static final int BEST_MATCH = 1;
+    // transaction이 진행중이거나. 일부 분실된 데이터가 있음.
+    public static final int START_TIME_MATCH = 2;
+
+
     private static final Integer ROOT = -1;
 	private final Map<Integer, SpanBo> spanMap;
 	private Integer rootSpanId = null;
+    private int matchType = FAIL_MATCH;
 
-	public SpanAligner2(List<SpanBo> spans) {
-		spanMap = new HashMap<Integer, SpanBo>(spans.size());
+	public SpanAligner2(List<SpanBo> spans, long selectedSpanStartTime) {
+        this.spanMap = buildSpanMap(spans);
+        this.rootSpanId = findRootSpanId(spans, selectedSpanStartTime);
+    }
 
-		long rootSpanStartTime = Long.MAX_VALUE;
+    private int findRootSpanId(List<SpanBo> spans, long selectedSpanStartTime) {
+        final List<SpanBo> root = new ArrayList<SpanBo>();
+        for (SpanBo span : spans) {
+            if (span.getParentSpanId() == ROOT) {
+                root.add(span);
+            }
+        }
+        // 최상 조건의 best매치. 완벽 조건의 매치.
+        final int matchSize = root.size();
+        if (matchSize == 1) {
+            final SpanBo spanBo = root.get(0);
+            logger.debug("root span found best match:{}", spanBo);
+            matchType = BEST_MATCH;
+            return spanBo.getSpanId();
+        }
+        // 버그 rootspan이 2개 이상인 경우는 로직 버그이다. 아무거나 잡아서 데이터를 뿌려줘야 되나?
+        if (matchSize > 1) {
+            logger.warn("parentSpanId(-1) collision. size:{} root span:{} allSpan:{}", matchSize, root, spans);
+            throw new IllegalStateException("parentSpanId(-1) collision. size:" + matchSize);
+        }
 
-		for (SpanBo span : spans) {
-			if (spanMap.containsKey(span.getSpanId())) {
-				throw new IllegalStateException("duplicated spanId. id:" + span.getSpanId());
-			}
+        // root 분실. 혹은 아직 도착하지 않아 root가 완성 되지 않음. 즉 진행중인 process일 수 있음.
+        // 차선책으로 자신이 조회한 span의 시작 시간을 기준으로 span을 조회한다.
+        // span에서 데이터를 추출하는 것이기 때문에, 왠간하면 데이터는 존재함. hbase insert시 data insert를 실패할 경우 없을수 있음.
+        final List<SpanBo> startTimeMatcher = new ArrayList<SpanBo>();
+        for(SpanBo span : spans) {
+            // collectorTime이 힌트로 들어온다.
+            if (span.getCollectorAcceptTime() == selectedSpanStartTime) {
+                startTimeMatcher.add(span);
+            }
+        }
+        // startTime 기반 match. 아래 추가 정보가 제공 되면 더 정확하게 매치가 가능하다.
+        // 이중에서 어느 정보를 얻으면 가장 쉽고 정확하게 매치가 가능한가? agentId가 제일 무난하지 않나 함.
+        // "applicationName" : "/httpclient4/post.pinpoint",
+        // "transactionId" : "emeroad-pc^1382955966412^16",
+        // "agentId" : "emeroad-pc",
+        // "applicationId" : "emeroad-app",
+        // "callStackStart" : 1383024213315,
+        // "callStackEnd" : 2010,
+        final int startMatchSize = startTimeMatcher.size();
+        if (startMatchSize == 1) {
+            final SpanBo spanBo = startTimeMatcher.get(0);
+            logger.info("startTime span found startTime match:{}", spanBo);
+            matchType = START_TIME_MATCH;
+            return spanBo.getSpanId();
+        }
+        if (startMatchSize > 1) {
+            logger.warn("startTime match collision. size:{} selectedSpanStartTime:{} span:{} allSpan:{}", startMatchSize, selectedSpanStartTime, startMatchSize, spans);
+            throw new IllegalStateException("startTime match collision size:" + startMatchSize + " selectedSpanStartTime:" + selectedSpanStartTime);
+        }
+        // 여기서 다음상황으로 더 정확하게 매치가 가능한가? 마땅히 call stack을 랜더링 할수 있는 방법 없음
+        logger.warn("startTime match not found. size:{} selectedSpanStartTime:{} span:{} allSpan:{}", startMatchSize, selectedSpanStartTime, startMatchSize, spans);
+        throw new IllegalStateException("startTime match not found startTime size:" + startMatchSize + " selectedSpanStartTime:" + selectedSpanStartTime);
+    }
 
-			if (span.getParentSpanId() == ROOT) {
-				rootSpanId = ROOT;
-				spanMap.put(ROOT, span);
-				continue;
-			} else if ((rootSpanId == null || !rootSpanId.equals(ROOT)) && span.getStartTime() < rootSpanStartTime) {
-				rootSpanId = (span.getParentSpanId() == ROOT) ? ROOT : span.getSpanId();
-				rootSpanStartTime = span.getStartTime();
-			}
-			spanMap.put(span.getSpanId(), span);
-		}
-	}
+    private Map<Integer, SpanBo> buildSpanMap(List<SpanBo> spans) {
+        Map<Integer, SpanBo> spanMap = new HashMap<Integer, SpanBo>();
+        for (SpanBo span : spans) {
+            spanMap.put(span.getSpanId(), span);
+        }
+        return spanMap;
+    }
 
-	public List<SpanAlign> sort() {
+    public List<SpanAlign> sort() {
 		List<SpanAlign> list = new ArrayList<SpanAlign>();
 		final SpanBo root = spanMap.get(rootSpanId);
 		if (root == null) {
@@ -53,7 +108,11 @@ public class SpanAligner2 {
 		return list;
 	}
 
-	private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
+    public int getMatchType() {
+        return matchType;
+    }
+
+    private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
         logger.debug("populate start");
 		int currentDepth = spanDepth;
         if (logger.isDebugEnabled()) {

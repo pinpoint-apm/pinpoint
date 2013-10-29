@@ -9,6 +9,7 @@
 	"applicationId" : "${recordSet.applicationId}",
 	"callStackStart" : ${callstackStart},
 	"callStackEnd" : ${callstackEnd},
+    "completeState" : "${completeState}",
 	"callStackIndex" : {
 		"depth":0,
 		"begin":1,

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.service.SpanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class BusinessTransactionController {
 	@Autowired
 	private FlowChartService flow;
 
-	/**
+    /**
 	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
 	 * 
 	 * @param model
@@ -97,69 +98,72 @@ public class BusinessTransactionController {
 		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText, limit);
 	}
 
-	/**
-	 * 선택한 하나의 Transaction 정보 조회.
-	 *  
-	 * @param traceIdParam
-	 * @param focusTimestamp
-	 * @return
-	 */
-	@RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
-	public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp,
-										// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
-										// 기존 html view에서 json을 넘어가는 중임.
-										@RequestParam(value="jsonResult", required=false, defaultValue="false") boolean jsonResult,
-										@RequestParam(value="v", required=false, defaultValue="0") int viewVersion) {
-		logger.debug("traceId:{}", traceIdParam);
+    /**
+     * 선택한 하나의 Transaction 정보 조회.
+     *
+     * @param traceIdParam
+     * @param focusTimestamp
+     * @return
+     */
+    @RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
+    public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp,
+                                        // FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
+                                        // 기존 html view에서 json을 넘어가는 중임.
+                                        @RequestParam(value = "jsonResult", required = false, defaultValue = "false") boolean jsonResult,
+                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+        logger.debug("traceId:{}", traceIdParam);
 
-		final TransactionId traceId = new TransactionId(traceIdParam);
+        final TransactionId traceId = new TransactionId(traceIdParam);
 
-		ModelAndView mv = new ModelAndView("transactionInfo");
+        ModelAndView mv = new ModelAndView("transactionInfo");
 
-		try {
-			// select spans
-			List<SpanAlign> spanAligns = this.spanService.selectSpan(traceId);
+        try {
+            // select spans
+            final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
+            List<SpanAlign> spanAligns = spanResult.getSpanAlign();
 
-			if (spanAligns.isEmpty()) {
-				mv.addObject("errorCode", 9);
-				mv.setViewName("error");
-				return mv;
-			}
+            if (spanAligns.isEmpty()) {
+                mv.addObject("errorCode", 9);
+                mv.setViewName("error");
+                return mv;
+            }
 
-			// debug
-			mv.addObject("spanList", spanAligns);
+            // debug
+            mv.addObject("spanList", spanAligns);
 
-			mv.addObject("traceId", traceId);
+            mv.addObject("traceId", traceId);
 
-			// call tree
-			ServerCallTree callTree = this.flow.selectServerCallTree(traceId);
-			mv.addObject("nodes", callTree.getNodes());
-			mv.addObject("links", callTree.getLinks());
+            // call tree
+            ServerCallTree callTree = this.flow.selectServerCallTree(traceId);
+            mv.addObject("nodes", callTree.getNodes());
+            mv.addObject("links", callTree.getLinks());
 
-			// call stacks
-			RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
-			mv.addObject("recordSet", recordSet);
+            // call stacks
+            RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
+            mv.addObject("recordSet", recordSet);
 
-			mv.addObject("applicationName", recordSet.getApplicationName());
-			mv.addObject("callstack", recordSet.getRecordList());
-			mv.addObject("timeline", recordSet.getRecordList());
-			mv.addObject("callstackStart", recordSet.getStartTime());
-			mv.addObject("callstackEnd", recordSet.getEndTime());
-		} catch (Exception e) {
-			logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
-			// TODO 아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
-			// throw e;
-		}
+            mv.addObject("applicationName", recordSet.getApplicationName());
+            mv.addObject("callstack", recordSet.getRecordList());
+            mv.addObject("timeline", recordSet.getRecordList());
+            mv.addObject("callstackStart", recordSet.getStartTime());
+            mv.addObject("callstackEnd", recordSet.getEndTime());
+            mv.addObject("completeState", spanResult.getCompleteTypeString());
+        } catch (Exception e) {
+            logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
+            // TODO 아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
+            // throw e;
+        }
 
-		// FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
-		if (jsonResult) {
-			if (viewVersion == 2) {
-				mv.setViewName("transactionInfoJsonHash");
-			} else {
-				mv.setViewName("transactionInfoJson");
-			}
-		}
-		
-		return mv;
-	}
+        // FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
+        if (jsonResult) {
+            if (viewVersion == 2) {
+                mv.setViewName("transactionInfoJsonHash");
+            } else {
+                mv.setViewName("transactionInfoJson");
+            }
+        }
+
+        return mv;
+    }
+
 }

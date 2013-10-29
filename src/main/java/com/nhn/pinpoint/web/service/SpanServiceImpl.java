@@ -46,22 +46,22 @@ public class SpanServiceImpl implements SpanService {
 	private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
 	@Override
-	public List<SpanAlign> selectSpan(TransactionId transactionId) {
+	public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
 
 		List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
 		if (spans == null || spans.isEmpty()) {
-			return Collections.emptyList();
+			return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
 		}
 
-		List<SpanAlign> order = order(spans);
+        SpanResult result = order(spans, selectedSpanHint);
+        List<SpanAlign> order = result.getSpanAlign();
 //		transitionApiId(order);
 		transitionDynamicApiId(order);
 		transitionSqlId(order);
         transitionCachedString(order);
         transitionException(order);
 		// TODO root span not found시 row data라도 보여줘야 됨.
-
-		return order;
+		return result;
 	}
 
 
@@ -365,13 +365,15 @@ public class SpanServiceImpl implements SpanService {
 		void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);
 	}
 
-	private List<SpanAlign> order(List<SpanBo> spans) {
-		SpanAligner2 spanAligner = new SpanAligner2(spans);
+	private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
+		SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
         List<SpanAlign> sort = spanAligner.sort();
+
         logger.trace("SpanAlignList:{}", sort);
-        return sort;
+        return new SpanResult(spanAligner.getMatchType(), sort);
 
 	}
+
 
     private static class AgentKey {
 
