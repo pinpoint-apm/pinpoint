@@ -11,7 +11,6 @@ import java.util.List;
 public class SpanResult {
     private int completeType;
     private List<SpanAlign> spanAlign;
-    private Object completeTypeString;
 
     public SpanResult(int completeType, List<SpanAlign> spanAlign) {
         if (spanAlign == null) {
