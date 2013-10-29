@@ -642,7 +642,7 @@
             println("Version file exists and is directory! Wont overwrite");
             return;
         }
-        if(versionFile.exists() && versionFile.isDirectory()) {
+        if(versionFile.exists()) {
             println("Version file already exists, overwriting!");
         }
         println("Creating Version.java File");
