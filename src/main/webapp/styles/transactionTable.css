@@ -15,7 +15,8 @@
 }
 
 .transaction-table_header {
-    background-color: #dff0d8;
+    /*background-color: #dff0d8;*/
+    background: #fafafa url(../images/fhbg.gif) repeat-x bottom;
     height: 30px;
     position: absolute;
     top: 0;
