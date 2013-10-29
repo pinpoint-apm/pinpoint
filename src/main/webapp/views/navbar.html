@@ -17,7 +17,7 @@
                     <li class="for-datetimepicker">
                         <div  ng-show="periodType == 'last'" class="btn-group" style="margin-top:0px;">
                             <label class="btn" ng-class="{'btn-success': periodType == 'last'}">
-                                <input type="radio" ng-click="changePeriodTypeTo('range')"><i class="icon-calendar icon-white"></i>
+                                <input type="radio" ng-click="changePeriodTypeTo('range')"><i class="icon-th-list icon-white"></i>
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 5}">
                                 <input type="radio" ng-click="periodClick(5)">Last 5m
@@ -46,7 +46,7 @@
                         </div>
                         <div ng-show="periodType == 'range'" class="datetimepicker input-prepend input-append date">
                             <button class="btn btn-success" ng-click="changePeriodTypeTo('last')">
-                                <i class="icon-th-list icon-white"></i>
+                                <i class="icon-calendar icon-white"></i>
                             </button>
                             <input id="from-picker" type="text">
                             <span class="add-on">
