@@ -8,6 +8,7 @@ import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 import com.nhn.pinpoint.thrift.dto.TStatWithCmsCollector;
 import com.nhn.pinpoint.thrift.dto.TStatWithG1Collector;
 import com.nhn.pinpoint.thrift.dto.TStatWithParallelCollector;
+import com.nhn.pinpoint.thrift.dto.TStatWithSerialCollector;
 import com.nhn.pinpoint.web.vo.linechart.LineChart;
 import com.nhn.pinpoint.web.vo.linechart.SampledLineChart;
 
@@ -80,8 +81,8 @@ public class AgentStatChartGroup {
 			}
 			break;
 		case SERIAL:
-			TStatWithG1Collector serial = (TStatWithG1Collector) typeObject;
-			for (TStatWithG1Collector._Fields each : TStatWithG1Collector.metaDataMap.keySet()) {
+			TStatWithSerialCollector serial = (TStatWithSerialCollector) typeObject;
+			for (TStatWithSerialCollector._Fields each : TStatWithSerialCollector.metaDataMap.keySet()) {
 				Object fieldValue = serial.getFieldValue(each);
 				if (! (fieldValue instanceof Long)) {
 					continue;
