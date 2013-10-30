@@ -1,12 +1,12 @@
 <div class="container">
     <div class="row">
         <div class="span12">
-            <h3>Inspector</h3>
+            <h3><i class="icon-zoom-in"></i>Inspector</h3>
         </div>
     </div>
     <div class="row">
         <div class="span12">
-            <h4><i class="icon-chevron-right"></i>Informations</h4>
+            <h4 style="color:#0088cc;">Informations</h4>
             <table class="table table-striped table-condensed">
                 <tbody>
                 <tr ng-repeat="i in info">
@@ -23,8 +23,7 @@
     </div>
     <div class="row">
         <div class="span12">
-            <h4><i class="icon-chevron-right"></i>Memory & Garbage Collection</h4>
-            <hr/>
+            <h4 style="color:#0088cc;">Memory & Garbage Collection</h4>
             <div class="{{each.span}}" ng-repeat="each in memoryGroup">
                 <h5>{{each.title}}</h5>
                 <svg id="line_{{each.id}}" style="height:200px;" />
