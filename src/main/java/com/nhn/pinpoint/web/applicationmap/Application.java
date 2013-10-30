@@ -47,24 +47,30 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 		return serverInstanceList;
 	}
 
+	/**
+	 * 어플리케이션에 속한 물리서버와 서버 인스턴스 정보를 채운다.
+	 * 
+	 * @param hostHistogram
+	 */
 	private void fillServerInstanceList(final Map<String, Host> hostHistogram) {
 		if (hostHistogram == null) {
 			return;
 		}
 		
 		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
-			String name = entry.getKey();
+			String instanceName = entry.getKey();
+			int pos = instanceName.indexOf(':');
+			String hostName = (pos > 0) ? instanceName.substring(0, pos) : instanceName;
 			ServiceType serviceType = entry.getValue().getServiceType();
-			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(name);
+			ServerInstance serverInstance = new ServerInstance(instanceName, serviceType, null);
 
-			ServerInstance serverInstance = new ServerInstance(name, serviceType, null);
-
+			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(hostName);
 			if (serverInstanceMap == null) {
 				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
 				value.put(serverInstance.getId(), serverInstance);
-				serverInstanceList.put(name, value);
+				serverInstanceList.put(hostName, value);
 			} else {
-				MergeableMap<String, ServerInstance> map = serverInstanceList.get(name);
+				MergeableMap<String, ServerInstance> map = serverInstanceList.get(hostName);
 				map.putOrMerge(serverInstance.getId(), serverInstance);
 			}
 		}
