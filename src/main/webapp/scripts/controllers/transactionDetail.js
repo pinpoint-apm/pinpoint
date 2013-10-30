@@ -87,7 +87,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
         if (completeState === 'Complete') {
             completeStateClass = 'label-success';
         } else if (completeState === 'Progress') {
-            completeStateClass = 'lable-warning';
+            completeStateClass = 'label-warning';
         }
         return completeStateClass;
     };
