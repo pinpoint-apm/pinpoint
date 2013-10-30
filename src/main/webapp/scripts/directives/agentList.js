@@ -68,7 +68,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              */
             scope.select = function (agent) {
                 scope.currentAgent = agent;
-                $rootScope.$broadcast('agentList.agentChanged', agent);
+                $rootScope.$broadcast('agentList.agentChanged', oNavbarDao, agent);
             };
 
             /**

@@ -22,7 +22,7 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.service.AgentStatService;
-import com.nhn.pinpoint.web.vo.linechart.AgentStatLineChart;
+import com.nhn.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
 
 @Controller
 public class AgentStatController {
@@ -45,20 +45,25 @@ public class AgentStatController {
 							@RequestParam("agentId") String agentId,
 							@RequestParam("from") long from,
 							@RequestParam("to") long to,
+							@RequestParam(value = "sampleRate", required = false) Integer sampleRate,
 							@RequestParam(value = "_callback", required = false) String jsonpCallback) throws Exception {
 		StopWatch watch = new StopWatch();
-		watch.start("getAgentStat");
-		
+		watch.start("agentStatService.selectAgentStatList");
 		List<TAgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, from, to);
-		
 		watch.stop();
+		
 		if (logger.isInfoEnabled()) {
 			logger.info("getAgentStat(agentId={}, from={}, to={}) : {}ms", agentId, from, to, watch.getLastTaskTimeMillis());
 		}
 
-		AgentStatLineChart chart = new AgentStatLineChart();
+		int nPoints = (int) (to - from) / 5000;
+		if (sampleRate == null) {
+			sampleRate = nPoints < 300 ? 1 : nPoints / 300;
+		}
+		
+		AgentStatChartGroup chart = new AgentStatChartGroup();
 		for (TAgentStat each : agentStatList) {
-			chart.addData(each);
+			chart.addData(each, sampleRate);
 		}
 		
 		// JSON or JSONP response

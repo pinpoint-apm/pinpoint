@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author harebox
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@ContextConfiguration("classpath:applicationContext.xml")
 public class HbaseAgentStatDaoTest {
 
 	@Autowired
@@ -22,7 +22,7 @@ public class HbaseAgentStatDaoTest {
 	@Test
 	public void selectAgentStat() {
 		long timestamp = System.currentTimeMillis();
-		List<TAgentStat> result = dao.scanAgentStatList("FRONT-WEB", timestamp - 100000, timestamp);
+		List<TAgentStat> result = dao.scanAgentStatList("FRONT-WEB1", timestamp - 100000, timestamp);
 		System.out.println(result);
 	}
 	
