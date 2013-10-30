@@ -189,10 +189,11 @@ pinpointApp.directive('scatter',
                  * @param start
                  * @param end
                  * @param period
+                 * @param filter
                  * @param w
                  * @param h
                  */
-                makeScatter = function (title, start, end, period, w, h) {
+                makeScatter = function (title, start, end, period, filter, w, h) {
                     if (!Modernizr.canvas) {
                         alert("Can't draw scatter. Not supported browser.");
                     }
@@ -240,7 +241,7 @@ pinpointApp.directive('scatter',
                             oScatterChart.destroy();
                         }
                         oScatterChart = new BigScatterChart(options);
-                        showScatter(title, start, end, period);
+                        showScatter(title, start, end, period, filter);
                     }, 100);
 
                 };
@@ -250,14 +251,14 @@ pinpointApp.directive('scatter',
                  */
                 scope.$on('scatter.initialize', function (event, navbarDao) {
                     oNavbarDao = navbarDao;
-                    makeScatter(oNavbarDao.getApplicationName(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
+                    makeScatter(oNavbarDao.getApplicationName(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod(), oNavbarDao.getFilter());
                 });
 
                 /**
                  * scope event on scatter.initializeWithNode
                  */
                 scope.$on('scatter.initializeWithNode', function (event, node) {
-                    makeScatter(node.applicationName || node.text, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod());
+                    makeScatter(node.applicationName || node.text, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod(), oNavbarDao.getFilter());
                 });
 
             }
