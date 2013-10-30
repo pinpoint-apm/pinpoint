@@ -10,8 +10,12 @@
             <table class="table table-striped table-condensed">
                 <tbody>
                 <tr ng-repeat="i in info">
-                    <td>{{i.key}}</td>
-                    <td><b>{{i.val}}</b></td>
+                    <td><b>{{i.key}}</b></td>
+                    <td>{{i.val}}</td>
+                </tr>
+                <tr>
+                    <td><b>Uptime</b></td>
+                    <td>{{agent.uptime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
                 </tr>
                 </tbody>
             </table>
