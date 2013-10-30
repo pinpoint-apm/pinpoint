@@ -6,14 +6,22 @@
         width: 100%;
         height: 100%;
     }
+    .app-title {
+        text-align:center;
+        line-height:30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overow: ellipsis;
+    }
 </style>
 
 <div class="navbar navbar-fixed-top" style="height:30px;background-color:#252a3a;color:#ddd;font-size:11px;">
     <div class="row-fluid">
-        <div class="span3" style="text-align:center;line-height:30px">Application : {{transactionDetail.applicationName}}</div>
-        <div class="span3" style="text-align:center;line-height:30px">TransactionId : {{transactionDetail.transactionId}}</div>
-        <div class="span3" style="text-align:center;line-height:30px">AgentId : {{transactionDetail.agentId}}</div>
-        <div class="span3" style="text-align:center;line-height:30px">ApplicationId : {{transactionDetail.applicationId}}</div>
+        <div class="span3 app-title">Application : {{transactionDetail.applicationName}}</div>
+        <div class="span3 app-title">TransactionId : {{transactionDetail.transactionId}}</div>
+        <div class="span3 app-title">AgentId : {{transactionDetail.agentId}}</div>
+        <div class="span3 app-title">ApplicationId : {{transactionDetail.applicationId}}</div>
     </div>
 </div>
 
