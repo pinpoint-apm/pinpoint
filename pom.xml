@@ -619,9 +619,9 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo.groovy</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
-                <version>1.0-beta-3</version>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>1.5</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -629,33 +629,7 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <source>
-                                <![CDATA[
-        println("==== Creating Version.java ====");
-        File mainDir = new File("src/main");
-        if(mainDir.exists() && !mainDir.isDirectory()) {
-            println("Main dir does not exist, wont create version.txt!");
-            return;
-        }
-        File versionFile = new File("src/main/java/com/nhn/pinpoint/common/Version.java");
-        if(versionFile.exists() && versionFile.isDirectory()) {
-            println("Version file exists and is directory! Wont overwrite");
-            return;
-        }
-        if(versionFile.exists()) {
-            println("Version file already exists, overwriting!");
-        }
-        println("Creating Version.java File");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(versionFile));
-
-        writer.write("package com.nhn.pinpoint.common;\n");
-        writer.write("public final class Version {\n");
-        writer.write("  public static final String VERSION = \"${project.version}\";\n");
-        writer.write("}");
-        writer.close();
-        ]]>
-
-                            </source>
+                            <source>${pom.basedir}/VersionScript.groovy</source>
                         </configuration>
                     </execution>
                 </executions>
