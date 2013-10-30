@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.common.bo;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
@@ -24,7 +27,10 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private long endTimeStamp;
     private int endStatus;
 
-
+// it's thread-safe. 공통 bean이 있지만 BO가 spring에 등록 안되어 있으므로 일단 만든다.
+//	@Autowired
+//	@Qualifier("jsonObjectMapper")
+	private ObjectMapper jsonObjectMapper = new ObjectMapper();
 
 
     public AgentInfoBo(TAgentInfo agentInfo) {
@@ -186,21 +192,14 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		return true;
 	}
 
+	@JsonIgnore
 	public String getJson() {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("{");
-		sb.append("\t\"ip\" : \"").append(ip).append("\",");
-		sb.append("\t\"hostname\" : \"").append(hostname).append("\",");
-		sb.append("\t\"ports\" : \"").append(ports).append("\",");
-		sb.append("\t\"agentId\" : \"").append(agentId).append("\",");
-		sb.append("\t\"applicationName\" : \"").append(applicationName).append("\",");
-		sb.append("\t\"serviceType\" : \"").append(serviceType).append("\",");
-        sb.append("\t\"version\" : \"").append(version).append("\",");
-		sb.append("\t\"uptime\" : \"").append(startTime).append("\"");
-		sb.append("}");
-		
-		return sb.toString();
+		try {
+			return jsonObjectMapper.writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{}";
+		}
 	}
 
     @Override
