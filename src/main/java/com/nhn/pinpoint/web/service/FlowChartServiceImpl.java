@@ -475,7 +475,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 //					// host 정보 추가.
 //					stat2.addToHost(spanEvent.getEndPoint());
 					
-					stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+					// stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+					stat2.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
 					
 					// agent 정보추가.
 					// destination의 agent정보 알 수 없음.
