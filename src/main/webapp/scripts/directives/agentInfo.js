@@ -35,13 +35,13 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                 scope.agent = agent;
 
                 scope.info = [
-                    { key: 'AgentId', val: agent.agentId },
-                    { key: 'Group', val: agent.applicationName },
+                    { key: 'Agent Id', val: agent.agentId },
+                    { key: 'Application Name', val: agent.applicationName },
                     { key: 'Hostname', val: agent.hostname },
                     { key: 'IP', val: agent.ip },
                     { key: 'Service Type', val: agent.serviceType },
-                    { key: 'Version', val: agent.version },
-                    { key: 'Uptime', val: agent.uptime }
+                    { key: 'PID', val: agent.pid },
+                    { key: 'Agent Version', val: agent.version }
                 ];
 
                 console.log('got agentList.agentChanged', agent);
@@ -67,10 +67,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             };
 
             /**
-            jvmGcPSMarkSweepCount
-            jvmGcPSMarkSweepTime
-            jvmGcPSScavengeCount
-            jvmGcPSScavengeTime
             jvmMemoryPoolsCodeCacheUsage
             jvmMemoryPoolsPSEdenSpaceUsage
             jvmMemoryPoolsPSOldGenUsage
@@ -78,22 +74,22 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             jvmMemoryPoolsPSSurvivorSpaceUsage
             */
             d3MakeGcCharts = function (agentStat, cb) {
-                var total = { id: 'total', title: 'Total (Heap + Non-Heap)', span: 'span12', line: [
+                var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
                     { id: 'jvmMemoryTotalUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryTotalMax', key: 'max', values: [] },
-                    { id: 'gc', key: 'gc', values: [], bar: true }
+                    { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
                 var heap = { id: 'heap', title: 'Heap', span: 'span5', line: [
                     { id: 'jvmMemoryHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryHeapMax', key: 'max', values: [] },
-                    { id: 'gc', key: 'gc', values: [], bar: true }
+                    { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
-                var nonheap = { id: 'nonheap', title: 'Non-Heap', span: 'span5', line: [
+                var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span5', line: [
                     { id: 'jvmMemoryNonHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryNonHeapMax', key: 'max', values: [] },
-                    { id: 'gc', key: 'gc', values: [], bar: true }
+                    { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
                 var result = [ total, heap, nonheap ];
@@ -110,13 +106,13 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                             // bar chart
                             var key;
                             if ('serial' == agentStat.type) {
-                                key = '';
+                                key = 'jvmGcMarkSweepCompact';
                             } else if ('parallel' == agentStat.type) {
                                 key = 'jvmGcPSMarkSweep';
                             } else if ('cms' == agentStat.type) {
-                                key = '';
+                                key = 'jvmGcCms';
                             } else if ('g1' == agentStat.type) {
-                                key = '';
+                                key = 'jvmGcG1OldGeneration';
                             }
                             if (key) {
                                 var pointsTime = agentStat.charts[key+'Time'].points;
@@ -127,11 +123,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                                     return;
                                 }
 
-                                // 1st point
-                                line.values.push({x: pointsTime[0][POINTS_TIMESTAMP], y: 0});
-                                line.prevTime = 0;
-                                line.prevCount = 0;
-
                                 for (var i = pointsCount.length-1; i >= 0; --i) {
                                     var timestamp = pointsTime[i][POINTS_TIMESTAMP];
                                     var currTime = pointsTime[i][POINTS_MAX];
@@ -139,12 +130,18 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                                     var prevTime = line.prevTime;
                                     var prevCount = line.prevCount;
 
-                                    if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
-                                        line.values.push({x: timestamp, y: currTime - prevTime});
-                                        line.prevTime = currTime;
-                                        line.prevCount = currCount;
-                                    } else {
+                                    if (! line.prevTime || ! line.prevCount) {
                                         line.values.push({x: timestamp, y: 0});
+                                        line.prevTime = currTime;
+                                        line.prevCount = currCount;    
+                                    } else {
+                                        if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
+                                            line.values.push({x: timestamp, y: currTime - prevTime});
+                                            line.prevTime = currTime;
+                                            line.prevCount = currCount;
+                                        } else {
+                                            line.values.push({x: timestamp, y: 0});
+                                        }
                                     }
                                 }
                             }

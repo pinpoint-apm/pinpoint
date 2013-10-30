@@ -14,8 +14,12 @@
                     <td>{{i.val}}</td>
                 </tr>
                 <tr>
-                    <td><b>Uptime</b></td>
-                    <td>{{agent.uptime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                    <td><b>Start Time</b></td>
+                    <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                </tr>
+                <tr>
+                    <td><b>End Status</b></td>
+                    <td>{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
                 </tr>
                 </tbody>
             </table>
