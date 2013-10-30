@@ -82,6 +82,11 @@ public class ApplicationMap {
 			}
 		}
 
+		// build application
+		for (Entry<String, Application> app : applications.entrySet()) {
+			app.getValue().build();
+		}
+		
 		built = true;
 		return this;
 	}
@@ -115,7 +120,6 @@ public class ApplicationMap {
 		if (!application.getServiceType().isRpcClient()) {
 			applicationNames.add(application.getApplicationName());
 		}
-		logger.debug("add application {}", application);
 		applications.putOrMerge(application.getId(), application);
 	}
 

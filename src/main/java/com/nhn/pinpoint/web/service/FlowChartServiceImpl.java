@@ -1,9 +1,10 @@
 package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
@@ -499,6 +501,13 @@ public class FlowChartServiceImpl implements FlowChartService {
 			}
 		}
 		
+		// mark agent info
+		Iterator<TransactionFlowStatistics> iterator = statisticsData.iterator();
+		while(iterator.hasNext()) {
+			TransactionFlowStatistics stat = iterator.next();
+			fillAdditionalInfo(stat, from, to);
+		}
+		
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
 
 //		map.setTimeseriesResponses(tr);
@@ -507,5 +516,29 @@ public class FlowChartServiceImpl implements FlowChartService {
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
 
 		return map;
+	}
+	
+	private void fillAdditionalInfo(TransactionFlowStatistics stat, long from, long to) {
+		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
+			return;
+		}
+		Set<AgentInfoBo> agentSet = selectAgents(stat.getTo());
+		if (agentSet.isEmpty()) {
+			return;
+		}
+		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+		stat.addToAgentSet(agentSet);
+		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
+	}
+
+	private Set<AgentInfoBo> selectAgents(String applicationId) {
+		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
+		Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+		for (String agentId : agentIds) {
+			// TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
+			AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
+			agentSet.add(info);
+		}
+		return agentSet;
 	}
 }

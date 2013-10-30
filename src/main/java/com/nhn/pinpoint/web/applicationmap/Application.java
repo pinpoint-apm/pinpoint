@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,18 +33,37 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 	protected final ServiceType serviceType;
 	protected final Map<String, MergeableMap<String, ServerInstance>> serverInstanceList = new TreeMap<String, MergeableMap<String, ServerInstance>>();
 
+	private final Map<String, Host> serverList = new TreeMap<String, Host>();
+	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+	
+	private boolean isBuilt = false;
+	
 	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> serverList, Set<AgentInfoBo> agentSet) {
 		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
+		if (serverList != null) {
+			this.serverList.putAll(serverList);
+		}
 		if (agentSet != null) {
+			this.agentSet.addAll(agentSet);
+		}
+	}
+
+	public Application build() {
+		if (isBuilt) {
+			return this;
+		}
+		if (!agentSet.isEmpty()) {
 			fillServerInstanceList(agentSet);
 		} else {
 			fillServerInstanceList(serverList);
 		}
+		isBuilt = true;
+		return this;
 	}
-
+	
 	public Map<String, MergeableMap<String, ServerInstance>> getServerInstanceList() {
 		return serverInstanceList;
 	}
@@ -114,7 +135,14 @@ public class Application implements Comparable<Application>, Mergeable<Applicati
 	@Override
 	public Application mergeWith(Application application) {
 		logger.debug("merge application a={}, b={}", this.id, application.id);
-
+		
+		if (application.serverList != null) {
+			this.serverList.putAll(application.serverList);
+		}
+		if (application.agentSet != null) {
+			this.agentSet.addAll(application.agentSet);
+		}
+		
 		// FIXME 여기를 주석처리하면 filter map에서 데이터가 제대로 보이지 않고.
 		// 주석 해제하면 통계 map에서 데이터가 맞지 않음.
 		// merge server instance list
