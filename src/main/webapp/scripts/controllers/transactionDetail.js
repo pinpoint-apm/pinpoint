@@ -6,10 +6,10 @@ pinpointApp.constant('TransactionDetailConfig', {
 pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, Alerts, ProgressBar) {
 
     // defien private variables
-    var oAlert, oProgressBar;
+    var oAlert, oProgressBar, bShowCallStacksOnce;
 
     // define private variables of methods
-    var getTransactionDetail, parseTransactionDetail, showCallStacks, bShowCallStacksOnce;
+    var getTransactionDetail, parseTransactionDetail, showCallStacks, parseCompleteStateToClass;
 
     // initialize
     bShowCallStacksOnce = false;
@@ -61,6 +61,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             },
             error: function (xhr, status, error) {
                 oProgressBar.stopLoading();
+                oAlert.showError('There is some error while downloading the data.');
                 console.log("ERROR", status, error);
             }
         });
@@ -72,7 +73,23 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
      */
     parseTransactionDetail = function (result) {
         $scope.transactionDetail = result;
+        $scope.completeStateClass = parseCompleteStateToClass(result.completeState);
         $scope.$digest();
+    };
+
+    /**
+     * parse complete state to class
+     * @param completeState
+     * @returns {string}
+     */
+    parseCompleteStateToClass = function (completeState) {
+        var completeStateClass = 'label-important';
+        if (completeState === 'Complete') {
+            completeStateClass = 'label-success';
+        } else if (completeState === 'Progress') {
+            completeStateClass = 'lable-warning';
+        }
+        return completeStateClass;
     };
 
     /**
