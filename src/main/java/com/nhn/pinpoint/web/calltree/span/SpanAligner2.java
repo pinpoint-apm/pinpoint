@@ -24,12 +24,12 @@ public class SpanAligner2 {
 
 
     private static final Integer ROOT = -1;
-	private final Map<Integer, List<SpanBo>> spanMap;
+	private final Map<Integer, List<SpanBo>> spanIdMap;
 	private Integer rootSpanId = null;
     private int matchType = FAIL_MATCH;
 
 	public SpanAligner2(List<SpanBo> spans, long collectorAcceptTime) {
-        this.spanMap = buildSpanMap(spans);
+        this.spanIdMap = buildSpanMap(spans);
         this.rootSpanId = findRootSpanId(spans, collectorAcceptTime);
     }
 
@@ -41,17 +41,18 @@ public class SpanAligner2 {
             }
         }
         // 최상 조건의 best매치. 완벽 조건의 매치.
-        final int matchSize = root.size();
-        if (matchSize == 1) {
+        final int rootSpanBoSize = root.size();
+        if (rootSpanBoSize == 1) {
             final SpanBo spanBo = root.get(0);
-            logger.debug("root span found best match:{}", spanBo);
+            logger.debug("root span found. best match:{}", spanBo);
             matchType = BEST_MATCH;
+            // 틈세가 추가로 있음. root는 있으나 조회한 span이 없을 경우 추가처리가 있어야함.
             return spanBo.getSpanId();
         }
         // 버그 rootspan이 2개 이상인 경우는 로직 버그이다. 아무거나 잡아서 데이터를 뿌려줘야 되나?
-        if (matchSize > 1) {
-            logger.warn("parentSpanId(-1) collision. size:{} root span:{} allSpan:{}", matchSize, root, spans);
-            throw new IllegalStateException("parentSpanId(-1) collision. size:" + matchSize);
+        if (rootSpanBoSize > 1) {
+            logger.warn("parentSpanId(-1) collision. size:{} root span:{} allSpan:{}", rootSpanBoSize, root, spans);
+            throw new IllegalStateException("parentSpanId(-1) collision. size:" + rootSpanBoSize);
         }
 
         // root 분실. 혹은 아직 도착하지 않아 root가 완성 되지 않음. 즉 진행중인 process일 수 있음.
@@ -105,12 +106,12 @@ public class SpanAligner2 {
 
     public List<SpanAlign> sort() {
 		List<SpanAlign> list = new ArrayList<SpanAlign>();
-		final List<SpanBo> rootList = spanMap.get(rootSpanId);
+		final List<SpanBo> rootList = spanIdMap.get(rootSpanId);
 		if (rootList == null || rootList.size() == 0) {
-			throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanMap.keySet());
+			throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
 		}
         if (rootList.size() > 1) {
-            throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanMap.keySet());
+            throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
         SpanBo rootSpanBo = rootList.get(0);
         populate(rootSpanBo, 0, list);
@@ -150,20 +151,44 @@ public class SpanAligner2 {
 			SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
 			container.add(spanEventAlign);
 
-			// TODO spanEvent이 drop되면 container에 채워지지 못하는 Span이 생길 수 있다.
-			int nextSpanId = spanEventBo.getNextSpanId();
-			if (nextSpanId != ROOT && spanMap.containsKey(nextSpanId)) {
+			final int nextSpanId = spanEventBo.getNextSpanId();
+            final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
+            if (nextSpanId != ROOT && nextSpanBoList != null) {
                 int childDepth = currentDepth + 1;
-                // TODO 중복 처리?
-                SpanBo spanBo = spanMap.get(nextSpanId).get(0);
-                logger.info("remote spanEvent:{} spanBo:{}", spanEventBo, spanBo);
+
+                SpanBo spanBo = getNextSpan(span, spanEventBo, nextSpanBoList);
                 if (spanBo != null) {
                     populate(spanBo, childDepth, container);
                 } else {
-                    logger.info("nextSpanId not found. {}", nextSpanId);
+                    logger.debug("nextSpanId not found. {}", nextSpanId);
                 }
 			}
 		}
         logger.debug("populate end");
 	}
+
+    // nextSpan의 충돌 까지 해결한다.
+    private SpanBo getNextSpan(SpanBo span, SpanEventBo beforeSpanEventBo, List<SpanBo> nextSpanBoList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("beforeSpanEvent:{}, nextSpanBoList:{}", beforeSpanEventBo, nextSpanBoList);
+        }
+        if (nextSpanBoList.size() == 1) {
+            return nextSpanBoList.get(0);
+        } else if(nextSpanBoList.size() > 1) {
+            // 최대한 비슷한 매칭을 시도한다.
+//            return spanBos.get(0);
+            long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
+
+            SpanIdMatcher spanIdMatcher = new SpanIdMatcher(nextSpanBoList);
+            // 전체를 보지 않고 일부만 보고 유사도를 측정하므로, 패킷 lost등에 매우 취약함. 전체를 보고 근사도를 추가 분석하는 방법이 추가되어야 될것 같음.
+            SpanBo matched = spanIdMatcher.executeTimeBaseMatch(spanEventBoStartTime);
+            List<SpanBo> other = spanIdMatcher.other();
+            if (other != null) {
+                spanIdMap.put(matched.getSpanId(), other);
+            }
+            return matched;
+        } else {
+            throw new IllegalStateException("error");
+        }
+    }
 }
