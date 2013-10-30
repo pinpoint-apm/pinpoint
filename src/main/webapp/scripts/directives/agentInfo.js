@@ -33,6 +33,17 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             scope.$on('agentList.agentChanged', function (event, oNavbarDao, agent) {
                 scope.agentInfoTemplate = 'views/agentInfoMain.html';
                 scope.agent = agent;
+
+                scope.info = [
+                    { key: 'AgentId', val: agent.agentId },
+                    { key: 'Group', val: agent.applicationName },
+                    { key: 'Hostname', val: agent.hostname },
+                    { key: 'IP', val: agent.ip },
+                    { key: 'Service Type', val: agent.serviceType },
+                    { key: 'Version', val: agent.version },
+                    { key: 'Uptime', val: agent.uptime }
+                ];
+
                 console.log('got agentList.agentChanged', agent);
                 showAgentStat(agent.agentId, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getPeriod());
             });
@@ -220,7 +231,9 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                 
                 getAgentStat(query, function (result) {
                     scope.agentStat = result;
-                    scope.info.push({key:'JVM GC Type', val:result.type});
+                    if (result.type) {
+                        scope.info.push({key:'JVM GC Type', val:result.type});
+                    }
                     d3MakeGcCharts(result, function() { });
                     scope.$digest();
                 });
