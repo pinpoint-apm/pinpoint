@@ -173,6 +173,7 @@ public class DefaultAgent implements Agent {
         agentInfo.setPid(agentInformation.getPid());
         agentInfo.setStartTimestamp(agentInformation.getStartTime());
 		agentInfo.setServiceType(agentInformation.getServerType());
+        agentInfo.setVersion(Version.VERSION);
 
 //        agentInfo.setIsAlive(true);
 
