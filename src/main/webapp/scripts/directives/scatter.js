@@ -4,7 +4,8 @@ pinpointApp.constant('scatterConfig', {
     get: {
         scatterData: '/getScatterData.pinpoint',
         lastScatterData: '/getLastScatterData.pinpoint'
-    }
+    },
+    useInterval: false
 });
 
 // FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
@@ -82,22 +83,11 @@ pinpointApp.directive('scatter',
 
                     var htDataSource = {
                         sUrl: function (nFetchIndex) {
-//								if (!usePeriod) {
-//									return cfg.get.scatterData;
-//								}
-
-//								if (nFetchIndex === 0) {
-//									return cfg.get.lastScatterData;
-//								} else {
                             return cfg.get.scatterData;
-//								}
                         },
                         htParam: function (nFetchIndex, htLastFetchParam, htLastFetchedData) {
                             // calculate parameter
                             var htData;
-//								console.log("htParam", nFetchIndex, htLastFetchParam, htLastFetchedData);
-
-//								if (nFetchIndex === 0 && !usePeriod) {
                             if (nFetchIndex === 0) {
                                 htData =  {
                                     'application': applicationName,
@@ -105,36 +95,14 @@ pinpointApp.directive('scatter',
                                     'to': to,
                                     'limit': fetchLimit
                                 };
-                                if (filter) {
-                                    htData.filter = filter;
-                                }
-                                return htData;
-                            }
-
-                            // period만큼 먼저 조회해본다.
-                            if (nFetchIndex === 0 /*|| typeof(htLastFetchParam) === 'undefined' || typeof(htLastFetchedData) === 'undefined'*/) {
+                            } else {
                                 htData = {
                                     'application': applicationName,
-                                    'period': period,
+                                    // array[0] 이 최근 값, array[len]이 오래된 이다.
+                                    'from': from,
+                                    'to': htLastFetchedData.resultFrom - 1,
                                     'limit': fetchLimit
                                 };
-                            } else {
-                                if (bDrawOnceAll || htLastFetchedData.scatter.length == 0) {
-                                    htData = {
-                                        'application': applicationName,
-                                        'from': htLastFetchParam.to + 1,
-                                        'to': htLastFetchParam.to + 2000,
-                                        'limit': fetchLimit
-                                    };
-                                } else {
-                                    htData = {
-                                        'application': applicationName,
-                                        // array[0] 이 최근 값, array[len]이 오래된 이다.
-                                        'from': from,
-                                        'to': htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1].x - 1,
-                                        'limit': fetchLimit
-                                    };
-                                }
                             }
                             if (filter) {
                                 htData.filter = filter;
@@ -144,30 +112,8 @@ pinpointApp.directive('scatter',
                         },
                         nFetch: function (htLastFetchParam, htLastFetchedData) {
                             // -1 : stop, n = 0 : immediately, n > 0 : interval
-                            var useInterval = false;
-
-//								console.log("nFetch", htLastFetchedData);
-
-                            if (useInterval && htLastFetchedData.scatter.length === 0) {
-//									console.log("2A");
-                                bDrawOnceAll = true;
-                                return nInterval;
-                            }
-
-                            if (htLastFetchedData.scatter.length !== 0) {
-                                // array[0] 이 최근 값, array[len]이 오래된 이다.
-                                if (htLastFetchedData.scatter[0].x > from) {
-                                    // TO THE NEXT
-                                    return 0;
-                                } else {
-                                    // STOP
-                                    return -1;
-                                }
-                            }
-
-                            if (htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1] &&
-                                htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1].x < date.getTime()) {
-                                if (useInterval) {
+                            if (htLastFetchedData.resultFrom - 1 > from) {
+                                if (cfg.useInterval) {
                                     bDrawOnceAll = true;
                                     return nInterval;
                                 }
