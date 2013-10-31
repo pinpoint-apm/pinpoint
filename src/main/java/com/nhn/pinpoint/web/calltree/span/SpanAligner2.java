@@ -180,8 +180,12 @@ public class SpanAligner2 {
             long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
 
             SpanIdMatcher spanIdMatcher = new SpanIdMatcher(nextSpanBoList);
-            // 전체를 보지 않고 일부만 보고 유사도를 측정하므로, 패킷 lost등에 매우 취약함. 전체를 보고 근사도를 추가 분석하는 방법이 추가되어야 될것 같음.
-            SpanBo matched = spanIdMatcher.executeTimeBaseMatch(spanEventBoStartTime);
+            // 전체를 보지 않고 일부만 보고 유사도를 측정하므로, 패킷 lost등에 매우 취약함. 전체를 보고 근사도를 추가 분석하는 방법이 강구되어야 될것 같음.
+            SpanBo matched = spanIdMatcher.approximateMatch(spanEventBoStartTime);
+            if (matched == null) {
+                // match되는 span을 찾을수 없음.
+                return null;
+            }
             List<SpanBo> other = spanIdMatcher.other();
             if (other != null) {
                 spanIdMap.put(matched.getSpanId(), other);
