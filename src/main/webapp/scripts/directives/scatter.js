@@ -5,7 +5,9 @@ pinpointApp.constant('scatterConfig', {
         scatterData: '/getScatterData.pinpoint',
         lastScatterData: '/getLastScatterData.pinpoint'
     },
-    useInterval: false
+    useIntervalForFetching: false,
+    nFetchingInterval: 2000,
+    nFetchLimit: 2000
 });
 
 // FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
@@ -28,7 +30,6 @@ pinpointApp.directive('scatter',
                 // initialize
                 oScatterChart = null;
                 oNavbarDao = null;
-                scope.popup = [];
 
                 /**
                  * show scatter
@@ -77,9 +78,7 @@ pinpointApp.directive('scatter',
 
 //						$("#scatterChartContainer").show();
 
-                    var bDrawOnceAll = false,
-                        nInterval = 2000,
-                        fetchLimit = 2000;
+                    var bDrawOnceAll = false;
 
                     var htDataSource = {
                         sUrl: function (nFetchIndex) {
@@ -93,7 +92,7 @@ pinpointApp.directive('scatter',
                                     'application': applicationName,
                                     'from': from,
                                     'to': to,
-                                    'limit': fetchLimit
+                                    'limit': cfg.nFetchLimit
                                 };
                             } else {
                                 htData = {
@@ -101,7 +100,7 @@ pinpointApp.directive('scatter',
                                     // array[0] 이 최근 값, array[len]이 오래된 이다.
                                     'from': from,
                                     'to': htLastFetchedData.resultFrom - 1,
-                                    'limit': fetchLimit
+                                    'limit': cfg.nFetchLimit
                                 };
                             }
                             if (filter) {
@@ -113,9 +112,9 @@ pinpointApp.directive('scatter',
                         nFetch: function (htLastFetchParam, htLastFetchedData) {
                             // -1 : stop, n = 0 : immediately, n > 0 : interval
                             if (htLastFetchedData.resultFrom - 1 > from) {
-                                if (cfg.useInterval) {
+                                if (cfg.useIntervalForFetching) {
                                     bDrawOnceAll = true;
-                                    return nInterval;
+                                    return cfg.nFetchingInterval;
                                 }
                                 // TO THE NEXT
                                 return 0;
