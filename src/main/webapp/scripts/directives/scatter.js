@@ -99,13 +99,16 @@ pinpointApp.directive('scatter',
 
 //								if (nFetchIndex === 0 && !usePeriod) {
                             if (nFetchIndex === 0) {
-                                return {
+                                htData =  {
                                     'application': applicationName,
                                     'from': from,
                                     'to': to,
-                                    'limit': fetchLimit,
-                                    'filter': filter
+                                    'limit': fetchLimit
                                 };
+                                if (filter) {
+                                    htData.filter = filter;
+                                }
+                                return htData;
                             }
 
                             // period만큼 먼저 조회해본다.
@@ -113,8 +116,7 @@ pinpointApp.directive('scatter',
                                 htData = {
                                     'application': applicationName,
                                     'period': period,
-                                    'limit': fetchLimit,
-                                    'filter': filter
+                                    'limit': fetchLimit
                                 };
                             } else {
                                 if (bDrawOnceAll || htLastFetchedData.scatter.length == 0) {
@@ -122,8 +124,7 @@ pinpointApp.directive('scatter',
                                         'application': applicationName,
                                         'from': htLastFetchParam.to + 1,
                                         'to': htLastFetchParam.to + 2000,
-                                        'limit': fetchLimit,
-                                        'filter': filter
+                                        'limit': fetchLimit
                                     };
                                 } else {
                                     htData = {
@@ -131,10 +132,12 @@ pinpointApp.directive('scatter',
                                         // array[0] 이 최근 값, array[len]이 오래된 이다.
                                         'from': from,
                                         'to': htLastFetchedData.scatter[htLastFetchedData.scatter.length - 1].x - 1,
-                                        'limit': fetchLimit,
-                                        'filter': filter
+                                        'limit': fetchLimit
                                     };
                                 }
+                            }
+                            if (filter) {
+                                htData.filter = filter;
                             }
 
                             return htData;
