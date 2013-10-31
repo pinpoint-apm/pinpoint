@@ -1,12 +1,13 @@
 package com.nhn.pinpoint.web.service;
 
+import java.util.Collection;
 import java.util.List;
 
+import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.nhn.pinpoint.common.bo.SpanBo;
 
 public interface ScatterChartService {
 
@@ -18,7 +19,7 @@ public interface ScatterChartService {
 	 * @param filter
 	 * @return
 	 */
-	public List<Dot> selectScatterData(List<TransactionId> traceIds, String applicationName, Filter filter);
+	public List<Dot> selectScatterData(Collection<TransactionId> traceIds, String applicationName, Filter filter);
 
 	/**
 	 * 전체 데이터 검색.
@@ -40,7 +41,7 @@ public interface ScatterChartService {
 	 * @param limit
 	 * @return
 	 */
-	public List<TransactionId> selectScatterTraceIdList(String applicationName, long from, long to, int limit);
+//	public List<TransactionId> selectScatterTraceIdList(String applicationName, long from, long to, int limit);
 
 	public List<SpanBo> selectTransactionMetadata(TransactionMetadataQuery query);
 }

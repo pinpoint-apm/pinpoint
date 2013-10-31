@@ -1,28 +1,29 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.nhn.pinpoint.common.hbase.LimitEventHandler;
-import com.nhn.pinpoint.common.util.*;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.nhn.pinpoint.common.hbase.LimitEventHandler;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.common.util.DateUtils;
+import com.nhn.pinpoint.common.util.SpanUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.vo.ResultWithMark;
-import com.nhn.pinpoint.web.vo.TraceIdWithTime;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -102,7 +103,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             KeyValue last = keyValueArray[keyValueArray.length - 1];
             byte[] row = last.getRow();
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
-            long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.AGENT_NAME_MAX_LEN);
+            long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
             this.lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
         }
 
@@ -110,16 +111,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             return lastRowTimestamp;
         }
     }
-
-//	@Override
-//	public List<List<List<TransactionId>>> multiScanTraceIndex(String[] applicationNames, long start, long end) {
-//		final List<Scan> multiScan = new ArrayList<Scan>(applicationNames.length);
-//		for (String agent : applicationNames) {
-//			Scan scan = createScan(agent, start, end);
-//			multiScan.add(scan);
-//		}
-//		return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, multiScan, traceIndexMapper);
-//	}
 
 	private Scan createScan(String applicationName, long start, long end) {
 		Scan scan = new Scan();
@@ -160,44 +151,4 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
         return mergeList;
 	}
-
-	@Override
-	public List<TransactionId> scanTraceScatterTransactionIdList(String applicationName, long start, long end, final int limit) {
-        logger.debug("scanTraceScatterTransactionIdList");
-		Scan scan = createScan(applicationName, start, end);
-
-		List<TransactionId> list = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, new ResultsExtractor<List<TransactionId>>() {
-			@Override
-			public List<TransactionId> extractData(ResultScanner results) throws Exception {
-				List<TransactionId> list = new ArrayList<TransactionId>();
-				for (Result result : results) {
-					if (result == null) {
-						continue;
-					}
-
-					KeyValue[] raw = result.raw();
-					for (KeyValue kv : raw) {
-                        TraceIdWithTime traceIdWithTime = createTraceIdWithTime(kv);
-                        list.add(traceIdWithTime);
-					}
-
-					if (list.size() >= limit) {
-						break;
-					}
-				}
-				return list;
-			}
-		});
-		return list;
-	}
-
-    private TraceIdWithTime createTraceIdWithTime(KeyValue kv) {
-        final byte[] buffer = kv.getBuffer();
-
-        long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
-        long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
-
-        final int qualifierOffset = kv.getQualifierOffset();
-        return new TraceIdWithTime(buffer, qualifierOffset, acceptedTime);
-    }
 }

@@ -1,11 +1,12 @@
 package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
+import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.TraceIdWithTime;
+import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.nhn.pinpoint.common.bo.SpanBo;
 
 /**
  * 
@@ -35,6 +38,9 @@ public class ScatterChartController {
 
 	@Autowired
 	private ScatterChartService scatter;
+	
+	@Autowired
+	private FlowChartService flow;
 
 	@RequestMapping(value = "/selectedScatter", method = RequestMethod.GET)
 	public String selectedScatter(Model model, HttpServletResponse response) {
@@ -73,29 +79,32 @@ public class ScatterChartController {
 	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback, @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
-
+		
 		List<Dot> scatterData;
 		if (filterText == null) {
+			// FIXME ResultWithMark로 변경해야함.
 			scatterData = scatter.selectScatterData(applicationName, from, to, limit);
 			
 			if (scatterData.isEmpty()) {
 				model.addAttribute("queryStart", -1);
 				model.addAttribute("queryEnd", -1);
 			} else {
-				model.addAttribute("queryStart", scatterData.get(0).getTimestamp());
+				model.addAttribute("queryStart", from);
 				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
 			}
 		} else {
-			List<TransactionId> traceIds = scatter.selectScatterTraceIdList(applicationName, from, to, limit);
+			ResultWithMark<List<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+			SortedSet<TransactionId> traceIds = new TreeSet<TransactionId>(traceIdList.getValue());
+			scatterData = scatter.selectScatterData(traceIds, applicationName, FilterBuilder.build(filterText));
 
 			if (traceIds.isEmpty()) {
 				model.addAttribute("queryStart", -1);
 				model.addAttribute("queryEnd", -1);
 			} else {
-				model.addAttribute("queryStart", ((TraceIdWithTime) traceIds.get(0)).getAcceptedTime());
-				model.addAttribute("queryEnd", ((TraceIdWithTime) traceIds.get(traceIds.size() - 1)).getAcceptedTime());
+				model.addAttribute("queryStart", from);
+				// FIXME UI로직이 -1이면 조회 중지하게 되어있어서 일단 이렇게 하면 되는데 불필요한 추가 조회를 없애려면 query parameter TO를 반환하도록 하면 됨.
+				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
 			}
-			scatterData = scatter.selectScatterData(traceIds, applicationName, FilterBuilder.build(filterText));
 		}
 
 		watch.stop();
@@ -103,7 +112,6 @@ public class ScatterChartController {
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
 
 		model.addAttribute("scatter", scatterData);
-
 
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고. 변경 후 삭제예정.
 		if (jsonpCallback == null) {
