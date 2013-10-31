@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 @Component
 public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	// @Autowired
 	// private AbstractRowKeyDistributor rowKeyDistributor;
 
@@ -33,6 +37,8 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 			// key값만큼 1증가 시킴
 			TransactionId traceId = new TransactionId(buffer, qualifierOffset);
 			traceIdList.add(traceId);
+			
+			logger.debug("found traceId {}", traceId);
 		}
 		return traceIdList;
 	}

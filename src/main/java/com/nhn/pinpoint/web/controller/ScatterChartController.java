@@ -76,34 +76,49 @@ public class ScatterChartController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("limit") int limit, @RequestParam(value = "filter", required = false) String filterText, @RequestParam(value = "_callback", required = false) String jsonpCallback, @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+	public String getScatterData(Model model,
+								HttpServletResponse response,
+								@RequestParam("application") String applicationName, 
+								@RequestParam("from") long from, 
+								@RequestParam("to") long to,
+								@RequestParam("limit") int limit, 
+								@RequestParam(value = "filter", required = false) String filterText, 
+								@RequestParam(value = "_callback", required = false) String jsonpCallback,
+								@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+
+		logger.debug("fetch scatter data FROM={}, TO={}, LIMIT={}, FILTER={}", from, to, limit, filterText);
+		
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 		
 		List<Dot> scatterData;
 		if (filterText == null) {
-			// FIXME ResultWithMark로 변경해야함.
+			// FIXME ResultWithMark로 변경해야할지도?
 			scatterData = scatter.selectScatterData(applicationName, from, to, limit);
 			
 			if (scatterData.isEmpty()) {
-				model.addAttribute("queryStart", -1);
-				model.addAttribute("queryEnd", -1);
+				model.addAttribute("resultFrom", -1);
+				model.addAttribute("resultTo", -1);
 			} else {
-				model.addAttribute("queryStart", from);
-				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
+				model.addAttribute("resultFrom", scatterData.get(scatterData.size() - 1).getTimestamp());
+				model.addAttribute("resultTo", to);
 			}
 		} else {
-			ResultWithMark<List<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-			SortedSet<TransactionId> traceIds = new TreeSet<TransactionId>(traceIdList.getValue());
-			scatterData = scatter.selectScatterData(traceIds, applicationName, FilterBuilder.build(filterText));
+			ResultWithMark<List<TransactionId>, Long> traceIdWithMark = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+			List<TransactionId> traceIdList = traceIdWithMark.getValue(); 
+			logger.debug("selected traceidList {}", traceIdList);
+			
+			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+			logger.debug("selectScatterData with {}", traceIdSet);
+			
+			scatterData = scatter.selectScatterData(traceIdSet, applicationName, FilterBuilder.build(filterText));
 
-			if (traceIds.isEmpty()) {
-				model.addAttribute("queryStart", -1);
-				model.addAttribute("queryEnd", -1);
+			if (traceIdList.isEmpty()) {
+				model.addAttribute("resultFrom", -1);
+				model.addAttribute("resultTo", -1);
 			} else {
-				model.addAttribute("queryStart", from);
-				// FIXME UI로직이 -1이면 조회 중지하게 되어있어서 일단 이렇게 하면 되는데 불필요한 추가 조회를 없애려면 query parameter TO를 반환하도록 하면 됨.
-				model.addAttribute("queryEnd", scatterData.get(scatterData.size() - 1).getTimestamp());
+				model.addAttribute("resultFrom", traceIdWithMark.getMark());
+				model.addAttribute("resultTo", to);
 			}
 		}
 

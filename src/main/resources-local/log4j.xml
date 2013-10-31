@@ -13,6 +13,16 @@
 
 
     <logger name="com.nhn.pinpoint" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.filter" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.controller" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>

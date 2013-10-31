@@ -105,6 +105,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
             this.lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+            
+            logger.debug("lastRowTimestamp {}", lastRowTimestamp);
         }
 
         private Long getLastRowTimestamp() {
