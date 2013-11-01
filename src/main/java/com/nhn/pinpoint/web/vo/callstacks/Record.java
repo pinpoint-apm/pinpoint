@@ -23,7 +23,7 @@ public class Record {
 	private final long elapsed;
     private final long gap;
 	private final String agent;
-	private final String service;
+	private final String applicationName;
     private final ServiceType serviceType;
     private final String destinationId;
 	private final boolean excludeFromTimeline;
@@ -31,7 +31,7 @@ public class Record {
     private boolean focused;
     private boolean hasChild;
 
-	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String service, ServiceType serviceType, String destinationId, boolean hasChild) {
+	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild) {
 		this.tab = tab;
 		this.id = id;
 		this.parentId = parentId;
@@ -44,7 +44,7 @@ public class Record {
         this.gap = gap;
 		this.agent = agent;
 
-		this.service = service;
+		this.applicationName = applicationName;
         this.serviceType = serviceType;
         this.destinationId = destinationId;
 
@@ -102,8 +102,8 @@ public class Record {
 		return agent;
 	}
 
-	public String getService() {
-		return service;
+	public String getApplicationName() {
+		return applicationName;
 	}
 
     public String getApiType() {
@@ -169,7 +169,7 @@ public class Record {
         sb.append(", elapsed=").append(elapsed);
         sb.append(", gap=").append(gap);
         sb.append(", agent='").append(agent).append('\'');
-        sb.append(", service='").append(service).append('\'');
+        sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", serviceType=").append(serviceType);
         sb.append(", destinationId='").append(destinationId).append('\'');
         sb.append(", excludeFromTimeline=").append(excludeFromTimeline);

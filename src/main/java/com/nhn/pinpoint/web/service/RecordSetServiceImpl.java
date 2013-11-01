@@ -213,13 +213,39 @@ public class RecordSetServiceImpl implements RecordSetService {
                     String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
                     if (method !=  null) {
                         ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, getGap(stack), spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(), 
+													spanBoSequence, 
+													parentSequence, 
+													true, 
+													apiDescription.getSimpleMethodDescription(),
+													argument, 
+													begin,
+													elapsed, 
+													getGap(stack),
+													spanBo.getAgentId(), 
+													spanBo.getApplicationId(), 
+													spanBo.getServiceType(), 
+													null, 
+													spanAlign.isHasChild());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
                         AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                        Record record = new Record(spanAlign.getDepth(), spanBoSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, getGap(stack), spanBo.getAgentId(), spanBo.getApplicationId(), spanBo.getServiceType(), null, spanAlign.isHasChild());
+                        Record record = new Record(spanAlign.getDepth(),
+													spanBoSequence, 
+													parentSequence, 
+													true, 
+													apiMetaDataError.getValue(), 
+													argument,
+													begin,
+													elapsed, 
+													getGap(stack),
+													spanBo.getAgentId(), 
+													spanBo.getApplicationId(),
+													spanBo.getServiceType(),
+													null, 
+													spanAlign.isHasChild());
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -238,6 +264,7 @@ public class RecordSetServiceImpl implements RecordSetService {
                     }
                 } else {
                     SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
+                    SpanBo spanBo = spanAlign.getSpanBo();
 
                     String argument = getDisplayArgument(spanEventBo);
                     final int spanBoEventSequence = stack.getLast().getId();
@@ -252,7 +279,22 @@ public class RecordSetServiceImpl implements RecordSetService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiDescription.getSimpleMethodDescription(), argument, begin, elapsed, getGap(stack), spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        // stacktrace에 호출한 application name을 보여주기 위해서 eventbo.destinationid 대신에 spanbo.applicaitonid를 넣어줌.
+                        Record record = new Record(spanAlign.getDepth(), 
+													spanBoEventSequence,
+													parentSequence, 
+													true, 
+													apiDescription.getSimpleMethodDescription(), 
+													argument, 
+													begin, 
+													elapsed,
+													getGap(stack),
+													spanEventBo.getAgentId(), 
+													spanBo.getApplicationId(), 
+													spanBo.getServiceType(),
+													/* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
+													destinationId,
+													spanAlign.isHasChild());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -264,7 +306,22 @@ public class RecordSetServiceImpl implements RecordSetService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        Record record = new Record(spanAlign.getDepth(), spanBoEventSequence, parentSequence, true, apiMetaDataError.getValue(), argument, begin, elapsed, getGap(stack), spanEventBo.getAgentId(), spanEventBo.getDestinationId(), spanEventBo.getServiceType(), destinationId, spanAlign.isHasChild());
+                        // stacktrace에 호출한 application name을 보여주기 위해서 eventbo.destinationid 대신에 spanbo.applicaitonid를 넣어줌.
+                        Record record = new Record(spanAlign.getDepth(),
+													spanBoEventSequence, 
+													parentSequence, 
+													true, 
+													apiMetaDataError.getValue(), 
+													argument, 
+													begin,
+													elapsed, 
+													getGap(stack),
+													spanEventBo.getAgentId(),
+													spanBo.getApplicationId(), 
+													spanBo.getServiceType(), 
+													/*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
+													destinationId, 
+													spanAlign.isHasChild());
                         record.setSimpleClassName("");
                         record.setFullApiDescription(method);
 
@@ -288,13 +345,39 @@ public class RecordSetServiceImpl implements RecordSetService {
                 final SpanBo spanBo = spanAlign.getSpanBo();
                 if (spanBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false);
+                    return new Record(spanAlign.getDepth() + 1, 
+										getNextId(), 
+										parentSequence,
+										false, 
+										simpleExceptionClass, 
+										spanBo.getExceptionMessage(), 
+										0L, 
+										0L, 
+										0, 
+										null, 
+										null, 
+										null, 
+										null,
+										false);
                 }
             } else {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
                 if (spanEventBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanEventBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false);
+                    return new Record(spanAlign.getDepth() + 1, 
+										getNextId(), 
+										parentSequence, 
+										false, 
+										simpleExceptionClass, 
+										spanEventBo.getExceptionMessage(),
+										0L, 
+										0L, 
+										0, 
+										null, 
+										null, 
+										null, 
+										null, 
+										false);
                 }
             }
             return null;
