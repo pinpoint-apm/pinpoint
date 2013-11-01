@@ -292,8 +292,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													elapsed,
 													getGap(stack),
 													spanEventBo.getAgentId(), 
-													spanBo.getApplicationId(), 
-													spanBo.getServiceType(),
+													spanBo.getApplicationId(),
+                                                    spanEventBo.getServiceType(),
 													/* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
 													destinationId,
 													spanAlign.isHasChild(),
@@ -320,8 +320,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													elapsed, 
 													getGap(stack),
 													spanEventBo.getAgentId(),
-													spanBo.getApplicationId(), 
-													spanBo.getServiceType(), 
+													spanBo.getApplicationId(),
+                                                    spanEventBo.getServiceType(),
 													/*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
 													destinationId, 
 													spanAlign.isHasChild(),
