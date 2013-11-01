@@ -765,6 +765,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             });
 
             /**
+             * scope event on serverMap.fetch
+             */
+            scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
+                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+            });
+
+            /**
              * scope event on serverMap.initializeWithMapData
              */
             scope.$on('serverMap.initializeWithMapData', function (event, mapData) {

@@ -63,9 +63,12 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event of timeSlider.moreClicked
      */
     $scope.$on('timeSlider.moreClicked', function (event) {
-        oNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
-        oNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
-        $scope.$emit('serverMap.initialize', oNavbarDao);
+        var newNavbarDao = new NavbarDao();
+        newNavbarDao.setApplication(oNavbarDao.getApplication());
+        newNavbarDao.setQueryStartTime(oNavbarDao.getQueryStartTime());
+        newNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
+        newNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+        $scope.$emit('serverMap.fetch', newNavbarDao.getQueryPeriod(), newNavbarDao.getQueryEndTime());
     });
 
     /**
