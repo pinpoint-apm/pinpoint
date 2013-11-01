@@ -331,8 +331,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 		watch.start();
 
         // 개별 객체를 각각 보고 재귀 내용을 삭제함.
-        // 향후 tree base로 중복 구간을 점검하여 없앨 경우 filter를 치면 안됨.
-        Collection<TransactionId> filterdList = filter(transactionIdList);
+        // 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
+        Collection<TransactionId> filterdList = recursiveCallFilter(transactionIdList);
 
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(filterdList);
 
@@ -488,9 +488,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 		
 		// mark agent info
-		Iterator<TransactionFlowStatistics> iterator = statisticsData.iterator();
-		while(iterator.hasNext()) {
-			TransactionFlowStatistics stat = iterator.next();
+		for (TransactionFlowStatistics stat  : statisticsData) {
 			fillAdditionalInfo(stat, from, to);
 		}
 		
@@ -504,7 +502,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		return map;
 	}
 
-    private Collection<TransactionId> filter(List<TransactionId> transactionIdList) {
+    private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
         List<TransactionId> crashKey = new ArrayList<TransactionId>();
         Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
         for (TransactionId transactionId: transactionIdList) {
