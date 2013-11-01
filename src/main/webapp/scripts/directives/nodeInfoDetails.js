@@ -84,7 +84,6 @@ pinpointApp
                 renderApplicationStatistics = function (data) {
                     scope.showNodeInfoBarChart = true;
                     scope.$digest();
-                    nv.dev = false;
                     nv.addGraph(function () {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;

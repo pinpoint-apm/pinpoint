@@ -8,6 +8,7 @@ pinpointApp.factory('NavbarDao', function () {
         this._nPeriod = false;
         this._nQueryEndTime = false;
         this._sFilter = false;
+        this._sAgentId = false;
 
         this._nQueryPeriod = false;
         this._nQueryStartTime = false;
@@ -77,6 +78,16 @@ pinpointApp.factory('NavbarDao', function () {
         };
         this.getFilter = function () {
             return self._sFilter;
+        };
+
+        this.setAgentId = function (agentId) {
+            if (angular.isString(agentId)) {
+                self._sAgentId = agentId;
+            }
+            return self;
+        };
+        this.getAgentId = function () {
+            return self._sAgentId;
         };
 
         this.autoCalculateByQueryEndTimeAndPeriod = function () {

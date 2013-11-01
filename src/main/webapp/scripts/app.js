@@ -1,5 +1,6 @@
 'use strict';
 
+nv.dev = false;
 var pinpointApp = angular.module('pinpointApp', [ 'ngResource', 'webStorageModule' ]);
 
 pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
@@ -13,12 +14,12 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     }).when('/filteredMap/:application/:period/:queryEndTime/:filter', {
         templateUrl: 'views/filteredMap.html',
         controller: 'FilteredMapCtrl'
-    }).when('/spy/:application/:period/:queryEndTime', {
-        templateUrl: 'views/spy.html',
-        controller: 'SpyCtrl'
-    }).when('/spy/:application/:period/:queryEndTime/:agentId', {
-        templateUrl: 'views/spy.html',
-        controller: 'SpyCtrl'
+    }).when('/inspector/:application/:period/:queryEndTime', {
+        templateUrl: 'views/inspector.html',
+        controller: 'InspectorCtrl'
+    }).when('/inspector/:application/:period/:queryEndTime/:agentId', {
+        templateUrl: 'views/inspector.html',
+        controller: 'InspectorCtrl'
     }).when('/transactionList', {
         templateUrl: 'views/transactionList.html',
         controller: 'TransactionListCtrl'

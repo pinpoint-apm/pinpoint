@@ -1,13 +1,13 @@
 'use strict';
 
-pinpointApp.controller('SpyCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarDao',
+pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarDao',
     function ($scope, $timeout, $routeParams, $location, NavbarDao) {
 
         // define private variables
-        var oNavbarDao;
+        var oNavbarDao, oAgent;
 
         // define private variables of methods
-        var getFirstPathOfLocation, changeLocation;
+        var getFirstPathOfLocation, changeLocation, getLocation, isLocationChanged;
 
         /**
          * initialize
@@ -23,6 +23,9 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$timeout', '$routeParams', '$loca
             if ($routeParams.queryEndTime) {
                 oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
+            if ($routeParams.agentId) {
+                oNavbarDao.setAgentId($routeParams.agentId);
+            }
             oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
             $scope.$emit('navbar.initializeWithStaticApplication', oNavbarDao);
             $scope.$emit('agentList.initialize', oNavbarDao);
@@ -33,7 +36,20 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$timeout', '$routeParams', '$loca
          */
         $scope.$on('navbar.changed', function (event, navbarDao) {
             oNavbarDao = navbarDao;
-            changeLocation(oNavbarDao);
+            changeLocation();
+        });
+
+        /**
+         * scope event of agentList.agentChanged
+         */
+        $scope.$on('agentList.agentChanged', function (event, agent) {
+            oAgent = agent;
+            oNavbarDao.setAgentId(agent.agentId);
+
+            if (isLocationChanged()) {
+                changeLocation();
+            }
+            $scope.$emit('agentInfo.initialize', oNavbarDao, oAgent);
         });
 
         /**
@@ -49,9 +65,33 @@ pinpointApp.controller('SpyCtrl', [ '$scope', '$timeout', '$routeParams', '$loca
          * change location
          */
         changeLocation = function () {
-            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
-            if ($location.path() !== url) {
+            var url = getLocation();
+            if (isLocationChanged()) {
                 $location.path(url);
             }
+        };
+
+        /**
+         * get location
+         * @returns {string}
+         */
+        getLocation = function () {
+            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
+            if (oNavbarDao.getAgentId()) {
+                url += '/' + oNavbarDao.getAgentId();
+            }
+            return url;
+        };
+
+        /**
+         * is location changed
+         * @returns {boolean}
+         */
+        isLocationChanged = function () {
+            var url = getLocation();
+            if ($location.path() !== url) {
+                return true;
+            }
+            return false;
         };
     }]);

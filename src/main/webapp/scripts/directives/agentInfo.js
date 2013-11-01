@@ -28,9 +28,9 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             ];
 
             /**
-             * scope event of agentList.angetChanged
+             * scope event of agentInfo.initialize
              */
-            scope.$on('agentList.agentChanged', function (event, oNavbarDao, agent) {
+            scope.$on('agentInfo.initialize', function (event, oNavbarDao, agent) {
                 scope.agentInfoTemplate = 'views/agentInfoMain.html';
                 scope.agent = agent;
 
@@ -44,15 +44,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     { key: 'Agent Version', val: agent.version }
                 ];
 
-                console.log('got agentList.agentChanged', agent);
                 showAgentStat(agent.agentId, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getPeriod());
-            });
-            
-            /**
-             * scope event of navbar.changed
-             */
-            scope.$on('navbar.changed', function (event, oNavbarDao) {
-                console.log('got navbar.changed', oNavbarDao);
+                scope.$apply();
             });
 
             /**
@@ -153,8 +146,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                             };
                         }
                     });
-                    console.log(each.line);
-                    
+
                     // draw a chart
                     nv.addGraph(function () {
                         var chart = nv.models.linePlusBarChart();
@@ -203,7 +195,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     dataType: 'json',
                     data: query,
                     success: function (result) {
-                        console.log('result', result);
                         cb(result);
                     },
                     error: function (xhr, status, error) {

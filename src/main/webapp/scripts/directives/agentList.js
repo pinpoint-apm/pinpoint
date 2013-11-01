@@ -15,7 +15,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
             var oNavbarDao;
 
             // define private variables of methods
-            var getAgentGroup, showAgentGroup;
+            var getAgentGroup, showAgentGroup, findAgentByAgentId;
 
             /**
              * get agent group
@@ -34,7 +34,6 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
                         to: query.to
                     },
                     success: function (result) {
-                        console.log('result', result);
                         cb(result);
                     },
                     error: function (xhr, status, error) {
@@ -50,7 +49,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              * @param from
              * @param to
              */
-            showAgentGroup = function (applicationName, serviceType, from, to) {
+            showAgentGroup = function (applicationName, serviceType, from, to, selectedAgentId) {
                 var query = {
                     applicationName: applicationName,
                     from: from,
@@ -58,8 +57,20 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
                 };
                 getAgentGroup(query, function (result) {
                     scope.agentGroup = result;
+                    scope.select(findAgentByAgentId(selectedAgentId));
                     scope.$digest();
                 });
+            };
+
+            findAgentByAgentId = function (agentId) {
+                for (var key in scope.agentGroup) {
+                    for (var innerKey in scope.agentGroup[key].agentList) {
+                        if (scope.agentGroup[key].agentList[innerKey].agentId === agentId) {
+                            return scope.agentGroup[key].agentList[innerKey];
+                        }
+                    }
+                }
+                return false;
             };
 
             /**
@@ -68,7 +79,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              */
             scope.select = function (agent) {
                 scope.currentAgent = agent;
-                $rootScope.$broadcast('agentList.agentChanged', oNavbarDao, agent);
+                scope.$emit('agentList.agentChanged', agent);
             };
 
             /**
@@ -76,7 +87,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              */
             scope.$on('agentList.initialize', function (event, navbarDao) {
                 oNavbarDao = navbarDao;
-                showAgentGroup(oNavbarDao.getApplicationName(), oNavbarDao.getServiceType(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime());
+                showAgentGroup(oNavbarDao.getApplicationName(), oNavbarDao.getServiceType(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getAgentId());
             });
         }
     };
