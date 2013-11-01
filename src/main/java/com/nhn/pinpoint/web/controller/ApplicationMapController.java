@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
@@ -35,6 +35,9 @@ public class ApplicationMapController {
 
 	@Autowired
 	private FlowChartService flow;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
 	/**
 	 * FROM ~ TO기간의 서버 맵 데이터 조회
@@ -101,7 +104,7 @@ public class ApplicationMapController {
 		model.addAttribute("fromDate", new Date(from));
 		model.addAttribute("toDate", new Date(to));
 		model.addAttribute("filterText", filterText);
-		model.addAttribute("filter", FilterBuilder.build(filterText));
+		model.addAttribute("filter", filterBuilder.build(filterText));
 
 		return "applicationmap.filtered.view";
 	}
@@ -130,7 +133,7 @@ public class ApplicationMapController {
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-		Filter filter = FilterBuilder.build(filterText);
+		Filter filter = filterBuilder.build(filterText);
 		
 		ApplicationMap map = flow.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
 		
@@ -248,7 +251,7 @@ public class ApplicationMapController {
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		LimitedScanResult<List<TransactionId>> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-		Filter filter = FilterBuilder.build(filterText);
+		Filter filter = filterBuilder.build(filterText);
 		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
 		model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());

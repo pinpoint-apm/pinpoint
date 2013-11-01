@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.SpanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.RecordSetService;
 import com.nhn.pinpoint.web.service.SpanService;
@@ -47,6 +47,9 @@ public class BusinessTransactionController {
 	@Autowired
 	private FlowChartService flow;
 
+    @Autowired
+    private FilterBuilder filterBuilder;
+
     /**
 	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
 	 * 
@@ -68,7 +71,7 @@ public class BusinessTransactionController {
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 		LimitedScanResult<List<TransactionId>> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 
-		Filter filter = FilterBuilder.build(filterText);
+		Filter filter = filterBuilder.build(filterText);
 		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
 
 		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());

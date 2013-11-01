@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.filter.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
@@ -41,6 +41,9 @@ public class ScatterChartController {
 	
 	@Autowired
 	private FlowChartService flow;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
 	@RequestMapping(value = "/selectedScatter", method = RequestMethod.GET)
 	public String selectedScatter(Model model, HttpServletResponse response) {
@@ -111,7 +114,7 @@ public class ScatterChartController {
 			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
 			logger.debug("selectScatterData with {}", traceIdSet);
 			
-			scatterData = scatter.selectScatterData(traceIdSet, applicationName, FilterBuilder.build(filterText));
+			scatterData = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));
 
 			if (traceIdList.isEmpty()) {
 				model.addAttribute("resultFrom", -1);
