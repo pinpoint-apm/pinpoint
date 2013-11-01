@@ -23,7 +23,7 @@
                 <img ng-src="/images/icons/{{nodeIcon | icons}}.png" width="20" height="10"/> {{nodeName}}
             </div>
             <div ng-show="showServers">
-                <h5>Servers <a class="btn btn-mini" ng-show="isWas" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank"><i class="icon-search"></i></a></h5>
+                <h5>Servers <a class="btn btn-mini" ng-show="isWas" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank" title="Inspect Agents" alt="Inspect Agents"><i class="icon-search"></i></a></h5>
                 <ul class="server-list">
                     <li ng-repeat="(key, server) in serverList">
                         <i class="icon-home"></i>
