@@ -701,7 +701,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     srcApplicationName = scope.srcApplicationName,
                     destServiceType = scope.destServiceType,
                     destApplicationName = scope.destApplicationName,
-                    prevFilter = scope.filter;
+                    prevFilter = scope.oNavbarDao.getFilter();
 
                 var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
                     + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
