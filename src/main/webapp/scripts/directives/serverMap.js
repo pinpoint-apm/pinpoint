@@ -127,7 +127,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
                         var foundNodeKeyFromLastMapData = findExistingNodeFromLastMapData(node);
                         if (foundNodeKeyFromLastMapData) {
-                            mergeNodeData(foundNodeKeyFromLastMapData, node);
+                            mergeNodeData(foundNodeKeyFromLastMapData - 1, node);
                             newKey[node.key] = foundNodeKeyFromLastMapData;
                         } else {
                             node.key = node.id = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
@@ -170,6 +170,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             mergeNodeData = function (nodeKey, node) {
                 for (var key in node.serverList) {
+//                    if (angular.isUndefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey])) {
+//                        htLastMapData.applicationMapData.nodeDataArray[nodeKey] = {
+//                            serverList: []
+//                        };
+//                    }
                     if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
                         for (var innerKey in node.serverList[key].instanceList) {
                             if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey]) {
@@ -274,9 +279,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             getFilteredServerMapData = function (query, callback) {
                 oProgressBar.setLoading(30);
+                var url;
+                if (oServerMap) {
+                    url = 'test2.json';
+                } else {
+                    url = 'test1.json';
+                }
                 jQuery.ajax({
                     type: 'GET',
-                    url: cfg.filteredServerMapDataUrl,
+//                    url: cfg.filteredServerMapDataUrl,
+                    url: url,
                     cache: false,
                     dataType: 'json',
                     data: {
