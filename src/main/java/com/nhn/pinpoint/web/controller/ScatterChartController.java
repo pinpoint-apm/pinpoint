@@ -7,6 +7,8 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.common.util.DateUtils;
+import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,21 +109,26 @@ public class ScatterChartController {
 				model.addAttribute("resultTo", to);
 			}
 		} else {
-			LimitedScanResult<List<TransactionId>> traceIdWithMark = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-			List<TransactionId> traceIdList = traceIdWithMark.getScanData();
+			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+			List<TransactionId> traceIdList = limitedScanResult.getScanData();
 			logger.debug("selected traceidList {}", traceIdList);
 			
 			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
 			logger.debug("selectScatterData with {}", traceIdSet);
-			
-			scatterData = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));
+
+            Filter filter = filterBuilder.build(filterText);
+            scatterData = scatter.selectScatterData(traceIdSet, applicationName, filter);
 
 			if (traceIdList.isEmpty()) {
 				model.addAttribute("resultFrom", -1);
 				model.addAttribute("resultTo", -1);
 			} else {
-				model.addAttribute("resultFrom", traceIdWithMark.getLimitedTime());
+				model.addAttribute("resultFrom", limitedScanResult.getLimitedTime());
 				model.addAttribute("resultTo", to);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {} limited:{} filterDataSize:{}",
+                            limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
+                }
 			}
 		}
 

@@ -5,8 +5,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +33,10 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 @Controller
 public class ApplicationMapController {
 
-	@Autowired
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    @Autowired
 	private ApplicationMapService applicationMapService;
 
 	@Autowired
@@ -141,7 +147,10 @@ public class ApplicationMapController {
 		model.addAttribute("to", to);
 		model.addAttribute("filter", filter);
 		model.addAttribute("lastFetchedTimestamp", limitedScanResult.getLimitedTime());
-		
+        if (logger.isDebugEnabled()) {
+            logger.debug("getFilteredServerMapData range scan(limit:{}) from~to:{} ~ {} lastFetchedTimestamp:{}", limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()));
+        }
+
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
 //		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
