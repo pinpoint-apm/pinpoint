@@ -279,16 +279,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             getFilteredServerMapData = function (query, callback) {
                 oProgressBar.setLoading(30);
-                var url;
-                if (oServerMap) {
-                    url = 'test2.json';
-                } else {
-                    url = 'test1.json';
-                }
                 jQuery.ajax({
                     type: 'GET',
-//                    url: cfg.filteredServerMapDataUrl,
-                    url: url,
+                    url: cfg.filteredServerMapDataUrl,
                     cache: false,
                     dataType: 'json',
                     data: {
