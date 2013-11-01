@@ -80,19 +80,19 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
-                var heap = { id: 'heap', title: 'Heap', span: 'span5', line: [
+                var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
                     { id: 'jvmMemoryHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryHeapMax', key: 'max', values: [] },
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
-                var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span5', line: [
+                var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
                     { id: 'jvmMemoryNonHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryNonHeapMax', key: 'max', values: [] },
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
                 
-                var result = [ total, heap, nonheap ];
+                var result = [ heap, nonheap ];
                 scope.memoryGroup = result;
 
                 var POINTS_TIMESTAMP = 0;
