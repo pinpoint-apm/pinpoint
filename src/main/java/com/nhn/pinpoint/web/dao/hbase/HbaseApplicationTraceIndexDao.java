@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -23,7 +24,6 @@ import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -58,11 +58,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public ResultWithMark<List<TransactionId>, Long> scanTraceIndex(final String applicationName, long start, long end, int limit) {
+	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, long start, long end, int limit) {
         logger.debug("scanTraceIndex");
 		Scan scan = createScan(applicationName, start, end);
 		
-		final ResultWithMark<List<TransactionId>, Long> resultWithMark = new ResultWithMark<List<TransactionId>, Long>();
+		final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<List<TransactionId>>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
         List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
@@ -71,11 +71,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         for(List<TransactionId> transactionId: traceIndexList) {
             transactionIdSum.addAll(transactionId);
         }
-		resultWithMark.setValue(transactionIdSum);
+		limitedScanResult.setScanData(transactionIdSum);
 
         if (transactionIdSum.size() >= limit) {
             Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
-            resultWithMark.setMark(lastRowTimestamp);
+            limitedScanResult.setLimitedTime(lastRowTimestamp);
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp lastTime:{}", DateUtils.longToDateStr(lastRowTimestamp));
             }
@@ -83,11 +83,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(start));
             }
-            resultWithMark.setMark(start);
+            limitedScanResult.setLimitedTime(start);
         }
 
 
-		return resultWithMark;
+		return limitedScanResult;
 	}
 
     private class LastRowAccessor implements LimitEventHandler {

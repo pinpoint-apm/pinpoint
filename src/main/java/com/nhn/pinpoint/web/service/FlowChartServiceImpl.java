@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.service;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,7 @@ import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.ClientStatistics;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 
 /**
  * @author netspider
@@ -192,7 +188,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public ResultWithMark<List<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
+	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
 		if (applicationName == null) {
 			throw new NullPointerException("applicationName");
 		}
@@ -511,10 +507,10 @@ public class FlowChartServiceImpl implements FlowChartService {
                 crashKey.add(transactionId);
             }
         }
-        if (transactionIdList.size() != 0) {
-            Set<TransactionId> transactionIds = filterMap.keySet();
-            logger.info("transactionId crash found. original:{} filer:{} crashKey:{}", transactionIdList.size(), filterMap.size(), crashKey);
-            return transactionIds;
+        if (crashKey.size() != 0) {
+            Set<TransactionId> filteredTrasnactionId = filterMap.keySet();
+            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTrasnactionId.size(), crashKey);
+            return filteredTrasnactionId;
         }
         return transactionIdList;
     }

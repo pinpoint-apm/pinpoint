@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,7 +26,7 @@ import com.nhn.pinpoint.web.service.RecordSetService;
 import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -67,12 +66,12 @@ public class BusinessTransactionController {
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		ResultWithMark<List<TransactionId>, Long> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LimitedScanResult<List<TransactionId>> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 
 		Filter filter = FilterBuilder.build(filterText);
-		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getValue(), applicationName, from, to, filter);
+		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
 
-		model.addAttribute("lastFetchedTimestamp", traceIdList.getMark());
+		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
 		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransactionIterator());

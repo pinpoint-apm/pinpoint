@@ -22,7 +22,7 @@ import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -104,8 +104,8 @@ public class ScatterChartController {
 				model.addAttribute("resultTo", to);
 			}
 		} else {
-			ResultWithMark<List<TransactionId>, Long> traceIdWithMark = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-			List<TransactionId> traceIdList = traceIdWithMark.getValue(); 
+			LimitedScanResult<List<TransactionId>> traceIdWithMark = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+			List<TransactionId> traceIdList = traceIdWithMark.getScanData();
 			logger.debug("selected traceidList {}", traceIdList);
 			
 			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
@@ -117,7 +117,7 @@ public class ScatterChartController {
 				model.addAttribute("resultFrom", -1);
 				model.addAttribute("resultTo", -1);
 			} else {
-				model.addAttribute("resultFrom", traceIdWithMark.getMark());
+				model.addAttribute("resultFrom", traceIdWithMark.getLimitedTime());
 				model.addAttribute("resultTo", to);
 			}
 		}
@@ -143,7 +143,6 @@ public class ScatterChartController {
 	 * @param model
 	 * @param response
 	 * @param applicationName
-	 * @param from
 	 * @param limit
 	 * @return
 	 */
@@ -163,7 +162,6 @@ public class ScatterChartController {
 	 * @param response
 	 * @param applicationName
 	 * @param from
-	 * @param to
 	 * @param limit
 	 * @return
 	 */

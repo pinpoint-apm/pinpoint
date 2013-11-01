@@ -2,10 +2,10 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +21,6 @@ import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -130,15 +129,15 @@ public class ApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		ResultWithMark<List<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
 		
-		ApplicationMap map = flow.selectApplicationMap(traceIdSet.getValue(), from, to, filter);
+		ApplicationMap map = flow.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
 		model.addAttribute("filter", filter);
-		model.addAttribute("lastFetchedTimestamp", traceIdSet.getMark());
+		model.addAttribute("lastFetchedTimestamp", limitedScanResult.getLimitedTime());
 		
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -154,8 +153,6 @@ public class ApplicationMapController {
 	 * @param response
 	 * @param applicationName
 	 * @param serviceType
-	 * @param from
-	 * @param to
 	 * @param filterText
 	 * @param limit
 	 * @return
@@ -250,11 +247,11 @@ public class ApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
-		ResultWithMark<List<TransactionId>, Long> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LimitedScanResult<List<TransactionId>> traceIdSet = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = FilterBuilder.build(filterText);
-		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet.getValue(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
+		LinkStatistics linkStatistics = flow.linkStatisticsDetail(from, to, traceIdSet.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
-		model.addAttribute("lastFetchedTimestamp", traceIdSet.getMark());
+		model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
 		model.addAttribute("linkStatistics", linkStatistics);
 		
 		return "linkStatisticsDetail";

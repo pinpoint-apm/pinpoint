@@ -6,18 +6,15 @@ import java.util.Set;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.ResultWithMark;
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.nhn.pinpoint.web.vo.*;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 
 /**
  * @author netspider
  */
 public interface FlowChartService {
 
-	public ResultWithMark<List<TransactionId>, Long> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit);
+	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit);
 
 	public List<Application> selectAllApplicationNames();
 
