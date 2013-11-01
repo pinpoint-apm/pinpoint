@@ -1,15 +1,7 @@
 package com.nhn.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +59,8 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 	@Autowired
 	private AgentInfoDao agentInfoDao;
+
+    private static final Object V = new Object();
 	
 	@Override
 	public List<Application> selectAllApplicationNames() {
@@ -332,23 +326,15 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
-		// 중복 transaction id 제거.
-		// FIXME 운덕과장님 봐주세요.
-		// TransactionId.compareTo도 같이... 정렬은 그냥 ASC고 고정시켜버렸는데. 여기다 comparator넣어도되고.
-		// list의 index기반으로 sortedset에 넣을 수 있다는게 무슨 말인지 모르겠음 ㅡㅡ;
-		// sortedMap을 이야기 하는건가...
-		SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
-		
-//		System.out.println(traceIdList);
-//		System.out.println(traceIdSet);
-		
-//		System.out.println("@traceIdSet=" + traceIdSet);
-		
-		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
+        // 개별 객체를 각각 보고 재귀 내용을 삭제함.
+        // 향후 tree base로 중복 구간을 점검하여 없앨 경우 filter를 치면 안됨.
+        Collection<TransactionId> filterdList = filter(transactionIdList);
+
+		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(filterdList);
 
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
@@ -517,8 +503,25 @@ public class FlowChartServiceImpl implements FlowChartService {
 
 		return map;
 	}
-	
-	private void fillAdditionalInfo(TransactionFlowStatistics stat, long from, long to) {
+
+    private Collection<TransactionId> filter(List<TransactionId> transactionIdList) {
+        List<TransactionId> crashKey = new ArrayList<TransactionId>();
+        Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
+        for (TransactionId transactionId: transactionIdList) {
+            Object old = filterMap.put(transactionId, V);
+            if (old != null) {
+                crashKey.add(transactionId);
+            }
+        }
+        if (transactionIdList.size() != 0) {
+            Set<TransactionId> transactionIds = filterMap.keySet();
+            logger.info("transactionId crash found. original:{} filer:{} crashKey:{}", transactionIdList.size(), filterMap.size(), crashKey);
+            return transactionIds;
+        }
+        return transactionIdList;
+    }
+
+    private void fillAdditionalInfo(TransactionFlowStatistics stat, long from, long to) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
