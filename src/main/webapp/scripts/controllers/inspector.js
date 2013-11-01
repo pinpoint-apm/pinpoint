@@ -49,7 +49,9 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
             if (isLocationChanged()) {
                 changeLocation();
             }
-            $scope.$emit('agentInfo.initialize', oNavbarDao, oAgent);
+            if (oAgent) {
+                $scope.$emit('agentInfo.initialize', oNavbarDao, oAgent);
+            }
         });
 
         /**
