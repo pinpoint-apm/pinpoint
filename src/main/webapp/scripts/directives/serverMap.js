@@ -393,7 +393,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     if (!bUseNodeContextMenu) {
                         return;
                     }
-                    if (node.category !== "UNKNOWN_GROUP" && node.category !== "USER") {
+                    if (node.isWas === true) {
                         setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
                     }
                 };
