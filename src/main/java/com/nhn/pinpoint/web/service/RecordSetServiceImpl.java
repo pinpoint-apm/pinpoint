@@ -226,7 +226,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													spanBo.getApplicationId(), 
 													spanBo.getServiceType(), 
 													null, 
-													spanAlign.isHasChild());
+													spanAlign.isHasChild(),
+													false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
@@ -245,7 +246,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													spanBo.getApplicationId(),
 													spanBo.getServiceType(),
 													null, 
-													spanAlign.isHasChild());
+													spanAlign.isHasChild(),
+													false);
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -294,7 +296,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													spanBo.getServiceType(),
 													/* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
 													destinationId,
-													spanAlign.isHasChild());
+													spanAlign.isHasChild(),
+													false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -321,7 +324,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 													spanBo.getServiceType(), 
 													/*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
 													destinationId, 
-													spanAlign.isHasChild());
+													spanAlign.isHasChild(),
+													false);
                         record.setSimpleClassName("");
                         record.setFullApiDescription(method);
 
@@ -358,6 +362,7 @@ public class RecordSetServiceImpl implements RecordSetService {
 										null, 
 										null, 
 										null,
+										false,
 										false);
                 }
             } else {
@@ -377,7 +382,8 @@ public class RecordSetServiceImpl implements RecordSetService {
 										null, 
 										null, 
 										null, 
-										false);
+										false,
+										true);
                 }
             }
             return null;
@@ -432,7 +438,7 @@ public class RecordSetServiceImpl implements RecordSetService {
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false);
+                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
                     recordList.add(record);
                 }
             }
@@ -441,7 +447,7 @@ public class RecordSetServiceImpl implements RecordSetService {
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
-            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false);
+            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false);
         }
 
     }

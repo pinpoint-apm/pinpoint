@@ -54,7 +54,8 @@ ${record.hasChild},
 "${record.simpleClassName}",
 "${record.apiType}",
 "${record.agent}",
-<c:choose><c:when test="${record.title == 'Exception'}">false, true</c:when><c:when test="${record.focused}">true,false</c:when><c:otherwise>false,false</c:otherwise></c:choose>
+${record.focused},
+${record.hasException}
 ]<c:if test="${!status.last}">,</c:if></c:forEach>
 ],
 	"applicationMapData" : {

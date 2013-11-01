@@ -30,8 +30,9 @@ public class Record {
 
     private boolean focused;
     private boolean hasChild;
+    private boolean hasException;
 
-	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild) {
+	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException) {
 		this.tab = tab;
 		this.id = id;
 		this.parentId = parentId;
@@ -50,6 +51,7 @@ public class Record {
 
 		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
 		this.hasChild = hasChild;
+		this.hasException = hasException;
 	}
 
 	public int getId() {
@@ -152,6 +154,10 @@ public class Record {
 
     public boolean getHasChild() {
     	return hasChild;
+    }
+    
+    public boolean getHasException() {
+    	return hasException;
     }
 
     @Override
