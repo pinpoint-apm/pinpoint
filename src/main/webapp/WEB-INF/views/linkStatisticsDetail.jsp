@@ -17,14 +17,15 @@
 		{
 			"key" : "Responsetime Histogram",
 			"values" : [
+		        <c:set var="lastSlot" scope="page" value="0"/>
 				<c:forEach items="${histogramSummary}" var="item" varStatus="status">
 				{
 					<c:choose>
 						<c:when test="${item.key == linkStatistics.error}">
-						"label" : "Failed",
+						"label" : "error",
 						</c:when>
 						<c:when test="${item.key == linkStatistics.slow}">
-						"label" : "Slow",
+						"label" : "${lastSlot}+",
 						</c:when>
 						<c:otherwise>
 						"label" : "${item.key}",
@@ -32,6 +33,7 @@
 					</c:choose>
 					"value" : ${item.value}
 				} <c:if test="${!status.last}">,</c:if>
+		        <c:set var="lastSlot" scope="page" value="${item.key}"/>
 				</c:forEach>
 			]
 		}
