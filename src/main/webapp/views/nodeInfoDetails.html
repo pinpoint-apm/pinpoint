@@ -22,6 +22,12 @@
             <div class="alert alert-info text-center">
                 <img ng-src="/images/icons/{{nodeIcon | icons}}.png" width="20" height="10"/> {{nodeName}}
             </div>
+            
+			<div class='infoBarChart' ng-show="showNodeInfoBarChart">
+		        <h5>Response Summary</h5>
+		        <svg style='height:150px;' />
+		    </div>
+            
             <div ng-show="showServers">
                 <h5>Servers <a class="btn btn-mini" ng-show="isWas" ng-href="#/spy/{{node.text}}@{{node.serviceTypeCode}}/{{period}}/{{queryEndTime}}" target="_blank" title="Inspect Agents" alt="Inspect Agents"><i class="icon-search"></i></a></h5>
                 <ul class="server-list">
@@ -53,10 +59,4 @@
 			-->
 		</div>
 	</div>
-
-    <div class='infoBarChart' ng-show="showNodeInfoBarChart">
-        <h5>Response Histogram Summary</h5>
-        <svg style='height:150px;' />
-    </div>
-
 </div>
