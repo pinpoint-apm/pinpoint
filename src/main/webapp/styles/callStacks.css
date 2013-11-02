@@ -5,7 +5,7 @@
     font-family:consolas;
 }
 .callStacks .error {
-    background-color:#FF8F8B;
+    background-color:#f2dede;
 }
 .callStacks .info {
     background-color:#dff0d8;
