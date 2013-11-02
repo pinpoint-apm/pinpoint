@@ -4,6 +4,7 @@ import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
+// FIXME Comparable 인터페이스 제거.
 public class TransactionId implements Comparable<TransactionId> {
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
@@ -106,6 +107,7 @@ public class TransactionId implements Comparable<TransactionId> {
         return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
     }
 
+    // FIXME 제거.
 	@Override
 	public int compareTo(TransactionId transactionId) {
 		int r1 = this.agentId.compareTo(transactionId.agentId);
