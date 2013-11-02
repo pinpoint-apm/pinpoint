@@ -693,14 +693,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             /**
              * scope passing transaction map
              */
-            scope.passingTransactionMap = function () {
+            scope.passingTransactionMap = function (srcSvcType, srcAppName, destSvcType, destAppName) {
                 var application = scope.oNavbarDao.getApplication(),
                     period = scope.oNavbarDao.getPeriod(),
                     queryEndTime = scope.oNavbarDao.getQueryEndTime(),
-                    srcServiceType = scope.srcServiceType,
-                    srcApplicationName = scope.srcApplicationName,
-                    destServiceType = scope.destServiceType,
-                    destApplicationName = scope.destApplicationName,
+                    srcServiceType = srcSvcType || scope.srcServiceType,
+                    srcApplicationName = srcAppName || scope.srcApplicationName,
+                    destServiceType = destSvcType || scope.destServiceType,
+                    destApplicationName = destAppName || scope.destApplicationName,
                     prevFilter = scope.oNavbarDao.getFilter();
 
                 var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
