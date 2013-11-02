@@ -35,11 +35,11 @@
                         <i class="icon-home"></i>
                         {{server.name.split(':')[0]}}
                         <a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
-                        <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
                         <ul>
                             <li ng-repeat="instance in server.instanceList">
                                 <i class="icon-hdd"></i>
                                 {{instance.name}}
+                                                        <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
                             </li>
                         </ul>
                     </li>
