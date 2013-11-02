@@ -170,7 +170,7 @@ public class AllInOneController implements DisposableBean {
 			params.append("npc2=").append(npc2).append("&");
 			params.append("unknown2=").append(unknown2).append("&");
 			
-			client.execute("http://localhost:" + port + "/allInOne2.pinpoint?", new HashMap<String, Object>());
+			client.execute("http://localhost:" + port + "/allInOne2.pinpoint?" + params.toString(), new HashMap<String, Object>());
 		}
 		
 		return "remotecombination";
