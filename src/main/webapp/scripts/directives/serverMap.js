@@ -24,7 +24,7 @@ pinpointApp.constant('serverMapConfig', {
             'ORACLE': 'ORACLE.png'
         },
         "htLinkType": {
-            "sRouting": "AvoidsNodes", // Normal, Orthogonal, AvoidNodes
+            "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
         }
     },
@@ -677,7 +677,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             setLinkOption = function (data, linkRouting, linkCurve) {
                 var links = data.applicationMapData.linkDataArray;
                 links.forEach(function (link) {
-                    link.routing = linkRouting;
+                	// 재귀 호출인 경우에는 avoidsnodes사용을 강제함.
+                	if (link.from == link.to) {
+                		link.routing = "AvoidsNodes";
+                	} else {
+                		link.routing = linkRouting;
+                	}
                     link.curve = linkCurve;
                 });
             };
