@@ -68,6 +68,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * of transaction detail view
 	 */
 	@Override
+	@Deprecated
 	public ServerCallTree selectServerCallTree(TransactionId traceId) {
 		StopWatch watch = new StopWatch();
 		watch.start();
@@ -154,6 +155,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	 * @param transaction
 	 * @return
 	 */
+	@Deprecated
 	private ServerCallTree createServerCallTree(List<SpanBo> transaction, NodeSelector nodeSelector) {
 		ServerCallTree serverCallTree = new ServerCallTree(nodeSelector);
 		serverCallTree.addSpanList(transaction);

@@ -6,6 +6,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
 /**
  *
  */
+@Deprecated
 public class ApplicationIdNodeSelector implements NodeSelector {
     @Override
     public String getServerId(SpanBo span) {

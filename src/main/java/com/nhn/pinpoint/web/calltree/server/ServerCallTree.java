@@ -23,6 +23,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  * 
  * @author netspider
  */
+@Deprecated
 public class ServerCallTree {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());

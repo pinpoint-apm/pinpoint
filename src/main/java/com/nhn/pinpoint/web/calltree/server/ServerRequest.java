@@ -5,6 +5,7 @@ import com.nhn.pinpoint.web.vo.ResponseHistogram;
 /**
  * @author netspider
  */
+@Deprecated
 public class ServerRequest {
 	protected final String id;
 	protected final Server from;

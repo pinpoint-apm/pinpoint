@@ -6,6 +6,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
 /**
  *
  */
+@Deprecated
 public interface NodeSelector {
 
     String getServerId(SpanBo span);

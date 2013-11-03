@@ -11,6 +11,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
 /**
  * @author netspider
  */
+@Deprecated
 public class Server implements Comparable<Server> {
 	protected int sequence;
 	protected final String id;
